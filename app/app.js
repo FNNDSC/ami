@@ -57,6 +57,7 @@ function init(slice) {
   var rasijk = volume._RASToIJK;
   var rasBBox = volume._BBox;
   var dimensions = volume._dimensions;
+  var tDimensions = new THREE.Vector3( dimensions[0], dimensions[1], dimensions[2] );
 
   // IJK CENTERED!!!!! on (0, 0, 0)
 
@@ -173,106 +174,59 @@ function init(slice) {
 
   //ijkRGBATex = new THREE.Texture(ijkRGBADataTex);
   // create 4RGBA textures to split the data
-  var indexXX = 0;
-  var tSize = 2048;
-  var sSize = 256;
-  var nS = (tSize*tSize)/(sSize * sSize);
 
+  // configuration: size of side of a texture (square tSize*tSize)
+  var tSize = 2048.0;
+  var tNumber = 4;
+
+  //
+  // 1) check if we have enough room in textures!!
+  // 
+  var requiredPixels = tDimensions[0] * tDimensions[1] * tDimensions[2] * 4;
+  if(requiredPixels > tSize*tSize*4*4){
+    window.console.log("Too many pixels to fit in shader, go for canvas 2D...");
+    return;
+  }
+
+  //
+  // 2) pack pixels into texture
+  //
+  
+  // prepare raw data containers
+  var rawData = [];
+  for(var i=0; i<tNumber; i++){
+    rawData.push(new Uint8Array(tSize * tSize * 4));
+  }
+
+  // fill texture containers
   var dummyRGBA = new Uint8Array(tSize * tSize * 4);
-  for(var i=0; i< tSize * tSize * 4; i+=4, indexXX+= 4){
-    // 64 slices per texture
-    var textid = Math.floor(i/(sSize*sSize*4));
-    if( textid%2 == 0){
-      textid = 0;
+  for(var i=0; i < tSize * tSize * 4; i+=4){
+    for(var j=0; j < tNumber; j++){
+      // RGB
+      rawData[j][i] = volume._IJKVolumeRGBA[i + j*tSize * tSize * 4];
+      rawData[j][i + 1] = volume._IJKVolumeRGBA[i + j*tSize * tSize * 4];
+      rawData[j][i + 2] = volume._IJKVolumeRGBA[i + j*tSize * tSize * 4];
+      // OPACITY
+      rawData[j][i + 3] = 255;
     }
-
-    // window.console.log(textid);
-    // RGB
-    dummyRGBA[i] = volume._IJKVolumeRGBA[indexXX];
-    dummyRGBA[i + 1] = volume._IJKVolumeRGBA[indexXX];
-    dummyRGBA[i + 2] = volume._IJKVolumeRGBA[indexXX];
-    // OPACITY
-    dummyRGBA[i + 3] = 255;
   }
 
-  dummyDataTex = new THREE.DataTexture( dummyRGBA, tSize, tSize, THREE.RGBAFormat, THREE.UnsignedByteType, THREE.UVMapping,
-  THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter );
-  // dummyDataTex.flipY = false;
-  dummyDataTex.needsUpdate = true;
-
-
-  var dummyRGBA01 = new Uint8Array(tSize * tSize * 4);
-  for(var i=0; i< tSize * tSize * 4; i+=4, indexXX+= 4){
-    // 64 slices per texture
-    var textid = Math.floor(i/(sSize*sSize*4));
-    if( textid%2 == 0){
-      textid = 0;
-    }
-    // window.console.log(textid);
-    // RGB
-    dummyRGBA01[i] = volume._IJKVolumeRGBA[indexXX];
-    dummyRGBA01[i + 1] = volume._IJKVolumeRGBA[indexXX];
-    dummyRGBA01[i + 2] = volume._IJKVolumeRGBA[indexXX];
-    // OPACITY
-    dummyRGBA01[i + 3] = 255;
+  // create threeJS textures
+  var textures = [];
+  for(var i=0; i<tNumber; i++){
+    var tex = new THREE.DataTexture( rawData[i], tSize, tSize, THREE.RGBAFormat, THREE.UnsignedByteType, THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter );
+    tex.needsUpdate = true;
+    textures.push(tex);
   }
-  dummyDataTex01 = new THREE.DataTexture( dummyRGBA01, tSize, tSize, THREE.RGBAFormat, THREE.UnsignedByteType, THREE.UVMapping,
-  THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter );
-  // dummyDataTex01.flipY = false;
-  dummyDataTex01.needsUpdate = true;
-
-  var dummyRGBA02 = new Uint8Array(tSize * tSize * 4);
-  for(var i=0; i< tSize * tSize * 4; i+=4, indexXX+= 4){
-    // 64 slices per texture
-    var textid = Math.floor(i/(sSize*sSize*4));
-    if( textid%2 == 0){
-      textid = 0;
-    }
-    // window.console.log(textid);
-    // RGB
-    dummyRGBA02[i] = volume._IJKVolumeRGBA[indexXX];
-    dummyRGBA02[i + 1] = volume._IJKVolumeRGBA[indexXX];
-    dummyRGBA02[i + 2] = volume._IJKVolumeRGBA[indexXX];
-    //255*textid/nS;
-    // OPACITY
-    dummyRGBA[i + 3] = 255;
-  }
-  dummyDataTex02 = new THREE.DataTexture( dummyRGBA02, tSize, tSize, THREE.RGBAFormat, THREE.UnsignedByteType, THREE.UVMapping,
-  THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter );
-  // dummyDataTex02.flipY = false;
-  dummyDataTex02.needsUpdate = true;
-
-  // texture 03
-  var dummyRGBA03 = new Uint8Array(2048 * 2048 * 4);
-  for(var i=0; i< 2048 * 2048; i++){
-    // if(index > volume._IJKVolumeRGBA.length){
-    //   return;
-    // }
-    // RGB
-    dummyRGBA03[4*i] = volume._IJKVolumeRGBA[indexXX];
-    dummyRGBA03[4*i + 1] = volume._IJKVolumeRGBA[indexXX + 1];
-    dummyRGBA03[4*i + 2] = volume._IJKVolumeRGBA[indexXX + 2];
-    // OPACITY
-    dummyRGBA03[4*i + 3] = volume._IJKVolumeRGBA[indexXX + 4];
-    indexXX+=4;
-  }
-  dummyDataTex03 = new THREE.DataTexture( dummyRGBA03, tSize, tSize, THREE.RGBAFormat, THREE.UnsignedByteType, THREE.UVMapping,
-  THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter );
-  dummyDataTex03.needsUpdate = true;
-
-  var test3 = new THREE.Vector4( center[0], center[1], center[2], 1 );
-  test3.applyMatrix4(tRASToIJK);
-
-  var tDimensions = new THREE.Vector3( dimensions[0], dimensions[1], dimensions[2] );
 
   // setup uniforms
   var shaderSlice = THREE.ShaderSlice;
   var uniforms = shaderSlice.slice.uniforms;
-  uniforms.uTextureSize.value = 2048.0;
-  uniforms.t00.value = dummyDataTex;
-  uniforms.t01.value = dummyDataTex01;
-  uniforms.t02.value = dummyDataTex02;
-  uniforms.t03.value = dummyDataTex01;
+  uniforms.uTextureSize.value = tSize;
+  uniforms.t00.value = textures[0];
+  uniforms.t01.value = textures[1];
+  uniforms.t02.value = textures[2];
+  uniforms.t03.value = textures[3];
   uniforms.uIJKDims.value = tDimensions;
   uniforms.uRASToIJK.value = tRASToIJK;
 
@@ -284,22 +238,18 @@ function init(slice) {
           "fragmentShader": shaderSlice.slice.fragmentShader,
   });
 
-      var plane = new THREE.Mesh( geometry, mat );
-      // do it at once...
-      // center
-      // bit funky...
-
-      var xyras = slice._XYToRAS;
-      var normalOrigin = slice._origin;
-      plane.applyMatrix( new THREE.Matrix4().makeTranslation(normalOrigin[0], normalOrigin[1], normalOrigin[2]) );
-      plane.applyMatrix( new THREE.Matrix4().set(xyras[0], xyras[4], xyras[8], xyras[12],
+  var plane = new THREE.Mesh( geometry, mat );
+  var xyras = slice._XYToRAS;
+  var normalOrigin = slice._origin;
+  plane.applyMatrix( new THREE.Matrix4().makeTranslation(normalOrigin[0], normalOrigin[1], normalOrigin[2]) );
+  plane.applyMatrix( new THREE.Matrix4().set(xyras[0], xyras[4], xyras[8], xyras[12],
                                              xyras[1], xyras[5], xyras[9], xyras[13],
                                              xyras[2], xyras[6], xyras[10], xyras[14],
                                              xyras[3], xyras[7], xyras[11], xyras[15]));
-      scene.add(plane);
+  scene.add(plane);
  
-      // start animation
-      animate();
+  // start animation
+  animate();
 }
 
 window.onload = function() {
