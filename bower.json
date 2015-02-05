@@ -1,0 +1,8 @@
+{
+  "name": "vjs",
+  "version": "0.0.0",
+  "dependencies": {
+    "xtk": "NicolasRannou/X#renderer2Drefactor",
+    "requirejs": "jrburke/requirejs#2.1.15"
+  }
+}
