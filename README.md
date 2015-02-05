@@ -3,7 +3,7 @@ the FNNDSC visualization tool (based on XTK and ThreeJS)!
 
 2048 * 2048 * 4 pixels big object supported in the shader. Needs a good fall back solution for bigger volumes.
 
-WebGL support: http://caniuse.com/#feat=webgl
+WebGL support: http://caniuse.com/#search=webgl
 
 ## Usage
 
