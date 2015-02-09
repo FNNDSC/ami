@@ -10,46 +10,40 @@ var scene, camera, renderer;
 function init(slice) {
   // this function is executed on each animation frame
   function animate(){
-
-
-  //window.console.log(mouse);
     //
     // update the picking ray with the camera and mouse position  
-  raycaster.setFromCamera( mouse, camera ); 
+    raycaster.setFromCamera( mouse, camera ); 
 
-  // calculate objects intersecting the picking ray
-  var intersects = raycaster.intersectObjects( scene.children );
+    // calculate objects intersecting the picking ray
+    var intersects = raycaster.intersectObjects( scene.children );
 
-  //window.console.log(intersects);
+    //window.console.log(intersects);
 
-  for ( var intersect in intersects ) {
-    var ras = new THREE.Vector3().copy(intersects[intersect].point);
-    if(plane.uuid == intersects[intersect].object.uuid){
-      // convert point to IJK
-      var ijk = intersects[intersect].point.applyMatrix4(tRASToIJK);
-      // get value!
-      if(ijk.x >= 0 && ijk.y >= 0 && ijk.z >= 0 &&
-         ijk.x <= tDimensions.x &&
-         ijk.y <= tDimensions.y &&
-         ijk.z <= tDimensions.z 
-      ){
-        var value = volume._IJKVolume[Math.floor(ijk.z)][Math.floor(ijk.y)][Math.floor(ijk.x)];
-        probe.update(ras, ijk, value);
+    for ( var intersect in intersects ) {
+      var ras = new THREE.Vector3().copy(intersects[intersect].point);
+      if(plane.uuid == intersects[intersect].object.uuid){
+        // convert point to IJK
+        var ijk = intersects[intersect].point.applyMatrix4(tRASToIJK);
+        // get value!
+        if(ijk.x >= 0 && ijk.y >= 0 && ijk.z >= 0 &&
+          ijk.x <= tDimensions.x &&
+          ijk.y <= tDimensions.y &&
+          ijk.z <= tDimensions.z ){
+        
+          var value = volume._IJKVolume[Math.floor(ijk.z)][Math.floor(ijk.y)][Math.floor(ijk.x)];
+          probe.update(ras, ijk, value);
+        }
+
+        break;
       }
-
-      break;
     }
-
-    
-    //intersects[intersect].object.material.color = new THREE.Color( 0xff0000 );
-  
-  }
-  
-  // renderer.render( scene, camera );
     // render
     renderer.render(scene, camera);
     stats.update();
     controls.update(); 
+
+    // connect zoom for orthographic...
+    // window.console.log(controls);
     // request new frame
     requestAnimationFrame(function(){
     animate();
@@ -74,7 +68,7 @@ function init(slice) {
   var scene = new THREE.Scene();
   // camera
   var camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, .1, 10000000);
-  // var camera = new THREE.OrthographicCamera(threeD.offsetWidth/-2, threeD.offsetWidth/2, threeD.offsetHeight/-2, threeD.offsetHeight/2, .1, 10000000);
+  // camera = new THREE.OrthographicCamera(threeD.offsetWidth/-2, threeD.offsetWidth/2, threeD.offsetHeight/-2, threeD.offsetHeight/2, .1, 10000000);
   // camera.position.y = 10;
   camera.position.x = 400;
   // camera.position.y = 200;
@@ -95,19 +89,6 @@ function init(slice) {
   var rasBBox = volume._BBox;
   tDimensions = new THREE.Vector3( ijkDims[0], ijkDims[1], ijkDims[2] );
 
-  // DRAW CUBE RAS BBOX!
-  // var cubeGeometry = new THREE.BoxGeometry(dimensions[0], dimensions[1], dimensions[2]);
-  // //cubeGeometry.applyMatrix( new THREE.Matrix4().makeTranslation(center[0], center[1], center[2]) );
-  // var cube = new THREE.Mesh(cubeGeometry, new THREE.MeshBasicMaterial({
-  //   wireframe: true,
-  //   color: 'blue'
-  // }));
-  // cube.applyMatrix( new THREE.Matrix4().makeTranslation(center[0], center[1], center[2]) );
-  // scene.add(cube);
-
-  // IJK CENTERED!!!!! on (0, 0, 0)
-
-
   tRASToIJK = new THREE.Matrix4().set(
                   rasijk[0], rasijk[4], rasijk[8], rasijk[12],
                   rasijk[1], rasijk[5], rasijk[9], rasijk[13],
@@ -115,38 +96,6 @@ function init(slice) {
                   rasijk[3], rasijk[7], rasijk[11], rasijk[15]);
 
   tIJKToRAS = new THREE.Matrix4().getInverse(tRASToIJK);
-
-  //
-  //
-  // IJK volume
-  //
-  //
-
-  // var cubeGeometry = new THREE.BoxGeometry(ijkDims[0], ijkDims[1], ijkDims[2]);
-  // //cubeGeometry.applyMatrix( new THREE.Matrix4().makeTranslation(center[0], center[1], center[2]) );
-  // var cube = new THREE.Mesh(cubeGeometry, new THREE.MeshBasicMaterial({
-  //   wireframe: true,
-  //   color: 'white'
-  // }));
-  // // origin is (0,0,0)
-  // cube.applyMatrix( new THREE.Matrix4().makeTranslation(ijkDims[0]/2 - ijkSpac[0]/2 , ijkDims[1]/2 - ijkSpac[1]/2, ijkDims[2]/2 - ijkSpac[2]/2) );
-  // scene.add(cube);
-
-
-  // // DRAW CENTER SPHERE
-  // var sphereGeometry = new THREE.SphereGeometry(1);
-  // var material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
-  // var sphere = new THREE.Mesh( sphereGeometry, material );
-  // sphere.applyMatrix( new THREE.Matrix4().makeTranslation(ijkDims[0]/2 - ijkSpac[0]/2 , ijkDims[1]/2 - ijkSpac[1]/2, ijkDims[2]/2 - ijkSpac[2]/2) );
-  // scene.add( sphere );
-
-  // // DRAW TRANSFORMED CENTER SPHERE
-  // var sphereGeometry = new THREE.SphereGeometry(1);
-  // var material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
-  // var sphereB = new THREE.Mesh( sphereGeometry, material );
-  // sphereB.applyMatrix( new THREE.Matrix4().makeTranslation(volume._RASCenter[0], volume._RASCenter[1], volume._RASCenter[2]) );
-  // sphereB.applyMatrix( tRASToIJK );
-  // scene.add( sphereB );
 
   //
   //
@@ -161,24 +110,11 @@ function init(slice) {
     wireframe: true,
     color: 0x61F2F3
   }));
-  cube.applyMatrix( new THREE.Matrix4().makeTranslation(ijkDims[0]/2 - ijkSpac[0]/2 , ijkDims[1]/2 - ijkSpac[1]/2, ijkDims[2]/2 - ijkSpac[2]/2) );
+  // center IJK cube
+  cube.applyMatrix( new THREE.Matrix4().makeTranslation(ijkDims[0]/2 , ijkDims[1]/2, ijkDims[2]/2) );
+  // move to RAS
   cube.applyMatrix( tIJKToRAS );
   scene.add(cube);
-
-  // // DRAW CENTER SPHERE
-  // var sphereGeometry = new THREE.SphereGeometry(1);
-  // var material = new THREE.MeshBasicMaterial( {color: 0x2196F3} );
-  // var sphereA = new THREE.Mesh( sphereGeometry, material );
-  // sphereA.applyMatrix( new THREE.Matrix4().makeTranslation(ijkDims[0]/2 - ijkSpac[0]/2 , ijkDims[1]/2 - ijkSpac[1]/2, ijkDims[2]/2 - ijkSpac[2]/2) );
-  // sphereA.applyMatrix( tIJKToRAS );
-  // scene.add( sphereA );
-
-  //   // DRAW REAL RAS CENTER SPHERE
-  // var sphereGeometry = new THREE.SphereGeometry(1);
-  // var material = new THREE.MeshBasicMaterial( {color: 0xff1111} );
-  // var sphereB = new THREE.Mesh( sphereGeometry, material );
-  // sphereB.applyMatrix( new THREE.Matrix4().makeTranslation(volume._RASCenter[0], volume._RASCenter[1], volume._RASCenter[2]) );
-  // scene.add( sphereB );
 
   // draw RAS BBox
   var cubeGeometry = new THREE.BoxGeometry(rasBBox[1] - rasBBox[0], rasBBox[3] - rasBBox[2], rasBBox[5] - rasBBox[4]);
@@ -199,18 +135,6 @@ function init(slice) {
     sphere.applyMatrix( new THREE.Matrix4().makeTranslation(solutions[i][0], solutions[i][1], solutions[i][2]) );
     scene.add( sphere );
   }
-
-  // draw XYintersections
-  // var solutions = slice._solutionsXY;
-  // for(var i=0; i<solutions.length; i++){
-  //   var sphereGeometry = new THREE.SphereGeometry(1);
-  //   var material = new THREE.MeshBasicMaterial( {color: 0x008DFF} );
-  //   var sphere = new THREE.Mesh( sphereGeometry, material );
-  //   sphere.applyMatrix( new THREE.Matrix4().makeTranslation(solutions[i][0], solutions[i][1], solutions[i][2]) );
-  //   scene.add( sphere );
-
-  //   window.console.log(solutions[i]);
-  // }
 
   // draw plane
   var sliceWidth = slice._width;
@@ -279,20 +203,6 @@ function init(slice) {
     textures.push(tex);
   }
 
-  // compute test IJKRAS TRANSFOFR by adding the trqanslation!
-  //   sphereA.applyMatrix( new THREE.Matrix4().makeTranslation(ijkDims[0]/2 - ijkSpac[0]/2 , ijkDims[1]/2 - ijkSpac[1]/2, ijkDims[2]/2 - ijkSpac[2]/2) );
-  // sphereA.applyMatrix( tIJKToRAS );
-  // translate
-  m1 = new THREE.Matrix4().copy(tIJKToRAS);
-  m1.makeTranslation(ijkDims[0]/2 - ijkSpac[0]/2 , ijkDims[1]/2 - ijkSpac[1]/2, ijkDims[2]/2 - ijkSpac[2]/2);
-  // m1.multiply(tIJKToRAS);
-
-  m2 = new THREE.Matrix4().getInverse(m1);
-  // apply transform: IJKToRAS
-  // invert RASToIJK!
-
-
-
   // setup uniforms
   var shaderSlice = VJS.ShaderSlice;
   var uniforms = shaderSlice.slice.uniforms;
@@ -324,23 +234,6 @@ function init(slice) {
   window.console.log(normalOrigin);
   scene.add(plane);
 
-  //   // DRAW CENTER SPHERE
-  // var sphereGeometry = new THREE.SphereGeometry(1);
-  // var material = new THREE.MeshBasicMaterial( {color: 0xff2222} );
-  // var sphere = new THREE.Mesh( sphereGeometry, material );
-  // sphere.applyMatrix( new THREE.Matrix4().makeTranslation(normalOrigin[0], normalOrigin[1], normalOrigin[2]) );
-  // scene.add( sphere );
-
-  // window.console.log(normalOrigin);
-
-  // // DRAW TRANSFORMED CENTER SPHERE
-  // var sphereGeometry = new THREE.SphereGeometry(1);
-  // var material = new THREE.MeshBasicMaterial( {color: 0xff2222} );
-  // var sphereB = new THREE.Mesh( sphereGeometry, material );
-  // sphereB.applyMatrix( new THREE.Matrix4().makeTranslation(normalOrigin[0], normalOrigin[1], normalOrigin[2]) );
-  // sphereB.applyMatrix( tRASToIJK );
-  // scene.add( sphereB );
-
   // mouse callbacks
   raycaster = new THREE.Raycaster();
   mouse = new THREE.Vector2();
@@ -369,7 +262,7 @@ window.onload = function() {
   //
   // THE VOLUME DATA
   //
-  // create a X.volume
+  // create a X.volumehttps://www.google.es/url?sa=t&rct=j&q=&esrc=s&source=web&cd=12&ved=0CCcQFjABOAo&url=http%3A%2F%2Fcharmianswers.org%2Fwordpress%2Fyeakel%2F2014%2F12%2F16%2Fwhy-orthographic-projection-not-working-exactly-while-using-combinedcamera-js-using-three-js%2F&ei=acPYVJzqH47KaMP4ghg&usg=AFQjCNF1rWDi5zBe5-Abh0qBSkifTtDSew&sig2=gLgGnS6sOjhjRBdxmATsgg
   volume = new X.volume();
   volume.file = 'data/lesson17_cropped.nii.gz';
   // get accurate IJK to RAS transform...

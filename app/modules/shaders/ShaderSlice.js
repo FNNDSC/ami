@@ -106,7 +106,7 @@ VJS.ShaderSlice = {
         "}",
         "else{",
           // "discard;",
-          "gl_FragColor = vec4(.2, 1, .2, 1.0);",
+          "gl_FragColor = vec4(.47, .564, .611, 1.0);",
         "}",
 
       "}"
