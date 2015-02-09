@@ -3,7 +3,7 @@
  *
  */
 
-THREE.ShaderSlice = {
+VJS.ShaderSlice = {
 
   /* -------------------------------------------------------------------------
   //  Slice shader
@@ -35,20 +35,18 @@ THREE.ShaderSlice = {
         // IJK coord to texture
         "highp float index = ijkCoordinates[0] + ijkCoordinates[1]*ijkDimensions[0] + ijkCoordinates[2]*ijkDimensions[0]*ijkDimensions[1];",
 
-        // map index to right 2048 x 2048 slice
+        // map index to right sampler2D slice
         "highp float sliceIndex = floor(index / (uTextureSize*uTextureSize));",
         "highp float inTextureIndex = mod(index, uTextureSize*uTextureSize);",
 
-        "vec2 sliceSize = vec2(1.0 / uTextureSize, 1.0 / uTextureSize);",
-
-        // get row in the texture - should retrun 32 different values...
+        // get row in the texture
         "highp float rowIndex = floor(inTextureIndex/uTextureSize);",
         "highp float colIndex = mod(inTextureIndex, uTextureSize);",
 
-        // map i to u
-        // do we need this .5 offset...?
-        "highp float u = colIndex*sliceSize.x - sliceSize.x*.05;",
-        "highp float v = 1.0 - (rowIndex*sliceSize.y - sliceSize.y*.05);",
+        // map to uv
+        "vec2 sliceSize = vec2(1.0 / uTextureSize, 1.0 / uTextureSize);",
+        "highp float u = colIndex*sliceSize.x + sliceSize.x/2.;",
+        "highp float v = 1.0 - (rowIndex*sliceSize.y + sliceSize.y/2.);",
 
         "highp vec2 uv = vec2(u,v);",
         "vec4 ijkValue = vec4(0, 0, 0, 0);",
@@ -64,6 +62,7 @@ THREE.ShaderSlice = {
         "else if(sliceIndex == float(3)){",
           "ijkValue = texture2D(tex3, uv);",
         "}",
+
         "return ijkValue;",
       "}",
 
@@ -89,9 +88,9 @@ THREE.ShaderSlice = {
         "vec4 ijkPos = uRASToIJK * vPos;",
     
         //convert IJK coordinates to texture coordinates
-        "if(int(floor(ijkPos[0])) > 0",
-          "&& int(floor(ijkPos[1])) > 0",
-          "&& int(floor(ijkPos[2])) > 0",
+        "if(int(floor(ijkPos[0])) >= 0",
+          "&& int(floor(ijkPos[1])) >= 0",
+          "&& int(floor(ijkPos[2])) >= 0",
           "&& int(floor(ijkPos[0])) < int(uIJKDims[0])",
           "&& int(floor(ijkPos[1])) < int(uIJKDims[1])",
           "&& int(floor(ijkPos[2])) < int(uIJKDims[2])",
@@ -106,7 +105,8 @@ THREE.ShaderSlice = {
           "gl_FragColor = vec4(color, 1.0);",
         "}",
         "else{",
-          "discard;",
+          // "discard;",
+          "gl_FragColor = vec4(.2, 1, .2, 1.0);",
         "}",
 
       "}"
