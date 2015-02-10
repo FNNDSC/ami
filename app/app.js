@@ -40,37 +40,156 @@ function init(slice) {
             SELECTED.position.y = ras.y;
             SELECTED.position.z = ras.z;
 
+            // draw ellipse if 2 handles!
+            if(HANDLES.length == 2){
+
+              geometry = new THREE.Geometry();
+              geometry.vertices.push(new THREE.Vector3(HANDLES[0].position.x, HANDLES[0].position.y, HANDLES[0].position.z));
+              geometry.vertices.push(new THREE.Vector3(HANDLES[0].position.x, HANDLES[1].position.y, HANDLES[0].position.z));
+              geometry.vertices.push(new THREE.Vector3(HANDLES[0].position.x, HANDLES[1].position.y, HANDLES[1].position.z));
+              geometry.vertices.push(new THREE.Vector3(HANDLES[0].position.x, HANDLES[0].position.y, HANDLES[1].position.z));
+              geometry.vertices.push(new THREE.Vector3(HANDLES[0].position.x, HANDLES[0].position.y, HANDLES[0].position.z));
+
+            if(typeof line == "undefined" || !line){
+
+              material = new THREE.LineBasicMaterial( { color: 0xff00f0, linewidth: 4 } );
+              line = new THREE.Line(geometry, material);
+              line.geometry.verticesNeedUpdate = true;
+              scene.add(line);
+              }
+
+              else{
+line.geometry = geometry;
+line.geometry.verticesNeedUpdate = true;
+
+// compute stats
+
+// move to IJK space!
+var ijk0 = new THREE.Vector3(HANDLES[0].position.x, HANDLES[0].position.y, HANDLES[0].position.z).applyMatrix4(tRASToIJK);
+
+
+var ijk1 = new THREE.Vector3(HANDLES[1].position.x, HANDLES[1].position.y, HANDLES[1].position.z).applyMatrix4(tRASToIJK);
+// ijk1.x += .5;
+// ijk1.x = Math.floor(ijk1.x); 
+// ijk1.y += .5;
+// ijk1.y = Math.floor(ijk1.y); 
+// ijk1.z += .5;
+// ijk1.z = Math.floor(ijk1.z);
+
+
+// get IJK BBox and look + test each
+var bbox = X.parser.xyBBox([goog.vec.Vec3.createFloat32FromValues(ijk0.x,ijk0.y,ijk0.z),
+                            goog.vec.Vec3.createFloat32FromValues(ijk1.x,ijk1.y,ijk1.z)]);
+
+// loop through RAS BBOX...
+var bboxRAS = X.parser.xyBBox([goog.vec.Vec3.createFloat32FromValues(HANDLES[0].position.x,
+                                                                  HANDLES[0].position.y,
+                                                                  HANDLES[0].position.z),
+                            goog.vec.Vec3.createFloat32FromValues(HANDLES[1].position.x,
+                                                                  HANDLES[1].position.y,
+                                                                  HANDLES[1].position.z)]);
+var  iLog = {};
+var  jLog = {};
+var  kLog = {};
+
+window.console.log(bbox);
+var nbVoxels = 0;
+var sum = 0;
+var min = Number.MAX_VALUE;
+var max = -Number.MAX_VALUE;
+
+for(var i = bbox[0]; i<=bbox[1]; i++){
+  for(var j = bbox[2]; j<=bbox[3]; j++){
+      for(var k = bbox[4]; k<=bbox[5]; k++){
+        var ras = new THREE.Vector3(i, j, k).applyMatrix4(tIJKToRAS);
+        window.console.log(bboxRAS);
+        window.console.log(ras);
+
+        // window.console.log(ijk);
+
+         if(ras.x >= bboxRAS[0] &&
+            ras.y >= bboxRAS[2] &&
+            ras.z >= bboxRAS[4] &&
+            ras.x <= bboxRAS[1] &&
+            ras.y <= bboxRAS[3] &&
+            ras.z <= bboxRAS[5])
+          {
+        
+          var value = volume._IJKVolume[Math.floor(k + .5)][Math.floor(j + .5)][Math.floor(i + .5)];
+          sum += value;
+          nbVoxels += 1;
+          min = (value < min )? value : min;
+          max = (value > max )? value : max;
+        }
+
+        
+}
+}
+}
+
+
+// for(var r = bbox[0]; r<=bbox[1]; r +=.5){
+//   for(var a = bbox[2]; a<=bbox[3]; a +=.5){
+//       for(var s = bbox[4]; s<=bbox[5]; s +=.5){
+
+//         var ijk = new THREE.Vector3(r, a, s).applyMatrix4(tRASToIJK);
+//         ijk.x += .5;
+//         ijk.x = Math.floor(ijk.x); 
+//         ijk.y += .5;
+//         ijk.y = Math.floor(ijk.y); 
+//         ijk.z += .5;
+//         ijk.z = Math.floor(ijk.z);
+
+//         // window.console.log(ijk);
+
+//          if(ijk.x >= 0 && ijk.y >= 0 && ijk.z >= 0 &&
+//           ijk.x <= tDimensions.x &&
+//           ijk.y <= tDimensions.y &&
+//           ijk.z <= tDimensions.z 
+//           && 
+//           (typeof iLog[ijk.x.toString()] == 'undefined' ||
+//           typeof jLog[ijk.y.toString()] == 'undefined' ||
+//           typeof kLog[ijk.z.toString()] == 'undefined')
+//           ){
+        
+//           var value = volume._IJKVolume[ijk.z][ijk.y][ijk.x];
+//           sum += value;
+//           nbVoxels += 1;
+//           min = (value < min )? value : min;
+//           max = (value > max )? value : max;
+
+//           iLog[ijk.x.toString()] = true;
+//           jLog[ijk.y.toString()] = true;
+//           kLog[ijk.z.toString()] = true;
+//         }
+
+        
+// }
+// }
+// }
+window.console.log(nbVoxels);
+window.console.log(sum);
+window.console.log(sum/nbVoxels);
+window.console.log(min);
+window.console.log(max);
+//(get IJK then?)
+
+              }
+
+              window.console.log(XYRASTransform);
+             
+
+
+
+// line.applyMatrix( new THREE.Matrix4().makeTranslation(ras.x, ras.y, ras.z) );
+            scene.add( line );
+
+            }
+
+
           }
 
         }
-
-        // var intersects = raycaster.intersectObjects( objects );
-
-        // if ( intersects.length > 0 ) {
-
-        //   if ( INTERSECTED != intersects[ 0 ].object ) {
-
-        //     if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-
-        //     INTERSECTED = intersects[ 0 ].object;
-        //     INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
-
-        //     plane.position.copy( INTERSECTED.position );
-        //     plane.lookAt( camera.position );
-
-        //   }
-
-        //   container.style.cursor = 'pointer';
-
-        // } else {
-
-        //   if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-
-        //   INTERSECTED = null;
-
-        //   container.style.cursor = 'auto';
-
-        // }
 
 }
 
@@ -94,11 +213,12 @@ function onDocumentMouseDown( event ) {
             // container.style.cursor = 'move';
 
             window.console.log('clicked on EllipsePicker');
+            
 
             break;
           }
           // hit plane !
-          if(plane.uuid == intersects[intersect].object.uuid){
+          if(plane.uuid == intersects[intersect].object.uuid && HANDLES.length < 2){
             // create a sphere...
             // var sphereGeometry = new THREE.SphereGeometry(1);
             // var material = new THREE.MeshBasicMaterial( {color: 0x2196F3} );
@@ -106,12 +226,14 @@ function onDocumentMouseDown( event ) {
             // handle1.name = 'handle';
             // scene.add( handle1 );
 
-            var sphereGeometry = new THREE.SphereGeometry(1);
-            var material = new THREE.MeshBasicMaterial( {color: 0x2196F3} );
+            var sphereGeometry = new THREE.SphereGeometry(2);
+            var material = new THREE.MeshBasicMaterial( {color: 0xff00f0} );
             var sphere = new THREE.Mesh( sphereGeometry, material );
             sphere.applyMatrix( new THREE.Matrix4().makeTranslation(ras.x, ras.y, ras.z) );
             sphere.name = 'handle';
             scene.add( sphere );
+
+            HANDLES.push(sphere);
             // create ellipse picker
             // var ellipsePicker = new VJS.EllipsePicker();
             // ellipsePicker.update(ras, ras);
@@ -378,11 +500,12 @@ function onDocumentMouseUp( event ) {
 
   plane = new THREE.Mesh( geometry, mat );
   var xyras = slice._XYToRAS;
-  var normalOrigin = slice._center;
-  plane.applyMatrix( new THREE.Matrix4().set(xyras[0], xyras[4], xyras[8], xyras[12],
+  XYRASTransform = new THREE.Matrix4().set(xyras[0], xyras[4], xyras[8], xyras[12],
                                              xyras[1], xyras[5], xyras[9], xyras[13],
                                              xyras[2], xyras[6], xyras[10], xyras[14],
-                                             xyras[3], xyras[7], xyras[11], xyras[15]));
+                                             xyras[3], xyras[7], xyras[11], xyras[15])
+  var normalOrigin = slice._center;
+  plane.applyMatrix( XYRASTransform );
   plane.applyMatrix( new THREE.Matrix4().makeTranslation(normalOrigin[0], normalOrigin[1], normalOrigin[2]));
 
   window.console.log(normalOrigin);
@@ -396,6 +519,7 @@ function onDocumentMouseUp( event ) {
   renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
   // start animation
   window.console.log('start animate...');
+  HANDLES = [];
   animate();
 }
 
