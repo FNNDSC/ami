@@ -8,6 +8,151 @@ var scene, camera, renderer;
 
 // FUNCTIONS
 function init(slice) {
+  function onDocumentMouseMove( event ) {
+
+  // calculate mouse position in normalized device coordinates
+  // (-1 to +1) for both components
+
+  mouse.x = ( event.clientX / threeD.offsetWidth ) * 2 - 1;
+  mouse.y = - ( event.clientY / threeD.offsetHeight ) * 2 + 1;
+
+  // if ( SELECTED ) {
+
+  //         var intersects = raycaster.intersectObject( plane );
+  //         SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
+  //         return;
+
+  //       }
+
+  if(typeof SELECTED === 'undefined' || !SELECTED){
+    return;
+  }
+
+        var intersects = raycaster.intersectObjects( scene.children );
+
+        for ( var intersect in intersects ) {
+          var ras = new THREE.Vector3().copy(intersects[intersect].point);
+          // hit plane !
+          if(plane.uuid == intersects[intersect].object.uuid){
+            // change selected object position..!
+            window.console.log(SELECTED);
+            SELECTED.position.x = ras.x;
+            SELECTED.position.y = ras.y;
+            SELECTED.position.z = ras.z;
+
+          }
+
+        }
+
+        // var intersects = raycaster.intersectObjects( objects );
+
+        // if ( intersects.length > 0 ) {
+
+        //   if ( INTERSECTED != intersects[ 0 ].object ) {
+
+        //     if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+
+        //     INTERSECTED = intersects[ 0 ].object;
+        //     INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+
+        //     plane.position.copy( INTERSECTED.position );
+        //     plane.lookAt( camera.position );
+
+        //   }
+
+        //   container.style.cursor = 'pointer';
+
+        // } else {
+
+        //   if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+
+        //   INTERSECTED = null;
+
+        //   container.style.cursor = 'auto';
+
+        // }
+
+}
+
+function onDocumentMouseDown( event ) {
+
+
+        event.preventDefault();
+
+        raycaster.setFromCamera( mouse, camera ); 
+
+        var intersects = raycaster.intersectObjects( scene.children );
+
+        for ( var intersect in intersects ) {
+          var ras = new THREE.Vector3().copy(intersects[intersect].point);
+          // hit handler!
+          window.console.log(intersects[intersect].object);
+          if('handle'== intersects[intersect].object.name){
+            // select it, disable controls!
+            SELECTED = intersects[intersect].object;
+            controls.enabled = false;
+            // container.style.cursor = 'move';
+
+            window.console.log('clicked on EllipsePicker');
+
+            break;
+          }
+          // hit plane !
+          if(plane.uuid == intersects[intersect].object.uuid){
+            // create a sphere...
+            // var sphereGeometry = new THREE.SphereGeometry(1);
+            // var material = new THREE.MeshBasicMaterial( {color: 0x2196F3} );
+            // var handle1 = new THREE.Mesh( sphereGeometry, material );
+            // handle1.name = 'handle';
+            // scene.add( handle1 );
+
+            var sphereGeometry = new THREE.SphereGeometry(1);
+            var material = new THREE.MeshBasicMaterial( {color: 0x2196F3} );
+            var sphere = new THREE.Mesh( sphereGeometry, material );
+            sphere.applyMatrix( new THREE.Matrix4().makeTranslation(ras.x, ras.y, ras.z) );
+            sphere.name = 'handle';
+            scene.add( sphere );
+            // create ellipse picker
+            // var ellipsePicker = new VJS.EllipsePicker();
+            // ellipsePicker.update(ras, ras);
+            // scene.add( ellipsePicker.widget );
+            // break;
+          }
+      }
+
+        // if ( intersects.length > 0 ) {
+
+        //   controls.enabled = false;
+
+        //   SELECTED = intersects[ 0 ].object;
+
+        //   var intersects = raycaster.intersectObject( plane );
+        //   offset.copy( intersects[ 0 ].point ).sub( plane.position );
+
+        //   container.style.cursor = 'move';
+
+        // }
+
+}
+
+function onDocumentMouseUp( event ) {
+
+        event.preventDefault();
+
+        controls.enabled = true;
+
+        // if ( INTERSECTED ) {
+
+        //   plane.position.copy( INTERSECTED.position );
+
+          SELECTED = null;
+
+        // }
+
+        // container.style.cursor = 'auto';
+
+}
+
   // this function is executed on each animation frame
   function animate(){
     //
@@ -24,6 +169,9 @@ function init(slice) {
       if(plane.uuid == intersects[intersect].object.uuid){
         // convert point to IJK
         var ijk = intersects[intersect].point.applyMatrix4(tRASToIJK);
+        ijk.x += .5;
+        ijk.y += .5;
+        ijk.z += .5;
         // get value!
         if(ijk.x >= 0 && ijk.y >= 0 && ijk.z >= 0 &&
           ijk.x <= tDimensions.x &&
@@ -160,13 +308,19 @@ function init(slice) {
   // create 4RGBA textures to split the data
 
   // configuration: size of side of a texture (square tSize*tSize)
-  var tSize = 2048.0;
+  var tSize = 4096.0;
   var tNumber = 4;
 
   //
   // 1) check if we have enough room in textures!!
   // 
-  var requiredPixels = tDimensions[0] * tDimensions[1] * tDimensions[2] * 4;
+  var requiredPixels = tDimensions.x * tDimensions.y * tDimensions.z * 4;
+  window.console.log("requiredPixels");
+  window.console.log(volume._dimensions);
+  window.console.log(tDimensions);
+  window.console.log(requiredPixels);
+  window.console.log("available");
+  window.console.log( tSize*tSize*4*4);
   if(requiredPixels > tSize*tSize*4*4){
     window.console.log("Too many pixels to fit in shader, go for canvas 2D...");
     return;
@@ -237,20 +391,15 @@ function init(slice) {
   // mouse callbacks
   raycaster = new THREE.Raycaster();
   mouse = new THREE.Vector2();
-  window.addEventListener( 'mousemove', onMouseMove, false );
+  renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+  renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+  renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
   // start animation
   window.console.log('start animate...');
   animate();
 }
 
-function onMouseMove( event ) {
 
-  // calculate mouse position in normalized device coordinates
-  // (-1 to +1) for both components
-
-  mouse.x = ( event.clientX / threeD.offsetWidth ) * 2 - 1;
-  mouse.y = - ( event.clientY / threeD.offsetHeight ) * 2 + 1;
-}
 
 window.onload = function() {
   // create the 2D renderers (just load tand parse the file...)
@@ -265,6 +414,7 @@ window.onload = function() {
   // create a X.volumehttps://www.google.es/url?sa=t&rct=j&q=&esrc=s&source=web&cd=12&ved=0CCcQFjABOAo&url=http%3A%2F%2Fcharmianswers.org%2Fwordpress%2Fyeakel%2F2014%2F12%2F16%2Fwhy-orthographic-projection-not-working-exactly-while-using-combinedcamera-js-using-three-js%2F&ei=acPYVJzqH47KaMP4ghg&usg=AFQjCNF1rWDi5zBe5-Abh0qBSkifTtDSew&sig2=gLgGnS6sOjhjRBdxmATsgg
   volume = new X.volume();
   volume.file = 'data/lesson17_cropped.nii.gz';
+    // volume.file = 'data/CT.nii.gz';
   // get accurate IJK to RAS transform...
   volume.reslicing = true;
 

@@ -86,6 +86,8 @@ VJS.ShaderSlice = {
 
         // get IJK coordinates of current element
         "vec4 ijkPos = uRASToIJK * vPos;",
+        // shader rounding trick
+        "ijkPos += .5;",
     
         //convert IJK coordinates to texture coordinates
         "if(int(floor(ijkPos[0])) >= 0",
@@ -100,7 +102,7 @@ VJS.ShaderSlice = {
           "vec3 color = vec3(0, 0, 0);",
           // try to map IJK to value...
           "vec3 ijkCoordinates = vec3(floor(ijkPos[0]), floor(ijkPos[1]), floor(ijkPos[2]));",
-          "vec4 ijkValue = getIJKValue(t00, t01, t01, t02, ijkCoordinates, uIJKDims, uTextureSize);",
+          "vec4 ijkValue = getIJKValue(t00, t01, t02, t03, ijkCoordinates, uIJKDims, uTextureSize);",
           "color.rgb = ijkValue.rgb;",
           "gl_FragColor = vec4(color, 1.0);",
         "}",
