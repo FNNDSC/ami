@@ -43,6 +43,7 @@ function init(slice) {
             // draw ellipse if 2 handles!
             if(HANDLES.length == 2){
 
+              // need to compute it properly
               geometry = new THREE.Geometry();
               geometry.vertices.push(new THREE.Vector3(HANDLES[0].position.x, HANDLES[0].position.y, HANDLES[0].position.z));
               geometry.vertices.push(new THREE.Vector3(HANDLES[0].position.x, HANDLES[1].position.y, HANDLES[0].position.z));
@@ -52,7 +53,12 @@ function init(slice) {
 
             if(typeof line == "undefined" || !line){
 
-              material = new THREE.LineBasicMaterial( { color: 0xff00f0, linewidth: 4 } );
+              material = new THREE.LineBasicMaterial(
+                { color: 0xff00f0,
+                  linewidth: 2} );
+              material.polygonOffset = true;
+        material.polygonOffsetFactor = 1;
+        material.polygonOffsetUnits = 1;
               line = new THREE.Line(geometry, material);
               line.geometry.verticesNeedUpdate = true;
               scene.add(line);
@@ -64,22 +70,33 @@ line.geometry.verticesNeedUpdate = true;
 
 // compute stats
 
-// move to IJK space!
-var ijk0 = new THREE.Vector3(HANDLES[0].position.x, HANDLES[0].position.y, HANDLES[0].position.z).applyMatrix4(tRASToIJK);
+// need to compute 4 points of the box from 2 points in diagonal!
+var ras1 = HANDLES[0].position;
+var ras4 = HANDLES[1].position;
 
+// computer center (might be used to drag it later)
+var rasCenter = new THREE.Vector3(ras1.x + (ras4.x - ras1.x)/2,
+                                  ras1.y + (ras4.y - ras1.y)/2,
+                                  ras1.z + (ras4.z - ras1.z)/2);
 
-var ijk1 = new THREE.Vector3(HANDLES[1].position.x, HANDLES[1].position.y, HANDLES[1].position.z).applyMatrix4(tRASToIJK);
-// ijk1.x += .5;
-// ijk1.x = Math.floor(ijk1.x); 
-// ijk1.y += .5;
-// ijk1.y = Math.floor(ijk1.y); 
-// ijk1.z += .5;
-// ijk1.z = Math.floor(ijk1.z);
+// box's sides length
+var dx = Math.sqrt((ras4.x - ras1.x)*(ras4.x - ras1.x));
+var dy = Math.sqrt((ras4.y - ras1.y)*(ras4.y - ras1.y));
+var dz = Math.sqrt((ras4.z - ras1.z)*(ras4.z - ras1.z));
 
+// bounding box! (actually already ordered!)
 
-// get IJK BBox and look + test each
-var bbox = X.parser.xyBBox([goog.vec.Vec3.createFloat32FromValues(ijk0.x,ijk0.y,ijk0.z),
-                            goog.vec.Vec3.createFloat32FromValues(ijk1.x,ijk1.y,ijk1.z)]);
+// just add/remove half distance in all dirs. work in 3D but OK!
+
+var sphereGeometry = new THREE.SphereGeometry(1);
+            var material3 = new THREE.MeshBasicMaterial( {color: 0x00fff0} );
+            material3.transparent= true;
+            material3.opacity = .5;
+            var sphere = new THREE.Mesh( sphereGeometry, material3 );
+            sphere.applyMatrix( new THREE.Matrix4().makeTranslation(rasCenter.x, rasCenter.y, rasCenter.z) );
+            sphere.name = 'handle';
+            scene.add( sphere );
+
 
 // loop through RAS BBOX...
 var bboxRAS = X.parser.xyBBox([goog.vec.Vec3.createFloat32FromValues(HANDLES[0].position.x,
@@ -88,38 +105,74 @@ var bboxRAS = X.parser.xyBBox([goog.vec.Vec3.createFloat32FromValues(HANDLES[0].
                             goog.vec.Vec3.createFloat32FromValues(HANDLES[1].position.x,
                                                                   HANDLES[1].position.y,
                                                                   HANDLES[1].position.z)]);
+// bboxRAS[0] = bboxRAS[0] - volume._RASSpacing[0]/2;
+// bboxRAS[1] = bboxRAS[1] + volume._RASSpacing[0]/2;
+// bboxRAS[2] = bboxRAS[2] - volume._RASSpacing[1]/2;
+// bboxRAS[3] = bboxRAS[3] + volume._RASSpacing[1]/2;
+// bboxRAS[4] = bboxRAS[4] - volume._RASSpacing[2]/2;
+// bboxRAS[5] = bboxRAS[5] + volume._RASSpacing[2]/2;
+
+window.console.log(bboxRAS);
+
+// get position of each corner of the square to find the matchind IJK bbox
+// get IJK coordinates!
+// move to IJK space!
+var ijk0 = new THREE.Vector3(HANDLES[0].position.x, HANDLES[0].position.y, HANDLES[0].position.z).applyMatrix4(tRASToIJK);
+ijk0.x = Math.floor(ijk0.x + .5); 
+ijk0.y = Math.floor(ijk0.y + .5); 
+ijk0.z = Math.floor(ijk0.z + .5);
+
+
+
+var ijk1 = new THREE.Vector3(HANDLES[1].position.x, HANDLES[1].position.y, HANDLES[1].position.z).applyMatrix4(tRASToIJK);
+ijk1.x = Math.floor(ijk1.x + .5); 
+ijk1.y = Math.floor(ijk1.y + .5); 
+ijk1.z = Math.floor(ijk1.z + .5);
+
+// get IJK BBox and look + test each
+var bbox = X.parser.xyBBox([goog.vec.Vec3.createFloat32FromValues(ijk0.x,ijk0.y,ijk0.z),
+                            goog.vec.Vec3.createFloat32FromValues(ijk1.x,ijk1.y,ijk1.z)]);
+
+window.console.log(ijk0);
+window.console.log(ijk1);
+window.console.log(bbox);
+
+
 var  iLog = {};
 var  jLog = {};
 var  kLog = {};
 
-window.console.log(bbox);
+// window.console.log(bbox);
 var nbVoxels = 0;
 var sum = 0;
 var min = Number.MAX_VALUE;
 var max = -Number.MAX_VALUE;
 
-for(var i = bbox[0]; i<=bbox[1]; i++){
-  for(var j = bbox[2]; j<=bbox[3]; j++){
-      for(var k = bbox[4]; k<=bbox[5]; k++){
+for(var i = bbox[0]; i <= bbox[1]; i++){
+  for(var j = bbox[2]; j <= bbox[3]; j++){
+      for(var k = bbox[4]; k <= bbox[5]; k++){
         var ras = new THREE.Vector3(i, j, k).applyMatrix4(tIJKToRAS);
-        window.console.log(bboxRAS);
-        window.console.log(ras);
-
-        // window.console.log(ijk);
 
          if(ras.x >= bboxRAS[0] &&
             ras.y >= bboxRAS[2] &&
             ras.z >= bboxRAS[4] &&
             ras.x <= bboxRAS[1] &&
             ras.y <= bboxRAS[3] &&
-            ras.z <= bboxRAS[5])
+            ras.z <= bboxRAS[5] )
           {
         
-          var value = volume._IJKVolume[Math.floor(k + .5)][Math.floor(j + .5)][Math.floor(i + .5)];
+        if(i >= 0 && j >= 0 && k >= 0 &&
+          i < tDimensions.x &&
+          j < tDimensions.y &&
+          k < tDimensions.z )
+        {
+          window.console.log(i, j, k);
+          var value = volume._IJKVolume[k][j][i];
           sum += value;
           nbVoxels += 1;
           min = (value < min )? value : min;
           max = (value > max )? value : max;
+        }
         }
 
         
@@ -127,51 +180,8 @@ for(var i = bbox[0]; i<=bbox[1]; i++){
 }
 }
 
+probeROI.update(nbVoxels, sum/nbVoxels, min, max, 0);
 
-// for(var r = bbox[0]; r<=bbox[1]; r +=.5){
-//   for(var a = bbox[2]; a<=bbox[3]; a +=.5){
-//       for(var s = bbox[4]; s<=bbox[5]; s +=.5){
-
-//         var ijk = new THREE.Vector3(r, a, s).applyMatrix4(tRASToIJK);
-//         ijk.x += .5;
-//         ijk.x = Math.floor(ijk.x); 
-//         ijk.y += .5;
-//         ijk.y = Math.floor(ijk.y); 
-//         ijk.z += .5;
-//         ijk.z = Math.floor(ijk.z);
-
-//         // window.console.log(ijk);
-
-//          if(ijk.x >= 0 && ijk.y >= 0 && ijk.z >= 0 &&
-//           ijk.x <= tDimensions.x &&
-//           ijk.y <= tDimensions.y &&
-//           ijk.z <= tDimensions.z 
-//           && 
-//           (typeof iLog[ijk.x.toString()] == 'undefined' ||
-//           typeof jLog[ijk.y.toString()] == 'undefined' ||
-//           typeof kLog[ijk.z.toString()] == 'undefined')
-//           ){
-        
-//           var value = volume._IJKVolume[ijk.z][ijk.y][ijk.x];
-//           sum += value;
-//           nbVoxels += 1;
-//           min = (value < min )? value : min;
-//           max = (value > max )? value : max;
-
-//           iLog[ijk.x.toString()] = true;
-//           jLog[ijk.y.toString()] = true;
-//           kLog[ijk.z.toString()] = true;
-//         }
-
-        
-// }
-// }
-// }
-window.console.log(nbVoxels);
-window.console.log(sum);
-window.console.log(sum/nbVoxels);
-window.console.log(min);
-window.console.log(max);
 //(get IJK then?)
 
               }
@@ -226,9 +236,11 @@ function onDocumentMouseDown( event ) {
             // handle1.name = 'handle';
             // scene.add( handle1 );
 
-            var sphereGeometry = new THREE.SphereGeometry(2);
-            var material = new THREE.MeshBasicMaterial( {color: 0xff00f0} );
-            var sphere = new THREE.Mesh( sphereGeometry, material );
+            var sphereGeometry = new THREE.SphereGeometry(1);
+            var material3 = new THREE.MeshBasicMaterial( {color: 0xff00f0} );
+            material3.transparent= true;
+            material3.opacity = .5;
+            var sphere = new THREE.Mesh( sphereGeometry, material3 );
             sphere.applyMatrix( new THREE.Matrix4().makeTranslation(ras.x, ras.y, ras.z) );
             sphere.name = 'handle';
             scene.add( sphere );
@@ -322,7 +334,7 @@ function onDocumentMouseUp( event ) {
 
   // renderer
   threeD = document.getElementById('3d');
-  var renderer = new THREE.WebGLRenderer();
+  var renderer = new THREE.WebGLRenderer({antialias: true});
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
   renderer.setClearColor( 0xB0BEC5, 1);
   threeD.appendChild(renderer.domElement);
@@ -333,6 +345,9 @@ function onDocumentMouseUp( event ) {
 
   probe = new VJS.Probe();
   threeD.appendChild( probe.domElement );
+
+  probeROI = new VJS.ProbeROI();
+  threeD.appendChild( probeROI.domElement );
 
   // scene
   var scene = new THREE.Scene();
