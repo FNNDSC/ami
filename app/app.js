@@ -71,94 +71,112 @@ line.geometry.verticesNeedUpdate = true;
 // compute stats
 
 // need to compute 4 points of the box from 2 points in diagonal!
-var ras1 = HANDLES[0].position;
-var ras4 = HANDLES[1].position;
+var h1 = HANDLES[0].position;
+var h2 = HANDLES[1].position;
 
 // computer center (might be used to drag it later)
-var rasCenter = new THREE.Vector3(ras1.x + (ras4.x - ras1.x)/2,
-                                  ras1.y + (ras4.y - ras1.y)/2,
-                                  ras1.z + (ras4.z - ras1.z)/2);
+var center = new THREE.Vector3(h1.x + (h2.x - h1.x)/2,
+                                  h1.y + (h2.y - h1.y)/2,
+                                  h1.z + (h2.z - h1.z)/2);
+// draw center for fun
+// var sphereGeometry = new THREE.SphereGeometry(1);
+// var material3 = new THREE.MeshBasicMaterial( {color: 0x00fff0} );
+// material3.transparent= true;
+// material3.opacity = .5;
+// var sphere = new THREE.Mesh( sphereGeometry, material3 );
+// sphere.applyMatrix( new THREE.Matrix4().makeTranslation(center.x, center.y, center.z) );
+// sphere.name = 'center';
+// scene.add( sphere );
 
 // box's sides length
-var dx = Math.sqrt((ras4.x - ras1.x)*(ras4.x - ras1.x));
-var dy = Math.sqrt((ras4.y - ras1.y)*(ras4.y - ras1.y));
-var dz = Math.sqrt((ras4.z - ras1.z)*(ras4.z - ras1.z));
+var dx = Math.sqrt((h2.x - h1.x)*(h2.x - h1.x))/2;
+var dy = Math.sqrt((h2.y - h1.y)*(h2.y - h1.y))/2;
+var dz = Math.sqrt((h2.z - h1.z)*(h2.z - h1.z))/2;
 
-// bounding box! (actually already ordered!)
+// 8 RAS corners
+var c0 = new THREE.Vector3(center.x - dx, center.y - dy, center.z - dz);
+var c1 = new THREE.Vector3(center.x - dx, center.y - dy, center.z + dz);
+var c2 = new THREE.Vector3(center.x - dx, center.y + dy, center.z - dz);
+var c3 = new THREE.Vector3(center.x - dx, center.y + dy, center.z + dz);
+var c4 = new THREE.Vector3(center.x + dx, center.y - dy, center.z - dz);
+var c5 = new THREE.Vector3(center.x + dx, center.y - dy, center.z + dz);
+var c6 = new THREE.Vector3(center.x + dx, center.y + dy, center.z - dz);
+var c7 = new THREE.Vector3(center.x + dx, center.y + dy, center.z + dz);
 
-// just add/remove half distance in all dirs. work in 3D but OK!
-
-var sphereGeometry = new THREE.SphereGeometry(1);
-            var material3 = new THREE.MeshBasicMaterial( {color: 0x00fff0} );
-            material3.transparent= true;
-            material3.opacity = .5;
-            var sphere = new THREE.Mesh( sphereGeometry, material3 );
-            sphere.applyMatrix( new THREE.Matrix4().makeTranslation(rasCenter.x, rasCenter.y, rasCenter.z) );
-            sphere.name = 'handle';
-            scene.add( sphere );
-
-
-// loop through RAS BBOX...
-var bboxRAS = X.parser.xyBBox([goog.vec.Vec3.createFloat32FromValues(HANDLES[0].position.x,
-                                                                  HANDLES[0].position.y,
-                                                                  HANDLES[0].position.z),
-                            goog.vec.Vec3.createFloat32FromValues(HANDLES[1].position.x,
-                                                                  HANDLES[1].position.y,
-                                                                  HANDLES[1].position.z)]);
-// bboxRAS[0] = bboxRAS[0] - volume._RASSpacing[0]/2;
-// bboxRAS[1] = bboxRAS[1] + volume._RASSpacing[0]/2;
-// bboxRAS[2] = bboxRAS[2] - volume._RASSpacing[1]/2;
-// bboxRAS[3] = bboxRAS[3] + volume._RASSpacing[1]/2;
-// bboxRAS[4] = bboxRAS[4] - volume._RASSpacing[2]/2;
-// bboxRAS[5] = bboxRAS[5] + volume._RASSpacing[2]/2;
-
-window.console.log(bboxRAS);
-
-// get position of each corner of the square to find the matchind IJK bbox
-// get IJK coordinates!
-// move to IJK space!
-var ijk0 = new THREE.Vector3(HANDLES[0].position.x, HANDLES[0].position.y, HANDLES[0].position.z).applyMatrix4(tRASToIJK);
+// 8 IJK corners
+var ijk0 = new THREE.Vector3(c0.x, c0.y, c0.z).applyMatrix4(tRASToIJK);
 ijk0.x = Math.floor(ijk0.x + .5); 
 ijk0.y = Math.floor(ijk0.y + .5); 
 ijk0.z = Math.floor(ijk0.z + .5);
 
-
-
-var ijk1 = new THREE.Vector3(HANDLES[1].position.x, HANDLES[1].position.y, HANDLES[1].position.z).applyMatrix4(tRASToIJK);
+var ijk1 = new THREE.Vector3(c1.x, c1.y, c1.z).applyMatrix4(tRASToIJK);
 ijk1.x = Math.floor(ijk1.x + .5); 
 ijk1.y = Math.floor(ijk1.y + .5); 
 ijk1.z = Math.floor(ijk1.z + .5);
 
+var ijk2 = new THREE.Vector3(c2.x, c2.y, c2.z).applyMatrix4(tRASToIJK);
+ijk2.x = Math.floor(ijk2.x + .5); 
+ijk2.y = Math.floor(ijk2.y + .5); 
+ijk2.z = Math.floor(ijk2.z + .5);
+
+var ijk3 = new THREE.Vector3(c3.x, c3.y, c3.z).applyMatrix4(tRASToIJK);
+ijk3.x = Math.floor(ijk3.x + .5); 
+ijk3.y = Math.floor(ijk3.y + .5); 
+ijk3.z = Math.floor(ijk3.z + .5);
+
+var ijk4 = new THREE.Vector3(c4.x, c4.y, c4.z).applyMatrix4(tRASToIJK);
+ijk4.x = Math.floor(ijk4.x + .5); 
+ijk4.y = Math.floor(ijk4.y + .5); 
+ijk4.z = Math.floor(ijk4.z + .5);
+
+var ijk5 = new THREE.Vector3(c5.x, c5.y, c5.z).applyMatrix4(tRASToIJK);
+ijk5.x = Math.floor(ijk5.x + .5); 
+ijk5.y = Math.floor(ijk5.y + .5); 
+ijk5.z = Math.floor(ijk5.z + .5);
+
+var ijk6 = new THREE.Vector3(c6.x, c6.y, c6.z).applyMatrix4(tRASToIJK);
+ijk6.x = Math.floor(ijk6.x + .5); 
+ijk6.y = Math.floor(ijk6.y + .5); 
+ijk6.z = Math.floor(ijk6.z + .5);
+
+var ijk7 = new THREE.Vector3(c7.x, c7.y, c7.z).applyMatrix4(tRASToIJK);
+ijk7.x = Math.floor(ijk7.x + .5); 
+ijk7.y = Math.floor(ijk7.y + .5); 
+ijk7.z = Math.floor(ijk7.z + .5);
+
 // get IJK BBox and look + test each
-var bbox = X.parser.xyBBox([goog.vec.Vec3.createFloat32FromValues(ijk0.x,ijk0.y,ijk0.z),
-                            goog.vec.Vec3.createFloat32FromValues(ijk1.x,ijk1.y,ijk1.z)]);
+var ijkMin = new THREE.Vector3(Math.min(ijk0.x, ijk1.x, ijk2.x, ijk3.x, ijk4.x, ijk5.x, ijk5.x, ijk7.x),
+                               Math.min(ijk0.y, ijk1.y, ijk2.y, ijk3.y, ijk4.y, ijk5.y, ijk5.y, ijk7.y),
+                               Math.min(ijk0.z, ijk1.z, ijk2.z, ijk3.z, ijk4.z, ijk5.z, ijk5.z, ijk7.z));
 
-window.console.log(ijk0);
-window.console.log(ijk1);
-window.console.log(bbox);
-
+var ijkMax = new THREE.Vector3(Math.max(ijk0.x, ijk1.x, ijk2.x, ijk3.x, ijk4.x, ijk5.x, ijk5.x, ijk7.x),
+                               Math.max(ijk0.y, ijk1.y, ijk2.y, ijk3.y, ijk4.y, ijk5.y, ijk5.y, ijk7.y),
+                               Math.max(ijk0.z, ijk1.z, ijk2.z, ijk3.z, ijk4.z, ijk5.z, ijk5.z, ijk7.z));
 
 var  iLog = {};
 var  jLog = {};
 var  kLog = {};
 
 // window.console.log(bbox);
+var points = {
+  points: [],
+  max:  -Number.MAX_VALUE,
+  min:  Number.MAX_VALUE
+};
 var nbVoxels = 0;
 var sum = 0;
-var min = Number.MAX_VALUE;
-var max = -Number.MAX_VALUE;
 
-for(var i = bbox[0]; i <= bbox[1]; i++){
-  for(var j = bbox[2]; j <= bbox[3]; j++){
-      for(var k = bbox[4]; k <= bbox[5]; k++){
+for(var i = ijkMin.x; i <= ijkMax.x; i++){
+  for(var j = ijkMin.y; j <= ijkMax.y; j++){
+      for(var k = ijkMin.z; k <= ijkMax.z; k++){
         var ras = new THREE.Vector3(i, j, k).applyMatrix4(tIJKToRAS);
 
-         if(ras.x >= bboxRAS[0] &&
-            ras.y >= bboxRAS[2] &&
-            ras.z >= bboxRAS[4] &&
-            ras.x <= bboxRAS[1] &&
-            ras.y <= bboxRAS[3] &&
-            ras.z <= bboxRAS[5] )
+         if(ras.x >= c0.x - volume._RASSpacing[0]/2 &&
+            ras.y >= c0.y - volume._RASSpacing[1]/2 &&
+            ras.z >= c0.z - volume._RASSpacing[2]/2&&
+            ras.x <= c7.x + volume._RASSpacing[0]/2 &&
+            ras.y <= c7.y + volume._RASSpacing[1]/2 &&
+            ras.z <= c7.z + volume._RASSpacing[2]/2)
           {
         
         if(i >= 0 && j >= 0 && k >= 0 &&
@@ -166,12 +184,16 @@ for(var i = bbox[0]; i <= bbox[1]; i++){
           j < tDimensions.y &&
           k < tDimensions.z )
         {
-          window.console.log(i, j, k);
-          var value = volume._IJKVolume[k][j][i];
-          sum += value;
-          nbVoxels += 1;
-          min = (value < min )? value : min;
-          max = (value > max )? value : max;
+          var point = {
+            "ijk": [i, j, k],
+            "value": volume._IJKVolume[k][j][i]
+          };
+          points.points.push(point);
+          // compute as much as possible here to avoid having to loop through points again alter...
+          // sum += value;
+          // nbVoxels += 1;
+          points.min = (point.value < points.min )? point.value : points.min;
+          points.max = (point.value > points.max )? point.value : points.max;
         }
         }
 
@@ -180,8 +202,8 @@ for(var i = bbox[0]; i <= bbox[1]; i++){
 }
 }
 
-probeROI.update(nbVoxels, sum/nbVoxels, min, max, 0);
-
+// probeROI.update(nbVoxels, sum/nbVoxels, max, min, 0);
+probeROI.update(points);
 //(get IJK then?)
 
               }
