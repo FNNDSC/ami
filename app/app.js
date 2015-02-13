@@ -153,48 +153,141 @@ var ijkMax = new THREE.Vector3(Math.max(ijk0.x, ijk1.x, ijk2.x, ijk3.x, ijk4.x, 
                                Math.max(ijk0.y, ijk1.y, ijk2.y, ijk3.y, ijk4.y, ijk5.y, ijk5.y, ijk7.y),
                                Math.max(ijk0.z, ijk1.z, ijk2.z, ijk3.z, ijk4.z, ijk5.z, ijk5.z, ijk7.z));
 
+// fix ijk out of range
+if(ijkMin.x < 0){
+  ijkMin.x = 0;
+}
+if(ijkMin.x >= tDimensions.x){
+  ijkMin.x = tDimensions.x - 1;
+}
+if(ijkMin.y < 0){
+  ijkMin.y = 0;
+}
+if(ijkMin.y >= tDimensions.y){
+  ijkMin.y = tDimensions.y - 1;
+}
+if(ijkMin.z < 0){
+  ijkMin.z = 0;
+}
+if(ijkMin.z >= tDimensions.z){
+  ijkMin.z = tDimensions.z - 1;
+}
+if(ijkMax.x < 0){
+  ijkMax.x = 0;
+}
+if(ijkMax.x >= tDimensions.x){
+  ijkMax.x = tDimensions.x - 1;
+}
+if(ijkMax.y < 0){
+  ijkMax.y = 0;
+}
+if(ijkMax.y >= tDimensions.y){
+  ijkMax.y = tDimensions.y - 1;
+}
+if(ijkMax.z < 0){
+  ijkMax.z = 0;
+}
+if(ijkMax.z >= tDimensions.z){
+  ijkMax.z = tDimensions.z - 1;
+}
+
 var  iLog = {};
 var  jLog = {};
 var  kLog = {};
 
 // window.console.log(bbox);
-var points = {
+var roiStats = {
   points: [],
   max:  -Number.MAX_VALUE,
   min:  Number.MAX_VALUE
 };
 var nbVoxels = 0;
 var sum = 0;
+var epsilon = .001;
+
+
+        roiBox = new THREE.Box3(
+          c0,
+          c7
+        );
+
 
 for(var i = ijkMin.x; i <= ijkMax.x; i++){
   for(var j = ijkMin.y; j <= ijkMax.y; j++){
       for(var k = ijkMin.z; k <= ijkMax.z; k++){
-        var ras = new THREE.Vector3(i, j, k).applyMatrix4(tIJKToRAS);
+        // get voxel bbox
+        // draw it as a test...
+        // .5 offset?
+        voxelBox = new THREE.Box3(
+          new THREE.Vector3(i, j, k),
+          new THREE.Vector3(i+1, j+1, k+1)
+        );
+        voxelBox.applyMatrix4(tIJKToRAS);
 
-         if(ras.x >= c0.x - volume._RASSpacing[0]/2 &&
-            ras.y >= c0.y - volume._RASSpacing[1]/2 &&
-            ras.z >= c0.z - volume._RASSpacing[2]/2&&
-            ras.x <= c7.x + volume._RASSpacing[0]/2 &&
-            ras.y <= c7.y + volume._RASSpacing[1]/2 &&
-            ras.z <= c7.z + volume._RASSpacing[2]/2)
-          {
-        
-        if(i >= 0 && j >= 0 && k >= 0 &&
-          i < tDimensions.x &&
-          j < tDimensions.y &&
-          k < tDimensions.z )
-        {
+
+        window.console.log("ijk", i, j, k);
+        window.console.log("voxel", voxelBox);
+        window.console.log("roi", roiBox);
+
+        //need to test oriented BBox interesection for accuracy...
+        // http://www.geometrictools.com/Source/Mathematics.html
+        // http://www.geometrictools.com/GTEngine/Include/GteIntrOrientedBox3OrientedBox3.h
+
+
+          // DRAW TRANSFORMED RAS CUBE
+          // right location
+
+  var cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+  //cubeGeometry.applyMatrix( new THREE.Matrix4().makeTranslation(center[0], center[1], center[2]) );
+  var cube = new THREE.Mesh(cubeGeometry, new THREE.MeshBasicMaterial({
+    wireframe: true,
+    color: 0x61F2F3
+  }));
+  // center IJK cube
+  cube.applyMatrix( new THREE.Matrix4().makeTranslation( i, j, k) );
+  // move to RAS
+  cube.applyMatrix( tIJKToRAS );
+  scene.add(cube);
+
+
+
+        // test intersection with ROI bbox...
+        // window.console.log(i,j,k);
+        // ras of 8 corners
+        // if any match, good... but so slow....
+        // var ras = new THREE.Vector3(i, j, k).applyMatrix4(tIJKToRAS);
+        // // ras center of voxel, now see if it intersects ROI
+        // // window.console.log(ras);
+
+        // // rule out case where there is no collision
+        //  if(ras.x - volume._RASSpacing[0]/2 - c7.x > epsilon ||
+        //     ras.y - volume._RASSpacing[1]/2 - c7.y > epsilon ||
+        //     ras.z - volume._RASSpacing[2]/2 - c7.z > epsilon ||
+        //     ras.x + volume._RASSpacing[0]/2 - c0.x < -epsilon ||
+        //     ras.y + volume._RASSpacing[1]/2 - c0.y < -epsilon ||
+        //     ras.z + volume._RASSpacing[2]/2 - c0.z < -epsilon)
+        //   {
+        //     // no collision
+        //     // why?
+        //     // window.console.log(ras.x - volume._RASSpacing[0]/2 - c7.x);
+        //     // window.console.log(ras.y - volume._RASSpacing[1]/2 - c7.y);
+        //     // window.console.log(ras.z - volume._RASSpacing[2]/2 - c7.z);
+        //     // window.console.log(ras.x + volume._RASSpacing[0]/2 - c0.x);
+        //     // window.console.log(ras.y + volume._RASSpacing[1]/2 - c0.y);
+        //     // window.console.log(ras.z + volume._RASSpacing[2]/2 - c0.z);
+          // }
+          if(voxelBox.intersect(roiBox)){
           var point = {
             "ijk": [i, j, k],
             "value": volume._IJKVolume[k][j][i]
           };
-          points.points.push(point);
+          roiStats.points.push(point);
           // compute as much as possible here to avoid having to loop through points again alter...
           // sum += value;
           // nbVoxels += 1;
-          points.min = (point.value < points.min )? point.value : points.min;
-          points.max = (point.value > points.max )? point.value : points.max;
-        }
+          roiStats.min = (point.value < roiStats.min )? point.value : roiStats.min;
+          roiStats.max = (point.value > roiStats.max )? point.value : roiStats.max;
+
         }
 
         
@@ -202,13 +295,20 @@ for(var i = ijkMin.x; i <= ijkMax.x; i++){
 }
 }
 
-// probeROI.update(nbVoxels, sum/nbVoxels, max, min, 0);
-probeROI.update(points);
+window.console.log("update ROI");
+// window.console.log(c0);
+// window.console.log(c7);
+// // window.console.log(ijkMin);
+// // window.console.log(ijkMax);
+window.console.log(roiStats.points);
+
+// in a web worker...?
+// probeROI.update(roiStats);
 //(get IJK then?)
 
               }
 
-              window.console.log(XYRASTransform);
+              // window.console.log(XYRASTransform);
              
 
 
@@ -418,7 +518,8 @@ function onDocumentMouseUp( event ) {
     color: 0x61F2F3
   }));
   // center IJK cube
-  cube.applyMatrix( new THREE.Matrix4().makeTranslation(ijkDims[0]/2 , ijkDims[1]/2, ijkDims[2]/2) );
+  // -.5 offset needed
+  cube.applyMatrix( new THREE.Matrix4().makeTranslation(ijkDims[0]/2 - .5 , ijkDims[1]/2 - .5, ijkDims[2]/2 - .5) );
   // move to RAS
   cube.applyMatrix( tIJKToRAS );
   scene.add(cube);

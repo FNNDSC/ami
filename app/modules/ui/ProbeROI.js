@@ -43,7 +43,7 @@ VJS.ProbeROI.prototype.createDomElement = function(){
   // load empty chart
   var self = this;
   // google.load('visualization', '1.0', {'packages':['corechart'], callback: this.drawChart.bind(this)});
-   google.load('visualization', '1.1', {packages: ['line'], callback: this.drawChart.bind(this)});
+   google.load('visualization', '1.1', {packages: ['line', 'bar'], callback: this.drawChart.bind(this)});
 
 
   this.domElement = document.createElement('div');
@@ -72,39 +72,88 @@ VJS.ProbeROI.prototype.update = function(points){
   var min = points.min;
   var variance = 0;
 
-  //   this.data = google.visualization.arrayToDataTable([
-  //   ['Value', 'Intensity'],
-  //   ['0',  165],
-  //   ['1',  135],
-  //   ['2',  157],
-  //   ['3',  139],
-  //   ['4',  136]
-  // ]);
+  if(!this.chart && this.chartReady){
+    // init chart
+    this.options = {
+      title : 'Voxels Distribution in ROI',
+      vAxis: {title: "Nb of Voxels"},
+      hAxis: {title: "Intensity"}
+    };
 
-if(this.chart){
-  // create array to contain all data
-  var range = points.max - points.min + 1;
-  var data = Array(range + 1);
-  data[0] = ['Value', 'Intensity'];
-  var index = 1;
-  //init data..
-  for(var i = 0; i<range; i++ ){
-    data[i+1] = [ points.min + i, 0]
+    this.chart = new google.charts.Bar(document.getElementById('VJSProbeROIChart'));
   }
 
-  // window.console.log('I\'m in');
-  //  window.console.log(points.points.length);
-  for(var i=0; i<points.points.length; i++){
-    var pData = data[ points.points[i].value - points.min + 1];
+  if(this.chart){
+    // create array to contain all data
+    var range = points.max - points.min + 1;
+    var data = Array(range + 1);
+    data[0] = ['Intensity', 'Nb of Voxels']
+    var index = 1;
+    //init data..
+    for(var i = 0; i<range; i++ ){
+      data[i+1] = [ points.min + i, 0]
+    }
+
+    // window.console.log('I\'m in');
+    //  window.console.log(points.points.length);
+    for(var i=0; i<points.points.length; i++){
+      var pData = data[ points.points[i].value - points.min + 1];
       pData[1] += 1;
+    }
+
+    // might be expensive to convert here, might be better to directly create right format.
+    this.data = google.visualization.arrayToDataTable(data);
+    this.chart.draw(this.data, this.options);
   }
 
-  // window.console.log(data);
+  //  if(!this.chart && this.chartReady){
+  //   // init chart
+  //   this.options = {
+  //     title : 'Voxels Distribution in ROI',
+  //     vAxis: {title: "Nb of Voxels"},
+  //     hAxis: {title: "Intensity"},
+  //     animation:{
+  //       duration: 5,
+  //       easing: 'out',
+  //     }
+  //   };
 
-this.data = google.visualization.arrayToDataTable(data);
-this.chart.draw(this.data, this.options);
+  //   this.chart = new google.charts.Bar(document.getElementById('VJSProbeROIChart'));
+  // }
 
-}
+  // if(this.chart){
+  //   // create array to contain all data
+  //   var range = points.max - points.min + 1;
+  //   //
+  //   var data = new google.visualization.DataTable();
+  //   // Add columns
+  //   data.addColumn('number', 'Intensity');
+  //   data.addColumn('number', 'Nb of Voxels');
+
+  //   // Add empty rows
+  //   data.addRows(range);
+
+  //   // window.console.log('I\'m in');
+  //   //  window.console.log(points.points.length);
+  //   for(var i=0; i<points.points.length; i++){
+  //     var index = points.points[i].value - points.min;
+  //     data.setCell(index, 0, points.points[i].value);
+  //     var inc  = data.getValue(index, 1);
+  //     // window.console.log(inc);
+  //     if(inc == null){
+  //       inc = 1;
+  //     }
+  //     else{
+  //       // window.console.log('increment...');
+  //       inc += 1;
+  //     }
+
+  //     data.setCell(index, 1, inc);
+
+  //   }
+
+  //   this.chart.draw(data, this.options);
+  // }
 
   var nbPointsContent = nbPoints;
   this.nbPointsContainer.innerHTML = 'Nb of voxels: ' + nbPointsContent;
@@ -124,31 +173,5 @@ this.chart.draw(this.data, this.options);
 }
 
 VJS.ProbeROI.prototype.drawChart = function () {
-  window.console.log(this);
-  // Some raw data (not necessarily accurate)
-  this.data = google.visualization.arrayToDataTable([
-    ['Value', 'Intensity'],
-    [0,  165],
-    [1,  135],
-    [2,  157],
-    [3,  139],
-    [4,  136]
-  ]);
-
-  this.options = {
-    title : 'Voxels Distribution in ROI',
-    vAxis: {title: "Nb Voxels"},
-    hAxis: {title: "Intensity"},
-    seriesType: "bars",
-      animation:{
-        duration: 10,
-        easing: 'out',
-      },
-    // series: {5: {type: "line"}}
-  };
-
-  // Instantiate and draw our chart, passing in some options.
-  // this.chart = new google.visualization.LineChart(document.getElementById('VJSProbeROIChart'));
-  this.chart = new google.charts.Line(document.getElementById('VJSProbeROIChart'));
-  this.chart.draw(this.data, this.options);
+  this.chartReady = true;
 }
