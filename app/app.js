@@ -473,7 +473,7 @@ function onDocumentMouseUp( event ) {
           ijk.y <= tDimensions.y &&
           ijk.z <= tDimensions.z ){
         
-          var value = volume._IJKVolume[Math.floor(ijk.z)][Math.floor(ijk.y)][Math.floor(ijk.x)];
+          var value = vjsVolume.getValue(Math.floor(ijk.x), Math.floor(ijk.y), Math.floor(ijk.z), 0, false);
           probe.update(ras, ijk, value);
         }
 
@@ -584,71 +584,14 @@ function onDocumentMouseUp( event ) {
   }
 
   // draw plane
-  // move back to RAS...
-  // _XYToRAS
-  var material = new THREE.MeshBasicMaterial( {color: 0xE91E63, side: THREE.DoubleSide} );
-  // https://github.com/mrdoob/three.js/wiki/Uniforms-types
-  // might consider texture compression...
-  // http://blog.tojicode.com/2011/12/compressed-textures-in-webgl.html
-  // convert texture to float somehow to handle more range
+  // create volume object
+  vjsVolume = new VJS.Volume(volume._data, volume._dimensions, volume.max, volume.min, volume._IJKToRAS, volume._RASOrigin);
 
-
-  // create a big texture....
-  // ijkRGBADataTex = new THREE.DataTexture( volume._IJKVolumeRGBA, volume._IJKVolume[0][0].length, volume._IJKVolume.length * volume._IJKVolume[0].length, THREE.RGBAFormat );
-  // ijkRGBADataTex.needsUpdate = true;
-
-  //ijkRGBATex = new THREE.Texture(ijkRGBADataTex);
-  // create 4RGBA textures to split the data
-
-  // configuration: size of side of a texture (square tSize*tSize)
+  // get texture from object
   var tSize = 4096.0;
   var tNumber = 4;
-
-  //
-  // 1) check if we have enough room in textures!!
-  // 
-  var requiredPixels = tDimensions.x * tDimensions.y * tDimensions.z * 4;
-  window.console.log("requiredPixels");
-  window.console.log(volume._dimensions);
-  window.console.log(tDimensions);
-  window.console.log(requiredPixels);
-  window.console.log("available");
-  window.console.log( tSize*tSize*4*4);
-  if(requiredPixels > tSize*tSize*4*4){
-    window.console.log("Too many pixels to fit in shader, go for canvas 2D...");
-    return;
-  }
-
-  //
-  // 2) pack pixels into texture
-  //
-  
-  // prepare raw data containers
-  var rawData = [];
-  for(var i=0; i<tNumber; i++){
-    rawData.push(new Uint8Array(tSize * tSize * 4));
-  }
-
-  // fill texture containers
-  var dummyRGBA = new Uint8Array(tSize * tSize * 4);
-  for(var i=0; i < tSize * tSize * 4; i+=4){
-    for(var j=0; j < tNumber; j++){
-      // RGB
-      rawData[j][i] = volume._IJKVolumeRGBA[i + j*tSize * tSize * 4];
-      rawData[j][i + 1] = volume._IJKVolumeRGBA[i + 1 + j*tSize * tSize * 4];
-      rawData[j][i + 2] = volume._IJKVolumeRGBA[i + 2 + j*tSize * tSize * 4];
-      // OPACITY
-      rawData[j][i + 3] = 255;
-    }
-  }
-
-  // create threeJS textures
-  var textures = [];
-  for(var i=0; i<tNumber; i++){
-    var tex = new THREE.DataTexture( rawData[i], tSize, tSize, THREE.RGBAFormat, THREE.UnsignedByteType, THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter );
-    tex.needsUpdate = true;
-    textures.push(tex);
-  }
+  vjsVolume.createTexture(tNumber, tSize);
+  var textures = vjsVolume._Textures;
 
   // setup uniforms
   var shaderSlice = VJS.ShaderSlice;

@@ -1,0 +1,19 @@
+var VJS = VJS || {};
+
+// HAS A NORMAL
+// LINKED TO A DATA (or more? (labelmaps))
+// LINKS DGEMOTRY AND TEXTURE
+// CAN GENERATE GEOMETRY + CLEAN SHADERS FROM NORMAL + ORIGIN
+// GETS TEXTURE FROM VOLUME
+// WINDOW/LEVEL HERE
+// THRESHIOLD HERE
+
+// THIS IS THE PRESENTATION LAYER...
+
+VJS.Slice = function(){
+
+}
+
+VJS.Slice.prototype.getGeometry = function(){
+
+}

@@ -7,19 +7,21 @@
 
 <!-- <script src="http://threejs.org/examples/js/controls/OrbitControls.js"></script> -->
 <script src="http://threejs.org/examples/js/controls/EditorControls.js"></script>
-
 <script src="http://threejs.org/examples/js/libs/stats.min.js"></script>
 
+<!-- Load controls we want to use -->
+<!-- Load more controls (2D view = no rotation) -->
 <script src="modules/controls/Orbit2DControls.js"></script>
-<!-- Load widgets -->
-<script src="modules/widgets/EllipsePicker.js"></script>
-<!-- Load the probe layout utils -->
-<script src="modules/ui/Probe.js"></script>
-<!-- JS API FOR THE GOOGLE CHART -->
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script src="modules/ui/ProbeROI.js"></script>
-<!-- Load custom shader -->
-<script src="modules/shaders/ShaderSlice.js"></script>
+
+<!-- Load widgets we want to use -->
+<!-- Load the pixel probe -->
+<script src="modules/objects/slice/widgets/pixelProbe/Probe.js"></script>
+<script src="modules/objects/slice/widgets/boxProbe/ProbeROI.js"></script>
+<script src="modules/objects/slice/widgets/boxProbe/EllipsePicker.js"></script>
+
+<!-- Load objects we want to use -->
+<script src="modules/objects/slice/Slice.Shader.js"></script>
+<script src="modules/objects/volume/Volume.Core.js"></script>
 
 <script type="text/javascript" src="app.js"></script>
 <!-- <link rel="stylesheet" type="text/css" href="demo.css"> -->
