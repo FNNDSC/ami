@@ -50,6 +50,7 @@ function init(slice) {
               geometry.vertices.push(new THREE.Vector3(HANDLES[0].position.x, HANDLES[1].position.y, HANDLES[1].position.z));
               geometry.vertices.push(new THREE.Vector3(HANDLES[0].position.x, HANDLES[0].position.y, HANDLES[1].position.z));
               geometry.vertices.push(new THREE.Vector3(HANDLES[0].position.x, HANDLES[0].position.y, HANDLES[0].position.z));
+              geometry.verticesNeedUpdate = true;
 
             if(typeof line == "undefined" || !line){
 
@@ -60,14 +61,11 @@ function init(slice) {
         material.polygonOffsetFactor = 1;
         material.polygonOffsetUnits = 1;
               line = new THREE.Line(geometry, material);
-              line.geometry.verticesNeedUpdate = true;
               scene.add(line);
               }
 
               else{
 line.geometry = geometry;
-line.geometry.verticesNeedUpdate = true;
-
 // compute stats
 
 // need to compute 4 points of the box from 2 points in diagonal!
@@ -230,24 +228,27 @@ for(var i = ijkMin.x; i <= ijkMax.x; i++){
         window.console.log("roi", roiBox);
 
         //need to test oriented BBox interesection for accuracy...
+        // BEST:
+        // If you're looking to roll your own, I'd recommend reading Separating Axis Theorem for Oriented Bounding Boxes by Johnny Huynh.
         // http://www.geometrictools.com/Source/Mathematics.html
         // http://www.geometrictools.com/GTEngine/Include/GteIntrOrientedBox3OrientedBox3.h
-
+        // https://github.com/juj/MathGeoLib/blob/master/src/Geometry/OBB.cpp
+        // http://www.wildbunny.co.uk/blog/2011/04/20/collision-detection-for-dummies/
 
           // DRAW TRANSFORMED RAS CUBE
           // right location
 
-  var cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-  //cubeGeometry.applyMatrix( new THREE.Matrix4().makeTranslation(center[0], center[1], center[2]) );
-  var cube = new THREE.Mesh(cubeGeometry, new THREE.MeshBasicMaterial({
-    wireframe: true,
-    color: 0x61F2F3
-  }));
-  // center IJK cube
-  cube.applyMatrix( new THREE.Matrix4().makeTranslation( i, j, k) );
-  // move to RAS
-  cube.applyMatrix( tIJKToRAS );
-  scene.add(cube);
+  // var cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+  // //cubeGeometry.applyMatrix( new THREE.Matrix4().makeTranslation(center[0], center[1], center[2]) );
+  // var cube = new THREE.Mesh(cubeGeometry, new THREE.MeshBasicMaterial({
+  //   wireframe: true,
+  //   color: 0x61F2F3
+  // }));
+  // // center IJK cube
+  // cube.applyMatrix( new THREE.Matrix4().makeTranslation( i, j, k) );
+  // // move to RAS
+  // cube.applyMatrix( tIJKToRAS );
+  // scene.add(cube);
 
 
 
@@ -302,7 +303,20 @@ window.console.log("update ROI");
 // // window.console.log(ijkMax);
 window.console.log(roiStats.points);
 
-// in a web worker...?
+// in a web worker... so ui doesn't block the rest
+
+// var worker = new Worker('doWork.js');
+
+// worker.addEventListener('message', function(e) {
+//   console.log('Worker said: ', e.data);
+// }, false);
+
+// worker.postMessage('Hello World');
+
+// workerself.addEventListener('message', function(e) {
+//   self.postMessage(e.data);
+// }, false);
+
 // probeROI.update(roiStats);
 //(get IJK then?)
 
@@ -411,6 +425,31 @@ function onDocumentMouseUp( event ) {
 
   // this function is executed on each animation frame
   function animate(){
+    // update plane geomtry if needed
+    if(currentIndex != volume._indexX){
+      currentSlice = sliceX._slices[volume._indexX];
+      var sliceWidth = currentSlice._width;
+      var sliceHeight = currentSlice._height;
+      var normalOrigin = currentSlice._center;
+
+      // update geometry
+      var geometry = new THREE.PlaneGeometry( sliceWidth, sliceHeight );
+      geometry.verticesNeedUpdate = true;
+      plane.geometry = geometry;
+
+      // update transform matrix
+      var xyras = currentSlice._XYToRAS;
+      XYRASTransform = new THREE.Matrix4().set(xyras[0], xyras[4], xyras[8], xyras[12],
+                                             xyras[1], xyras[5], xyras[9], xyras[13],
+                                             xyras[2], xyras[6], xyras[10], xyras[14],
+                                             xyras[3], xyras[7], xyras[11], xyras[15])
+      plane.matrix = XYRASTransform;
+      plane.applyMatrix( new THREE.Matrix4().makeTranslation(normalOrigin[0], normalOrigin[1], normalOrigin[2]));
+
+      // plane.updateMatrix();
+
+      currentIndex = volume._indexX;
+    }
     //
     // update the picking ray with the camera and mouse position  
     raycaster.setFromCamera( mouse, camera ); 
@@ -545,12 +584,6 @@ function onDocumentMouseUp( event ) {
   }
 
   // draw plane
-  var sliceWidth = slice._width;
-  var sliceHeight = slice._height;
-
-  window.console.log('SLICE ' + sliceWidth + 'x' + sliceHeight);
-
-  var geometry = new THREE.PlaneGeometry( sliceWidth, sliceHeight );
   // move back to RAS...
   // _XYToRAS
   var material = new THREE.MeshBasicMaterial( {color: 0xE91E63, side: THREE.DoubleSide} );
@@ -636,17 +669,21 @@ function onDocumentMouseUp( event ) {
           "fragmentShader": shaderSlice.slice.fragmentShader,
   });
 
+
+  var sliceWidth = slice._width;
+  var sliceHeight = slice._height;
+  var normalOrigin = slice._center;
+  var geometry = new THREE.PlaneGeometry( sliceWidth, sliceHeight );
+  geometry.verticesNeedUpdate = true;
   plane = new THREE.Mesh( geometry, mat );
   var xyras = slice._XYToRAS;
   XYRASTransform = new THREE.Matrix4().set(xyras[0], xyras[4], xyras[8], xyras[12],
                                              xyras[1], xyras[5], xyras[9], xyras[13],
                                              xyras[2], xyras[6], xyras[10], xyras[14],
                                              xyras[3], xyras[7], xyras[11], xyras[15])
-  var normalOrigin = slice._center;
   plane.applyMatrix( XYRASTransform );
   plane.applyMatrix( new THREE.Matrix4().makeTranslation(normalOrigin[0], normalOrigin[1], normalOrigin[2]));
 
-  window.console.log(normalOrigin);
   scene.add(plane);
 
   // mouse callbacks
@@ -727,6 +764,7 @@ window.onload = function() {
 
     // go threeJS
     window.console.log(sliceX._slices);
+    currentIndex = volume._indexX;
     init(sliceX._slices[63]);
   };
 };
