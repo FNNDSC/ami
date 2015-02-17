@@ -428,26 +428,29 @@ function onDocumentMouseUp( event ) {
     // update plane geomtry if needed
     if(currentIndex != volume._indexX){
       currentSlice = sliceX._slices[volume._indexX];
-      var sliceWidth = currentSlice._width;
-      var sliceHeight = currentSlice._height;
-      var normalOrigin = currentSlice._center;
 
-      // update geometry
-      var geometry = new THREE.PlaneGeometry( sliceWidth, sliceHeight );
-      geometry.verticesNeedUpdate = true;
-      plane.geometry = geometry;
-
-      // update transform matrix
+      //
+      // convert from XTK to THREEJS
+      //
       var xyras = currentSlice._XYToRAS;
       XYRASTransform = new THREE.Matrix4().set(xyras[0], xyras[4], xyras[8], xyras[12],
                                              xyras[1], xyras[5], xyras[9], xyras[13],
                                              xyras[2], xyras[6], xyras[10], xyras[14],
-                                             xyras[3], xyras[7], xyras[11], xyras[15])
-      plane.matrix = XYRASTransform;
-      plane.applyMatrix( new THREE.Matrix4().makeTranslation(normalOrigin[0], normalOrigin[1], normalOrigin[2]));
+                                             xyras[3], xyras[7], xyras[11], xyras[15]);
+      var transforms = {
+        "xy2ras": XYRASTransform
+      }
 
-      // plane.updateMatrix();
+      var width = currentSlice._width;
+      var height = currentSlice._height;
+      var normalOrigin = currentSlice._center;
+      var center = new THREE.Vector3( normalOrigin[0], normalOrigin[1], normalOrigin[2] );
+      //
+      //
+      //
 
+      // update slice geomtry
+      vjsSliceView.updateRASSlice(plane, width, height, center, transforms);
       currentIndex = volume._indexX;
     }
     //
@@ -473,7 +476,7 @@ function onDocumentMouseUp( event ) {
           ijk.y <= tDimensions.y &&
           ijk.z <= tDimensions.z ){
         
-          var value = vjsVolume.getValue(Math.floor(ijk.x), Math.floor(ijk.y), Math.floor(ijk.z), 0, false);
+          var value = vjsVolumeCore.getValue(Math.floor(ijk.x), Math.floor(ijk.y), Math.floor(ijk.z), 0, false);
           probe.update(ras, ijk, value);
         }
 
@@ -524,109 +527,141 @@ function onDocumentMouseUp( event ) {
   controls = new THREE.OrbitControls( camera, renderer.domElement );
   // camera.rotation.y = -20 * (Math.PI / 180);
 
-  // draw RAS bbox
-  var dimensions = volume._RASDimensions;
-  var spacing = volume._RASSpacing;
-  var ijkDims = volume._dimensions;
-  var ijkSpac = volume._spacing;
-  var center = volume._RASCenter;
-  var sliceWidth = slice._iWidth;
+  //
+  //
+  //
+  // convert to ThreeJS format from XTK
+  //
+  //
+  //
   var rasijk = volume._RASToIJK;
-  var rasBBox = volume._BBox;
-  tDimensions = new THREE.Vector3( ijkDims[0], ijkDims[1], ijkDims[2] );
-
   tRASToIJK = new THREE.Matrix4().set(
                   rasijk[0], rasijk[4], rasijk[8], rasijk[12],
                   rasijk[1], rasijk[5], rasijk[9], rasijk[13],
                   rasijk[2], rasijk[6], rasijk[10], rasijk[14],
                   rasijk[3], rasijk[7], rasijk[11], rasijk[15]);
-
   tIJKToRAS = new THREE.Matrix4().getInverse(tRASToIJK);
 
-  //
-  //
-  // RAS volume
-  //
-  //
+  var ijkDims = volume._dimensions;
+  tDimensions = new THREE.Vector3( ijkDims[0], ijkDims[1], ijkDims[2] );
 
-  // DRAW TRANSFORMED RAS CUBE
-  var cubeGeometry = new THREE.BoxGeometry(ijkDims[0], ijkDims[1], ijkDims[2]);
-  //cubeGeometry.applyMatrix( new THREE.Matrix4().makeTranslation(center[0], center[1], center[2]) );
-  var cube = new THREE.Mesh(cubeGeometry, new THREE.MeshBasicMaterial({
-    wireframe: true,
-    color: 0x61F2F3
-  }));
-  // center IJK cube
-  // -.5 offset needed
-  cube.applyMatrix( new THREE.Matrix4().makeTranslation(ijkDims[0]/2 - .5 , ijkDims[1]/2 - .5, ijkDims[2]/2 - .5) );
-  // move to RAS
-  cube.applyMatrix( tIJKToRAS );
-  scene.add(cube);
+  var dimensions = volume._RASDimensions;
+  tRASDimensions = new THREE.Vector3( dimensions[0], dimensions[1], dimensions[2] );
 
-  // draw RAS BBox
-  var cubeGeometry = new THREE.BoxGeometry(rasBBox[1] - rasBBox[0], rasBBox[3] - rasBBox[2], rasBBox[5] - rasBBox[4]);
-  //cubeGeometry.applyMatrix( new THREE.Matrix4().makeTranslation(center[0], center[1], center[2]) );
-  var cube = new THREE.Mesh(cubeGeometry, new THREE.MeshBasicMaterial({
-    wireframe: true,
-    color: 0x2196F3
-  }));
-  cube.applyMatrix( new THREE.Matrix4().makeTranslation(rasBBox[0] + (rasBBox[1] - rasBBox[0])/2, rasBBox[2] + (rasBBox[3] - rasBBox[2])/2, rasBBox[4] + (rasBBox[5] - rasBBox[4])/2) );
-  scene.add(cube);
+  var center = volume._RASCenter;
+  tRASCenter = new THREE.Vector3( center[0], center[1], center[2] );
 
-  // draw intersections
-  var solutions = slice._solutionsIn;
-  for(var i=0; i<solutions.length; i++){
-    var sphereGeometry = new THREE.SphereGeometry(1);
-    var material = new THREE.MeshBasicMaterial( {color: 0x2196F3} );
-    var sphere = new THREE.Mesh( sphereGeometry, material );
-    sphere.applyMatrix( new THREE.Matrix4().makeTranslation(solutions[i][0], solutions[i][1], solutions[i][2]) );
-    scene.add( sphere );
+  var  origin = volume._RASOrigin;
+  tOrigin = new THREE.Vector3( origin[0], origin[1], origin[2] );
+
+  // create volume core object and its view
+  // Create RAS object
+  var ras = {
+    "origin": tOrigin,
+    "center": tRASCenter,
+    "dimensions": tRASDimensions,
+    "spacing": null,
+    "boundingbox": [
+      new THREE.Vector3( tRASCenter.x - tRASDimensions.x/2, tRASCenter.y - tRASDimensions.y/2, tRASCenter.z - tRASDimensions.z/2 ),
+      new THREE.Vector3( tRASCenter.x + tRASDimensions.x/2, tRASCenter.y + tRASDimensions.y/2, tRASCenter.z+ tRASDimensions.z/2 )
+    ]
   }
 
-  // draw plane
-  // create volume object
-  vjsVolume = new VJS.Volume(volume._data, volume._dimensions, volume.max, volume.min, volume._IJKToRAS, volume._RASOrigin);
+  // need ijk object as well
+  var ijk = {
+    "origin": null,
+    "center": null,
+    "dimensions": tDimensions,
+    "spacing": null
+  }
 
-  // get texture from object
-  var tSize = 4096.0;
-  var tNumber = 4;
-  vjsVolume.createTexture(tNumber, tSize);
-  var textures = vjsVolume._Textures;
+  var transforms = {
+    "ijk2ras": tIJKToRAS,
+    "ras2ijk": tRASToIJK
+  }
 
-  // setup uniforms
-  var shaderSlice = VJS.ShaderSlice;
-  var uniforms = shaderSlice.slice.uniforms;
-  uniforms.uTextureSize.value = tSize;
-  uniforms.t00.value = textures[0];
-  uniforms.t01.value = textures[1];
-  uniforms.t02.value = textures[2];
-  uniforms.t03.value = textures[3];
-  uniforms.uIJKDims.value = tDimensions;
-  uniforms.uRASToIJK.value = tRASToIJK;
+    // draw RAS bbox
+  var dimensions = volume._RASDimensions;
+  var spacing = volume._RASSpacing;
+  var ijkSpac = volume._spacing;
+  var sliceWidth = slice._iWidth;
+  var rasijk = volume._RASToIJK;
+  var rasBBox = volume._BBox;
+  //
+  //
+  //
+  //
 
-  var mat = new THREE.ShaderMaterial({
-          "side": THREE.DoubleSide,
-          "transparency":true,
-          "uniforms": uniforms,
-          "vertexShader": shaderSlice.slice.vertexShader,
-          "fragmentShader": shaderSlice.slice.fragmentShader,
+  // Create VJS Volume
+  vjsVolumeCore = new VJS.Volume.Core(volume._data, volume.max, volume.min, transforms, ijk, ras);
+  vjsVolumeView = new VJS.Volume.View(vjsVolumeCore);
+
+  //
+  //
+  // IJK BBox Oriented in RAS Space volume
+  //
+  //
+  var material = new THREE.MeshBasicMaterial({
+    wireframe: true,
+    color: 0x61F2F3
   });
+  var IJKBBoxOriented = vjsVolumeView.IJKBBoxOriented(material);
+  scene.add(IJKBBoxOriented);
+
+  // RAS BBox
+  var material = new THREE.MeshBasicMaterial({
+    wireframe: true,
+    color: 0x2196F3
+  });
+  var RASBBox = vjsVolumeView.RASBBox(material);
+  scene.add(RASBBox);
 
 
-  var sliceWidth = slice._width;
-  var sliceHeight = slice._height;
-  var normalOrigin = slice._center;
-  var geometry = new THREE.PlaneGeometry( sliceWidth, sliceHeight );
-  geometry.verticesNeedUpdate = true;
-  plane = new THREE.Mesh( geometry, mat );
+  //
+  // CONVERT XTK TO THREEJS FORMAT
+  //
   var xyras = slice._XYToRAS;
   XYRASTransform = new THREE.Matrix4().set(xyras[0], xyras[4], xyras[8], xyras[12],
                                              xyras[1], xyras[5], xyras[9], xyras[13],
                                              xyras[2], xyras[6], xyras[10], xyras[14],
-                                             xyras[3], xyras[7], xyras[11], xyras[15])
-  plane.applyMatrix( XYRASTransform );
-  plane.applyMatrix( new THREE.Matrix4().makeTranslation(normalOrigin[0], normalOrigin[1], normalOrigin[2]));
+                                             xyras[3], xyras[7], xyras[11], xyras[15]);
+  var transforms = {
+    "xy2ras": XYRASTransform
+  }
 
+  var width = slice._width;
+  var height = slice._height;
+  var normalOrigin = slice._center;
+  var center = new THREE.Vector3( normalOrigin[0], normalOrigin[1], normalOrigin[2] );
+  //
+  //
+  //
+
+  // Create Slice
+  //
+
+  //
+  var sliceNormal = new THREE.Vector3( 1, 0, 0);
+  var sliceOrigin = vjsVolumeCore._RAS.center;
+  // get texture from object
+  var tSize = 4096.0;
+  var tNumber = 4;
+  vjsVolumeCore.createTexture(tNumber, tSize);
+
+  // height, width, center and transform should not be there (Slice.Core should compute it.)
+  vjsSliceCore = new VJS.Slice.Core(sliceOrigin, sliceNormal, vjsVolumeCore, width, height, center, transforms);
+  vjsSliceCore.Slice();
+  // create a view for the slice (for debugging)
+  var intersectionRASBBoxSlice = new VJS.Slice.View(vjsSliceCore);
+  var material = new THREE.MeshBasicMaterial( {color: 0x2196F3} );
+  var intersections = intersectionRASBBoxSlice.SliceRASBBoxIntersection(material);
+  for(var i=0; i<intersections.length; i++){
+    scene.add(intersections[i]);
+  }
+
+  // create another view of the same slice
+  vjsSliceView = new VJS.Slice.View(vjsSliceCore);
+  plane  = vjsSliceView.RASSlice(tSize, tNumber);
   scene.add(plane);
 
   // mouse callbacks
@@ -641,72 +676,28 @@ function onDocumentMouseUp( event ) {
   animate();
 }
 
-
-
 window.onload = function() {
   // create the 2D renderers (just load tand parse the file...)
   sliceX = new X.renderer2D();
   sliceX.container = 'sliceX';
   sliceX.orientation = 'X';
   sliceX.init();
-
   //
   // THE VOLUME DATA
   //
   // create a X.volumehttps://www.google.es/url?sa=t&rct=j&q=&esrc=s&source=web&cd=12&ved=0CCcQFjABOAo&url=http%3A%2F%2Fcharmianswers.org%2Fwordpress%2Fyeakel%2F2014%2F12%2F16%2Fwhy-orthographic-projection-not-working-exactly-while-using-combinedcamera-js-using-three-js%2F&ei=acPYVJzqH47KaMP4ghg&usg=AFQjCNF1rWDi5zBe5-Abh0qBSkifTtDSew&sig2=gLgGnS6sOjhjRBdxmATsgg
   volume = new X.volume();
   volume.file = 'data/lesson17_cropped.nii.gz';
-    // volume.file = 'data/CT.nii.gz';
-  // get accurate IJK to RAS transform...
+  // volume.file = 'data/CT.nii.gz';
+  // compute IJK to RAS transform...
   volume.reslicing = true;
-
-  // we also attach a label map to show segmentations on a slice-by-slice base
-  //volume.labelmap.file = 'http://x.babymri.org/?seg.nrrd';
-  // .. and use a color table to map the label map values to colors
-  //volume.labelmap.colortable.file = 'http://x.babymri.org/?genericanatomy.txt';
-
   sliceX.add(volume);
   
   // start the loading/rendering
   sliceX.render();
-    //
-  // THE GUI
-  //
   // the onShowtime method gets executed after all files were fully loaded and
   // just before the first rendering attempt
   sliceX.onShowtime = function() {
-    // Thanks XTK for loading the files, let threeJS render it now...
-    // now the real GUI
-    // var gui = new dat.GUI();
-    
-    // // the following configures the gui for interacting with the X.volume
-    // var volumegui = gui.addFolder('Volume');
-    // // now we can configure controllers which..
-    // // .. switch between slicing and volume rendering
-    // var vrController = volumegui.add(volume, 'volumeRendering');
-    // // .. configure the volume rendering opacity
-    // var opacityController = volumegui.add(volume, 'opacity', 0, 1);
-    // // .. and the threshold in the min..max range
-    // var lowerThresholdController = volumegui.add(volume, 'lowerThreshold',
-    //     volume.min, volume.max);
-    // var upperThresholdController = volumegui.add(volume, 'upperThreshold',
-    //     volume.min, volume.max);
-    // var lowerWindowController = volumegui.add(volume, 'windowLow', volume.min,
-    //     volume.max);
-    // var upperWindowController = volumegui.add(volume, 'windowHigh', volume.min,
-    //     volume.max);
-    // // the indexX,Y,Z are the currently displayed slice indices in the range
-    // // 0..dimensions-1
-    // var sliceXController = volumegui.add(volume, 'indexX', 0,
-    //     volume.range[0] - 1);
-    // var sliceYController = volumegui.add(volume, 'indexY', 0,
-    //     volume.range[1] - 1);
-    // var sliceZController = volumegui.add(volume, 'indexZ', 0,
-    //     volume.range[2] - 1);
-    // volumegui.open();
-
-    // go threeJS
-    window.console.log(sliceX._slices);
     currentIndex = volume._indexX;
     init(sliceX._slices[63]);
   };
