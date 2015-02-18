@@ -1,14 +1,13 @@
 var VJS = VJS || {};
 VJS.Slice = VJS.Slice || {};
 
-VJS.Slice.Core = function(origin, normal, volumeCore, width, height, center, transforms){
+VJS.Slice.Core = function(origin, normal, volumeCore){
   this._Origin = origin;
   this._Normal = normal;
   this._VolumeCore = volumeCore;
-  this._Width = width;
-  this._Height = height;
-  this._Center = center;
-  this._Transforms = transforms;
+  this._Width = -1;
+  this._Height = -1;
+  this._Transforms = {};
 
   this._IntersectionRASBBoxPlane = null;
 }
@@ -22,13 +21,105 @@ VJS.Slice.Core.prototype.Slice = function(){
   // get intersection between RAS BBox and the slice plane
   this._IntersectionRASBBoxPlane = this.IntersectionRASBBoxPlane();
 
-  // ideally, we can create a geometry ftom those points
-  // CONVEX POLYGON! Should just work!!! :)
-  // http://stackoverflow.com/questions/15289418/are-there-any-native-methods-to-triangulate-ordered-list-of-points-exposed-in-th
-  // use TRIANGLE FAN
+  // WE SHOULD JUST GENERATE GEOMETRY FROM THOSE POINTS, CONVEX POLYGON
+  // NEXT STEP SO WE CAN SKIP THE FOLLOWING AND MA CODE MUCH CLEANER
+
+  // transsform to 2D - shouldn't be needed...
+  this.TransformXYRAS();
+
+  // compute width and height as well...
+  this.WidthHeight();
 
 }
 
+VJS.Slice.Core.prototype.WidthHeight = function(){
+
+  var _xyBBox = [Number.MAX_VALUE, -Number.MAX_VALUE,
+   Number.MAX_VALUE, -Number.MAX_VALUE,
+   Number.MAX_VALUE, -Number.MAX_VALUE];
+
+  // move all points to 2D, and compute BBox
+  for(var i = 0; i<this._IntersectionRASBBoxPlane[0].length; i++){
+    // clone and move to 2D space
+    var tmp = this._IntersectionRASBBoxPlane[0][i].clone();
+    tmp.applyMatrix4(this._Transforms.ras2xy);
+
+    // update Bounding Box
+    if(tmp.x < _xyBBox[0]) {
+      _xyBBox[0] = tmp.x;
+    }
+
+    if(tmp.x > _xyBBox[1]) {
+      _xyBBox[1] = tmp.x;
+    }
+
+    if(tmp.y < _xyBBox[2]) {
+      _xyBBox[2] = tmp.y;
+    }
+
+    if(tmp.y > _xyBBox[3]) {
+      _xyBBox[3] = tmp.y;
+    }
+
+    if(tmp.z < _xyBBox[4]) {
+      _xyBBox[4] = tmp.z;
+    }
+
+    if(tmp.z > _xyBBox[5]) {
+      _xyBBox[5] = tmp.z;
+    }
+  }
+
+  //
+  var _wmin =  Math.floor(_xyBBox[0]);
+  var _wmax =  Math.ceil(_xyBBox[1]);
+  if(_wmin == _wmax){
+    _wmax++;
+  }
+
+  this._Width = _wmax - _wmin;
+
+  var _hmin = Math.floor(_xyBBox[2]);
+  var _hmax = Math.ceil(_xyBBox[3]);
+  if(_hmin == _hmax){
+
+    _hmax++;
+
+  }
+
+  this._Height = _hmax - _hmin;
+}
+
+VJS.Slice.Core.prototype.TransformXYRAS = function(){
+  var xyNormal = new THREE.Vector3(0, 0, 1);
+
+  this._Transforms.xy2ras = new THREE.Matrix4();
+    // no rotation needed if we are in the z plane already
+  if(! xyNormal.equals(this._Normal) ) {
+
+    var _cp = this._Normal.z;
+    var _teta = Math.acos(_cp);
+    var _r = new THREE.Vector3();
+    _r.crossVectors( this._Normal, xyNormal );
+    _r.normalize();
+
+    var a = Math.cos(_teta/2);
+    var b = Math.sin(_teta/2)*_r.x;
+    var c = Math.sin(_teta/2)*_r.y;
+    var d = Math.sin(_teta/2)*_r.z;
+
+    this._Transforms.xy2ras.set(
+      (a*a+b*b-c*c-d*d), 2*(b*c+a*d)      , 2*(b*d-a*c)      , 0,
+      2*(b*c-a*d)      , (a*a+c*c-b*b-d*d), 2*(c*d+a*b)      , 0,
+      2*(b*d+a*c)      , 2*(c*d-a*b)      , (a*a+d*d-c*c-b*b), 0,
+      0                , 0                , 0                , 1);
+    }
+
+    // create inverse transform as well
+    this._Transforms.ras2xy = new THREE.Matrix4().getInverse ( this._Transforms.xy2ras )
+}
+
+// we should directly detect the intersectionm with the ORIENTED Bounding Box for performance reasons...
 VJS.Slice.Core.prototype.IntersectionRASBBoxPlane = function(){
   var _solutionsIn = new Array();
   var _solutionsOut = new Array();

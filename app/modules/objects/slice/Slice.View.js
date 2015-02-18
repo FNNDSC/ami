@@ -35,21 +35,21 @@ VJS.Slice.View.prototype.RASSlice = function(tSize, tNumber){
   var plane = new THREE.Mesh( geometry, mat );
   // move to RAS Space
   plane.applyMatrix( this._SliceCore._Transforms.xy2ras );
-  plane.applyMatrix( new THREE.Matrix4().makeTranslation(this._SliceCore._Center.x, this._SliceCore._Center.y, this._SliceCore._Center.z));
+  plane.applyMatrix( new THREE.Matrix4().makeTranslation(this._SliceCore._Origin.x, this._SliceCore._Origin.y, this._SliceCore._Origin.z));
 
   return plane;
 }
 
-VJS.Slice.View.prototype.updateRASSlice = function(slice, width, height, center, transforms){
+VJS.Slice.View.prototype.updateRASSlice = function(plane){
   // Should get all information from there or from the Core...!
-  // update slice geometry
-  var geometry = new THREE.PlaneGeometry( width, height );
+  // update plane geometry
+  var geometry = new THREE.PlaneGeometry( this._SliceCore._Width , this._SliceCore._Height );
   geometry.verticesNeedUpdate = true;
-  slice.geometry = geometry;
+  plane.geometry = geometry;
 
   // update transform matrix
-  slice.matrix = transforms.xy2ras;
-  slice.applyMatrix( new THREE.Matrix4().makeTranslation(center.x, center.y, center.z));
+  plane.matrix = this._SliceCore._Transforms.xy2ras;
+  plane.applyMatrix( new THREE.Matrix4().makeTranslation(this._SliceCore._Origin.x, this._SliceCore._Origin.y, this._SliceCore._Origin.z));
 }
 
 VJS.Slice.View.prototype.SliceRASBBoxIntersection = function(material){
