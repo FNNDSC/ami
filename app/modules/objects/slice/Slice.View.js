@@ -1,9 +1,11 @@
+'use strict';
+
 var VJS = VJS || {};
 VJS.Slice = VJS.Slice || {};
 
 VJS.Slice.View = function(sliceCore){
   this._SliceCore = sliceCore;
-}
+};
 
 VJS.Slice.View.prototype.RASSlice = function(tSize, tNumber){
   //
@@ -21,11 +23,11 @@ VJS.Slice.View.prototype.RASSlice = function(tSize, tNumber){
   uniforms.uRASToIJK.value = this._SliceCore._VolumeCore._Transforms.ras2ijk;
 
   var mat = new THREE.ShaderMaterial({
-          "side": THREE.DoubleSide,
-          "transparency":true,
-          "uniforms": uniforms,
-          "vertexShader": shaderSlice.slice.vertexShader,
-          "fragmentShader": shaderSlice.slice.fragmentShader,
+          'side': THREE.DoubleSide,
+          'transparency':true,
+          'uniforms': uniforms,
+          'vertexShader': shaderSlice.slice.vertexShader,
+          'fragmentShader': shaderSlice.slice.fragmentShader,
   });
 
   // create geometry
@@ -38,7 +40,7 @@ VJS.Slice.View.prototype.RASSlice = function(tSize, tNumber){
   plane.applyMatrix( new THREE.Matrix4().makeTranslation(this._SliceCore._Origin.x, this._SliceCore._Origin.y, this._SliceCore._Origin.z));
 
   return plane;
-}
+};
 
 VJS.Slice.View.prototype.updateRASSlice = function(plane){
   // Should get all information from there or from the Core...!
@@ -50,7 +52,7 @@ VJS.Slice.View.prototype.updateRASSlice = function(plane){
   // update transform matrix
   plane.matrix = this._SliceCore._Transforms.xy2ras;
   plane.applyMatrix( new THREE.Matrix4().makeTranslation(this._SliceCore._Origin.x, this._SliceCore._Origin.y, this._SliceCore._Origin.z));
-}
+};
 
 VJS.Slice.View.prototype.SliceRASBBoxIntersection = function(material){
   var spheres = [];
@@ -63,4 +65,4 @@ VJS.Slice.View.prototype.SliceRASBBoxIntersection = function(material){
   }
 
   return spheres;
-}
+};

@@ -1,3 +1,5 @@
+'use strict';
+
 var VJS = VJS || {};
 
 VJS.ProbeROI = function(){
@@ -10,51 +12,50 @@ VJS.ProbeROI = function(){
   this.chartContainer = null;
 
   this.createDomElement();
-}
+};
 
 VJS.ProbeROI.prototype.createDomElement = function(){
 
   // Number of voxels
   this.nbPointsContainer = document.createElement('div');
-  this.nbPointsContainer.setAttribute("id", "VJSProbeROINbPoints");
+  this.nbPointsContainer.setAttribute('id', 'VJSProbeROINbPoints');
 
   // Mean value
   this.meanContainer = document.createElement('div');
-  this.meanContainer.setAttribute("id", "VJSProbeROIMean");
+  this.meanContainer.setAttribute('id', 'VJSProbeROIMean');
 
   // Max Value
   this.maxContainer = document.createElement('div');
-  this.maxContainer.setAttribute("id", "VJSProbeROIMax");
+  this.maxContainer.setAttribute('id', 'VJSProbeROIMax');
 
   // Min value
   this.minContainer = document.createElement('div');
-  this.minContainer.setAttribute("id", "VJSProbeROIMin");
+  this.minContainer.setAttribute('id', 'VJSProbeROIMin');
 
   // Variance value
   this.varianceContainer = document.createElement('div');
-  this.varianceContainer.setAttribute("id", "VJSProbeROIVariance");
+  this.varianceContainer.setAttribute('id', 'VJSProbeROIVariance');
 
   // small trick so chart not drawn on top of it.
   this.update({});
 
   // Chart elements to display all info at once
   this.chartContainer = document.createElement('div');
-  this.chartContainer.setAttribute("id", "VJSProbeROIChart");
+  this.chartContainer.setAttribute('id', 'VJSProbeROIChart');
   // load empty chart
-  var self = this;
   // google.load('visualization', '1.0', {'packages':['corechart'], callback: this.drawChart.bind(this)});
-   google.load('visualization', '1.1', {packages: ['line', 'bar'], callback: this.drawChart.bind(this)});
+  google.load('visualization', '1.1', {packages: ['line', 'bar'], callback: this.drawChart.bind(this)});
 
 
   this.domElement = document.createElement('div');
-  this.domElement.setAttribute("id", "VJSProbeROI");
+  this.domElement.setAttribute('id', 'VJSProbeROI');
   this.domElement.appendChild(this.nbPointsContainer);
   this.domElement.appendChild(this.meanContainer);
   this.domElement.appendChild(this.maxContainer);
   this.domElement.appendChild(this.minContainer);
   this.domElement.appendChild(this.varianceContainer);
   this.domElement.appendChild(this.chartContainer);
-}
+};
 
 // should just pass the points and do stats here...
 // but might be worst performance-wise
@@ -76,8 +77,8 @@ VJS.ProbeROI.prototype.update = function(points){
     // init chart
     this.options = {
       title : 'Voxels Distribution in ROI',
-      vAxis: {title: "Nb of Voxels"},
-      hAxis: {title: "Intensity"}
+      vAxis: {title: 'Nb of Voxels'},
+      hAxis: {title: 'Intensity'}
     };
 
     this.chart = new google.charts.Bar(document.getElementById('VJSProbeROIChart'));
@@ -86,18 +87,17 @@ VJS.ProbeROI.prototype.update = function(points){
   if(this.chart){
     // create array to contain all data
     var range = points.max - points.min + 1;
-    var data = Array(range + 1);
-    data[0] = ['Intensity', 'Nb of Voxels']
-    var index = 1;
+    var data = new Array(range + 1);
+    data[0] = ['Intensity', 'Nb of Voxels'];
     //init data..
     for(var i = 0; i<range; i++ ){
-      data[i+1] = [ points.min + i, 0]
+      data[i+1] = [ points.min + i, 0];
     }
 
     // window.console.log('I\'m in');
     //  window.console.log(points.points.length);
-    for(var i=0; i<points.points.length; i++){
-      var pData = data[ points.points[i].value - points.min + 1];
+    for(var j=0; j<points.points.length; j++){
+      var pData = data[ points.points[j].value - points.min + 1];
       pData[1] += 1;
     }
 
@@ -110,8 +110,8 @@ VJS.ProbeROI.prototype.update = function(points){
   //   // init chart
   //   this.options = {
   //     title : 'Voxels Distribution in ROI',
-  //     vAxis: {title: "Nb of Voxels"},
-  //     hAxis: {title: "Intensity"},
+  //     vAxis: {title: 'Nb of Voxels'},
+  //     hAxis: {title: 'Intensity'},
   //     animation:{
   //       duration: 5,
   //       easing: 'out',
@@ -170,8 +170,8 @@ VJS.ProbeROI.prototype.update = function(points){
   var varianceContent = variance;
   this.varianceContainer.innerHTML = 'Variance: ' + varianceContent;
 
-}
+};
 
 VJS.ProbeROI.prototype.drawChart = function () {
   this.chartReady = true;
-}
+};

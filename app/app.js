@@ -1,5 +1,10 @@
+// "use strict";
+
 // standard global variables
-var scene, camera, renderer;
+var scene, camera, renderer, sliceX, volume, currentIndex, threeD, stats,
+probe, probeROI, controls, tRASToIJK, tIJKToRAS, tDimensions, tRASDimensions,
+  tRASCenter, tOrigin, vjsVolumeCore, vjsVolumeView, vjsSliceCore, vjsSliceView,
+  plane, raycaster, mouse, HANDLES, SELECTED, currentSlice, roiBox, geometry, voxelBox, line;
 
 // FUNCTIONS
 function init(slice) {
@@ -77,7 +82,7 @@ function init(slice) {
         var sphereGeometry = new THREE.SphereGeometry(1);
         var material3 = new THREE.MeshBasicMaterial( {color: 0xff00f0} );
         material3.transparent= true;
-        material3.opacity = .5;
+        material3.opacity = 0.5;
         var sphere = new THREE.Mesh( sphereGeometry, material3 );
         sphere.applyMatrix( new THREE.Matrix4().makeTranslation(ras.x, ras.y, ras.z) );
         sphere.name = 'handle';
@@ -124,44 +129,44 @@ function init(slice) {
       
       // 8 IJK corners
       var ijk0 = new THREE.Vector3(c0.x, c0.y, c0.z).applyMatrix4(tRASToIJK);
-      ijk0.x = Math.floor(ijk0.x + .5); 
-      ijk0.y = Math.floor(ijk0.y + .5); 
-      ijk0.z = Math.floor(ijk0.z + .5);
+      ijk0.x = Math.floor(ijk0.x + 0.5); 
+      ijk0.y = Math.floor(ijk0.y + 0.5); 
+      ijk0.z = Math.floor(ijk0.z + 0.5);
       
       var ijk1 = new THREE.Vector3(c1.x, c1.y, c1.z).applyMatrix4(tRASToIJK);
-      ijk1.x = Math.floor(ijk1.x + .5); 
-      ijk1.y = Math.floor(ijk1.y + .5); 
-      ijk1.z = Math.floor(ijk1.z + .5);
+      ijk1.x = Math.floor(ijk1.x + 0.5); 
+      ijk1.y = Math.floor(ijk1.y + 0.5); 
+      ijk1.z = Math.floor(ijk1.z + 0.5);
   
       var ijk2 = new THREE.Vector3(c2.x, c2.y, c2.z).applyMatrix4(tRASToIJK);
-      ijk2.x = Math.floor(ijk2.x + .5); 
-      ijk2.y = Math.floor(ijk2.y + .5); 
-      ijk2.z = Math.floor(ijk2.z + .5);
+      ijk2.x = Math.floor(ijk2.x + 0.5); 
+      ijk2.y = Math.floor(ijk2.y + 0.5); 
+      ijk2.z = Math.floor(ijk2.z + 0.5);
   
       var ijk3 = new THREE.Vector3(c3.x, c3.y, c3.z).applyMatrix4(tRASToIJK);
-      ijk3.x = Math.floor(ijk3.x + .5); 
-      ijk3.y = Math.floor(ijk3.y + .5); 
-      ijk3.z = Math.floor(ijk3.z + .5);
+      ijk3.x = Math.floor(ijk3.x + 0.5); 
+      ijk3.y = Math.floor(ijk3.y + 0.5); 
+      ijk3.z = Math.floor(ijk3.z + 0.5);
       
       var ijk4 = new THREE.Vector3(c4.x, c4.y, c4.z).applyMatrix4(tRASToIJK);
-      ijk4.x = Math.floor(ijk4.x + .5); 
-      ijk4.y = Math.floor(ijk4.y + .5); 
-      ijk4.z = Math.floor(ijk4.z + .5);
+      ijk4.x = Math.floor(ijk4.x + 0.5); 
+      ijk4.y = Math.floor(ijk4.y + 0.5); 
+      ijk4.z = Math.floor(ijk4.z + 0.5);
   
       var ijk5 = new THREE.Vector3(c5.x, c5.y, c5.z).applyMatrix4(tRASToIJK);
-      ijk5.x = Math.floor(ijk5.x + .5); 
-      ijk5.y = Math.floor(ijk5.y + .5); 
-      ijk5.z = Math.floor(ijk5.z + .5);
+      ijk5.x = Math.floor(ijk5.x + 0.5); 
+      ijk5.y = Math.floor(ijk5.y + 0.5); 
+      ijk5.z = Math.floor(ijk5.z + 0.5);
   
       var ijk6 = new THREE.Vector3(c6.x, c6.y, c6.z).applyMatrix4(tRASToIJK);
-      ijk6.x = Math.floor(ijk6.x + .5); 
-      ijk6.y = Math.floor(ijk6.y + .5); 
-      ijk6.z = Math.floor(ijk6.z + .5);
+      ijk6.x = Math.floor(ijk6.x + 0.5); 
+      ijk6.y = Math.floor(ijk6.y + 0.5); 
+      ijk6.z = Math.floor(ijk6.z + 0.5);
   
       var ijk7 = new THREE.Vector3(c7.x, c7.y, c7.z).applyMatrix4(tRASToIJK);
-      ijk7.x = Math.floor(ijk7.x + .5); 
-      ijk7.y = Math.floor(ijk7.y + .5); 
-      ijk7.z = Math.floor(ijk7.z + .5);
+      ijk7.x = Math.floor(ijk7.x + 0.5); 
+      ijk7.y = Math.floor(ijk7.y + 0.5); 
+      ijk7.z = Math.floor(ijk7.z + 0.5);
   
       // get IJK BBox and look + test each
       var ijkMin = new THREE.Vector3(Math.min(ijk0.x, ijk1.x, ijk2.x, ijk3.x, ijk4.x, ijk5.x, ijk5.x, ijk7.x),
@@ -232,7 +237,7 @@ function init(slice) {
           for(var k = ijkMin.z; k <= ijkMax.z; k++){
             // get voxel bbox
             // draw it as a test...
-            // .5 offset?
+            // 0.5 offset?
             voxelBox = new THREE.Box3(
               new THREE.Vector3(i, j, k),
               new THREE.Vector3(i+1, j+1, k+1)
@@ -301,6 +306,7 @@ function init(slice) {
               // compute as much as possible here to avoid having to loop through points again alter...
               // sum += value;
               // nbVoxels += 1;
+
               roiStats.min = (point.value < roiStats.min )? point.value : roiStats.min;
               roiStats.max = (point.value > roiStats.max )? point.value : roiStats.max;
             }
@@ -350,9 +356,9 @@ function init(slice) {
       if(plane.uuid == intersects[intersect].object.uuid){
         // convert point to IJK
         var ijk = intersects[intersect].point.applyMatrix4(tRASToIJK);
-        ijk.x += .5;
-        ijk.y += .5;
-        ijk.z += .5;
+        ijk.x += 0.5;
+        ijk.y += 0.5;
+        ijk.z += 0.5;
         // get value!
         if(ijk.x >= 0 && ijk.y >= 0 && ijk.z >= 0 &&
           ijk.x <= tDimensions.x &&
@@ -417,7 +423,6 @@ function init(slice) {
   //
   //
   //
-  // Qh or Cc...
   var rasijk = volume.Qh;
   tRASToIJK = new THREE.Matrix4().set(
                   rasijk[0], rasijk[4], rasijk[8], rasijk[12],

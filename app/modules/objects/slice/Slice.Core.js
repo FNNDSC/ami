@@ -1,3 +1,5 @@
+'use strict';
+
 var VJS = VJS || {};
 VJS.Slice = VJS.Slice || {};
 
@@ -10,7 +12,7 @@ VJS.Slice.Core = function(origin, normal, volumeCore){
   this._Transforms = {};
 
   this._IntersectionRASBBoxPlane = null;
-}
+};
 
 VJS.Slice.Core.prototype.Slice = function(){
   // update all information according to Normal and Origin!
@@ -30,7 +32,7 @@ VJS.Slice.Core.prototype.Slice = function(){
   // compute width and height as well...
   this.WidthHeight();
 
-}
+};
 
 VJS.Slice.Core.prototype.WidthHeight = function(){
 
@@ -73,7 +75,7 @@ VJS.Slice.Core.prototype.WidthHeight = function(){
   //
   var _wmin =  Math.floor(_xyBBox[0]);
   var _wmax =  Math.ceil(_xyBBox[1]);
-  if(_wmin == _wmax){
+  if(_wmin === _wmax){
     _wmax++;
   }
 
@@ -81,14 +83,14 @@ VJS.Slice.Core.prototype.WidthHeight = function(){
 
   var _hmin = Math.floor(_xyBBox[2]);
   var _hmax = Math.ceil(_xyBBox[3]);
-  if(_hmin == _hmax){
+  if(_hmin === _hmax){
 
     _hmax++;
 
   }
 
   this._Height = _hmax - _hmin;
-}
+};
 
 VJS.Slice.Core.prototype.TransformXYRAS = function(){
   var xyNormal = new THREE.Vector3(0, 0, 1);
@@ -116,13 +118,13 @@ VJS.Slice.Core.prototype.TransformXYRAS = function(){
     }
 
     // create inverse transform as well
-    this._Transforms.ras2xy = new THREE.Matrix4().getInverse ( this._Transforms.xy2ras )
-}
+    this._Transforms.ras2xy = new THREE.Matrix4().getInverse ( this._Transforms.xy2ras );
+};
 
 // we should directly detect the intersectionm with the ORIENTED Bounding Box for performance reasons...
 VJS.Slice.Core.prototype.IntersectionRASBBoxPlane = function(){
-  var _solutionsIn = new Array();
-  var _solutionsOut = new Array();
+  var _solutionsIn = [];
+  var _solutionsOut = [];
 
   //
   // DO NOT DO IT IN A LOOP (AT LEAST YET) TO MAKE IT MORE READABLE
@@ -158,7 +160,7 @@ VJS.Slice.Core.prototype.IntersectionRASBBoxPlane = function(){
 
   // line 2
   // x= bbox.x max, y=bbox.y min
-  var _solutionZ = -( this._Normal.x * ( this._VolumeCore._RAS.boundingbox[1].x - this._Origin.x ) + this._Normal.y*( this._VolumeCore._RAS.boundingbox[0].y - this._Origin.y ) )/this._Normal.z + this._Origin.z;
+  _solutionZ = -( this._Normal.x * ( this._VolumeCore._RAS.boundingbox[1].x - this._Origin.x ) + this._Normal.y*( this._VolumeCore._RAS.boundingbox[0].y - this._Origin.y ) )/this._Normal.z + this._Origin.z;
   if(_solutionZ >= this._VolumeCore._RAS.boundingbox[0].z && _solutionZ <= this._VolumeCore._RAS.boundingbox[1].z){
     _solutionsIn.push(new THREE.Vector3(this._VolumeCore._RAS.boundingbox[1].x, this._VolumeCore._RAS.boundingbox[0].y, _solutionZ));
   }
@@ -168,7 +170,7 @@ VJS.Slice.Core.prototype.IntersectionRASBBoxPlane = function(){
 
   // line 3
   // x= bbox.x min, y=bbox.y max
-  var _solutionZ = -( this._Normal.x * ( this._VolumeCore._RAS.boundingbox[0].x - this._Origin.x ) + this._Normal.y*( this._VolumeCore._RAS.boundingbox[1].y - this._Origin.y ) )/this._Normal.z + this._Origin.z;
+  _solutionZ = -( this._Normal.x * ( this._VolumeCore._RAS.boundingbox[0].x - this._Origin.x ) + this._Normal.y*( this._VolumeCore._RAS.boundingbox[1].y - this._Origin.y ) )/this._Normal.z + this._Origin.z;
   if(_solutionZ >= this._VolumeCore._RAS.boundingbox[0].z && _solutionZ <= this._VolumeCore._RAS.boundingbox[1].z){
     _solutionsIn.push(new THREE.Vector3(this._VolumeCore._RAS.boundingbox[0].x, this._VolumeCore._RAS.boundingbox[1].y, _solutionZ));
   }
@@ -178,7 +180,7 @@ VJS.Slice.Core.prototype.IntersectionRASBBoxPlane = function(){
 
   // line 4
   // x= bbox.x max, y=bbox.y max
-  var _solutionZ = -( this._Normal.x * ( this._VolumeCore._RAS.boundingbox[1].x - this._Origin.x ) + this._Normal.y*( this._VolumeCore._RAS.boundingbox[1].y - this._Origin.y ) )/this._Normal.z + this._Origin.z;
+  _solutionZ = -( this._Normal.x * ( this._VolumeCore._RAS.boundingbox[1].x - this._Origin.x ) + this._Normal.y*( this._VolumeCore._RAS.boundingbox[1].y - this._Origin.y ) )/this._Normal.z + this._Origin.z;
   if(_solutionZ >= this._VolumeCore._RAS.boundingbox[0].z && _solutionZ <= this._VolumeCore._RAS.boundingbox[1].z){
     _solutionsIn.push(new THREE.Vector3(this._VolumeCore._RAS.boundingbox[1].x, this._VolumeCore._RAS.boundingbox[1].y, _solutionZ));
   }
@@ -202,7 +204,7 @@ VJS.Slice.Core.prototype.IntersectionRASBBoxPlane = function(){
 
   // line 6
   // x= bbox.x max, z=bbox.z min
-  var _solutionY = -( this._Normal.x * ( this._VolumeCore._RAS.boundingbox[1].x - this._Origin.x ) + this._Normal.z*( this._VolumeCore._RAS.boundingbox[0].z - this._Origin.z ) )/this._Normal.y + this._Origin.y;
+  _solutionY = -( this._Normal.x * ( this._VolumeCore._RAS.boundingbox[1].x - this._Origin.x ) + this._Normal.z*( this._VolumeCore._RAS.boundingbox[0].z - this._Origin.z ) )/this._Normal.y + this._Origin.y;
   if(_solutionY >= this._VolumeCore._RAS.boundingbox[0].y && _solutionY <= this._VolumeCore._RAS.boundingbox[1].y){
     _solutionsIn.push(new THREE.Vector3(this._VolumeCore._RAS.boundingbox[1].x, _solutionY, this._VolumeCore._RAS.boundingbox[0].z));
   }
@@ -212,7 +214,7 @@ VJS.Slice.Core.prototype.IntersectionRASBBoxPlane = function(){
 
   // line 7
   // x= bbox.x min, z=bbox.z max
-  var _solutionY = -( this._Normal.x * ( this._VolumeCore._RAS.boundingbox[0].x - this._Origin.x ) + this._Normal.z*( this._VolumeCore._RAS.boundingbox[1].z - this._Origin.z ) )/this._Normal.y + this._Origin.y;
+  _solutionY = -( this._Normal.x * ( this._VolumeCore._RAS.boundingbox[0].x - this._Origin.x ) + this._Normal.z*( this._VolumeCore._RAS.boundingbox[1].z - this._Origin.z ) )/this._Normal.y + this._Origin.y;
   if(_solutionY >= this._VolumeCore._RAS.boundingbox[0].y && _solutionY <= this._VolumeCore._RAS.boundingbox[1].y){
     _solutionsIn.push(new THREE.Vector3(this._VolumeCore._RAS.boundingbox[0].x, _solutionY, this._VolumeCore._RAS.boundingbox[1].z));
   }
@@ -222,7 +224,7 @@ VJS.Slice.Core.prototype.IntersectionRASBBoxPlane = function(){
 
   // line 8
   // x= bbox.x max, z=bbox.z max
-  var _solutionY = -( this._Normal.x * ( this._VolumeCore._RAS.boundingbox[1].x - this._Origin.x ) + this._Normal.z*( this._VolumeCore._RAS.boundingbox[1].z - this._Origin.z ) )/this._Normal.y + this._Origin.y;
+  _solutionY = -( this._Normal.x * ( this._VolumeCore._RAS.boundingbox[1].x - this._Origin.x ) + this._Normal.z*( this._VolumeCore._RAS.boundingbox[1].z - this._Origin.z ) )/this._Normal.y + this._Origin.y;
   if(_solutionY >= this._VolumeCore._RAS.boundingbox[0].y && _solutionY <= this._VolumeCore._RAS.boundingbox[1].y){
     _solutionsIn.push(new THREE.Vector3(this._VolumeCore._RAS.boundingbox[1].x, _solutionY, this._VolumeCore._RAS.boundingbox[1].z));
   }
@@ -246,7 +248,7 @@ VJS.Slice.Core.prototype.IntersectionRASBBoxPlane = function(){
 
   // line 10
   // y= bbox.y max, z=bbox.z min
-  var _solutionX = -( this._Normal.y * ( this._VolumeCore._RAS.boundingbox[1].y - this._Origin.y ) + this._Normal.z*( this._VolumeCore._RAS.boundingbox[0].z - this._Origin.z ) )/this._Normal.x + this._Origin.x;
+  _solutionX = -( this._Normal.y * ( this._VolumeCore._RAS.boundingbox[1].y - this._Origin.y ) + this._Normal.z*( this._VolumeCore._RAS.boundingbox[0].z - this._Origin.z ) )/this._Normal.x + this._Origin.x;
   if(_solutionX >= this._VolumeCore._RAS.boundingbox[0].x && _solutionX <= this._VolumeCore._RAS.boundingbox[1].x){
     _solutionsIn.push(new THREE.Vector3(_solutionX, this._VolumeCore._RAS.boundingbox[1].y, this._VolumeCore._RAS.boundingbox[0].z));
   }
@@ -256,7 +258,7 @@ VJS.Slice.Core.prototype.IntersectionRASBBoxPlane = function(){
 
   // line 11
   // y= bbox.y min, z=bbox.z max
-  var _solutionX = -( this._Normal.y * ( this._VolumeCore._RAS.boundingbox[0].y - this._Origin.y ) + this._Normal.z*( this._VolumeCore._RAS.boundingbox[1].z - this._Origin.z ) )/this._Normal.x + this._Origin.x;
+  _solutionX = -( this._Normal.y * ( this._VolumeCore._RAS.boundingbox[0].y - this._Origin.y ) + this._Normal.z*( this._VolumeCore._RAS.boundingbox[1].z - this._Origin.z ) )/this._Normal.x + this._Origin.x;
   if(_solutionX >= this._VolumeCore._RAS.boundingbox[0].x && _solutionX <= this._VolumeCore._RAS.boundingbox[1].x){
     _solutionsIn.push(new THREE.Vector3(_solutionX, this._VolumeCore._RAS.boundingbox[0].y, this._VolumeCore._RAS.boundingbox[1].z));
   }
@@ -266,7 +268,7 @@ VJS.Slice.Core.prototype.IntersectionRASBBoxPlane = function(){
 
   // line 8
   // y= bbox.y max, z=bbox.z max
-  var _solutionX = -( this._Normal.y * ( this._VolumeCore._RAS.boundingbox[1].y - this._Origin.y ) + this._Normal.z*( this._VolumeCore._RAS.boundingbox[1].z - this._Origin.z ) )/this._Normal.x + this._Origin.x;
+  _solutionX = -( this._Normal.y * ( this._VolumeCore._RAS.boundingbox[1].y - this._Origin.y ) + this._Normal.z*( this._VolumeCore._RAS.boundingbox[1].z - this._Origin.z ) )/this._Normal.x + this._Origin.x;
   if(_solutionX >= this._VolumeCore._RAS.boundingbox[0].x && _solutionX <= this._VolumeCore._RAS.boundingbox[1].x){
     _solutionsIn.push(new THREE.Vector3(_solutionX, this._VolumeCore._RAS.boundingbox[1].y, this._VolumeCore._RAS.boundingbox[1].z));
   }
@@ -275,4 +277,4 @@ VJS.Slice.Core.prototype.IntersectionRASBBoxPlane = function(){
   }
 
   return [_solutionsIn, _solutionsOut];
-}
+};

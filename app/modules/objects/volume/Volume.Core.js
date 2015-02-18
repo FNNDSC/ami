@@ -1,3 +1,5 @@
+'use strict';
+
 var VJS = VJS || {};
 VJS.Volume = VJS.Volume || {};
 
@@ -22,7 +24,7 @@ VJS.Volume.Core = function(_data, _max, _min, _transforms, _ijk, _ras){
   this._TextureNb = 0;
   this._TextureSize = 0;
 
-}
+};
 
 // Texture Number and Texture Size
 // here we do not grab RBG values from Data yet...
@@ -32,8 +34,8 @@ VJS.Volume.Core.prototype.createTexture = function(tNumber, tSize){
   // 
   var requiredPixels = this._IJK.dimensions.x * this._IJK.dimensions.y * this._IJK.dimensions.z * this._NbChannels;
   if(requiredPixels > tSize*tSize*this._NbChannels*tNumber){
-    window.console.log("== WARNING ==");
-    window.console.log("Too many pixels to fit in shader, go for canvas 2D...");
+    window.console.log('== WARNING ==');
+    window.console.log('Too many pixels to fit in shader, go for canvas 2D...');
   }
 
   // parse _data
@@ -43,13 +45,13 @@ VJS.Volume.Core.prototype.createTexture = function(tNumber, tSize){
   }
 
   // Can not just use subarray because we have to normalize the values (Uint* 0<x<255)
-  for (var i = 0; i< tSize * tSize * tNumber; i++) {
+  for (var j = 0; j< tSize * tSize * tNumber; j++) {
 
-    var textureIndex = Math.floor(i/ (tSize * tSize) );
-    var inTextureIndex = i % (tSize * tSize);
+    var textureIndex = Math.floor(j/ (tSize * tSize) );
+    var inTextureIndex = j % (tSize * tSize);
 
     // normalize value
-    var normalizedValue = 255 * ((this._Data[i] - this._Min) / (this._Max - this._Min));
+    var normalizedValue = 255 * ((this._Data[j] - this._Min) / (this._Max - this._Min));
 
     // RGB
     rawData[textureIndex][4*inTextureIndex] = normalizedValue;
@@ -61,12 +63,12 @@ VJS.Volume.Core.prototype.createTexture = function(tNumber, tSize){
 
   // create threeJS textures
   this._Textures = [];
-  for(var i=0; i<tNumber; i++){
-    var tex = new THREE.DataTexture( rawData[i], tSize, tSize, THREE.RGBAFormat, THREE.UnsignedByteType, THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter );
+  for(var k=0; k<tNumber; k++){
+    var tex = new THREE.DataTexture( rawData[k], tSize, tSize, THREE.RGBAFormat, THREE.UnsignedByteType, THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter );
     tex.needsUpdate = true;
     this._Textures.push(tex);
   }
-}
+};
 
 // t
 VJS.Volume.Core.prototype.getValue = function(i, j, k, t, normalized){
@@ -77,4 +79,4 @@ VJS.Volume.Core.prototype.getValue = function(i, j, k, t, normalized){
   else{
     return value;
   }
-}
+};
