@@ -45,7 +45,7 @@ module.exports = function (grunt) {
       },
       js: {
         files: ['<%= vjs.app %>/**/*.js'],
-        tasks: ['jshint']
+        tasks: ['jshint', 'jsbeautifier']
       },
       styles: {
         files: ['<%= vjs.app %>/**/*.css'],
@@ -94,19 +94,6 @@ module.exports = function (grunt) {
           }
         }
       },
-      test: {
-        options: {
-          open: {
-            target: 'http://localhost:<%= connect.options.port %>/test'
-          },
-          middleware: function (connect) {
-            return [
-              mountFolder(connect, vjsConfig.app)
-            ];
-          },
-          keepalive: true
-        }
-      },
       dist: {
         options: {
           middleware: function (connect) {
@@ -132,6 +119,12 @@ module.exports = function (grunt) {
         reporter: require('jshint-stylish')
       },
       all: ['<%= vjs.app %>/**/*.js']
+    },
+    jsbeautifier : {
+      files: ["<%= vjs.app %>/**/*.js"],
+      options: {
+          config: ".jshintrc"
+      }
     },
     useminPrepare: {
       html: '<%= vjs.app %>/index.html',
@@ -251,6 +244,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('default', [
     'jshint',
+    'jsbeautifier',
     // 'test'
     'build'
   ]);

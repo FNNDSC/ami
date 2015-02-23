@@ -13,6 +13,7 @@
     "grunt-contrib-copy": "~0.5.0",
     "grunt-contrib-imagemin": "0.7.1",
     "grunt-contrib-jshint": "~0.10.0",
+    "grunt-jsbeautifier": "~0.2.8",
     "grunt-contrib-uglify": "~0.5.0",
     "grunt-contrib-watch": "~0.6.1",
     "grunt-minify-html": "^0.1.0",
