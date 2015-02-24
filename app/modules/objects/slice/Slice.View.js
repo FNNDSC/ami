@@ -98,12 +98,12 @@ VJS.Slice.View.prototype.GetMagicTransform = function() {
             var translate = new THREE.Matrix4().makeTranslation(-this._SliceCore._Origin.x, -this._SliceCore._Origin.y, -this._SliceCore._Origin.z);
 
             // rotate around X by 90 degrees
-            var beta = Math.PI / 2; //-Math.PI / 2;
+            var beta = -Math.PI / 2;
             var rotate = new THREE.Matrix4().makeRotationX(beta);
 
             // rotate around X by 0 degrees? Have to figure out ortho camera bug
             // http://stackoverflow.com/questions/28698173/rotations-between-orthographic-and-persepective-camera
-            var gamma = 0; //-Math.PI;
+            var gamma = -Math.PI;
             var rotate2 = new THREE.Matrix4().makeRotationY(gamma);
 
             // center slice on its origin

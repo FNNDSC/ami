@@ -412,14 +412,14 @@ function init(slice) {
     var scene = new THREE.Scene();
     // camera
     mode = '3D';
-    var camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 0.001, 10000000);
-    camera.position.x = 400;
+    // var camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
+    // camera.position.x = 400;
     // camera.lookAt(scene.position);
 
     // mode = 'SAGITTAL';
     // // // should center camera on volume
-    // var camera = new THREE.OrthographicCamera(threeD.offsetWidth / -2, threeD.offsetWidth / 2, threeD.offsetHeight / -2, threeD.offsetHeight / 2, 0.0001, 10000000);
-    // camera.position.x = 400;
+    var camera = new THREE.OrthographicCamera(threeD.offsetWidth / -2, threeD.offsetWidth / 2, threeD.offsetHeight / 2, threeD.offsetHeight / -2, 1, 10000000);
+    camera.position.x = 400;
     // camera.position.y = 10;
     // camera.position.y = 200;
     // camera.position.z = 800;
