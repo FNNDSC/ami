@@ -86,8 +86,6 @@ function init(slice) {
                 var material3 = new THREE.MeshBasicMaterial({
                     color: 0xff00f0
                 });
-                material3.transparent = true;
-                material3.opacity = 0.5;
                 var sphere = new THREE.Mesh(sphereGeometry, material3);
                 sphere.applyMatrix(new THREE.Matrix4().makeTranslation(ras.x, ras.y, ras.z));
                 sphere.name = 'handle';
@@ -478,21 +476,21 @@ function init(slice) {
     var scene = new THREE.Scene();
     // camera
     mode = '3D';
-    // var camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 0.001, 10000000);
-    // camera.position.x = 400;
-    // camera.lookAt(scene.position);
+    var camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 0.001, 10000000);
+    camera.position.x = 400;
+    camera.lookAt(scene.position);
 
     // mode = 'SAGITTAL';
     // // // should center camera on volume
-    var camera = new THREE.OrthographicCamera(threeD.offsetWidth / -2, threeD.offsetWidth / 2, threeD.offsetHeight / -2, threeD.offsetHeight / 2, 0.0001, 10000000);
-    camera.position.x = 400;
+    // var camera = new THREE.OrthographicCamera(threeD.offsetWidth / -2, threeD.offsetWidth / 2, threeD.offsetHeight / -2, threeD.offsetHeight / 2, 0.0001, 10000000);
+    // camera.position.x = 400;
     // camera.position.y = 10;
     // camera.position.y = 200;
     // camera.position.z = 800;
 
 
     controls = new THREE.OrbitControls2D(camera, renderer.domElement);
-    controls.noRotate = true;
+    // controls.noRotate = true;
 
     // camera.updateProjectionMatrix();
 
@@ -601,6 +599,7 @@ function init(slice) {
     // height, width, center and transform should not be there (Slice.Core should compute it.)
     vjsSliceCore = new VJS.Slice.Core(sliceOrigin, sliceNormal, vjsVolumeCore);
     vjsSliceCore.Slice();
+
     // create a view for the slice (for debugging)
     var intersectionRASBBoxSlice = new VJS.Slice.View(vjsSliceCore);
     var materialIntersection = new THREE.MeshBasicMaterial({
@@ -613,6 +612,13 @@ function init(slice) {
 
     // create another view of the same slice
     vjsSliceView = new VJS.Slice.View(vjsSliceCore);
+    vjsSliceView._Convention = 'RAD';
+    vjsSliceView._Orientation = 'SAG';
+
+    var sphereGeometry = new THREE.SphereGeometry(2);
+    var sphere = new THREE.Mesh(sphereGeometry, materialIntersection);
+    scene.add(sphere);
+
     // plane = vjsSliceView.RASIntersection();
     plane = vjsSliceView.RASSlice(tSize, tNumber);
     scene.add(plane);

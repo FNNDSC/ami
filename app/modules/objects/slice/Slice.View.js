@@ -5,6 +5,9 @@ VJS.Slice = VJS.Slice || {};
 
 VJS.Slice.View = function(sliceCore) {
     this._SliceCore = sliceCore;
+    this._Convention = '';
+    this._Orientation = '';
+    this._toRASTransform = null;
 };
 
 VJS.Slice.View.prototype.RASSlice = function(tSize, tNumber) {
@@ -13,6 +16,23 @@ VJS.Slice.View.prototype.RASSlice = function(tSize, tNumber) {
     // setup uniforms
 
     window.console.log(tNumber);
+
+    // Sagittal transform...
+    var magicM = new THREE.Matrix4();
+    var magicM2 = new THREE.Matrix4();
+    var translate = new THREE.Matrix4().makeTranslation(-this._SliceCore._Origin.x, -this._SliceCore._Origin.y, -this._SliceCore._Origin.z);
+    var translate2 = new THREE.Matrix4().makeTranslation(this._SliceCore._Origin.x, this._SliceCore._Origin.y, this._SliceCore._Origin.z);
+    var beta = -Math.PI / 2;
+    var rotate = new THREE.Matrix4().makeRotationX(beta);
+
+    window.console.log(this._Convention);
+    window.console.log(this._Orientation);
+
+    if (this._Orientation === 'SAG') {
+        magicM.multiply(translate2).multiply(rotate).multiply(translate);
+    }
+
+    magicM2.getInverse(magicM);
 
     var shaderSlice = VJS.Slice.Shader;
     var uniforms = shaderSlice.slice.uniforms;
@@ -23,7 +43,7 @@ VJS.Slice.View.prototype.RASSlice = function(tSize, tNumber) {
     uniforms.t02.value = textures[2];
     uniforms.t03.value = textures[3];
     uniforms.uIJKDims.value = this._SliceCore._VolumeCore._IJK.dimensions;
-    uniforms.uRASToIJK.value = this._SliceCore._VolumeCore._Transforms.ras2ijk;
+    uniforms.uRASToIJK.value = this._SliceCore._VolumeCore._Transforms.ras2ijk.multiply(magicM2);
 
     var mat = new THREE.ShaderMaterial({
         'side': THREE.DoubleSide,
@@ -39,13 +59,19 @@ VJS.Slice.View.prototype.RASSlice = function(tSize, tNumber) {
 
     var plane = new THREE.Mesh(geometry, mat);
     // move to RAS Space
+
+    //
     plane.applyMatrix(this._SliceCore._Transforms.xy2ras);
+    plane.applyMatrix(rotate);
     plane.applyMatrix(new THREE.Matrix4().makeTranslation(this._SliceCore._Origin.x, this._SliceCore._Origin.y, this._SliceCore._Origin.z));
 
     return plane;
 };
 
 VJS.Slice.View.prototype.updateRASSlice = function(plane) {
+
+    var beta = -Math.PI / 2;
+    var rotate = new THREE.Matrix4().makeRotationX(beta);
     // Should get all information from there or from the Core...!
     // update plane geometry
     var geometry = new THREE.PlaneGeometry(this._SliceCore._Width, this._SliceCore._Height);
@@ -54,6 +80,7 @@ VJS.Slice.View.prototype.updateRASSlice = function(plane) {
 
     // update transform matrix
     plane.matrix = this._SliceCore._Transforms.xy2ras;
+    plane.applyMatrix(rotate);
     plane.applyMatrix(new THREE.Matrix4().makeTranslation(this._SliceCore._Origin.x, this._SliceCore._Origin.y, this._SliceCore._Origin.z));
 };
 
