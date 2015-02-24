@@ -1,12 +1,13 @@
 'use strict';
 
 var VJS = VJS || {};
+VJS.Widgets = VJS.Widgets || {};
 
-VJS.EllipsePicker = function() {
+VJS.Widgets.EllipsePicker = function() {
     this.init();
 };
 
-VJS.EllipsePicker.prototype.init = function() {
+VJS.Widgets.EllipsePicker.prototype.init = function() {
     this.widget = new THREE.Object3D();
     this.widget.name = 'EllipsePicker';
 
@@ -32,7 +33,7 @@ VJS.EllipsePicker.prototype.init = function() {
     // handle 2
 };
 
-VJS.EllipsePicker.prototype.update = function(handle1, handle2) {
+VJS.Widgets.EllipsePicker.prototype.update = function(handle1, handle2) {
     this.widget.children[0].applyMatrix(new THREE.Matrix4().makeTranslation(handle1.x, handle1.y, handle1.z));
     this.widget.children[1].applyMatrix(new THREE.Matrix4().makeTranslation(handle2.x, handle2.y, handle2.z));
 };

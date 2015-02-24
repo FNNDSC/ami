@@ -1,8 +1,9 @@
 'use strict';
 
 var VJS = VJS || {};
+VJS.Widgets = VJS.Widgets || {};
 
-VJS.ProbeROI = function() {
+VJS.Widgets.ProbeROI = function() {
     this.domElement = null;
     this.nbPointsContainer = null;
     this.meanContainer = null;
@@ -14,7 +15,7 @@ VJS.ProbeROI = function() {
     this.createDomElement();
 };
 
-VJS.ProbeROI.prototype.createDomElement = function() {
+VJS.Widgets.ProbeROI.prototype.createDomElement = function() {
 
     // Number of voxels
     this.nbPointsContainer = document.createElement('div');
@@ -62,7 +63,7 @@ VJS.ProbeROI.prototype.createDomElement = function() {
 
 // should just pass the points and do stats here...
 // but might be worst performance-wise
-VJS.ProbeROI.prototype.update = function(points) {
+VJS.Widgets.ProbeROI.prototype.update = function(points) {
 
     // ugly
     if (JSON.stringify(points) === '{}') {
@@ -179,6 +180,6 @@ VJS.ProbeROI.prototype.update = function(points) {
 
 };
 
-VJS.ProbeROI.prototype.drawChart = function() {
+VJS.Widgets.ProbeROI.prototype.drawChart = function() {
     this.chartReady = true;
 };

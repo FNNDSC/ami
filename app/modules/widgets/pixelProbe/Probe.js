@@ -1,8 +1,9 @@
 'use strict';
 
 var VJS = VJS || {};
+VJS.Widgets = VJS.Widget || {};
 
-VJS.Probe = function() {
+VJS.Widgets.Probe = function() {
     this.domElement = null;
     this.rasContainer = null;
     this.ijkContainer = null;
@@ -11,7 +12,7 @@ VJS.Probe = function() {
     this.createDomElement();
 };
 
-VJS.Probe.prototype.createDomElement = function() {
+VJS.Widgets.Probe.prototype.createDomElement = function() {
 
     // RAS
     this.rasContainer = document.createElement('div');
@@ -32,7 +33,7 @@ VJS.Probe.prototype.createDomElement = function() {
     this.domElement.appendChild(this.valueContainer);
 };
 
-VJS.Probe.prototype.update = function(ras, ijk, value) {
+VJS.Widgets.Probe.prototype.update = function(ras, ijk, value) {
     var rasContent = ras.x.toFixed(2) + ' : ' + ras.y.toFixed(2) + ' : ' + ras.z.toFixed(2);
     this.rasContainer.innerHTML = 'RAS: ' + rasContent;
 

@@ -324,71 +324,6 @@ function init(slice) {
 
     // this function is executed on each animation frame
     function animate() {
-        // update camera if needed
-        if (mode === 'SAGITTAL') {
-
-            //             var ras = {
-            //     'origin': tOrigin,
-            //     'center': tRASCenter,
-            //     'dimensions': tRASDimensions,
-            //     'spacing': null,
-            //     'boundingbox': [
-            //         new THREE.Vector3(tRASCenter.x - tRASDimensions.x / 2, tRASCenter.y - tRASDimensions.y / 2, tRASCenter.z - tRASDimensions.z / 2),
-            //         new THREE.Vector3(tRASCenter.x + tRASDimensions.x / 2, tRASCenter.y + tRASDimensions.y / 2, tRASCenter.z + tRASDimensions.z / 2)
-            //     ]
-            // };
-
-            // ratio
-            // window.console.log(threeD.offsetWidth);
-            // var oW = threeD.offsetWidth;
-            // // // window.console.log(threeD.offsetHeight);
-            // var oH = threeD.offsetHeight;
-            // var ratio = oW / oH;
-            // var width = vjsVolumeCore._RAS.dimensions.y;
-            // var height = vjsVolumeCore._RAS.dimensions.z;
-
-            // if (width / height > ratio) {
-            //     // increase height to have right ratio
-            //     var offsetW = height(ratio - width / height);
-            //     height = height + offsetW;
-
-            //     // window.console.log(width / height);
-            //     // window.console.log("vs" , ratio);
-            // } else {
-            //     // increase width to have right ratio
-            //     var offsetH = ratio * height - width;
-            //     width = width + offsetH;
-
-            //     // window.console.log(width / height);
-            //     // window.console.log("vs" , ratio);
-            // }
-            // // // should only update that when interactor tells us!
-            // // // get ratio of viewport to avoid distortions
-            // // // orthodgraphic camera
-            // // // must be centered on volume
-            // // //ymin
-            // camera.left = vjsVolumeCore._RAS.center.y - width / 2;
-            // //ymax
-            // camera.right = vjsVolumeCore._RAS.center.y + width / 2;
-            // // zmax
-            // camera.top = vjsVolumeCore._RAS.center.z + height / 2;
-            // // zmin
-            // camera.bottom = vjsVolumeCore._RAS.center.z - height / 2;
-            // // xmax
-            // camera.near = 0.0001;
-            // // xmin
-            // camera.far = 99999;
-
-            // // //camera.rotation
-            // camera.position.x = vjsVolumeCore._RAS.boundingbox[1].x + 40;
-            // // camera.position.y = vjsVolumeCore._RAS.center.y;
-            // // camera.position.z = vjsVolumeCore._RAS.center.z;
-
-            // // camera.lookAt(vjsVolumeCore._RAS.center);
-
-            // camera.updateProjectionMatrix();
-
-        }
         // update plane geomtry if needed
         if (currentIndex !== volume.indexX) {
             currentSlice = volume.children[0].c[volume.indexX];
@@ -441,6 +376,7 @@ function init(slice) {
             }
         }
         // render
+        camera.updateProjectionMatrix();
         renderer.render(scene, camera);
         stats.update();
         controls.update();
@@ -466,10 +402,10 @@ function init(slice) {
     stats = new Stats();
     threeD.appendChild(stats.domElement);
 
-    probe = new VJS.Probe();
+    probe = new VJS.Widgets.Probe();
     threeD.appendChild(probe.domElement);
 
-    probeROI = new VJS.ProbeROI();
+    probeROI = new VJS.Widgets.ProbeROI();
     threeD.appendChild(probeROI.domElement);
 
     // scene
@@ -478,7 +414,7 @@ function init(slice) {
     mode = '3D';
     var camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 0.001, 10000000);
     camera.position.x = 400;
-    camera.lookAt(scene.position);
+    // camera.lookAt(scene.position);
 
     // mode = 'SAGITTAL';
     // // // should center camera on volume
@@ -612,8 +548,8 @@ function init(slice) {
 
     // create another view of the same slice
     vjsSliceView = new VJS.Slice.View(vjsSliceCore);
-    vjsSliceView._Convention = 'RAD';
-    vjsSliceView._Orientation = 'SAG';
+    vjsSliceView._Convention = 'RADIOLOGY';
+    vjsSliceView._Orientation = 'SAGITTAL';
 
     var sphereGeometry = new THREE.SphereGeometry(2);
     var sphere = new THREE.Mesh(sphereGeometry, materialIntersection);
