@@ -582,7 +582,7 @@ window.onload = function() {
     //
     // create a X.volumehttps://www.google.es/url?sa=t&rct=j&q=&esrc=s&source=web&cd=12&ved=0CCcQFjABOAo&url=http%3A%2F%2Fcharmianswers.org%2Fwordpress%2Fyeakel%2F2014%2F12%2F16%2Fwhy-orthographic-projection-not-working-exactly-while-using-combinedcamera-js-using-three-js%2F&ei=acPYVJzqH47KaMP4ghg&usg=AFQjCNF1rWDi5zBe5-Abh0qBSkifTtDSew&sig2=gLgGnS6sOjhjRBdxmATsgg
     volume = new X.volume();
-    volume.file = 'data/lesson17_cropped.nii.gz';
+    volume.file = '../../data/lesson17_cropped.nii.gz';
     // volume.file = 'data/CT.nii.gz';
     // compute IJK to RAS transform...
     volume.reslicing = true;

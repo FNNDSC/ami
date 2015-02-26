@@ -1,0 +1,58 @@
+<html>
+<head>
+<title>VJS</title><script type="text/javascript" src="http://get.goXTK.com/xtk_xdat.gui.js"></script>
+<script type="text/javascript" src="https://rawgit.com/xtk/get/gh-pages/xtk_edge.js"></script>
+<script src="http://threejs.org/build/three.js"></script>
+
+<script src="http://threejs.org/examples/js/controls/OrbitControls.js"></script>
+<script src="http://threejs.org/examples/js/controls/EditorControls.js"></script>
+<script src="http://threejs.org/examples/js/libs/stats.min.js"></script>
+
+<!-- Load controls we want to use -->
+<script src="../../modules/controls/OrbitControls2D.js"></script>
+
+<!-- Load widgets we want to use -->
+<script src="../../modules/widgets/pixelProbe/Probe.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script src="../../modules/widgets/boxProbe/ProbeROI.js"></script>
+<script src="../../modules/widgets/boxProbe/EllipsePicker.js"></script>
+
+<!-- Load objects we want to use -->
+<script src="../../modules/objects/slice/Slice.Core.js"></script>
+<script src="../../modules/objects/slice/Slice.View.js"></script>
+<script src="../../modules/objects/slice/Slice.Shader.js"></script>
+<script src="../../modules/objects/volume/Volume.Core.js"></script>
+<script src="../../modules/objects/volume/Volume.View.js"></script>
+
+<script type="text/javascript" src="slice_probe.js"></script>
+<!-- <link rel="stylesheet" type="text/css" href="demo.css"> -->
+<style type="text/css">
+  
+      #stats { position: absolute; top:0; left: 0;}
+
+      #VJSProbe {  position: absolute; bottom:0; left: 0; width: 260px; font-family: monospace; padding: 10px; background-color: rgba(249, 249, 249, .7);}
+
+      #VJSProbeROI {  position: absolute; bottom:0; right: 0; width: 260px; font-family: monospace; padding: 10px; background-color: rgba(249, 249, 249, .7);}
+
+      #VJSProbeROIChart {  position: fixed; top:0; right: 0; font-family: monospace; padding: 10px; background-color: rgba(249, 249, 249, .7);}
+
+      #sliceX {
+        width:10%;
+        height:100%;
+        background-color: #212121;
+        float: right;
+      }
+
+</style>
+</head>
+
+<body style="margin:0px;">
+<!-- the container for the renderers -->
+<div id="3d"
+  style="background-color: #000; width: 100%; height: 70%;  position: relative;"></div>
+<div style="background-color: #f9f9f9; width: 100%; height: 30%;">
+  <!-- dummy container for XTK -->
+  <div id="sliceX"> </div>
+  </div>
+</body>
+</html>
