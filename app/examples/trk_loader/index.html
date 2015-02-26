@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title> VJS TRK Loader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+      body {
+        font-family: Monospace;
+        background-color: #fff;
+        color: #fff;
+        margin: 0px;
+        overflow: hidden;
+      }
+      #info {
+        color: #fff;
+        position: absolute;
+        top: 10px;
+        width: 100%;
+        text-align: center;
+        z-index: 100;
+        display:block;
+      }
+      #info a, .button { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
+    </style>
+  </head>
+
+  <body>
+    <div id="info">
+    <a href="http://fnndsc.github.io/vjs" target="_blank">v.js</a> -
+    trk format loader test
+    </div>
+
+    <!-- External tools -->
+    <script src="http://threejs.org/build/three.js"></script>
+    <script src="http://threejs.org/examples/js/controls/TrackballControls.js"></script>
+    <script src="http://threejs.org/examples/js/Detector.js"></script>
+    <script src="http://threejs.org/examples/js/libs/stats.min.js"></script>
+    <script src="http://threejs.org/examples/js/libs/dat.gui.min.js"></script>
+
+    <script src="../../modules/objects/trk/Trk.Loader.js"></script>
+
+    <script src="trk_loader.js"></script>
+
+  </body>
+</html>
