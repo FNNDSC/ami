@@ -38,7 +38,7 @@ module.exports = function (grunt) {
           livereload: true
         },
         files: [
-          '<%= vjs.app %>/*.html',
+          '<%= vjs.app %>/**/*.html',
           '{.tmp,<%= vjs.app %>}/**/*.js',
           '{.tmp,<%= vjs.app %>}/**/*.css'
         ]
