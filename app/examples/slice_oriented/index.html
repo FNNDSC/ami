@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>VJS Slice Probe</title>
+
+<!-- External tools -->
+<script type="text/javascript" src="http://get.goXTK.com/xtk_xdat.gui.js"></script>
+<script type="text/javascript" src="https://rawgit.com/xtk/get/gh-pages/xtk_edge.js"></script>
+<script src="http://threejs.org/build/three.js"></script>
+<script src="http://threejs.org/examples/js/libs/stats.min.js"></script>
+
+<!-- Load core elements -->
+<script src="../../modules/core/Adaptor.js"></script>
+
+<!-- Load controls we want to use -->
+<script src="../../modules/controls/OrbitControls2D.js"></script>
+
+<!-- Load widgets we want to use -->
+<script src="../../modules/widgets/pixelProbe/Probe.js"></script>
+
+<!-- Load objects we want to use -->
+<script src="../../modules/objects/slice/Slice.Core.js"></script>
+<script src="../../modules/objects/slice/Slice.View.js"></script>
+<script src="../../modules/objects/slice/Slice.Shader.js"></script>
+<script src="../../modules/objects/volume/Volume.Core.js"></script>
+<script src="../../modules/objects/volume/Volume.View.js"></script>
+
+<script type="text/javascript" src="slice_oriented.js"></script>
+<!-- <link rel="stylesheet" type="text/css" href="demo.css"> -->
+<style type="text/css">
+
+  #VJSProbe {
+    z-index:10;
+    position: absolute;
+    bottom:0;
+    left: 0;
+    width: 260px;
+    font-family: monospace;
+    padding: 10px;
+    background-color: rgba(249, 249, 249, .7);
+  }
+
+  #stats {
+    position: absolute;
+    top:0;
+    left: 0;
+  }
+
+  #r3d {
+    background-color: #000;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+
+</style>
+</head>
+
+<body style="margin:0px;">
+  <!-- the container for the renderers -->
+  <div id="r3d"></div>
+  <div style="background-color: #f9f9f9; width: 0; height: 0;">
+    <!-- dummy container for XTK -->
+    <div id="sliceX"> </div>
+  </div>
+</body>
+</html>
