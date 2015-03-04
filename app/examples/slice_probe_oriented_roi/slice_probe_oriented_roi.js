@@ -17,26 +17,32 @@ function init(slice) {
         mouse.x = (event.clientX / threeD.offsetWidth) * 2 - 1;
         mouse.y = -(event.clientY / threeD.offsetHeight) * 2 + 1;
 
-        var probeRoiSelected = probeROI.getSelected();
-        if (!probeRoiSelected) {
-            return;
-        }
+
 
         var intersects = raycaster.intersectObjects(scene.children);
 
         for (var intersect in intersects) {
-            var ras = new THREE.Vector3().copy(intersects[intersect].point);
+
             // hit plane !
             if (plane.uuid === intersects[intersect].object.uuid) {
 
+                var ras2 = new THREE.Vector3().copy(intersects[intersect].point);
+                probe.updateUI(ras2);
+
                 // update position of selected!
+                var ras = new THREE.Vector3().copy(intersects[intersect].point);
                 probeROI.updateSelected(ras);
 
-                // draw/update 2 handles!
-                if (probeROI.getHandles().length === 2) {
-                    var roi = probeROI.updateROI();
-                    scene.add(roi);
+                var probeRoiSelected = probeROI.getSelected();
+                if (probeRoiSelected) {
+                    // draw/update 2 handles!
+                    if (probeROI.getHandles().length === 2) {
+                        var roi = probeROI.updateROI();
+                        scene.add(roi);
+                    }
                 }
+
+
             }
         }
     }
@@ -83,34 +89,6 @@ function init(slice) {
     function animate() {
 
         raycaster.setFromCamera(mouse, camera);
-
-        // in the mouse move!!!
-        // calculate objects intersecting the picking ray
-        var intersects = raycaster.intersectObjects(scene.children);
-
-        //window.console.log(intersects);
-
-        for (var intersect in intersects) {
-            var ras = new THREE.Vector3().copy(intersects[intersect].point);
-            if (plane.uuid === intersects[intersect].object.uuid) {
-                // convert point to IJK
-                var ijk = intersects[intersect].point.applyMatrix4(rasijk);
-                ijk.x += 0.5;
-                ijk.y += 0.5;
-                ijk.z += 0.5;
-                // get value!
-                if (ijk.x >= 0 && ijk.y >= 0 && ijk.z >= 0 &&
-                    ijk.x <= ijkdimensions.x &&
-                    ijk.y <= ijkdimensions.y &&
-                    ijk.z <= ijkdimensions.z) {
-
-                    var value = vjsVolumeCore.getValue(Math.floor(ijk.x), Math.floor(ijk.y), Math.floor(ijk.z), 0, false);
-                    probe.update(ras, ijk, value);
-                }
-
-                break;
-            }
-        }
 
         // render
         controls.update();
@@ -190,6 +168,8 @@ function init(slice) {
 
     // Create VJS Volume Core and View
     var vjsVolumeCore = new VJS.Volume.Core(volume.J, volume.max, volume.min, transforms, ijk, ras);
+    // Probe needs a volume
+    probe.setVolumeCore(vjsVolumeCore);
     // Probe ROI needs a volume
     probeROI.setVolumeCore(vjsVolumeCore);
 

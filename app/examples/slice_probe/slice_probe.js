@@ -9,43 +9,31 @@ var controls, renderer, stats, volume, mouse, raycaster, plane, threeD, probe, r
 // FUNCTIONS
 function init(slice) {
     function onDocumentMouseMove(event) {
+        event.preventDefault();
+
         // calculate mouse position in normalized device coordinates
         // (-1 to +1) for both components
         mouse.x = (event.clientX / threeD.offsetWidth) * 2 - 1;
         mouse.y = -(event.clientY / threeD.offsetHeight) * 2 + 1;
+
+        var intersects = raycaster.intersectObjects(scene.children);
+
+        for (var intersect in intersects) {
+
+            // hit plane !
+            if (plane.uuid === intersects[intersect].object.uuid) {
+
+                var ras2 = new THREE.Vector3().copy(intersects[intersect].point);
+                probe.updateUI(ras2);
+
+            }
+        }
     }
 
     // this function is executed on each animation frame
     function animate() {
 
         raycaster.setFromCamera(mouse, camera);
-
-        // calculate objects intersecting the picking ray
-        var intersects = raycaster.intersectObjects(scene.children);
-
-        //window.console.log(intersects);
-
-        for (var intersect in intersects) {
-            var ras = new THREE.Vector3().copy(intersects[intersect].point);
-            if (plane.uuid === intersects[intersect].object.uuid) {
-                // convert point to IJK
-                var ijk = intersects[intersect].point.applyMatrix4(rasijk);
-                ijk.x += 0.5;
-                ijk.y += 0.5;
-                ijk.z += 0.5;
-                // get value!
-                if (ijk.x >= 0 && ijk.y >= 0 && ijk.z >= 0 &&
-                    ijk.x <= ijkdimensions.x &&
-                    ijk.y <= ijkdimensions.y &&
-                    ijk.z <= ijkdimensions.z) {
-
-                    var value = vjsVolumeCore.getValue(Math.floor(ijk.x), Math.floor(ijk.y), Math.floor(ijk.z), 0, false);
-                    probe.update(ras, ijk, value);
-                }
-
-                break;
-            }
-        }
 
         // render
         controls.update();
@@ -121,6 +109,8 @@ function init(slice) {
 
     // Create VJS Volume Core and View
     var vjsVolumeCore = new VJS.Volume.Core(volume.J, volume.max, volume.min, transforms, ijk, ras);
+    // Probe needs a volume
+    probe.setVolumeCore(vjsVolumeCore);
     var vjsVolumeView = new VJS.Volume.View(vjsVolumeCore);
 
     // Get 2 Views fromt same volume!

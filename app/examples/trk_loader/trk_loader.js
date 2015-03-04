@@ -66,15 +66,6 @@ function init() {
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     controls = new THREE.TrackballControls(camera);
-    controls.rotateSpeed = 5.0;
-    controls.zoomSpeed = 5;
-    controls.panSpeed = 2;
-
-    controls.noZoom = false;
-    controls.noPan = false;
-
-    controls.staticMoving = true;
-    controls.dynamicDampingFactor = 0.3;
 
     scene = new THREE.Scene();
 
