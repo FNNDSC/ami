@@ -11,7 +11,8 @@ var container, stats;
 
 var camera, controls, scene, renderer;
 
-var group, groupTrk, flength;
+var group, groupTrk;
+var flength = 0;
 var direction = 1;
 
 function onWindowResize() {
@@ -29,7 +30,8 @@ function filter() {
     if (typeof(groupTrk) === 'undefined') {
         return;
     }
-    if (flength >= 400) {
+
+    if (flength >= 150) {
         direction = -1;
     } else if (flength <= 0) {
         direction = 1;
@@ -94,7 +96,7 @@ function init() {
     });
 
     var loader = new VJS.Trk.Loader();
-    loader.load('../../data/trk/tracks_dti_100K.trk', function(geometryObjs) {
+    loader.load('../../data/trk/cctracks.trk', function(geometryObjs) {
         var nbTracks = geometryObjs.length;
         groupTrk = geometryObjs;
         group = new THREE.Group();
@@ -112,8 +114,6 @@ function init() {
         var bbox2 = new THREE.BoundingBoxHelper(group, hex);
         bbox2.update();
         scene.add(bbox2);
-        window.console.log(group);
-        window.console.log(groupTrk);
     });
 
     // renderer

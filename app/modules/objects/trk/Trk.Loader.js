@@ -374,7 +374,7 @@ VJS.Trk.Loader.prototype = {
 
             track.xProperties.length = length;
 
-            for (var p = 0; p < nbPoints; k++) {
+            for (var p = 0; p < nbPoints; p++) {
                 // get previous point if any
                 var first = track.points[0];
                 if (p > 1) {
@@ -413,6 +413,8 @@ VJS.Trk.Loader.prototype = {
 
             tracks.push(track);
         }
+
+
         return tracks;
     }
 
