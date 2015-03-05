@@ -132,8 +132,8 @@ VJS.Slice.Shader = {
             'gl_FragColor = vec4(color, 1.0);',
             '}',
             'else{',
-            // 'discard;',
-            'gl_FragColor = vec4(.47, .564, .611, 1.0);',
+            'discard;',
+            //'gl_FragColor = vec4(.47, .564, .611, 1.0);',
             '}',
 
             '}'

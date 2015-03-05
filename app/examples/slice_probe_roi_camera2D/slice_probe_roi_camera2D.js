@@ -125,8 +125,10 @@ function init(slice) {
     // scene
     var scene = new THREE.Scene();
     // camera
-    var camera = new THREE.OrthographicCamera(threeD.offsetWidth / -2, threeD.offsetWidth / 2, threeD.offsetHeight / 2, threeD.offsetHeight / -2, 1, 10000000);
-    camera.position.x = 400;
+    var position = new THREE.Vector3(400, 0, 0);
+    var vjsCamera = new VJS.Cameras.Camera2D(threeD.offsetWidth / -2, threeD.offsetWidth / 2, threeD.offsetHeight / 2, threeD.offsetHeight / -2, 1, 10000000, position);
+    vjsCamera.Orientation('SAGITTAL');
+    var camera = vjsCamera.GetCamera();
     // controls
     controls = new THREE.OrbitControls2D(camera, renderer.domElement);
     controls.noRotate = true;
@@ -191,8 +193,8 @@ function init(slice) {
 
     // Plane filled with volume's texture
     var vjsSliceView = new VJS.Slice.View(vjsSliceCore);
-    vjsSliceView._Convention = 'RADIOLOGY';
-    vjsSliceView._Orientation = 'SAGITTAL';
+    // vjsSliceView._Convention = 'RADIOLOGY';
+    // vjsSliceView._Orientation = 'SAGITTAL';
     plane = vjsSliceView.RASSlice(tSize, tNumber);
     scene.add(plane);
 

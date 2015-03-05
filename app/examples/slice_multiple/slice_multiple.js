@@ -4,13 +4,13 @@ var VJS = VJS || {};
 
 var Stats = Stats || {};
 // standard global variables
-var controls, renderer, stats, volume;
+var controls, renderer, stats, volume, plane, plane2, plane3, plane4, threeD;
 
 // FUNCTIONS
 function init(slice) {
-
     // this function is executed on each animation frame
     function animate() {
+
         // render
         controls.update();
         renderer.render(scene, camera);
@@ -23,7 +23,7 @@ function init(slice) {
     }
 
     // renderer
-    var threeD = document.getElementById('r3d');
+    threeD = document.getElementById('r3d');
     var renderer = new THREE.WebGLRenderer({
         antialias: true
     });
@@ -39,8 +39,7 @@ function init(slice) {
     var scene = new THREE.Scene();
     // camera
     var camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
-    camera.position.x = -400;
-    camera.up.set(0, 0, 1);
+    camera.position.x = 400;
     camera.lookAt(scene.position);
     // controls
     controls = new THREE.OrbitControls2D(camera, renderer.domElement);
@@ -116,23 +115,38 @@ function init(slice) {
     // Create VJS Slice Core and View
     var vjsSliceCore = new VJS.Slice.Core(normalorigin, normaldirection, vjsVolumeCore);
     vjsSliceCore.Slice();
-    var intersectionRASBBoxSlice = new VJS.Slice.View(vjsSliceCore);
-
-    // Get 2 Views fromt same slice!
-
-    // Interserction Slice/RAS BBox
-    var materialIntersection = new THREE.MeshBasicMaterial({
-        color: 0x2196F3
-    });
-    var intersections = intersectionRASBBoxSlice.SliceRASBBoxIntersection(materialIntersection);
-    for (var i = 0; i < intersections.length; i++) {
-        scene.add(intersections[i]);
-    }
 
     // Plane filled with volume's texture
     var vjsSliceView = new VJS.Slice.View(vjsSliceCore);
-    var plane = vjsSliceView.RASSlice(tSize, tNumber);
+    plane = vjsSliceView.RASSlice(tSize, tNumber);
     scene.add(plane);
+
+    // Create another Slice!
+    var vjsSliceCore2 = new VJS.Slice.Core(normalorigin, VJS.Adaptor.Xtk2ThreejsVec3([1, 0, 1]), vjsVolumeCore);
+    vjsSliceCore2.Slice();
+
+    // Plane filled with volume's texture
+    var vjsSliceView2 = new VJS.Slice.View(vjsSliceCore2);
+    plane2 = vjsSliceView2.RASSlice(tSize, tNumber);
+    scene.add(plane2);
+
+    // Create another Slice!
+    var vjsSliceCore3 = new VJS.Slice.Core(normalorigin, VJS.Adaptor.Xtk2ThreejsVec3([0, 0, 1]), vjsVolumeCore);
+    vjsSliceCore3.Slice();
+
+    // Plane filled with volume's texture
+    var vjsSliceView3 = new VJS.Slice.View(vjsSliceCore3);
+    plane3 = vjsSliceView3.RASSlice(tSize, tNumber);
+    scene.add(plane3);
+
+    // Create another Slice!
+    var vjsSliceCore4 = new VJS.Slice.Core(normalorigin, VJS.Adaptor.Xtk2ThreejsVec3([-1, 0, 1]), vjsVolumeCore);
+    vjsSliceCore4.Slice();
+
+    // Plane filled with volume's texture
+    var vjsSliceView4 = new VJS.Slice.View(vjsSliceCore4);
+    plane4 = vjsSliceView4.RASSlice(tSize, tNumber);
+    scene.add(plane4);
 
     // start animation
     animate();

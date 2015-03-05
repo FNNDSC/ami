@@ -11,13 +11,14 @@
 <!-- Load core elements -->
 <script src="../../modules/core/Adaptor.js"></script>
 
+<!-- Load cameras we want to use -->
+<script src="../../modules/cameras/Camera2D.js"></script>
+
 <!-- Load controls we want to use -->
 <script src="../../modules/controls/OrbitControls2D.js"></script>
 
 <!-- Load widgets we want to use -->
 <script src="../../modules/widgets/pixelProbe/Probe.js"></script>
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script src="../../modules/widgets/boxProbe/ProbeROI.js"></script>
 
 <!-- Load objects we want to use -->
 <script src="../../modules/objects/slice/Slice.Core.js"></script>
@@ -26,7 +27,7 @@
 <script src="../../modules/objects/volume/Volume.Core.js"></script>
 <script src="../../modules/objects/volume/Volume.View.js"></script>
 
-<script type="text/javascript" src="slice_probe_oriented_roi.js"></script>
+<script type="text/javascript" src="cameras_camera2D.js"></script>
 <!-- <link rel="stylesheet" type="text/css" href="demo.css"> -->
 <style type="text/css">
 
@@ -57,11 +58,6 @@
     width: 100%;
     height: 100%;
   }
-
-  #VJSProbeROI {
-    position: absolute; bottom:0; right: 0; width: 260px; font-family: monospace; padding: 10px; background-color: rgba(249, 249, 249, .7);}
-
-      #VJSProbeROIChart {  position: fixed; top:0; right: 0; font-family: monospace; padding: 10px; background-color: rgba(249, 249, 249, .7);}
 
 </style>
 </head>

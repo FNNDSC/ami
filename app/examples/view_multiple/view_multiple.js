@@ -4,17 +4,87 @@ var VJS = VJS || {};
 
 var Stats = Stats || {};
 // standard global variables
-var controls, renderer, stats, volume;
+var renderer, stats, camera, volume;
+
+var mouseX = 0,
+    mouseY = 0;
+
+var windowWidth, windowHeight;
+
+
+var views = [{
+    left: 0,
+    bottom: 0,
+    width: 0.5,
+    height: 1.0,
+    background: new THREE.Color().setRGB(0.5, 0.5, 0.7)
+}, {
+    left: 0.5,
+    bottom: 0,
+    width: 0.5,
+    height: 0.5,
+    background: new THREE.Color().setRGB(0.7, 0.5, 0.5)
+}, {
+    left: 0.5,
+    bottom: 0.5,
+    width: 0.5,
+    height: 0.5,
+    background: new THREE.Color().setRGB(0.5, 0.7, 0.7)
+}];
+
 
 // FUNCTIONS
 function init(slice) {
 
+    function onDocumentMouseMove(event) {
+
+        mouseX = (event.clientX - windowWidth / 2);
+        mouseY = (event.clientY - windowHeight / 2);
+
+    }
+
+    function updateSize() {
+
+        if (windowWidth !== window.innerWidth || windowHeight !== window.innerHeight) {
+
+            windowWidth = window.innerWidth;
+            windowHeight = window.innerHeight;
+
+            renderer.setSize(windowWidth, windowHeight);
+
+        }
+
+    }
+
+
     // this function is executed on each animation frame
     function animate() {
+
+        updateSize();
+
         // render
-        controls.update();
-        renderer.render(scene, camera);
         stats.update();
+
+        for (var ii = 0; ii < views.length; ++ii) {
+
+            view = views[ii];
+            camera = view.camera;
+
+            var left = Math.floor(windowWidth * view.left);
+            var bottom = Math.floor(windowHeight * view.bottom);
+            var width = Math.floor(windowWidth * view.width);
+            var height = Math.floor(windowHeight * view.height);
+            renderer.setViewport(left, bottom, width, height);
+            renderer.setScissor(left, bottom, width, height);
+            renderer.enableScissorTest(true);
+            renderer.setClearColor(view.background);
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+
+            renderer.render(scene, camera);
+        }
+
 
         // request new frame
         requestAnimationFrame(function() {
@@ -38,12 +108,32 @@ function init(slice) {
     // scene
     var scene = new THREE.Scene();
     // camera
+
+    var view = views[0];
     var camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
-    camera.position.x = -400;
-    camera.up.set(0, 0, 1);
+    camera.position.x = 400;
     camera.lookAt(scene.position);
-    // controls
-    controls = new THREE.OrbitControls2D(camera, renderer.domElement);
+    view.camera = camera;
+
+    view.controls = new THREE.OrbitControls2D(view.camera, renderer.domElement);
+
+    var view2 = views[1];
+    var position = new THREE.Vector3(400, 0, 0);
+    var vjsCamera = new VJS.Cameras.Camera2D(threeD.offsetWidth / -2, threeD.offsetWidth / 2, threeD.offsetHeight / 2, threeD.offsetHeight / -2, 1, 10000000, position);
+    vjsCamera.Orientation('SAGITTAL');
+    view2.camera = vjsCamera.GetCamera();
+
+    view2.controls = new THREE.OrbitControls2D(view2.camera, renderer.domElement);
+    view2.controls.noRotate = true;
+
+    var view3 = views[2];
+    var position2 = new THREE.Vector3(400, 0, 0);
+    var vjsCamera2 = new VJS.Cameras.Camera2D(threeD.offsetWidth / -2, threeD.offsetWidth / 2, threeD.offsetHeight / 2, threeD.offsetHeight / -2, 1, 10000000, position2);
+    vjsCamera2.Orientation('AXIAL');
+    view3.camera = vjsCamera2.GetCamera();
+
+    view3.controls = new THREE.OrbitControls2D(view3.camera, renderer.domElement);
+    view3.controls.noRotate = true;
 
 
     // create volume object
@@ -116,23 +206,32 @@ function init(slice) {
     // Create VJS Slice Core and View
     var vjsSliceCore = new VJS.Slice.Core(normalorigin, normaldirection, vjsVolumeCore);
     vjsSliceCore.Slice();
-    var intersectionRASBBoxSlice = new VJS.Slice.View(vjsSliceCore);
-
-    // Get 2 Views fromt same slice!
-
-    // Interserction Slice/RAS BBox
-    var materialIntersection = new THREE.MeshBasicMaterial({
-        color: 0x2196F3
-    });
-    var intersections = intersectionRASBBoxSlice.SliceRASBBoxIntersection(materialIntersection);
-    for (var i = 0; i < intersections.length; i++) {
-        scene.add(intersections[i]);
-    }
 
     // Plane filled with volume's texture
     var vjsSliceView = new VJS.Slice.View(vjsSliceCore);
     var plane = vjsSliceView.RASSlice(tSize, tNumber);
     scene.add(plane);
+
+    // Create another Slice!
+    var vjsSliceCore2 = new VJS.Slice.Core(normalorigin, VJS.Adaptor.Xtk2ThreejsVec3([0, 1, 0]), vjsVolumeCore);
+    vjsSliceCore2.Slice();
+
+    // Plane filled with volume's texture
+    var vjsSliceView2 = new VJS.Slice.View(vjsSliceCore2);
+    var plane2 = vjsSliceView2.RASSlice(tSize, tNumber);
+    scene.add(plane2);
+
+    // Create another Slice!
+    var vjsSliceCore3 = new VJS.Slice.Core(normalorigin, VJS.Adaptor.Xtk2ThreejsVec3([0, 0, 1]), vjsVolumeCore);
+    vjsSliceCore3.Slice();
+
+    // Plane filled with volume's texture
+    var vjsSliceView3 = new VJS.Slice.View(vjsSliceCore3);
+    var plane3 = vjsSliceView3.RASSlice(tSize, tNumber);
+    scene.add(plane3);
+
+    document.addEventListener('mousemove', onDocumentMouseMove, false);
+
 
     // start animation
     animate();

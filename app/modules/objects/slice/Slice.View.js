@@ -80,6 +80,8 @@ VJS.Slice.View.prototype.SliceRASBBoxIntersection = function(material) {
     return spheres;
 };
 
+
+// deprecated, better to rotate the camera
 VJS.Slice.View.prototype.GetMagicTransform = function() {
     var magicTransform = new THREE.Matrix4();
 
