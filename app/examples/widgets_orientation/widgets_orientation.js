@@ -4,7 +4,7 @@ var VJS = VJS || {};
 
 var Stats = Stats || {};
 // standard global variables
-var controls, renderer, stats, volume;
+var controls, renderer, stats, volume, orientation;
 
 // FUNCTIONS
 function init(slice) {
@@ -14,6 +14,7 @@ function init(slice) {
         // render
         controls.update();
         renderer.render(scene, camera);
+        orientation.update();
         stats.update();
 
         // request new frame
@@ -45,6 +46,8 @@ function init(slice) {
     camera.lookAt(scene.position);
     // controls
     controls = new THREE.OrbitControls2D(camera, renderer.domElement);
+
+    orientation = new VJS.Widgets.Orientation('r3d', camera, controls);
 
 
     // create volume object
