@@ -32,6 +32,7 @@ VJS.Volume.Core = function(_data, _max, _min, _transforms, _ijk, _ras) {
 
 VJS.Volume.Core.prototype.computeConvenienceVars = function() {
     // get 8 RAS corners
+    
     // var rasFirst = new THREE.Vector3(0, 0, 0).applyMatrix4(this._Transforms.ijk2ras);
     // var rasLast = new THREE.Vector3(this._IJK.dimensions.x - 1, this._IJK.dimensions.y - 1, this._IJK.dimensions.z - 1).applyMatrix4(this._Transforms.ijk2ras);
 
