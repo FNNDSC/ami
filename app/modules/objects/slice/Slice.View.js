@@ -39,6 +39,10 @@ VJS.Slice.View.prototype.RASSlice = function(tSize, tNumber) {
     });
 
     // create geometry
+    var vGeometry = this.sliceGeometry();
+    window.console.log(vGeometry);
+
+    // use triangulation with points
     var geometry = new THREE.PlaneGeometry(this._SliceCore._Width, this._SliceCore._Height);
     geometry.verticesNeedUpdate = true;
 
@@ -51,7 +55,51 @@ VJS.Slice.View.prototype.RASSlice = function(tSize, tNumber) {
     return plane;
 };
 
+VJS.Slice.View.prototype.sliceGeometry = function() {
+    var sliceGeom = null;
+
+    // get center of mass
+
+    // order points (angle relative to center of mass)
+
+    // triangulate (using the center of mass...) Not too efficient but more than enough for now...
+
+    // get major axis to know where we should project
+    var majorAxe = 0;
+    if (this._SliceCore._Normal.y === Math.max(this._SliceCore._Normal.x, this._SliceCore._Normal.y, this._SliceCore._Normal.z)) {
+        majorAxe = 1;
+    } else if (this._SliceCore._Normal.z === Math.max(this._SliceCore._Normal.x, this._SliceCore._Normal.y, this._SliceCore._Normal.z)) {
+        majorAxe = 2;
+    }
+
+    var sliceShape = new THREE.Shape();
+    // move to first point!
+    // should not always get y and z!
+    sliceShape.moveTo(this._SliceCore._IntersectionRASBBoxPlane[0][0].y, this._SliceCore._IntersectionRASBBoxPlane[0][0].z);
+
+
+    // loop through all points!
+    for (var i = 1; i < this._SliceCore._IntersectionRASBBoxPlane[0].length; i++) {
+        sliceShape.lineTo(this._SliceCore._IntersectionRASBBoxPlane[0][i].y, this._SliceCore._IntersectionRASBBoxPlane[0][i].z);
+    }
+
+    sliceShape.lineTo(this._SliceCore._IntersectionRASBBoxPlane[0][0].y, this._SliceCore._IntersectionRASBBoxPlane[0][0].z);
+
+    window.console.log(sliceShape);
+    // close the shape!
+
+    // Generate Geomotry. (all we care about is triangulation!)
+    sliceGeom = new THREE.ShapeGeometry(sliceShape);
+
+    // update real position of each vertex!
+
+
+    return sliceGeom;
+};
+
 VJS.Slice.View.prototype.updateRASSlice = function(plane) {
+
+    // not correct, width/height could change...? or not?
 
     var magicM = this.GetMagicTransform();
     // Should get all information from there or from the Core...!

@@ -16,6 +16,8 @@ VJS.Volume.Core = function(_data, _max, _min, _transforms, _ijk, _ras) {
     this._Transforms = _transforms;
     this._IJK = _ijk;
     this._RAS = _ras;
+    this._Orientation = null;
+    this._HalfDimensions = null;
 
     // RGBA
     this._NbChannels = 4;
@@ -23,6 +25,34 @@ VJS.Volume.Core = function(_data, _max, _min, _transforms, _ijk, _ras) {
     // Number or textures for this volume
     this._TextureNb = 0;
     this._TextureSize = 0;
+
+    this.computeConvenienceVars();
+
+};
+
+VJS.Volume.Core.prototype.computeConvenienceVars = function() {
+    // get 8 RAS corners
+    // var rasFirst = new THREE.Vector3(0, 0, 0).applyMatrix4(this._Transforms.ijk2ras);
+    // var rasLast = new THREE.Vector3(this._IJK.dimensions.x - 1, this._IJK.dimensions.y - 1, this._IJK.dimensions.z - 1).applyMatrix4(this._Transforms.ijk2ras);
+
+    // var xHalf = Math.abs(rasLast.x - rasFirst.x) / 2;
+    // var yHalf = Math.abs(rasLast.y - rasFirst.y) / 2;
+    // var zHalf = Math.abs(rasLast.z - rasFirst.z) / 2;
+
+    this._HalfDimensions = new THREE.Vector3(
+        (this._IJK.dimensions.x - 1) / 2, (this._IJK.dimensions.y - 1) / 2, (this._IJK.dimensions.z - 1) / 2);
+
+    var baseX = new THREE.Vector3(1, 0, 0);
+    var baseY = new THREE.Vector3(0, 1, 0);
+    var baseZ = new THREE.Vector3(0, 0, 1);
+    //this._Transforms.ijk2ras.extractBasis(baseX, baseY, baseZ);
+    this._Orientation = new THREE.Vector3(baseX, baseY, baseZ);
+    //var ijkTarget = goog.vec.Vec4.createFloat32FromValues(0, 0, 0, 1);
+    //var rasResult = goog.vec.Vec4.createFloat32();
+    //goog.vec.Mat4.multVec4(IJKToRAS, ijkTarget, rasResult);
+    // orientation from IJK2RAS Transform
+
+    // half length in each direction
 
 };
 

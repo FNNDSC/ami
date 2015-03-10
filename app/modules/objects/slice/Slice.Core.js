@@ -15,13 +15,51 @@ VJS.Slice.Core = function(origin, normal, volumeCore) {
 };
 
 VJS.Slice.Core.prototype.Slice = function() {
-    // update all information according to Normal and Origin!
-
-    // normalize slice direction
+    // update all information according to Normal and Origin!   // normalize slice direction
     this._Normal.normalize();
+
+    // Should directly get the intersection between OBB and plane
+    // need volume 3 directions
+    // need volume center RAS
+    // need half lenght in each direction
+    window.console.log(this._VolumeCore._HalfDimensions);
+    window.console.log(this._VolumeCore._Orientation);
+    window.console.log(this._VolumeCore._RAS.center);
+    var obb = {
+        'halfDimensions': this._VolumeCore._HalfDimensions,
+        'orientation': this._VolumeCore._Orientation,
+        'center': this._VolumeCore._HalfDimensions, //this._VolumeCore._RAS.center,
+        'toOBBSpace': this._VolumeCore._Transforms.ras2ijk,
+        'toOBBSpaceInvert': this._VolumeCore._Transforms.ijk2ras,
+    };
+
+    var plane = {
+        'origin': this._Origin,
+        'normal': this._Normal
+    };
+
+    // BOOM!
+    this._INTERSECTIONS = VJS.Intersections.OBBPlane(obb, plane);
+    // center of mass
+    for (var i = 0; i < this._INTERSECTIONS.length; i++) {
+
+    }
+    // order the points
+
+    // move to 2D
+
+    // Generate the triangles/etc
+
+    // back to 3D
+
+    window.console.log(this._INTERSECTIONS);
 
     // get intersection between RAS BBox and the slice plane
     this._IntersectionRASBBoxPlane = this.IntersectionRASBBoxPlane();
+
+    // project 2D (remove major axis)
+
+    // if pure x or x
 
     // WE SHOULD JUST GENERATE GEOMETRY FROM THOSE POINTS, CONVEX POLYGON
     // NEXT STEP SO WE CAN SKIP THE FOLLOWING AND MA CODE MUCH CLEANER
@@ -256,7 +294,7 @@ VJS.Slice.Core.prototype.IntersectionRASBBoxPlane = function() {
         _solutionsOut.push(new THREE.Vector3(_solutionX, this._VolumeCore._RAS.boundingbox[0].y, this._VolumeCore._RAS.boundingbox[1].z));
     }
 
-    // line 8
+    // line 12
     // y= bbox.y max, z=bbox.z max
     _solutionX = -(this._Normal.y * (this._VolumeCore._RAS.boundingbox[1].y - this._Origin.y) + this._Normal.z * (this._VolumeCore._RAS.boundingbox[1].z - this._Origin.z)) / this._Normal.x + this._Origin.x;
     if (_solutionX >= this._VolumeCore._RAS.boundingbox[0].x && _solutionX <= this._VolumeCore._RAS.boundingbox[1].x) {
