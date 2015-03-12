@@ -6,7 +6,7 @@ VJS.Intersections = VJS.Intersections || {};
 VJS.Intersections.OBBPlane = function(obb, plane) {
 
     //
-    // obb = { halfDimensions, orientation, center, toOBBSpace, toOBBS }
+    // obb = { halfDimensions, orientation, center, toOBBSpace }
     // plane = { origin, normal }
     //
     //
