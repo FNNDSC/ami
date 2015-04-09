@@ -115,13 +115,13 @@ VJS.Slice.Shader = {
             'ijkPos += .5;',
 
             //convert IJK coordinates to texture coordinates
-            'if(int(floor(ijkPos[0])) >= 0',
-            '&& int(floor(ijkPos[1])) >= 0',
-            '&& int(floor(ijkPos[2])) >= 0',
-            '&& int(floor(ijkPos[0])) < int(uIJKDims[0])',
-            '&& int(floor(ijkPos[1])) < int(uIJKDims[1])',
-            '&& int(floor(ijkPos[2])) < int(uIJKDims[2])',
-            '){',
+            // 'if(int(floor(ijkPos[0])) >= 0',
+            // '&& int(floor(ijkPos[1])) >= 0',
+            // '&& int(floor(ijkPos[2])) >= 0',
+            // '&& int(floor(ijkPos[0])) < int(uIJKDims[0])',
+            // '&& int(floor(ijkPos[1])) < int(uIJKDims[1])',
+            // '&& int(floor(ijkPos[2])) < int(uIJKDims[2])',
+            // '){',
 
             // show whole texture in the back...
             'vec3 color = vec3(0, 0, 0);',
@@ -130,11 +130,11 @@ VJS.Slice.Shader = {
             'vec4 ijkValue = getIJKValue(t00, t01, t02, t03, ijkCoordinates, uIJKDims, uTextureSize);',
             'color.rgb = ijkValue.rgb;',
             'gl_FragColor = vec4(color, 1.0);',
-            '}',
-            'else{',
-            'discard;',
-            //'gl_FragColor = vec4(.47, .564, .611, 1.0);',
-            '}',
+            // '}',
+            // 'else{',
+            // //'discard;',
+            // 'gl_FragColor = vec4(.47, .564, .611, 1.0);',
+            // '}',
 
             '}'
 

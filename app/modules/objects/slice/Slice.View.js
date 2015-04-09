@@ -31,6 +31,7 @@ VJS.Slice.View.prototype.RASSlice = function(tSize, tNumber) {
     uniforms.uRASToIJK.value = this._SliceCore._VolumeCore._Transforms.ras2ijk.multiply(magicMInverse);
 
     var mat = new THREE.ShaderMaterial({
+        // 'wireframe': true,
         'side': THREE.DoubleSide,
         'transparency': true,
         'uniforms': uniforms,
@@ -40,50 +41,43 @@ VJS.Slice.View.prototype.RASSlice = function(tSize, tNumber) {
 
     // create geometry
     var vGeometry = this.sliceGeometry();
-    window.console.log(vGeometry);
+    vGeometry.verticesNeedUpdate = true;
+    vGeometry.vertices = this._SliceCore._ORDERERPOINTSYAY;
+    // window.console.log(vGeometry);
 
-    // use triangulation with points
-    var geometry = new THREE.PlaneGeometry(this._SliceCore._Width, this._SliceCore._Height);
-    geometry.verticesNeedUpdate = true;
+    // // use triangulation with points
+    // var geometry = new THREE.PlaneGeometry(this._SliceCore._Width, this._SliceCore._Height);
+    // geometry.verticesNeedUpdate = true;
+    // window.console.log(geometry);
 
-    var plane = new THREE.Mesh(geometry, mat);
+    var plane = new THREE.Mesh(vGeometry, mat);
     // move to RAS Space
-    plane.applyMatrix(this._SliceCore._Transforms.xy2ras);
-    plane.applyMatrix(new THREE.Matrix4().makeTranslation(this._SliceCore._Origin.x, this._SliceCore._Origin.y, this._SliceCore._Origin.z));
-    plane.applyMatrix(magicM);
+    // plane.applyMatrix(this._SliceCore._Transforms.xy2ras);
+    // plane.applyMatrix(new THREE.Matrix4().makeTranslation(this._SliceCore._Origin.x, this._SliceCore._Origin.y, this._SliceCore._Origin.z));
+    // plane.applyMatrix(magicM);
 
     return plane;
 };
 
 VJS.Slice.View.prototype.sliceGeometry = function() {
+
+    window.console.log('generating geometry');
     var sliceGeom = null;
-
-    // get center of mass
-
-    // order points (angle relative to center of mass)
-
-    // triangulate (using the center of mass...) Not too efficient but more than enough for now...
-
-    // get major axis to know where we should project
-    var majorAxe = 0;
-    if (this._SliceCore._Normal.y === Math.max(this._SliceCore._Normal.x, this._SliceCore._Normal.y, this._SliceCore._Normal.z)) {
-        majorAxe = 1;
-    } else if (this._SliceCore._Normal.z === Math.max(this._SliceCore._Normal.x, this._SliceCore._Normal.y, this._SliceCore._Normal.z)) {
-        majorAxe = 2;
-    }
 
     var sliceShape = new THREE.Shape();
     // move to first point!
     // should not always get y and z!
-    sliceShape.moveTo(this._SliceCore._IntersectionRASBBoxPlane[0][0].y, this._SliceCore._IntersectionRASBBoxPlane[0][0].z);
+    sliceShape.moveTo(this._SliceCore._ORDERERPOINTS[0].xy.x, this._SliceCore._ORDERERPOINTS[0].xy.y);
 
 
     // loop through all points!
-    for (var i = 1; i < this._SliceCore._IntersectionRASBBoxPlane[0].length; i++) {
-        sliceShape.lineTo(this._SliceCore._IntersectionRASBBoxPlane[0][i].y, this._SliceCore._IntersectionRASBBoxPlane[0][i].z);
+    for (var i = 1; i < this._SliceCore._ORDERERPOINTS.length; i++) {
+        window.console.log(this._SliceCore._ORDERERPOINTS[i].xy);
+        // project each on plane!
+        sliceShape.lineTo(this._SliceCore._ORDERERPOINTS[i].xy.x, this._SliceCore._ORDERERPOINTS[i].xy.y);
     }
 
-    sliceShape.lineTo(this._SliceCore._IntersectionRASBBoxPlane[0][0].y, this._SliceCore._IntersectionRASBBoxPlane[0][0].z);
+    sliceShape.lineTo(this._SliceCore._ORDERERPOINTS[0].xy.x, this._SliceCore._ORDERERPOINTS[0].xy.y);
 
     window.console.log(sliceShape);
     // close the shape!

@@ -112,7 +112,8 @@ function init(slice) {
     vjsVolumeCore.createTexture(tNumber, tSize);
 
     var normalorigin = VJS.Adaptor.Xtk2ThreejsVec3(slice.z);
-    var normaldirection = VJS.Adaptor.Xtk2ThreejsVec3(slice.ec);
+    //var normaldirection = VJS.Adaptor.Xtk2ThreejsVec3(slice.ec);
+    var normaldirection = VJS.Adaptor.Xtk2ThreejsVec3([0, 1, 0]);
 
     // Create VJS Slice Core and View
     var vjsSliceCore = new VJS.Slice.Core(normalorigin, normaldirection, vjsVolumeCore);
@@ -121,16 +122,36 @@ function init(slice) {
 
     // get intersection volume (NOT ORIENTED BBOX) / plane
 
-    var materialIntersection2 = new THREE.MeshBasicMaterial({
+
+
+    // for (var k = 0; k < vjsSliceCore._INTERSECTIONS.length; k++) {
+    //     var sphereGeometry2 = new THREE.SphereGeometry(1);
+    //     var materialIntersection2 = new THREE.MeshBasicMaterial({
+    //         color: new THREE.Color(1, k / vjsSliceCore._INTERSECTIONS.length, 0)
+    //     });
+    //     var sphere = new THREE.Mesh(sphereGeometry2, materialIntersection2);
+    //     sphere.applyMatrix(new THREE.Matrix4().makeTranslation(vjsSliceCore._INTERSECTIONS[k].x, vjsSliceCore._INTERSECTIONS[k].y, vjsSliceCore._INTERSECTIONS[k].z));
+    //     scene.add(sphere);
+    // }
+
+    for (var l = 0; l < vjsSliceCore._ORDERERPOINTSYAY.length; l++) {
+        var sphereGeometry4 = new THREE.SphereGeometry(1);
+        var materialIntersection4 = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(1, l / vjsSliceCore._ORDERERPOINTSYAY.length, 0)
+        });
+        var sphere4 = new THREE.Mesh(sphereGeometry4, materialIntersection4);
+        sphere4.applyMatrix(new THREE.Matrix4().makeTranslation(vjsSliceCore._ORDERERPOINTSYAY[l].x, vjsSliceCore._ORDERERPOINTSYAY[l].y, vjsSliceCore._ORDERERPOINTSYAY[l].z));
+        scene.add(sphere4);
+    }
+
+    var materialIntersection3 = new THREE.MeshBasicMaterial({
         color: 0xffffff
     });
 
-    for (var k = 0; k < vjsSliceCore._INTERSECTIONS.length; k++) {
-        var sphereGeometry2 = new THREE.SphereGeometry(2);
-        var sphere = new THREE.Mesh(sphereGeometry2, materialIntersection2);
-        sphere.applyMatrix(new THREE.Matrix4().makeTranslation(vjsSliceCore._INTERSECTIONS[k].x, vjsSliceCore._INTERSECTIONS[k].y, vjsSliceCore._INTERSECTIONS[k].z));
-        scene.add(sphere);
-    }
+    var sphereGeometry3 = new THREE.SphereGeometry(1);
+    var sphere3 = new THREE.Mesh(sphereGeometry3, materialIntersection3);
+    sphere3.applyMatrix(new THREE.Matrix4().makeTranslation(vjsSliceCore._COM.x, vjsSliceCore._COM.y, vjsSliceCore._COM.z));
+    scene.add(sphere3);
 
 
     // Get 2 Views fromt same slice!
@@ -141,7 +162,7 @@ function init(slice) {
     });
     var intersections = intersectionRASBBoxSlice.SliceRASBBoxIntersection(materialIntersection);
     for (var i = 0; i < intersections.length; i++) {
-        scene.add(intersections[i]);
+        // scene.add(intersections[i]);
     }
 
     // Plane filled with volume's texture
