@@ -3,7 +3,7 @@
 var VJS = VJS || {};
 VJS.Intersections = VJS.Intersections || {};
 
-VJS.Intersections.OBBPlane = function(obb, plane) {
+VJS.Intersections.obbPlane = function(obb, plane) {
 
     //
     // obb = { halfDimensions, orientation, center, toOBBSpace }
@@ -67,7 +67,7 @@ VJS.Intersections.OBBPlane = function(obb, plane) {
         'normal': obb.orientation.x
     };
 
-    var intersection = this.RayPlane(ray, planeOBB);
+    var intersection = this.rayPlane(ray, planeOBB);
     if (intersection && intersection.x >= 0 && intersection.y >= 0 && intersection.z >= 0 &&
         intersection.x <= 2 * obb.halfDimensions.x &&
         intersection.y <= 2 * obb.halfDimensions.y &&
@@ -76,7 +76,7 @@ VJS.Intersections.OBBPlane = function(obb, plane) {
     }
 
     ray.normal = obb.orientation.y;
-    intersection = this.RayPlane(ray, planeOBB);
+    intersection = this.rayPlane(ray, planeOBB);
     if (intersection && intersection.x >= 0 && intersection.y >= 0 && intersection.z >= 0 &&
         intersection.x <= 2 * obb.halfDimensions.x &&
         intersection.y <= 2 * obb.halfDimensions.y &&
@@ -85,7 +85,7 @@ VJS.Intersections.OBBPlane = function(obb, plane) {
     }
 
     ray.normal = obb.orientation.z;
-    intersection = this.RayPlane(ray, planeOBB);
+    intersection = this.rayPlane(ray, planeOBB);
     if (intersection && intersection.x >= 0 && intersection.y >= 0 && intersection.z >= 0 &&
         intersection.x <= 2 * obb.halfDimensions.x &&
         intersection.y <= 2 * obb.halfDimensions.y &&
@@ -109,7 +109,7 @@ VJS.Intersections.OBBPlane = function(obb, plane) {
         'normal': obb.orientation.x
     };
 
-    intersection = this.RayPlane(ray, planeOBB);
+    intersection = this.rayPlane(ray, planeOBB);
     if (intersection && intersection.x >= 0 && intersection.y >= 0 && intersection.z >= 0 &&
         intersection.x <= 2 * obb.halfDimensions.x &&
         intersection.y <= 2 * obb.halfDimensions.y &&
@@ -118,7 +118,7 @@ VJS.Intersections.OBBPlane = function(obb, plane) {
     }
 
     ray.normal = obb.orientation.y;
-    intersection = this.RayPlane(ray, planeOBB);
+    intersection = this.rayPlane(ray, planeOBB);
     if (intersection && intersection.x >= 0 && intersection.y >= 0 && intersection.z >= 0 &&
         intersection.x <= 2 * obb.halfDimensions.x &&
         intersection.y <= 2 * obb.halfDimensions.y &&
@@ -127,7 +127,7 @@ VJS.Intersections.OBBPlane = function(obb, plane) {
     }
 
     ray.normal = obb.orientation.z;
-    intersection = this.RayPlane(ray, planeOBB);
+    intersection = this.rayPlane(ray, planeOBB);
     if (intersection && intersection.x >= 0 && intersection.y >= 0 && intersection.z >= 0 &&
         intersection.x <= 2 * obb.halfDimensions.x &&
         intersection.y <= 2 * obb.halfDimensions.y &&
@@ -150,7 +150,7 @@ VJS.Intersections.OBBPlane = function(obb, plane) {
         'normal': obb.orientation.y
     };
 
-    intersection = this.RayPlane(ray, planeOBB);
+    intersection = this.rayPlane(ray, planeOBB);
     if (intersection && intersection.x >= 0 && intersection.y >= 0 && intersection.z >= 0 &&
         intersection.x <= 2 * obb.halfDimensions.x &&
         intersection.y <= 2 * obb.halfDimensions.y &&
@@ -159,7 +159,7 @@ VJS.Intersections.OBBPlane = function(obb, plane) {
     }
 
     ray.normal = obb.orientation.z;
-    intersection = this.RayPlane(ray, planeOBB);
+    intersection = this.rayPlane(ray, planeOBB);
     if (intersection && intersection.x >= 0 && intersection.y >= 0 && intersection.z >= 0 &&
         intersection.x <= 2 * obb.halfDimensions.x &&
         intersection.y <= 2 * obb.halfDimensions.y &&
@@ -182,7 +182,7 @@ VJS.Intersections.OBBPlane = function(obb, plane) {
         'normal': obb.orientation.x
     };
 
-    intersection = this.RayPlane(ray, planeOBB);
+    intersection = this.rayPlane(ray, planeOBB);
     if (intersection && intersection.x >= 0 && intersection.y >= 0 && intersection.z >= 0 &&
         intersection.x <= 2 * obb.halfDimensions.x &&
         intersection.y <= 2 * obb.halfDimensions.y &&
@@ -191,7 +191,7 @@ VJS.Intersections.OBBPlane = function(obb, plane) {
     }
 
     ray.normal = obb.orientation.z;
-    intersection = this.RayPlane(ray, planeOBB);
+    intersection = this.rayPlane(ray, planeOBB);
     if (intersection && intersection.x >= 0 && intersection.y >= 0 && intersection.z >= 0 &&
         intersection.x <= 2 * obb.halfDimensions.x &&
         intersection.y <= 2 * obb.halfDimensions.y &&
@@ -214,7 +214,7 @@ VJS.Intersections.OBBPlane = function(obb, plane) {
         'normal': obb.orientation.x
     };
 
-    intersection = this.RayPlane(ray, planeOBB);
+    intersection = this.rayPlane(ray, planeOBB);
     if (intersection && intersection.x >= 0 && intersection.y >= 0 && intersection.z >= 0 &&
         intersection.x <= 2 * obb.halfDimensions.x &&
         intersection.y <= 2 * obb.halfDimensions.y &&
@@ -223,7 +223,7 @@ VJS.Intersections.OBBPlane = function(obb, plane) {
     }
 
     ray.normal = obb.orientation.y;
-    intersection = this.RayPlane(ray, planeOBB);
+    intersection = this.rayPlane(ray, planeOBB);
     if (intersection && intersection.x >= 0 && intersection.y >= 0 && intersection.z >= 0 &&
         intersection.x <= 2 * obb.halfDimensions.x &&
         intersection.y <= 2 * obb.halfDimensions.y &&
@@ -234,7 +234,7 @@ VJS.Intersections.OBBPlane = function(obb, plane) {
     return intersections;
 };
 
-VJS.Intersections.RayPlane = function(ray, plane) {
+VJS.Intersections.rayPlane = function(ray, plane) {
     // ray: {origin, normal}
     // plane: {origin, normal}
 

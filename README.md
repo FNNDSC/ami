@@ -43,3 +43,11 @@ myVjs.controller("2D");
 myVjs.controller("3D");
 
 ```
+
+allow user to switch from RAS (LPS) to image space easily. The transform is a property of volume or object (i.e. trk).
+handle rgb volumes
+
+JS Style Guide:
+https://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml
+
+Use JS Doc

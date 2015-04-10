@@ -1,9 +1,9 @@
 'use strict';
 
 var VJS = VJS || {};
-VJS.Adaptor = VJS.Adaptor || {};
+VJS.adaptor = VJS.adaptor || {};
 
-VJS.Adaptor.Xtk2ThreejsVec3 = function(xVec3) {
+VJS.adaptor.xtk2ThreejsVec3 = function(xVec3) {
 
     var vVec3 = new THREE.Vector3(xVec3[0], xVec3[1], xVec3[2]);
 
@@ -11,7 +11,7 @@ VJS.Adaptor.Xtk2ThreejsVec3 = function(xVec3) {
 };
 
 
-VJS.Adaptor.Xtk2ThreejsMat4 = function(xMat4) {
+VJS.adaptor.xtk2ThreejsMat4 = function(xMat4) {
 
     var vMat4 = new THREE.Matrix4().set(
         xMat4[0], xMat4[4], xMat4[8], xMat4[12],

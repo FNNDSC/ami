@@ -1,13 +1,13 @@
 'use strict';
 
 var VJS = VJS || {};
-VJS.Trk = VJS.Trk || {};
+VJS.trk = VJS.trk || {};
 
-VJS.Trk.Loader = function() {};
+VJS.trk.loader = function() {};
 
-VJS.Trk.Loader.prototype = {
+VJS.trk.loader.prototype = {
 
-    constructor: VJS.Trk.Loader,
+    constructor: VJS.trk.loader,
 
     load: function(url, onLoad, onProgress, onError) {
 
@@ -86,7 +86,7 @@ VJS.Trk.Loader.prototype = {
 
         //////////////////////////////////////////////
         //
-        // parse all TRK header
+        // parse all trk header
         // http://msdn.microsoft.com/en-us/library/s3f49ktz.aspx  
         //
         //////////////////////////////////////////////
@@ -420,4 +420,4 @@ VJS.Trk.Loader.prototype = {
 
 };
 
-THREE.EventDispatcher.prototype.apply(VJS.Trk.Loader.prototype);
+THREE.EventDispatcher.prototype.apply(VJS.trk.loader.prototype);

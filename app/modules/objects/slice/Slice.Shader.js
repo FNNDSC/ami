@@ -1,14 +1,14 @@
 'use strict';
 
 var VJS = VJS || {};
-VJS.Slice = VJS.Slice || {};
+VJS.slice = VJS.slice || {};
 
 /**
  * @author Nicolas Rannou / https://github.com/NicolasRannou
  *
  */
 
-VJS.Slice.Shader = {
+VJS.slice.shader = {
 
     /* -------------------------------------------------------------------------
     //  Slice shader
