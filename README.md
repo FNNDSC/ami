@@ -1,4 +1,6 @@
 # vjs
+
+[![Join the chat at https://gitter.im/FNNDSC/vjs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/FNNDSC/vjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 the FNNDSC visualization tool (based on XTK and ThreeJS)!
 
 2048 * 2048 * 4 pixels big object supported in the shader. Needs a good fall back solution for bigger volumes.
