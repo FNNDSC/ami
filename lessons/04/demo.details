@@ -1,0 +1,12 @@
+
+/*
+---
+name: AMI - Lesson 00
+description: Load data.
+authors:
+  - Nicolas Rannou (github)
+js_wrap: onLoad
+...
+*/
+
+<p>This demo will show you how to: add multiple Events to an Element, create custom Events and fire an Event.</p> 

@@ -1,0 +1,284 @@
+/*** Imports ***/
+import ModelsBase from '../../src/models/models.base';
+
+/**
+ * Frame object.
+ *
+ * @module models/frame
+ */
+
+export default class ModelsFrame extends ModelsBase{
+  constructor() {
+    super();
+
+    this._sopInstanceUID = null;
+    this._stackID = -1;
+    this._rows = 0;
+    this._columns = 0;
+    this._dimensionIndexValues = [];
+    this._imagePosition = null;
+    this._imageOrientation = null;
+    this._sliceThickness = 1;
+    this._spacingBetweenSlices = null;
+    this._pixelType = 0;
+    this._pixelSpacing = null;
+    this._pixelAspectRatio = null;
+    this._pixelData = null;
+
+    this._instanceNumber = null;
+    this._windowCenter = null;
+    this._windowWidth = null;
+    this._rescaleSlope = null;
+    this._rescaleIntercept = null;
+
+    this._bitsAllocated = 8;
+
+    this._minMax = null;
+    this._dist = null;
+  }
+
+  /**
+   * Merge current frame with provided frame.
+   *
+   * Frames can be merged (i.e. are identical) if following are equals:
+   *  - dimensionIndexValues 
+   *  - imageOrientation
+   *  - imagePosition
+   *  - instanceNumber
+   *  - sopInstanceUID
+   *
+   * @returns {boolean} True if frames could be merge. False if not.
+   */
+  merge(frame) {
+    if (this._compareArrays(this._dimensionIndexValues, frame.dimensionIndexValues) &&
+        this._compareArrays(this._imageOrientation, frame.imageOrientation) &&
+        this._compareArrays(this._imagePosition, frame.imagePosition) &&
+        this._instanceNumber === frame.instanceNumber &&
+        this._sopInstanceUID === frame.sopInstanceUID) {
+
+      return true;
+
+    } else {
+
+      return false;
+
+    }
+
+  }
+
+  cosines(){
+    let cosines = [new THREE.Vector3(1, 0, 0), 
+      new THREE.Vector3(0, 1, 0), 
+      new THREE.Vector3(0, 0, 1)];
+
+     if (this.imageOrientation &&
+      this.imageOrientation.length === 6) {
+      cosines[0] = new THREE.Vector3(this.imageOrientation[0], this.imageOrientation[1], this.imageOrientation[2]);
+      cosines[1] = new THREE.Vector3(this.imageOrientation[3], this.imageOrientation[4], this.imageOrientation[5]);
+      cosines[2] = new THREE.Vector3(0, 0, 0).crossVectors(cosines[0], cosines[1]).normalize();
+    }
+
+    return cosines;
+  }
+
+  spacingXY(){
+    let spacingXY = [1.0, 1.0];
+
+    if (this.pixelSpacing) {
+      spacingXY[0] = this.pixelSpacing[0];
+      spacingXY[1] = this.pixelSpacing[1];
+    } else if (this.pixelAspectRatio) {
+      spacingXY[0] = 1.0;
+      spacingXY[1] = 1.0 * this.pixelAspectRatio[1] / this.pixelAspectRatio[0];
+    } 
+
+    return spacingXY;
+  }
+
+  value(column, row) {
+    return this.pixelData[column + this._columns * row];
+  }
+
+  /**
+   * Compare 2 arrays.
+   *
+   * 2 null arrays return true.
+   *
+   * @returns {boolean} True if arrays are identicals. False if not.
+   */
+  _compareArrays(reference, target) {
+    // could both be null
+    if (reference === target) {
+      return true;
+    }
+
+    // if not null....
+    if (reference &&
+        target &&
+        reference.join() === target.join()) {
+      return true;
+    }
+
+    return false;
+  }
+
+  get rows() {
+    return this._rows;
+  }
+
+  set rows(rows) {
+    this._rows = rows;
+  }
+
+  get columns() {
+    return this._columns;
+  }
+
+  set columns(columns) {
+    this._columns = columns;
+  }
+
+  get spacingBetweenSlices() {
+    return this._spacingBetweenSlices;
+  }
+
+  set spacingBetweenSlices(spacingBetweenSlices) {
+    this._spacingBetweenSlices = spacingBetweenSlices;
+  }
+
+  get sliceThickness() {
+    return this._sliceThickness;
+  }
+
+  set sliceThickness(sliceThickness) {
+    this._sliceThickness = sliceThickness;
+  }
+
+  get imagePosition() {
+    return this._imagePosition;
+  }
+
+  set imagePosition(imagePosition) {
+    this._imagePosition = imagePosition;
+  }
+
+  get imageOrientation() {
+    return this._imageOrientation;
+  }
+
+  set imageOrientation(imageOrientation) {
+    this._imageOrientation = imageOrientation;
+  }
+
+  get windowWidth() {
+    return this._windowWidth;
+  }
+
+  set windowWidth(windowWidth) {
+    this._windowWidth = windowWidth;
+  }
+
+  get windowCenter() {
+    return this._windowCenter;
+  }
+
+  set windowCenter(windowCenter) {
+    this._windowCenter = windowCenter;
+  }
+
+  get rescaleSlope() {
+    return this._rescaleSlope;
+  }
+
+  set rescaleSlope(rescaleSlope) {
+    this._rescaleSlope = rescaleSlope;
+  }
+
+  get rescaleIntercept() {
+    return this._rescaleIntercept;
+  }
+
+  set rescaleIntercept(rescaleIntercept) {
+    this._rescaleIntercept = rescaleIntercept;
+  }
+
+  get bitsAllocated() {
+    return this._bitsAllocated;
+  }
+
+  set bitsAllocated(bitsAllocated) {
+    this._bitsAllocated = bitsAllocated;
+  }
+
+  get dist() {
+    return this._dist;
+  }
+
+  set dist(dist) {
+    this._dist = dist;
+  }
+
+  get pixelSpacing() {
+    return this._pixelSpacing;
+  }
+
+  set pixelSpacing(pixelSpacing) {
+    this._pixelSpacing = pixelSpacing;
+  }
+
+  get pixelAspectRatio() {
+    return this._pixelAspectRatio;
+  }
+
+  set pixelAspectRatio(pixelAspectRatio) {
+    this._pixelAspectRatio = pixelAspectRatio;
+  }
+
+  get minMax() {
+    return this._minMax;
+  }
+
+  set minMax(minMax) {
+    this._minMax = minMax;
+  }
+
+  get dimensionIndexValues() {
+    return this._dimensionIndexValues;
+  }
+
+  set dimensionIndexValues(dimensionIndexValues) {
+    this._dimensionIndexValues = dimensionIndexValues;
+  }
+
+  get instanceNumber() {
+    return this._instanceNumber;
+  }
+
+  set instanceNumber(instanceNumber) {
+    this._instanceNumber = instanceNumber;
+  }
+
+  get pixelData() {
+    return this._pixelData;
+  }
+
+  set pixelData(pixelData) {
+    this._pixelData = pixelData;
+  }
+
+  set sopInstanceUID(sopInstanceUID) {
+    this._sopInstanceUID = sopInstanceUID;
+  }
+
+  get sopInstanceUID() {
+    return this._sopInstanceUID;
+  }
+
+  get pixelType() {
+    return this._pixelType;
+  }
+
+  set pixelType(pixelType) {
+    this._pixelType = pixelType;
+  }
+}

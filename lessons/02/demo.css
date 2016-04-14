@@ -1,0 +1,17 @@
+body{
+  font-family: source-code-pro, sans-serif;
+  color:#F9F9F9;
+  background-color: #212121
+}
+
+#container {
+  background-color: #000;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow:hidden;
+}

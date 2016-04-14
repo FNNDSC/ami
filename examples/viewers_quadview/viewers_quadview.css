@@ -1,0 +1,24 @@
+#stats {
+  position: absolute;
+  top:0;
+  left: 0;
+}
+
+body {
+  margin: 0;
+  overflow:hidden;
+}
+
+.renderer {
+  background-color: #000;
+  float: left;
+  width: 50%;
+  height: 50%;
+}
+
+#my-gui-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index:1;
+}

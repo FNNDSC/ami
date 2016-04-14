@@ -1,0 +1,9 @@
+.DS_STORE
+.publish
+.sass-cache
+.tmp
+bower_components
+build-old
+deprecated
+gh-pages
+node_modules
