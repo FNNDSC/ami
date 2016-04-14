@@ -1,4 +1,4 @@
-**WARNING: AMI is not ready for production yet.** (Alpha release scheduled in first 15 days of April 2016 - almost there :) </br>
+**WARNING: AMI is NOT ready for production yet.** (Alpha release scheduled in first 15 days of April 2016 - almost there :) </br>
 [![Build Status](https://travis-ci.org/FNNDSC/ami.svg)](https://travis-ci.org/FNNDSC/ami)
 [![Code Climate](https://codeclimate.com/github/FNNDSC/ami/badges/gpa.svg)](https://codeclimate.com/github/FNNDSC/ami)
 [![Slack](https://img.shields.io/badge/slack-join-blue.svg)](http://slack.babymri.org)
