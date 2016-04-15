@@ -1,14 +1,14 @@
 {
   "name": "ami.js",
-  "version": "0.0.1",
-  "main": "dist/vjs.js",
-  "keywords": ["ami", "ami.js","three.js", "webgl", "dicom", "nifti", "awesome", "medical", "imaging", "xtk"],
+  "version": "0.0.2",
+  "main": "dist/ami.js",
+  "keywords": ["ami", "ami.js","three.js", "webgl", "dicom", "nifti", "awesome", "medical", "imaging", "xtk", "nrrd", "vtk", "stl", "trk"],
   "author": {
     "name" : "Nicolas Rannou",
     "email" : "nicolas@eunate.ch",
     "url" : "https://eunate.ch"
   },
-  "licence": "apache2",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://fnndsc.github.io/ami"
