@@ -1,0 +1,140 @@
+#stats {
+  position: absolute;
+  top:0;
+  left: 0;
+}
+
+#r3d {
+  background: #E0F2F1;
+  background: -webkit-linear-gradient(#E0F2F1, #607D8B); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(#E0F2F1, #607D8B); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(#E0F2F1, #607D8B); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(#E0F2F1, #607D8B); /* Standard syntax */
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow:hidden;
+}
+
+#my-gui-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index:1;
+}
+
+#my-colortable-container {
+  top: 20px;
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 1;
+  color: #F9F9F9;
+  display: flex;
+}
+
+#my-colortable-container > #my-colortable-canvases {
+  position: relative;
+}
+
+#my-colortable-min {
+  margin-right: 10px;
+}
+
+#my-colortable-max {
+  margin-left: 10px;
+}
+
+#my-colortable-container > #my-colortable-canvases > :first-child {
+  background: repeating-linear-gradient(-45deg, #353535, #353535 5px, black 5px, black 10px);
+}
+
+#my-colortable-container > #my-colortable-canvases > :nth-child(2) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#my-opacitytable-container {
+  top: 20px;
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 1;
+  color: #F9F9F9;
+  display: flex;
+}
+
+#my-opacitytable-container > #my-opacitytable-canvases {
+  position: relative;
+}
+
+#my-opacitytable-min {
+  margin-right: 10px;
+}
+
+#my-opacitytable-max {
+  margin-left: 10px;
+}
+
+#my-opacitytable-container > #my-opacitytable-canvases > :first-child {
+  background: repeating-linear-gradient(-45deg, #353535, #353535 5px, black 5px, black 10px);
+}
+
+#my-opacitytable-container > #my-opacitytable-canvases > :nth-child(2) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#my-lut-container {
+  bottom: 20px;
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 1;
+  color: #F9F9F9;
+  display: flex;
+}
+
+#my-lut-container > #my-lut-canvases {
+  position: relative;
+}
+
+#my-lut-min {
+  margin-right: 10px;
+}
+
+#my-lut-max {
+  margin-left: 10px;
+}
+
+#my-lut-container > #my-lut-canvases > :first-child {
+  background: repeating-linear-gradient(-45deg, #353535, #353535 5px, black 5px, black 10px);
+}
+
+#my-lut-container > #my-lut-canvases > :nth-child(2) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#screenshot {
+  bottom: 20px;
+  right: 20px;
+  position: fixed;
+  /*left: 50%;*/
+  /*transform: translate(-50%, 0);*/
+  z-index: 1;
+  color: #F9F9F9;
+  display: flex;
+  padding: 10px;
+  font-size: 18px;
+  text-decoration: none;
+  background-color: #2196F3;
+  font-family: 'Roboto', sans-serif;
+}

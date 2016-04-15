@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>widgets/widgets.voxelProbe.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a><ul class='methods'><li data-type='method'><a href="module-cameras_orthographic.html#center">center</a></li><li data-type='method'><a href="module-cameras_orthographic.html#init">init</a></li><li data-type='method'><a href="module-cameras_orthographic.html#invertColumns">invertColumns</a></li><li data-type='method'><a href="module-cameras_orthographic.html#invertRows">invertRows</a></li><li data-type='method'><a href="module-cameras_orthographic.html#rotate">rotate</a></li></ul></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a><ul class='methods'><li data-type='method'><a href="module-core_intersections.html#.aabbPlane">aabbPlane</a></li></ul></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a><ul class='methods'><li data-type='method'><a href="module-core_utils.html#.bbox">bbox</a></li></ul></li><li><a href="module-core_validators.html">core/validators</a><ul class='methods'><li data-type='method'><a href="module-core_validators.html#.box">box</a></li><li data-type='method'><a href="module-core_validators.html#.matrix4">matrix4</a></li><li data-type='method'><a href="module-core_validators.html#.ray">ray</a></li><li data-type='method'><a href="module-core_validators.html#.vector3">vector3</a></li></ul></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a><ul class='methods'><li data-type='method'><a href="module-geometries_slice.html#.centerOfMass">centerOfMass</a></li><li data-type='method'><a href="module-geometries_slice.html#.orderIntersections">orderIntersections</a></li></ul></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a><ul class='methods'><li data-type='method'><a href="module-helpers_stack.html#_create">_create</a></li><li data-type='method'><a href="module-helpers_stack.html#_isIndexOutOfBounds">_isIndexOutOfBounds</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareBBox">_prepareBBox</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareBorder">_prepareBorder</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareDirection">_prepareDirection</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareSlice">_prepareSlice</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareSliceIndex">_prepareSliceIndex</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareSlicePosition">_prepareSlicePosition</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareStack">_prepareStack</a></li></ul></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a><ul class='methods'><li data-type='method'><a href="module-loaders_base.html#free">free</a></li></ul></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a><ul class='methods'><li data-type='method'><a href="module-models_base.html#_validateModelArray">_validateModelArray</a></li><li data-type='method'><a href="module-models_base.html#merge">merge</a></li><li data-type='method'><a href="module-models_base.html#mergeModels">mergeModels</a></li><li data-type='method'><a href="module-models_base.html#validate">validate</a></li></ul></li><li><a href="module-models_frame.html">models/frame</a><ul class='methods'><li data-type='method'><a href="module-models_frame.html#_compareArrays">_compareArrays</a></li><li data-type='method'><a href="module-models_frame.html#merge">merge</a></li></ul></li><li><a href="module-models_series.html">models/series</a><ul class='methods'><li data-type='method'><a href="module-models_series.html#merge">merge</a></li><li data-type='method'><a href="module-models_series.html#mergeSeries">mergeSeries</a></li><li data-type='method'><a href="module-models_series.html#validate">validate</a></li></ul></li><li><a href="module-models_stack.html">models/stack</a><ul class='methods'><li data-type='method'><a href="module-models_stack.html#prepare">prepare</a></li></ul></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_layer.html">shaders/layer</a></li><li><a href="module-shaders_raycasting.html">shaders/raycasting</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">widgets/widgets.voxelProbe.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*** Imports ***/
+import HelpersVoxel from '../../src/helpers/helpers.voxel';
+
+/**
+ * @module widgets/voxelProbe
+ */
+
+export default class WidgetsVoxelProbe extends THREE.Object3D{
+  constructor(stack, targetMesh, controls, camera, container) {
+    super();
+
+    this._enabled = true;
+
+    this._targetMesh = targetMesh;
+    this._stack = stack;
+    this._container = container;
+    this._controls = controls;
+    this._camera = camera;
+    this._mouse = {
+      x: 0,
+      y: 0,
+      screenX: 0,
+      screenY: 0
+    };
+    // show only voxels that interesect the mesh
+    this._showFrame = -1;
+
+    this._raycaster = new THREE.Raycaster();
+    this._draggingMouse = false;
+    this._active = -1;
+    this._hover = -1;
+    this._closest = null;
+    this._selected = [];
+
+    this._voxels = [];
+    this._current = new HelpersVoxel(stack.worldCenter(), stack);
+    this._current._showVoxel =  true;
+    this._current._showDomSVG =  true;
+    this._current._showDomMeasurements =  true;
+
+    this.add(this._current);
+
+    // event listeners
+    this._container.addEventListener('mousedown', this.onMouseDown.bind(this), false);
+    this._container.addEventListener('mouseup', this.onMouseUp.bind(this), false);
+    this._container.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+
+    this._container.addEventListener('mousewheel', this.onMouseMove.bind(this), false);
+    this._container.addEventListener('DOMMouseScroll', this.onMouseMove.bind(this), false); // firefox
+
+    window.addEventListener('keypress', this.onKeyPress.bind(this), false);
+
+    this._defaultColor = '0x00B0FF';
+    this._activeColor = '0xFFEB3B';
+    this._hoverColor = '0xF50057';
+    this._selectedColor = '0x76FF03';
+
+    this._showVoxel = true;
+    this._showDomSVG = true;
+    this._showDomMeasurements = true;
+  }
+
+  isEnabled() {
+
+  }
+
+  onKeyPress(event) {
+    if (this._enabled === false) {
+      return;
+    }
+
+    if (event.keyCode === 100) {
+      this.deleteAllSelected();
+    }
+  }
+
+  onMouseMove() {
+
+    if (this._enabled === false) {
+      return;
+    }
+
+    this.updateRaycaster(this._raycaster, event, this._container);
+
+    this._draggingMouse  = true;
+
+    this.update();
+  }
+
+  onMouseDown(event) {
+
+    if (this._enabled === false) {
+      return;
+    }
+
+    this.updateRaycaster(this._raycaster, event, this._container);
+
+    this._draggingMouse  = false;
+  
+    this.activateVoxel();
+  }
+
+  onMouseUp(event) {
+
+    if (this._enabled === false) {
+      return;
+    }
+
+    this.updateRaycaster(this._raycaster, event, this._container);
+
+    if (this._draggingMouse === false) {
+      if (this._active === -1) {
+        // create voxel
+        this.createVoxel();
+      } else {
+        // select / unselect voxel
+        this.selectVoxel();
+        // disactivate voxel
+        this.activateVoxel();
+      }
+    } else {
+      if (this._active >= 0) {
+        this.activateVoxel();
+      }
+    }
+  }
+
+  updateRaycaster(raycaster, event, container) {
+    // calculate mouse position in normalized device coordinates
+    // (-1 to +1) for both components
+    this._mouse = {
+      x: (event.clientX / container.offsetWidth) * 2 - 1,
+      y: -(event.clientY / container.offsetHeight) * 2 + 1,
+      screenX: event.clientX,
+      screenY: event.clientY
+    };
+    // update the raycaster
+    raycaster.setFromCamera(this._mouse, this._camera);
+  }
+
+  updateColor(voxel) {
+    if (voxel._active) {
+      voxel.color = this._activeColor;
+    } else if (voxel.hover) {
+      voxel.color = this._hoverColor;
+    } else if (voxel.selected) {
+      voxel.color = this._selectedColor;
+    } else {
+      voxel.color = this._defaultColor;
+    }
+  }
+
+  deleteAllSelected() {
+    let i = this._voxels.length;
+    while (i--) {
+      let match = this._selected.indexOf(i);
+      if (match >= 0) {
+
+        // selected &amp;&amp; active
+        if (this._active === i) {
+          this._active = -1;
+        }
+
+        this.remove(this._voxels[i]);
+        this._voxels[i].removeTest();
+        this._voxels.splice(i, 1);
+      }
+    }
+
+    this._selected = [];
+    this._closest = null;
+  }
+
+  selectVoxel() {
+    // select/unselect the active voxel
+    let selIndex = this._selected.indexOf(this._active);
+    if (selIndex === -1) {
+      this._selected.push(this._active);
+      this._voxels[this._active].selected = true;
+      this.updateColor(this._voxels[this._active]);
+    } else {
+      this._selected.splice(selIndex, 1);
+      this._voxels[this._active].selected = false;
+    }
+  }
+
+  activateVoxel() {
+    if (this._active === -1) {
+      // Look for intersection against target mesh
+      let intersects = this._raycaster.intersectObject(this._targetMesh);
+
+      if (intersects.length > 0) {
+        if (this._hover >= 0 ||
+           (this._closest !== null &amp;&amp; this._voxels[this._closest].distance &lt; 10)) {
+          let index = Math.max(this._hover, this._closest);
+          // Active voxel
+          this._voxels[index]._active = true;
+          this.updateColor(this._voxels[index]);
+          this._active = index;
+          // Disable controls
+          this._controls.enabled = false;
+        }
+      }
+
+    } else {
+      // change color + select it and nothing else selected
+      this._voxels[this._active].active = false;
+      this._active = -1;
+      // Enable controls
+      this._controls.enabled = true;
+    }
+  }
+
+  createVoxel() {
+    if (this._hover >= 0) {
+      return;
+    }
+
+    // Look for intersection against target mesh
+    let intersects = this._raycaster.intersectObject(this._targetMesh);
+
+    if (intersects.length > 0) {
+      // create voxel helper
+      let helpersVoxel = new HelpersVoxel(intersects[0].point, this._stack);
+      this.add(helpersVoxel);
+
+      // push it
+      this._voxels.push(helpersVoxel);
+
+      // add hover colors
+      helpersVoxel.updateVoxelScreenCoordinates(this._camera, this._container);
+      this.hoverVoxel(helpersVoxel,
+          this._mouse,
+          this._current.voxel.dataCoordinates);
+      this.updateColor(helpersVoxel);
+      helpersVoxel.updateDom(this._container);
+
+      // show/hide mesh
+      helpersVoxel.showVoxel = this._showVoxel;
+      // show/hide dom stuff
+      helpersVoxel.showDomSVG = this._showDomSVG;
+      helpersVoxel.showDomMeasurements = this._showDomMeasurements;
+    }
+  }
+
+  update() {
+    // good to go
+    if (!this._targetMesh) {
+      return;
+    }
+
+    let intersects = this._raycaster.intersectObject(this._targetMesh);
+
+    if (intersects.length > 0) {
+      // modify world position with getter/setter
+      this._current.worldCoordinates = intersects[0].point;
+      this._current.updateVoxelScreenCoordinates(this._camera, this._container);
+      this.updateColor(this._current);
+      this._current.updateDom(this._container);
+      // show/hide mesh
+      this._current.showVoxel = this._showVoxel;
+      // show/hide dom stuff
+      this._current.showDomSVG = this._showDomSVG;
+      this._current.showDomMeasurements = this._showDomMeasurements;
+
+      //  if dragging a voxel
+      if (this._active >= 0) {
+        this._voxels[this._active].worldCoordinates = intersects[0].point;
+      }
+    }
+
+    // no geometry related updates
+    // just colors for hover, etc.
+    // and DOM
+    this.updateVoxels();
+  }
+
+  updateVoxels() {
+    let hover = -1;
+    let closest = null;
+
+    for (let i = 0; i &lt; this._voxels.length; i++) {
+      // update voxel content
+      this._voxels[i].updateVoxelScreenCoordinates(this._camera, this._container);
+      // update hover status
+      this.hoverVoxel(this._voxels[i],
+          this._mouse,
+          this._current.voxel.dataCoordinates);
+      this.updateColor(this._voxels[i]);
+
+      // only works if slice is a frame...
+      // should test intersection of voxel with target mesh (i.e. plane, box, sphere, etc...)
+      // maybe use the raycasting somehow....
+      this.showOfIntersectsFrame(this._voxels[i], this._showFrame);
+      this._voxels[i].updateDom(this._container);
+
+      // hovering?
+      if (this._voxels[i].hover) {
+        hover = i;
+      }
+
+      // closest pixel to the mouse?
+      if (closest === null ||
+        this._voxels[i].distance &lt; this._voxels[closest].distance) {
+        closest = i;
+      }
+
+      // show hide mesh
+      this._voxels[i].showVoxel = this._showVoxel;
+      // show/hide dom stuff
+      this._voxels[i].showDomSVG = this._showDomSVG;
+      this._voxels[i].showDomMeasurements = this._showDomMeasurements;
+    }
+
+    this._hover = hover;
+    this._closest = closest;
+  }
+
+  hoverVoxel(helpersVoxel, mouseScreenCoordinates, currentDataCoordinates) {
+    // update hover voxel
+    if (helpersVoxel.voxel.dataCoordinates.x === currentDataCoordinates.x &amp;&amp;
+        helpersVoxel.voxel.dataCoordinates.y === currentDataCoordinates.y &amp;&amp;
+        helpersVoxel.voxel.dataCoordinates.z === currentDataCoordinates.z) {
+      helpersVoxel.hover = true;
+    } else {
+      // update distance mouse/this._voxel
+      let dx = mouseScreenCoordinates.screenX - helpersVoxel.voxel.screenCoordinates.x;
+      let dy = mouseScreenCoordinates.screenY - helpersVoxel.voxel.screenCoordinates.y;
+      let distance =  Math.sqrt(dx * dx + dy * dy);
+      helpersVoxel.distance = distance;
+      if (distance >= 0 &amp;&amp; distance &lt; 10) {
+        helpersVoxel.hover = true;
+      } else {
+        helpersVoxel.hover = false;
+      }
+    }
+  }
+
+  showOfIntersectsFrame(voxelHelper, frameIndex) {
+    if (frameIndex === voxelHelper.voxel.dataCoordinates.z ||
+      frameIndex === -1) {
+      voxelHelper._showDomSVG =  true;
+      voxelHelper._showDomMeasurements =  true;
+    } else {
+      voxelHelper._showDomSVG =  false;
+      voxelHelper._showDomMeasurements =  false;
+    }
+  }
+
+  set defaultColor(defaultColor) {
+    this._defaultColor = defaultColor;
+    this.update();
+  }
+
+  get defaultColor() {
+    return this._defaultColor;
+  }
+
+  set activeColor(activeColor) {
+    this._activeColor = activeColor;
+    this.update();
+  }
+
+  get activeColor() {
+    return this._activeColor;
+  }
+
+  set hoverColor(hoverColor) {
+    this._hoverColor = hoverColor;
+    this.update();
+  }
+
+  get hoverColor() {
+    return this._hoverColor;
+  }
+
+  set selectedColor(selectedColor) {
+    this._selectedColor = selectedColor;
+    this.update();
+  }
+
+  get selectedColor() {
+    return this._selectedColor;
+  }
+
+  set showVoxel(showVoxel) {
+    this._showVoxel = showVoxel;
+    this.update();
+  }
+
+  get showVoxel() {
+    return this._showVoxel;
+  }
+
+  set showDomSVG(showDomSVG) {
+    this._showDomSVG = showDomSVG;
+    this.update();
+  }
+
+  get showDomSVG() {
+    return this._showDomSVG;
+  }
+
+  set showDomMeasurements(showDomMeasurements) {
+    this._showDomMeasurements = showDomMeasurements;
+    this.update();
+  }
+
+  get showDomMeasurements() {
+    return this._showDomMeasurements;
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Apr 15 2016 09:50:18 GMT+0200 (CEST) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

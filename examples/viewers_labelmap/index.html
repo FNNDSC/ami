@@ -1,0 +1,41 @@
+<html>
+<head>
+<title>VJS Viewers Dicom 2D</title>
+
+<!-- External tools -->
+<!-- Tools -->
+<script type="text/javascript" src="https://cdn.rawgit.com/dataarts/dat.gui/master/build/dat.gui.min.js"></script>
+<script type="text/javascript" src="http://cdn.rawgit.com/mrdoob/stats.js/master/build/stats.min.js"></script>
+<!-- THREEJS -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.min.js"></script>
+
+<script type="text/javascript" src="viewers_labelmap.js"></script>
+
+<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="viewers_labelmap.css">
+</head>
+
+<body>
+  <!-- the container for the renderers -->
+  <div id="my-gui-container">
+  </div>
+  <div id="my-lut-container">
+    <div>Layer 0<div id="my-lut-canvases-l0" class="my-lut-canvases"></div></div>
+    <div>Layer 1<div id="my-lut-canvases-l1" class="my-lut-canvases"></div></div>
+  </div>
+  <div id="r3d">
+  </div>
+  <div style="background-color: #f9f9f9; width: 0; height: 0;"></div>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-39303022-3', 'auto');
+    ga('send', 'pageview');
+
+  </script>
+</body>
+</html>

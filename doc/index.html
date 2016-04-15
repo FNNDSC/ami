@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a><ul class='methods'><li data-type='method'><a href="module-cameras_orthographic.html#center">center</a></li><li data-type='method'><a href="module-cameras_orthographic.html#init">init</a></li><li data-type='method'><a href="module-cameras_orthographic.html#invertColumns">invertColumns</a></li><li data-type='method'><a href="module-cameras_orthographic.html#invertRows">invertRows</a></li><li data-type='method'><a href="module-cameras_orthographic.html#rotate">rotate</a></li></ul></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a><ul class='methods'><li data-type='method'><a href="module-core_intersections.html#.aabbPlane">aabbPlane</a></li></ul></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a><ul class='methods'><li data-type='method'><a href="module-core_utils.html#.bbox">bbox</a></li></ul></li><li><a href="module-core_validators.html">core/validators</a><ul class='methods'><li data-type='method'><a href="module-core_validators.html#.box">box</a></li><li data-type='method'><a href="module-core_validators.html#.matrix4">matrix4</a></li><li data-type='method'><a href="module-core_validators.html#.ray">ray</a></li><li data-type='method'><a href="module-core_validators.html#.vector3">vector3</a></li></ul></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a><ul class='methods'><li data-type='method'><a href="module-geometries_slice.html#.centerOfMass">centerOfMass</a></li><li data-type='method'><a href="module-geometries_slice.html#.orderIntersections">orderIntersections</a></li></ul></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a><ul class='methods'><li data-type='method'><a href="module-helpers_stack.html#_create">_create</a></li><li data-type='method'><a href="module-helpers_stack.html#_isIndexOutOfBounds">_isIndexOutOfBounds</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareBBox">_prepareBBox</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareBorder">_prepareBorder</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareDirection">_prepareDirection</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareSlice">_prepareSlice</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareSliceIndex">_prepareSliceIndex</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareSlicePosition">_prepareSlicePosition</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareStack">_prepareStack</a></li></ul></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a><ul class='methods'><li data-type='method'><a href="module-loaders_base.html#free">free</a></li></ul></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a><ul class='methods'><li data-type='method'><a href="module-models_base.html#_validateModelArray">_validateModelArray</a></li><li data-type='method'><a href="module-models_base.html#merge">merge</a></li><li data-type='method'><a href="module-models_base.html#mergeModels">mergeModels</a></li><li data-type='method'><a href="module-models_base.html#validate">validate</a></li></ul></li><li><a href="module-models_frame.html">models/frame</a><ul class='methods'><li data-type='method'><a href="module-models_frame.html#_compareArrays">_compareArrays</a></li><li data-type='method'><a href="module-models_frame.html#merge">merge</a></li></ul></li><li><a href="module-models_series.html">models/series</a><ul class='methods'><li data-type='method'><a href="module-models_series.html#merge">merge</a></li><li data-type='method'><a href="module-models_series.html#mergeSeries">mergeSeries</a></li><li data-type='method'><a href="module-models_series.html#validate">validate</a></li></ul></li><li><a href="module-models_stack.html">models/stack</a><ul class='methods'><li data-type='method'><a href="module-models_stack.html#prepare">prepare</a></li></ul></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_layer.html">shaders/layer</a></li><li><a href="module-shaders_raycasting.html">shaders/raycasting</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+
+
+    <section class="readme">
+        <article><p><strong>WARNING: AMI is NOT ready for production yet.</strong> (Alpha release scheduled in first 15 days of April 2016 - almost there :) </br>
+<a href="https://travis-ci.org/FNNDSC/ami"><img src="https://travis-ci.org/FNNDSC/ami.svg" alt="Build Status"></a>
+<a href="https://codeclimate.com/github/FNNDSC/ami"><img src="https://codeclimate.com/github/FNNDSC/ami/badges/gpa.svg" alt="Code Climate"></a>
+<a href="http://slack.babymri.org"><img src="https://img.shields.io/badge/slack-join-blue.svg" alt="Slack"></a>
+<a href="https://www.npmjs.com/package/ami.js"><img src="https://img.shields.io/npm/v/ami.js.svg" alt="NPM Version"></a>
+<a href="https://www.npmjs.com/package/ami.js"><img src="https://img.shields.io/npm/dm/ami.js.svg" alt="NPM Downloads per Month"></a></p>
+<h1><img align="left" src="https://cloud.githubusercontent.com/assets/214063/14279153/f74bc160-fb2b-11e5-9722-94501b191bc1.png" width="15%"> AMI JS ToolKit</h1><blockquote>
+<p>AMI Medical Imaging (AMI) JS ToolKit for THREEJS</p>
+</blockquote>
+<h3>Content</h3><ol>
+<li><a href="#lessons">Lessons</a></li>
+<li><a href="#advanced">Advanced examples</a></li>
+<li><a href="#features">Features</a></li>
+<li><a href="#usage">Usage</a></li>
+<li><a href="#pre-requisites">Pre-requisites</a></li>
+<li><a href="#npm">Use with NPM</a></li>
+<li><a href="#compiled">Use compiled version</a></li>
+<li><a href="https://fnndsc.github.io/ami/doc">API Documentation</a></li>
+<li><a href="https://fnndsc.github.io/ami/doc">Developer corner</a></li>
+<li><a href="#credits">Credits</a></li>
+</ol>
+<h2>Lessons</h2><table>
+<tr>
+  <!-- Lesson 00 -->
+  <td valign="middle" width="100">
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/00#run' target=_blank>
+      <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/00/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">
+      <img src="http://xtk.github.com/fiddlelogo_small2.png">
+    </a>
+  </td>
+  <td valign="top" width="326">
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/00#run'>
+      <b>Lesson 00: Load</b>
+    </a>
+    <div>
+      Load DICOM Data and get a nice Series/Stack/Frame structure.
+    </div>
+  </td>
+
+  <!-- Lesson 01 -->
+  <td valign="middle" width="100">
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/01#run' target=_blank>
+      <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/01/thumbnail-128x128.jpg" alt="lesson01" title="Click me!">
+      <img src="http://xtk.github.com/fiddlelogo_small2.png">
+    </a>
+  </td>
+  <td valign="top" width="326">
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/01#run'>
+      <b>Lesson 01: Visualize 3D</b>
+    </a>
+    <div>
+      Look at the data we loaded in 3D.
+    </div>
+  </td>
+</tr>
+
+<tr>
+  <!-- Lesson 02 -->
+  <td valign="middle" width="100">
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run' target=_blank>
+      <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/02/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">
+      <img src="http://xtk.github.com/fiddlelogo_small2.png">
+    </a>
+  </td>
+  <td valign="top" width="326">
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run'>
+      <b>Lesson 02: Mesh</b>
+    </a>
+    <div>
+      Add a mesh to the scene.
+    </div>
+  </td>
+
+  <!-- Lesson 03 -->
+  <td valign="middle" width="100">
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/03#run' target=_blank>
+      <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/03/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">
+      <img src="http://xtk.github.com/fiddlelogo_small2.png">
+    </a>
+  </td>
+  <td valign="top" width="326">
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/03#run'>
+      <b>Lesson 03: Visualize 2D</b>
+    </a>
+    <div>
+      Look at the data in 2D.
+    </div>
+  </td>
+</tr>
+<tr>
+  <!-- Lesson 04 -->
+  <td valign="middle" width="100">
+    <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run' target=_blank>-->
+    <!--  <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/02/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">-->
+    <!--  <img src="http://xtk.github.com/fiddlelogo_small2.png">-->
+    <!--</a>-->
+  </td>
+  <td valign="top" width="326">
+    <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run'>-->
+      <b>Lesson 04: Labelmap</b>
+    <!--</a>-->
+    <div>
+      Label maps - coming soon.
+    </div>
+  </td>
+
+  <!-- Lesson 05 -->
+  <td valign="middle" width="100">
+    <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run' target=_blank>-->
+    <!--  <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/02/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">-->
+    <!--  <img src="http://xtk.github.com/fiddlelogo_small2.png">-->
+    <!--</a>-->
+  </td>
+  <td valign="top" width="326">
+    <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run'>-->
+      <b>Lesson 05: TRK</b>
+    <!--</a>-->
+    <div>
+      TRK - coming soon.
+    </div>
+  </td>
+</tr>
+<tr>
+  <!-- Lesson 06 -->
+  <td valign="middle" width="100">
+    <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run' target=_blank>-->
+    <!--  <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/02/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">-->
+    <!--  <img src="http://xtk.github.com/fiddlelogo_small2.png">-->
+    <!--</a>-->
+  </td>
+  <td valign="top" width="326">
+    <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run'>-->
+      <b>Lesson 06: Volume Rendering</b>
+    <!--</a>-->
+    <div>
+      Volume Rendering - coming soon.
+    </div>
+  </td>
+
+  <!-- Lesson 07 -->
+  <td valign="middle" width="100">
+    <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run' target=_blank>-->
+    <!--  <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/02/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">-->
+    <!--  <img src="http://xtk.github.com/fiddlelogo_small2.png">-->
+    <!--</a>-->
+  </td>
+  <td valign="top" width="326">
+    <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run'>-->
+      <b>Lesson 07: Lookup tables</b>
+    <!--</a>-->
+    <div>
+      Lookup Tables - coming soon.
+    </div>
+  </td>
+</tr>
+</table>
+
+<h2>Advanced</h2><p>See it live <a href="https://fnndsc.github.io/ami">there</a>!</p>
+<h2>Features</h2><p>:white_check_mark: READY - :large_orange_diamond: IN PROGRESS OR LIMITED SUPPORT - :x: ON ROADMAP</p>
+<h4>Capabilities</h4><p>:white_check_mark: 2D Visulization</p>
+<p>:white_check_mark: 3D Visualization</p>
+<p>:white_check_mark: Volume Rendering</p>
+<p>:white_check_mark: Lookup Tables</p>
+<p>:large_orange_diamond: Label Maps</p>
+<h4>Widgets</h4><p>:large_orange_diamond: Probe (2D/3D)</p>
+<p>:large_orange_diamond: Ruler (2D/3D)</p>
+<p>:large_orange_diamond: Angle (2D/3D)</p>
+<p>:large_orange_diamond: Orientation (2D/3D)</p>
+<h4>Volumes</h4><p>:white_check_mark: Dicom</p>
+<p>:white_check_mark: NRRD</p>
+<p>:large_orange_diamond: Nifti</p>
+<p>:x: MGH/MGZ</p>
+<p>:x: JPEG</p>
+<h4>Meshes</h4><p>:white_check_mark: VTK (THREEJS)</p>
+<p>:white_check_mark: STL (THREEJS)</p>
+<p>:large_orange_diamond: TRK</p>
+<p>:x: CURV</p>
+<p>:x: FSM</p>
+<h2>Usage</h2><p>If you know how to use THREEJS, you already know out to use AMI. Learn about THREEJS then checkout the lessons, examples and the API to dive in!</p>
+<h2>Pre-requisites</h2><h3>THREEJS</h3><p>Make sure that you are loading THREEJS your index.html <strong>BEFORE</strong> AMI.</p>
+<pre class="prettyprint source"><code>&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.js&quot;>&lt;/script></code></pre><h3>Promise polyfills (for older browsers)</h3><p>Follow the instructions from <a href="http://babeljs.io/docs/usage/polyfill/">babel's wiki</a> or just use one of the many Promise polyfill available out there.</p>
+<p><strong>NOT FOR PRODUCTION</strong>: available for convenience at:</p>
+<pre class="prettyprint source"><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://cdn.rawgit.com/fnndsc/vjs/master/external/scripts/babel/polyfill.min.js&quot;>&lt;/script></code></pre><h2>NPM</h2><h3>Installation</h3><pre class="prettyprint source"><code>npm install ami.js</code></pre><p>Note that you might need to include <a href="https://github.com/babel/babel">babel</a> and <a href="https://github.com/stackgl/glslify">glslify</a> transforms in you build (browserify, webpack, etc.) process.</p>
+<pre class="prettyprint source"><code>...
+browserify(
+  {entries: [entry],
+   debug: true
+  })
+  .transform(babelify, {&quot;presets&quot;: [&quot;es2015&quot;]})
+  .transform(glslify)
+  .bundle()
+...</code></pre><h3>Usage</h3><pre class="prettyprint source"><code>let AMI = require('ami.js');
+window.console.log(AMI);
+
+// Ready to rock</code></pre><h2>Compiled</h2><h3>Installation</h3><p>Add AMI in your index.html after THREEJS.</p>
+<pre class="prettyprint source"><code>...
+&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.js&quot;>&lt;/script>
+&lt;script src=&quot;https://rawgit.com/FNNDSC/ami/master/dist/ami.js&quot;>&lt;/script>
+...</code></pre><h3>Usage</h3><pre class="prettyprint source"><code>let AMI = AMI.default;
+window.console.log(AMI);
+
+// Ready to rock</code></pre><h2>Developer corner</h2><p>Get the source code and related packages.</p>
+<pre class="prettyprint source"><code>$> git clone https://github.com/FNNDSC/ami.git
+$> cd ami
+$> npm install</code></pre><p>Default task (runs tests, documentation, etc. and create a directory ready to be pushed as gh-page)</p>
+<pre class="prettyprint source"><code>$> gulp</code></pre><p>To run examples (browserify/babelify/glslify the example)</p>
+<pre class="prettyprint source"><code>$> gulp examples --&lt;example>
+
+# for instance to run the geometries_slice example
+
+$> gulp examples --geometries_slices</code></pre><p>To run lessons (runs example against compiled ami.js)</p>
+<pre class="prettyprint source"><code>$> gulp lessons --&lt;lesson #>
+
+# for instance to run lesson 00
+
+$> gulp lessons --00</code></pre><p>Build standalone library to build/</p>
+<pre class="prettyprint source"><code>$> gulp build</code></pre><p>Tests</p>
+<pre class="prettyprint source"><code>$> gulp test</code></pre><p>Documentation</p>
+<pre class="prettyprint source"><code>$> gulp doc</code></pre><h1>Credits</h1><h5><a href="https://github.com/mrdoob/three.js/">THREEJS</a></h5><ul>
+<li>Base components such as Vectors, Matrices and Objects3D.</li>
+<li>HTML template for example page.</li>
+<li>Author(s): <a href="https://github.com/mrdoob">mrdoob</a></li>
+</ul>
+<h5><a href="https://github.com/chafey/dicomParser">DicomParser</a></h5><ul>
+<li>DICOM parsing relies on it.</li>
+<li>Author(s): <a href="https://github.com/chafey">chafey</a></li>
+</ul>
+<h5><a href="https://github.com/chafey/cornerstoneWADOImageLoader">CornerstoneWADOImageLoader</a></h5><ul>
+<li>Was used to figure out how to use the dicom parser properly.</li>
+<li>Author(s): <a href="https://github.com/chafey">chafey</a></li>
+</ul>
+<h5><a href="https://github.com/rii-mango/NIFTI-Reader-JS">NIFTI-Reader-JS</a></h5><ul>
+<li>Nifti parsing relies on it.</li>
+<li>Author(s): <a href="https://github.com/rii-mango">rii-mango</a></li>
+</ul>
+<h5><a href="https://github.com/rii-mango/JPEGLosslessDecoderJS">JPEGLosslessDecoderJS</a></h5><ul>
+<li>JPEG Lossless Decoder for DICOM images</li>
+<li>Author(s): <a href="https://github.com/rii-mango">rii-mango</a></li>
+</ul>
+<h5><a href="https://github.com/OHIF/image-JPEG2000">Image-JPEG2000</a></h5><ul>
+<li>JPEG 2000 Decoder for DICOM images</li>
+<li>Author(s): <a href="https://github.com/jpambrun">jpambrun</a>, <a href="https://github.com/mozilla/pdf.js/">mozilla</a></li>
+</ul>
+<h5><a href="https://github.com/nodeca/pako">Pako</a></h5><ul>
+<li>GZ file decompression</li>
+<li>Author(s): <a href="https://github.com/nodeca">nodeca</a></li>
+</ul></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Apr 15 2016 09:50:18 GMT+0200 (CEST) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
