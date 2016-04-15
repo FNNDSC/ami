@@ -12,7 +12,7 @@
 ### Content
 
 1. [Lessons](#lessons)
-2. [Advanced examples](#advanced)
+2. [Sandbox](#sandbox)
 2. [Features](#features)
 3. [Usage](#usage)
 4. [Pre-requisites](#pre-requisites)
@@ -159,9 +159,9 @@
 </tr>
 </table>
 
-## Advanced
+## Sandbox
 
-See it live [there](https://fnndsc.github.io/ami)!
+More examples and advanced demos [there](https://fnndsc.github.io/ami)!
 
 ## Features
 :white_check_mark: READY - :large_orange_diamond: IN PROGRESS OR LIMITED SUPPORT - :x: ON ROADMAP
