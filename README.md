@@ -1,4 +1,11 @@
-**WARNING: AMI is NOT ready for production yet.** (Alpha release scheduled in first 15 days of April 2016 - almost there :) </br>
+----------
+
+**AMI Alpha** is now available for developer preview.</br>
+Developper preview means that the API might change but we are confident you can already build coool apps with AMI.</br>
+Please submit pull request, open issues or contact us for any question, feature request, etc.
+
+----------
+
 [![Build Status](https://travis-ci.org/FNNDSC/ami.svg)](https://travis-ci.org/FNNDSC/ami)
 [![Code Climate](https://codeclimate.com/github/FNNDSC/ami/badges/gpa.svg)](https://codeclimate.com/github/FNNDSC/ami)
 [![Slack](https://img.shields.io/badge/slack-join-blue.svg)](http://slack.babymri.org)
@@ -6,7 +13,7 @@
 [![NPM Downloads per Month](https://img.shields.io/npm/dm/ami.js.svg)](https://www.npmjs.com/package/ami.js)
 
 
-# <img align="left" src="https://cloud.githubusercontent.com/assets/214063/14279153/f74bc160-fb2b-11e5-9722-94501b191bc1.png" width="15%"> AMI JS ToolKit
+# <img align="left" src="https://cloud.githubusercontent.com/assets/214063/14279153/f74bc160-fb2b-11e5-9722-94501b191bc1.png" width="15%"> AMI JS ToolKit (Alpha - 0.0.*)
 > AMI Medical Imaging (AMI) JS ToolKit for THREEJS
 
 ### Content
@@ -232,11 +239,15 @@ Follow the instructions from [babel's wiki](http://babeljs.io/docs/usage/polyfil
 
 ## NPM
 
+Check-out the ami-starter kit to get started quickly. It is already configured to use browserify, babelify and glslify,
+
+https://github.com/FNNDSC/ami-starter
+
 ### Installation
 
 
 ```
-npm install ami.js
+$> npm install ami.js
 ```
 
 Note that you might need to include [babel](https://github.com/babel/babel) and [glslify](https://github.com/stackgl/glslify) transforms in you build (browserify, webpack, etc.) process.
@@ -262,6 +273,10 @@ window.console.log(AMI);
 ```
 
 ## Compiled
+
+Check-out the lessons to get started quickly.
+
+[Lessons](#lessons)
 
 ### Installation
 Add AMI in your index.html after THREEJS.
