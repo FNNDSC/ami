@@ -247,7 +247,7 @@ https://github.com/FNNDSC/ami-starter
 
 
 ```
-npm install ami.js
+$> npm install ami.js
 ```
 
 Note that you might need to include [babel](https://github.com/babel/babel) and [glslify](https://github.com/stackgl/glslify) transforms in you build (browserify, webpack, etc.) process.
