@@ -47,18 +47,22 @@
 
 
     <section class="readme">
-        <article><p><strong>WARNING: AMI is NOT ready for production yet.</strong> (Alpha release scheduled in first 15 days of April 2016 - almost there :) </br>
-<a href="https://travis-ci.org/FNNDSC/ami"><img src="https://travis-ci.org/FNNDSC/ami.svg" alt="Build Status"></a>
+        <article><hr>
+<p><strong>AMI Alpha</strong> is now available for developer preview.</br>
+Developper preview means that the API might change but we are confident you can already build coool apps with AMI.</br>
+Please submit pull request, open issues or contact us for any question, feature request, etc.</p>
+<hr>
+<p><a href="https://travis-ci.org/FNNDSC/ami"><img src="https://travis-ci.org/FNNDSC/ami.svg" alt="Build Status"></a>
 <a href="https://codeclimate.com/github/FNNDSC/ami"><img src="https://codeclimate.com/github/FNNDSC/ami/badges/gpa.svg" alt="Code Climate"></a>
 <a href="http://slack.babymri.org"><img src="https://img.shields.io/badge/slack-join-blue.svg" alt="Slack"></a>
 <a href="https://www.npmjs.com/package/ami.js"><img src="https://img.shields.io/npm/v/ami.js.svg" alt="NPM Version"></a>
 <a href="https://www.npmjs.com/package/ami.js"><img src="https://img.shields.io/npm/dm/ami.js.svg" alt="NPM Downloads per Month"></a></p>
-<h1><img align="left" src="https://cloud.githubusercontent.com/assets/214063/14279153/f74bc160-fb2b-11e5-9722-94501b191bc1.png" width="15%"> AMI JS ToolKit</h1><blockquote>
+<h1><img align="left" src="https://cloud.githubusercontent.com/assets/214063/14279153/f74bc160-fb2b-11e5-9722-94501b191bc1.png" width="15%"> AMI JS ToolKit (Alpha - 0.0.*)</h1><blockquote>
 <p>AMI Medical Imaging (AMI) JS ToolKit for THREEJS</p>
 </blockquote>
 <h3>Content</h3><ol>
 <li><a href="#lessons">Lessons</a></li>
-<li><a href="#advanced">Advanced examples</a></li>
+<li><a href="#sandbox">Sandbox</a></li>
 <li><a href="#features">Features</a></li>
 <li><a href="#usage">Usage</a></li>
 <li><a href="#pre-requisites">Pre-requisites</a></li>
@@ -204,7 +208,7 @@
 </tr>
 </table>
 
-<h2>Advanced</h2><p>See it live <a href="https://fnndsc.github.io/ami">there</a>!</p>
+<h2>Sandbox</h2><p>More examples and advanced demos <a href="https://fnndsc.github.io/ami">there</a>!</p>
 <h2>Features</h2><p>:white_check_mark: READY - :large_orange_diamond: IN PROGRESS OR LIMITED SUPPORT - :x: ON ROADMAP</p>
 <h4>Capabilities</h4><p>:white_check_mark: 2D Visulization</p>
 <p>:white_check_mark: 3D Visualization</p>
@@ -229,7 +233,9 @@
 <h2>Pre-requisites</h2><h3>THREEJS</h3><p>Make sure that you are loading THREEJS your index.html <strong>BEFORE</strong> AMI.</p>
 <pre class="prettyprint source"><code>&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.js&quot;>&lt;/script></code></pre><h3>Promise polyfills (for older browsers)</h3><p>Follow the instructions from <a href="http://babeljs.io/docs/usage/polyfill/">babel's wiki</a> or just use one of the many Promise polyfill available out there.</p>
 <p><strong>NOT FOR PRODUCTION</strong>: available for convenience at:</p>
-<pre class="prettyprint source"><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://cdn.rawgit.com/fnndsc/vjs/master/external/scripts/babel/polyfill.min.js&quot;>&lt;/script></code></pre><h2>NPM</h2><h3>Installation</h3><pre class="prettyprint source"><code>npm install ami.js</code></pre><p>Note that you might need to include <a href="https://github.com/babel/babel">babel</a> and <a href="https://github.com/stackgl/glslify">glslify</a> transforms in you build (browserify, webpack, etc.) process.</p>
+<pre class="prettyprint source"><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://cdn.rawgit.com/fnndsc/vjs/master/external/scripts/babel/polyfill.min.js&quot;>&lt;/script></code></pre><h2>NPM</h2><p>Check-out the ami-starter kit to get started quickly. It is already configured to use browserify, babelify and glslify,</p>
+<p>https://github.com/FNNDSC/ami-starter</p>
+<h3>Installation</h3><pre class="prettyprint source"><code>$> npm install ami.js</code></pre><p>Note that you might need to include <a href="https://github.com/babel/babel">babel</a> and <a href="https://github.com/stackgl/glslify">glslify</a> transforms in you build (browserify, webpack, etc.) process.</p>
 <pre class="prettyprint source"><code>...
 browserify(
   {entries: [entry],
@@ -241,7 +247,9 @@ browserify(
 ...</code></pre><h3>Usage</h3><pre class="prettyprint source"><code>let AMI = require('ami.js');
 window.console.log(AMI);
 
-// Ready to rock</code></pre><h2>Compiled</h2><h3>Installation</h3><p>Add AMI in your index.html after THREEJS.</p>
+// Ready to rock</code></pre><h2>Compiled</h2><p>Check-out the lessons to get started quickly.</p>
+<p><a href="#lessons">Lessons</a></p>
+<h3>Installation</h3><p>Add AMI in your index.html after THREEJS.</p>
 <pre class="prettyprint source"><code>...
 &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.js&quot;>&lt;/script>
 &lt;script src=&quot;https://rawgit.com/FNNDSC/ami/master/dist/ami.js&quot;>&lt;/script>
@@ -306,7 +314,7 @@ $> gulp lessons --00</code></pre><p>Build standalone library to build/</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Apr 15 2016 10:04:27 GMT+0200 (CEST) using the Minami theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Mon Apr 18 2016 13:37:52 GMT+0200 (CEST) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>

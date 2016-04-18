@@ -8,7 +8,7 @@ require('babel-polyfill');
 // import HelpersVR         from '../../src/helpers/helpers.volumerendering';
 // import LoadersVolume     from '../../src/loaders/loaders.volume';
 
- /* globals Stats, dat*/
+/* globals Stats, dat*/
 
 // promises polyfill from the babel team
 
