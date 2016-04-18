@@ -94,10 +94,7 @@ gulp.task('js-examples', function(cb) {
               {entries: [entry],
                 debug: true
               })
-            .transform(babelify, {
-              presets: ['es2015'],
-              ignore: ['external/**/*']
-              })
+            .transform(babelify)
             .transform(glslify)
             .bundle()
             .pipe(source(entry.substring(index + 1)))
@@ -134,10 +131,7 @@ gulp.task('js-examples-watchify', function(cb) {
           packageCache: {},
           plugin: [watchify]
           })
-        .transform(babelify, {
-          presets: ['es2015'],
-          ignore: ['external/**/*']
-          })
+        .transform(babelify)
         .transform(glslify);
 
       b.on('update', bundle);
