@@ -22,4 +22,4 @@ export default{
   Widgets
 };
 
-window.console.log('AMI - 0.0.3');
+window.console.log('AMI - 0.0.6');
