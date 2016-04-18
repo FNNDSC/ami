@@ -232,6 +232,10 @@ Follow the instructions from [babel's wiki](http://babeljs.io/docs/usage/polyfil
 
 ## NPM
 
+Check-out the ami-starter kit to get started quickly. It is already configured to use browserify, babelify and glslify,
+
+https://github.com/FNNDSC/ami-starter
+
 ### Installation
 
 
@@ -262,6 +266,10 @@ window.console.log(AMI);
 ```
 
 ## Compiled
+
+Check-out the lessons to get started quickly.
+
+[Lessons](#lessons)
 
 ### Installation
 Add AMI in your index.html after THREEJS.
