@@ -17,6 +17,12 @@ export default class HelpersProgressBar{
       }
     }
 
+    this.requestAnimationFrameID = null;
+
+    this._mode = null;
+    this._value = null;
+    this._total = null;
+
     this.init();
   }
 
@@ -26,6 +32,8 @@ export default class HelpersProgressBar{
       progressContainers[0].parentNode.removeChild(progressContainers[0]);
     }
     progressContainers = null;
+    // stop rendering loop
+    window.cancelAnimationFrame(this.requestAnimationFrameID);
   }
 
   init() {
@@ -41,31 +49,47 @@ export default class HelpersProgressBar{
 
     this._container.appendChild(progressContainer);
     progressContainer = null;
+
+    // start rendering loop
+    this.updateUI();
   }
 
   update(value, total, mode) {
-    requestAnimationFrame(() => {
-      if (!(this._modes.hasOwnProperty(mode) &&
-        this._modes[mode].hasOwnProperty('name') &&
-        this._modes[mode].hasOwnProperty('color'))) {
-        window.console.log('Invalid mode provided.');
-        window.console.log(mode);
+    this._mode = mode;
+    this._value = value;
+    // depending on CDN, total return to XHTTPRequest can be 0.
+    // In this case, we generate a random number to animate the progressbar
+    if(total === 0){
+      this._total = value;
+      this._value = Math.random()*value;
+    }
+    else{
+      this._total = total;
+    }
+  }
 
-        return false;
-      }
+  updateUI(){
 
-      let message = '';
-      let progress = Math.round((value / total) * 100);
-      let color = this._modes[mode].color;
-
-      let progressBar = this._container.getElementsByClassName('progress ' + this._modes[mode].name);
-      if(progressBar.length > 0){
-        progressBar[0].style.borderColor = color;
-        progressBar[0].style.width = progress + '%';
-      }
-      progressBar = null;
-
+    this.requestAnimationFrameID = requestAnimationFrame(() =>{
+      this.updateUI();
     });
+
+    if (!(this._modes.hasOwnProperty(this._mode) &&
+      this._modes[this._mode].hasOwnProperty('name') &&
+      this._modes[this._mode].hasOwnProperty('color'))) {
+      return false;
+    }
+
+    const message = '';
+    const progress = Math.round((this._value / this._total) * 100);
+    const color = this._modes[this._mode].color;
+
+    let progressBar = this._container.getElementsByClassName('progress ' + this._modes[this._mode].name);
+    if(progressBar.length > 0){
+      progressBar[0].style.borderColor = color;
+      progressBar[0].style.width = progress + '%';
+    }
+    progressBar = null;
   }
 
   _domContainer(){

@@ -96,14 +96,14 @@ window.onload = function() {
       color: 0x009688,
       side: THREE.DoubleSide} );
     var mesh = new THREE.Mesh( geometry, material );
-      var RASToLPS = new THREE.Matrix4();
-  RASToLPS.set(-1, 0, 0, 0,
-                0, -1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1);
-  mesh.applyMatrix(RASToLPS);
-   scene.add( mesh );
-  } );
+    var RASToLPS = new THREE.Matrix4();
+    RASToLPS.set( -1, 0, 0, 0,
+                   0, -1, 0, 0,
+                   0, 0, 1, 0,
+                   0, 0, 0, 1);
+    mesh.applyMatrix(RASToLPS);
+    scene.add( mesh );
+  });
 
   // instantiate the loader
   // it loads and parses the dicom image
