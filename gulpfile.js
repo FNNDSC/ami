@@ -25,6 +25,8 @@ var eslint      = require('gulp-eslint');
 var watchify    = require('watchify');
 //var rename      = require('gulp-rename');
 
+var VERSION = '0.0.3';
+
 var target = 'examples/**/*.js';
 
 // Clean output directories
