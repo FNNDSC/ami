@@ -21,3 +21,5 @@ export default{
   Shaders,
   Widgets
 };
+
+window.console.log('AMI - 0.0.3');
