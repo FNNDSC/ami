@@ -1,4 +1,3 @@
-**WARNING: AMI is NOT ready for production yet.** (Alpha release scheduled in first 15 days of April 2016 - almost there :) </br>
 [![Build Status](https://travis-ci.org/FNNDSC/ami.svg)](https://travis-ci.org/FNNDSC/ami)
 [![Code Climate](https://codeclimate.com/github/FNNDSC/ami/badges/gpa.svg)](https://codeclimate.com/github/FNNDSC/ami)
 [![Slack](https://img.shields.io/badge/slack-join-blue.svg)](http://slack.babymri.org)
@@ -8,6 +7,14 @@
 
 # <img align="left" src="https://cloud.githubusercontent.com/assets/214063/14279153/f74bc160-fb2b-11e5-9722-94501b191bc1.png" width="15%"> AMI JS ToolKit
 > AMI Medical Imaging (AMI) JS ToolKit for THREEJS
+
+----------
+
+**AMI Alpha** is now available for developer preview.</br>
+Developper preview means that the API might change but we are confident you can already build coool apps with AMI.</br>
+Please submit pull request, open issues or contact us for any question, feature request, etc.
+
+----------
 
 ### Content
 
