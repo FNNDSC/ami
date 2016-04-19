@@ -168,7 +168,7 @@ Please submit pull request, open issues or contact us for any question, feature 
 
 ## Sandbox
 
-More examples and advanced demos [there](https://fnndsc.github.io/ami)!
+Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced demos [there](https://fnndsc.github.io/ami)!
 
 ## Features
 :white_check_mark: READY - :large_orange_diamond: IN PROGRESS OR LIMITED SUPPORT - :x: ON ROADMAP
