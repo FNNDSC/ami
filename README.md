@@ -1,7 +1,7 @@
 ----------
 
 **AMI Alpha** is now available for developer preview.</br>
-Developper preview means that the API might change but we are confident you can already build coool apps with AMI.</br>
+Developper preview means that the API might change but we are confident you can already build cool apps with AMI.</br>
 Please submit pull request, open issues or contact us for any question, feature request, etc.
 
 ----------
