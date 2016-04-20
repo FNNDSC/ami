@@ -37,8 +37,8 @@ function init() {
       var angle  = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
       
       let posY = y1 - threeD.offsetHeight;
-      var transform = 'translate3D(' + x1 +'px,' + posY + 'px, 0)';
-      transform += ' rotate('+angle+'deg)';
+      var transform = `translate3D(${x1}px,${posY}px, 0)`;
+      transform += ` rotate(${angle}deg)`;
 
       lineDOM.style.transform = transform;
       lineDOM.style.width = length;
@@ -47,11 +47,11 @@ function init() {
       let w0 = handle0._worldPosition;
       let w1 = handle1._worldPosition;
 
-      distanceDOM.innerHTML = Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2);
+      distanceDOM.innerHTML = `${Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2)} mm`;
       let posY0 = y0 - threeD.offsetHeight - distanceDOM.offsetHeight/2;
       x0 -= distanceDOM.offsetWidth/2;
 
-      var transform2 = 'translate3D(' + Math.round(x0) +'px,' + Math.round(posY0) + 'px, 0)';
+      var transform2 = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
       distanceDOM.style.transform = transform2;
 
     }
