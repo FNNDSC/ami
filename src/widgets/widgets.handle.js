@@ -177,7 +177,6 @@ export default class WidgetsHandle extends THREE.Object3D{
     if(intersectsTarget.length > 0){
       if(this._active){
         // update position
-        this._active = true;
         this._worldPosition = intersectsTarget[0].point;
         this.update();
         return;
@@ -238,7 +237,7 @@ export default class WidgetsHandle extends THREE.Object3D{
     // check raycast intersection
     let intersectsHandle = this._raycaster.intersectObject(this._mesh);
     if(intersectsHandle.length > 0){
-        this._container.style.cursor='pointer';
+        this._dom.style.cursor='pointer';
         this._hovered = true;
         return;
     }
@@ -249,10 +248,10 @@ export default class WidgetsHandle extends THREE.Object3D{
     let distance =  Math.sqrt(dx * dx + dy * dy);
     this._hoverDistance = distance;
     if (distance >= 0 && distance < this._hoverThreshold) {
-      this._container.style.cursor='pointer';
+      this._dom.style.cursor='pointer';
       this._hovered = true;
     } else {
-      this._container.style.cursor='default';
+      this._dom.style.cursor='default';
       this._hovered = false;
     }
   }
@@ -322,7 +321,7 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._dom.style.transformOrigin = '0 100%';
 
     let posY = this._screenPosition.y - this._container.offsetHeight;
-    this._dom.style.transform = 'translate3D(' + this._screenPosition.x +'px,' + posY + 'px, 0)';
+    this._dom.style.transform = `translate3D(${this._screenPosition.x}px, ${posY}px, 0)`;
 
     // add it!
     this._container.appendChild(this._dom);
@@ -332,7 +331,7 @@ export default class WidgetsHandle extends THREE.Object3D{
     if(this._dom){
 
       let posY = this._screenPosition.y - this._container.offsetHeight;
-      this._dom.style.transform = 'translate3D(' + this._screenPosition.x +'px,' + posY + 'px, 0)';
+      this._dom.style.transform = `translate3D(${this._screenPosition.x}px, ${posY}px, 0)`;
     }
   }
 
