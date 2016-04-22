@@ -185,6 +185,8 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 
 #### Widgets
 
+:large_orange_diamond: Handle (2D/3D)
+
 :large_orange_diamond: Probe (2D/3D)
   
 :large_orange_diamond: Ruler (2D/3D)
