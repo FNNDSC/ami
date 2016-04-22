@@ -7,9 +7,9 @@ export default class WidgetsHandle extends THREE.Object3D{
   constructor(targetMesh, controls, camera, container) {
     super();
 
+    // do nothing.
+    // just upate dom if needed...
     this._enabled = true;
-
-    this._attached = false;
 
     this._domStyle = 'circle'; // square, triangle
     // maybe just a string...
@@ -57,7 +57,6 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._camera = camera;
     this._container = container;
     this._raycaster = new THREE.Raycaster();
-    this._handle = null;
 
     this._firstRun = false;
 
@@ -84,8 +83,8 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._selected = false;
     this._hovered = false;
     this._dragged = false;
-    this._hoverDistance = 100; // px
-    this._hoverThreshold = 10; // px
+    // this._hoverDistance = 100; // px
+    // this._hoverThreshold = 10; // px
 
     this._defaultColor = '0x00B0FF';
     this._activeColor = '0xFFEB3B';
@@ -94,16 +93,16 @@ export default class WidgetsHandle extends THREE.Object3D{
 
     this._visible = true;
     this._color = this._defaultColor;
+
+    // mesh stuff
     this._material = null;
     this._geometry = null;
     this._mesh = null;
+    this._meshVisible = true;
 
+    // dom stuff
     this._dom = null;
-
-    this._showVoxel = true;
-    this._showDomSVG = true;
-    this._showDomMeasurements = true;
-    // dom circle and dom cross
+    this._domVisible = true;
 
     //
     this.onStart = this.onStart.bind(this);
@@ -147,38 +146,12 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._dragged = false;
     this._firstRun = false;
 
-    // update raycaster
+    if(this._hovered){
 
-    //
-    // SHOULD HAPPENONLY IF WE NEED TO RUN INTERSECT OBJECTS
-    //
+      this._active = true;
+      this._controls.enabled = false;
 
-    this.updateRaycaster(this._raycaster, evt, this._container);
-    //let intersects = this._raycaster.intersectObject(this._targetMesh);
-
-    // if intersects itself or 10px close
-    // select + exit
-    // if(intersects){
-    //   // if no mesh currently, create one!
-    //   if(this._mesh === null){
-    //     this._worldPosition = intersects[0].point;
-    //     this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
-    //     this.createMesh();
-    //     this.createDOM();
-
-    //     this.added();
-    //     return;
-    //   }
-    // }
-
-    // if intersects one of the target mesh (from scene??)
-    if(this._hovered ||
-       this._raycaster.intersectObject(this._mesh).length > 0){
-
-        this._active = true;
-        this._controls.enabled = false;
-
-        this.update();
+      this.update();
     }
 
 
@@ -192,7 +165,7 @@ export default class WidgetsHandle extends THREE.Object3D{
       this._selected = !this._selected;
     }
 
-    // stay active...
+    // stay active and keep controls disabled
     if(this._firstRun === true){
       return;
     }
@@ -207,7 +180,7 @@ export default class WidgetsHandle extends THREE.Object3D{
 
   onMove(evt){
     // if nothing exists, exit
-    if(this._mesh === null){
+    if(this._dom === null){
       return;
     }
 
@@ -218,21 +191,15 @@ export default class WidgetsHandle extends THREE.Object3D{
 
     // update raycaster
     this.updateRaycaster(this._raycaster, evt, this._container);
-    let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
-    if(intersectsTarget.length > 0){
-      if(this._active){
-        // update position
+
+    if(this._active){
+      let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+      if(intersectsTarget.length > 0){
         this._worldPosition = intersectsTarget[0].point;
-        this.update();
-        return;
       }
-
-      // else hover stuff
-      let worldPosition = intersectsTarget[0].point;
-      let screenPosition = this.worldToScreen(worldPosition, this._camera, this._container);
-
-      this.hoverVoxel(screenPosition);
-
+    }
+    else{
+      this.hoverMesh();
     }
 
     this.update();
@@ -245,7 +212,6 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._dom.style.cursor= this._hovered? 'pointer' : 'cursor';
 
     evt.preventDefault();
-    evt.stopPropagation();
   }
 
   update(){
@@ -285,15 +251,18 @@ export default class WidgetsHandle extends THREE.Object3D{
     }
   }
 
-  hoverVoxel(screenPosition) {
+  hoverMesh() {
 
     // check raycast intersection, do we want to hover on mesh or just css?
-    // let intersectsHandle = this._raycaster.intersectObject(this._mesh);
-    // if(intersectsHandle.length > 0){
-    //     this._dom.style.cursor='pointer';
-    //     this._hovered = true;
-    //     return;
-    // }
+    let intersectsHandle = this._raycaster.intersectObject(this._mesh);
+    if(intersectsHandle.length > 0){
+      this._container.style.cursor='pointer';
+      this._hovered = true;
+    }
+    else{
+      this._container.style.cursor='default';
+      this._hovered = false;
+    }
 
     // screen intersection
     // let dx = screenPosition.x - this._screenPosition.x;
@@ -403,6 +372,14 @@ export default class WidgetsHandle extends THREE.Object3D{
     return this._worldPosition;
   }
 
+  set screenPosition(screenPosition){
+    this._screenPosition = screenPosition;
+  }
+
+  get screenPosition(){
+    return this._screenPosition;
+  }
+
   set active(active){
     this._active = active;
     this._firstRun = this._active;
@@ -411,5 +388,13 @@ export default class WidgetsHandle extends THREE.Object3D{
 
   get active(){
     return this._active;
+  }
+
+  get hovered(){
+    return this._hovered;
+  }
+
+  set hovered(hovered){
+    this._hovered = hovered;
   }
 }
