@@ -4,10 +4,52 @@
  */
 
 export default class WidgetsHandle extends THREE.Object3D{
-  constructor(targetMesh, controls, camera, container, worldPosition, active) {
+  constructor(targetMesh, controls, camera, container) {
     super();
 
     this._enabled = true;
+
+    this._attached = false;
+
+    this._domStyle = 'circle'; // square, triangle
+    // maybe just a string...
+    // this._domStyles = {
+    //   circle: function(){
+    //     this._dom.style.border = '2px solid #353535';
+    //     this._dom.style.backgroundColor = '#F9F9F9';
+    //     // this._dom.style.backgroundColor = 'rgba(230, 230, 230, 0.7)';
+    //     this._dom.style.color = '#F9F9F9';
+    //     this._dom.style.position = 'absolute';
+    //     this._dom.style.width = '12px';
+    //     this._dom.style.height = '12px';
+    //     this._dom.style.margin = '-6px';
+    //     this._dom.style.borderRadius =  '50%';
+    //     this._dom.style.transformOrigin = '0 100%';
+    //   },
+    //   cross: function(){
+
+    //   },
+    //   triangle: ``
+    // };
+    
+// <svg height="12" width="12">
+//   <circle cx="6" cy="6" r="5" stroke="#353535" stroke-opacity="0.9" stroke-width="2" fill="#F9F9F9" fill-opacity="0.7" />
+//   Sorry, your browser does not support inline SVG.  
+// </svg>
+
+// <svg height="12" width="12">
+// <line x1="0" y1="0" x2="12" y2="12" stroke="#353535" stroke-linecap="square" stroke-width="2" />
+// <line x1="0" y1="12" x2="12" y2="0" stroke="#353535" stroke-linecap="square" stroke-width="2" />
+// </svg>
+
+
+// <svg height="12" width="12">
+// <line x1="0" y1="12" x2="6" y2="6" stroke="#353535" stroke-linecap="square" stroke-width="2" />
+// <line x1="6" y1="6" x2="12" y2="12" stroke="#353535" stroke-linecap="square" stroke-width="2" />
+// </svg>
+
+    this._meshStyle = 'sphere'; //cube, etc.
+
 
     // array of meshes
     this._targetMesh = targetMesh;
@@ -67,36 +109,35 @@ export default class WidgetsHandle extends THREE.Object3D{
     this.onStart = this.onStart.bind(this);
     this.onMove = this.onMove.bind(this);
     this.onEnd = this.onEnd.bind(this);
+    this.onHover = this.onHover.bind(this);
     this.update = this.update.bind(this);
 
-    if(worldPosition){
-
-        this._firstRun = true;
-
-        this._worldPosition = worldPosition;
-        this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
-        this.createMesh();
-        this.createDOM();
-
-        this._active = true;
-        this._controls.enabled = false;
-
-        this.added = function(){};
-    }
+    // create handle
+    this._worldPosition = this._targetMesh.position;
+    this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
+    this.createMesh();
+    this.createDOM();
 
     // event listeners
     this.addEventListeners();
   }
 
   addEventListeners(){
-    this._container.addEventListener('mousedown', this.onStart);
+    // maybe hook mouve down/touch start to container until handler is attached
+    // hook the to the _dom!
+    this._dom.addEventListener('mousedown', this.onStart);
     this._container.addEventListener('mousemove', this.onMove);
     this._container.addEventListener('mouseup', this.onEnd);
 
-    this._container.addEventListener('touchstart', this.onStart);
+    this._dom.addEventListener('touchstart', this.onStart);
     this._container.addEventListener('touchmove', this.onMove);
     this._container.addEventListener('touchend', this.onEnd);
 
+    this._dom.addEventListener('mouseenter', this.onHover);
+    this._dom.addEventListener('mouseleave', this.onHover);
+
+    // should happend somewhere else?
+    // should "update"
     this._container.addEventListener('mousewheel', this.onMove);
     this._container.addEventListener('DOMMouseScroll', this.onMove);
   }
@@ -107,33 +148,37 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._firstRun = false;
 
     // update raycaster
+
+    //
+    // SHOULD HAPPENONLY IF WE NEED TO RUN INTERSECT OBJECTS
+    //
+
     this.updateRaycaster(this._raycaster, evt, this._container);
-    let intersects = this._raycaster.intersectObject(this._targetMesh);
+    //let intersects = this._raycaster.intersectObject(this._targetMesh);
 
     // if intersects itself or 10px close
     // select + exit
-    if(intersects){
-      // if no mesh currently, create one!
-      if(this._mesh === null){
-        this._worldPosition = intersects[0].point;
-        this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
-        this.createMesh();
-        this.createDOM();
+    // if(intersects){
+    //   // if no mesh currently, create one!
+    //   if(this._mesh === null){
+    //     this._worldPosition = intersects[0].point;
+    //     this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
+    //     this.createMesh();
+    //     this.createDOM();
 
-        this.added();
-        return;
-      }
-    }
+    //     this.added();
+    //     return;
+    //   }
+    // }
 
     // if intersects one of the target mesh (from scene??)
-    // if no handle, create it + exit
-    let intersectsHandle = this._raycaster.intersectObject(this._mesh);
-    if(intersectsHandle.length > 0 || this._hovered){
+    if(this._hovered ||
+       this._raycaster.intersectObject(this._mesh).length > 0){
+
         this._active = true;
         this._controls.enabled = false;
 
         this.update();
-        return;
     }
 
 
@@ -195,6 +240,14 @@ export default class WidgetsHandle extends THREE.Object3D{
     evt.preventDefault();
   }
 
+  onHover(evt){
+    this._hovered = (evt.type === 'mouseenter');
+    this._dom.style.cursor= this._hovered? 'pointer' : 'cursor';
+
+    evt.preventDefault();
+    evt.stopPropagation();
+  }
+
   update(){
     // mesh stuff
     this.updateMeshColor();
@@ -234,26 +287,26 @@ export default class WidgetsHandle extends THREE.Object3D{
 
   hoverVoxel(screenPosition) {
 
-    // check raycast intersection
-    let intersectsHandle = this._raycaster.intersectObject(this._mesh);
-    if(intersectsHandle.length > 0){
-        this._dom.style.cursor='pointer';
-        this._hovered = true;
-        return;
-    }
+    // check raycast intersection, do we want to hover on mesh or just css?
+    // let intersectsHandle = this._raycaster.intersectObject(this._mesh);
+    // if(intersectsHandle.length > 0){
+    //     this._dom.style.cursor='pointer';
+    //     this._hovered = true;
+    //     return;
+    // }
 
     // screen intersection
-    let dx = screenPosition.x - this._screenPosition.x;
-    let dy = screenPosition.y - this._screenPosition.y;
-    let distance =  Math.sqrt(dx * dx + dy * dy);
-    this._hoverDistance = distance;
-    if (distance >= 0 && distance < this._hoverThreshold) {
-      this._dom.style.cursor='pointer';
-      this._hovered = true;
-    } else {
-      this._dom.style.cursor='default';
-      this._hovered = false;
-    }
+    // let dx = screenPosition.x - this._screenPosition.x;
+    // let dy = screenPosition.y - this._screenPosition.y;
+    // let distance =  Math.sqrt(dx * dx + dy * dy);
+    // this._hoverDistance = distance;
+    // if (distance >= 0 && distance < this._hoverThreshold) {
+    //   this._dom.style.cursor='pointer';
+    //   this._hovered = true;
+    // } else {
+    //   this._dom.style.cursor='default';
+    //   this._hovered = false;
+    // }
   }
 
   updateRaycaster(raycaster, event, container) {
@@ -309,6 +362,8 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._dom = document.createElement('div');
     this._dom.setAttribute('id', this.uuid);
     this._dom.setAttribute('class', 'widgets handle');
+    // this._domStyles.circle();
+    // this._domStyles.cross();
     this._dom.style.border = '2px solid #353535';
     this._dom.style.backgroundColor = '#F9F9F9';
     // this._dom.style.backgroundColor = 'rgba(230, 230, 230, 0.7)';
@@ -337,5 +392,24 @@ export default class WidgetsHandle extends THREE.Object3D{
 
   updateDOMColor(){
 
+  }
+
+  set worldPosition(worldPosition){
+    this._worldPosition = worldPosition;
+    this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
+  }
+
+  get worldPosition(){
+    return this._worldPosition;
+  }
+
+  set active(active){
+    this._active = active;
+    this._firstRun = this._active;
+    this._controls.enabled = !this._active;
+  }
+
+  get active(){
+    return this._active;
   }
 }

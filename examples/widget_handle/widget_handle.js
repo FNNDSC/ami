@@ -170,14 +170,23 @@ window.onload = function() {
     // add it!
     threeD.appendChild(distanceDOM);
 
+    // get position from mouse/slice intersection
     handle0 = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
+    // handle0.worldPosition = ...;
     scene.add(handle0);
 
-    handle0.added = function(){
-      // add it at the same location but make it active!
-      handle1 = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD, handle0._worldPosition, true);
-      scene.add(handle1);
-    }
+    // get position from handle 0
+    handle1 = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
+    handle1.worldPosition = handle0.worldPosition;
+    handle1.active = true;
+    scene.add(handle1);
+
+
+    //handle0.added = function(){
+    //  // add it at the same location but make it active!
+    //  handle1 = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD, handle0._worldPosition, true);
+    //  scene.add(handle1);
+   // }
 
     //
     let centerLPS = stack.worldCenter();
