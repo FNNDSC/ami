@@ -10,25 +10,18 @@ import WidgetsHandle     from '../../src/widgets/widgets.handle';
 import ControlsTrackball from '../../src/controls/controls.trackball';
 
 // standard global variables
-let controls, renderer, threeD, stats, scene, camera, handle0, handle1, helpersVoxel, directions, bbox, line, lineDOM, distanceDOM;
-
+let controls, renderer, threeD, stats, scene, camera, handle0, handle1, helpersVoxel, directions, bbox, line, lineDOM, distanceDOM, handles;
+let rulers = [];
 function init() {
   // this function is executed on each animation frame
   function animate() {
 
-    //
-    // re-draw the line
-    if(handle0 && handle0._mesh && handle1 && handle1._mesh){
-      // line.geometry.vertices[0] = handle0._mesh.position;
-      // line.geometry.vertices[1] = handle1._mesh.position;
-      // line.geometry.verticesNeedUpdate = true;
-
-
-      // draw DOM line
-      var x1 = handle0._screenPosition.x;
-      var y1 = handle0._screenPosition.y; 
-      var x2 = handle1._screenPosition.x;
-      var y2 = handle1._screenPosition.y;
+    for(let ruler of rulers){
+      //update rulers lines and text!
+      var x1 = ruler.handles[0].screenPosition.x;
+      var y1 = ruler.handles[0].screenPosition.y; 
+      var x2 = ruler.handles[1].screenPosition.x;
+      var y2 = ruler.handles[1].screenPosition.y;
 
       var x0 = x1 + (x2 - x1)/2;
       var y0 = y1 + (y2 - y1)/2;
@@ -37,23 +30,24 @@ function init() {
       var angle  = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
       
       let posY = y1 - threeD.offsetHeight;
-      var transform = `translate3D(${x1}px,${posY}px, 0)`;
+
+      // update line
+      let transform = `translate3D(${x1}px,${posY}px, 0)`;
       transform += ` rotate(${angle}deg)`;
 
-      lineDOM.style.transform = transform;
-      lineDOM.style.width = length;
+      ruler.line.style.transform = transform;
+      ruler.line.style.width = length;
 
-      // update distance content
-      let w0 = handle0._worldPosition;
-      let w1 = handle1._worldPosition;
+      // update distance
+      let w0 = ruler.handles[0].worldPosition;
+      let w1 = ruler.handles[1].worldPosition;
 
-      distanceDOM.innerHTML = `${Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2)} mm`;
-      let posY0 = y0 - threeD.offsetHeight - distanceDOM.offsetHeight/2;
-      x0 -= distanceDOM.offsetWidth/2;
+      ruler.distance.innerHTML = `${Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2)} mm`;
+      let posY0 = y0 - threeD.offsetHeight - ruler.distance.offsetHeight/2;
+      x0 -= ruler.distance.offsetWidth/2;
 
       var transform2 = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
-      distanceDOM.style.transform = transform2;
-
+      ruler.distance.style.transform = transform2;
     }
 
     // render
@@ -127,66 +121,90 @@ window.onload = function() {
 
     scene.add(stackHelper);
 
-    window.console.log(stackHelper.stack.worldCenter());
+    // add on mouse down listener, to add handles/etc. if not hovering anything..
+    threeD.addEventListener('mousedown', function(evt){
+      // if something hovered, exit
+      for(let ruler of rulers){
+        for(let handle of ruler.handles){
+          if(handle.hovered){
+            // handle.onStart(evt);
+            return;
+          }
+        }
+      }
 
-    // LINE STUFF
-    // var materialLine = new THREE.LineBasicMaterial();
-    // var geometryLine = new THREE.Geometry();
-    // geometryLine.vertices.push(stackHelper.stack.worldCenter());
-    // geometryLine.vertices.push(stackHelper.stack.worldCenter());
-    // geometryLine.verticesNeedUpdate = true;
-    // line = new THREE.Line(geometryLine, materialLine);
-    // scene.add(line);
+      // nothing hovered, add it if we intersect target!
+      let mouse = {
+        x: (evt.clientX / threeD.offsetWidth) * 2 - 1,
+        y: -(event.clientY / threeD.offsetHeight) * 2 + 1,
+        screenX: evt.clientX,
+        screenY: evt.clientY
+      };
 
+      // update the raycaster
+      let raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
 
-    // dom
-    lineDOM = document.createElement('div');
-    lineDOM.setAttribute('id', 'lineDOM');
-    lineDOM.setAttribute('class', 'widgets handle line');
-    lineDOM.style.backgroundColor = '#353535';
-    lineDOM.style.position = 'absolute';
-    lineDOM.style.transformOrigin = '0 100%';
-    lineDOM.style.marginTop = '-1px';
-    lineDOM.style.height = '2px';
-    lineDOM.style.width = '3px';
+      let intersectsTarget = raycaster.intersectObject(stackHelper.slice.mesh);
+      if(intersectsTarget.length > 0){
+        // line should be:
+        //dom.line
+        //dome.distance
+        //distance
+        let ruler = {
+          handles: [],
+          line: null,
+          distance: null
+        };
 
-    // add it!
-    threeD.appendChild(lineDOM);
+        // add handles
+        let firstHandle = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
+        firstHandle.worldPosition = intersectsTarget[0].point;
+        firstHandle.hovered = true;
+        scene.add(firstHandle);
+        
+        ruler.handles.push(firstHandle);
 
-    // distance
-    distanceDOM = document.createElement('div');
-    distanceDOM.setAttribute('id', 'distanceDOM');
-    distanceDOM.setAttribute('class', 'widgets handle distance');
-    distanceDOM.style.border = '2px solid #353535';
-    distanceDOM.style.backgroundColor = '#F9F9F9';
-    //distanceDOM.style.backgroundColor = 'rgba(230, 230, 230, 0.7)';
-    distanceDOM.style.color = '#353535';
-    distanceDOM.style.padding = '4px';
-    distanceDOM.style.position = 'absolute';
-    distanceDOM.style.transformOrigin = '0 100%';
+        let secondHandle = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
+        secondHandle.worldPosition = firstHandle.worldPosition;
+        secondHandle.hovered = true;
+        secondHandle.active = true;
+        scene.add(secondHandle);
+        
+        ruler.handles.push(secondHandle);
 
-    distanceDOM.innerHTML = 'Hello, world!';
+        // add line!
+        let line = document.createElement('div');
+        line.setAttribute('class', 'widgets handle line');
+        line.style.backgroundColor = '#353535';
+        line.style.position = 'absolute';
+        line.style.transformOrigin = '0 100%';
+        line.style.marginTop = '-1px';
+        line.style.height = '2px';
+        line.style.width = '3px';
+        threeD.appendChild(line);
 
-    // add it!
-    threeD.appendChild(distanceDOM);
+        ruler.line = line;
 
-    // get position from mouse/slice intersection
-    handle0 = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
-    // handle0.worldPosition = ...;
-    scene.add(handle0);
+        // add distance!
+        let distance = document.createElement('div');
+        distance.setAttribute('class', 'widgets handle distance');
+        distance.style.border = '2px solid #353535';
+        distance.style.backgroundColor = '#F9F9F9';
+        distance.style.color = '#353535';
+        distance.style.padding = '4px';
+        distance.style.position = 'absolute';
+        distance.style.transformOrigin = '0 100%';
+        distance.innerHTML = 'Hello, world!';
+        threeD.appendChild(distance);
 
-    // get position from handle 0
-    handle1 = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
-    handle1.worldPosition = handle0.worldPosition;
-    handle1.active = true;
-    scene.add(handle1);
+        ruler.distance = distance;
 
+        // push ruler!
+        rulers.push(ruler);
+      }
 
-    //handle0.added = function(){
-    //  // add it at the same location but make it active!
-    //  handle1 = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD, handle0._worldPosition, true);
-    //  scene.add(handle1);
-   // }
+    });
 
     //
     let centerLPS = stack.worldCenter();
