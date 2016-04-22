@@ -69,7 +69,7 @@ Please submit pull request, open issues or contact us for any question, feature 
   <!-- Lesson 02 -->
   <td valign="middle" width="100">
     <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run' target=_blank>
-      <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/02/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">
+      <img src="https://cloud.githubusercontent.com/assets/214063/14734782/1aa3006c-086d-11e6-9f56-6476e5ac6188.gif" style="width:128x, height:128px" alt="lesson00" title="Click me!">
       <img src="http://xtk.github.com/fiddlelogo_small2.png">
     </a>
   </td>
