@@ -121,17 +121,36 @@ window.onload = function() {
 
     scene.add(stackHelper);
 
+    threeD.addEventListener('mousemove', function(evt){
+      // if something hovered, exit
+      var cursor = 'default';
+
+      for(let ruler of rulers){
+        for(let handle of ruler.handles){
+          handle.onMove(evt);
+          if(handle.hovered){
+            cursor = 'pointer';
+          }
+        }
+      }
+
+      threeD.style.cursor = cursor;
+
+    });
+
     // add on mouse down listener, to add handles/etc. if not hovering anything..
     threeD.addEventListener('mousedown', function(evt){
       // if something hovered, exit
       for(let ruler of rulers){
         for(let handle of ruler.handles){
           if(handle.hovered){
-            // handle.onStart(evt);
+            handle.onStart(evt);
             return;
           }
         }
       }
+
+      threeD.style.cursor = 'default';
 
       // nothing hovered, add it if we intersect target!
       let mouse = {
@@ -158,14 +177,14 @@ window.onload = function() {
         };
 
         // add handles
-        let firstHandle = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
+        let firstHandle = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD, false);
         firstHandle.worldPosition = intersectsTarget[0].point;
         firstHandle.hovered = true;
         scene.add(firstHandle);
         
         ruler.handles.push(firstHandle);
 
-        let secondHandle = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
+        let secondHandle = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD, false);
         secondHandle.worldPosition = firstHandle.worldPosition;
         secondHandle.hovered = true;
         secondHandle.active = true;
@@ -202,6 +221,12 @@ window.onload = function() {
 
         // push ruler!
         rulers.push(ruler);
+      }
+      else{
+        //create a free handle!
+        let freeHandle = new WidgetsHandle(null, controls, camera, threeD);
+        freeHandle.worldPosition = controls.target;
+        scene.add(freeHandle);
       }
 
     });

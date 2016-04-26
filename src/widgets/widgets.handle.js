@@ -1,10 +1,13 @@
+import coreIntersections from '../../src/core/core.intersections';
+
+
 /**
  * @module widgets/handle
  * 
  */
 
 export default class WidgetsHandle extends THREE.Object3D{
-  constructor(targetMesh, controls, camera, container) {
+  constructor(targetMesh, controls, camera, container, connectAllEvents = true) {
     super();
 
     // do nothing.
@@ -53,10 +56,19 @@ export default class WidgetsHandle extends THREE.Object3D{
 
     // array of meshes
     this._targetMesh = targetMesh;
+
+    // if no target mesh, use plane for FREE dragging.
+    this._plane = {
+        position: new THREE.Vector3(),
+        direction: new THREE.Vector3()
+    };
+    this._offset = new THREE.Vector3()
+
     this._controls = controls;
     this._camera = camera;
     this._container = container;
     this._raycaster = new THREE.Raycaster();
+    this._connectAllEvents = connectAllEvents;
 
     this._firstRun = false;
 
@@ -68,11 +80,8 @@ export default class WidgetsHandle extends THREE.Object3D{
     };
 
     // world (LPS) position
-    this._worldPosition = {
-      x: 0,
-      y: 0,
-      z: 0
-    };
+    this._worldPosition = new THREE.Vector3();
+    //new THREE.Vector3();
 
     // screen position
     this._screenPosition = {
@@ -99,10 +108,12 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._geometry = null;
     this._mesh = null;
     this._meshVisible = true;
+    this._meshHovered = false;
 
     // dom stuff
     this._dom = null;
     this._domVisible = true;
+    this._domHovered = false;
 
     //
     this.onStart = this.onStart.bind(this);
@@ -111,9 +122,12 @@ export default class WidgetsHandle extends THREE.Object3D{
     this.onHover = this.onHover.bind(this);
     this.update = this.update.bind(this);
 
-    // create handle
-    this._worldPosition = this._targetMesh.position;
+    if(this._targetMesh !== null){
+      this._worldPosition = this._targetMesh.position;
+    }
     this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
+
+    // create handle
     this.createMesh();
     this.createDOM();
 
@@ -122,26 +136,48 @@ export default class WidgetsHandle extends THREE.Object3D{
   }
 
   addEventListeners(){
-    // maybe hook mouve down/touch start to container until handler is attached
-    // hook the to the _dom!
-    this._dom.addEventListener('mousedown', this.onStart);
-    this._container.addEventListener('mousemove', this.onMove);
+    if(this._connectAllEvents){
+      this._container.addEventListener('mousedown', this.onStart);
+      this._container.addEventListener('mousemove', this.onMove);
+    }
     this._container.addEventListener('mouseup', this.onEnd);
 
-    this._dom.addEventListener('touchstart', this.onStart);
-    this._container.addEventListener('touchmove', this.onMove);
+    if(this._connectAllEvents){
+      this._container.addEventListener('touchstart', this.onStart);
+      this._container.addEventListener('touchmove', this.onMove);
+    }
     this._container.addEventListener('touchend', this.onEnd);
 
     this._dom.addEventListener('mouseenter', this.onHover);
     this._dom.addEventListener('mouseleave', this.onHover);
 
-    // should happend somewhere else?
-    // should "update"
     this._container.addEventListener('mousewheel', this.onMove);
     this._container.addEventListener('DOMMouseScroll', this.onMove);
   }
 
+  removeEventListeners(){
+    if(this._connectAllEvents){
+      this._container.removeEventListener('mousedown', this.onStart);
+      this._container.removeEventListener('mousemove', this.onMove);
+    }
+    this._container.removeEventListener('mouseup', this.onEnd);
+
+    if(this._connectAllEvents){
+      this._container.removeEventListener('touchstart', this.onStart);
+      this._container.removeEventListener('touchmove', this.onMove);
+    }
+    this._container.removeEventListener('touchend', this.onEnd);
+
+    this._dom.removeEventListener('mouseenter', this.onHover);
+    this._dom.removeEventListener('mouseleave', this.onHover);
+
+    this._container.removeEventListener('mousewheel', this.onMove);
+    this._container.removeEventListener('DOMMouseScroll', this.onMove);
+  }
+
   onStart(evt){
+    evt.preventDefault();
+
     //
     this._dragged = false;
     this._firstRun = false;
@@ -151,14 +187,23 @@ export default class WidgetsHandle extends THREE.Object3D{
       this._active = true;
       this._controls.enabled = false;
 
+      
+      if(this._targetMesh === null){
+        // build ref plane for free drag
+        // update raycaster
+        this.updateRaycaster(this._raycaster, evt, this._container);
+        var intersection = coreIntersections.rayPlane(this._raycaster.ray, this._plane);
+        if(intersection !== null){
+          this._offset.copy( intersection ).sub( this._plane.position );
+        }
+      }
+
       this.update();
     }
-
-
-    evt.preventDefault();
   }
 
   onEnd(evt){
+    evt.preventDefault();
 
     // unselect if go up without moving
     if(!this._dragged && this._active){
@@ -174,11 +219,11 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._controls.enabled = true;
 
     this.update();
-
-    evt.preventDefault();
   }
 
   onMove(evt){
+    evt.preventDefault();
+
     // if nothing exists, exit
     if(this._dom === null){
       return;
@@ -193,25 +238,44 @@ export default class WidgetsHandle extends THREE.Object3D{
     this.updateRaycaster(this._raycaster, evt, this._container);
 
     if(this._active){
-      let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
-      if(intersectsTarget.length > 0){
-        this._worldPosition = intersectsTarget[0].point;
+      if(this._targetMesh !== null){
+        let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+        if(intersectsTarget.length > 0){
+          this._worldPosition = intersectsTarget[0].point;
+        }
+      }
+      else{
+        var intersection = coreIntersections.rayPlane(this._raycaster.ray, this._plane);
+          if ( intersection !== null ) {
+
+            this._worldPosition = intersection.sub( this._offset );
+
+          }
       }
     }
     else{
-      this.hoverMesh();
+      this.onHover(null);
+      if(this._targetMesh === null){
+        // free mode!this._targetMesh
+        this._plane.position.copy(this._worldPosition);
+        this._plane.direction.copy( this._camera.getWorldDirection() );
+      }
     }
 
     this.update();
-
-    evt.preventDefault();
   }
 
   onHover(evt){
-    this._hovered = (evt.type === 'mouseenter');
-    this._dom.style.cursor= this._hovered? 'pointer' : 'cursor';
+    if(evt){
+      evt.preventDefault();
+      this.hoverDom(evt);
+    }
 
-    evt.preventDefault();
+    this.hoverMesh();
+
+
+    this._hovered = this._meshHovered || this._domHovered;
+    this._container.style.cursor = this._hovered ? 'pointer' : 'default';
   }
 
   update(){
@@ -252,30 +316,18 @@ export default class WidgetsHandle extends THREE.Object3D{
   }
 
   hoverMesh() {
-
     // check raycast intersection, do we want to hover on mesh or just css?
     let intersectsHandle = this._raycaster.intersectObject(this._mesh);
     if(intersectsHandle.length > 0){
-      this._container.style.cursor='pointer';
-      this._hovered = true;
+      this._meshHovered = true;
     }
     else{
-      this._container.style.cursor='default';
-      this._hovered = false;
+      this._meshHovered = false;
     }
+  }
 
-    // screen intersection
-    // let dx = screenPosition.x - this._screenPosition.x;
-    // let dy = screenPosition.y - this._screenPosition.y;
-    // let distance =  Math.sqrt(dx * dx + dy * dy);
-    // this._hoverDistance = distance;
-    // if (distance >= 0 && distance < this._hoverThreshold) {
-    //   this._dom.style.cursor='pointer';
-    //   this._hovered = true;
-    // } else {
-    //   this._dom.style.cursor='default';
-    //   this._hovered = false;
-    // }
+  hoverDom(evt){
+    this._domHovered = (evt.type === 'mouseenter');
   }
 
   updateRaycaster(raycaster, event, container) {
@@ -289,6 +341,7 @@ export default class WidgetsHandle extends THREE.Object3D{
     };
     // update the raycaster
     raycaster.setFromCamera(this._mouse, this._camera);
+    raycaster.ray.position = raycaster.ray.origin;
   }
 
   worldToScreen(worldCoordinate, camera, canvas) {
@@ -361,6 +414,15 @@ export default class WidgetsHandle extends THREE.Object3D{
 
   updateDOMColor(){
 
+  }
+
+  free(){
+    // threejs stuff
+
+    // dom
+
+    // event
+    this.removeEventListeners();
   }
 
   set worldPosition(worldPosition){
