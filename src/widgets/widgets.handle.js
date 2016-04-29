@@ -428,6 +428,8 @@ export default class WidgetsHandle extends THREE.Object3D{
   set worldPosition(worldPosition){
     this._worldPosition = worldPosition;
     this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
+
+    this.update();
   }
 
   get worldPosition(){
@@ -453,6 +455,7 @@ export default class WidgetsHandle extends THREE.Object3D{
   }
 
   get hovered(){
+    window.console.log('get hovered from handle');
     return this._hovered;
   }
 

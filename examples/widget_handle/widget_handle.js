@@ -7,48 +7,49 @@ import HelpersStack      from '../../src/helpers/helpers.stack';
 import HelpersVoxel      from '../../src/helpers/helpers.voxel';
 import LoadersVolume     from '../../src/loaders/loaders.volume';
 import WidgetsHandle     from '../../src/widgets/widgets.handle';
+import WidgetsRuler      from '../../src/widgets/widgets.ruler';
 import ControlsTrackball from '../../src/controls/controls.trackball';
 
 // standard global variables
 let controls, renderer, threeD, stats, scene, camera, handle0, handle1, helpersVoxel, directions, bbox, line, lineDOM, distanceDOM, handles;
-let rulers = [];
+let widgets = [];
 function init() {
   // this function is executed on each animation frame
   function animate() {
 
-    for(let ruler of rulers){
-      //update rulers lines and text!
-      var x1 = ruler.handles[0].screenPosition.x;
-      var y1 = ruler.handles[0].screenPosition.y; 
-      var x2 = ruler.handles[1].screenPosition.x;
-      var y2 = ruler.handles[1].screenPosition.y;
+    // for(let ruler of rulers){
+    //   //update rulers lines and text!
+    //   var x1 = ruler.handles[0].screenPosition.x;
+    //   var y1 = ruler.handles[0].screenPosition.y; 
+    //   var x2 = ruler.handles[1].screenPosition.x;
+    //   var y2 = ruler.handles[1].screenPosition.y;
 
-      var x0 = x1 + (x2 - x1)/2;
-      var y0 = y1 + (y2 - y1)/2;
+    //   var x0 = x1 + (x2 - x1)/2;
+    //   var y0 = y1 + (y2 - y1)/2;
 
-      var length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-      var angle  = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+    //   var length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+    //   var angle  = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
       
-      let posY = y1 - threeD.offsetHeight;
+    //   let posY = y1 - threeD.offsetHeight;
 
-      // update line
-      let transform = `translate3D(${x1}px,${posY}px, 0)`;
-      transform += ` rotate(${angle}deg)`;
+    //   // update line
+    //   let transform = `translate3D(${x1}px,${posY}px, 0)`;
+    //   transform += ` rotate(${angle}deg)`;
 
-      ruler.line.style.transform = transform;
-      ruler.line.style.width = length;
+    //   ruler.line.style.transform = transform;
+    //   ruler.line.style.width = length;
 
-      // update distance
-      let w0 = ruler.handles[0].worldPosition;
-      let w1 = ruler.handles[1].worldPosition;
+    //   // update distance
+    //   let w0 = ruler.handles[0].worldPosition;
+    //   let w1 = ruler.handles[1].worldPosition;
 
-      ruler.distance.innerHTML = `${Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2)} mm`;
-      let posY0 = y0 - threeD.offsetHeight - ruler.distance.offsetHeight/2;
-      x0 -= ruler.distance.offsetWidth/2;
+    //   ruler.distance.innerHTML = `${Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2)} mm`;
+    //   let posY0 = y0 - threeD.offsetHeight - ruler.distance.offsetHeight/2;
+    //   x0 -= ruler.distance.offsetWidth/2;
 
-      var transform2 = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
-      ruler.distance.style.transform = transform2;
-    }
+    //   var transform2 = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
+    //   ruler.distance.style.transform = transform2;
+    // }
 
     // render
     controls.update();
@@ -125,12 +126,13 @@ window.onload = function() {
       // if something hovered, exit
       var cursor = 'default';
 
-      for(let ruler of rulers){
-        for(let handle of ruler.handles){
-          handle.onMove(evt);
-          if(handle.hovered){
-            cursor = 'pointer';
-          }
+      for(let widget of widgets){
+        window.console.log(widgets);
+        window.console.log(widget);
+        window.console.log(widget.hovered);
+        widget.onMove(evt);
+        if(widget.hovered){
+          cursor = 'pointer';
         }
       }
 
@@ -141,93 +143,135 @@ window.onload = function() {
     // add on mouse down listener, to add handles/etc. if not hovering anything..
     threeD.addEventListener('mousedown', function(evt){
       // if something hovered, exit
-      for(let ruler of rulers){
-        for(let handle of ruler.handles){
-          if(handle.hovered){
-            handle.onStart(evt);
-            return;
-          }
+      for(let widget of widgets){
+        if(widget.hovered){
+          widget.onStart(evt);
+          return;
         }
       }
 
       threeD.style.cursor = 'default';
 
-      // nothing hovered, add it if we intersect target!
+      // mouse position
       let mouse = {
         x: (evt.clientX / threeD.offsetWidth) * 2 - 1,
-        y: -(event.clientY / threeD.offsetHeight) * 2 + 1,
-        screenX: evt.clientX,
-        screenY: evt.clientY
+        y: -(event.clientY / threeD.offsetHeight) * 2 + 1
       };
 
       // update the raycaster
       let raycaster = new THREE.Raycaster();
       raycaster.setFromCamera(mouse, camera);
+      let intersects = raycaster.intersectObject(stackHelper.slice.mesh);
 
-      let intersectsTarget = raycaster.intersectObject(stackHelper.slice.mesh);
-      if(intersectsTarget.length > 0){
-        // line should be:
-        //dom.line
-        //dome.distance
-        //distance
-        let ruler = {
-          handles: [],
-          line: null,
-          distance: null
-        };
+      var widgetType = 0;//widgets.length % 3;
+      if(widgetType === 0 && intersects.length > 0){
+        // add ruler
+        // stackHelper.slice.mesh
+        let widget = new WidgetsRuler(null, controls, camera, threeD, false);
+        widget.worldPosition = intersects[0].point;
 
-        // add handles
-        let firstHandle = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD, false);
-        firstHandle.worldPosition = intersectsTarget[0].point;
-        firstHandle.hovered = true;
-        scene.add(firstHandle);
-        
-        ruler.handles.push(firstHandle);
+        widgets.push(widget);
+        scene.add(widget);
+      }
+      else if(widgetType === 1 && intersects.length > 0){
+        // add handle
+        let widget = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD, false);
+        widget.worldPosition = intersects[0].point;
+        widget.hovered = true;
 
-        let secondHandle = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD, false);
-        secondHandle.worldPosition = firstHandle.worldPosition;
-        secondHandle.hovered = true;
-        secondHandle.active = true;
-        scene.add(secondHandle);
-        
-        ruler.handles.push(secondHandle);
+        widgets.push(widget);
+        scene.add(widget);
+      }
+      else if(widgetType === 2){
+        // add  "FREE" ruler
+        let widget = new WidgetsRuler(null, controls, camera, threeD, false);
+        // OK for now but what if no intersection?
+        widget.worldPosition = intersects[0].point;
 
-        // add line!
-        let line = document.createElement('div');
-        line.setAttribute('class', 'widgets handle line');
-        line.style.backgroundColor = '#353535';
-        line.style.position = 'absolute';
-        line.style.transformOrigin = '0 100%';
-        line.style.marginTop = '-1px';
-        line.style.height = '2px';
-        line.style.width = '3px';
-        threeD.appendChild(line);
+        widgets.push(widget);
+        scene.add(widget);
 
-        ruler.line = line;
-
-        // add distance!
-        let distance = document.createElement('div');
-        distance.setAttribute('class', 'widgets handle distance');
-        distance.style.border = '2px solid #353535';
-        distance.style.backgroundColor = '#F9F9F9';
-        distance.style.color = '#353535';
-        distance.style.padding = '4px';
-        distance.style.position = 'absolute';
-        distance.style.transformOrigin = '0 100%';
-        distance.innerHTML = 'Hello, world!';
-        threeD.appendChild(distance);
-
-        ruler.distance = distance;
-
-        // push ruler!
-        rulers.push(ruler);
       }
       else{
-        //create a free handle!
-        let freeHandle = new WidgetsHandle(null, controls, camera, threeD);
-        freeHandle.worldPosition = controls.target;
-        scene.add(freeHandle);
+        // add "FREE" handle
       }
+
+      // // nothing hovered, add it if we intersect target!
+      // let mouse = {
+      //   x: (evt.clientX / threeD.offsetWidth) * 2 - 1,
+      //   y: -(event.clientY / threeD.offsetHeight) * 2 + 1,
+      //   screenX: evt.clientX,
+      //   screenY: evt.clientY
+      // };
+
+      // // update the raycaster
+      // let raycaster = new THREE.Raycaster();
+      // raycaster.setFromCamera(mouse, camera);
+
+      // let intersectsTarget = raycaster.intersectObject(stackHelper.slice.mesh);
+      // if(intersectsTarget.length > 0){
+      //   // line should be:
+      //   //dom.line
+      //   //dome.distance
+      //   //distance
+      //   let ruler = {
+      //     handles: [],
+      //     line: null,
+      //     distance: null
+      //   };
+
+      //   // add handles
+      //   let firstHandle = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD, false);
+      //   firstHandle.worldPosition = intersectsTarget[0].point;
+      //   firstHandle.hovered = true;
+      //   scene.add(firstHandle);
+        
+      //   ruler.handles.push(firstHandle);
+
+      //   let secondHandle = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD, false);
+      //   secondHandle.worldPosition = firstHandle.worldPosition;
+      //   secondHandle.hovered = true;
+      //   secondHandle.active = true;
+      //   scene.add(secondHandle);
+        
+      //   ruler.handles.push(secondHandle);
+
+      //   // add line!
+      //   let line = document.createElement('div');
+      //   line.setAttribute('class', 'widgets handle line');
+      //   line.style.backgroundColor = '#353535';
+      //   line.style.position = 'absolute';
+      //   line.style.transformOrigin = '0 100%';
+      //   line.style.marginTop = '-1px';
+      //   line.style.height = '2px';
+      //   line.style.width = '3px';
+      //   threeD.appendChild(line);
+
+      //   ruler.line = line;
+
+      //   // add distance!
+      //   let distance = document.createElement('div');
+      //   distance.setAttribute('class', 'widgets handle distance');
+      //   distance.style.border = '2px solid #353535';
+      //   distance.style.backgroundColor = '#F9F9F9';
+      //   distance.style.color = '#353535';
+      //   distance.style.padding = '4px';
+      //   distance.style.position = 'absolute';
+      //   distance.style.transformOrigin = '0 100%';
+      //   distance.innerHTML = 'Hello, world!';
+      //   threeD.appendChild(distance);
+
+      //   ruler.distance = distance;
+
+      //   // push ruler!
+      //   rulers.push(ruler);
+      // }
+      // else{
+      //   //create a free handle!
+      //   // let freeHandle = new WidgetsHandle(null, controls, camera, threeD);
+      //   // freeHandle.worldPosition = controls.target;
+      //   // scene.add(freeHandle);
+      // }
 
     });
 
