@@ -1,13 +1,13 @@
 /* globals Stats, dat, AMI*/
 
 // VJS classes we will be using in this lesson
-let LoadersVolume     = AMI.default.Loaders.Volume;
-let ControlsTrackball = AMI.default.Controls.Trackball;
-let HelpersStack      = AMI.default.Helpers.Stack;
+var LoadersVolume     = AMI.default.Loaders.Volume;
+var ControlsTrackball = AMI.default.Controls.Trackball;
+var HelpersStack      = AMI.default.Helpers.Stack;
 
 // Setup renderer
-let container = document.getElementById('container');
-let renderer = new THREE.WebGLRenderer({
+var container = document.getElementById('container');
+var renderer = new THREE.WebGLRenderer({
     antialias: true
   });
 renderer.setSize(container.offsetWidth, container.offsetHeight);
@@ -16,16 +16,16 @@ renderer.setPixelRatio(window.devicePixelRatio);
 container.appendChild(renderer.domElement);
 
 // Setup scene
-let scene = new THREE.Scene();
+var scene = new THREE.Scene();
 
 // Setup camera
-let  camera = new THREE.PerspectiveCamera(45, container.offsetWidth / container.offsetHeight, 0.01, 10000000);
+var  camera = new THREE.PerspectiveCamera(45, container.offsetWidth / container.offsetHeight, 0.01, 10000000);
 camera.position.x = 150;
 camera.position.y = 150;
 camera.position.z = 100;
 
 // Setup controls
-let controls = new ControlsTrackball(camera, container);
+var controls = new ControlsTrackball(camera, container);
 
 // handle resize
 function onWindowResize() {
@@ -39,21 +39,21 @@ function onWindowResize() {
 window.addEventListener('resize', onWindowResize, false);
 
 // Setup lights
-let particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
+var particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
 scene.add( particleLight );
 
 scene.add( new THREE.AmbientLight( 0x222222 ) );
-let directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
 directionalLight.position.set( 1, 1, 1 ).normalize();
 scene.add( directionalLight );
-let pointLight = new THREE.PointLight( 0xffffff, 2, 800 );
+var pointLight = new THREE.PointLight( 0xffffff, 2, 800 );
 particleLight.add( pointLight );
 
 // Load STL model
 var loaderSTL = new THREE.STLLoader();
 loaderSTL.load( 'https://cdn.rawgit.com/FNNDSC/data/master/stl/adi_brain/WM.stl', function ( geometry ) {
   var material = new THREE.MeshPhongMaterial( { color: 0xF44336, specular: 0x111111, shininess: 200} );
-  let WMSTL = new THREE.Mesh( geometry, material );
+  var WMSTL = new THREE.Mesh( geometry, material );
   // to LPS space
   var RASToLPS = new THREE.Matrix4();
   RASToLPS.set(-1, 0, 0, 0,
@@ -65,7 +65,7 @@ loaderSTL.load( 'https://cdn.rawgit.com/FNNDSC/data/master/stl/adi_brain/WM.stl'
 } );
 
 // Setup loader
-let loader = new LoadersVolume(container);
+var loader = new LoadersVolume(container);
 
 var t1 = [
     '36747136', '36747150', '36747164', '36747178',
@@ -81,7 +81,7 @@ var t1 = [
     '36747948', '36747962', '36747976', '36747990', '36748004', '36748018',
     '36748032', '36748046', '36748060', '36748074', '36748088', '36748102',
     '36748116', '36748130', '36748144', '36748158', '36748172', '36748186',
-    '36748354', '36748368', '36748382', '36748396', '36748578', '36748592',
+    '36748578', '36748592',
     '36748606', '36748620', '36748634', '36748648', '36748662', '36748676',
     '36748690', '36748704', '36748718', '36748732', '36748746', '36748760',
     '36748774', '36748788', '36748802', '36748816', '36748830', '36748844',
@@ -108,8 +108,8 @@ var files = t1.map(function(v) {
 // 1- fetch
 // 2- parse
 // 3- add to array
-let seriesContainer = [];
-let loadSequence = [];
+var seriesContainer = [];
+var loadSequence = [];
 files.forEach(function(url) {
     loadSequence.push(
       Promise.resolve()
@@ -139,16 +139,17 @@ Promise
     loader = null;
 
     // merge files into clean series/stack/frame structure
-    let series = seriesContainer[0].mergeSeries(seriesContainer);
+    var series = seriesContainer[0].mergeSeries(seriesContainer);
+        window.console.log(series);
     // be carefull that series and target stack exist!
-    let stackHelper = new HelpersStack(series[0].stack[0]);
+    var stackHelper = new HelpersStack(series[0].stack[0]);
     stackHelper.border.color = 0xFFEB3B;
 
     scene.add(stackHelper);
 
     // center camera and interactor to center of bouding box
     // for nicer experience
-    let centerLPS = stackHelper.stack.worldCenter();
+    var centerLPS = stackHelper.stack.worldCenter();
     camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
     camera.updateProjectionMatrix();
     controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);

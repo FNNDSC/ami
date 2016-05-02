@@ -1,13 +1,13 @@
 /* globals Stats, dat, AMI*/
 
 // VJS classes we will be using in this lesson
-let LoadersVolume = AMI.default.Loaders.Volume;
+var LoadersVolume = AMI.default.Loaders.Volume;
 
 // element to contain the progress bar
-let container = document.getElementById('container');
+var container = document.getElementById('container');
 
 // instantiate the loader
-let loader = new LoadersVolume(container);
+var loader = new LoadersVolume(container);
 
 var t2 = ['36444280', '36444294', '36444308', '36444322', '36444336'];
 var files = t2.map(function(v) {
@@ -18,8 +18,8 @@ var files = t2.map(function(v) {
 // 1- fetch
 // 2- parse
 // 3- add to array
-let seriesContainer = [];
-let loadSequence = [];
+var seriesContainer = [];
+var loadSequence = [];
 files.forEach(function(url) {
     loadSequence.push(
       Promise.resolve()
@@ -49,14 +49,14 @@ Promise
     loader = null;
 
     // merge files into clean series/stack/frame structure
-    let series = seriesContainer[0].mergeSeries(seriesContainer);
+    var series = seriesContainer[0].mergeSeries(seriesContainer);
 
     // series/stacks/frames are ready to be used
     window.console.log(series);
 
     // Display some content on the DOM
     var seriesIndex = 1;
-    for(let mySeries of series){
+    for(var mySeries of series){
       var seriesDiv = document.createElement("div");
       seriesDiv.className += "indent";
       seriesDiv.insertAdjacentHTML('beforeend', '<div> SERIES (' + seriesIndex + '/' + series.length + ')</div>');
@@ -66,7 +66,7 @@ Promise
 
       // loop through stacks
       var stackIndex = 1;
-      for(let myStack of mySeries.stack){
+      for(var myStack of mySeries.stack){
         var stackDiv = document.createElement("div");
         stackDiv.className += "indent";
         stackDiv.insertAdjacentHTML('beforeend', '<div> STACK (' + stackIndex + '/' + mySeries.stack.length + ')</div>');
@@ -76,7 +76,7 @@ Promise
 
         // loop through frames
         var frameIndex = 1;
-        for(let myFrame of myStack.frame){
+        for(var myFrame of myStack.frame){
           var frameDiv = document.createElement("div");
           frameDiv.className += "indent";
           frameDiv.insertAdjacentHTML('beforeend', '<div> FRAME (' + frameIndex + '/' + myStack.frame.length + ')</div>');

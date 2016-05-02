@@ -1,14 +1,14 @@
 /* globals Stats, dat, AMI*/
 
 // VJS classes we will be using in this lesson
-let LoadersVolume         = AMI.default.Loaders.Volume;
-let CamerasOrthographic   = AMI.default.Cameras.Orthographic;
-let ControlsOrthographic  = AMI.default.Controls.TrackballOrtho;
-let HelpersStack          = AMI.default.Helpers.Stack;
+var LoadersVolume         = AMI.default.Loaders.Volume;
+var CamerasOrthographic   = AMI.default.Cameras.Orthographic;
+var ControlsOrthographic  = AMI.default.Controls.TrackballOrtho;
+var HelpersStack          = AMI.default.Helpers.Stack;
 
 // Setup renderer
-let container = document.getElementById('container');
-let renderer = new THREE.WebGLRenderer({
+var container = document.getElementById('container');
+var renderer = new THREE.WebGLRenderer({
     antialias: true
   });
 renderer.setSize(container.offsetWidth, container.offsetHeight);
@@ -17,13 +17,13 @@ renderer.setPixelRatio(window.devicePixelRatio);
 container.appendChild(renderer.domElement);
 
 // Setup scene
-let scene = new THREE.Scene();
+var scene = new THREE.Scene();
 
 // Setup camera
-let camera = new CamerasOrthographic(container.clientWidth / -2, container.clientWidth / 2, container.clientHeight / 2, container.clientHeight / -2, 0.1, 10000);
+var camera = new CamerasOrthographic(container.clientWidth / -2, container.clientWidth / 2, container.clientHeight / 2, container.clientHeight / -2, 0.1, 10000);
 
 // Setup controls
-let controls = new ControlsOrthographic(camera, container);
+var controls = new ControlsOrthographic(camera, container);
 controls.staticMoving = true;
 controls.noRotate = true;
 
@@ -45,31 +45,31 @@ window.addEventListener('resize', onWindowResize, false);
 // build GUI
 function gui(stackHelper){
 
-  let gui = new dat.GUI({
+  var gui = new dat.GUI({
             autoPlace: false
   });
-  let customContainer = document.getElementById('my-gui-container');
+  var customContainer = document.getElementById('my-gui-container');
   customContainer.appendChild(gui.domElement);
   // only reason to use this object is to satusfy data.GUI
-  let camUtils = {
+  var camUtils = {
     invertRows: false,
     invertColumns: false,
     rotate: false
   };
 
   // camera
-  let cameraFolder = gui.addFolder('Camera');
-  let invertRows = cameraFolder.add(camUtils, 'invertRows');
+  var cameraFolder = gui.addFolder('Camera');
+  var invertRows = cameraFolder.add(camUtils, 'invertRows');
   invertRows.onChange(function() {
     camera.invertRows();
   });
 
-  let invertColumns = cameraFolder.add(camUtils, 'invertColumns');
+  var invertColumns = cameraFolder.add(camUtils, 'invertColumns');
   invertColumns.onChange(function() {
   camera.invertColumns();
   });
 
-  let rotate = cameraFolder.add(camUtils, 'rotate');
+  var rotate = cameraFolder.add(camUtils, 'rotate');
   rotate.onChange(function() {
     camera.rotate();
   });
@@ -77,7 +77,7 @@ function gui(stackHelper){
   cameraFolder.open();
 
   // of course we can do everything from lesson 01!
-  let stackFolder = gui.addFolder('Stack');
+  var stackFolder = gui.addFolder('Stack');
   stackFolder.add(stackHelper, 'index', 0, stackHelper.stack.dimensionsIJK.z - 1).step(1).listen();
   stackFolder.open();
 }
@@ -95,7 +95,7 @@ function animate() {
 animate();
 
 // Setup loader
-let loader = new LoadersVolume(container);
+var loader = new LoadersVolume(container);
 
 var t2 = [
     '36444280', '36444294', '36444308', '36444322', '36444336'
@@ -108,8 +108,8 @@ var files = t2.map(function(v) {
 // 1- fetch
 // 2- parse
 // 3- add to array
-let seriesContainer = [];
-let loadSequence = [];
+var seriesContainer = [];
+var loadSequence = [];
 files.forEach(function(url) {
     loadSequence.push(
       Promise.resolve()
@@ -139,10 +139,10 @@ Promise
     loader = null;
 
     // merge files into clean series/stack/frame structure
-    let series = seriesContainer[0].mergeSeries(seriesContainer);
-    let stack = series[0].stack[0];
+    var series = seriesContainer[0].mergeSeries(seriesContainer);
+    var stack = series[0].stack[0];
     // be carefull that series and target stack exist!
-    let stackHelper = new HelpersStack(stack);
+    var stackHelper = new HelpersStack(stack);
     // stackHelper.orientation = 2;
     // stackHelper.index = 56;
 
@@ -161,21 +161,21 @@ Promise
     // center camera and interactor to center of bouding box
     // for nicer experience
     // set camera
-    let worldbb = stack.worldBoundingBox();
-    let lpsDims = new THREE.Vector3(
+    var worldbb = stack.worldBoundingBox();
+    var lpsDims = new THREE.Vector3(
       worldbb[1] - worldbb[0],
       worldbb[3] - worldbb[2],
       worldbb[5] - worldbb[4]
     );
 
     // box: {halfDimensions, center}
-    let bbox = {
+    var bbox = {
       center: stack.worldCenter().clone(),
       halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10)
     };
 
     // init and zoom
-    let canvas = {
+    var canvas = {
         width: container.clientWidth,
         height: container.clientHeight
       };
