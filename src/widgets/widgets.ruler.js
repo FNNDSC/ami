@@ -45,6 +45,8 @@ export default class WidgetsRuler extends THREE.Object3D{
     this._secondHandle.hovered = true;
     this._secondHandle.active = true;
     this.add(this._secondHandle);
+
+    this._active = true;
         
     this._handles.push(this._secondHandle);
 
@@ -57,31 +59,7 @@ export default class WidgetsRuler extends THREE.Object3D{
     this._color = this._colors.default;
 
     // DOM STUFF
-
-    // add line!
-    this._line = document.createElement('div');
-    this._line.setAttribute('class', 'widgets handle line');
-    this._line.style.backgroundColor = `${this._color}`;
-    this._line.style.position = 'absolute';
-    this._line.style.transformOrigin = '0 100%';
-    this._line.style.marginTop = '-1px';
-    this._line.style.height = '2px';
-    this._line.style.width = '3px';
-    container.appendChild(this._line);
-
-    // add distance!
-    this._distance = document.createElement('div');
-    this._distance.setAttribute('class', 'widgets handle distance');
-    this._distance.style.border = '2px solid';
-    this._distance.style.borderColor = `${this._color}`;
-    this._distance.style.backgroundColor = '#F9F9F9';
-    // this._distance.style.opacity = '0.5';
-    this._distance.style.color = '#353535';
-    this._distance.style.padding = '4px';
-    this._distance.style.position = 'absolute';
-    this._distance.style.transformOrigin = '0 100%';
-    this._distance.innerHTML = 'Hello, world!';
-    this._container.appendChild(this._distance);
+    this.create();
 
     this.onStart = this.onStart.bind(this);
     this.onMove = this.onMove.bind(this);
@@ -102,10 +80,34 @@ export default class WidgetsRuler extends THREE.Object3D{
   onStart(evt){
     this._firstHandle.onStart(evt);
     this._secondHandle.onStart(evt);
+
+    this._active = this._firstHandle.active || this._secondHandle.active;
+    this.update();
+  }
+
+  onEnd(evt){
+    this._firstHandle.onEnd(evt);
+    this._secondHandle.onEnd(evt);
+
+    this._active = this._firstHandle.active || this._secondHandle.active;
+    window.console.log(this._firstHandle.active);
+    window.console.log(this._secondHandle.active);
+    window.console.log(this._active);
+    this.update();
+  }
+
+  create(){
+    this.createDOM();
   }
 
   update(){
-    // update colors
+    this.updateColor();
+
+    this.updateDOMPosition();
+    this.updateDOMColor();
+  }
+
+  updateColor(){
     if(this._active){
       this._color = this._colors.active;
     }
@@ -114,15 +116,40 @@ export default class WidgetsRuler extends THREE.Object3D{
     }
     else if(this._selected){
       this._color = this._colors.select;
-   }
-   else{
+    }
+    else{
       this._color = this._colors.default;
-   }
+    }
+  }
 
-   // update child color
-   this._firstHandle.color = this._color;
-   this._secondHandle.color = this._color;
+  createDOM(){
+    // add line!
+    this._line = document.createElement('div');
+    this._line.setAttribute('class', 'widgets handle line');
+    this._line.style.position = 'absolute';
+    this._line.style.transformOrigin = '0 100%';
+    this._line.style.marginTop = '-1px';
+    this._line.style.height = '2px';
+    this._line.style.width = '3px';
+    this._container.appendChild(this._line);
 
+    // add distance!
+    this._distance = document.createElement('div');
+    this._distance.setAttribute('class', 'widgets handle distance');
+    this._distance.style.border = '2px solid';
+    this._distance.style.backgroundColor = '#F9F9F9';
+    // this._distance.style.opacity = '0.5';
+    this._distance.style.color = '#353535';
+    this._distance.style.padding = '4px';
+    this._distance.style.position = 'absolute';
+    this._distance.style.transformOrigin = '0 100%';
+    this._distance.innerHTML = 'Hello, world!';
+    this._container.appendChild(this._distance);
+
+    this.updateDOMColor();
+  }
+
+  updateDOMPosition(){
     //update rulers lines and text!
     var x1 = this._firstHandle.screenPosition.x;
     var y1 = this._firstHandle.screenPosition.y; 
@@ -156,12 +183,25 @@ export default class WidgetsRuler extends THREE.Object3D{
     this._distance.style.transform = transform2;
   }
 
+  updateDOMColor(){
+    this._line.style.backgroundColor = `${this._color}`;
+    this._distance.style.borderColor = `${this._color}`;
+  }
+
   get hovered(){
     return this._hovered;
   }
 
   set hovered(hovered){
     this._hovered = hovered;
+  }
+
+  get active(){
+    return this._active;
+  }
+
+  set active(active){
+    this._active = active;
   }
 
   get worldPosition(){

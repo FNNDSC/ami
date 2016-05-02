@@ -14,6 +14,58 @@ export default class WidgetsHandle extends THREE.Object3D{
     // just upate dom if needed...
     this._enabled = true;
 
+    // array of meshes
+    this._targetMesh = targetMesh;
+
+    // if no target mesh, use plane for FREE dragging.
+    this._plane = {
+        position: new THREE.Vector3(),
+        direction: new THREE.Vector3()
+    };
+
+    this._offset = new THREE.Vector3()
+
+    this._controls = controls;
+    this._camera = camera;
+    this._container = container;
+    this._raycaster = new THREE.Raycaster();
+    this._connectAllEvents = connectAllEvents;
+
+    this._firstRun = false;
+
+    this._mouse = new THREE.Vector2();
+
+    // world (LPS) position
+    this._worldPosition = new THREE.Vector3();
+
+    // screen position
+    this._screenPosition = new THREE.Vector2();
+
+    this._selected = false;
+    this._hovered = false;
+    this._dragged = false;
+    this._visible = true;
+
+    this._colors = {
+      default: '#00B0FF',
+      active: '#FFEB3B',
+      hover: '#F50057',
+      select: '#76FF03'
+    };
+    this._color = this._colors.default;
+
+    // mesh stuff
+    this._material = null;
+    this._geometry = null;
+    this._mesh = null;
+    this._meshVisible = true;
+    this._meshHovered = false;
+    this._meshStyle = 'sphere'; //cube, etc.
+
+    // dom stuff
+    this._dom = null;
+    this._domVisible = true;
+    this._domHovered = false;
     this._domStyle = 'circle'; // square, triangle
     // maybe just a string...
     // this._domStyles = {
@@ -50,78 +102,7 @@ export default class WidgetsHandle extends THREE.Object3D{
 // <line x1="0" y1="12" x2="6" y2="6" stroke="#353535" stroke-linecap="square" stroke-width="2" />
 // <line x1="6" y1="6" x2="12" y2="12" stroke="#353535" stroke-linecap="square" stroke-width="2" />
 // </svg>
-
-    this._meshStyle = 'sphere'; //cube, etc.
-
-
-    // array of meshes
-    this._targetMesh = targetMesh;
-
-    // if no target mesh, use plane for FREE dragging.
-    this._plane = {
-        position: new THREE.Vector3(),
-        direction: new THREE.Vector3()
-    };
-
-    this._offset = new THREE.Vector3()
-
-    this._controls = controls;
-    this._camera = camera;
-    this._container = container;
-    this._raycaster = new THREE.Raycaster();
-    this._connectAllEvents = connectAllEvents;
-
-    this._firstRun = false;
-
-    this._mouse = {
-      x: 0,
-      y: 0
-    };
-
-    // world (LPS) position
-    this._worldPosition = new THREE.Vector3();
-    //new THREE.Vector3();
-
-    // screen position
-    this._screenPosition = {
-      x: 0,
-      y: 0
-    };
-
-    this._selected = false;
-    this._hovered = false;
-    this._dragged = false;
-    // this._hoverDistance = 100; // px
-    // this._hoverThreshold = 10; // px
-
-    this._visible = true;
-
-    this._colors = {
-      default: '#00B0FF',
-      active: '#FFEB3B',
-      hover: '#F50057',
-      select: '#76FF03'
-    };
-    this._color = this._colors.default;
-
-    // mesh stuff
-    this._material = null;
-    this._geometry = null;
-    this._mesh = null;
-    this._meshVisible = true;
-    this._meshHovered = false;
-
-    // dom stuff
-    this._dom = null;
-    this._domVisible = true;
-    this._domHovered = false;
-
     //
-    this.onStart = this.onStart.bind(this);
-    this.onMove = this.onMove.bind(this);
-    this.onEnd = this.onEnd.bind(this);
-    this.onHover = this.onHover.bind(this);
-    this.update = this.update.bind(this);
 
     if(this._targetMesh !== null){
       this._worldPosition.copy(this._targetMesh.position);
@@ -133,6 +114,12 @@ export default class WidgetsHandle extends THREE.Object3D{
     this.createDOM();
 
     // event listeners
+    this.onStart = this.onStart.bind(this);
+    this.onMove = this.onMove.bind(this);
+    this.onEnd = this.onEnd.bind(this);
+    this.onHover = this.onHover.bind(this);
+    this.update = this.update.bind(this);
+
     this.addEventListeners();
   }
 
@@ -160,14 +147,12 @@ export default class WidgetsHandle extends THREE.Object3D{
     if(this._connectAllEvents){
       this._container.removeEventListener('mousedown', this.onStart);
       this._container.removeEventListener('mousemove', this.onMove);
-    }
-    this._container.removeEventListener('mouseup', this.onEnd);
+      this._container.removeEventListener('mouseup', this.onEnd);
 
-    if(this._connectAllEvents){
       this._container.removeEventListener('touchstart', this.onStart);
       this._container.removeEventListener('touchmove', this.onMove);
+      this._container.removeEventListener('touchend', this.onEnd);
     }
-    this._container.removeEventListener('touchend', this.onEnd);
 
     this._dom.removeEventListener('mouseenter', this.onHover);
     this._dom.removeEventListener('mouseleave', this.onHover);
@@ -180,14 +165,12 @@ export default class WidgetsHandle extends THREE.Object3D{
     evt.preventDefault();
 
     //
-    this._dragged = false;
+    this._dragged = this._firstRun;
     this._firstRun = false;
 
-    // update screen position of handle
-    this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
-
     // update raycaster
-    this.updateRaycaster(this._raycaster, evt, this._container);
+    this._raycaster.setFromCamera(this._mouse, this._camera);
+    this._raycaster.ray.position = this._raycaster.ray.origin;
 
     if(this._hovered){
 
@@ -231,13 +214,15 @@ export default class WidgetsHandle extends THREE.Object3D{
     this.update();
   }
 
+  /**
+   *
+   *
+   */
   onMove(evt){
     evt.preventDefault();
 
-    // if nothing exists, exit
-    if(this._dom === null){
-      return;
-    }
+    this._mouse.set( (event.clientX / this._container.offsetWidth) * 2 - 1,
+                    -(event.clientY / this._container.offsetHeight) * 2 + 1);
 
     this._dragged = true;
 
@@ -245,7 +230,9 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
 
     // update raycaster
-    this.updateRaycaster(this._raycaster, evt, this._container);
+    // set ray.position to satisfy CoreIntersections::rayPlane API
+    this._raycaster.setFromCamera(this._mouse, this._camera);
+    this._raycaster.ray.position = this._raycaster.ray.origin;
 
     if(this._active){
       if(this._targetMesh !== null){
@@ -262,7 +249,7 @@ export default class WidgetsHandle extends THREE.Object3D{
           this._plane.direction.copy( this._camera.getWorldDirection() );
          }
 
-        var intersection = coreIntersections.rayPlane(this._raycaster.ray, this._plane);
+        let intersection = coreIntersections.rayPlane(this._raycaster.ray, this._plane);
         if ( intersection !== null ) {
 
           this._worldPosition.copy(intersection.sub( this._offset ));
@@ -296,16 +283,20 @@ export default class WidgetsHandle extends THREE.Object3D{
   }
 
   update(){
+
+    // general update
+    this.updateColor();
+
     // mesh stuff
     this.updateMeshColor();
     this.updateMeshPosition();
 
     // DOM stuff
+    this.updateDOMColor();
     this.updateDOMPosition();
   }
 
-  //
-  updateMeshColor(){
+  updateColor(){
     if(this._active){
       this._color = this._colors.active;
     }
@@ -314,11 +305,14 @@ export default class WidgetsHandle extends THREE.Object3D{
     }
     else if(this._selected){
       this._color = this._colors.select;
-   }
-   else{
+    }
+    else{
       this._color = this._colors.default;
-   }
+    }
+  }
 
+  //
+  updateMeshColor(){
     if(this._material){
       this._material.color.set(this._color);
     }
@@ -347,18 +341,6 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._domHovered = (evt.type === 'mouseenter');
   }
 
-  updateRaycaster(raycaster, event, container) {
-    // calculate mouse position in normalized device coordinates
-    // (-1 to +1) for both components
-    this._mouse = {
-      x: (event.clientX / container.offsetWidth) * 2 - 1,
-      y: -(event.clientY / container.offsetHeight) * 2 + 1
-    };
-    // update the raycaster
-    raycaster.setFromCamera(this._mouse, this._camera);
-    raycaster.ray.position = raycaster.ray.origin;
-  }
-
   worldToScreen(worldCoordinate, camera, canvas) {
     let screenCoordinates = worldCoordinate.clone();
     screenCoordinates.project(camera);
@@ -379,7 +361,6 @@ export default class WidgetsHandle extends THREE.Object3D{
         wireframe: true,
         wireframeLinewidth: 2
       });
-    this._material.color.set(this._color);
 
     // mesh
     this._mesh = new THREE.Mesh(this._geometry, this._material);
@@ -387,6 +368,8 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._mesh.position.y = this._worldPosition.y;
     this._mesh.position.z = this._worldPosition.z;
     this._mesh.visible = true;
+
+    this.updateMeshColor();
 
     // add it!
     this.add(this._mesh);
@@ -402,9 +385,7 @@ export default class WidgetsHandle extends THREE.Object3D{
     // this._domStyles.circle();
     // this._domStyles.cross();
     this._dom.style.border = '2px solid';
-    this._dom.style.borderColor = `${this._color}`;
     this._dom.style.backgroundColor = '#F9F9F9';
-    // this._dom.style.backgroundColor = 'rgba(230, 230, 230, 0.7)';
     this._dom.style.color = '#F9F9F9';
     this._dom.style.position = 'absolute';
     this._dom.style.width = '12px';
@@ -415,6 +396,8 @@ export default class WidgetsHandle extends THREE.Object3D{
 
     let posY = this._screenPosition.y - this._container.offsetHeight;
     this._dom.style.transform = `translate3D(${this._screenPosition.x}px, ${posY}px, 0)`;
+
+    this.updateDOMColor();
 
     // add it!
     this._container.appendChild(this._dom);
@@ -429,7 +412,7 @@ export default class WidgetsHandle extends THREE.Object3D{
   }
 
   updateDOMColor(){
-
+    this._dom.style.borderColor = `${this._color}`;
   }
 
   free(){
