@@ -7,7 +7,7 @@ import coreIntersections from '../../src/core/core.intersections';
  */
 
 export default class WidgetsHandle extends THREE.Object3D{
-  constructor(targetMesh, controls, camera, container, connectAllEvents = true) {
+  constructor(targetMesh, controls, camera, container, connectAllEvents = false) {
     super();
 
     // do nothing.
@@ -62,6 +62,7 @@ export default class WidgetsHandle extends THREE.Object3D{
         position: new THREE.Vector3(),
         direction: new THREE.Vector3()
     };
+
     this._offset = new THREE.Vector3()
 
     this._controls = controls;
@@ -74,9 +75,7 @@ export default class WidgetsHandle extends THREE.Object3D{
 
     this._mouse = {
       x: 0,
-      y: 0,
-      screenX: 0,
-      screenY: 0
+      y: 0
     };
 
     // world (LPS) position
@@ -95,13 +94,15 @@ export default class WidgetsHandle extends THREE.Object3D{
     // this._hoverDistance = 100; // px
     // this._hoverThreshold = 10; // px
 
-    this._defaultColor = '0x00B0FF';
-    this._activeColor = '0xFFEB3B';
-    this._hoverColor = '0xF50057';
-    this._selectedColor = '0x76FF03';
-
     this._visible = true;
-    this._color = this._defaultColor;
+
+    this._colors = {
+      default: '#00B0FF',
+      active: '#FFEB3B',
+      hover: '#F50057',
+      select: '#76FF03'
+    };
+    this._color = this._colors.default;
 
     // mesh stuff
     this._material = null;
@@ -123,7 +124,7 @@ export default class WidgetsHandle extends THREE.Object3D{
     this.update = this.update.bind(this);
 
     if(this._targetMesh !== null){
-      this._worldPosition = this._targetMesh.position;
+      this._worldPosition.copy(this._targetMesh.position);
     }
     this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
 
@@ -182,17 +183,26 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._dragged = false;
     this._firstRun = false;
 
+    // update screen position of handle
+    this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
+
+    // update raycaster
+    this.updateRaycaster(this._raycaster, evt, this._container);
+
     if(this._hovered){
 
       this._active = true;
       this._controls.enabled = false;
 
-      
-      if(this._targetMesh === null){
-        // build ref plane for free drag
+      if(this._targetMesh){
+        let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+        if(intersectsTarget.length > 0){
+          this._offset.copy( intersectsTarget[0].point ).sub(this._mesh.position);
+        }
+      }
+      else{
         // update raycaster
-        this.updateRaycaster(this._raycaster, evt, this._container);
-        var intersection = coreIntersections.rayPlane(this._raycaster.ray, this._plane);
+        let intersection = coreIntersections.rayPlane(this._raycaster.ray, this._plane);
         if(intersection !== null){
           this._offset.copy( intersection ).sub( this._plane.position );
         }
@@ -241,22 +251,29 @@ export default class WidgetsHandle extends THREE.Object3D{
       if(this._targetMesh !== null){
         let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
         if(intersectsTarget.length > 0){
-          this._worldPosition = intersectsTarget[0].point;
+          this._worldPosition.copy(intersectsTarget[0].point.sub( this._offset ));
         }
       }
       else{
+
+        if(this._plane.direction.length() === 0){
+          // free mode!this._targetMesh
+          this._plane.position.copy(this._worldPosition);
+          this._plane.direction.copy( this._camera.getWorldDirection() );
+         }
+
         var intersection = coreIntersections.rayPlane(this._raycaster.ray, this._plane);
-          if ( intersection !== null ) {
+        if ( intersection !== null ) {
 
-            this._worldPosition = intersection.sub( this._offset );
+          this._worldPosition.copy(intersection.sub( this._offset ));
 
-          }
+        }
       }
     }
     else{
       this.onHover(null);
       if(this._targetMesh === null){
-        // free mode!this._targetMesh
+        //free mode!this._targetMesh
         this._plane.position.copy(this._worldPosition);
         this._plane.direction.copy( this._camera.getWorldDirection() );
       }
@@ -290,20 +307,20 @@ export default class WidgetsHandle extends THREE.Object3D{
   //
   updateMeshColor(){
     if(this._active){
-      this._color = this._activeColor;
+      this._color = this._colors.active;
     }
     else if(this._hovered){
-      this._color = this._hoverColor;
+      this._color = this._colors.hover;
     }
     else if(this._selected){
-      this._color = this._selectedColor;
+      this._color = this._colors.select;
    }
    else{
-      this._color = this._defaultColor;
+      this._color = this._colors.default;
    }
 
     if(this._material){
-      this._material.color.setHex(this._color);
+      this._material.color.set(this._color);
     }
   }
 
@@ -335,9 +352,7 @@ export default class WidgetsHandle extends THREE.Object3D{
     // (-1 to +1) for both components
     this._mouse = {
       x: (event.clientX / container.offsetWidth) * 2 - 1,
-      y: -(event.clientY / container.offsetHeight) * 2 + 1,
-      screenX: event.clientX,
-      screenY: event.clientY
+      y: -(event.clientY / container.offsetHeight) * 2 + 1
     };
     // update the raycaster
     raycaster.setFromCamera(this._mouse, this._camera);
@@ -364,7 +379,7 @@ export default class WidgetsHandle extends THREE.Object3D{
         wireframe: true,
         wireframeLinewidth: 2
       });
-    this._material.color.setHex(this._color);
+    this._material.color.set(this._color);
 
     // mesh
     this._mesh = new THREE.Mesh(this._geometry, this._material);
@@ -386,7 +401,8 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._dom.setAttribute('class', 'widgets handle');
     // this._domStyles.circle();
     // this._domStyles.cross();
-    this._dom.style.border = '2px solid #353535';
+    this._dom.style.border = '2px solid';
+    this._dom.style.borderColor = `${this._color}`;
     this._dom.style.backgroundColor = '#F9F9F9';
     // this._dom.style.backgroundColor = 'rgba(230, 230, 230, 0.7)';
     this._dom.style.color = '#F9F9F9';
@@ -426,7 +442,7 @@ export default class WidgetsHandle extends THREE.Object3D{
   }
 
   set worldPosition(worldPosition){
-    this._worldPosition = worldPosition;
+    this._worldPosition.copy(worldPosition);
     this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
 
     this.update();
@@ -448,6 +464,8 @@ export default class WidgetsHandle extends THREE.Object3D{
     this._active = active;
     this._firstRun = this._active;
     this._controls.enabled = !this._active;
+
+    this.update();
   }
 
   get active(){
@@ -455,11 +473,19 @@ export default class WidgetsHandle extends THREE.Object3D{
   }
 
   get hovered(){
-    window.console.log('get hovered from handle');
     return this._hovered;
   }
 
   set hovered(hovered){
     this._hovered = hovered;
+    this.update();
+  }
+
+  get color(){
+    return this._color;
+  }
+
+  set color(color){
+    this._color = color;
   }
 }

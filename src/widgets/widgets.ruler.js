@@ -6,8 +6,10 @@ import WidgetsHandle from '../../src/widgets/widgets.handle';
  */
 
 export default class WidgetsRuler extends THREE.Object3D{
-  constructor(targetMesh, controls, camera, container, connectAllEvents = true) {
+  constructor(targetMesh, controls, camera, container, connectAllEvents = false) {
     super();
+
+    // enable/disable flag
 
     this._targetMesh = targetMesh;
     this._controls = controls;
@@ -46,12 +48,20 @@ export default class WidgetsRuler extends THREE.Object3D{
         
     this._handles.push(this._secondHandle);
 
+    this._colors = {
+      default: '#00B0FF',
+      active: '#FFEB3B',
+      hover: '#F50057',
+      select: '#76FF03'
+    };
+    this._color = this._colors.default;
+
     // DOM STUFF
 
     // add line!
     this._line = document.createElement('div');
     this._line.setAttribute('class', 'widgets handle line');
-    this._line.style.backgroundColor = '#353535';
+    this._line.style.backgroundColor = `${this._color}`;
     this._line.style.position = 'absolute';
     this._line.style.transformOrigin = '0 100%';
     this._line.style.marginTop = '-1px';
@@ -62,25 +72,28 @@ export default class WidgetsRuler extends THREE.Object3D{
     // add distance!
     this._distance = document.createElement('div');
     this._distance.setAttribute('class', 'widgets handle distance');
-    this._distance.style.border = '2px solid #353535';
+    this._distance.style.border = '2px solid';
+    this._distance.style.borderColor = `${this._color}`;
     this._distance.style.backgroundColor = '#F9F9F9';
+    // this._distance.style.opacity = '0.5';
     this._distance.style.color = '#353535';
     this._distance.style.padding = '4px';
     this._distance.style.position = 'absolute';
     this._distance.style.transformOrigin = '0 100%';
     this._distance.innerHTML = 'Hello, world!';
     this._container.appendChild(this._distance);
+
+    this.onStart = this.onStart.bind(this);
+    this.onMove = this.onMove.bind(this);
+    // this.onEnd = this.onEnd.bind(this);
+    // this.onHover = this.onHover.bind(this);
+    // this.update = this.update.bind(this);
   }
 
   onMove(evt){
-    //?
-    if(this._firstHandle.hovered){
-      this._firstHandle.onMove(evt);
-    }
 
-    if(this._secondHandle.hovered){
-      this._secondHandle.onMove(evt);
-    }
+    this._firstHandle.onMove(evt);
+    this._secondHandle.onMove(evt);
 
     this._hovered = this._firstHandle.hovered || this._secondHandle.hovered;
     this.update();
@@ -92,6 +105,24 @@ export default class WidgetsRuler extends THREE.Object3D{
   }
 
   update(){
+    // update colors
+    if(this._active){
+      this._color = this._colors.active;
+    }
+    else if(this._hovered){
+      this._color = this._colors.hover;
+    }
+    else if(this._selected){
+      this._color = this._colors.select;
+   }
+   else{
+      this._color = this._colors.default;
+   }
+
+   // update child color
+   this._firstHandle.color = this._color;
+   this._secondHandle.color = this._color;
+
     //update rulers lines and text!
     var x1 = this._firstHandle.screenPosition.x;
     var y1 = this._firstHandle.screenPosition.y; 
@@ -126,8 +157,6 @@ export default class WidgetsRuler extends THREE.Object3D{
   }
 
   get hovered(){
-        window.console.log('get hovered from ruler');
-
     return this._hovered;
   }
 
