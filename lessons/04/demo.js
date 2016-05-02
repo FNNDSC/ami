@@ -1,14 +1,14 @@
 /* globals Stats, dat, AMI*/
 
 // VJS classes we will be using in this lesson
-let LoadersVolume          = AMI.default.Loaders.Volume;
-let ControlsTrackball      = AMI.default.Controls.Trackball;
-let HelpersLut             = AMI.default.Helpers.Lut;
-let HelpersVolumeRendering = AMI.default.Helpers.VolumeRendering;
+var LoadersVolume          = AMI.default.Loaders.Volume;
+var ControlsTrackball      = AMI.default.Controls.Trackball;
+var HelpersLut             = AMI.default.Helpers.Lut;
+var HelpersVolumeRendering = AMI.default.Helpers.VolumeRendering;
 
 // Setup renderer
-let container = document.getElementById('container');
-let renderer = new THREE.WebGLRenderer({
+var container = document.getElementById('container');
+var renderer = new THREE.WebGLRenderer({
     antialias: true
   });
 renderer.setSize(container.offsetWidth, container.offsetHeight);
@@ -17,33 +17,33 @@ renderer.setPixelRatio(window.devicePixelRatio);
 container.appendChild(renderer.domElement);
 
 // Setup scene
-let scene = new THREE.Scene();
+var scene = new THREE.Scene();
 
 // Setup camera
-let  camera = new THREE.PerspectiveCamera(45, container.offsetWidth / container.offsetHeight, 0.01, 10000000);
+var  camera = new THREE.PerspectiveCamera(45, container.offsetWidth / container.offsetHeight, 0.01, 10000000);
 camera.position.x = 150;
 camera.position.y = 150;
 camera.position.z = 100;
 
 // Setup controls
-let controls = new ControlsTrackball(camera, container);
+var controls = new ControlsTrackball(camera, container);
 
 // Setup lights
-let particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
+var particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
 scene.add( particleLight );
 
 scene.add( new THREE.AmbientLight( 0x222222 ) );
-let directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
 directionalLight.position.set( 1, 1, 1 ).normalize();
 scene.add( directionalLight );
-let pointLight = new THREE.PointLight( 0xffffff, 2, 800 );
+var pointLight = new THREE.PointLight( 0xffffff, 2, 800 );
 particleLight.add( pointLight );
 
 // Load STL model
 var loaderSTL = new THREE.STLLoader();
 loaderSTL.load( 'https://cdn.rawgit.com/FNNDSC/data/master/stl/adi_brain/WM.stl', function ( geometry ) {
   var material = new THREE.MeshPhongMaterial( { color: 0xF44336, specular: 0x111111, shininess: 200} );
-  let WMSTL = new THREE.Mesh( geometry, material );
+  var WMSTL = new THREE.Mesh( geometry, material );
   // to LPS space
   var RASToLPS = new THREE.Matrix4();
   RASToLPS.set(-1, 0, 0, 0,
@@ -55,7 +55,7 @@ loaderSTL.load( 'https://cdn.rawgit.com/FNNDSC/data/master/stl/adi_brain/WM.stl'
 } );
 
 // Setup loader
-let loader = new LoadersVolume(container);
+var loader = new LoadersVolume(container);
 
 var t1 = [
     '36747136', '36747150', '36747164', '36747178',
@@ -98,8 +98,8 @@ var files = t1.map(function(v) {
 // 1- fetch
 // 2- parse
 // 3- add to array
-let seriesContainer = [];
-let loadSequence = [];
+var seriesContainer = [];
+var loadSequence = [];
 files.forEach(function(url) {
     loadSequence.push(
       Promise.resolve()
@@ -129,10 +129,10 @@ Promise
     loader = null;
 
     // merge files into clean series/stack/frame structure
-    let series = seriesContainer[0].mergeSeries(seriesContainer);
+    var series = seriesContainer[0].mergeSeries(seriesContainer);
     // be carefull that series and target stack exist!
-    let vrHelper = new HelpersVolumeRendering(series[0].stack[0]);
-    let lut = new HelpersLut('my-lut-canvases');
+    var vrHelper = new HelpersVolumeRendering(series[0].stack[0]);
+    var lut = new HelpersLut('my-lut-canvases');
     lut.luts = HelpersLut.presetLuts();
     lut.lutsO = HelpersLut.presetLutsO();
     lut.lutO = 'highpass';
@@ -143,7 +143,7 @@ Promise
 
     // center camera and interactor to center of bouding box
     // for nicer experience
-    let centerLPS = vrHelper.stack.worldCenter();
+    var centerLPS = vrHelper.stack.worldCenter();
     camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
     camera.updateProjectionMatrix();
     controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
