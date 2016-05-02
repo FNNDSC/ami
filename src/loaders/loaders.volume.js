@@ -97,13 +97,14 @@ export default class LoadersVolumes extends LoadersBase{
       series.stack.push(stack);
       // recursive call for each frame
       // better than for loop to be able to update dom with "progress" callback
-      setTimeout(this.parseFrame(series, stack, 0, volumeParser, resolve, reject), 0);
+      setTimeout(this.parseFrame(series, stack, response.url, 0, volumeParser, resolve, reject), 0);
     });
   }
 
-  parseFrame(series, stack, i, dataParser, resolve, reject) {
+  parseFrame(series, stack, url, i, dataParser, resolve, reject) {
     let frame = new ModelsFrame();
     frame.sopInstanceUID = dataParser.sopInstanceUID(i);
+    frame.url = url;
     frame.rows = dataParser.rows(i);
     frame.columns = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;
@@ -141,7 +142,7 @@ export default class LoadersVolumes extends LoadersBase{
     if (this._parsed === this._totalParsed) {
       resolve(series);
     } else {
-      setTimeout(this.parseFrame(series, stack, this._parsed, dataParser, resolve, reject), 0);
+      setTimeout(this.parseFrame(series, stack, url, this._parsed, dataParser, resolve, reject), 0);
     }
   }
 
