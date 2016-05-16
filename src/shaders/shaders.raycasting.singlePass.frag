@@ -31,9 +31,10 @@ varying vec4 vPos;
  *  - rescale slope/intercept
  *  - window center/width
  */
-float getIntensity(ivec3 dataCoordinates){
+void getIntensity(in ivec3 dataCoordinates, out float intensity){
 
-  vec4 packedValue = texture3DPolyfill(
+  vec4 packedValue = vec4(0., 0., 0., 0.);
+  texture3DPolyfill(
     dataCoordinates,
     uDataDimensions,
     uTextureSize,
@@ -44,25 +45,26 @@ float getIntensity(ivec3 dataCoordinates){
     uTextureContainer[4],
     uTextureContainer[5],
     uTextureContainer[6],
-    uTextureContainer     // not working on Moto X 2014
+    uTextureContainer,     // not working on Moto X 2014
+    packedValue
     );
 
-  vec4 dataValue = unpack(
+  vec4 dataValue = vec4(0., 0., 0., 0.);
+  unpack(
     packedValue,
     uBitsAllocated,
     0,
     uNumberOfChannels,
-    uPixelType);
+    uPixelType,
+    dataValue);
 
-  float intensity = dataValue.r;
+  intensity = dataValue.r;
 
   // rescale/slope
   intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
   // window level
   float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
   intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];
-
-  return intensity;
 }
 
 void main(void) {
@@ -78,7 +80,8 @@ void main(void) {
 
   // Intersection ray/bbox
   float tNear, tFar;
-  intersectBox(rayOrigin, rayDirection, AABBMin, AABBMax, tNear, tFar);
+  bool intersect = false;
+  intersectBox(rayOrigin, rayDirection, AABBMin, AABBMax, tNear, tFar, intersect);
   if (tNear < 0.0) tNear = 0.0;
 
   // init the ray marching
@@ -104,7 +107,8 @@ void main(void) {
     if ( all(greaterThanEqual(dataCoordinates, ivec3(0))) &&
          all(lessThan(dataCoordinates, uDataDimensions))) {
       // mapped intensity, given slope/intercept and window/level
-      float intensity = getIntensity(dataCoordinates);
+      float intensity = 0.0;
+      getIntensity(dataCoordinates, intensity);
       vec4 colorSample;
       float alphaSample;
       if(uLut == 1){

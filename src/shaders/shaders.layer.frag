@@ -48,7 +48,8 @@ void main(void) {
   // if data in range, look it up in the texture!
   if ( all(greaterThanEqual(dataCoordinates, ivec3(0))) &&
        all(lessThan(dataCoordinates, uDataDimensions))) {
-    vec4 packedValue = texture3DPolyfill(
+    vec4 packedValue = vec4(0., 0., 0., 0.);
+    texture3DPolyfill(
         dataCoordinates,
         uDataDimensions,
         uTextureSize,
@@ -59,15 +60,18 @@ void main(void) {
         uTextureContainer[4],
         uTextureContainer[5],
         uTextureContainer[6],
-        uTextureContainer     // not working on Moto X 2014
+        uTextureContainer,     // not working on Moto X 2014,
+        packedValue
         );
 
-    vec4 dataValue = unpack(
+    vec4 dataValue = vec4(0., 0., 0., 0.);
+    unpack(
       packedValue,
       uBitsAllocated,
       0,
       uNumberOfChannels,
-      uPixelType);
+      uPixelType,
+      dataValue);
 
     // should commpare against minium value
     // not working if minimum is different than 0...

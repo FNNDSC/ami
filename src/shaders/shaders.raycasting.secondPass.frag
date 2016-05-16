@@ -24,9 +24,10 @@ varying vec4      vProjectedCoords;
 #pragma glslify: texture3DPolyfill = require('./glsl/shaders.texture3DPolyfill.glsl')
 #pragma glslify: transformPoint = require('CommonGL/transforms/transformPoint.glsl');
 
-float getIntensity(ivec3 dataCoordinates){
+void getIntensity(in ivec3 dataCoordinates, out float intensity){
 
-  vec4 packedValue = texture3DPolyfill(
+  vec4 packedValue = vec4(0., 0., 0., 0.);
+  texture3DPolyfill(
     dataCoordinates,
     uDataDimensions,
     uTextureSize,
@@ -37,17 +38,20 @@ float getIntensity(ivec3 dataCoordinates){
     uTextureContainer[4],
     uTextureContainer[5],
     uTextureContainer[6],
-    uTextureContainer     // not working on Moto X 2014
+    uTextureContainer,     // not working on Moto X 2014
+    packedValue
     );
 
-  vec4 dataValue = unpack(
+  vec4 dataValue = vec4(0., 0., 0., 0.);
+  unpack(
     packedValue,
     uBitsAllocated,
     0,
     uNumberOfChannels,
-    uPixelType);
+    uPixelType,
+    dataValue);
   
-  float intensity = dataValue.r;
+  intensity = dataValue.r;
 
   // rescale/slope
   intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
@@ -55,8 +59,6 @@ float getIntensity(ivec3 dataCoordinates){
   float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
   // float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;
   intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];
-
-  return intensity;
 }
 
 void main(void) {
@@ -110,7 +112,8 @@ void main(void) {
 
     if ( all(greaterThanEqual(dataCoordinates, ivec3(0))) &&
          all(lessThan(dataCoordinates, uDataDimensions))) {
-      float intensity = getIntensity(dataCoordinates);
+      float intensity = 0.0;
+      getIntensity(dataCoordinates, intensity);
 
       // compute gradient
       // // vec4 sP00lps = currentPos4 + vec4(gradientLPS, 0, 0, 0);
