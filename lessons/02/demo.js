@@ -140,7 +140,7 @@ Promise
 
     // merge files into clean series/stack/frame structure
     var series = seriesContainer[0].mergeSeries(seriesContainer);
-        window.console.log(series);
+    
     // be carefull that series and target stack exist!
     var stackHelper = new HelpersStack(series[0].stack[0]);
     stackHelper.border.color = 0xFFEB3B;

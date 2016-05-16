@@ -1,7 +1,7 @@
 ----------
 
 **AMI Alpha** is now available for developer preview.</br>
-Developper preview means that the API might change but we are confident you can already build coool apps with AMI.</br>
+Developper preview means that the API might change but we are confident you can already build cool apps with AMI.</br>
 Please submit pull request, open issues or contact us for any question, feature request, etc.
 
 ----------
@@ -51,7 +51,7 @@ Please submit pull request, open issues or contact us for any question, feature 
   <!-- Lesson 01 -->
   <td valign="middle" width="100">
     <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/01#run' target=_blank>
-      <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/01/thumbnail-128x128.jpg" alt="lesson01" title="Click me!">
+      <img src="https://cloud.githubusercontent.com/assets/214063/14734707/8963a142-086c-11e6-99e2-35125f5ebb83.gif" style="width:128x, height:128px" alt="lesson01" title="Click me!">
       <img src="http://xtk.github.com/fiddlelogo_small2.png">
     </a>
   </td>
@@ -69,7 +69,7 @@ Please submit pull request, open issues or contact us for any question, feature 
   <!-- Lesson 02 -->
   <td valign="middle" width="100">
     <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run' target=_blank>
-      <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/02/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">
+      <img src="https://cloud.githubusercontent.com/assets/214063/14734782/1aa3006c-086d-11e6-9f56-6476e5ac6188.gif" style="width:128x, height:128px" alt="lesson00" title="Click me!">
       <img src="http://xtk.github.com/fiddlelogo_small2.png">
     </a>
   </td>
@@ -85,7 +85,7 @@ Please submit pull request, open issues or contact us for any question, feature 
   <!-- Lesson 03 -->
   <td valign="middle" width="100">
     <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/03#run' target=_blank>
-      <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/03/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">
+      <img src="https://cloud.githubusercontent.com/assets/214063/14734860/99882c22-086d-11e6-99ae-16b7e5371f40.gif" style="width:128x, height:128px" alt="lesson00" title="Click me!">
       <img src="http://xtk.github.com/fiddlelogo_small2.png">
     </a>
   </td>
@@ -168,7 +168,7 @@ Please submit pull request, open issues or contact us for any question, feature 
 
 ## Sandbox
 
-More examples and advanced demos [there](https://fnndsc.github.io/ami)!
+Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced demos [there](https://fnndsc.github.io/ami)!
 
 ## Features
 :white_check_mark: READY - :large_orange_diamond: IN PROGRESS OR LIMITED SUPPORT - :x: ON ROADMAP
@@ -184,6 +184,8 @@ More examples and advanced demos [there](https://fnndsc.github.io/ami)!
 :large_orange_diamond: Label Maps
 
 #### Widgets
+
+:large_orange_diamond: Handle (2D/3D)
 
 :large_orange_diamond: Probe (2D/3D)
   
