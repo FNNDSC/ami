@@ -93,7 +93,8 @@ void uFloat32(in float r, in float g, in float b, in float a, out float value){
   // compute float32 value from bit arrays
 
   // sign
-  int issigned = int(pow(-1., float(bytemeR[0])));
+  int issigned = 1 - 2 * bytemeR[0];
+  //   issigned = int(pow(-1., float(bytemeR[0])));
 
   // exponent
   int exponent = 0;
