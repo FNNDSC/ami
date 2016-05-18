@@ -12,6 +12,7 @@ export default class ModelsFrame extends ModelsBase{
     super();
 
     this._sopInstanceUID = null;
+    this._url = null;
     this._stackID = -1;
     this._rows = 0;
     this._columns = 0;
@@ -280,5 +281,13 @@ export default class ModelsFrame extends ModelsBase{
 
   set pixelType(pixelType) {
     this._pixelType = pixelType;
+  }
+
+  get url(){
+    return this._url;
+  }
+
+  set url(url){
+    this._url = url;
   }
 }

@@ -25,7 +25,7 @@ var eslint      = require('gulp-eslint');
 var watchify    = require('watchify');
 //var rename      = require('gulp-rename');
 
-var VERSION = '0.0.3';
+var VERSION = 'v0.0.6';
 
 var target = 'examples/**/*.js';
 

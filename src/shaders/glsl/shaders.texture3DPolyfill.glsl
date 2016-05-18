@@ -1,16 +1,17 @@
 // Support up to textureSize*textureSize*7 voxels
 
-vec4 texture3DPolyfill(ivec3 dataCoordinates,
-                       ivec3 dataDimensions,
-                       int textureSize,
-                       sampler2D textureContainer0,
-                       sampler2D textureContainer1,
-                       sampler2D textureContainer2,
-                       sampler2D textureContainer3,
-                       sampler2D textureContainer4,
-                       sampler2D textureContainer5,
-                       sampler2D textureContainer6,
-                       sampler2D textureContainer[7] // not working on Moto X 2014
+void texture3DPolyfill(in ivec3 dataCoordinates,
+                       in ivec3 dataDimensions,
+                       in int textureSize,
+                       in sampler2D textureContainer0,
+                       in sampler2D textureContainer1,
+                       in sampler2D textureContainer2,
+                       in sampler2D textureContainer3,
+                       in sampler2D textureContainer4,
+                       in sampler2D textureContainer5,
+                       in sampler2D textureContainer6,
+                       in sampler2D textureContainer[7], // not working on Moto X 2014
+                       out vec4 dataValue
   ) {
 
   // Model coordinate to data index
@@ -35,7 +36,6 @@ vec4 texture3DPolyfill(ivec3 dataCoordinates,
   uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);
 
   //
-  vec4 dataValue = vec4(0., 0., 0., 0.);
   if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }
   else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}
   else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }
@@ -43,8 +43,6 @@ vec4 texture3DPolyfill(ivec3 dataCoordinates,
   else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }
   else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }
   else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }
-
-  return dataValue;
 }
 
 #pragma glslify: export(texture3DPolyfill)

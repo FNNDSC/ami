@@ -1,6 +1,6 @@
 {
   "name": "ami.js",
-  "version": "0.0.5",
+  "version": "v0.0.6",
   "main": "src/ami.js",
   "keywords": ["ami", "ami.js","three.js", "webgl", "dicom", "nifti", "awesome", "medical", "imaging", "xtk", "nrrd", "vtk", "stl", "trk"],
   "author": {
@@ -21,7 +21,7 @@
     "math-float32-to-binary-string": "^1.0.0",
     "nrrd-js": "^0.2.1",
     "nifti-reader-js": "v0.5.3",
-    "pako": "0.2.8"
+    "pako": "1.0.1"
     },
   "devDependencies": {
     "babel-polyfill": "^6.5.0",

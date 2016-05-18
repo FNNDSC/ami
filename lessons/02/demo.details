@@ -1,8 +1,8 @@
 
 /*
 ---
-name: AMI - Lesson 00
-description: Load data.
+name: AMI - Lesson 02
+description: Mesh.
 authors:
   - Nicolas Rannou (github)
 js_wrap: onLoad

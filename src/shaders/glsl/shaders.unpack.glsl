@@ -1,24 +1,24 @@
 // unpack int 8
-float uInt8(in float r){
-  return r * 256.;
+void uInt8(in float r, out float value){
+  value = r * 256.;
 }
 
 // unpack int 16
-float uInt16(in float r, in float a){
-  return r * 256. + a * 65536.;
+void uInt16(in float r, in float a, out float value){
+  value = r * 256. + a * 65536.;
 }
 
 // unpack int 32
-float uInt32(in float r, in float g, in float b, in float a){
-  return r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;
+void uInt32(in float r, in float g, in float b, in float a, out float value){
+  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;
 }
 
 // unpack float 32
-float uFloat32(in float r, in float g, in float b, in float a){
+void uFloat32(in float r, in float g, in float b, in float a, out float value){
 
   // create arrays containing bits for rgba values
   // value between 0 and 255
-  float value = r * 255.;
+  value = r * 255.;
   int bytemeR[8];
   bytemeR[0] = int(floor(value / 128.));
   value -= float(bytemeR[0] * 128);
@@ -93,7 +93,8 @@ float uFloat32(in float r, in float g, in float b, in float a){
   // compute float32 value from bit arrays
 
   // sign
-  int issigned = int(pow(-1., float(bytemeR[0])));
+  int issigned = 1 - 2 * bytemeR[0];
+  //   issigned = int(pow(-1., float(bytemeR[0])));
 
   // exponent
   int exponent = 0;
@@ -138,44 +139,46 @@ float uFloat32(in float r, in float g, in float b, in float a){
   fraction += float(bytemeA[6]) * pow(2., -22.);
   fraction += float(bytemeA[7]) * pow(2., -23.);
 
-  return float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);
+  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);
 }
 
 
 // entry point for the unpack function
-vec4 unpack( vec4 packedRGBA,
-             int bitsAllocated,
-             int signedNumber,
-             int numberOfChannels,
-             int pixelType) {
-
-  // always return a vec4
-  vec4 unpacked = vec4(0, 0, 0, 0);
+void unpack( in vec4 packedRGBA,
+             in int bitsAllocated,
+             in int signedNumber,
+             in int numberOfChannels,
+             in int pixelType,
+             out vec4 unpacked) {
 
   if(numberOfChannels == 1){
     if(bitsAllocated == 8 || bitsAllocated == 1){
-      unpacked.x = uInt8(
-        packedRGBA.r);
+      uInt8(
+        packedRGBA.r,
+        unpacked.x);
     }
     else if(bitsAllocated == 16){
-      unpacked.x = uInt16(
+      uInt16(
         packedRGBA.r,
-        packedRGBA.a);
+        packedRGBA.a,
+        unpacked.x);
     }
     else if(bitsAllocated == 32){
       if(pixelType == 0){
-        unpacked.x = uInt32(
+        uInt32(
           packedRGBA.r,
           packedRGBA.g,
           packedRGBA.b,
-          packedRGBA.a);
+          packedRGBA.a,
+          unpacked.x);
       }
       else{
-        unpacked.x = uFloat32(
+        uFloat32(
           packedRGBA.r,
           packedRGBA.g,
           packedRGBA.b,
-          packedRGBA.a);
+          packedRGBA.a,
+          unpacked.x);
       }
 
     }
@@ -183,7 +186,6 @@ vec4 unpack( vec4 packedRGBA,
   else if(numberOfChannels == 3){
     unpacked = packedRGBA;
   }
-  return unpacked;
 }
 
 #pragma glslify: export(unpack)

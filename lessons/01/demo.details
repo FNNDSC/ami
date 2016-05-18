@@ -1,8 +1,8 @@
 
 /*
 ---
-name: AMI - Lesson 00
-description: Load data.
+name: AMI - Lesson 01
+description: Visualize 3D.
 authors:
   - Nicolas Rannou (github)
 js_wrap: onLoad

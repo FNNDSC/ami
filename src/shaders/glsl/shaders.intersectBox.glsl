@@ -1,4 +1,4 @@
-bool intersectBox(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, out float tNear, out float tFar){
+void intersectBox(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, out float tNear, out float tFar, out bool intersect){
   // compute intersection of ray with all six bbox planes
   vec3 invRay = vec3(1.) / rayDirection;
   vec3 tBot = invRay * (boxMin - rayOrigin);
@@ -11,7 +11,7 @@ bool intersectBox(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, o
   float smallest_tMax = min(min(tMax.x, tMax.y), min(tMax.x, tMax.z));
   tNear = largest_tMin;
   tFar = smallest_tMax;
-  return smallest_tMax > largest_tMin;
+  intersect = smallest_tMax > largest_tMin;
 }
 
 #pragma glslify: export(intersectBox)
