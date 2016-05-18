@@ -3,19 +3,11 @@
 
 require('babel-polyfill');
 
-var _cameras = require('../../src/cameras/cameras.orthographic');
-
-var _cameras2 = _interopRequireDefault(_cameras);
-
-var _controls = require('../../src/controls/controls.trackballortho');
-
-var _controls2 = _interopRequireDefault(_controls);
-
-var _helpers = require('../../src/helpers/helpers.lut');
+var _helpers = require('../../src/helpers/helpers.stack');
 
 var _helpers2 = _interopRequireDefault(_helpers);
 
-var _helpers3 = require('../../src/helpers/helpers.stack');
+var _helpers3 = require('../../src/helpers/helpers.voxel');
 
 var _helpers4 = _interopRequireDefault(_helpers3);
 
@@ -23,56 +15,50 @@ var _loaders = require('../../src/loaders/loaders.volume');
 
 var _loaders2 = _interopRequireDefault(_loaders);
 
-var _shaders = require('../../src/shaders/shaders.layer');
+var _widgets = require('../../src/widgets/widgets.handle');
 
-var _shaders2 = _interopRequireDefault(_shaders);
+var _widgets2 = _interopRequireDefault(_widgets);
+
+var _widgets3 = require('../../src/widgets/widgets.ruler');
+
+var _widgets4 = _interopRequireDefault(_widgets3);
+
+var _controls = require('../../src/controls/controls.trackball');
+
+var _controls2 = _interopRequireDefault(_controls);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
-// standard global letiables
-/* globals Stats, dat*/
-
-// promises polyfill from the babel team
+// standard global variables
 var controls = void 0,
     renderer = void 0,
+    threeD = void 0,
+    stats = void 0,
+    scene = void 0,
     camera = void 0,
-    statsyay = void 0,
-    threeD = void 0;
-//
-var sceneBaseTextureTarget = void 0;
-//
-var scene = void 0,
-    sceneBase = void 0;
-//
-var lutLayer0 = void 0;
-var sceneLayer1 = void 0,
-    meshLayer1 = void 0,
-    uniformsLayer1 = void 0,
-    materialLayer1 = void 0,
-    lutLayer1 = void 0;
-//probe
-var camUtils = {
-  invertRows: false,
-  invertColumns: false,
-  rotate: false
-};
+    handle0 = void 0,
+    handle1 = void 0,
+    helpersVoxel = void 0,
+    directions = void 0,
+    bbox = void 0,
+    line = void 0,
+    lineDOM = void 0,
+    distanceDOM = void 0,
+    handles = void 0; /* globals Stats, dat*/
 
-var layer1 = {
-  opacity: 1.0,
-  lut: null
-};
+// promises polyfill from the babel team
 
-// FUNCTIONS
+var widgets = [];
 function init() {
   // this function is executed on each animation frame
   function animate() {
+
     // render
     controls.update();
-    renderer.render(sceneBase, camera, sceneBaseTextureTarget, true);
-    renderer.render(sceneLayer1, camera);
-    statsyay.update();
+    renderer.render(scene, camera);
+    stats.update();
 
     // request new frame
     requestAnimationFrame(function () {
@@ -85,303 +71,223 @@ function init() {
   renderer = new THREE.WebGLRenderer({
     antialias: true
   });
-  renderer.setSize(threeD.clientWidth, threeD.clientHeight);
-  renderer.setClearColor(0x212121, 1);
+  renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+  renderer.setClearColor(0xFFFFFF, 1);
 
   threeD.appendChild(renderer.domElement);
 
   // stats
-  statsyay = new Stats();
-  threeD.appendChild(statsyay.domElement);
+  stats = new Stats();
+  threeD.appendChild(stats.domElement);
 
   // scene
   scene = new THREE.Scene();
-  sceneBase = new THREE.Scene();
-  sceneLayer1 = new THREE.Scene();
-
-  // render to texture!!!!
-  sceneBaseTextureTarget = new THREE.WebGLRenderTarget(threeD.clientWidth, threeD.clientHeight, { minFilter: THREE.LinearFilter,
-    magFilter: THREE.NearestFilter,
-    format: THREE.RGBFormat
-  });
 
   // camera
-  camera = new _cameras2.default(threeD.clientWidth / -2, threeD.clientWidth / 2, threeD.clientHeight / 2, threeD.clientHeight / -2, 0.1, 10000);
-
+  camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
+  camera.position.x = 150;
+  camera.position.y = 50;
+  camera.position.z = 50;
   // controls
   controls = new _controls2.default(camera, threeD);
+  controls.rotateSpeed = 1.4;
+  controls.zoomSpeed = 1.2;
+  controls.panSpeed = 0.8;
   controls.staticMoving = true;
-  controls.noRotate = true;
+  controls.dynamicDampingFactor = 0.3;
 
   animate();
 }
 
 window.onload = function () {
-
   // init threeJS...
   init();
 
-  var data = ['000001.dcm', '000002.dcm', '000003.dcm', '000004.dcm', '000005.dcm', '000006.dcm', '000007.dcm', '000008.dcm', '000009.dcm', '000010.dcm', '000011.dcm', '000012.dcm', '000013.dcm', '000014.dcm', '000015.dcm', '000016.dcm', '000017.dcm', '000018.dcm', '000019.dcm', '000020.dcm', '000021.dcm', '000022.dcm', '000023.dcm', '000024.dcm', '000025.dcm', '000026.dcm', '000027.dcm', '000028.dcm', '000029.dcm', '000030.dcm', '000031.dcm', '000032.dcm', '000033.dcm', '000034.dcm', '000035.dcm', '000036.dcm', '000037.dcm', '000038.dcm', '000039.dcm', '000040.dcm', '000041.dcm', '000042.dcm', '000043.dcm', '000044.dcm', '000045.dcm', '000046.dcm', '000047.dcm', '000048.dcm', '000049.dcm', '000050.dcm', '000051.dcm', '000052.dcm', '000053.dcm', '000054.dcm', '000055.dcm', '000056.dcm', '000057.dcm', '000058.dcm', '000059.dcm', '000060.dcm', '000061.dcm', '000062.dcm', '000063.dcm', '000064.dcm', '000065.dcm', '000066.dcm', '000067.dcm', '000068.dcm', '000069.dcm', '000070.dcm', '000071.dcm', '000072.dcm', '000073.dcm', '000074.dcm', '000075.dcm', '000076.dcm', '000077.dcm', '000078.dcm', '000079.dcm', '000080.dcm', '000081.dcm', '000082.dcm', '000083.dcm', '000084.dcm', '000085.dcm', '000086.dcm', '000087.dcm', '000088.dcm', '000089.dcm', '000090.dcm', '000091.dcm', '000092.dcm', '000093.dcm', '000094.dcm', '000095.dcm', '000096.dcm', '000097.dcm', '000098.dcm', '000099.dcm', '000100.dcm', '000101.dcm', '000102.dcm', '000103.dcm', '000104.dcm', '000105.dcm', '000106.dcm', '000107.dcm', '000108.dcm', '000109.dcm', '000110.dcm', '000111.dcm', '000112.dcm', '000113.dcm', '000114.dcm', '000115.dcm', '000116.dcm', '000117.dcm', '000118.dcm', '000119.dcm', '000120.dcm', '000121.dcm', '000122.dcm', '000123.dcm', '000124.dcm', '000125.dcm', '000126.dcm', '000127.dcm', '000128.dcm', '000129.dcm', '000130.dcm', '000131.dcm', '000132.dcm', '000133.dcm', '000134.dcm', '000135.dcm', '000136.dcm', '000137.dcm', '000138.dcm', '000139.dcm', '000140.dcm', '000141.dcm', '000142.dcm', '000143.dcm', '000144.dcm', '000145.dcm', '000146.dcm', '000147.dcm', '000148.dcm', '000149.dcm', '000150.dcm', '000151.dcm', '000152.dcm', '000153.dcm', '000154.dcm', '000155.dcm', '000156.dcm', '000157.dcm', '000158.dcm', '000159.dcm', '000160.dcm', '000161.dcm', '000162.dcm', '000163.dcm', '000164.dcm', '000165.dcm', '000166.dcm', '000167.dcm', '000168.dcm', '000169.dcm', '000170.dcm', '000171.dcm', '000172.dcm', '000173.dcm', '000174.dcm', '000175.dcm', '000176.dcm', '000177.dcm', '000178.dcm', '000179.dcm', '000180.dcm', '000181.dcm', '000182.dcm', '000183.dcm', '000184.dcm', '000185.dcm', '000186.dcm', '000187.dcm', '000188.dcm', '000189.dcm', '000190.dcm', '000191.dcm', '000192.dcm', '000193.dcm', '000194.dcm', '000195.dcm', '000196.dcm', '000197.dcm', '000198.dcm', '000199.dcm', '000200.dcm', '000201.dcm', '000202.dcm', '000203.dcm', '000204.dcm', '000205.dcm', '000206.dcm', '000207.dcm', '000208.dcm', '000209.dcm', '000210.dcm', '000211.dcm', '000212.dcm', '000213.dcm', '000214.dcm', '000215.dcm', '000216.dcm', '000217.dcm', '000218.dcm', '000219.dcm', '000220.dcm', '000221.dcm', '000222.dcm', '000223.dcm', '000224.dcm', '000225.dcm', '000226.dcm', '000227.dcm', '000228.dcm', '000229.dcm', '000230.dcm', '000231.dcm', '000232.dcm', '000233.dcm', '000234.dcm', '000235.dcm', '000236.dcm', '000237.dcm', '000238.dcm', '000239.dcm', '000240.dcm', '000241.dcm', '000242.dcm', '000243.dcm', '000244.dcm', '000245.dcm', '000246.dcm', '000247.dcm', '000248.dcm', '000249.dcm', '000250.dcm', '000251.dcm', '000252.dcm', '000253.dcm', '000254.dcm', '000255.dcm', '000256.dcm', '000257.dcm', '000258.dcm', '000259.dcm', '000260.dcm', '000261.dcm', '000262.dcm', '000263.dcm', '000264.dcm', '000265.dcm', '000266.dcm', '000267.dcm', '000268.dcm', '000269.dcm', '000270.dcm', '000271.dcm', '000272.dcm', '000273.dcm', '000274.dcm', '000275.dcm'];
+  var file = 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/36749894';
 
-  var dataFullPath = data.map(function (v) {
-    return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/andrei_abdomen/data/' + v;
-  });
-
-  var labelmap = ['000000.dcm'];
-
-  var labelmapFullPath = labelmap.map(function (v) {
-    return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/andrei_abdomen/segmentation/' + v;
-  });
-
-  // let data = [
-  //   '7001_subcortical.nii.gz',
-  //   '7001_t1_average_BRAINSABC.nii.gz'
-  // ];
-
-  // let files = data.map(function(v){
-  //   return '../../data/nii/slicer_labelmap/' + v;
-  // });
-
-  var files = dataFullPath.concat(labelmapFullPath);
-
-  // load sequence for each file
-  // instantiate the loader
-  // it loads and parses the dicom image
   var loader = new _loaders2.default(threeD);
-  var seriesContainer = [];
-  var loadSequence = [];
-  files.forEach(function (url) {
-    loadSequence.push(Promise.resolve()
-    // fetch the file
-    .then(function () {
-      return loader.fetch(url);
-    }).then(function (data) {
-      return loader.parse(data);
-    }).then(function (series) {
-      seriesContainer.push(series);
-    }).catch(function (error) {
-      window.console.log('oops... something went wrong...');
-      window.console.log(error);
-    }));
-  });
+  // Start off with a promise that always resolves
+  var sequence = Promise.resolve();
+  sequence
+  // fetch the file
+  .then(function () {
+    return loader.fetch(file);
+  }).then(function (data) {
+    return loader.parse(data);
+  }).then(function (series) {
 
-  function buildGUI(stackHelper) {
-    function updateLayer1() {
-      // update layer1 geometry...
-      if (meshLayer1) {
-
-        sceneLayer1.remove(meshLayer1);
-        meshLayer1.material.dispose();
-        meshLayer1.material = null;
-        meshLayer1.geometry.dispose();
-        meshLayer1.geometry = null;
-
-        // add mesh in this scene with right shaders...
-        meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
-        // go the LPS space
-        meshLayer1.applyMatrix(stackHelper.stack._ijk2LPS);
-
-        sceneLayer1.add(meshLayer1);
-      }
-    }
-
-    var stack = stackHelper.stack;
-
-    var gui = new dat.GUI({
-      autoPlace: false
-    });
-
-    var customContainer = document.getElementById('my-gui-container');
-    customContainer.appendChild(gui.domElement);
-
-    var layer0Folder = gui.addFolder('Layer 0 (Base)');
-    layer0Folder.add(stackHelper.slice, 'windowWidth', 1, stack.minMax[1]).step(1).listen();
-    layer0Folder.add(stackHelper.slice, 'windowCenter', stack.minMax[0], stack.minMax[1]).step(1).listen();
-    layer0Folder.add(stackHelper.slice, 'intensityAuto');
-    layer0Folder.add(stackHelper.slice, 'invert');
-
-    var lutUpdate = layer0Folder.add(stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
-    lutUpdate.onChange(function (value) {
-      lutLayer0.lut = value;
-      stackHelper.slice.lutTexture = lutLayer0.texture;
-    });
-
-    var indexUpdate = layer0Folder.add(stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
-    indexUpdate.onChange(function () {
-      updateLayer1();
-    });
-
-    layer0Folder.open();
-
-    // layer 1 folder
-    var layer1Folder = gui.addFolder('Layer 1');
-    var opacityLayer1 = layer1Folder.add(layer1, 'opacity', 0, 1).step(0.01).listen();
-    opacityLayer1.onChange(function (value) {
-      uniformsLayer1.uOpacity.value = value;
-    });
-
-    layer1Folder.open();
-
-    // hook up callbacks
-    controls.addEventListener('OnScroll', function (e) {
-      if (e.delta > 0) {
-        if (stackHelper.index >= stack.dimensionsIJK.z - 1) {
-          return false;
-        }
-        stackHelper.index += 1;
-      } else {
-        if (stackHelper.index <= 0) {
-          return false;
-        }
-        stackHelper.index -= 1;
-      }
-
-      updateLayer1();
-    });
-
-    // camera
-    var cameraFolder = gui.addFolder('Camera');
-    var invertRows = cameraFolder.add(camUtils, 'invertRows');
-    invertRows.onChange(function () {
-      camera.invertRows();
-    });
-
-    var invertColumns = cameraFolder.add(camUtils, 'invertColumns');
-    invertColumns.onChange(function () {
-      camera.invertColumns();
-    });
-
-    var rotate = cameraFolder.add(camUtils, 'rotate');
-    rotate.onChange(function () {
-      camera.rotate();
-    });
-
-    cameraFolder.open();
-    // set default view
-    camera.invertColumns();
-    camera.invertRows();
-
-    function onWindowResize() {
-      var threeD = document.getElementById('r3d');
-      camera.canvas = {
-        width: threeD.clientWidth,
-        height: threeD.clientHeight
-      };
-      camera.fitBox(2);
-
-      renderer.setSize(threeD.clientWidth, threeD.clientHeight);
-    }
-    window.addEventListener('resize', onWindowResize, false);
-    onWindowResize();
-  }
-
-  function handleSeries() {
     loader.free();
     loader = null;
-    //
-    //
-    // first stack of first series
-    var mergedSeries = seriesContainer[0].mergeSeries(seriesContainer);
-    var stack = mergedSeries[1].stack[0];
-    var stack2 = mergedSeries[0].stack[0];
-    if (stack.windowWidth < 2) {
-      stack = mergedSeries[0].stack[0];
-      stack2 = mergedSeries[1].stack[0];
-    }
 
-    var stackHelper = new _helpers4.default(stack);
-    stackHelper.bbox.visible = false;
-    stackHelper.border.visible = false;
-    stackHelper.index = 160;
+    var stack = series._stack[0];
+    var stackHelper = new _helpers2.default(stack);
 
-    sceneBase.add(stackHelper);
+    scene.add(stackHelper);
 
-    //
-    //
-    // create labelmap....
-    // we only care about the geometry....
-    // get first stack from series
-    // prepare it
-    // * ijk2LPS transforms
-    // * Z spacing
-    // * etc.
-    //
-    stack2.prepare();
-    // pixels packing for the fragment shaders now happens there
-    stack2.pack();
+    threeD.addEventListener('mouseup', function (evt) {
+      // if something hovered, exit
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
 
-    var textures2 = [];
-    for (var m = 0; m < stack2._rawData.length; m++) {
-      var tex = new THREE.DataTexture(stack2.rawData[m], stack2.textureSize, stack2.textureSize, stack2.textureType, THREE.UnsignedByteType, THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter);
-      tex.needsUpdate = true;
-      tex.flipY = true;
-      textures2.push(tex);
-    }
+      try {
+        for (var _iterator = widgets[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var widget = _step.value;
 
-    // create material && mesh then add it to sceneLayer1
-    uniformsLayer1 = _shaders2.default.uniforms();
-    uniformsLayer1.uTextureSize.value = stack2.textureSize;
-    uniformsLayer1.uTextureContainer.value = textures2;
-    uniformsLayer1.uWorldToData.value = stack2.lps2IJK;
-    uniformsLayer1.uNumberOfChannels.value = stack2.numberOfChannels;
-    uniformsLayer1.uBitsAllocated.value = stack2.bitsAllocated;
-    uniformsLayer1.uWindowCenterWidth.value = [stack2.windowCenter, stack2.windowWidth];
-    uniformsLayer1.uRescaleSlopeIntercept.value = [stack2.rescaleSlope, stack2.rescaleIntercept];
-    uniformsLayer1.uTextureBackTest.value = sceneBaseTextureTarget;
-    uniformsLayer1.uDataDimensions.value = [stack2.dimensionsIJK.x, stack2.dimensionsIJK.y, stack2.dimensionsIJK.z];
-    uniformsLayer1.uMix.value = 1;
-
-    materialLayer1 = new THREE.ShaderMaterial({ side: THREE.DoubleSide,
-      uniforms: uniformsLayer1,
-      vertexShader: "#define GLSLIFY 1\nvarying vec4 vPos;\nvarying vec4 vProjectedCoords;\n//\n// main\n//\nvoid main() {\n\n  vPos = modelMatrix * vec4(position, 1.0 );\n  vProjectedCoords =  projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );\n\n}",
-      fragmentShader: "#define GLSLIFY 1\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uInvert;\nuniform sampler2D uTextureBackTest;\nuniform float     uOpacity;\n\n// hack because can not pass arrays if too big\n// best would be to pass texture but have to deal with 16bits\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\n\nuniform float     uMinMax[2];\nuniform int       uMix;\nuniform int       uTrackMouse;\nuniform vec2      uMouse;\n\nvarying vec4      vPos;\nvarying vec4      vProjectedCoords;\n\n// include functions\n// unpack int 8\nfloat uInt8(in float r){\n  return r * 256.;\n}\n\n// unpack int 16\nfloat uInt16(in float r, in float a){\n  return r * 256. + a * 65536.;\n}\n\n// unpack int 32\nfloat uInt32(in float r, in float g, in float b, in float a){\n  return r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nfloat uFloat32(in float r, in float g, in float b, in float a){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  float value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  return float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvec4 unpack( vec4 packedRGBA,\n             int bitsAllocated,\n             int signedNumber,\n             int numberOfChannels,\n             int pixelType) {\n\n  // always return a vec4\n  vec4 unpacked = vec4(0, 0, 0, 0);\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      unpacked.x = uInt8(\n        packedRGBA.r);\n    }\n    else if(bitsAllocated == 16){\n      unpacked.x = uInt16(\n        packedRGBA.r,\n        packedRGBA.a);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        unpacked.x = uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a);\n      }\n      else{\n        unpacked.x = uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n  return unpacked;\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvec4 texture3DPolyfill(ivec3 dataCoordinates,\n                       ivec3 dataDimensions,\n                       int textureSize,\n                       sampler2D textureContainer0,\n                       sampler2D textureContainer1,\n                       sampler2D textureContainer2,\n                       sampler2D textureContainer3,\n                       sampler2D textureContainer4,\n                       sampler2D textureContainer5,\n                       sampler2D textureContainer6,\n                       sampler2D textureContainer[7] // not working on Moto X 2014\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n\n  return dataValue;\n}\n\nvoid main(void) {\n\n// vec4 dataCoordinatesRawDummy = uWorldToData * vPos;\n  vec2 texc = vec2(((vProjectedCoords.x / vProjectedCoords.w) + 1.0 ) / 2.0,\n                ((vProjectedCoords.y / vProjectedCoords.w) + 1.0 ) / 2.0 );\n\n  //The back position is the world space position stored in the texture.\n  vec4 baseColor = texture2D(uTextureBackTest, texc);\n\n  // get texture coordinates of current pixel\n  // doesn't need that in theory\n  vec4 dataCoordinatesRaw = uWorldToData * vPos;\n  // rounding trick\n  // first center of first voxel in data space is CENTERED on (0,0,0)\n  dataCoordinatesRaw += 0.5;\n  ivec3 dataCoordinates = ivec3(int(floor(dataCoordinatesRaw.x)), int(floor(dataCoordinatesRaw.y)), int(floor(dataCoordinatesRaw.z)));\n\n  // if data in range, look it up in the texture!\n  if ( all(greaterThanEqual(dataCoordinates, ivec3(0))) &&\n       all(lessThan(dataCoordinates, uDataDimensions))) {\n    vec4 packedValue = texture3DPolyfill(\n        dataCoordinates,\n        uDataDimensions,\n        uTextureSize,\n        uTextureContainer[0],\n        uTextureContainer[1],\n        uTextureContainer[2],\n        uTextureContainer[3],\n        uTextureContainer[4],\n        uTextureContainer[5],\n        uTextureContainer[6],\n        uTextureContainer     // not working on Moto X 2014\n        );\n\n    vec4 dataValue = unpack(\n      packedValue,\n      uBitsAllocated,\n      0,\n      uNumberOfChannels,\n      uPixelType);\n\n    // should commpare against minium value\n    // not working if minimum is different than 0...\n    // OK-ish for labelmaps but not fine if comapring 2 images\n    // 0.5 should be minimum of layer 1\n    // if(dataValue.r < 0.5 && uMix == 1){\n    //   gl_FragColor = baseColor;\n    // }\n    // else{\n      // APPLY LUT after normalization...\n      float intensity = dataValue.r;\n\n      // rescale/slope\n      intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n\n      // window level\n      float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n      float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;\n      intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n\n      dataValue.r = dataValue.g = dataValue.b = intensity;\n\n      if(dataValue.r <= uMinMax[0] && uMix == 1){\n        gl_FragColor = baseColor;\n        return;\n      }\n      \n      if(uLut == 1){\n        dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n      }\n\n      if(uTrackMouse == 1){\n        if(vProjectedCoords.x < uMouse.x){\n          gl_FragColor = baseColor;\n        }\n        else if(uMix == 1){\n          gl_FragColor = mix(baseColor, vec4(dataValue.xyz, 1.0), uOpacity);\n        }\n        else{\n          gl_FragColor = dataValue;\n        }\n      }\n      else{\n        if(uMix == 1){\n          gl_FragColor = mix(baseColor, vec4(dataValue.xyz, 1.0), uOpacity);\n        }\n        else{\n          gl_FragColor = dataValue;\n        }\n      }\n    // }\n\n  }\n  else{\n    // should be able to choose what we want to do if not in range:\n    // discard or specific color\n    // discard;\n    gl_FragColor = vec4(0.011, 0.662, 0.956, 1.0);\n  }\n}"
+          window.console.log(widget);
+          if (widget.active) {
+            widget.onEnd(evt);
+            return;
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
     });
 
-    // add mesh in this scene with right shaders...
-    meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
-    // go the LPS space
-    meshLayer1.applyMatrix(stack2._ijk2LPS);
-    sceneLayer1.add(meshLayer1);
+    threeD.addEventListener('mousemove', function (evt) {
+      // if something hovered, exit
+      var cursor = 'default';
+
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = widgets[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var widget = _step2.value;
+
+          widget.onMove(evt);
+          if (widget.hovered) {
+            cursor = 'pointer';
+          }
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+
+      threeD.style.cursor = cursor;
+    });
+
+    // add on mouse down listener, to add handles/etc. if not hovering anything..
+    threeD.addEventListener('mousedown', function (evt) {
+      // if something hovered, exit
+      var _iteratorNormalCompletion3 = true;
+      var _didIteratorError3 = false;
+      var _iteratorError3 = undefined;
+
+      try {
+        for (var _iterator3 = widgets[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+          var _widget4 = _step3.value;
+
+          if (_widget4.hovered) {
+            _widget4.onStart(evt);
+            return;
+          }
+        }
+      } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+            _iterator3.return();
+          }
+        } finally {
+          if (_didIteratorError3) {
+            throw _iteratorError3;
+          }
+        }
+      }
+
+      threeD.style.cursor = 'default';
+
+      // mouse position
+      var mouse = {
+        x: evt.clientX / threeD.offsetWidth * 2 - 1,
+        y: -(event.clientY / threeD.offsetHeight) * 2 + 1
+      };
+
+      // update the raycaster
+      var raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+      var intersects = raycaster.intersectObject(stackHelper.slice.mesh);
+
+      if (intersects.length <= 0) {
+        return;
+      }
+
+      var widgetType = widgets.length % 4;
+      if (widgetType === 0) {
+        // add ruler
+        var widget = new _widgets4.default(stackHelper.slice.mesh, controls, camera, threeD);
+        widget.worldPosition = intersects[0].point;
+
+        widgets.push(widget);
+        scene.add(widget);
+      } else if (widgetType === 1) {
+        // add handle
+        var _widget = new _widgets2.default(stackHelper.slice.mesh, controls, camera, threeD);
+        _widget.worldPosition = intersects[0].point;
+        _widget.hovered = true;
+
+        widgets.push(_widget);
+        scene.add(_widget);
+      } else if (widgetType === 2) {
+        // add  "FREE" ruler
+        var _widget2 = new _widgets4.default(null, controls, camera, threeD);
+        // OK for now but what if no intersection?
+        _widget2.worldPosition = intersects[0].point;
+
+        widgets.push(_widget2);
+        scene.add(_widget2);
+      } else {
+        // add "FREE" handle
+        var _widget3 = new _widgets2.default(null, controls, camera, threeD);
+        // OK for now but what if no intersection?
+        _widget3.worldPosition = intersects[0].point;
+
+        widgets.push(_widget3);
+        scene.add(_widget3);
+      }
+    });
 
     //
-    // set camera
-    var worldbb = stack.worldBoundingBox();
-    var lpsDims = new THREE.Vector3(worldbb[1] - worldbb[0], worldbb[3] - worldbb[2], worldbb[5] - worldbb[4]);
+    var centerLPS = stack.worldCenter();
 
-    // box: {halfDimensions, center}
-    var bbox = {
-      center: stack.worldCenter().clone(),
-      halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10)
-    };
+    bbox = stack.dimensionsIJK;
 
-    // init and zoom
-    var canvas = {
-      width: threeD.clientWidth,
-      height: threeD.clientHeight
-    };
-    camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas);
-    camera.fitBox(2);
-
-    // CREATE LUT
-    lutLayer0 = new _helpers2.default('my-lut-canvases-l0', 'default', 'linear', [[0, 0, 0, 0], [1, 1, 1, 1]], [[0, 1], [1, 1]]);
-    lutLayer0.luts = _helpers2.default.presetLuts();
-
-    lutLayer1 = new _helpers2.default('my-lut-canvases-l1', 'default', 'linear', [[0, 0, 0, 0], [1, 0, 1, 1]], [[0, 1], [1, 1]]);
-    uniformsLayer1.uLut.value = 1;
-    uniformsLayer1.uTextureLUT.value = lutLayer1.texture;
-
-    buildGUI(stackHelper);
-  }
-
-  Promise.all(loadSequence).then(function () {
-    handleSeries();
-  }).catch(function (error) {
-    window.console.log('oops... something went wrong...');
-    window.console.log(error);
+    // update camrea's and interactor's target
+    // update camera's target
+    camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
+    controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
+    camera.updateProjectionMatrix();
   });
 };
 
-},{"../../src/cameras/cameras.orthographic":346,"../../src/controls/controls.trackballortho":347,"../../src/helpers/helpers.lut":355,"../../src/helpers/helpers.stack":358,"../../src/loaders/loaders.volume":360,"../../src/shaders/shaders.layer":370,"babel-polyfill":5}],2:[function(require,module,exports){
+},{"../../src/controls/controls.trackball":346,"../../src/helpers/helpers.stack":357,"../../src/helpers/helpers.voxel":358,"../../src/loaders/loaders.volume":360,"../../src/widgets/widgets.handle":371,"../../src/widgets/widgets.ruler":372,"babel-polyfill":5}],2:[function(require,module,exports){
 // jshint ignore: start
 
 /* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- /
@@ -26883,378 +26789,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-  };
-}();
-
-var _core = require('../core/core.intersections');
-
-var _core2 = _interopRequireDefault(_core);
-
-var _core3 = require('../core/core.validators');
-
-var _core4 = _interopRequireDefault(_core3);
-
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
-
-/** 
- * Orthographic camera from THREE.JS with some extra convenience
- * functionalities.
- *
- * @example
- * //
- * //
- *
- * @module cameras/orthographic
- */
-
-var CamerasOrthographic = function (_THREE$OrthographicCa) {
-  _inherits(CamerasOrthographic, _THREE$OrthographicCa);
-
-  function CamerasOrthographic(left, right, top, bottom, near, far) {
-    _classCallCheck(this, CamerasOrthographic);
-
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CamerasOrthographic).call(this, left, right, top, bottom, near, far));
-
-    _this._front = null;
-    _this._back = null;
-
-    _this._xCosine = null;
-    _this._yCosine = null;
-    _this._zCosine = null;
-
-    _this._controls = null;
-    _this._box = null;
-    _this._canvas = {
-      width: null,
-      height: null
-    };
-
-    _this._fromFront = true;
-    return _this;
-  }
-
-  /**
-   * Initialize orthographic camera variables
-   */
-
-  _createClass(CamerasOrthographic, [{
-    key: 'init',
-    value: function init(xCosine, yCosine, zCosine, controls, box, canvas) {
-      //
-      if (!(_core4.default.vector3(xCosine) && _core4.default.vector3(yCosine) && _core4.default.vector3(zCosine) && _core4.default.box(box) && controls)) {
-        window.console.log('Invalid input provided.');
-
-        return false;
-      }
-
-      this._xCosine = xCosine;
-      this._yCosine = yCosine;
-      this._zCosine = zCosine;
-      this._controls = controls;
-      this._box = box;
-      this._canvas = canvas;
-
-      var ray = {
-        position: this._box.center,
-        direction: this._zCosine
-      };
-
-      var intersections = _core2.default.rayBox(ray, this._box);
-      this._front = intersections[0];
-      this._back = intersections[1];
-
-      // set default values
-      this.up.set(this._yCosine.x, this._yCosine.y, this._yCosine.z);
-      this._updateCanvas();
-      this._updatePositionAndTarget(this._front, this._back);
-      this._updateMatrices();
-    }
-
-    /**
-     * Invert rows in the current slice.
-     * Inverting rows in 2 steps:
-     *   * Flip the "up" vector
-     *   * Look at the slice from the other side 
-     */
-
-  }, {
-    key: 'invertRows',
-    value: function invertRows() {
-      // flip "up" vector
-      // we flip up first because invertColumns update projectio matrices
-      this.up.multiplyScalar(-1);
-
-      this.invertColumns();
-    }
-
-    /**
-     * Invert rows in the current slice.
-     * Inverting rows in 1 step:
-     *   * Look at the slice from the other side 
-     */
-
-  }, {
-    key: 'invertColumns',
-    value: function invertColumns() {
-      this.center();
-      // rotate 180 degrees around the up vector...
-      var oppositePosition = this._oppositePosition(this.position);
-
-      // update posistion and target
-      // clone is needed because this.position is overwritten in method
-      this._updatePositionAndTarget(oppositePosition, this.position.clone());
-      this._updateMatrices();
-      this._fromFront = !this._fromFront;
-    }
-
-    /**
-     * Center slice in the camera FOV.
-     * It also updates the controllers properly.
-     * We can center a camera from the front or from the back.
-     */
-
-  }, {
-    key: 'center',
-    value: function center() {
-      if (this._fromFront) {
-        this._updatePositionAndTarget(this._front, this._back);
-      } else {
-        this._updatePositionAndTarget(this._back, this._front);
-      }
-
-      this._updateMatrices();
-    }
-
-    /**
-     * Pi/2 rotation around the zCosine axis.
-     * Clock-wise rotation from the user point of view.
-     */
-
-  }, {
-    key: 'rotate',
-    value: function rotate() {
-      this.center();
-
-      // Pi/2 rotation if camera is positions at the front of the volume
-      // else -Pi/2 rotation
-      var clockwise = 1;
-      if (this.position.distanceTo(this._back) < this.position.distanceTo(this._front)) {
-        clockwise = -1;
-      }
-
-      // Rotate the up vector around the "zCosine"
-      var rotation = new THREE.Matrix4().makeRotationAxis(this._zCosine, clockwise * Math.PI / 2);
-      this.up.applyMatrix4(rotation);
-
-      this._updateMatrices();
-    }
-
-    // dimensions[0] // width
-    // dimensions[1] // height
-    // direction= 0 width, 1 height, 2 best
-    // factor
-
-  }, {
-    key: 'fitBox',
-    value: function fitBox() {
-      var direction = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
-      var factor = arguments.length <= 1 || arguments[1] === undefined ? 1.5 : arguments[1];
-
-      //
-      // if (!(dimensions && dimensions.length >= 2)) {
-      //   window.console.log('Invalid dimensions container.');
-      //   window.console.log(dimensions);
-
-      //   return false;
-      // }
-
-      //
-      var zoom = 1;
-
-      // update zoom
-      switch (direction) {
-        case 0:
-          zoom = factor * this._computeZoom(this._canvas.width, this._xCosine);
-          break;
-        case 1:
-          zoom = factor * this._computeZoom(this._canvas.height, this._yCosine);
-          break;
-        case 2:
-          zoom = factor * Math.min(this._computeZoom(this._canvas.width, this._xCosine), this._computeZoom(this._canvas.height, this._yCosine));
-          break;
-        default:
-          break;
-      }
-
-      if (!zoom) {
-        return false;
-      }
-
-      this.zoom = zoom;
-
-      this.center();
-    }
-  }, {
-    key: '_updateCanvas',
-    value: function _updateCanvas() {
-      var camFactor = 2;
-      this.left = -this._canvas.width / camFactor;
-      this.right = this._canvas.width / camFactor;
-      this.top = this._canvas.height / camFactor;
-      this.bottom = -this._canvas.height / camFactor;
-
-      this._updateMatrices();
-      this.controls.handleResize();
-    }
-  }, {
-    key: '_oppositePosition',
-    value: function _oppositePosition(position) {
-      var oppositePosition = position.clone();
-      // center world postion around box center
-      oppositePosition.sub(this._box.center);
-      // rotate
-      var rotation = new THREE.Matrix4().makeRotationAxis(this.up, Math.PI);
-      oppositePosition.applyMatrix4(rotation);
-      // translate back to world position
-      oppositePosition.add(this._box.center);
-      return oppositePosition;
-    }
-  }, {
-    key: '_computeZoom',
-    value: function _computeZoom(dimension, direction) {
-
-      if (!(dimension && dimension > 0)) {
-        window.console.log('Invalid dimension provided.');
-        window.console.log(dimension);
-        return false;
-      }
-
-      // ray
-      var ray = {
-        position: this._box.center.clone(),
-        direction: direction
-      };
-
-      var intersections = _core2.default.rayBox(ray, this._box);
-      if (intersections.length < 2) {
-        window.console.log('Can not adjust the camera ( < 2 intersections).');
-        window.console.log(ray);
-        window.console.log(this._box);
-        return false;
-      }
-
-      return dimension / intersections[0].distanceTo(intersections[1]);
-    }
-  }, {
-    key: '_updatePositionAndTarget',
-    value: function _updatePositionAndTarget(position, target) {
-      // position
-      this.position.set(position.x, position.y, position.z);
-
-      // targets
-      this.lookAt(target.x, target.y, target.z);
-      this._controls.target.set(target.x, target.y, target.z);
-    }
-  }, {
-    key: '_updateMatrices',
-    value: function _updateMatrices() {
-      this._controls.update();
-      // THEN camera
-      this.updateProjectionMatrix();
-      this.updateMatrixWorld();
-    }
-  }, {
-    key: 'xCosine',
-    set: function set(xCosine) {
-      this._xCosine = xCosine;
-    },
-    get: function get() {
-      return this._xCosine;
-    }
-  }, {
-    key: 'yCosine',
-    set: function set(yCosine) {
-      this._yCosine = yCosine;
-    },
-    get: function get() {
-      return this._yCosine;
-    }
-  }, {
-    key: 'zCosine',
-    set: function set(zCosine) {
-      this._zCosine = zCosine;
-    },
-    get: function get() {
-      return this._zCosine;
-    }
-  }, {
-    key: 'controls',
-    set: function set(controls) {
-      this._controls = controls;
-    },
-    get: function get() {
-      return this._controls;
-    }
-  }, {
-    key: 'box',
-    set: function set(box) {
-      this._box = box;
-    },
-    get: function get() {
-      return this._box;
-    }
-  }, {
-    key: 'canvas',
-    set: function set(canvas) {
-      this._canvas = canvas;
-      this._updateCanvas();
-    },
-    get: function get() {
-      return this._canvas;
-    }
-  }]);
-
-  return CamerasOrthographic;
-}(THREE.OrthographicCamera);
-
-exports.default = CamerasOrthographic;
-
-},{"../core/core.intersections":348,"../core/core.validators":351}],347:[function(require,module,exports){
-'use strict';
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -27274,22 +26808,23 @@ function _inherits(subClass, superClass) {
 }
 
 /**
+ * Original authors from THREEJS repo
  * @author Eberhard Graether / http://egraether.com/
  * @author Mark Lundin  / http://mark-lundin.com
- * @author Patrick Fuller / http://patrick-fuller.com
- * @author Max Smolens / https://github.com/msmolens
+ * @author Simone Manini / http://daron1337.github.io
+ * @author Luca Antiga  / http://lantiga.github.io
  */
 
-var Trackballortho = function (_THREE$EventDispatche) {
-  _inherits(Trackballortho, _THREE$EventDispatche);
+var Trackball = function (_THREE$EventDispatche) {
+  _inherits(Trackball, _THREE$EventDispatche);
 
-  function Trackballortho(object, domElement) {
-    _classCallCheck(this, Trackballortho);
+  function Trackball(object, domElement) {
+    _classCallCheck(this, Trackball);
 
-    var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(Trackballortho).call(this));
+    var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(Trackball).call(this));
 
     var _this = _this2;
-    var STATE = { NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5 };
+    var STATE = { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM: 4, TOUCH_PAN: 5, CUSTOM: 99 };
 
     _this2.object = object;
     _this2.domElement = domElement !== undefined ? domElement : document;
@@ -27300,15 +26835,22 @@ var Trackballortho = function (_THREE$EventDispatche) {
 
     _this2.screen = { left: 0, top: 0, width: 0, height: 0 };
 
-    _this2.radius = 0;
-
+    _this2.rotateSpeed = 1.0;
     _this2.zoomSpeed = 1.2;
+    _this2.panSpeed = 0.3;
 
+    _this2.noRotate = false;
     _this2.noZoom = false;
     _this2.noPan = false;
+    _this2.noCustom = false;
+
+    _this2.forceState = -1;
 
     _this2.staticMoving = false;
     _this2.dynamicDampingFactor = 0.2;
+
+    _this2.minDistance = 0;
+    _this2.maxDistance = Infinity;
 
     _this2.keys = [65 /*A*/, 83 /*S*/, 68 /*D*/];
 
@@ -27318,30 +26860,29 @@ var Trackballortho = function (_THREE$EventDispatche) {
 
     var EPS = 0.000001;
 
-    var _changed = true;
+    var lastPosition = new THREE.Vector3();
 
     var _state = STATE.NONE,
         _prevState = STATE.NONE,
         _eye = new THREE.Vector3(),
+        _movePrev = new THREE.Vector2(),
+        _moveCurr = new THREE.Vector2(),
+        _lastAxis = new THREE.Vector3(),
+        _lastAngle = 0,
         _zoomStart = new THREE.Vector2(),
         _zoomEnd = new THREE.Vector2(),
         _touchZoomDistanceStart = 0,
         _touchZoomDistanceEnd = 0,
         _panStart = new THREE.Vector2(),
-        _panEnd = new THREE.Vector2();
-
-    // window level fire after...
+        _panEnd = new THREE.Vector2(),
+        _customStart = new THREE.Vector2(),
+        _customEnd = new THREE.Vector2();
 
     // for reset
 
     _this2.target0 = _this2.target.clone();
     _this2.position0 = _this2.object.position.clone();
     _this2.up0 = _this2.object.up.clone();
-
-    _this2.left0 = _this2.object.left;
-    _this2.right0 = _this2.object.right;
-    _this2.top0 = _this2.object.top;
-    _this2.bottom0 = _this2.object.bottom;
 
     // events
 
@@ -27369,13 +26910,6 @@ var Trackballortho = function (_THREE$EventDispatche) {
         this.screen.width = box.width;
         this.screen.height = box.height;
       }
-
-      this.radius = 0.5 * Math.min(this.screen.width, this.screen.height);
-
-      this.left0 = this.object.left;
-      this.right0 = this.object.right;
-      this.top0 = this.object.top;
-      this.bottom0 = this.object.bottom;
     };
 
     _this2.handleEvent = function (event) {
@@ -27390,7 +26924,7 @@ var Trackballortho = function (_THREE$EventDispatche) {
 
       var vector = new THREE.Vector2();
 
-      return function getMouseOnScreen(pageX, pageY) {
+      return function (pageX, pageY) {
 
         vector.set((pageX - _this.screen.left) / _this.screen.width, (pageY - _this.screen.top) / _this.screen.height);
 
@@ -27398,23 +26932,86 @@ var Trackballortho = function (_THREE$EventDispatche) {
       };
     }();
 
+    var getMouseOnCircle = function () {
+
+      var vector = new THREE.Vector2();
+
+      return function (pageX, pageY) {
+
+        vector.set((pageX - _this.screen.width * 0.5 - _this.screen.left) / (_this.screen.width * 0.5), (_this.screen.height + 2 * (_this.screen.top - pageY)) / _this.screen.width);
+
+        // screen.width intentional
+        return vector;
+      };
+    }();
+
+    _this2.rotateCamera = function () {
+
+      var axis = new THREE.Vector3(),
+          quaternion = new THREE.Quaternion(),
+          eyeDirection = new THREE.Vector3(),
+          objectUpDirection = new THREE.Vector3(),
+          objectSidewaysDirection = new THREE.Vector3(),
+          moveDirection = new THREE.Vector3(),
+          angle;
+
+      return function () {
+
+        moveDirection.set(_moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y, 0);
+        angle = moveDirection.length();
+
+        if (angle) {
+
+          _eye.copy(_this.object.position).sub(_this.target);
+
+          eyeDirection.copy(_eye).normalize();
+          objectUpDirection.copy(_this.object.up).normalize();
+          objectSidewaysDirection.crossVectors(objectUpDirection, eyeDirection).normalize();
+
+          objectUpDirection.setLength(_moveCurr.y - _movePrev.y);
+          objectSidewaysDirection.setLength(_moveCurr.x - _movePrev.x);
+
+          moveDirection.copy(objectUpDirection.add(objectSidewaysDirection));
+
+          axis.crossVectors(moveDirection, _eye).normalize();
+
+          angle *= _this.rotateSpeed;
+          quaternion.setFromAxisAngle(axis, angle);
+
+          _eye.applyQuaternion(quaternion);
+          _this.object.up.applyQuaternion(quaternion);
+
+          _lastAxis.copy(axis);
+          _lastAngle = angle;
+        } else if (!_this.staticMoving && _lastAngle) {
+
+          _lastAngle *= Math.sqrt(1.0 - _this.dynamicDampingFactor);
+          _eye.copy(_this.object.position).sub(_this.target);
+          quaternion.setFromAxisAngle(_lastAxis, _lastAngle);
+          _eye.applyQuaternion(quaternion);
+          _this.object.up.applyQuaternion(quaternion);
+        }
+
+        _movePrev.copy(_moveCurr);
+      };
+    }();
+
     _this2.zoomCamera = function () {
 
-      if (_state === STATE.TOUCH_ZOOM_PAN) {
+      var factor;
 
-        var factor = _touchZoomDistanceEnd / _touchZoomDistanceStart;
+      if (_state === STATE.TOUCH_ZOOM) {
+
+        factor = _touchZoomDistanceStart / _touchZoomDistanceEnd;
         _touchZoomDistanceStart = _touchZoomDistanceEnd;
-
-        _this.object.zoom *= factor;
-
-        _changed = true;
+        _eye.multiplyScalar(factor);
       } else {
 
-        var factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * _this.zoomSpeed;
+        factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * _this.zoomSpeed;
 
-        if (Math.abs(factor - 1.0) > EPS && factor > 0.0) {
+        if (factor !== 1.0 && factor > 0.0) {
 
-          _this.object.zoom /= factor;
+          _eye.multiplyScalar(factor);
 
           if (_this.staticMoving) {
 
@@ -27423,8 +27020,6 @@ var Trackballortho = function (_THREE$EventDispatche) {
 
             _zoomStart.y += (_zoomEnd.y - _zoomStart.y) * this.dynamicDampingFactor;
           }
-
-          _changed = true;
         }
       }
     };
@@ -27435,17 +27030,13 @@ var Trackballortho = function (_THREE$EventDispatche) {
           objectUp = new THREE.Vector3(),
           pan = new THREE.Vector3();
 
-      return function panCamera() {
+      return function () {
 
         mouseChange.copy(_panEnd).sub(_panStart);
 
         if (mouseChange.lengthSq()) {
 
-          // Scale movement to keep clicked/dragged position under cursor
-          var scale_x = (_this.object.right - _this.object.left) / _this.object.zoom;
-          var scale_y = (_this.object.top - _this.object.bottom) / _this.object.zoom;
-          mouseChange.x *= scale_x;
-          mouseChange.y *= scale_y;
+          mouseChange.multiplyScalar(_eye.length() * _this.panSpeed);
 
           pan.copy(_eye).cross(_this.object.up).setLength(mouseChange.x);
           pan.add(objectUp.copy(_this.object.up).setLength(mouseChange.y));
@@ -27460,24 +27051,38 @@ var Trackballortho = function (_THREE$EventDispatche) {
 
             _panStart.add(mouseChange.subVectors(_panEnd, _panStart).multiplyScalar(_this.dynamicDampingFactor));
           }
-
-          _changed = true;
         }
       };
     }();
+
+    _this2.checkDistances = function () {
+
+      if (!_this.noZoom || !_this.noPan) {
+
+        if (_eye.lengthSq() > _this.maxDistance * _this.maxDistance) {
+
+          _this.object.position.addVectors(_this.target, _eye.setLength(_this.maxDistance));
+        }
+
+        if (_eye.lengthSq() < _this.minDistance * _this.minDistance) {
+
+          _this.object.position.addVectors(_this.target, _eye.setLength(_this.minDistance));
+        }
+      }
+    };
 
     _this2.update = function () {
 
       _eye.subVectors(_this.object.position, _this.target);
 
+      if (!_this.noRotate) {
+
+        _this.rotateCamera();
+      }
+
       if (!_this.noZoom) {
 
         _this.zoomCamera();
-
-        if (_changed) {
-
-          _this.object.updateProjectionMatrix();
-        }
       }
 
       if (!_this.noPan) {
@@ -27485,15 +27090,22 @@ var Trackballortho = function (_THREE$EventDispatche) {
         _this.panCamera();
       }
 
+      if (!_this.noCustom) {
+
+        _this.custom(_customStart, _customEnd);
+      }
+
       _this.object.position.addVectors(_this.target, _eye);
+
+      _this.checkDistances();
 
       _this.object.lookAt(_this.target);
 
-      if (_changed) {
+      if (lastPosition.distanceToSquared(_this.object.position) > EPS) {
 
         _this.dispatchEvent(changeEvent);
 
-        _changed = false;
+        lastPosition.copy(_this.object.position);
       }
     };
 
@@ -27508,17 +27120,21 @@ var Trackballortho = function (_THREE$EventDispatche) {
 
       _eye.subVectors(_this.object.position, _this.target);
 
-      _this.object.left = _this.left0;
-      _this.object.right = _this.right0;
-      _this.object.top = _this.top0;
-      _this.object.bottom = _this.bottom0;
-
       _this.object.lookAt(_this.target);
 
       _this.dispatchEvent(changeEvent);
 
-      _changed = false;
+      lastPosition.copy(_this.object.position);
     };
+
+    _this2.setState = function (targetState) {
+
+      _this.forceState = targetState;
+      _prevState = targetState;
+      _state = targetState;
+    };
+
+    _this2.custom = function (customStart, customEnd) {};
 
     // listeners
 
@@ -27566,7 +27182,11 @@ var Trackballortho = function (_THREE$EventDispatche) {
         _state = event.button;
       }
 
-      if (_state === STATE.ROTATE && !_this.noRotate) {} else if (_state === STATE.ZOOM && !_this.noZoom) {
+      if (_state === STATE.ROTATE && !_this.noRotate) {
+
+        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
+        _movePrev.copy(_moveCurr);
+      } else if (_state === STATE.ZOOM && !_this.noZoom) {
 
         _zoomStart.copy(getMouseOnScreen(event.pageX, event.pageY));
         _zoomEnd.copy(_zoomStart);
@@ -27574,6 +27194,10 @@ var Trackballortho = function (_THREE$EventDispatche) {
 
         _panStart.copy(getMouseOnScreen(event.pageX, event.pageY));
         _panEnd.copy(_panStart);
+      } else if (_state === STATE.CUSTOM && !_this.noCustom) {
+
+        _customStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+        _customEnd.copy(_panStart);
       }
 
       document.addEventListener('mousemove', mousemove, false);
@@ -27589,12 +27213,19 @@ var Trackballortho = function (_THREE$EventDispatche) {
       event.preventDefault();
       event.stopPropagation();
 
-      if (_state === STATE.ROTATE && !_this.noRotate) {} else if (_state === STATE.ZOOM && !_this.noZoom) {
+      if (_state === STATE.ROTATE && !_this.noRotate) {
+
+        _movePrev.copy(_moveCurr);
+        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
+      } else if (_state === STATE.ZOOM && !_this.noZoom) {
 
         _zoomEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
       } else if (_state === STATE.PAN && !_this.noPan) {
 
         _panEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
+      } else if (_state === STATE.CUSTOM && !_this.noCustom) {
+
+        _customEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
       }
     }
 
@@ -27605,7 +27236,9 @@ var Trackballortho = function (_THREE$EventDispatche) {
       event.preventDefault();
       event.stopPropagation();
 
-      _state = STATE.NONE;
+      if (_this.forceState === -1) {
+        _state = STATE.NONE;
+      }
 
       document.removeEventListener('mousemove', mousemove);
       document.removeEventListener('mouseup', mouseup);
@@ -27622,25 +27255,21 @@ var Trackballortho = function (_THREE$EventDispatche) {
       var delta = 0;
 
       if (event.wheelDelta) {
-
         // WebKit / Opera / Explorer 9
 
         delta = event.wheelDelta / 40;
       } else if (event.detail) {
-
         // Firefox
 
         delta = -event.detail / 3;
       }
 
-      // FIRE SCROLL EVENT
+      if (_state !== STATE.CUSTOM) {
+        _zoomStart.y += delta * 0.01;
+      } else if (_state === STATE.CUSTOM) {
+        _customStart.y += delta * 0.01;
+      }
 
-      _this.dispatchEvent({
-        type: 'OnScroll',
-        delta: delta
-      });
-
-      //_zoomStart.y += delta * 0.01;
       _this.dispatchEvent(startEvent);
       _this.dispatchEvent(endEvent);
     }
@@ -27649,29 +27278,87 @@ var Trackballortho = function (_THREE$EventDispatche) {
 
       if (_this.enabled === false) return;
 
-      switch (event.touches.length) {
+      if (_this.forceState === -1) {
 
-        case 1:
-          _state = STATE.TOUCH_ROTATE;
+        switch (event.touches.length) {
 
-          break;
+          case 1:
+            _state = STATE.TOUCH_ROTATE;
+            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+            _movePrev.copy(_moveCurr);
+            break;
 
-        case 2:
-          _state = STATE.TOUCH_ZOOM_PAN;
-          var dx = event.touches[0].pageX - event.touches[1].pageX;
-          var dy = event.touches[0].pageY - event.touches[1].pageY;
-          _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
+          case 2:
+            _state = STATE.TOUCH_ZOOM;
+            var dx = event.touches[0].pageX - event.touches[1].pageX;
+            var dy = event.touches[0].pageY - event.touches[1].pageY;
+            _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
 
-          var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-          var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-          _panStart.copy(getMouseOnScreen(x, y));
-          _panEnd.copy(_panStart);
-          break;
+            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+            _panStart.copy(getMouseOnScreen(x, y));
+            _panEnd.copy(_panStart);
+            break;
 
-        default:
-          _state = STATE.NONE;
+          default:
+            _state = STATE.NONE;
 
+        }
+      } else {
+
+        //{ NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4, CUSTOM: 99 };
+        switch (_state) {
+
+          case 0:
+            // 1 or 2 fingers, smae behavior
+            _state = STATE.TOUCH_ROTATE;
+            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+            _movePrev.copy(_moveCurr);
+            break;
+
+          case 1:
+          case 4:
+            if (event.touches.length >= 2) {
+              _state = STATE.TOUCH_ZOOM;
+              var dx = event.touches[0].pageX - event.touches[1].pageX;
+              var dy = event.touches[0].pageY - event.touches[1].pageY;
+              _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
+            } else {
+              _state = STATE.ZOOM;
+              _zoomStart.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
+              _zoomEnd.copy(_zoomStart);
+            }
+            break;
+
+          case 2:
+          case 5:
+            if (event.touches.length >= 2) {
+              _state = STATE.TOUCH_PAN;
+              var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+              var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+              _panStart.copy(getMouseOnScreen(x, y));
+              _panEnd.copy(_panStart);
+            } else {
+              _state = STATE.PAN;
+              _panStart.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
+              _panEnd.copy(_panStart);
+            }
+            break;
+
+          case 99:
+            _state = STATE.CUSTOM;
+            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+            _customStart.copy(getMouseOnScreen(x, y));
+            _customEnd.copy(_customStart);
+            break;
+
+          default:
+            _state = STATE.NONE;
+
+        }
       }
+
       _this.dispatchEvent(startEvent);
     }
 
@@ -27682,25 +27369,71 @@ var Trackballortho = function (_THREE$EventDispatche) {
       event.preventDefault();
       event.stopPropagation();
 
-      switch (event.touches.length) {
+      if (_this.forceState === -1) {
 
-        case 1:
+        switch (event.touches.length) {
 
-          break;
+          case 1:
+            _movePrev.copy(_moveCurr);
+            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+            break;
 
-        case 2:
-          var dx = event.touches[0].pageX - event.touches[1].pageX;
-          var dy = event.touches[0].pageY - event.touches[1].pageY;
-          _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
+          case 2:
+            var dx = event.touches[0].pageX - event.touches[1].pageX;
+            var dy = event.touches[0].pageY - event.touches[1].pageY;
+            _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
 
-          var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-          var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-          _panEnd.copy(getMouseOnScreen(x, y));
-          break;
+            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+            _panEnd.copy(getMouseOnScreen(x, y));
+            break;
 
-        default:
-          _state = STATE.NONE;
+          default:
+            _state = STATE.NONE;
+        }
+      } else {
+        //{ NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4, CUSTOM: 99 };
+        switch (_state) {
 
+          case 0:
+            _movePrev.copy(_moveCurr);
+            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+            break;
+
+          case 1:
+            _zoomEnd.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
+            break;
+
+          case 2:
+            _panEnd.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
+            break;
+
+          case 4:
+            // 2 fingers!
+            // TOUCH ZOOM
+            var dx = event.touches[0].pageX - event.touches[1].pageX;
+            var dy = event.touches[0].pageY - event.touches[1].pageY;
+            _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
+            break;
+
+          case 5:
+            // 2 fingers
+            // TOUCH_PAN
+            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+            _panEnd.copy(getMouseOnScreen(x, y));
+            break;
+
+          case 99:
+            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+            _customEnd.copy(getMouseOnScreen(x, y));
+            break;
+
+          default:
+            _state = STATE.NONE;
+
+        }
       }
     }
 
@@ -27708,54 +27441,79 @@ var Trackballortho = function (_THREE$EventDispatche) {
 
       if (_this.enabled === false) return;
 
-      switch (event.touches.length) {
+      if (_this.forceState === -1) {
+        switch (event.touches.length) {
 
-        case 1:
+          case 1:
+            _movePrev.copy(_moveCurr);
+            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+            break;
 
-          break;
+          case 2:
+            _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
 
-        case 2:
-          _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
+            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+            _panEnd.copy(getMouseOnScreen(x, y));
+            _panStart.copy(_panEnd);
+            break;
 
-          var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-          var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-          _panEnd.copy(getMouseOnScreen(x, y));
-          _panStart.copy(_panEnd);
-          break;
+        }
 
+        _state = STATE.NONE;
+      } else {
+        switch (_state) {
+
+          case 0:
+            _movePrev.copy(_moveCurr);
+            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+            break;
+
+          case 1:
+          case 2:
+            break;
+
+          case 4:
+            // TOUCH ZOOM
+            _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
+            _state = STATE.ZOOM;
+            break;
+
+          case 5:
+            // TOUCH ZOOM
+            if (event.touches.length >= 2) {
+              var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+              var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+              _panEnd.copy(getMouseOnScreen(x, y));
+              _panStart.copy(_panEnd);
+            }
+            _state = STATE.PAN;
+            break;
+
+          case 99:
+            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+            _customEnd.copy(getMouseOnScreen(x, y));
+            _customStart.copy(_customEnd);
+            break;
+
+          default:
+            _state = STATE.NONE;
+
+        }
       }
 
-      _state = STATE.NONE;
       _this.dispatchEvent(endEvent);
     }
 
-    function contextmenu(event) {
-
+    _this2.domElement.addEventListener('contextmenu', function (event) {
       event.preventDefault();
-    }
+    }, false);
 
-    _this2.dispose = function () {
-
-      this.domElement.removeEventListener('contextmenu', contextmenu, false);
-      this.domElement.removeEventListener('mousedown', mousedown, false);
-      this.domElement.removeEventListener('mousewheel', mousewheel, false);
-      this.domElement.removeEventListener('MozMousePixelScroll', mousewheel, false); // firefox
-
-      this.domElement.removeEventListener('touchstart', touchstart, false);
-      this.domElement.removeEventListener('touchend', touchend, false);
-      this.domElement.removeEventListener('touchmove', touchmove, false);
-
-      document.removeEventListener('mousemove', mousemove, false);
-      document.removeEventListener('mouseup', mouseup, false);
-
-      window.removeEventListener('keydown', keydown, false);
-      window.removeEventListener('keyup', keyup, false);
-    };
-
-    _this2.domElement.addEventListener('contextmenu', contextmenu, false);
     _this2.domElement.addEventListener('mousedown', mousedown, false);
+
     _this2.domElement.addEventListener('mousewheel', mousewheel, false);
-    _this2.domElement.addEventListener('MozMousePixelScroll', mousewheel, false); // firefox
+    _this2.domElement.addEventListener('DOMMouseScroll', mousewheel, false); // firefox
 
     _this2.domElement.addEventListener('touchstart', touchstart, false);
     _this2.domElement.addEventListener('touchend', touchend, false);
@@ -27772,12 +27530,12 @@ var Trackballortho = function (_THREE$EventDispatche) {
     return _this2;
   }
 
-  return Trackballortho;
+  return Trackball;
 }(THREE.EventDispatcher);
 
-exports.default = Trackballortho;
+exports.default = Trackball;
 
-},{}],348:[function(require,module,exports){
+},{}],347:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28241,7 +27999,7 @@ var Intersections = function () {
 
 exports.default = Intersections;
 
-},{"./core.utils":350,"./core.validators":351}],349:[function(require,module,exports){
+},{"./core.utils":349,"./core.validators":350}],348:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28265,7 +28023,7 @@ var Pack = function Pack() {
 
 exports.default = Pack;
 
-},{}],350:[function(require,module,exports){
+},{}],349:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28360,7 +28118,7 @@ var Utils = function () {
 
 exports.default = Utils;
 
-},{"./core.validators":351}],351:[function(require,module,exports){
+},{"./core.validators":350}],350:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28492,7 +28250,7 @@ var Validators = function () {
 
 exports.default = Validators;
 
-},{}],352:[function(require,module,exports){
+},{}],351:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -28730,7 +28488,106 @@ var GeometriesSlice = function (_THREE$ShapeGeometry) {
 
 exports.default = GeometriesSlice;
 
-},{"../../src/core/core.intersections":348}],353:[function(require,module,exports){
+},{"../../src/core/core.intersections":347}],352:[function(require,module,exports){
+"use strict";
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
+/**
+ *
+ * @module geometries/voxel
+ */
+
+var GeometriesVoxel = function (_THREE$BoxGeometry) {
+  _inherits(GeometriesVoxel, _THREE$BoxGeometry);
+
+  function GeometriesVoxel(dataPosition) {
+    _classCallCheck(this, GeometriesVoxel);
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(GeometriesVoxel).call(this, 1, 1, 1));
+
+    _this._location = dataPosition;
+
+    _this.applyMatrix(new THREE.Matrix4().makeTranslation(_this._location.x, _this._location.y, _this._location.z));
+
+    _this.verticesNeedUpdate = true;
+    return _this;
+  }
+
+  _createClass(GeometriesVoxel, [{
+    key: "resetVertices",
+    value: function resetVertices() {
+      this.vertices[0].set(0.5, 0.5, 0.5);
+      this.vertices[1].set(0.5, 0.5, -0.5);
+      this.vertices[2].set(0.5, -0.5, 0.5);
+      this.vertices[3].set(0.5, -0.5, -0.5);
+      this.vertices[4].set(-0.5, 0.5, -0.5);
+      this.vertices[5].set(-0.5, 0.5, 0.5);
+      this.vertices[6].set(-0.5, -0.5, -0.5);
+      this.vertices[7].set(-0.5, -0.5, 0.5);
+    }
+  }, {
+    key: "location",
+    set: function set(location) {
+      this._location = location;
+
+      // update vertices from location
+      this.vertices[0].set(+0.5, +0.5, +0.5);
+      this.vertices[1].set(+0.5, +0.5, -0.5);
+      this.vertices[2].set(+0.5, -0.5, +0.5);
+      this.vertices[3].set(+0.5, -0.5, -0.5);
+      this.vertices[4].set(-0.5, +0.5, -0.5);
+      this.vertices[5].set(-0.5, +0.5, +0.5);
+      this.vertices[6].set(-0.5, -0.5, -0.5);
+      this.vertices[7].set(-0.5, -0.5, +0.5);
+
+      this.applyMatrix(new THREE.Matrix4().makeTranslation(this._location.x, this._location.y, this._location.z));
+
+      this.verticesNeedUpdate = true;
+    },
+    get: function get() {
+      return this._location;
+    }
+  }]);
+
+  return GeometriesVoxel;
+}(THREE.BoxGeometry);
+
+exports.default = GeometriesVoxel;
+
+},{}],353:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -29031,225 +28888,6 @@ var _createClass = function () {
   };
 }();
 
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });
-  } else {
-    obj[key] = value;
-  }return obj;
-}
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-/**
- * @module helpers/lut
- */
-
-var HelpersLut = function () {
-  function HelpersLut(containerID) {
-    var lut = arguments.length <= 1 || arguments[1] === undefined ? 'default' : arguments[1];
-    var lutO = arguments.length <= 2 || arguments[2] === undefined ? 'linear' : arguments[2];
-    var color = arguments.length <= 3 || arguments[3] === undefined ? [[0, 0, 0, 0], [1, 1, 1, 1]] : arguments[3];
-    var opacity = arguments.length <= 4 || arguments[4] === undefined ? [[0, 0], [1, 1]] : arguments[4];
-
-    _classCallCheck(this, HelpersLut);
-
-    // min/max (0-1 or real intensities)
-    // show/hide
-    // horizontal/vertical
-    this._containerID = containerID;
-
-    this._color = color;
-    this._lut = lut;
-    this._luts = _defineProperty({}, lut, color);
-
-    this._opacity = opacity;
-    this._lutO = lutO;
-    this._lutsO = _defineProperty({}, lutO, opacity);
-
-    this.initCanvas();
-    this.paintCanvas();
-  }
-
-  _createClass(HelpersLut, [{
-    key: 'initCanvas',
-    value: function initCanvas() {
-      // container
-      this._canvasContainer = this.initCanvasContainer(this._containerID);
-      // background
-      this._canvasBg = this.createCanvas();
-      this._canvasContainer.appendChild(this._canvasBg);
-      // foreground
-      this._canvas = this.createCanvas();
-      this._canvasContainer.appendChild(this._canvas);
-    }
-  }, {
-    key: 'initCanvasContainer',
-    value: function initCanvasContainer(canvasContainerId) {
-      var canvasContainer = document.getElementById(canvasContainerId);
-      canvasContainer.style.width = '256 px';
-      canvasContainer.style.height = '128 px';
-      canvasContainer.style.border = '1px solid #F9F9F9';
-      return canvasContainer;
-    }
-  }, {
-    key: 'createCanvas',
-    value: function createCanvas() {
-      var canvas = document.createElement('canvas');
-      canvas.height = 16;
-      canvas.width = 256;
-      return canvas;
-    }
-  }, {
-    key: 'paintCanvas',
-    value: function paintCanvas() {
-      // setup context
-      var ctx = this._canvas.getContext('2d');
-      ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-      ctx.globalCompositeOperation = 'source-over';
-
-      // apply color
-      var color = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
-      for (var i = 0; i < this._color.length; i++) {
-        color.addColorStop(this._color[i][0], 'rgba(' + Math.round(this._color[i][1] * 255) + ', ' + Math.round(this._color[i][2] * 255) + ', ' + Math.round(this._color[i][3] * 255) + ', 1)');
-      }
-      ctx.fillStyle = color;
-      ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
-
-      // setup context
-      ctx.globalCompositeOperation = 'destination-in';
-
-      // apply opacity
-      var opacity = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
-      for (var _i = 0; _i < this._opacity.length; _i++) {
-        opacity.addColorStop(this._opacity[_i][0], 'rgba(255, 255, 255, ' + this._opacity[_i][1] + ')');
-      }
-      ctx.fillStyle = opacity;
-      ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
-    }
-  }, {
-    key: 'lutsAvailable',
-    value: function lutsAvailable() {
-      var type = arguments.length <= 0 || arguments[0] === undefined ? 'color' : arguments[0];
-
-      var available = [];
-      var luts = this._luts;
-
-      if (type !== 'color') {
-        luts = this._lutsO;
-      }
-
-      for (var i in luts) {
-        available.push(i);
-      }
-
-      return available;
-    }
-
-    // add luts to class' lut (so a user can add its own as well)
-
-  }, {
-    key: 'texture',
-    get: function get() {
-      var texture = new THREE.Texture(this._canvas);
-      texture.mapping = THREE.UVMapping;
-      texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
-      texture.magFilter = texture.minFilter = THREE.NearestFilter;
-      texture.premultiplyAlpha = true;
-      texture.needsUpdate = true;
-      return texture;
-    }
-  }, {
-    key: 'lut',
-    set: function set(targetLUT) {
-      this._color = this._luts[targetLUT];
-      this._lut = targetLUT;
-
-      this.paintCanvas();
-    },
-    get: function get() {
-      return this._lut;
-    }
-  }, {
-    key: 'luts',
-    set: function set(newLuts) {
-      this._luts = newLuts;
-    },
-    get: function get() {
-      return this._luts;
-    }
-  }, {
-    key: 'lutO',
-    set: function set(targetLUTO) {
-      this._opacity = this._lutsO[targetLUTO];
-      this._lutO = targetLUTO;
-
-      this.paintCanvas();
-    },
-    get: function get() {
-      return this._lutO;
-    }
-  }, {
-    key: 'lutsO',
-    set: function set(newLutsO) {
-      this._lutsO = newLutsO;
-    },
-    get: function get() {
-      return this._lutsO;
-    }
-  }], [{
-    key: 'presetLuts',
-    value: function presetLuts() {
-      return {
-        'default': [[0, 0, 0, 0], [1, 1, 1, 1]],
-        'spectrum': [[0, 0, 0, 0], [0.1, 0, 0, 1], [0.33, 0, 1, 1], [0.5, 0, 1, 0], [0.66, 1, 1, 0], [0.9, 1, 0, 0], [1, 1, 1, 1]],
-        'hot_and_cold': [[0, 0, 0, 1], [0.15, 0, 1, 1], [0.3, 0, 1, 0], [0.45, 0, 0, 0], [0.5, 0, 0, 0], [0.55, 0, 0, 0], [0.7, 1, 1, 0], [0.85, 1, 0, 0], [1, 1, 1, 1]],
-        'gold': [[0, 0, 0, 0], [0.13, 0.19, 0.03, 0], [0.25, 0.39, 0.12, 0], [0.38, 0.59, 0.26, 0], [0.50, 0.80, 0.46, 0.08], [0.63, 0.99, 0.71, 0.21], [0.75, 0.99, 0.88, 0.34], [0.88, 0.99, 0.99, 0.48], [1, 0.90, 0.95, 0.61]],
-        'red': [[0, 0.75, 0, 0], [0.5, 1, 0.5, 0], [0.95, 1, 1, 0], [1, 1, 1, 1]],
-        'green': [[0, 0, 0.75, 0], [0.5, 0.5, 1, 0], [0.95, 1, 1, 0], [1, 1, 1, 1]],
-        'blue': [[0, 0, 0, 1], [0.5, 0, 0.5, 1], [0.95, 0, 1, 1], [1, 1, 1, 1]],
-        'walking_dead': [[0, 0.1, 1, 1], [1, 1, 1, 1]]
-      };
-    }
-  }, {
-    key: 'presetLutsO',
-    value: function presetLutsO() {
-      return {
-        'linear': [[0, 0], [1, 1]],
-        'lowpass': [[0, 0.8], [0.2, 0.6], [0.3, 0.1], [1, 0]],
-        'bandpass': [[0, 0], [0.4, 0.8], [0.6, 0.8], [1, 0]],
-        'highpass': [[0, 0], [0.7, 0.1], [0.8, 0.6], [1, 0.8]],
-        'flat': [[0, .7], [1, 1]]
-      };
-    }
-  }]);
-
-  return HelpersLut;
-}();
-
-exports.default = HelpersLut;
-
-},{}],356:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-  };
-}();
-
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -29402,7 +29040,7 @@ var HelpersProgressBar = function () {
 
 exports.default = HelpersProgressBar;
 
-},{}],357:[function(require,module,exports){
+},{}],356:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -29825,7 +29463,7 @@ var HelpersSlice = function (_THREE$Object3D) {
 
 exports.default = HelpersSlice;
 
-},{"../../src/geometries/geometries.slice":352,"../../src/shaders/shaders.data":369}],358:[function(require,module,exports){
+},{"../../src/geometries/geometries.slice":351,"../../src/shaders/shaders.data":370}],357:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -30312,7 +29950,407 @@ var HelpersStack = function (_THREE$Object3D) {
 
 exports.default = HelpersStack;
 
-},{"../../src/helpers/helpers.border":353,"../../src/helpers/helpers.boundingbox":354,"../../src/helpers/helpers.slice":357}],359:[function(require,module,exports){
+},{"../../src/helpers/helpers.border":353,"../../src/helpers/helpers.boundingbox":354,"../../src/helpers/helpers.slice":356}],358:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
+
+var _geometries = require('../../src/geometries/geometries.voxel');
+
+var _geometries2 = _interopRequireDefault(_geometries);
+
+var _models = require('../../src/models/models.stack');
+
+var _models2 = _interopRequireDefault(_models);
+
+var _models3 = require('../../src/models/models.voxel');
+
+var _models4 = _interopRequireDefault(_models3);
+
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
+/**
+ * @module helpers/voxel
+ */
+
+var HelpersVoxel = function (_THREE$Object3D) {
+  _inherits(HelpersVoxel, _THREE$Object3D);
+
+  function HelpersVoxel() {
+    var worldCoordinates = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+    var stack = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+    _classCallCheck(this, HelpersVoxel);
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(HelpersVoxel).call(this));
+
+    _this._stack = stack;
+    _this._worldCoordinates = worldCoordinates;
+
+    _this._voxel = new _models4.default();
+    _this._voxel.id = _this.id;
+    _this._voxel.worldCoordinates = _this._worldCoordinates;
+
+    // if stack provided, compute IJK and value
+    if (_this._stack && _this._stack.prepared && _this._worldCoordinates) {
+      _this.updateVoxel(_this._worldCoordinates);
+    }
+
+    // part of the helper...?
+    _this._mesh = null;
+    _this._geometry = null;
+    _this._material = null;
+    // 3 next purpose is just to change the color: at widget level
+    _this._selected = false;
+    _this._active = false;
+    _this._hover = false;
+    _this._distance = null;
+
+    _this._showVoxel = true;
+    _this._showDomSVG = true;
+    _this._showDomMeasurements = true;
+    _this._color = '0x00B0FF';
+    // just visualization
+    // this._svgPointer = '<svg width="40" height="40" \
+    //      viewBox="0 0 140 140" version="1.1" \
+    //      xmlns="http://www.w3.org/2000/svg"> \
+    //   \
+    //     <polyline points="10,70 \
+    //                       70,10 \
+    //                       130,70" />\
+    //   \
+    //   </svg>';
+    /*jshint multistr: true */
+    _this._svgPointer = '<svg width="40" height="40" \
+                      viewBox="0 0 140 140" version="1.1" \
+                      xmlns="http://www.w3.org/2000/svg"> \
+                      \
+                      <path d="M70,70 \
+                               L30,30 \
+                               A10,10 0 1 1 10,10\
+                               A10,10 0 1 1 30,30" />\
+                      \
+                      </svg>';
+
+    _this.createMesh();
+    return _this;
+  }
+
+  _createClass(HelpersVoxel, [{
+    key: 'updateVoxel',
+    value: function updateVoxel(worldCoordinates) {
+      // update world coordinates
+      this._voxel.worldCoordinates = worldCoordinates;
+
+      // update data coordinates
+      this._voxel.dataCoordinates = _models2.default.worldToData(this._stack, this._voxel.worldCoordinates);
+
+      // update value
+      var value = _models2.default.value(this._stack, this._voxel.dataCoordinates);
+
+      this._voxel.value = _models2.default.valueRescaleSlopeIntercept(value, this._stack.rescaleSlope, this._stack.rescaleIntercept);
+    }
+  }, {
+    key: 'updateVoxelScreenCoordinates',
+    value: function updateVoxelScreenCoordinates(camera, container) {
+      this._voxel.screenCoordinates = HelpersVoxel.worldToScreen(this._worldCoordinates, camera, container);
+    }
+  }, {
+    key: 'createMesh',
+    value: function createMesh() {
+
+      var dataCoordinates = _models2.default.worldToData(this._stack, this._worldCoordinates);
+
+      this._geometry = new _geometries2.default(dataCoordinates);
+      this._material = new THREE.MeshBasicMaterial({
+        wireframe: true,
+        wireframeLinewidth: 2
+      });
+      this._material.color.setHex(this._color);
+      this._mesh = new THREE.Mesh(this._geometry, this._material);
+      this._mesh.applyMatrix(this._stack.ijk2LPS);
+
+      this._mesh.visible = this._showVoxel;
+
+      this.add(this._mesh);
+    }
+  }, {
+    key: 'createDom',
+    value: function createDom() {
+      // that could be a web-component!
+      var measurementsContainer = this._createDiv('VJSVoxelMeasurements', this.id, 'VJSVoxelMeasurements');
+      // RAS
+      var rasContainer = this._createDiv('VJSVoxelProbeWorld', this.id, 'VJSVoxelProbeWorld');
+      measurementsContainer.appendChild(rasContainer);
+      // IJK
+      var ijkContainer = this._createDiv('VJSVoxelProbeData', this.id, 'VJSVoxelProbeData');
+      measurementsContainer.appendChild(ijkContainer);
+      // Value
+      var valueContainer = this._createDiv('VJSVoxelProbeValue', this.id, 'VJSVoxelProbeValue');
+      measurementsContainer.appendChild(valueContainer);
+
+      // SVG
+      var svgContainer = this._createDiv('VJSVoxelProbeSVG', this.id, 'VJSVoxelProbeSVG');
+      svgContainer.innerHTML = this._svgPointer;
+
+      // Package everything
+      var domElement = this._createDiv('VJSWidgetVoxelProbe', this.id, 'VJSWidgetVoxelProbe');
+      domElement.appendChild(svgContainer);
+      domElement.appendChild(measurementsContainer);
+
+      return domElement;
+    }
+  }, {
+    key: 'updateDom',
+    value: function updateDom(container) {
+
+      if (document.getElementById('VJSVoxelProbeWorld' + this.id) === null) {
+        container.appendChild(this.createDom());
+      }
+
+      // update content
+      var rasContainer = document.getElementById('VJSVoxelProbeWorld' + this.id);
+      var rasContent = this._voxel.worldCoordinates.x.toFixed(2) + ' : ' + this._voxel.worldCoordinates.y.toFixed(2) + ' : ' + this._voxel.worldCoordinates.z.toFixed(2);
+      rasContainer.innerHTML = 'LPS: ' + rasContent;
+
+      var ijkContainer = document.getElementById('VJSVoxelProbeData' + this.id);
+      var ijkContent = this._voxel.dataCoordinates.x + ' : ' + this._voxel.dataCoordinates.y + ' : ' + this._voxel.dataCoordinates.z;
+      ijkContainer.innerHTML = 'IJK: ' + ijkContent;
+
+      var valueContainer = document.getElementById('VJSVoxelProbeValue' + this.id);
+      var valueContent = this._voxel.value;
+      valueContainer.innerHTML = 'Value: ' + valueContent;
+
+      // update div position
+      var selectedElement = document.getElementById('VJSWidgetVoxelProbe' + this.id);
+      selectedElement.style.top = this._voxel.screenCoordinates.y;
+      selectedElement.style.left = this._voxel.screenCoordinates.x;
+      // window.console.log(this._voxel);
+      // selectedElement.style['transform-origin'] = 'top left';
+      // selectedElement.style['transform'] = 'translate(' + this._voxel.screenCoordinates.x + 'px, ' + this._voxel.screenCoordinates.y + 'px)';
+
+      this.updateDomClass(selectedElement);
+    }
+  }, {
+    key: 'updateDomClass',
+    value: function updateDomClass() {
+      var element = document.getElementById('VJSWidgetVoxelProbe' + this.id);
+      if (this._active === true) {
+        element.classList.add('VJSVoxelProbeActive');
+      } else {
+        element.classList.remove('VJSVoxelProbeActive');
+      }
+
+      if (this._hover === true) {
+        element.classList.add('VJSVoxelProbeHover');
+      } else {
+        element.classList.remove('VJSVoxelProbeHover');
+      }
+
+      if (this._selected === true) {
+        element.classList.add('VJSVoxelProbeSelect');
+      } else {
+        element.classList.remove('VJSVoxelProbeSelect');
+      }
+
+      this.updateDomElementDisplay('VJSVoxelMeasurements' + this.id, this._showDomMeasurements);
+      this.updateDomElementDisplay('VJSVoxelProbeSVG' + this.id, this._showDomSVG);
+    }
+  }, {
+    key: 'updateDomElementDisplay',
+    value: function updateDomElementDisplay(id, show) {
+      if (show) {
+        document.getElementById(id).style.display = 'block';
+      } else {
+        document.getElementById(id).style.display = 'none';
+      }
+    }
+  }, {
+    key: 'removeTest',
+    value: function removeTest() {
+      // remove voxelDom
+      var node = document.getElementById('VJSWidgetVoxelProbe' + this.id);
+      if (node.parentNode) {
+        node.parentNode.removeChild(node);
+      }
+
+      // remove voxelMesh
+      this.remove(this._mesh);
+      this._mesh.geometry.dispose();
+      this._mesh.material.dispose();
+      this._mesh = null;
+    }
+  }, {
+    key: '_createDiv',
+    value: function _createDiv(idPrefix, idSuffix, className) {
+      var divContainer = document.createElement('div');
+      divContainer.setAttribute('id', idPrefix + idSuffix);
+      divContainer.setAttribute('class', className);
+
+      return divContainer;
+    }
+  }, {
+    key: 'color',
+    set: function set(color) {
+      this._color = color;
+      if (this._material) {
+        this._material.color.setHex(this._color);
+      }
+
+      // also update the dom
+      var selectedElement = document.getElementById('VJSVoxelMeasurements' + this.id);
+      if (selectedElement) {
+        selectedElement.style.borderColor = this._color.replace('0x', '#');
+      }
+
+      selectedElement = document.querySelector('#VJSVoxelProbeSVG' + this.id + '> svg > path');
+      if (selectedElement) {
+        selectedElement.style.stroke = this._color.replace('0x', '#');
+      }
+    },
+    get: function get() {
+      return this._color;
+    }
+  }, {
+    key: 'worldCoordinates',
+    set: function set(worldCoordinates) {
+      this._worldCoordinates = worldCoordinates;
+      this._voxel._worldCoordinates = worldCoordinates;
+
+      // set data coordinates && value
+      this.updateVoxel(this._worldCoordinates);
+
+      if (this._mesh && this._mesh.geometry) {
+        this._mesh.geometry.location = this._voxel.dataCoordinates;
+      }
+    },
+    get: function get() {
+      return this._worldCoordinates;
+    }
+  }, {
+    key: 'voxel',
+    get: function get() {
+      return this._voxel;
+    },
+    set: function set(voxel) {
+      this._voxel = voxel;
+    }
+  }, {
+    key: 'showVoxel',
+    set: function set(showVoxel) {
+      this._showVoxel = showVoxel;
+
+      if (this._mesh) {
+        this._mesh.visible = this._showVoxel;
+      }
+    },
+    get: function get() {
+      return this._showVoxel;
+    }
+  }, {
+    key: 'showDomSVG',
+    set: function set(showDomSVG) {
+      this._showDomSVG = showDomSVG;
+      this.updateDomClass();
+    },
+    get: function get() {
+      return this._showDomSVG;
+    }
+  }, {
+    key: 'showDomMeasurements',
+    set: function set(showDomMeasurements) {
+      this._showDomMeasurements = showDomMeasurements;
+      this.updateDomClass();
+    },
+    get: function get() {
+      return this._showDomMeasurements;
+    }
+  }, {
+    key: 'distance',
+    set: function set(distance) {
+      this._distance = distance;
+    },
+    get: function get() {
+      return this._distance;
+    }
+  }, {
+    key: 'selected',
+    set: function set(selected) {
+      this._selected = selected;
+    },
+    get: function get() {
+      return this._selected;
+    }
+  }, {
+    key: 'hover',
+    set: function set(hover) {
+      this._hover = hover;
+    },
+    get: function get() {
+      return this._hover;
+    }
+  }, {
+    key: 'active',
+    set: function set(active) {
+      this._active = active;
+    },
+    get: function get() {
+      return this._active;
+    }
+  }], [{
+    key: 'worldToScreen',
+    value: function worldToScreen(worldCoordinate, camera, canvas) {
+      var screenCoordinates = worldCoordinate.clone();
+      screenCoordinates.project(camera);
+
+      screenCoordinates.x = Math.round((screenCoordinates.x + 1) * canvas.offsetWidth / 2);
+      screenCoordinates.y = Math.round((-screenCoordinates.y + 1) * canvas.offsetHeight / 2);
+      screenCoordinates.z = 0;
+
+      return screenCoordinates;
+    }
+  }]);
+
+  return HelpersVoxel;
+}(THREE.Object3D);
+
+exports.default = HelpersVoxel;
+
+},{"../../src/geometries/geometries.voxel":352,"../../src/models/models.stack":364,"../../src/models/models.voxel":365}],359:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30469,7 +30507,7 @@ var LoaderBase = function () {
 
 exports.default = LoaderBase;
 
-},{"../../src/helpers/helpers.progressbar":356,"../../src/models/models.frame":362,"../../src/models/models.series":363,"../../src/models/models.stack":364}],360:[function(require,module,exports){
+},{"../../src/helpers/helpers.progressbar":355,"../../src/models/models.frame":362,"../../src/models/models.series":363,"../../src/models/models.stack":364}],360:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -30720,7 +30758,7 @@ var LoadersVolumes = function (_LoadersBase) {
 
 exports.default = LoadersVolumes;
 
-},{"../../src/models/models.frame":362,"../../src/models/models.series":363,"../../src/models/models.stack":364,"../../src/parsers/parsers.dicom":365,"../../src/parsers/parsers.nifti":366,"../../src/parsers/parsers.nrrd":367,"./loaders.base":359,"pako":320}],361:[function(require,module,exports){
+},{"../../src/models/models.frame":362,"../../src/models/models.series":363,"../../src/models/models.stack":364,"../../src/parsers/parsers.dicom":366,"../../src/parsers/parsers.nifti":367,"../../src/parsers/parsers.nrrd":368,"./loaders.base":359,"pako":320}],361:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -32209,7 +32247,92 @@ var ModelsStack = function (_ModelsBase) {
 
 exports.default = ModelsStack;
 
-},{"../../src/core/core.pack":349,"../../src/models/models.base":361,"math-float32-to-binary-string":312}],365:[function(require,module,exports){
+},{"../../src/core/core.pack":348,"../../src/models/models.base":361,"math-float32-to-binary-string":312}],365:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+/**
+ * @module models/voxel
+ */
+
+var ModelsVoxel = function () {
+  function ModelsVoxel() {
+    _classCallCheck(this, ModelsVoxel);
+
+    this._id = -1;
+    this._worldCoordinates = null;
+    this._dataCoordinates = null;
+    this._screenCoordinates = null;
+    this._value = null;
+  }
+
+  _createClass(ModelsVoxel, [{
+    key: "worldCoordinates",
+    set: function set(worldCoordinates) {
+      this._worldCoordinates = worldCoordinates;
+    },
+    get: function get() {
+      return this._worldCoordinates;
+    }
+  }, {
+    key: "dataCoordinates",
+    set: function set(dataCoordinates) {
+      this._dataCoordinates = dataCoordinates;
+    },
+    get: function get() {
+      return this._dataCoordinates;
+    }
+  }, {
+    key: "screenCoordinates",
+    set: function set(screenCoordinates) {
+      this._screenCoordinates = screenCoordinates;
+    },
+    get: function get() {
+      return this._screenCoordinates;
+    }
+  }, {
+    key: "value",
+    set: function set(value) {
+      this._value = value;
+    },
+    get: function get() {
+      return this._value;
+    }
+  }, {
+    key: "id",
+    set: function set(id) {
+      this._id = id;
+    },
+    get: function get() {
+      return this._id;
+    }
+  }]);
+
+  return ModelsVoxel;
+}();
+
+exports.default = ModelsVoxel;
+
+},{}],366:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -33047,7 +33170,7 @@ var ParsersDicom = function (_ParsersVolume) {
 
 exports.default = ParsersDicom;
 
-},{"../../external/scripts/jpeg":2,"../../external/scripts/jpx":3,"./parsers.volume":368,"dicom-parser":297,"jpeg-lossless-decoder-js":304}],366:[function(require,module,exports){
+},{"../../external/scripts/jpeg":2,"../../external/scripts/jpx":3,"./parsers.volume":369,"dicom-parser":297,"jpeg-lossless-decoder-js":304}],367:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -33484,7 +33607,7 @@ var ParsersNifti = function () {
 
 exports.default = ParsersNifti;
 
-},{"nifti-reader-js":315}],367:[function(require,module,exports){
+},{"nifti-reader-js":315}],368:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -33776,7 +33899,7 @@ var ParsersNifti = function () {
 
 exports.default = ParsersNifti;
 
-},{"nrrd-js":319,"pako":320}],368:[function(require,module,exports){
+},{"nrrd-js":319,"pako":320}],369:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33818,7 +33941,7 @@ var ParsersVolume = function () {
 
 exports.default = ParsersVolume;
 
-},{}],369:[function(require,module,exports){
+},{}],370:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -33911,8 +34034,10 @@ var ShadersData = function () {
 
 exports.default = ShadersData;
 
-},{}],370:[function(require,module,exports){
+},{}],371:[function(require,module,exports){
 'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -33928,107 +34053,810 @@ var _createClass = function () {
   };
 }();
 
+var _core = require('../../src/core/core.intersections');
+
+var _core2 = _interopRequireDefault(_core);
+
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
+
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
   }
 }
 
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
 /**
- * @module shaders/layer
+ * @module widgets/handle
+ * 
  */
 
-var ShadersLayer = function () {
-  function ShadersLayer() {
-    _classCallCheck(this, ShadersLayer);
+var WidgetsHandle = function (_THREE$Object3D) {
+  _inherits(WidgetsHandle, _THREE$Object3D);
+
+  function WidgetsHandle(targetMesh, controls, camera, container) {
+    var connectAllEvents = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
+
+    _classCallCheck(this, WidgetsHandle);
+
+    // do nothing.
+    // just upate dom if needed...
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(WidgetsHandle).call(this));
+
+    _this._enabled = true;
+
+    // array of meshes
+    _this._targetMesh = targetMesh;
+
+    // if no target mesh, use plane for FREE dragging.
+    _this._plane = {
+      position: new THREE.Vector3(),
+      direction: new THREE.Vector3()
+    };
+
+    _this._offset = new THREE.Vector3();
+
+    _this._controls = controls;
+    _this._camera = camera;
+    _this._container = container;
+    _this._raycaster = new THREE.Raycaster();
+    _this._connectAllEvents = connectAllEvents;
+
+    _this._firstRun = false;
+
+    _this._mouse = new THREE.Vector2();
+
+    // world (LPS) position
+    _this._worldPosition = new THREE.Vector3();
+
+    // screen position
+    _this._screenPosition = new THREE.Vector2();
+
+    _this._selected = false;
+    _this._hovered = false;
+    _this._dragged = false;
+    _this._visible = true;
+
+    _this._colors = {
+      default: '#00B0FF',
+      active: '#FFEB3B',
+      hover: '#F50057',
+      select: '#76FF03'
+    };
+    _this._color = _this._colors.default;
+
+    // mesh stuff
+    _this._material = null;
+    _this._geometry = null;
+    _this._mesh = null;
+    _this._meshVisible = true;
+    _this._meshHovered = false;
+    _this._meshStyle = 'sphere'; //cube, etc.
+
+    // dom stuff
+    _this._dom = null;
+    _this._domVisible = true;
+    _this._domHovered = false;
+    _this._domStyle = 'circle'; // square, triangle
+    // maybe just a string...
+    // this._domStyles = {
+    //   circle: function(){
+    //     this._dom.style.border = '2px solid #353535';
+    //     this._dom.style.backgroundColor = '#F9F9F9';
+    //     // this._dom.style.backgroundColor = 'rgba(230, 230, 230, 0.7)';
+    //     this._dom.style.color = '#F9F9F9';
+    //     this._dom.style.position = 'absolute';
+    //     this._dom.style.width = '12px';
+    //     this._dom.style.height = '12px';
+    //     this._dom.style.margin = '-6px';
+    //     this._dom.style.borderRadius =  '50%';
+    //     this._dom.style.transformOrigin = '0 100%';
+    //   },
+    //   cross: function(){
+
+    //   },
+    //   triangle: ``
+    // };
+
+    // <svg height="12" width="12">
+    //   <circle cx="6" cy="6" r="5" stroke="#353535" stroke-opacity="0.9" stroke-width="2" fill="#F9F9F9" fill-opacity="0.7" />
+    //   Sorry, your browser does not support inline SVG.
+    // </svg>
+
+    // <svg height="12" width="12">
+    // <line x1="0" y1="0" x2="12" y2="12" stroke="#353535" stroke-linecap="square" stroke-width="2" />
+    // <line x1="0" y1="12" x2="12" y2="0" stroke="#353535" stroke-linecap="square" stroke-width="2" />
+    // </svg>
+
+    // <svg height="12" width="12">
+    // <line x1="0" y1="12" x2="6" y2="6" stroke="#353535" stroke-linecap="square" stroke-width="2" />
+    // <line x1="6" y1="6" x2="12" y2="12" stroke="#353535" stroke-linecap="square" stroke-width="2" />
+    // </svg>
+    //
+
+    if (_this._targetMesh !== null) {
+      _this._worldPosition.copy(_this._targetMesh.position);
+    }
+    _this._screenPosition = _this.worldToScreen(_this._worldPosition, _this._camera, _this._container);
+
+    // create handle
+    _this.createMesh();
+    _this.createDOM();
+
+    // event listeners
+    _this.onStart = _this.onStart.bind(_this);
+    _this.onMove = _this.onMove.bind(_this);
+    _this.onEnd = _this.onEnd.bind(_this);
+    _this.onHover = _this.onHover.bind(_this);
+    _this.update = _this.update.bind(_this);
+
+    _this.addEventListeners();
+    return _this;
   }
 
-  _createClass(ShadersLayer, null, [{
-    key: 'uniforms',
-    value: function uniforms() {
-      return {
-        'uTextureSize': {
-          type: 'i',
-          value: 0
-        },
-        'uTextureContainer': {
-          type: 'tv',
-          value: []
-        },
-        'uDataDimensions': {
-          type: 'iv',
-          value: [0, 0, 0]
-        },
-        'uWorldToData': {
-          type: 'm4',
-          value: new THREE.Matrix4()
-        },
-        'uWindowCenterWidth': {
-          type: 'fv1',
-          value: [0.0, 0.0]
-        },
-        'uRescaleSlopeIntercept': {
-          type: 'fv1',
-          value: [0.0, 0.0]
-        },
-        'uNumberOfChannels': {
-          type: 'i',
-          value: 1
-        },
-        'uBitsAllocated': {
-          type: 'i',
-          value: 8
-        },
-        'uInvert': {
-          type: 'i',
-          value: 0
-        },
-        'uTextureBackTest': {
-          type: 't',
-          value: []
-        },
-        'uOpacity': {
-          type: 'f',
-          value: 1.0
-        },
-        'uLut': {
-          type: 'i',
-          value: 0
-        },
-        'uTextureLUT': {
-          type: 't',
-          value: []
-        },
-        'uMinMax': {
-          type: 'fv1',
-          value: [0.0, 0.0]
-        },
-        'uMix': {
-          type: 'i',
-          value: 0
-        },
-        'uTrackMouse': {
-          type: 'i',
-          value: 0
-        },
-        'uMouse': {
-          type: 'v2',
-          value: new THREE.Vector2()
-        },
-        'uPixelType': {
-          type: 'i',
-          value: 0
+  _createClass(WidgetsHandle, [{
+    key: 'addEventListeners',
+    value: function addEventListeners() {
+      if (this._connectAllEvents) {
+        this._container.addEventListener('mousedown', this.onStart);
+        this._container.addEventListener('mousemove', this.onMove);
+      }
+      this._container.addEventListener('mouseup', this.onEnd);
+
+      if (this._connectAllEvents) {
+        this._container.addEventListener('touchstart', this.onStart);
+        this._container.addEventListener('touchmove', this.onMove);
+      }
+      this._container.addEventListener('touchend', this.onEnd);
+
+      this._dom.addEventListener('mouseenter', this.onHover);
+      this._dom.addEventListener('mouseleave', this.onHover);
+
+      this._container.addEventListener('mousewheel', this.onMove);
+      this._container.addEventListener('DOMMouseScroll', this.onMove);
+    }
+  }, {
+    key: 'removeEventListeners',
+    value: function removeEventListeners() {
+      if (this._connectAllEvents) {
+        this._container.removeEventListener('mousedown', this.onStart);
+        this._container.removeEventListener('mousemove', this.onMove);
+        this._container.removeEventListener('mouseup', this.onEnd);
+
+        this._container.removeEventListener('touchstart', this.onStart);
+        this._container.removeEventListener('touchmove', this.onMove);
+        this._container.removeEventListener('touchend', this.onEnd);
+      }
+
+      this._dom.removeEventListener('mouseenter', this.onHover);
+      this._dom.removeEventListener('mouseleave', this.onHover);
+
+      this._container.removeEventListener('mousewheel', this.onMove);
+      this._container.removeEventListener('DOMMouseScroll', this.onMove);
+    }
+  }, {
+    key: 'onStart',
+    value: function onStart(evt) {
+      evt.preventDefault();
+
+      //
+      this._dragged = this._firstRun;
+      this._firstRun = false;
+
+      // update raycaster
+      this._raycaster.setFromCamera(this._mouse, this._camera);
+      this._raycaster.ray.position = this._raycaster.ray.origin;
+
+      if (this._hovered) {
+
+        this._active = true;
+        this._controls.enabled = false;
+
+        if (this._targetMesh) {
+          var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+          if (intersectsTarget.length > 0) {
+            this._offset.copy(intersectsTarget[0].point).sub(this._mesh.position);
+          }
+        } else {
+          // update raycaster
+          var intersection = _core2.default.rayPlane(this._raycaster.ray, this._plane);
+          if (intersection !== null) {
+            this._offset.copy(intersection).sub(this._plane.position);
+          }
         }
-      };
+
+        this.update();
+      }
+    }
+  }, {
+    key: 'onEnd',
+    value: function onEnd(evt) {
+      evt.preventDefault();
+
+      // unselect if go up without moving
+      if (!this._dragged && this._active) {
+        this._selected = !this._selected;
+      }
+
+      // stay active and keep controls disabled
+      if (this._firstRun === true) {
+        return;
+      }
+
+      this._active = false;
+      this._controls.enabled = true;
+
+      this.update();
+    }
+
+    /**
+     *
+     *
+     */
+
+  }, {
+    key: 'onMove',
+    value: function onMove(evt) {
+      evt.preventDefault();
+
+      this._mouse.set(event.clientX / this._container.offsetWidth * 2 - 1, -(event.clientY / this._container.offsetHeight) * 2 + 1);
+
+      this._dragged = true;
+
+      // update screen position of handle
+      this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
+
+      // update raycaster
+      // set ray.position to satisfy CoreIntersections::rayPlane API
+      this._raycaster.setFromCamera(this._mouse, this._camera);
+      this._raycaster.ray.position = this._raycaster.ray.origin;
+
+      if (this._active) {
+        if (this._targetMesh !== null) {
+          var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+          if (intersectsTarget.length > 0) {
+            this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
+          }
+        } else {
+
+          if (this._plane.direction.length() === 0) {
+            // free mode!this._targetMesh
+            this._plane.position.copy(this._worldPosition);
+            this._plane.direction.copy(this._camera.getWorldDirection());
+          }
+
+          var intersection = _core2.default.rayPlane(this._raycaster.ray, this._plane);
+          if (intersection !== null) {
+
+            this._worldPosition.copy(intersection.sub(this._offset));
+          }
+        }
+      } else {
+        this.onHover(null);
+        if (this._targetMesh === null) {
+          //free mode!this._targetMesh
+          this._plane.position.copy(this._worldPosition);
+          this._plane.direction.copy(this._camera.getWorldDirection());
+        }
+      }
+
+      this.update();
+    }
+  }, {
+    key: 'onHover',
+    value: function onHover(evt) {
+      if (evt) {
+        evt.preventDefault();
+        this.hoverDom(evt);
+      }
+
+      this.hoverMesh();
+
+      this._hovered = this._meshHovered || this._domHovered;
+      this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+
+      // general update
+      this.updateColor();
+
+      // mesh stuff
+      this.updateMeshColor();
+      this.updateMeshPosition();
+
+      // DOM stuff
+      this.updateDOMColor();
+      this.updateDOMPosition();
+    }
+  }, {
+    key: 'updateColor',
+    value: function updateColor() {
+      if (this._active) {
+        this._color = this._colors.active;
+      } else if (this._hovered) {
+        this._color = this._colors.hover;
+      } else if (this._selected) {
+        this._color = this._colors.select;
+      } else {
+        this._color = this._colors.default;
+      }
+    }
+
+    //
+
+  }, {
+    key: 'updateMeshColor',
+    value: function updateMeshColor() {
+      if (this._material) {
+        this._material.color.set(this._color);
+      }
+    }
+  }, {
+    key: 'updateMeshPosition',
+    value: function updateMeshPosition() {
+      if (this._mesh) {
+        this._mesh.position.x = this._worldPosition.x;
+        this._mesh.position.y = this._worldPosition.y;
+        this._mesh.position.z = this._worldPosition.z;
+      }
+    }
+  }, {
+    key: 'hoverMesh',
+    value: function hoverMesh() {
+      // check raycast intersection, do we want to hover on mesh or just css?
+      var intersectsHandle = this._raycaster.intersectObject(this._mesh);
+      if (intersectsHandle.length > 0) {
+        this._meshHovered = true;
+      } else {
+        this._meshHovered = false;
+      }
+    }
+  }, {
+    key: 'hoverDom',
+    value: function hoverDom(evt) {
+      this._domHovered = evt.type === 'mouseenter';
+    }
+  }, {
+    key: 'worldToScreen',
+    value: function worldToScreen(worldCoordinate, camera, canvas) {
+      var screenCoordinates = worldCoordinate.clone();
+      screenCoordinates.project(camera);
+
+      screenCoordinates.x = Math.round((screenCoordinates.x + 1) * canvas.offsetWidth / 2);
+      screenCoordinates.y = Math.round((-screenCoordinates.y + 1) * canvas.offsetHeight / 2);
+      screenCoordinates.z = 0;
+
+      return screenCoordinates;
+    }
+  }, {
+    key: 'createMesh',
+    value: function createMesh() {
+      // geometry
+      this._geometry = new THREE.SphereGeometry(2, 32, 32);
+
+      // material
+      this._material = new THREE.MeshBasicMaterial({
+        wireframe: true,
+        wireframeLinewidth: 2
+      });
+
+      // mesh
+      this._mesh = new THREE.Mesh(this._geometry, this._material);
+      this._mesh.position.x = this._worldPosition.x;
+      this._mesh.position.y = this._worldPosition.y;
+      this._mesh.position.z = this._worldPosition.z;
+      this._mesh.visible = true;
+
+      this.updateMeshColor();
+
+      // add it!
+      this.add(this._mesh);
+    }
+  }, {
+    key: 'createDOM',
+    value: function createDOM() {
+
+      // dom
+      this._dom = document.createElement('div');
+      this._dom.setAttribute('id', this.uuid);
+      this._dom.setAttribute('class', 'widgets handle');
+      // this._domStyles.circle();
+      // this._domStyles.cross();
+      this._dom.style.border = '2px solid';
+      this._dom.style.backgroundColor = '#F9F9F9';
+      this._dom.style.color = '#F9F9F9';
+      this._dom.style.position = 'absolute';
+      this._dom.style.width = '12px';
+      this._dom.style.height = '12px';
+      this._dom.style.margin = '-6px';
+      this._dom.style.borderRadius = '50%';
+      this._dom.style.transformOrigin = '0 100%';
+
+      var posY = this._screenPosition.y - this._container.offsetHeight;
+      this._dom.style.transform = 'translate3D(' + this._screenPosition.x + 'px, ' + posY + 'px, 0)';
+
+      this.updateDOMColor();
+
+      // add it!
+      this._container.appendChild(this._dom);
+    }
+  }, {
+    key: 'updateDOMPosition',
+    value: function updateDOMPosition() {
+      if (this._dom) {
+
+        var posY = this._screenPosition.y - this._container.offsetHeight;
+        this._dom.style.transform = 'translate3D(' + this._screenPosition.x + 'px, ' + posY + 'px, 0)';
+      }
+    }
+  }, {
+    key: 'updateDOMColor',
+    value: function updateDOMColor() {
+      this._dom.style.borderColor = '' + this._color;
+    }
+  }, {
+    key: 'free',
+    value: function free() {
+      // threejs stuff
+
+      // dom
+
+      // event
+      this.removeEventListeners();
+    }
+  }, {
+    key: 'worldPosition',
+    set: function set(worldPosition) {
+      this._worldPosition.copy(worldPosition);
+      this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
+
+      this.update();
+    },
+    get: function get() {
+      return this._worldPosition;
+    }
+  }, {
+    key: 'screenPosition',
+    set: function set(screenPosition) {
+      this._screenPosition = screenPosition;
+    },
+    get: function get() {
+      return this._screenPosition;
+    }
+  }, {
+    key: 'active',
+    set: function set(active) {
+      this._active = active;
+      this._firstRun = this._active;
+      this._controls.enabled = !this._active;
+
+      this.update();
+    },
+    get: function get() {
+      return this._active;
+    }
+  }, {
+    key: 'hovered',
+    get: function get() {
+      return this._hovered;
+    },
+    set: function set(hovered) {
+      this._hovered = hovered;
+      this.update();
+    }
+  }, {
+    key: 'color',
+    get: function get() {
+      return this._color;
+    },
+    set: function set(color) {
+      this._color = color;
     }
   }]);
 
-  return ShadersLayer;
+  return WidgetsHandle;
+}(THREE.Object3D);
+
+exports.default = WidgetsHandle;
+
+},{"../../src/core/core.intersections":347}],372:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
 }();
 
-exports.default = ShadersLayer;
+var _widgets = require('../../src/widgets/widgets.handle');
 
-},{}]},{},[1])
+var _widgets2 = _interopRequireDefault(_widgets);
+
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
+/**
+ * @module widgets/handle
+ * 
+ */
+
+var WidgetsRuler = function (_THREE$Object3D) {
+  _inherits(WidgetsRuler, _THREE$Object3D);
+
+  function WidgetsRuler(targetMesh, controls, camera, container) {
+    var connectAllEvents = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
+
+    _classCallCheck(this, WidgetsRuler);
+
+    // enable/disable flag
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(WidgetsRuler).call(this));
+
+    _this._targetMesh = targetMesh;
+    _this._controls = controls;
+    _this._camera = camera;
+    _this._container = container;
+    _this._connectAllEvents = connectAllEvents;
+
+    _this._hovered = false;
+
+    _this._worldPosition = new THREE.Vector3();
+    if (_this._targetMesh !== null) {
+      _this._worldPosition = _this._targetMesh.position;
+    }
+
+    // DOM STUFF...
+    // NEED 3D too...
+    _this._line = null;
+    _this._distance = null;
+
+    // add handles
+    _this._handles = [];
+
+    // first handle
+    _this._firstHandle = new _widgets2.default(_this._targetMesh, _this._controls, _this._camera, _this._container, connectAllEvents);
+    _this._firstHandle.worldPosition = _this._worldPosition;
+    _this._firstHandle.hovered = true;
+    _this.add(_this._firstHandle);
+
+    _this._handles.push(_this._firstHandle);
+
+    _this._secondHandle = new _widgets2.default(_this._targetMesh, _this._controls, _this._camera, _this._container, connectAllEvents);
+    _this._secondHandle.worldPosition = _this._worldPosition;
+    _this._secondHandle.hovered = true;
+    _this._secondHandle.active = true;
+    _this.add(_this._secondHandle);
+
+    _this._active = true;
+
+    _this._handles.push(_this._secondHandle);
+
+    _this._colors = {
+      default: '#00B0FF',
+      active: '#FFEB3B',
+      hover: '#F50057',
+      select: '#76FF03'
+    };
+    _this._color = _this._colors.default;
+
+    // DOM STUFF
+    _this.create();
+
+    _this.onStart = _this.onStart.bind(_this);
+    _this.onMove = _this.onMove.bind(_this);
+    // this.onEnd = this.onEnd.bind(this);
+    // this.onHover = this.onHover.bind(this);
+    // this.update = this.update.bind(this);
+    return _this;
+  }
+
+  _createClass(WidgetsRuler, [{
+    key: 'onMove',
+    value: function onMove(evt) {
+
+      this._firstHandle.onMove(evt);
+      this._secondHandle.onMove(evt);
+
+      this._hovered = this._firstHandle.hovered || this._secondHandle.hovered;
+      this.update();
+    }
+  }, {
+    key: 'onStart',
+    value: function onStart(evt) {
+      this._firstHandle.onStart(evt);
+      this._secondHandle.onStart(evt);
+
+      this._active = this._firstHandle.active || this._secondHandle.active;
+      this.update();
+    }
+  }, {
+    key: 'onEnd',
+    value: function onEnd(evt) {
+      this._firstHandle.onEnd(evt);
+      this._secondHandle.onEnd(evt);
+
+      this._active = this._firstHandle.active || this._secondHandle.active;
+      window.console.log(this._firstHandle.active);
+      window.console.log(this._secondHandle.active);
+      window.console.log(this._active);
+      this.update();
+    }
+  }, {
+    key: 'create',
+    value: function create() {
+      this.createDOM();
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+      this.updateColor();
+
+      this.updateDOMPosition();
+      this.updateDOMColor();
+    }
+  }, {
+    key: 'updateColor',
+    value: function updateColor() {
+      if (this._active) {
+        this._color = this._colors.active;
+      } else if (this._hovered) {
+        this._color = this._colors.hover;
+      } else if (this._selected) {
+        this._color = this._colors.select;
+      } else {
+        this._color = this._colors.default;
+      }
+    }
+  }, {
+    key: 'createDOM',
+    value: function createDOM() {
+      // add line!
+      this._line = document.createElement('div');
+      this._line.setAttribute('class', 'widgets handle line');
+      this._line.style.position = 'absolute';
+      this._line.style.transformOrigin = '0 100%';
+      this._line.style.marginTop = '-1px';
+      this._line.style.height = '2px';
+      this._line.style.width = '3px';
+      this._container.appendChild(this._line);
+
+      // add distance!
+      this._distance = document.createElement('div');
+      this._distance.setAttribute('class', 'widgets handle distance');
+      this._distance.style.border = '2px solid';
+      this._distance.style.backgroundColor = '#F9F9F9';
+      // this._distance.style.opacity = '0.5';
+      this._distance.style.color = '#353535';
+      this._distance.style.padding = '4px';
+      this._distance.style.position = 'absolute';
+      this._distance.style.transformOrigin = '0 100%';
+      this._distance.innerHTML = 'Hello, world!';
+      this._container.appendChild(this._distance);
+
+      this.updateDOMColor();
+    }
+  }, {
+    key: 'updateDOMPosition',
+    value: function updateDOMPosition() {
+      //update rulers lines and text!
+      var x1 = this._firstHandle.screenPosition.x;
+      var y1 = this._firstHandle.screenPosition.y;
+      var x2 = this._secondHandle.screenPosition.x;
+      var y2 = this._secondHandle.screenPosition.y;
+
+      var x0 = x1 + (x2 - x1) / 2;
+      var y0 = y1 + (y2 - y1) / 2;
+
+      var length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+      var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+      var posY = y1 - this._container.offsetHeight;
+
+      // update line
+      var transform = 'translate3D(' + x1 + 'px,' + posY + 'px, 0)';
+      transform += ' rotate(' + angle + 'deg)';
+
+      this._line.style.transform = transform;
+      this._line.style.width = length;
+
+      // update distance
+      var w0 = this._handles[0].worldPosition;
+      var w1 = this._handles[1].worldPosition;
+
+      this._distance.innerHTML = Math.sqrt((w0.x - w1.x) * (w0.x - w1.x) + (w0.y - w1.y) * (w0.y - w1.y) + (w0.z - w1.z) * (w0.z - w1.z)).toFixed(2) + ' mm';
+      var posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight / 2;
+      x0 -= this._distance.offsetWidth / 2;
+
+      var transform2 = 'translate3D(' + Math.round(x0) + 'px,' + Math.round(posY0) + 'px, 0)';
+      this._distance.style.transform = transform2;
+    }
+  }, {
+    key: 'updateDOMColor',
+    value: function updateDOMColor() {
+      this._line.style.backgroundColor = '' + this._color;
+      this._distance.style.borderColor = '' + this._color;
+    }
+  }, {
+    key: 'hovered',
+    get: function get() {
+      return this._hovered;
+    },
+    set: function set(hovered) {
+      this._hovered = hovered;
+    }
+  }, {
+    key: 'active',
+    get: function get() {
+      return this._active;
+    },
+    set: function set(active) {
+      this._active = active;
+    }
+  }, {
+    key: 'worldPosition',
+    get: function get() {
+      return this._worldPosition;
+    },
+    set: function set(worldPosition) {
+      this._worldPosition = worldPosition;
+      this._firstHandle.worldPosition = this._worldPosition;
+      this._secondHandle.worldPosition = this._worldPosition;
+
+      this.update();
+    }
+  }]);
+
+  return WidgetsRuler;
+}(THREE.Object3D);
+
+exports.default = WidgetsRuler;
+
+},{"../../src/widgets/widgets.handle":371}]},{},[1])
 
 
-//# sourceMappingURL=../viewers_labelmap/viewers_labelmap.js.map
+//# sourceMappingURL=../widget_handle/widget_handle.js.map
