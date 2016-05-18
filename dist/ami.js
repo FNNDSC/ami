@@ -20068,7 +20068,7 @@ exports.default = {
   Widgets: _widgets2.default
 };
 
-window.console.log('AMI - v0.0.6-dev');
+window.console.log('AMI - v0.0.6');
 
 },{"./cameras/cameras":56,"./controls/controls":58,"./core/core":62,"./geometries/geometries":66,"./helpers/helpers":71,"./loaders/loaders":79,"./models/models":83,"./parsers/parsers":88,"./shaders/shaders":93,"./widgets/widgets":95}],56:[function(require,module,exports){
 'use strict';
