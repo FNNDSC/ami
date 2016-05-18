@@ -3,59 +3,53 @@
 
 require('babel-polyfill');
 
+var _controls = require('../../src/controls/controls.trackball');
+
+var _controls2 = _interopRequireDefault(_controls);
+
 var _helpers = require('../../src/helpers/helpers.stack');
 
 var _helpers2 = _interopRequireDefault(_helpers);
-
-var _helpers3 = require('../../src/helpers/helpers.voxel');
-
-var _helpers4 = _interopRequireDefault(_helpers3);
 
 var _loaders = require('../../src/loaders/loaders.volume');
 
 var _loaders2 = _interopRequireDefault(_loaders);
 
-var _widgets = require('../../src/widgets/widgets.handle');
-
-var _widgets2 = _interopRequireDefault(_widgets);
-
-var _widgets3 = require('../../src/widgets/widgets.ruler');
-
-var _widgets4 = _interopRequireDefault(_widgets3);
-
-var _controls = require('../../src/controls/controls.trackball');
-
-var _controls2 = _interopRequireDefault(_controls);
-
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
-// standard global variables
-var controls = void 0,
-    renderer = void 0,
-    threeD = void 0,
-    stats = void 0,
-    scene = void 0,
-    camera = void 0,
-    handle0 = void 0,
-    handle1 = void 0,
-    helpersVoxel = void 0,
-    directions = void 0,
-    bbox = void 0,
-    line = void 0,
-    lineDOM = void 0,
-    distanceDOM = void 0,
-    handles = void 0; /* globals Stats, dat*/
+/* globals Stats*/
 
 // promises polyfill from the babel team
 
-var widgets = [];
+var VJS = VJS || {};
+
+VJS.widgets = VJS.widgets || {};
+VJS.widgets.orientation = require('../../src/widgets/widgets.orientation');
+
+// standard global variables
+var controls = void 0,
+    renderer = void 0,
+    stats = void 0,
+    scene = void 0,
+    camera = void 0,
+    stackHelper = void 0,
+    threeD = void 0;
+
 function init() {
+
   // this function is executed on each animation frame
   function animate() {
 
-    // render
+    if (stackHelper) {
+      stackHelper.index += 1;
+      if (stackHelper.outOfBounds === true) {
+        stackHelper.orientation = (stackHelper.orientation + 1) % 3;
+        stackHelper.index = 0;
+      }
+    }
+
     controls.update();
     renderer.render(scene, camera);
     stats.update();
@@ -72,8 +66,8 @@ function init() {
     antialias: true
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
-  renderer.setClearColor(0xFFFFFF, 1);
-
+  renderer.setClearColor(0x673AB7, 1);
+  renderer.setPixelRatio(window.devicePixelRatio);
   threeD.appendChild(renderer.domElement);
 
   // stats
@@ -85,209 +79,86 @@ function init() {
 
   // camera
   camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
-  camera.position.x = 150;
-  camera.position.y = 50;
-  camera.position.z = 50;
+  camera.position.x = 250;
+  camera.position.y = 250;
+  camera.position.z = 250;
+
   // controls
   controls = new _controls2.default(camera, threeD);
   controls.rotateSpeed = 1.4;
   controls.zoomSpeed = 1.2;
   controls.panSpeed = 0.8;
-  controls.staticMoving = true;
-  controls.dynamicDampingFactor = 0.3;
 
   animate();
 }
 
 window.onload = function () {
+
   // init threeJS...
   init();
 
-  var file = 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/36749894';
-
+  // instantiate the loader
+  // it loads and parses the dicom image
   var loader = new _loaders2.default(threeD);
-  // Start off with a promise that always resolves
-  var sequence = Promise.resolve();
-  sequence
-  // fetch the file
-  .then(function () {
-    return loader.fetch(file);
-  }).then(function (data) {
-    return loader.parse(data);
-  }).then(function (series) {
 
+  var t2 = ['36444280', '36444294', '36444308', '36444322', '36444336', '36444350', '36444364', '36444378', '36444392', '36444406', '36444420', '36444434', '36444448', '36444462', '36444476', '36444490', '36444504', '36444518', '36444532', '36746856', '36746870', '36746884', '36746898', '36746912', '36746926', '36746940', '36746954', '36746968', '36746982', '36746996', '36747010', '36747024', '36748200', '36748214', '36748228', '36748270', '36748284', '36748298', '36748312', '36748326', '36748340', '36748354', '36748368', '36748382', '36748396', '36748410', '36748424', '36748438', '36748452', '36748466', '36748480', '36748494', '36748508', '36748522', '36748242', '36748256'];
+
+  var files = t2.map(function (v) {
+    return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
+  });
+
+  // load sequence for each file
+  var seriesContainer = [];
+  var loadSequence = [];
+  files.forEach(function (url) {
+    loadSequence.push(Promise.resolve()
+    // fetch the file
+    .then(function () {
+      return loader.fetch(url);
+    }).then(function (data) {
+      return loader.parse(data);
+    }).then(function (series) {
+      seriesContainer.push(series);
+    }).catch(function (error) {
+      window.console.log('oops... something went wrong...');
+      window.console.log(error);
+    }));
+  });
+
+  // load sequence for all files
+  Promise.all(loadSequence).then(function () {
     loader.free();
     loader = null;
-
-    var stack = series._stack[0];
-    var stackHelper = new _helpers2.default(stack);
-
+    // make a proper function for this guy...
+    var series = seriesContainer[0].mergeSeries(seriesContainer)[0];
+    var stack = series.stack[0];
+    stackHelper = new _helpers2.default(stack);
+    stackHelper.bbox.color = 0xF9F9F9;
+    stackHelper.border.color = 0xF9F9F9;
     scene.add(stackHelper);
 
-    threeD.addEventListener('mouseup', function (evt) {
-      // if something hovered, exit
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = widgets[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var widget = _step.value;
-
-          window.console.log(widget);
-          if (widget.active) {
-            widget.onEnd(evt);
-            return;
-          }
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-    });
-
-    threeD.addEventListener('mousemove', function (evt) {
-      // if something hovered, exit
-      var cursor = 'default';
-
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
-
-      try {
-        for (var _iterator2 = widgets[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var widget = _step2.value;
-
-          widget.onMove(evt);
-          if (widget.hovered) {
-            cursor = 'pointer';
-          }
-        }
-      } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion2 && _iterator2.return) {
-            _iterator2.return();
-          }
-        } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
-          }
-        }
-      }
-
-      threeD.style.cursor = cursor;
-    });
-
-    // add on mouse down listener, to add handles/etc. if not hovering anything..
-    threeD.addEventListener('mousedown', function (evt) {
-      // if something hovered, exit
-      var _iteratorNormalCompletion3 = true;
-      var _didIteratorError3 = false;
-      var _iteratorError3 = undefined;
-
-      try {
-        for (var _iterator3 = widgets[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          var _widget4 = _step3.value;
-
-          if (_widget4.hovered) {
-            _widget4.onStart(evt);
-            return;
-          }
-        }
-      } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-            _iterator3.return();
-          }
-        } finally {
-          if (_didIteratorError3) {
-            throw _iteratorError3;
-          }
-        }
-      }
-
-      threeD.style.cursor = 'default';
-
-      // mouse position
-      var mouse = {
-        x: evt.clientX / threeD.offsetWidth * 2 - 1,
-        y: -(event.clientY / threeD.offsetHeight) * 2 + 1
-      };
-
-      // update the raycaster
-      var raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(mouse, camera);
-      var intersects = raycaster.intersectObject(stackHelper.slice.mesh);
-
-      if (intersects.length <= 0) {
-        return;
-      }
-
-      var widgetType = widgets.length % 4;
-      if (widgetType === 0) {
-        // add ruler
-        var widget = new _widgets4.default(stackHelper.slice.mesh, controls, camera, threeD);
-        widget.worldPosition = intersects[0].point;
-
-        widgets.push(widget);
-        scene.add(widget);
-      } else if (widgetType === 1) {
-        // add handle
-        var _widget = new _widgets2.default(stackHelper.slice.mesh, controls, camera, threeD);
-        _widget.worldPosition = intersects[0].point;
-        _widget.hovered = true;
-
-        widgets.push(_widget);
-        scene.add(_widget);
-      } else if (widgetType === 2) {
-        // add  "FREE" ruler
-        var _widget2 = new _widgets4.default(null, controls, camera, threeD);
-        // OK for now but what if no intersection?
-        _widget2.worldPosition = intersects[0].point;
-
-        widgets.push(_widget2);
-        scene.add(_widget2);
-      } else {
-        // add "FREE" handle
-        var _widget3 = new _widgets2.default(null, controls, camera, threeD);
-        // OK for now but what if no intersection?
-        _widget3.worldPosition = intersects[0].point;
-
-        widgets.push(_widget3);
-        scene.add(_widget3);
-      }
-    });
-
-    //
-    var centerLPS = stack.worldCenter();
-
-    bbox = stack.dimensionsIJK;
-
-    // update camrea's and interactor's target
-    // update camera's target
+    // update camrea's and control's target
+    var centerLPS = stackHelper.stack.worldCenter();
     camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
-    controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
     camera.updateProjectionMatrix();
+    controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
+
+    function onWindowResize() {
+
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.addEventListener('resize', onWindowResize, false);
+  }).catch(function (error) {
+    window.console.log('oops... something went wrong...');
+    window.console.log(error);
   });
 };
 
-},{"../../src/controls/controls.trackball":346,"../../src/helpers/helpers.stack":357,"../../src/helpers/helpers.voxel":358,"../../src/loaders/loaders.volume":360,"../../src/widgets/widgets.handle":371,"../../src/widgets/widgets.ruler":372,"babel-polyfill":5}],2:[function(require,module,exports){
+},{"../../src/controls/controls.trackball":346,"../../src/helpers/helpers.stack":356,"../../src/loaders/loaders.volume":358,"../../src/widgets/widgets.orientation":368,"babel-polyfill":5}],2:[function(require,module,exports){
 // jshint ignore: start
 
 /* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- /
@@ -28489,105 +28360,6 @@ var GeometriesSlice = function (_THREE$ShapeGeometry) {
 exports.default = GeometriesSlice;
 
 },{"../../src/core/core.intersections":347}],352:[function(require,module,exports){
-"use strict";
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-  };
-}();
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
-
-/**
- *
- * @module geometries/voxel
- */
-
-var GeometriesVoxel = function (_THREE$BoxGeometry) {
-  _inherits(GeometriesVoxel, _THREE$BoxGeometry);
-
-  function GeometriesVoxel(dataPosition) {
-    _classCallCheck(this, GeometriesVoxel);
-
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(GeometriesVoxel).call(this, 1, 1, 1));
-
-    _this._location = dataPosition;
-
-    _this.applyMatrix(new THREE.Matrix4().makeTranslation(_this._location.x, _this._location.y, _this._location.z));
-
-    _this.verticesNeedUpdate = true;
-    return _this;
-  }
-
-  _createClass(GeometriesVoxel, [{
-    key: "resetVertices",
-    value: function resetVertices() {
-      this.vertices[0].set(0.5, 0.5, 0.5);
-      this.vertices[1].set(0.5, 0.5, -0.5);
-      this.vertices[2].set(0.5, -0.5, 0.5);
-      this.vertices[3].set(0.5, -0.5, -0.5);
-      this.vertices[4].set(-0.5, 0.5, -0.5);
-      this.vertices[5].set(-0.5, 0.5, 0.5);
-      this.vertices[6].set(-0.5, -0.5, -0.5);
-      this.vertices[7].set(-0.5, -0.5, 0.5);
-    }
-  }, {
-    key: "location",
-    set: function set(location) {
-      this._location = location;
-
-      // update vertices from location
-      this.vertices[0].set(+0.5, +0.5, +0.5);
-      this.vertices[1].set(+0.5, +0.5, -0.5);
-      this.vertices[2].set(+0.5, -0.5, +0.5);
-      this.vertices[3].set(+0.5, -0.5, -0.5);
-      this.vertices[4].set(-0.5, +0.5, -0.5);
-      this.vertices[5].set(-0.5, +0.5, +0.5);
-      this.vertices[6].set(-0.5, -0.5, -0.5);
-      this.vertices[7].set(-0.5, -0.5, +0.5);
-
-      this.applyMatrix(new THREE.Matrix4().makeTranslation(this._location.x, this._location.y, this._location.z));
-
-      this.verticesNeedUpdate = true;
-    },
-    get: function get() {
-      return this._location;
-    }
-  }]);
-
-  return GeometriesVoxel;
-}(THREE.BoxGeometry);
-
-exports.default = GeometriesVoxel;
-
-},{}],353:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -28731,7 +28503,7 @@ var HelpersBorder = function (_THREE$Object3D) {
 
 exports.default = HelpersBorder;
 
-},{}],354:[function(require,module,exports){
+},{}],353:[function(require,module,exports){
 "use strict";
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -28871,7 +28643,7 @@ var HelpersBoundingBox = function (_THREE$Object3D) {
 
 exports.default = HelpersBoundingBox;
 
-},{}],355:[function(require,module,exports){
+},{}],354:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29040,7 +28812,7 @@ var HelpersProgressBar = function () {
 
 exports.default = HelpersProgressBar;
 
-},{}],356:[function(require,module,exports){
+},{}],355:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -29219,7 +28991,7 @@ var HelpersSlice = function (_THREE$Object3D) {
           'side': THREE.DoubleSide,
           'uniforms': this._uniforms,
           'vertexShader': "#define GLSLIFY 1\nvarying vec4 vPos;\n\n//\n// main\n//\nvoid main() {\n\n  vPos = modelMatrix * vec4(position, 1.0 );\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );\n\n}",
-          'fragmentShader': "#define GLSLIFY 1\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uInvert;\n\n// hack because can not pass arrays if too big\n// best would be to pass texture but have to deal with 16bits\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\n\nvarying vec4      vPos;\n\n// include functions\n// unpack int 8\nfloat uInt8(in float r){\n  return r * 256.;\n}\n\n// unpack int 16\nfloat uInt16(in float r, in float a){\n  return r * 256. + a * 65536.;\n}\n\n// unpack int 32\nfloat uInt32(in float r, in float g, in float b, in float a){\n  return r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nfloat uFloat32(in float r, in float g, in float b, in float a){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  float value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  return float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvec4 unpack( vec4 packedRGBA,\n             int bitsAllocated,\n             int signedNumber,\n             int numberOfChannels,\n             int pixelType) {\n\n  // always return a vec4\n  vec4 unpacked = vec4(0, 0, 0, 0);\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      unpacked.x = uInt8(\n        packedRGBA.r);\n    }\n    else if(bitsAllocated == 16){\n      unpacked.x = uInt16(\n        packedRGBA.r,\n        packedRGBA.a);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        unpacked.x = uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a);\n      }\n      else{\n        unpacked.x = uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n  return unpacked;\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvec4 texture3DPolyfill(ivec3 dataCoordinates,\n                       ivec3 dataDimensions,\n                       int textureSize,\n                       sampler2D textureContainer0,\n                       sampler2D textureContainer1,\n                       sampler2D textureContainer2,\n                       sampler2D textureContainer3,\n                       sampler2D textureContainer4,\n                       sampler2D textureContainer5,\n                       sampler2D textureContainer6,\n                       sampler2D textureContainer[7] // not working on Moto X 2014\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n\n  return dataValue;\n}\n\nvoid main(void) {\n\n  // get texture coordinates of current pixel\n  // doesn't need that in theory\n  vec4 dataCoordinatesRaw = uWorldToData * vPos;\n  // rounding trick\n  // first center of first voxel in data space is CENTERED on (0,0,0)\n  dataCoordinatesRaw += 0.5;\n  ivec3 dataCoordinates = ivec3(int(floor(dataCoordinatesRaw.x)), int(floor(dataCoordinatesRaw.y)), int(floor(dataCoordinatesRaw.z)));\n\n  // index 100\n  // dataCoordinates.x = 26; //25\n  // dataCoordinates.y = 1;\n  // dataCoordinates.z = 0;\n\n  // if data in range, look it up in the texture!\n  if ( all(greaterThanEqual(dataCoordinates, ivec3(0))) &&\n       all(lessThan(dataCoordinates, uDataDimensions))) {\n    vec4 packedValue = texture3DPolyfill(\n        dataCoordinates,\n        uDataDimensions,\n        uTextureSize,\n        uTextureContainer[0],\n        uTextureContainer[1],\n        uTextureContainer[2],\n        uTextureContainer[3],\n        uTextureContainer[4],\n        uTextureContainer[5],\n        uTextureContainer[6],\n        uTextureContainer     // not working on Moto X 2014\n        );\n\n    vec4 dataValue = unpack(\n      packedValue,\n      uBitsAllocated,\n      0,\n      uNumberOfChannels,\n      uPixelType);\n\n    // how do we deal wil more than 1 channel?\n    if(uNumberOfChannels == 1){\n      float intensity = dataValue.r;\n\n      // rescale/slope\n      intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n\n      // window level\n      // if(intensity < 2000.){\n      //   gl_FragColor = vec4(1.0, 0., 0., 1.);\n        //return;\n      // }\n      float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n      float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;\n      intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n\n      dataValue.r = dataValue.g = dataValue.b = intensity;\n    }\n\n    // Apply LUT table...\n    //\n    if(uLut == 1){\n      // should opacity be grabbed there?\n      dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n    }\n\n    if(uInvert == 1){\n      dataValue = vec4(1.) - dataValue;\n      // how do we deal with that and opacity?\n      dataValue.a = 1.;\n    }\n\n    gl_FragColor = dataValue;\n\n  }\n  else{\n    // should be able to choose what we want to do if not in range:\n    // discard or specific color\n    discard;\n    gl_FragColor = vec4(0.011, 0.662, 0.956, 1.0);\n  }\n}"
+          'fragmentShader': "#define GLSLIFY 1\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uInvert;\n\n// hack because can not pass arrays if too big\n// best would be to pass texture but have to deal with 16bits\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\n\nvarying vec4      vPos;\n\n// include functions\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid main(void) {\n\n  // get texture coordinates of current pixel\n  // doesn't need that in theory\n  vec4 dataCoordinatesRaw = uWorldToData * vPos;\n  // rounding trick\n  // first center of first voxel in data space is CENTERED on (0,0,0)\n  dataCoordinatesRaw += 0.5;\n  ivec3 dataCoordinates = ivec3(int(floor(dataCoordinatesRaw.x)), int(floor(dataCoordinatesRaw.y)), int(floor(dataCoordinatesRaw.z)));\n\n  // index 100\n  // dataCoordinates.x = 26; //25\n  // dataCoordinates.y = 1;\n  // dataCoordinates.z = 0;\n\n  // if data in range, look it up in the texture!\n  if ( all(greaterThanEqual(dataCoordinates, ivec3(0))) &&\n       all(lessThan(dataCoordinates, uDataDimensions))) {\n    vec4 packedValue = vec4(0., 0., 0., 0.);\n    texture3DPolyfill(\n        dataCoordinates,\n        uDataDimensions,\n        uTextureSize,\n        uTextureContainer[0],\n        uTextureContainer[1],\n        uTextureContainer[2],\n        uTextureContainer[3],\n        uTextureContainer[4],\n        uTextureContainer[5],\n        uTextureContainer[6],\n        uTextureContainer,     // not working on Moto X 2014\n        packedValue\n        );\n\n    vec4 dataValue = vec4(0., 0., 0., 0.);\n    unpack(\n      packedValue,\n      uBitsAllocated,\n      0,\n      uNumberOfChannels,\n      uPixelType,\n      dataValue);\n\n    // how do we deal wil more than 1 channel?\n    if(uNumberOfChannels == 1){\n      float intensity = dataValue.r;\n\n      // rescale/slope\n      intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n\n      // window level\n      // if(intensity < 2000.){\n      //   gl_FragColor = vec4(1.0, 0., 0., 1.);\n        //return;\n      // }\n      float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n      float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;\n      intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n\n      dataValue.r = dataValue.g = dataValue.b = intensity;\n    }\n\n    // Apply LUT table...\n    //\n    if(uLut == 1){\n      // should opacity be grabbed there?\n      dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n    }\n\n    if(uInvert == 1){\n      dataValue = vec4(1.) - dataValue;\n      // how do we deal with that and opacity?\n      dataValue.a = 1.;\n    }\n\n    gl_FragColor = dataValue;\n\n  }\n  else{\n    // should be able to choose what we want to do if not in range:\n    // discard or specific color\n    discard;\n    gl_FragColor = vec4(0.011, 0.662, 0.956, 1.0);\n  }\n}"
         });
       }
 
@@ -29463,7 +29235,7 @@ var HelpersSlice = function (_THREE$Object3D) {
 
 exports.default = HelpersSlice;
 
-},{"../../src/geometries/geometries.slice":351,"../../src/shaders/shaders.data":370}],357:[function(require,module,exports){
+},{"../../src/geometries/geometries.slice":351,"../../src/shaders/shaders.data":367}],356:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -29950,407 +29722,7 @@ var HelpersStack = function (_THREE$Object3D) {
 
 exports.default = HelpersStack;
 
-},{"../../src/helpers/helpers.border":353,"../../src/helpers/helpers.boundingbox":354,"../../src/helpers/helpers.slice":356}],358:[function(require,module,exports){
-'use strict';
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-  };
-}();
-
-var _geometries = require('../../src/geometries/geometries.voxel');
-
-var _geometries2 = _interopRequireDefault(_geometries);
-
-var _models = require('../../src/models/models.stack');
-
-var _models2 = _interopRequireDefault(_models);
-
-var _models3 = require('../../src/models/models.voxel');
-
-var _models4 = _interopRequireDefault(_models3);
-
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
-
-/**
- * @module helpers/voxel
- */
-
-var HelpersVoxel = function (_THREE$Object3D) {
-  _inherits(HelpersVoxel, _THREE$Object3D);
-
-  function HelpersVoxel() {
-    var worldCoordinates = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-    var stack = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-
-    _classCallCheck(this, HelpersVoxel);
-
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(HelpersVoxel).call(this));
-
-    _this._stack = stack;
-    _this._worldCoordinates = worldCoordinates;
-
-    _this._voxel = new _models4.default();
-    _this._voxel.id = _this.id;
-    _this._voxel.worldCoordinates = _this._worldCoordinates;
-
-    // if stack provided, compute IJK and value
-    if (_this._stack && _this._stack.prepared && _this._worldCoordinates) {
-      _this.updateVoxel(_this._worldCoordinates);
-    }
-
-    // part of the helper...?
-    _this._mesh = null;
-    _this._geometry = null;
-    _this._material = null;
-    // 3 next purpose is just to change the color: at widget level
-    _this._selected = false;
-    _this._active = false;
-    _this._hover = false;
-    _this._distance = null;
-
-    _this._showVoxel = true;
-    _this._showDomSVG = true;
-    _this._showDomMeasurements = true;
-    _this._color = '0x00B0FF';
-    // just visualization
-    // this._svgPointer = '<svg width="40" height="40" \
-    //      viewBox="0 0 140 140" version="1.1" \
-    //      xmlns="http://www.w3.org/2000/svg"> \
-    //   \
-    //     <polyline points="10,70 \
-    //                       70,10 \
-    //                       130,70" />\
-    //   \
-    //   </svg>';
-    /*jshint multistr: true */
-    _this._svgPointer = '<svg width="40" height="40" \
-                      viewBox="0 0 140 140" version="1.1" \
-                      xmlns="http://www.w3.org/2000/svg"> \
-                      \
-                      <path d="M70,70 \
-                               L30,30 \
-                               A10,10 0 1 1 10,10\
-                               A10,10 0 1 1 30,30" />\
-                      \
-                      </svg>';
-
-    _this.createMesh();
-    return _this;
-  }
-
-  _createClass(HelpersVoxel, [{
-    key: 'updateVoxel',
-    value: function updateVoxel(worldCoordinates) {
-      // update world coordinates
-      this._voxel.worldCoordinates = worldCoordinates;
-
-      // update data coordinates
-      this._voxel.dataCoordinates = _models2.default.worldToData(this._stack, this._voxel.worldCoordinates);
-
-      // update value
-      var value = _models2.default.value(this._stack, this._voxel.dataCoordinates);
-
-      this._voxel.value = _models2.default.valueRescaleSlopeIntercept(value, this._stack.rescaleSlope, this._stack.rescaleIntercept);
-    }
-  }, {
-    key: 'updateVoxelScreenCoordinates',
-    value: function updateVoxelScreenCoordinates(camera, container) {
-      this._voxel.screenCoordinates = HelpersVoxel.worldToScreen(this._worldCoordinates, camera, container);
-    }
-  }, {
-    key: 'createMesh',
-    value: function createMesh() {
-
-      var dataCoordinates = _models2.default.worldToData(this._stack, this._worldCoordinates);
-
-      this._geometry = new _geometries2.default(dataCoordinates);
-      this._material = new THREE.MeshBasicMaterial({
-        wireframe: true,
-        wireframeLinewidth: 2
-      });
-      this._material.color.setHex(this._color);
-      this._mesh = new THREE.Mesh(this._geometry, this._material);
-      this._mesh.applyMatrix(this._stack.ijk2LPS);
-
-      this._mesh.visible = this._showVoxel;
-
-      this.add(this._mesh);
-    }
-  }, {
-    key: 'createDom',
-    value: function createDom() {
-      // that could be a web-component!
-      var measurementsContainer = this._createDiv('VJSVoxelMeasurements', this.id, 'VJSVoxelMeasurements');
-      // RAS
-      var rasContainer = this._createDiv('VJSVoxelProbeWorld', this.id, 'VJSVoxelProbeWorld');
-      measurementsContainer.appendChild(rasContainer);
-      // IJK
-      var ijkContainer = this._createDiv('VJSVoxelProbeData', this.id, 'VJSVoxelProbeData');
-      measurementsContainer.appendChild(ijkContainer);
-      // Value
-      var valueContainer = this._createDiv('VJSVoxelProbeValue', this.id, 'VJSVoxelProbeValue');
-      measurementsContainer.appendChild(valueContainer);
-
-      // SVG
-      var svgContainer = this._createDiv('VJSVoxelProbeSVG', this.id, 'VJSVoxelProbeSVG');
-      svgContainer.innerHTML = this._svgPointer;
-
-      // Package everything
-      var domElement = this._createDiv('VJSWidgetVoxelProbe', this.id, 'VJSWidgetVoxelProbe');
-      domElement.appendChild(svgContainer);
-      domElement.appendChild(measurementsContainer);
-
-      return domElement;
-    }
-  }, {
-    key: 'updateDom',
-    value: function updateDom(container) {
-
-      if (document.getElementById('VJSVoxelProbeWorld' + this.id) === null) {
-        container.appendChild(this.createDom());
-      }
-
-      // update content
-      var rasContainer = document.getElementById('VJSVoxelProbeWorld' + this.id);
-      var rasContent = this._voxel.worldCoordinates.x.toFixed(2) + ' : ' + this._voxel.worldCoordinates.y.toFixed(2) + ' : ' + this._voxel.worldCoordinates.z.toFixed(2);
-      rasContainer.innerHTML = 'LPS: ' + rasContent;
-
-      var ijkContainer = document.getElementById('VJSVoxelProbeData' + this.id);
-      var ijkContent = this._voxel.dataCoordinates.x + ' : ' + this._voxel.dataCoordinates.y + ' : ' + this._voxel.dataCoordinates.z;
-      ijkContainer.innerHTML = 'IJK: ' + ijkContent;
-
-      var valueContainer = document.getElementById('VJSVoxelProbeValue' + this.id);
-      var valueContent = this._voxel.value;
-      valueContainer.innerHTML = 'Value: ' + valueContent;
-
-      // update div position
-      var selectedElement = document.getElementById('VJSWidgetVoxelProbe' + this.id);
-      selectedElement.style.top = this._voxel.screenCoordinates.y;
-      selectedElement.style.left = this._voxel.screenCoordinates.x;
-      // window.console.log(this._voxel);
-      // selectedElement.style['transform-origin'] = 'top left';
-      // selectedElement.style['transform'] = 'translate(' + this._voxel.screenCoordinates.x + 'px, ' + this._voxel.screenCoordinates.y + 'px)';
-
-      this.updateDomClass(selectedElement);
-    }
-  }, {
-    key: 'updateDomClass',
-    value: function updateDomClass() {
-      var element = document.getElementById('VJSWidgetVoxelProbe' + this.id);
-      if (this._active === true) {
-        element.classList.add('VJSVoxelProbeActive');
-      } else {
-        element.classList.remove('VJSVoxelProbeActive');
-      }
-
-      if (this._hover === true) {
-        element.classList.add('VJSVoxelProbeHover');
-      } else {
-        element.classList.remove('VJSVoxelProbeHover');
-      }
-
-      if (this._selected === true) {
-        element.classList.add('VJSVoxelProbeSelect');
-      } else {
-        element.classList.remove('VJSVoxelProbeSelect');
-      }
-
-      this.updateDomElementDisplay('VJSVoxelMeasurements' + this.id, this._showDomMeasurements);
-      this.updateDomElementDisplay('VJSVoxelProbeSVG' + this.id, this._showDomSVG);
-    }
-  }, {
-    key: 'updateDomElementDisplay',
-    value: function updateDomElementDisplay(id, show) {
-      if (show) {
-        document.getElementById(id).style.display = 'block';
-      } else {
-        document.getElementById(id).style.display = 'none';
-      }
-    }
-  }, {
-    key: 'removeTest',
-    value: function removeTest() {
-      // remove voxelDom
-      var node = document.getElementById('VJSWidgetVoxelProbe' + this.id);
-      if (node.parentNode) {
-        node.parentNode.removeChild(node);
-      }
-
-      // remove voxelMesh
-      this.remove(this._mesh);
-      this._mesh.geometry.dispose();
-      this._mesh.material.dispose();
-      this._mesh = null;
-    }
-  }, {
-    key: '_createDiv',
-    value: function _createDiv(idPrefix, idSuffix, className) {
-      var divContainer = document.createElement('div');
-      divContainer.setAttribute('id', idPrefix + idSuffix);
-      divContainer.setAttribute('class', className);
-
-      return divContainer;
-    }
-  }, {
-    key: 'color',
-    set: function set(color) {
-      this._color = color;
-      if (this._material) {
-        this._material.color.setHex(this._color);
-      }
-
-      // also update the dom
-      var selectedElement = document.getElementById('VJSVoxelMeasurements' + this.id);
-      if (selectedElement) {
-        selectedElement.style.borderColor = this._color.replace('0x', '#');
-      }
-
-      selectedElement = document.querySelector('#VJSVoxelProbeSVG' + this.id + '> svg > path');
-      if (selectedElement) {
-        selectedElement.style.stroke = this._color.replace('0x', '#');
-      }
-    },
-    get: function get() {
-      return this._color;
-    }
-  }, {
-    key: 'worldCoordinates',
-    set: function set(worldCoordinates) {
-      this._worldCoordinates = worldCoordinates;
-      this._voxel._worldCoordinates = worldCoordinates;
-
-      // set data coordinates && value
-      this.updateVoxel(this._worldCoordinates);
-
-      if (this._mesh && this._mesh.geometry) {
-        this._mesh.geometry.location = this._voxel.dataCoordinates;
-      }
-    },
-    get: function get() {
-      return this._worldCoordinates;
-    }
-  }, {
-    key: 'voxel',
-    get: function get() {
-      return this._voxel;
-    },
-    set: function set(voxel) {
-      this._voxel = voxel;
-    }
-  }, {
-    key: 'showVoxel',
-    set: function set(showVoxel) {
-      this._showVoxel = showVoxel;
-
-      if (this._mesh) {
-        this._mesh.visible = this._showVoxel;
-      }
-    },
-    get: function get() {
-      return this._showVoxel;
-    }
-  }, {
-    key: 'showDomSVG',
-    set: function set(showDomSVG) {
-      this._showDomSVG = showDomSVG;
-      this.updateDomClass();
-    },
-    get: function get() {
-      return this._showDomSVG;
-    }
-  }, {
-    key: 'showDomMeasurements',
-    set: function set(showDomMeasurements) {
-      this._showDomMeasurements = showDomMeasurements;
-      this.updateDomClass();
-    },
-    get: function get() {
-      return this._showDomMeasurements;
-    }
-  }, {
-    key: 'distance',
-    set: function set(distance) {
-      this._distance = distance;
-    },
-    get: function get() {
-      return this._distance;
-    }
-  }, {
-    key: 'selected',
-    set: function set(selected) {
-      this._selected = selected;
-    },
-    get: function get() {
-      return this._selected;
-    }
-  }, {
-    key: 'hover',
-    set: function set(hover) {
-      this._hover = hover;
-    },
-    get: function get() {
-      return this._hover;
-    }
-  }, {
-    key: 'active',
-    set: function set(active) {
-      this._active = active;
-    },
-    get: function get() {
-      return this._active;
-    }
-  }], [{
-    key: 'worldToScreen',
-    value: function worldToScreen(worldCoordinate, camera, canvas) {
-      var screenCoordinates = worldCoordinate.clone();
-      screenCoordinates.project(camera);
-
-      screenCoordinates.x = Math.round((screenCoordinates.x + 1) * canvas.offsetWidth / 2);
-      screenCoordinates.y = Math.round((-screenCoordinates.y + 1) * canvas.offsetHeight / 2);
-      screenCoordinates.z = 0;
-
-      return screenCoordinates;
-    }
-  }]);
-
-  return HelpersVoxel;
-}(THREE.Object3D);
-
-exports.default = HelpersVoxel;
-
-},{"../../src/geometries/geometries.voxel":352,"../../src/models/models.stack":364,"../../src/models/models.voxel":365}],359:[function(require,module,exports){
+},{"../../src/helpers/helpers.border":352,"../../src/helpers/helpers.boundingbox":353,"../../src/helpers/helpers.slice":355}],357:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30507,7 +29879,7 @@ var LoaderBase = function () {
 
 exports.default = LoaderBase;
 
-},{"../../src/helpers/helpers.progressbar":355,"../../src/models/models.frame":362,"../../src/models/models.series":363,"../../src/models/models.stack":364}],360:[function(require,module,exports){
+},{"../../src/helpers/helpers.progressbar":354,"../../src/models/models.frame":360,"../../src/models/models.series":361,"../../src/models/models.stack":362}],358:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -30677,14 +30049,15 @@ var LoadersVolumes = function (_LoadersBase) {
         series.stack.push(stack);
         // recursive call for each frame
         // better than for loop to be able to update dom with "progress" callback
-        setTimeout(_this2.parseFrame(series, stack, 0, volumeParser, resolve, reject), 0);
+        setTimeout(_this2.parseFrame(series, stack, response.url, 0, volumeParser, resolve, reject), 0);
       });
     }
   }, {
     key: 'parseFrame',
-    value: function parseFrame(series, stack, i, dataParser, resolve, reject) {
+    value: function parseFrame(series, stack, url, i, dataParser, resolve, reject) {
       var frame = new _models6.default();
       frame.sopInstanceUID = dataParser.sopInstanceUID(i);
+      frame.url = url;
       frame.rows = dataParser.rows(i);
       frame.columns = dataParser.columns(i);
       frame.numberOfChannels = stack.numberOfChannels;
@@ -30722,7 +30095,7 @@ var LoadersVolumes = function (_LoadersBase) {
       if (this._parsed === this._totalParsed) {
         resolve(series);
       } else {
-        setTimeout(this.parseFrame(series, stack, this._parsed, dataParser, resolve, reject), 0);
+        setTimeout(this.parseFrame(series, stack, url, this._parsed, dataParser, resolve, reject), 0);
       }
     }
   }, {
@@ -30758,7 +30131,7 @@ var LoadersVolumes = function (_LoadersBase) {
 
 exports.default = LoadersVolumes;
 
-},{"../../src/models/models.frame":362,"../../src/models/models.series":363,"../../src/models/models.stack":364,"../../src/parsers/parsers.dicom":366,"../../src/parsers/parsers.nifti":367,"../../src/parsers/parsers.nrrd":368,"./loaders.base":359,"pako":320}],361:[function(require,module,exports){
+},{"../../src/models/models.frame":360,"../../src/models/models.series":361,"../../src/models/models.stack":362,"../../src/parsers/parsers.dicom":363,"../../src/parsers/parsers.nifti":364,"../../src/parsers/parsers.nrrd":365,"./loaders.base":357,"pako":320}],359:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30895,7 +30268,7 @@ var ModelsBase = function () {
 
 exports.default = ModelsBase;
 
-},{}],362:[function(require,module,exports){
+},{}],360:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -30955,6 +30328,7 @@ var ModelsFrame = function (_ModelsBase) {
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ModelsFrame).call(this));
 
     _this._sopInstanceUID = null;
+    _this._url = null;
     _this._stackID = -1;
     _this._rows = 0;
     _this._columns = 0;
@@ -31222,6 +30596,14 @@ var ModelsFrame = function (_ModelsBase) {
     set: function set(pixelType) {
       this._pixelType = pixelType;
     }
+  }, {
+    key: 'url',
+    get: function get() {
+      return this._url;
+    },
+    set: function set(url) {
+      this._url = url;
+    }
   }]);
 
   return ModelsFrame;
@@ -31229,7 +30611,7 @@ var ModelsFrame = function (_ModelsBase) {
 
 exports.default = ModelsFrame;
 
-},{"../../src/models/models.base":361}],363:[function(require,module,exports){
+},{"../../src/models/models.base":359}],361:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -31433,7 +30815,7 @@ var ModelsSeries = function (_ModelsBase) {
 
 exports.default = ModelsSeries;
 
-},{"../../src/models/models.base":361}],364:[function(require,module,exports){
+},{"../../src/models/models.base":359}],362:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -32247,92 +31629,7 @@ var ModelsStack = function (_ModelsBase) {
 
 exports.default = ModelsStack;
 
-},{"../../src/core/core.pack":348,"../../src/models/models.base":361,"math-float32-to-binary-string":312}],365:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-  };
-}();
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-/**
- * @module models/voxel
- */
-
-var ModelsVoxel = function () {
-  function ModelsVoxel() {
-    _classCallCheck(this, ModelsVoxel);
-
-    this._id = -1;
-    this._worldCoordinates = null;
-    this._dataCoordinates = null;
-    this._screenCoordinates = null;
-    this._value = null;
-  }
-
-  _createClass(ModelsVoxel, [{
-    key: "worldCoordinates",
-    set: function set(worldCoordinates) {
-      this._worldCoordinates = worldCoordinates;
-    },
-    get: function get() {
-      return this._worldCoordinates;
-    }
-  }, {
-    key: "dataCoordinates",
-    set: function set(dataCoordinates) {
-      this._dataCoordinates = dataCoordinates;
-    },
-    get: function get() {
-      return this._dataCoordinates;
-    }
-  }, {
-    key: "screenCoordinates",
-    set: function set(screenCoordinates) {
-      this._screenCoordinates = screenCoordinates;
-    },
-    get: function get() {
-      return this._screenCoordinates;
-    }
-  }, {
-    key: "value",
-    set: function set(value) {
-      this._value = value;
-    },
-    get: function get() {
-      return this._value;
-    }
-  }, {
-    key: "id",
-    set: function set(id) {
-      this._id = id;
-    },
-    get: function get() {
-      return this._id;
-    }
-  }]);
-
-  return ModelsVoxel;
-}();
-
-exports.default = ModelsVoxel;
-
-},{}],366:[function(require,module,exports){
+},{"../../src/core/core.pack":348,"../../src/models/models.base":359,"math-float32-to-binary-string":312}],363:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -33170,7 +32467,7 @@ var ParsersDicom = function (_ParsersVolume) {
 
 exports.default = ParsersDicom;
 
-},{"../../external/scripts/jpeg":2,"../../external/scripts/jpx":3,"./parsers.volume":369,"dicom-parser":297,"jpeg-lossless-decoder-js":304}],367:[function(require,module,exports){
+},{"../../external/scripts/jpeg":2,"../../external/scripts/jpx":3,"./parsers.volume":366,"dicom-parser":297,"jpeg-lossless-decoder-js":304}],364:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -33607,7 +32904,7 @@ var ParsersNifti = function () {
 
 exports.default = ParsersNifti;
 
-},{"nifti-reader-js":315}],368:[function(require,module,exports){
+},{"nifti-reader-js":315}],365:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -33899,7 +33196,7 @@ var ParsersNifti = function () {
 
 exports.default = ParsersNifti;
 
-},{"nrrd-js":319,"pako":320}],369:[function(require,module,exports){
+},{"nrrd-js":319,"pako":320}],366:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33941,7 +33238,7 @@ var ParsersVolume = function () {
 
 exports.default = ParsersVolume;
 
-},{}],370:[function(require,module,exports){
+},{}],367:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34034,829 +33331,121 @@ var ShadersData = function () {
 
 exports.default = ShadersData;
 
-},{}],371:[function(require,module,exports){
+},{}],368:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
+    return typeof obj === "undefined" ? "undefined" : _typeof2(obj);
+} : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
+};
 
-var _createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-  };
-}();
+var VJS = VJS || {};
+VJS.widgets = VJS.widgets || {};
 
-var _core = require('../../src/core/core.intersections');
+VJS.widgets.orientation = function (parentID, targetCamera, targetControl) {
+    this._ParentId = parentID;
+    this._TargetCamera = targetCamera;
+    this._TargetControl = targetControl;
+    this._DomElement = null;
+    this._Renderer = null;
+    this._Scene = null;
+    this._Camera = null;
+    this._Axes = null;
 
-var _core2 = _interopRequireDefault(_core);
-
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
-
-/**
- * @module widgets/handle
- * 
- */
-
-var WidgetsHandle = function (_THREE$Object3D) {
-  _inherits(WidgetsHandle, _THREE$Object3D);
-
-  function WidgetsHandle(targetMesh, controls, camera, container) {
-    var connectAllEvents = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
-
-    _classCallCheck(this, WidgetsHandle);
-
-    // do nothing.
-    // just upate dom if needed...
-
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(WidgetsHandle).call(this));
-
-    _this._enabled = true;
-
-    // array of meshes
-    _this._targetMesh = targetMesh;
-
-    // if no target mesh, use plane for FREE dragging.
-    _this._plane = {
-      position: new THREE.Vector3(),
-      direction: new THREE.Vector3()
+    this._Style = {
+        width: 200,
+        height: 200
     };
 
-    _this._offset = new THREE.Vector3();
-
-    _this._controls = controls;
-    _this._camera = camera;
-    _this._container = container;
-    _this._raycaster = new THREE.Raycaster();
-    _this._connectAllEvents = connectAllEvents;
-
-    _this._firstRun = false;
-
-    _this._mouse = new THREE.Vector2();
-
-    // world (LPS) position
-    _this._worldPosition = new THREE.Vector3();
-
-    // screen position
-    _this._screenPosition = new THREE.Vector2();
-
-    _this._selected = false;
-    _this._hovered = false;
-    _this._dragged = false;
-    _this._visible = true;
-
-    _this._colors = {
-      default: '#00B0FF',
-      active: '#FFEB3B',
-      hover: '#F50057',
-      select: '#76FF03'
-    };
-    _this._color = _this._colors.default;
-
-    // mesh stuff
-    _this._material = null;
-    _this._geometry = null;
-    _this._mesh = null;
-    _this._meshVisible = true;
-    _this._meshHovered = false;
-    _this._meshStyle = 'sphere'; //cube, etc.
-
-    // dom stuff
-    _this._dom = null;
-    _this._domVisible = true;
-    _this._domHovered = false;
-    _this._domStyle = 'circle'; // square, triangle
-    // maybe just a string...
-    // this._domStyles = {
-    //   circle: function(){
-    //     this._dom.style.border = '2px solid #353535';
-    //     this._dom.style.backgroundColor = '#F9F9F9';
-    //     // this._dom.style.backgroundColor = 'rgba(230, 230, 230, 0.7)';
-    //     this._dom.style.color = '#F9F9F9';
-    //     this._dom.style.position = 'absolute';
-    //     this._dom.style.width = '12px';
-    //     this._dom.style.height = '12px';
-    //     this._dom.style.margin = '-6px';
-    //     this._dom.style.borderRadius =  '50%';
-    //     this._dom.style.transformOrigin = '0 100%';
-    //   },
-    //   cross: function(){
-
-    //   },
-    //   triangle: ``
-    // };
-
-    // <svg height="12" width="12">
-    //   <circle cx="6" cy="6" r="5" stroke="#353535" stroke-opacity="0.9" stroke-width="2" fill="#F9F9F9" fill-opacity="0.7" />
-    //   Sorry, your browser does not support inline SVG.
-    // </svg>
-
-    // <svg height="12" width="12">
-    // <line x1="0" y1="0" x2="12" y2="12" stroke="#353535" stroke-linecap="square" stroke-width="2" />
-    // <line x1="0" y1="12" x2="12" y2="0" stroke="#353535" stroke-linecap="square" stroke-width="2" />
-    // </svg>
-
-    // <svg height="12" width="12">
-    // <line x1="0" y1="12" x2="6" y2="6" stroke="#353535" stroke-linecap="square" stroke-width="2" />
-    // <line x1="6" y1="6" x2="12" y2="12" stroke="#353535" stroke-linecap="square" stroke-width="2" />
-    // </svg>
-    //
-
-    if (_this._targetMesh !== null) {
-      _this._worldPosition.copy(_this._targetMesh.position);
-    }
-    _this._screenPosition = _this.worldToScreen(_this._worldPosition, _this._camera, _this._container);
-
-    // create handle
-    _this.createMesh();
-    _this.createDOM();
-
-    // event listeners
-    _this.onStart = _this.onStart.bind(_this);
-    _this.onMove = _this.onMove.bind(_this);
-    _this.onEnd = _this.onEnd.bind(_this);
-    _this.onHover = _this.onHover.bind(_this);
-    _this.update = _this.update.bind(_this);
-
-    _this.addEventListeners();
-    return _this;
-  }
-
-  _createClass(WidgetsHandle, [{
-    key: 'addEventListeners',
-    value: function addEventListeners() {
-      if (this._connectAllEvents) {
-        this._container.addEventListener('mousedown', this.onStart);
-        this._container.addEventListener('mousemove', this.onMove);
-      }
-      this._container.addEventListener('mouseup', this.onEnd);
-
-      if (this._connectAllEvents) {
-        this._container.addEventListener('touchstart', this.onStart);
-        this._container.addEventListener('touchmove', this.onMove);
-      }
-      this._container.addEventListener('touchend', this.onEnd);
-
-      this._dom.addEventListener('mouseenter', this.onHover);
-      this._dom.addEventListener('mouseleave', this.onHover);
-
-      this._container.addEventListener('mousewheel', this.onMove);
-      this._container.addEventListener('DOMMouseScroll', this.onMove);
-    }
-  }, {
-    key: 'removeEventListeners',
-    value: function removeEventListeners() {
-      if (this._connectAllEvents) {
-        this._container.removeEventListener('mousedown', this.onStart);
-        this._container.removeEventListener('mousemove', this.onMove);
-        this._container.removeEventListener('mouseup', this.onEnd);
-
-        this._container.removeEventListener('touchstart', this.onStart);
-        this._container.removeEventListener('touchmove', this.onMove);
-        this._container.removeEventListener('touchend', this.onEnd);
-      }
-
-      this._dom.removeEventListener('mouseenter', this.onHover);
-      this._dom.removeEventListener('mouseleave', this.onHover);
-
-      this._container.removeEventListener('mousewheel', this.onMove);
-      this._container.removeEventListener('DOMMouseScroll', this.onMove);
-    }
-  }, {
-    key: 'onStart',
-    value: function onStart(evt) {
-      evt.preventDefault();
-
-      //
-      this._dragged = this._firstRun;
-      this._firstRun = false;
-
-      // update raycaster
-      this._raycaster.setFromCamera(this._mouse, this._camera);
-      this._raycaster.ray.position = this._raycaster.ray.origin;
-
-      if (this._hovered) {
-
-        this._active = true;
-        this._controls.enabled = false;
-
-        if (this._targetMesh) {
-          var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
-          if (intersectsTarget.length > 0) {
-            this._offset.copy(intersectsTarget[0].point).sub(this._mesh.position);
-          }
-        } else {
-          // update raycaster
-          var intersection = _core2.default.rayPlane(this._raycaster.ray, this._plane);
-          if (intersection !== null) {
-            this._offset.copy(intersection).sub(this._plane.position);
-          }
-        }
-
-        this.update();
-      }
-    }
-  }, {
-    key: 'onEnd',
-    value: function onEnd(evt) {
-      evt.preventDefault();
-
-      // unselect if go up without moving
-      if (!this._dragged && this._active) {
-        this._selected = !this._selected;
-      }
-
-      // stay active and keep controls disabled
-      if (this._firstRun === true) {
-        return;
-      }
-
-      this._active = false;
-      this._controls.enabled = true;
-
-      this.update();
-    }
-
-    /**
-     *
-     *
-     */
-
-  }, {
-    key: 'onMove',
-    value: function onMove(evt) {
-      evt.preventDefault();
-
-      this._mouse.set(event.clientX / this._container.offsetWidth * 2 - 1, -(event.clientY / this._container.offsetHeight) * 2 + 1);
-
-      this._dragged = true;
-
-      // update screen position of handle
-      this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
-
-      // update raycaster
-      // set ray.position to satisfy CoreIntersections::rayPlane API
-      this._raycaster.setFromCamera(this._mouse, this._camera);
-      this._raycaster.ray.position = this._raycaster.ray.origin;
-
-      if (this._active) {
-        if (this._targetMesh !== null) {
-          var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
-          if (intersectsTarget.length > 0) {
-            this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
-          }
-        } else {
-
-          if (this._plane.direction.length() === 0) {
-            // free mode!this._targetMesh
-            this._plane.position.copy(this._worldPosition);
-            this._plane.direction.copy(this._camera.getWorldDirection());
-          }
-
-          var intersection = _core2.default.rayPlane(this._raycaster.ray, this._plane);
-          if (intersection !== null) {
-
-            this._worldPosition.copy(intersection.sub(this._offset));
-          }
-        }
-      } else {
-        this.onHover(null);
-        if (this._targetMesh === null) {
-          //free mode!this._targetMesh
-          this._plane.position.copy(this._worldPosition);
-          this._plane.direction.copy(this._camera.getWorldDirection());
-        }
-      }
-
-      this.update();
-    }
-  }, {
-    key: 'onHover',
-    value: function onHover(evt) {
-      if (evt) {
-        evt.preventDefault();
-        this.hoverDom(evt);
-      }
-
-      this.hoverMesh();
-
-      this._hovered = this._meshHovered || this._domHovered;
-      this._container.style.cursor = this._hovered ? 'pointer' : 'default';
-    }
-  }, {
-    key: 'update',
-    value: function update() {
-
-      // general update
-      this.updateColor();
-
-      // mesh stuff
-      this.updateMeshColor();
-      this.updateMeshPosition();
-
-      // DOM stuff
-      this.updateDOMColor();
-      this.updateDOMPosition();
-    }
-  }, {
-    key: 'updateColor',
-    value: function updateColor() {
-      if (this._active) {
-        this._color = this._colors.active;
-      } else if (this._hovered) {
-        this._color = this._colors.hover;
-      } else if (this._selected) {
-        this._color = this._colors.select;
-      } else {
-        this._color = this._colors.default;
-      }
-    }
-
-    //
-
-  }, {
-    key: 'updateMeshColor',
-    value: function updateMeshColor() {
-      if (this._material) {
-        this._material.color.set(this._color);
-      }
-    }
-  }, {
-    key: 'updateMeshPosition',
-    value: function updateMeshPosition() {
-      if (this._mesh) {
-        this._mesh.position.x = this._worldPosition.x;
-        this._mesh.position.y = this._worldPosition.y;
-        this._mesh.position.z = this._worldPosition.z;
-      }
-    }
-  }, {
-    key: 'hoverMesh',
-    value: function hoverMesh() {
-      // check raycast intersection, do we want to hover on mesh or just css?
-      var intersectsHandle = this._raycaster.intersectObject(this._mesh);
-      if (intersectsHandle.length > 0) {
-        this._meshHovered = true;
-      } else {
-        this._meshHovered = false;
-      }
-    }
-  }, {
-    key: 'hoverDom',
-    value: function hoverDom(evt) {
-      this._domHovered = evt.type === 'mouseenter';
-    }
-  }, {
-    key: 'worldToScreen',
-    value: function worldToScreen(worldCoordinate, camera, canvas) {
-      var screenCoordinates = worldCoordinate.clone();
-      screenCoordinates.project(camera);
-
-      screenCoordinates.x = Math.round((screenCoordinates.x + 1) * canvas.offsetWidth / 2);
-      screenCoordinates.y = Math.round((-screenCoordinates.y + 1) * canvas.offsetHeight / 2);
-      screenCoordinates.z = 0;
-
-      return screenCoordinates;
-    }
-  }, {
-    key: 'createMesh',
-    value: function createMesh() {
-      // geometry
-      this._geometry = new THREE.SphereGeometry(2, 32, 32);
-
-      // material
-      this._material = new THREE.MeshBasicMaterial({
-        wireframe: true,
-        wireframeLinewidth: 2
-      });
-
-      // mesh
-      this._mesh = new THREE.Mesh(this._geometry, this._material);
-      this._mesh.position.x = this._worldPosition.x;
-      this._mesh.position.y = this._worldPosition.y;
-      this._mesh.position.z = this._worldPosition.z;
-      this._mesh.visible = true;
-
-      this.updateMeshColor();
-
-      // add it!
-      this.add(this._mesh);
-    }
-  }, {
-    key: 'createDOM',
-    value: function createDOM() {
-
-      // dom
-      this._dom = document.createElement('div');
-      this._dom.setAttribute('id', this.uuid);
-      this._dom.setAttribute('class', 'widgets handle');
-      // this._domStyles.circle();
-      // this._domStyles.cross();
-      this._dom.style.border = '2px solid';
-      this._dom.style.backgroundColor = '#F9F9F9';
-      this._dom.style.color = '#F9F9F9';
-      this._dom.style.position = 'absolute';
-      this._dom.style.width = '12px';
-      this._dom.style.height = '12px';
-      this._dom.style.margin = '-6px';
-      this._dom.style.borderRadius = '50%';
-      this._dom.style.transformOrigin = '0 100%';
-
-      var posY = this._screenPosition.y - this._container.offsetHeight;
-      this._dom.style.transform = 'translate3D(' + this._screenPosition.x + 'px, ' + posY + 'px, 0)';
-
-      this.updateDOMColor();
-
-      // add it!
-      this._container.appendChild(this._dom);
-    }
-  }, {
-    key: 'updateDOMPosition',
-    value: function updateDOMPosition() {
-      if (this._dom) {
-
-        var posY = this._screenPosition.y - this._container.offsetHeight;
-        this._dom.style.transform = 'translate3D(' + this._screenPosition.x + 'px, ' + posY + 'px, 0)';
-      }
-    }
-  }, {
-    key: 'updateDOMColor',
-    value: function updateDOMColor() {
-      this._dom.style.borderColor = '' + this._color;
-    }
-  }, {
-    key: 'free',
-    value: function free() {
-      // threejs stuff
-
-      // dom
-
-      // event
-      this.removeEventListeners();
-    }
-  }, {
-    key: 'worldPosition',
-    set: function set(worldPosition) {
-      this._worldPosition.copy(worldPosition);
-      this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
-
-      this.update();
-    },
-    get: function get() {
-      return this._worldPosition;
-    }
-  }, {
-    key: 'screenPosition',
-    set: function set(screenPosition) {
-      this._screenPosition = screenPosition;
-    },
-    get: function get() {
-      return this._screenPosition;
-    }
-  }, {
-    key: 'active',
-    set: function set(active) {
-      this._active = active;
-      this._firstRun = this._active;
-      this._controls.enabled = !this._active;
-
-      this.update();
-    },
-    get: function get() {
-      return this._active;
-    }
-  }, {
-    key: 'hovered',
-    get: function get() {
-      return this._hovered;
-    },
-    set: function set(hovered) {
-      this._hovered = hovered;
-      this.update();
-    }
-  }, {
-    key: 'color',
-    get: function get() {
-      return this._color;
-    },
-    set: function set(color) {
-      this._color = color;
-    }
-  }]);
-
-  return WidgetsHandle;
-}(THREE.Object3D);
-
-exports.default = WidgetsHandle;
-
-},{"../../src/core/core.intersections":347}],372:[function(require,module,exports){
-'use strict';
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-  };
-}();
-
-var _widgets = require('../../src/widgets/widgets.handle');
-
-var _widgets2 = _interopRequireDefault(_widgets);
-
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
+    this.createDomContainer();
+    this.setupObject();
+};
+
+VJS.widgets.orientation.prototype.createDomContainer = function () {
+
+    // create it
+    this._DomElement = document.createElement('div');
+    this._DomElement.setAttribute('id', 'VJSOrientation');
+
+    // style it
+    this._DomElement.style.width = this._Style.width + 'px';
+    this._DomElement.style.height = this._Style.height + 'px';
+
+    // attach it
+    var parent = document.getElementById(this._ParentId);
+    parent.appendChild(this._DomElement);
+};
+
+VJS.widgets.orientation.prototype.setupObject = function () {
+    this._Renderer = new THREE.WebGLRenderer({
+        alpha: true
+    });
+    this._Renderer.setClearColor(0x000000, 0);
+    this._Renderer.setSize(this._Style.width, this._Style.height);
+    this._DomElement.appendChild(this._Renderer.domElement);
+
+    this._Scene = new THREE.Scene();
+
+    // camera
+    this._Camera = new THREE.PerspectiveCamera(50, this._Style.width / this._Style.height, 1, 1000);
+    this._Camera.up = this._TargetCamera.up; // important!
+
+    // axes
+    this._Axes = new THREE.AxisHelper(100);
+    this._Scene.add(this._Axes);
+};
+
+VJS.widgets.orientation.prototype.update = function () {
+    // call to render!
+    this._Camera.position.copy(this._TargetCamera.position);
+    this._Camera.position.sub(this._TargetControl.target); // added by @libe
+    this._Camera.position.setLength(300);
+
+    this._Camera.lookAt(this._Scene.position);
+
+    this._Renderer.render(this._Scene, this._Camera);
+};
+
+/*** Exports ***/
+
+var moduleType = typeof module === 'undefined' ? 'undefined' : _typeof(module);
+if (moduleType !== 'undefined' && module.exports) {
+    module.exports = VJS.widgets.orientation;
 }
 
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
+// // create arrow helper scene
+//     // scene
+// var scene2 = new THREE.Scene();
+// // camera
+// var camera2 = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
+// camera2.position.x = -30;
+// camera2.up.set(0, 0, 1);
+// camera2.lookAt(scene2.position);
+// // controls
+// controls2 = new THREE.OrbitControls2D(camera2, renderer.domElement);
+// controls2.noZoom = true;
+// controls2.noPan = true;
+// // direction (normalized), origin, length, color(hex)
+// var origin = new THREE.Vector3(0, 0, 0);
+// var terminus = new THREE.Vector3(10, 0, 0);
+// var direction = new THREE.Vector3().subVectors(terminus, origin).normalize();
+// var r = new THREE.ArrowHelper(direction, origin, 5, 0xF44336);
+// scene2.add(r);
+// var origin = new THREE.Vector3(0, 0, 0);
+// var terminus = new THREE.Vector3(0, 10, 0);
+// var direction = new THREE.Vector3().subVectors(terminus, origin).normalize();
+// var a = new THREE.ArrowHelper(direction, origin, 5, 0x2196F3);
+// scene2.add(a);
+// var origin = new THREE.Vector3(0, 0, 0);
+// var terminus = new THREE.Vector3(0, 0, 10);
+// var direction = new THREE.Vector3().subVectors(terminus, origin).normalize();
+// var s = new THREE.ArrowHelper(direction, origin, 5, 0x4CAF50);
+// scene2.add(s);
 
-function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
-
-/**
- * @module widgets/handle
- * 
- */
-
-var WidgetsRuler = function (_THREE$Object3D) {
-  _inherits(WidgetsRuler, _THREE$Object3D);
-
-  function WidgetsRuler(targetMesh, controls, camera, container) {
-    var connectAllEvents = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
-
-    _classCallCheck(this, WidgetsRuler);
-
-    // enable/disable flag
-
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(WidgetsRuler).call(this));
-
-    _this._targetMesh = targetMesh;
-    _this._controls = controls;
-    _this._camera = camera;
-    _this._container = container;
-    _this._connectAllEvents = connectAllEvents;
-
-    _this._hovered = false;
-
-    _this._worldPosition = new THREE.Vector3();
-    if (_this._targetMesh !== null) {
-      _this._worldPosition = _this._targetMesh.position;
-    }
-
-    // DOM STUFF...
-    // NEED 3D too...
-    _this._line = null;
-    _this._distance = null;
-
-    // add handles
-    _this._handles = [];
-
-    // first handle
-    _this._firstHandle = new _widgets2.default(_this._targetMesh, _this._controls, _this._camera, _this._container, connectAllEvents);
-    _this._firstHandle.worldPosition = _this._worldPosition;
-    _this._firstHandle.hovered = true;
-    _this.add(_this._firstHandle);
-
-    _this._handles.push(_this._firstHandle);
-
-    _this._secondHandle = new _widgets2.default(_this._targetMesh, _this._controls, _this._camera, _this._container, connectAllEvents);
-    _this._secondHandle.worldPosition = _this._worldPosition;
-    _this._secondHandle.hovered = true;
-    _this._secondHandle.active = true;
-    _this.add(_this._secondHandle);
-
-    _this._active = true;
-
-    _this._handles.push(_this._secondHandle);
-
-    _this._colors = {
-      default: '#00B0FF',
-      active: '#FFEB3B',
-      hover: '#F50057',
-      select: '#76FF03'
-    };
-    _this._color = _this._colors.default;
-
-    // DOM STUFF
-    _this.create();
-
-    _this.onStart = _this.onStart.bind(_this);
-    _this.onMove = _this.onMove.bind(_this);
-    // this.onEnd = this.onEnd.bind(this);
-    // this.onHover = this.onHover.bind(this);
-    // this.update = this.update.bind(this);
-    return _this;
-  }
-
-  _createClass(WidgetsRuler, [{
-    key: 'onMove',
-    value: function onMove(evt) {
-
-      this._firstHandle.onMove(evt);
-      this._secondHandle.onMove(evt);
-
-      this._hovered = this._firstHandle.hovered || this._secondHandle.hovered;
-      this.update();
-    }
-  }, {
-    key: 'onStart',
-    value: function onStart(evt) {
-      this._firstHandle.onStart(evt);
-      this._secondHandle.onStart(evt);
-
-      this._active = this._firstHandle.active || this._secondHandle.active;
-      this.update();
-    }
-  }, {
-    key: 'onEnd',
-    value: function onEnd(evt) {
-      this._firstHandle.onEnd(evt);
-      this._secondHandle.onEnd(evt);
-
-      this._active = this._firstHandle.active || this._secondHandle.active;
-      window.console.log(this._firstHandle.active);
-      window.console.log(this._secondHandle.active);
-      window.console.log(this._active);
-      this.update();
-    }
-  }, {
-    key: 'create',
-    value: function create() {
-      this.createDOM();
-    }
-  }, {
-    key: 'update',
-    value: function update() {
-      this.updateColor();
-
-      this.updateDOMPosition();
-      this.updateDOMColor();
-    }
-  }, {
-    key: 'updateColor',
-    value: function updateColor() {
-      if (this._active) {
-        this._color = this._colors.active;
-      } else if (this._hovered) {
-        this._color = this._colors.hover;
-      } else if (this._selected) {
-        this._color = this._colors.select;
-      } else {
-        this._color = this._colors.default;
-      }
-    }
-  }, {
-    key: 'createDOM',
-    value: function createDOM() {
-      // add line!
-      this._line = document.createElement('div');
-      this._line.setAttribute('class', 'widgets handle line');
-      this._line.style.position = 'absolute';
-      this._line.style.transformOrigin = '0 100%';
-      this._line.style.marginTop = '-1px';
-      this._line.style.height = '2px';
-      this._line.style.width = '3px';
-      this._container.appendChild(this._line);
-
-      // add distance!
-      this._distance = document.createElement('div');
-      this._distance.setAttribute('class', 'widgets handle distance');
-      this._distance.style.border = '2px solid';
-      this._distance.style.backgroundColor = '#F9F9F9';
-      // this._distance.style.opacity = '0.5';
-      this._distance.style.color = '#353535';
-      this._distance.style.padding = '4px';
-      this._distance.style.position = 'absolute';
-      this._distance.style.transformOrigin = '0 100%';
-      this._distance.innerHTML = 'Hello, world!';
-      this._container.appendChild(this._distance);
-
-      this.updateDOMColor();
-    }
-  }, {
-    key: 'updateDOMPosition',
-    value: function updateDOMPosition() {
-      //update rulers lines and text!
-      var x1 = this._firstHandle.screenPosition.x;
-      var y1 = this._firstHandle.screenPosition.y;
-      var x2 = this._secondHandle.screenPosition.x;
-      var y2 = this._secondHandle.screenPosition.y;
-
-      var x0 = x1 + (x2 - x1) / 2;
-      var y0 = y1 + (y2 - y1) / 2;
-
-      var length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-      var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-
-      var posY = y1 - this._container.offsetHeight;
-
-      // update line
-      var transform = 'translate3D(' + x1 + 'px,' + posY + 'px, 0)';
-      transform += ' rotate(' + angle + 'deg)';
-
-      this._line.style.transform = transform;
-      this._line.style.width = length;
-
-      // update distance
-      var w0 = this._handles[0].worldPosition;
-      var w1 = this._handles[1].worldPosition;
-
-      this._distance.innerHTML = Math.sqrt((w0.x - w1.x) * (w0.x - w1.x) + (w0.y - w1.y) * (w0.y - w1.y) + (w0.z - w1.z) * (w0.z - w1.z)).toFixed(2) + ' mm';
-      var posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight / 2;
-      x0 -= this._distance.offsetWidth / 2;
-
-      var transform2 = 'translate3D(' + Math.round(x0) + 'px,' + Math.round(posY0) + 'px, 0)';
-      this._distance.style.transform = transform2;
-    }
-  }, {
-    key: 'updateDOMColor',
-    value: function updateDOMColor() {
-      this._line.style.backgroundColor = '' + this._color;
-      this._distance.style.borderColor = '' + this._color;
-    }
-  }, {
-    key: 'hovered',
-    get: function get() {
-      return this._hovered;
-    },
-    set: function set(hovered) {
-      this._hovered = hovered;
-    }
-  }, {
-    key: 'active',
-    get: function get() {
-      return this._active;
-    },
-    set: function set(active) {
-      this._active = active;
-    }
-  }, {
-    key: 'worldPosition',
-    get: function get() {
-      return this._worldPosition;
-    },
-    set: function set(worldPosition) {
-      this._worldPosition = worldPosition;
-      this._firstHandle.worldPosition = this._worldPosition;
-      this._secondHandle.worldPosition = this._worldPosition;
-
-      this.update();
-    }
-  }]);
-
-  return WidgetsRuler;
-}(THREE.Object3D);
-
-exports.default = WidgetsRuler;
-
-},{"../../src/widgets/widgets.handle":371}]},{},[1])
+},{}]},{},[1])
 
 
-//# sourceMappingURL=../widget_handle/widget_handle.js.map
+//# sourceMappingURL=../loader_dicoms/loader_dicoms.js.map
