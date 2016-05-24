@@ -127,6 +127,8 @@ window.onload = function() {
       camera.invertColumns();
     });
 
+    let angle = cameraFolder.add(camera, 'angle', 0, 360).step(1).listen();
+
     let rotate = cameraFolder.add(camUtils, 'rotate');
     rotate.onChange(function() {
       camera.rotate();

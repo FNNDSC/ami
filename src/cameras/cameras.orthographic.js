@@ -30,6 +30,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     }
 
     this._fromFront = true;
+    this._angle = 0;
   }
 
   /**
@@ -80,6 +81,16 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     // flip "up" vector
     // we flip up first because invertColumns update projectio matrices
     this.up.multiplyScalar(-1);
+    // this._angle -= 180;
+
+    // Rotate the up vector around the "zCosine"
+    // let rotation = new THREE.Matrix4().makeRotationAxis(
+    //   this._zCosine, 
+    //   Math.PI);
+    // this.up.applyMatrix4(rotation);
+
+    // this._updateMatrices();
+
     
     this.invertColumns();
   }
@@ -89,7 +100,8 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
    * Inverting rows in 1 step:
    *   * Look at the slice from the other side 
    */
-  invertColumns() {
+  invertColumns( ) {
+
     this.center();
     // rotate 180 degrees around the up vector...
     let oppositePosition = this._oppositePosition(this.position);
@@ -99,6 +111,17 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this._updatePositionAndTarget(oppositePosition, this.position.clone());
     this._updateMatrices();
     this._fromFront = !this._fromFront;
+
+    let clockwise = 1;
+    if( !this._fromFront ){
+
+      clockwise = -1;
+      
+    }
+
+    this._angle %= 360;
+    this._angle = 360 - this._angle;
+
   }
 
   /**
@@ -120,20 +143,38 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
    * Pi/2 rotation around the zCosine axis.
    * Clock-wise rotation from the user point of view.
    */
-  rotate() {
+  rotate( angle=null ) {
+
     this.center();
 
-    // Pi/2 rotation if camera is positions at the front of the volume
-    // else -Pi/2 rotation
+    var computedAngle = 90;
+
     let clockwise = 1;
-    if(this.position.distanceTo(this._back) < this.position.distanceTo(this._front)){
+    if( !this._fromFront ){
+
       clockwise = -1;
+      
     }
+
+    if( angle === null ){
+
+      computedAngle *= -clockwise;
+      this._angle += 90;
+
+    }
+    else{
+      
+      computedAngle = 360 - clockwise * (angle - this._angle);
+      this._angle = angle;
+
+    }
+
+    this._angle %= 360;
 
     // Rotate the up vector around the "zCosine"
     let rotation = new THREE.Matrix4().makeRotationAxis(
       this._zCosine, 
-      clockwise * Math.PI/2);
+      computedAngle * Math.PI/180);
     this.up.applyMatrix4(rotation);
 
     this._updateMatrices();
@@ -201,6 +242,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     let rotation = new THREE.Matrix4().makeRotationAxis(
       this.up, 
       Math.PI);
+
     oppositePosition.applyMatrix4(rotation);
     // translate back to world position
     oppositePosition.add(this._box.center);
@@ -295,6 +337,14 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
 
   get canvas(){
     return this._canvas;
+  }
+
+  set angle(angle){
+    this.rotate(angle);
+  }
+
+  get angle(){
+    return this._angle;
   }
 
 }

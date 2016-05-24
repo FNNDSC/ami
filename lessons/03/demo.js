@@ -54,7 +54,8 @@ function gui(stackHelper){
   var camUtils = {
     invertRows: false,
     invertColumns: false,
-    rotate: false
+    rotate45: false,
+    rotate: 0
   };
 
   // camera
@@ -69,10 +70,12 @@ function gui(stackHelper){
   camera.invertColumns();
   });
 
-  var rotate = cameraFolder.add(camUtils, 'rotate');
-  rotate.onChange(function() {
+  var rotate45 = cameraFolder.add(camUtils, 'rotate45');
+  rotate45.onChange(function() {
     camera.rotate();
   });
+
+  var rotate = cameraFolder.add(camera, 'angle', 0, 360).step(1).listen();
 
   cameraFolder.open();
 
