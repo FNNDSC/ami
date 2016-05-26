@@ -42,7 +42,7 @@ export default class HelpersBorder extends THREE.Object3D{
   set color(color){
     this._color = color;
     if(this._material){
-      this._material.color.setHex(this._color);
+      this._material.color.set(this._color);
     }
   }
 

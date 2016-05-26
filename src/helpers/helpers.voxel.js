@@ -100,7 +100,7 @@ export default class HelpersVoxel extends THREE.Object3D{
         wireframe: true,
         wireframeLinewidth: 2
       });
-    this._material.color.setHex(this._color);
+    this._material.color.set(this._color);
     this._mesh = new THREE.Mesh(this._geometry, this._material);
     this._mesh.applyMatrix(this._stack.ijk2LPS);
 
@@ -236,7 +236,7 @@ export default class HelpersVoxel extends THREE.Object3D{
   set color(color) {
     this._color = color;
     if (this._material) {
-      this._material.color.setHex(this._color);
+      this._material.color.set(this._color);
     }
 
     // also update the dom
