@@ -22,4 +22,4 @@ export default{
   Widgets
 };
 
-window.console.log('AMI - v0.0.7-dev');
+window.console.log('AMI - v0.0.7');
