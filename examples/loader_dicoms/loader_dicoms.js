@@ -28490,7 +28490,7 @@ var HelpersBorder = function (_THREE$Object3D) {
     set: function set(color) {
       this._color = color;
       if (this._material) {
-        this._material.color.setHex(this._color);
+        this._material.color.set(this._color);
       }
     },
     get: function get() {
@@ -28630,7 +28630,7 @@ var HelpersBoundingBox = function (_THREE$Object3D) {
     set: function set(color) {
       this._color = color;
       if (this._material) {
-        this._material.color.setHex(this._color);
+        this._material.color.set(this._color);
       }
     },
     get: function get() {
@@ -29792,12 +29792,12 @@ function _classCallCheck(instance, Constructor) {
  * );
  */
 
-var LoaderBase = function () {
-  function LoaderBase() {
+var LoadersBase = function () {
+  function LoadersBase() {
     var container = arguments.length <= 0 || arguments[0] === undefined ? document.body : arguments[0];
     var helpersProgress = arguments.length <= 1 || arguments[1] === undefined ? _helpers2.default : arguments[1];
 
-    _classCallCheck(this, LoaderBase);
+    _classCallCheck(this, LoadersBase);
 
     this._loaded = -1;
     this._totalLoaded = -1;
@@ -29816,7 +29816,7 @@ var LoaderBase = function () {
    *
    */
 
-  _createClass(LoaderBase, [{
+  _createClass(LoadersBase, [{
     key: 'free',
     value: function free() {
       this._container = null;
@@ -29874,10 +29874,10 @@ var LoaderBase = function () {
     }
   }]);
 
-  return LoaderBase;
+  return LoadersBase;
 }();
 
-exports.default = LoaderBase;
+exports.default = LoadersBase;
 
 },{"../../src/helpers/helpers.progressbar":354,"../../src/models/models.frame":360,"../../src/models/models.series":361,"../../src/models/models.stack":362}],358:[function(require,module,exports){
 'use strict';

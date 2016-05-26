@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>widgets/widgets.ruler.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a><ul class='methods'><li data-type='method'><a href="module-cameras_orthographic.html#center">center</a></li><li data-type='method'><a href="module-cameras_orthographic.html#init">init</a></li><li data-type='method'><a href="module-cameras_orthographic.html#invertColumns">invertColumns</a></li><li data-type='method'><a href="module-cameras_orthographic.html#invertRows">invertRows</a></li><li data-type='method'><a href="module-cameras_orthographic.html#rotate">rotate</a></li></ul></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a><ul class='methods'><li data-type='method'><a href="module-core_intersections.html#.aabbPlane">aabbPlane</a></li></ul></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a><ul class='methods'><li data-type='method'><a href="module-core_utils.html#.bbox">bbox</a></li></ul></li><li><a href="module-core_validators.html">core/validators</a><ul class='methods'><li data-type='method'><a href="module-core_validators.html#.box">box</a></li><li data-type='method'><a href="module-core_validators.html#.matrix4">matrix4</a></li><li data-type='method'><a href="module-core_validators.html#.ray">ray</a></li><li data-type='method'><a href="module-core_validators.html#.vector3">vector3</a></li></ul></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a><ul class='methods'><li data-type='method'><a href="module-geometries_slice.html#.centerOfMass">centerOfMass</a></li><li data-type='method'><a href="module-geometries_slice.html#.orderIntersections">orderIntersections</a></li></ul></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a><ul class='methods'><li data-type='method'><a href="module-helpers_stack.html#_create">_create</a></li><li data-type='method'><a href="module-helpers_stack.html#_isIndexOutOfBounds">_isIndexOutOfBounds</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareBBox">_prepareBBox</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareBorder">_prepareBorder</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareDirection">_prepareDirection</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareSlice">_prepareSlice</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareSliceIndex">_prepareSliceIndex</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareSlicePosition">_prepareSlicePosition</a></li><li data-type='method'><a href="module-helpers_stack.html#_prepareStack">_prepareStack</a></li></ul></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a><ul class='methods'><li data-type='method'><a href="module-loaders_base.html#free">free</a></li></ul></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a><ul class='methods'><li data-type='method'><a href="module-models_base.html#_validateModelArray">_validateModelArray</a></li><li data-type='method'><a href="module-models_base.html#merge">merge</a></li><li data-type='method'><a href="module-models_base.html#mergeModels">mergeModels</a></li><li data-type='method'><a href="module-models_base.html#validate">validate</a></li></ul></li><li><a href="module-models_frame.html">models/frame</a><ul class='methods'><li data-type='method'><a href="module-models_frame.html#_compareArrays">_compareArrays</a></li><li data-type='method'><a href="module-models_frame.html#merge">merge</a></li></ul></li><li><a href="module-models_series.html">models/series</a><ul class='methods'><li data-type='method'><a href="module-models_series.html#merge">merge</a></li><li data-type='method'><a href="module-models_series.html#mergeSeries">mergeSeries</a></li><li data-type='method'><a href="module-models_series.html#validate">validate</a></li></ul></li><li><a href="module-models_stack.html">models/stack</a><ul class='methods'><li data-type='method'><a href="module-models_stack.html#prepare">prepare</a></li></ul></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_layer.html">shaders/layer</a></li><li><a href="module-shaders_raycasting.html">shaders/raycasting</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a><ul class='methods'><li data-type='method'><a href="module-widgets_handle.html#onMove">onMove</a></li></ul></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">widgets/widgets.ruler.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import WidgetsBase   from '../../src/widgets/widgets.base';
+import WidgetsHandle from '../../src/widgets/widgets.handle';
+
+/**
+ * @module widgets/handle
+ * 
+ */
+
+export default class WidgetsRuler extends WidgetsBase{
+
+  constructor( targetMesh, controls, camera, container) {
+
+    super();
+
+    this._targetMesh = targetMesh;
+    this._controls = controls;
+    this._camera = camera;
+    this._container = container;
+
+    this._active = true;
+
+    this._worldPosition = new THREE.Vector3();
+    if( this._targetMesh !== null ){
+
+      this._worldPosition = this._targetMesh.position;
+
+    }
+
+    // mesh stuff
+    this._material = null;
+    this._geometry = null;
+    this._mesh = null;
+
+    // dom stuff
+    this._line = null;
+    this._distance = null;
+
+    // add handles
+    this._handles = [];
+
+    // first handle
+    let firstHandle = new WidgetsHandle( this._targetMesh, this._controls, this._camera, this._container );
+    firstHandle.worldPosition = this._worldPosition;
+    firstHandle.hovered = true;
+    this.add( firstHandle );
+ 
+    this._handles.push( firstHandle );
+
+    let secondHandle = new WidgetsHandle( this._targetMesh, this._controls, this._camera, this._container );
+    secondHandle.worldPosition = this._worldPosition;
+    secondHandle.hovered = true;
+    // active and tracking might be redundant
+    secondHandle.active = true;
+    secondHandle.tracking = true;
+    this.add( secondHandle );
+
+    this._handles.push( secondHandle );
+
+    // Create ruler
+    this.create();
+
+    this.onMove = this.onMove.bind( this );
+    this.addEventListeners();
+
+  }
+
+  addEventListeners(){
+
+    this._container.addEventListener( 'mousewheel', this.onMove );
+    this._container.addEventListener( 'DOMMouseScroll', this.onMove );
+
+  }
+
+  onMove( evt ){
+
+    this._dragged = true;
+
+    this._handles[0].onMove( evt );
+    this._handles[1].onMove( evt );
+
+    this._hovered = this._handles[0].hovered || this._handles[1].hovered;
+    this.update();
+
+  }
+
+  onStart( evt ){
+
+    this._dragged = false;
+
+    this._handles[0].onStart( evt );
+    this._handles[1].onStart( evt );
+
+    this._active = this._handles[0].active || this._handles[1].active;
+    this.update();
+
+  }
+
+  onEnd( evt ){
+
+    // First Handle
+    this._handles[0].onEnd( evt );
+
+    window.console.log( this );
+
+    // Second Handle
+    if( this._dragged || !this._handles[1].tracking){
+
+      this._handles[1].tracking = false;
+      this._handles[1].onEnd( evt );
+
+    }
+    else{
+
+      this._handles[1].tracking = false;
+
+    }
+
+    // State of ruler widget
+    this._active = this._handles[0].active || this._handles[1].active;
+    this.update();
+
+  }
+
+  create(){
+
+    this.createMesh();
+    this.createDOM();
+
+  }
+
+  update(){
+
+    this.updateColor();
+
+    // mesh stuff
+    this.updateMeshColor();
+    this.updateMeshPosition();
+
+    // DOM stuff
+    this.updateDOMPosition();
+    this.updateDOMColor();
+
+  }
+
+  createMesh(){
+
+    // geometry
+    this._geometry = new THREE.Geometry();
+    this._geometry.vertices.push(this._handles[0].worldPosition);
+    this._geometry.vertices.push(this._handles[1].worldPosition);
+
+    // material
+    this._material = new THREE.LineBasicMaterial();
+    this.updateMeshColor();
+
+    // mesh
+    this._mesh = new THREE.Line( this._geometry, this._material );
+    this._mesh.visible = true;
+
+    // add it!
+    this.add( this._mesh );
+
+  }
+
+  updateMeshColor(){
+
+    if( this._material ){
+
+      this._material.color.set( this._color );
+
+    }
+
+  }
+
+  updateMeshPosition(){
+
+    if( this._geometry ){
+
+      this._geometry.verticesNeedUpdate = true;
+
+    }
+
+  }
+
+  createDOM(){
+
+    // add line!
+    this._line = document.createElement('div');
+    this._line.setAttribute('class', 'widgets handle line');
+    this._line.style.position = 'absolute';
+    this._line.style.transformOrigin = '0 100%';
+    this._line.style.marginTop = '-1px';
+    this._line.style.height = '2px';
+    this._line.style.width = '3px';
+    this._container.appendChild(this._line);
+
+    // add distance!
+    this._distance = document.createElement('div');
+    this._distance.setAttribute('class', 'widgets handle distance');
+    this._distance.style.border = '2px solid';
+    this._distance.style.backgroundColor = '#F9F9F9';
+    // this._distance.style.opacity = '0.5';
+    this._distance.style.color = '#353535';
+    this._distance.style.padding = '4px';
+    this._distance.style.position = 'absolute';
+    this._distance.style.transformOrigin = '0 100%';
+    this._distance.innerHTML = 'Hello, world!';
+    this._container.appendChild(this._distance);
+
+    this.updateDOMColor();
+
+  }
+
+  updateDOMPosition(){
+
+    //update rulers lines and text!
+    let x1 = this._handles[0].screenPosition.x;
+    let y1 = this._handles[0].screenPosition.y; 
+    let x2 = this._handles[1].screenPosition.x;
+    let y2 = this._handles[1].screenPosition.y;
+
+    let x0 = x1 + (x2 - x1)/2;
+    let y0 = y1 + (y2 - y1)/2;
+
+    let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+    let angle  = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+    let posY = y1 - this._container.offsetHeight;
+
+    // update line
+    let transform = `translate3D(${x1}px,${posY}px, 0)`;
+    transform += ` rotate(${angle}deg)`;
+
+    this._line.style.transform = transform;
+    this._line.style.width = length;
+
+    // update distance
+    let w0 = this._handles[0].worldPosition;
+    let w1 = this._handles[1].worldPosition;
+
+    this._distance.innerHTML = `${Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2)} mm`;
+    let posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight/2;
+    x0 -= this._distance.offsetWidth/2;
+
+    let transform2 = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
+    this._distance.style.transform = transform2;
+
+  }
+
+  updateDOMColor( ){
+
+    this._line.style.backgroundColor = `${this._color}`;
+    this._distance.style.borderColor = `${this._color}`;
+
+  }
+
+  get worldPosition(){
+
+    return this._worldPosition;
+
+  }
+
+  set worldPosition( worldPosition ){
+
+    this._worldPosition = worldPosition;
+    this._handles[0].worldPosition = this._worldPosition;
+    this._handles[1].worldPosition = this._worldPosition;
+
+    this.update();
+
+  }
+
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Thu May 26 2016 17:10:18 GMT+0200 (CEST) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

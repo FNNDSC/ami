@@ -149,6 +149,8 @@ window.onload = function () {
       camera.invertColumns();
     });
 
+    var angle = cameraFolder.add(camera, 'angle', 0, 360).step(1).listen();
+
     var rotate = cameraFolder.add(camUtils, 'rotate');
     rotate.onChange(function () {
       camera.rotate();
@@ -26891,6 +26893,7 @@ var CamerasOrthographic = function (_THREE$OrthographicCa) {
     };
 
     _this._fromFront = true;
+    _this._angle = 0;
     return _this;
   }
 
@@ -26944,6 +26947,15 @@ var CamerasOrthographic = function (_THREE$OrthographicCa) {
       // flip "up" vector
       // we flip up first because invertColumns update projectio matrices
       this.up.multiplyScalar(-1);
+      // this._angle -= 180;
+
+      // Rotate the up vector around the "zCosine"
+      // let rotation = new THREE.Matrix4().makeRotationAxis(
+      //   this._zCosine,
+      //   Math.PI);
+      // this.up.applyMatrix4(rotation);
+
+      // this._updateMatrices();
 
       this.invertColumns();
     }
@@ -26957,6 +26969,7 @@ var CamerasOrthographic = function (_THREE$OrthographicCa) {
   }, {
     key: 'invertColumns',
     value: function invertColumns() {
+
       this.center();
       // rotate 180 degrees around the up vector...
       var oppositePosition = this._oppositePosition(this.position);
@@ -26966,6 +26979,15 @@ var CamerasOrthographic = function (_THREE$OrthographicCa) {
       this._updatePositionAndTarget(oppositePosition, this.position.clone());
       this._updateMatrices();
       this._fromFront = !this._fromFront;
+
+      var clockwise = 1;
+      if (!this._fromFront) {
+
+        clockwise = -1;
+      }
+
+      this._angle %= 360;
+      this._angle = 360 - this._angle;
     }
 
     /**
@@ -26994,17 +27016,32 @@ var CamerasOrthographic = function (_THREE$OrthographicCa) {
   }, {
     key: 'rotate',
     value: function rotate() {
+      var angle = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
       this.center();
 
-      // Pi/2 rotation if camera is positions at the front of the volume
-      // else -Pi/2 rotation
+      var computedAngle = 90;
+
       var clockwise = 1;
-      if (this.position.distanceTo(this._back) < this.position.distanceTo(this._front)) {
+      if (!this._fromFront) {
+
         clockwise = -1;
       }
 
+      if (angle === null) {
+
+        computedAngle *= -clockwise;
+        this._angle += 90;
+      } else {
+
+        computedAngle = 360 - clockwise * (angle - this._angle);
+        this._angle = angle;
+      }
+
+      this._angle %= 360;
+
       // Rotate the up vector around the "zCosine"
-      var rotation = new THREE.Matrix4().makeRotationAxis(this._zCosine, clockwise * Math.PI / 2);
+      var rotation = new THREE.Matrix4().makeRotationAxis(this._zCosine, computedAngle * Math.PI / 180);
       this.up.applyMatrix4(rotation);
 
       this._updateMatrices();
@@ -27075,6 +27112,7 @@ var CamerasOrthographic = function (_THREE$OrthographicCa) {
       oppositePosition.sub(this._box.center);
       // rotate
       var rotation = new THREE.Matrix4().makeRotationAxis(this.up, Math.PI);
+
       oppositePosition.applyMatrix4(rotation);
       // translate back to world position
       oppositePosition.add(this._box.center);
@@ -27172,6 +27210,14 @@ var CamerasOrthographic = function (_THREE$OrthographicCa) {
     },
     get: function get() {
       return this._canvas;
+    }
+  }, {
+    key: 'angle',
+    set: function set(angle) {
+      this.rotate(angle);
+    },
+    get: function get() {
+      return this._angle;
     }
   }]);
 
@@ -28795,7 +28841,7 @@ var HelpersBorder = function (_THREE$Object3D) {
     set: function set(color) {
       this._color = color;
       if (this._material) {
-        this._material.color.setHex(this._color);
+        this._material.color.set(this._color);
       }
     },
     get: function get() {
@@ -28935,7 +28981,7 @@ var HelpersBoundingBox = function (_THREE$Object3D) {
     set: function set(color) {
       this._color = color;
       if (this._material) {
-        this._material.color.setHex(this._color);
+        this._material.color.set(this._color);
       }
     },
     get: function get() {
@@ -30316,12 +30362,12 @@ function _classCallCheck(instance, Constructor) {
  * );
  */
 
-var LoaderBase = function () {
-  function LoaderBase() {
+var LoadersBase = function () {
+  function LoadersBase() {
     var container = arguments.length <= 0 || arguments[0] === undefined ? document.body : arguments[0];
     var helpersProgress = arguments.length <= 1 || arguments[1] === undefined ? _helpers2.default : arguments[1];
 
-    _classCallCheck(this, LoaderBase);
+    _classCallCheck(this, LoadersBase);
 
     this._loaded = -1;
     this._totalLoaded = -1;
@@ -30340,7 +30386,7 @@ var LoaderBase = function () {
    *
    */
 
-  _createClass(LoaderBase, [{
+  _createClass(LoadersBase, [{
     key: 'free',
     value: function free() {
       this._container = null;
@@ -30398,10 +30444,10 @@ var LoaderBase = function () {
     }
   }]);
 
-  return LoaderBase;
+  return LoadersBase;
 }();
 
-exports.default = LoaderBase;
+exports.default = LoadersBase;
 
 },{"../../src/helpers/helpers.progressbar":356,"../../src/models/models.frame":362,"../../src/models/models.series":363,"../../src/models/models.stack":364}],360:[function(require,module,exports){
 'use strict';
