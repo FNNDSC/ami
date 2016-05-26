@@ -107,7 +107,7 @@ window.onload = function() {
     threeD.addEventListener( 'mousemove', function( evt ){
 
       // if something hovered, exit
-      var cursor = 'default';
+      let cursor = 'default';
 
       for( let widget of widgets ){
 
@@ -151,7 +151,7 @@ window.onload = function() {
         return;
       }
 
-      var widgetType = widgets.length % 4;
+      let widgetType = widgets.length % 4;
       if( widgetType === 0 ){
 
         // add ruler
