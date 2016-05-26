@@ -185,11 +185,11 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 
 #### Widgets
 
-:large_orange_diamond: Handle (2D/3D)
+:white_check_mark: Handle (2D/3D)
 
-:large_orange_diamond: Probe (2D/3D)
+:white_check_mark: Probe (2D/3D)
   
-:large_orange_diamond: Ruler (2D/3D)
+:white_check_mark: Ruler (2D/3D)
 
 :large_orange_diamond: Angle (2D/3D)
   
@@ -201,9 +201,9 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
   
 :white_check_mark: NRRD
 
-:large_orange_diamond: Nifti
+:white_check_mark: Nifti
   
-:x: MGH/MGZ
+:large_orange_diamond: MGH/MGZ
   
 :x: JPEG
   
@@ -215,9 +215,9 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
   
 :large_orange_diamond: TRK
   
+:large_orange_diamond: FSM
+
 :x: CURV
-  
-:x: FSM
 
 ## Usage
 
