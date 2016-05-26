@@ -30,7 +30,7 @@ import ModelsFrame        from '../../src/models/models.frame';
  *   }
  * );
  */
-export default class LoaderBase{
+export default class LoadersBase{
   constructor(container=document.body, helpersProgress=HelpersProgressBar) {
     this._loaded = -1;
     this._totalLoaded = -1;
