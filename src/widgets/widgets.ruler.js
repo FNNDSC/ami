@@ -1,3 +1,4 @@
+import WidgetsBase   from '../../src/widgets/widgets.base';
 import WidgetsHandle from '../../src/widgets/widgets.handle';
 
 /**
@@ -5,27 +6,34 @@ import WidgetsHandle from '../../src/widgets/widgets.handle';
  * 
  */
 
-export default class WidgetsRuler extends THREE.Object3D{
-  constructor(targetMesh, controls, camera, container, connectAllEvents = false) {
-    super();
+export default class WidgetsRuler extends WidgetsBase{
 
-    // enable/disable flag
+  constructor( targetMesh, controls, camera, container) {
+
+    super();
 
     this._targetMesh = targetMesh;
     this._controls = controls;
     this._camera = camera;
     this._container = container;
-    this._connectAllEvents = connectAllEvents;
 
-    this._hovered = false;
+    this._active = true;
 
     this._worldPosition = new THREE.Vector3();
-    if(this._targetMesh !== null){
+    if( this._targetMesh !== null ){
+
       this._worldPosition = this._targetMesh.position;
+
     }
 
-    // DOM STUFF...
-    // NEED 3D too...
+    this._trackSecondHandle = true;
+
+    // mesh stuff
+    this._material = null;
+    this._geometry = null;
+    this._mesh = null;
+
+    // dom stuff
     this._line = null;
     this._distance = null;
 
@@ -33,96 +41,152 @@ export default class WidgetsRuler extends THREE.Object3D{
     this._handles = [];
 
     // first handle
-    this._firstHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container, connectAllEvents);
-    this._firstHandle.worldPosition = this._worldPosition;
-    this._firstHandle.hovered = true;
-    this.add(this._firstHandle);
+    let firstHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+    firstHandle.worldPosition = this._worldPosition;
+    firstHandle.hovered = true;
+    this.add(firstHandle);
  
-    this._handles.push(this._firstHandle);
+    this._handles.push(firstHandle);
 
-    this._secondHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container, connectAllEvents);
-    this._secondHandle.worldPosition = this._worldPosition;
-    this._secondHandle.hovered = true;
-    this._secondHandle.active = true;
-    this.add(this._secondHandle);
+    let secondHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+    secondHandle.worldPosition = this._worldPosition;
+    secondHandle.hovered = true;
+    // active and tracking might be redundant
+    secondHandle.active = true;
+    secondHandle.tracking = true;
+    this.add(secondHandle);
 
-    this._active = true;
-        
-    this._handles.push(this._secondHandle);
+    this._handles.push(secondHandle);
 
-    this._colors = {
-      default: '#00B0FF',
-      active: '#FFEB3B',
-      hover: '#F50057',
-      select: '#76FF03'
-    };
-    this._color = this._colors.default;
-
-    // DOM STUFF
+    // Create ruler
     this.create();
 
-    this.onStart = this.onStart.bind(this);
     this.onMove = this.onMove.bind(this);
-    // this.onEnd = this.onEnd.bind(this);
-    // this.onHover = this.onHover.bind(this);
-    // this.update = this.update.bind(this);
+    this.addEventListeners();
+
   }
 
-  onMove(evt){
+  addEventListeners(){
 
-    this._firstHandle.onMove(evt);
-    this._secondHandle.onMove(evt);
+    this._container.addEventListener( 'mousewheel', this.onMove );
+    this._container.addEventListener( 'DOMMouseScroll', this.onMove );
 
-    this._hovered = this._firstHandle.hovered || this._secondHandle.hovered;
-    this.update();
   }
 
-  onStart(evt){
-    this._firstHandle.onStart(evt);
-    this._secondHandle.onStart(evt);
+  onMove( evt ){
 
-    this._active = this._firstHandle.active || this._secondHandle.active;
+    this._dragged = true;
+
+    this._handles[0].onMove( evt );
+    this._handles[1].onMove( evt );
+
+    this._hovered = this._handles[0].hovered || this._handles[1].hovered;
     this.update();
+
   }
 
-  onEnd(evt){
-    this._firstHandle.onEnd(evt);
-    this._secondHandle.onEnd(evt);
+  onStart( evt ){
 
-    this._active = this._firstHandle.active || this._secondHandle.active;
-    window.console.log(this._firstHandle.active);
-    window.console.log(this._secondHandle.active);
-    window.console.log(this._active);
+    this._dragged = false;
+
+    this._handles[0].onStart( evt );
+    this._handles[1].onStart( evt );
+
+    this._active = this._handles[0].active || this._handles[1].active;
     this.update();
+
+  }
+
+  onEnd( evt ){
+
+    // First Handle
+    this._handles[0].onEnd( evt );
+
+    // Second Handle
+    // that looks complicated....
+    if( !this._dragged && this._trackSecondHandle){
+
+      this._trackSecondHandle = false;
+
+    }
+    else{
+
+      this._handles[1].tracking = false;
+      this._trackSecondHandle = false;
+
+      this._handles[1].onEnd( evt );
+
+    }
+
+    // State of ruler widget
+    this._active = this._handles[0].active || this._handles[1].active;
+    this.update();
+
   }
 
   create(){
+
+    this.createMesh();
     this.createDOM();
+
   }
 
   update(){
+
     this.updateColor();
 
+    // mesh stuff
+    this.updateMeshColor();
+    this.updateMeshPosition();
+
+    // DOM stuff
     this.updateDOMPosition();
     this.updateDOMColor();
+
   }
 
-  updateColor(){
-    if(this._active){
-      this._color = this._colors.active;
+  createMesh(){
+
+    // geometry
+    this._geometry = new THREE.Geometry();
+    this._geometry.vertices.push(this._handles[0].worldPosition);
+    this._geometry.vertices.push(this._handles[1].worldPosition);
+
+    // material
+    this._material = new THREE.LineBasicMaterial();
+    this.updateMeshColor();
+
+    // mesh
+    this._mesh = new THREE.Line( this._geometry, this._material );
+    this._mesh.visible = true;
+
+    // add it!
+    this.add( this._mesh );
+
+  }
+
+  updateMeshColor(){
+
+    if( this._material ){
+
+      this._material.color.set( this._color );
+
     }
-    else if(this._hovered){
-      this._color = this._colors.hover;
+
+  }
+
+  updateMeshPosition(){
+
+    if( this._geometry ){
+
+      this._geometry.verticesNeedUpdate = true;
+
     }
-    else if(this._selected){
-      this._color = this._colors.select;
-    }
-    else{
-      this._color = this._colors.default;
-    }
+
   }
 
   createDOM(){
+
     // add line!
     this._line = document.createElement('div');
     this._line.setAttribute('class', 'widgets handle line');
@@ -147,14 +211,16 @@ export default class WidgetsRuler extends THREE.Object3D{
     this._container.appendChild(this._distance);
 
     this.updateDOMColor();
+
   }
 
   updateDOMPosition(){
+
     //update rulers lines and text!
-    var x1 = this._firstHandle.screenPosition.x;
-    var y1 = this._firstHandle.screenPosition.y; 
-    var x2 = this._secondHandle.screenPosition.x;
-    var y2 = this._secondHandle.screenPosition.y;
+    var x1 = this._handles[0].screenPosition.x;
+    var y1 = this._handles[0].screenPosition.y; 
+    var x2 = this._handles[1].screenPosition.x;
+    var y2 = this._handles[1].screenPosition.y;
 
     var x0 = x1 + (x2 - x1)/2;
     var y0 = y1 + (y2 - y1)/2;
@@ -181,39 +247,30 @@ export default class WidgetsRuler extends THREE.Object3D{
 
     var transform2 = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
     this._distance.style.transform = transform2;
+
   }
 
-  updateDOMColor(){
+  updateDOMColor( ){
+
     this._line.style.backgroundColor = `${this._color}`;
     this._distance.style.borderColor = `${this._color}`;
-  }
 
-  get hovered(){
-    return this._hovered;
-  }
-
-  set hovered(hovered){
-    this._hovered = hovered;
-  }
-
-  get active(){
-    return this._active;
-  }
-
-  set active(active){
-    this._active = active;
   }
 
   get worldPosition(){
+
     return this._worldPosition;
+
   }
 
-  set worldPosition(worldPosition){
+  set worldPosition( worldPosition ){
+
     this._worldPosition = worldPosition;
-    this._firstHandle.worldPosition = this._worldPosition;
-    this._secondHandle.worldPosition = this._worldPosition;
+    this._handles[0].worldPosition = this._worldPosition;
+    this._handles[1].worldPosition = this._worldPosition;
 
     this.update();
+
   }
 
 }

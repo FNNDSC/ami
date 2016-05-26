@@ -88,32 +88,41 @@ window.onload = function() {
 
     scene.add(stackHelper);
 
-    threeD.addEventListener('mouseup', function(evt){
+    threeD.addEventListener( 'mouseup', function( evt ){
+
       // if something hovered, exit
-      for(let widget of widgets){
-        window.console.log(widget);
-        if(widget.active){
-          widget.onEnd(evt);
+      for( let widget of widgets ){
+
+        if( widget.active ){
+
+          widget.onEnd( evt );
           return;
+
         }
+
       }
 
-    });
+    } );
 
-    threeD.addEventListener('mousemove', function(evt){
+    threeD.addEventListener( 'mousemove', function( evt ){
+
       // if something hovered, exit
       var cursor = 'default';
 
-      for(let widget of widgets){
-        widget.onMove(evt);
-        if(widget.hovered){
+      for( let widget of widgets ){
+
+        widget.onMove( evt );
+        if( widget.hovered ){
+
           cursor = 'pointer';
+
         }
+
       }
 
       threeD.style.cursor = cursor;
 
-    });
+    } );
 
     // add on mouse down listener, to add handles/etc. if not hovering anything..
     threeD.addEventListener('mousedown', function(evt){
@@ -143,13 +152,15 @@ window.onload = function() {
       }
 
       var widgetType = widgets.length % 4;
-      if(widgetType === 0){
+      if( widgetType === 0 ){
+
         // add ruler
-        let widget = new WidgetsRuler(stackHelper.slice.mesh, controls, camera, threeD);
+        let widget = new WidgetsRuler( stackHelper.slice.mesh, controls, camera, threeD );
         widget.worldPosition = intersects[0].point;
 
-        widgets.push(widget);
-        scene.add(widget);
+        widgets.push( widget );
+        scene.add( widget );
+
       }
       else if(widgetType === 1){
         // add handle
