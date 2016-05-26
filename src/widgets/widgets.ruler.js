@@ -26,8 +26,6 @@ export default class WidgetsRuler extends WidgetsBase{
 
     }
 
-    this._trackSecondHandle = true;
-
     // mesh stuff
     this._material = null;
     this._geometry = null;
@@ -41,27 +39,27 @@ export default class WidgetsRuler extends WidgetsBase{
     this._handles = [];
 
     // first handle
-    let firstHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+    let firstHandle = new WidgetsHandle( this._targetMesh, this._controls, this._camera, this._container );
     firstHandle.worldPosition = this._worldPosition;
     firstHandle.hovered = true;
-    this.add(firstHandle);
+    this.add( firstHandle );
  
-    this._handles.push(firstHandle);
+    this._handles.push( firstHandle );
 
-    let secondHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+    let secondHandle = new WidgetsHandle( this._targetMesh, this._controls, this._camera, this._container );
     secondHandle.worldPosition = this._worldPosition;
     secondHandle.hovered = true;
     // active and tracking might be redundant
     secondHandle.active = true;
     secondHandle.tracking = true;
-    this.add(secondHandle);
+    this.add( secondHandle );
 
-    this._handles.push(secondHandle);
+    this._handles.push( secondHandle );
 
     // Create ruler
     this.create();
 
-    this.onMove = this.onMove.bind(this);
+    this.onMove = this.onMove.bind( this );
     this.addEventListeners();
 
   }
@@ -102,19 +100,18 @@ export default class WidgetsRuler extends WidgetsBase{
     // First Handle
     this._handles[0].onEnd( evt );
 
-    // Second Handle
-    // that looks complicated....
-    if( !this._dragged && this._trackSecondHandle){
+    window.console.log( this );
 
-      this._trackSecondHandle = false;
+    // Second Handle
+    if( this._dragged || !this._handles[1].tracking){
+
+      this._handles[1].tracking = false;
+      this._handles[1].onEnd( evt );
 
     }
     else{
 
       this._handles[1].tracking = false;
-      this._trackSecondHandle = false;
-
-      this._handles[1].onEnd( evt );
 
     }
 
@@ -217,16 +214,16 @@ export default class WidgetsRuler extends WidgetsBase{
   updateDOMPosition(){
 
     //update rulers lines and text!
-    var x1 = this._handles[0].screenPosition.x;
-    var y1 = this._handles[0].screenPosition.y; 
-    var x2 = this._handles[1].screenPosition.x;
-    var y2 = this._handles[1].screenPosition.y;
+    let x1 = this._handles[0].screenPosition.x;
+    let y1 = this._handles[0].screenPosition.y; 
+    let x2 = this._handles[1].screenPosition.x;
+    let y2 = this._handles[1].screenPosition.y;
 
-    var x0 = x1 + (x2 - x1)/2;
-    var y0 = y1 + (y2 - y1)/2;
+    let x0 = x1 + (x2 - x1)/2;
+    let y0 = y1 + (y2 - y1)/2;
 
-    var length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-    var angle  = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+    let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+    let angle  = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
 
     let posY = y1 - this._container.offsetHeight;
 
@@ -245,7 +242,7 @@ export default class WidgetsRuler extends WidgetsBase{
     let posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight/2;
     x0 -= this._distance.offsetWidth/2;
 
-    var transform2 = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
+    let transform2 = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
     this._distance.style.transform = transform2;
 
   }
