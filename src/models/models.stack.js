@@ -479,7 +479,7 @@ export default class ModelsStack extends ModelsBase{
   }
 
   worldCenter() {
-    let center = this._halfDimensionsIJK.clone().addScalar(0.5)
+    let center = this._halfDimensionsIJK.clone().addScalar(-0.5)
       .applyMatrix4(this._ijk2LPS);
     return center;
   }
@@ -508,7 +508,8 @@ export default class ModelsStack extends ModelsBase{
   }
 
   AABBox() {
-    let world0 = new THREE.Vector3()
+
+    let world0 = new THREE.Vector3().addScalar(-0.5)
       .applyMatrix4(this._ijk2LPS)
       .applyMatrix4(this._lps2AABB);
 
@@ -523,40 +524,54 @@ export default class ModelsStack extends ModelsBase{
     );
 
     return minBBox;
+
   }
 
   centerAABBox() {
+
     let centerBBox = this.worldCenter();
     centerBBox.applyMatrix4(this._lps2AABB);
     return centerBBox;
+
   }
 
   static value(stack, ijkCoordinate) {
-    if (ijkCoordinate.z >= 0 && ijkCoordinate.z < stack._frame.length) {
+
+    if( ijkCoordinate.z >= 0 && ijkCoordinate.z < stack._frame.length ) {
+
       return stack._frame[ijkCoordinate.z].value(
         ijkCoordinate.x,
-        ijkCoordinate.y);
+        ijkCoordinate.y );
+
     } else {
+
       return null;
+
     }
+
   }
 
-  static valueRescaleSlopeIntercept(value, slope, intercept) {
+  static valueRescaleSlopeIntercept( value, slope, intercept ) {
+
     return value * slope + intercept;
+
   }
 
-  static indexInDimensions(index, dimensions) {
-    if (index.x >= 0 &&
-        index.y >= 0 &&
-        index.z >= 0 &&
-        index.x < dimensions.x &&
-        index.y < dimensions.y &&
-        index.z < dimensions.z) {
+  static indexInDimensions( index, dimensions ) {
+
+    if ( index.x >= 0 &&
+         index.y >= 0 &&
+         index.z >= 0 &&
+         index.x < dimensions.x &&
+         index.y < dimensions.y &&
+         index.z < dimensions.z ) {
 
       return true;
+
     }
 
     return false;
+
   }
 
   _vector3FromArray(array, index) {
