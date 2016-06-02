@@ -1,6 +1,6 @@
 /* globals describe, it, expect, beforeEach*/
 
-import parsersDicom from '../../src/parsers/parsers.dicom';
+import ParsersDicom from '../../src/parsers/parsers.dicom';
 
 let datasets = [];
 
@@ -88,7 +88,7 @@ function testObjectTemplate(
 
 // MR
 let data1 = testObjectTemplate(
-  'Fruit and Veggies!',
+  'MR - 16!',
   'http://www.insight-journal.org/midas/collection/view/194',
   '/base/data/dicom/fruit.dcm.tar',
 
@@ -354,6 +354,50 @@ let data6 = testObjectTemplate(
 );
 datasets.push(data6);
 
+let data7 = testObjectTemplate(
+  'CT - 16 signed - Explicit VR Big Endian',
+  '@tommy.qichang',
+  '/base/data/dicom/ser002img00001-16-signed.dcm.tar',
+
+  // Series specific
+  'CT',
+  '1.2.840.113619.2.327.3.3020574471.558.1462106543.508',
+  '1.2.840.113745.101000.1186000.42489.8465.17042787',
+  '1.2.840.10008.1.2.2', // ??
+  null,
+  1,
+
+  // Stack specific
+
+  // Frame specific
+  'MONOCHROME2',
+  null,
+  1,
+  [ 1, 0, 0, 0, 0.998135, -0.061049 ],
+  [ -110, -130.495, 12.981 ],
+  [ 0.429688, 0.429688 ],
+  '1.2.840.113619.2.327.3.3020574471.558.1462106543.539.1',
+  5,
+  512,
+  512,
+  1,
+  16,
+  15,
+  -1024,
+  1,
+  40,
+  90,
+  null,
+  1,
+  null,
+  null,
+  null,
+
+  // computed values
+  [0, 4095]
+);
+datasets.push(data7);
+
 function dicomTestSequence(referenceDataset) {
   describe(referenceDataset.name, () => {
 
@@ -372,7 +416,7 @@ function dicomTestSequence(referenceDataset) {
       oReq.onload = () => {
         let buffer = oReq.response;
         if (buffer) {
-          parser = new parsersDicom({
+          parser = new ParsersDicom({
             url: referenceDataset.url,
             buffer}
           , 0);
@@ -554,7 +598,7 @@ function pixelDataTestSequence(referenceDataset) {
       oReq.onload = () => {
         let buffer = oReq.response;
         if (buffer) {
-          parser = new parsersDicom({
+          parser = new ParsersDicom({
             url: referenceDataset.url,
             buffer}
           , 0);
