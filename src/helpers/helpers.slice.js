@@ -227,11 +227,7 @@ export default class HelpersSlice extends THREE.Object3D{
       this._toAABB = this._stack.lps2AABB;
     }
 
-    try {
-      this._invert = this._stack.invert;
-    } catch (err) {
-      this._invert = false;
-    }
+    this._invert = this._stack.invert;
   }
 
   // private methods

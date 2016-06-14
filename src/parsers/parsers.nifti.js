@@ -82,10 +82,6 @@ export default class ParsersNifti{
     return this._dataSet.dims[1];
   }
 
-  invert() {
-    return false;
-  }
-
   pixelType(frameIndex = 0) {
         // papaya.volume.nifti.NIFTI_TYPE_UINT8           = 2;
     // papaya.volume.nifti.NIFTI_TYPE_INT16           = 4;

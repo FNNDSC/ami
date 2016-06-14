@@ -22,4 +22,7 @@ export default class ParsersVolume {
            | ((val >> 24) & 0xFF);
   }
 
+  invert() {
+    return false;
+  }
 }
