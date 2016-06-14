@@ -2,16 +2,16 @@
 
 // Slicer way to handle images
 // should follow it...
- // 897   if ( (this->IndexSeriesInstanceUIDs[k] != idxSeriesInstanceUID && this->IndexSeriesInstanceUIDs[k] >= 0 && idxSeriesInstanceUID >= 0) ||
- // 898        (this->IndexContentTime[k] != idxContentTime && this->IndexContentTime[k] >= 0 && idxContentTime >= 0) ||
- // 899        (this->IndexTriggerTime[k] != idxTriggerTime && this->IndexTriggerTime[k] >= 0 && idxTriggerTime >= 0) ||
- // 900        (this->IndexEchoNumbers[k] != idxEchoNumbers && this->IndexEchoNumbers[k] >= 0 && idxEchoNumbers >= 0) ||
- // 901        (this->IndexDiffusionGradientOrientation[k] != idxDiffusionGradientOrientation  && this->IndexDiffusionGradientOrientation[k] >= 0 && idxDiffusionGradientOrientation >= 0) ||
- // 902        (this->IndexSliceLocation[k] != idxSliceLocation && this->IndexSliceLocation[k] >= 0 && idxSliceLocation >= 0) ||
- // 903        (this->IndexImageOrientationPatient[k] != idxImageOrientationPatient && this->IndexImageOrientationPatient[k] >= 0 && idxImageOrientationPatient >= 0) )
- // 904     {
- // 905       continue;
- // 906     }
+// 897   if ( (this->IndexSeriesInstanceUIDs[k] != idxSeriesInstanceUID && this->IndexSeriesInstanceUIDs[k] >= 0 && idxSeriesInstanceUID >= 0) ||
+// 898        (this->IndexContentTime[k] != idxContentTime && this->IndexContentTime[k] >= 0 && idxContentTime >= 0) ||
+// 899        (this->IndexTriggerTime[k] != idxTriggerTime && this->IndexTriggerTime[k] >= 0 && idxTriggerTime >= 0) ||
+// 900        (this->IndexEchoNumbers[k] != idxEchoNumbers && this->IndexEchoNumbers[k] >= 0 && idxEchoNumbers >= 0) ||
+// 901        (this->IndexDiffusionGradientOrientation[k] != idxDiffusionGradientOrientation  && this->IndexDiffusionGradientOrientation[k] >= 0 && idxDiffusionGradientOrientation >= 0) ||
+// 902        (this->IndexSliceLocation[k] != idxSliceLocation && this->IndexSliceLocation[k] >= 0 && idxSliceLocation >= 0) ||
+// 903        (this->IndexImageOrientationPatient[k] != idxImageOrientationPatient && this->IndexImageOrientationPatient[k] >= 0 && idxImageOrientationPatient >= 0) )
+// 904     {
+// 905       continue;
+// 906     }
 
 /*** Imports ***/
 import ParsersVolume from './parsers.volume';
@@ -159,6 +159,12 @@ export default class ParsersDicom extends ParsersVolume {
 
   }
 
+  invert() {
+    let photometricInterpretation = this.photometricInterpretation();
+
+    return ((photometricInterpretation === 'MONOCHROME1') ? true : false);
+  }
+
   imageOrientation(frameIndex = 0) {
 
     // expect frame index to start at 0!
@@ -222,7 +228,7 @@ export default class ParsersDicom extends ParsersVolume {
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
 
       if (perFrameFunctionnalGroupSequence
-          .items[frameIndex].dataSet.elements.x2005140f) {
+              .items[frameIndex].dataSet.elements.x2005140f) {
 
         let planeOrientationSequence = perFrameFunctionnalGroupSequence
             .items[frameIndex].dataSet.elements.x2005140f.items[0].dataSet;
@@ -379,7 +385,7 @@ export default class ParsersDicom extends ParsersVolume {
 
       // NOT A PHILIPS TRICK!
       let philipsPrivateSequence = perFrameFunctionnalGroupSequence
-        .items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
+          .items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
       let element = philipsPrivateSequence.elements.x00209157;
       // /4 because UL
       let nbValues = element.length / 4;
@@ -411,7 +417,7 @@ export default class ParsersDicom extends ParsersVolume {
 
       // NOT A PHILIPS TRICK!
       let philipsPrivateSequence = perFrameFunctionnalGroupSequence
-        .items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
+          .items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
       inStackPositionNumber = philipsPrivateSequence.uint32('x00209057');
 
     } else {
@@ -436,7 +442,7 @@ export default class ParsersDicom extends ParsersVolume {
 
       // NOT A PHILIPS TRICK!
       let philipsPrivateSequence = perFrameFunctionnalGroupSequence
-        .items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
+          .items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
       stackID = philipsPrivateSequence.intString('x00209056');
 
     } else {
@@ -526,7 +532,7 @@ export default class ParsersDicom extends ParsersVolume {
   _findStringInFrameGroupSequence(subsequence, tag, index) {
 
     return this._findStringInGroupSequence('x52009229', subsequence, tag, 0) ||
-      this._findStringInGroupSequence('x52009230', subsequence, tag, index);
+        this._findStringInGroupSequence('x52009230', subsequence, tag, index);
 
   }
 
@@ -574,7 +580,7 @@ export default class ParsersDicom extends ParsersVolume {
   _findFloatStringInFrameGroupSequence(subsequence, tag, index) {
 
     return this._findFloatStringInGroupSequence('x52009229', subsequence, tag, 0) ||
-      this._findFloatStringInGroupSequence('x52009230', subsequence, tag, index);
+        this._findFloatStringInGroupSequence('x52009230', subsequence, tag, index);
 
   }
 
@@ -591,19 +597,19 @@ export default class ParsersDicom extends ParsersVolume {
       return this._decodeJ2K(frameIndex);
 
     } else if (transferSyntaxUID === '1.2.840.10008.1.2.4.57' || // JPEG Lossless, Nonhierarchical (Processes 14)
-       transferSyntaxUID === '1.2.840.10008.1.2.4.70') {       // JPEG Lossless, Nonhierarchical (Processes 14 [Selection 1])
+        transferSyntaxUID === '1.2.840.10008.1.2.4.70') {       // JPEG Lossless, Nonhierarchical (Processes 14 [Selection 1])
 
       // JPEG LOSSLESS
       return this._decodeJPEGLossless(frameIndex);
 
     } else if (transferSyntaxUID === '1.2.840.10008.1.2.4.50' || // JPEG Baseline lossy process 1 (8 bit)
-      transferSyntaxUID === '1.2.840.10008.1.2.4.51') {        // JPEG Baseline lossy process 2 & 4 (12 bit)
+        transferSyntaxUID === '1.2.840.10008.1.2.4.51') {        // JPEG Baseline lossy process 2 & 4 (12 bit)
 
       // JPEG Baseline
       return this._decodeJPEGBaseline(frameIndex);
 
     } else if (transferSyntaxUID === '1.2.840.10008.1.2' || // Implicit VR Little Endian
-      transferSyntaxUID === '1.2.840.10008.1.2.1') {      // Explicit VR Little Endian
+        transferSyntaxUID === '1.2.840.10008.1.2.1') {      // Explicit VR Little Endian
 
       // get data
       return this._decodeUncompressed(frameIndex);
@@ -658,7 +664,7 @@ export default class ParsersDicom extends ParsersVolume {
 
   }
 
- // from cornerstone
+  // from cornerstone
   _decodeJPEGLossless(frameIndex = 0) {
 
     let encodedPixelData = DicomParser.readEncapsulatedPixelData(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
