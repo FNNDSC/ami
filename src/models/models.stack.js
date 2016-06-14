@@ -77,6 +77,9 @@ export default class ModelsStack extends ModelsBase{
     // convenience vars
     this._prepared = false;
     this._packed = false;
+
+    // photometricInterpretation Monochrome1 VS Monochrome2
+    this._invert = false;
   }
 
   /**
@@ -803,5 +806,13 @@ export default class ModelsStack extends ModelsBase{
 
   set pixelType(pixelType) {
     this._pixelType = pixelType;
+  }
+
+  set invert(invert) {
+    this._invert = invert;
+  }
+
+  get invert() {
+    return this._invert;
   }
 }

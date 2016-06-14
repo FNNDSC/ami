@@ -69,6 +69,10 @@ export default class ParsersNifti{
     return this._dataSet.sizes[0];
   }
 
+  invert() {
+    return false;
+  }
+
   pixelType(frameIndex = 0) {
     // 0 - int
     // 1 - float

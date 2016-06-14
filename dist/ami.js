@@ -19062,12 +19062,20 @@ module.exports = ZStream;
 // shim for using process in browser
 
 var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it don't break things.
+var cachedSetTimeout = setTimeout;
+var cachedClearTimeout = clearTimeout;
+
 var queue = [];
 var draining = false;
 var currentQueue;
 var queueIndex = -1;
 
 function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
     draining = false;
     if (currentQueue.length) {
         queue = currentQueue.concat(queue);
@@ -19083,7 +19091,7 @@ function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = setTimeout(cleanUpNextTick);
+    var timeout = cachedSetTimeout(cleanUpNextTick);
     draining = true;
 
     var len = queue.length;
@@ -19100,7 +19108,7 @@ function drainQueue() {
     }
     currentQueue = null;
     draining = false;
-    clearTimeout(timeout);
+    cachedClearTimeout(timeout);
 }
 
 process.nextTick = function (fun) {
@@ -19112,7 +19120,7 @@ process.nextTick = function (fun) {
     }
     queue.push(new Item(fun, args));
     if (queue.length === 1 && !draining) {
-        setTimeout(drainQueue, 0);
+        cachedSetTimeout(drainQueue, 0);
     }
 };
 
@@ -20704,25 +20712,25 @@ exports.default = {
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+      value: true
 });
 
 function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
+      if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+      }
 }
 
 function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+      if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 }
 
 function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+      if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+      }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 }
 
 /**
@@ -20734,721 +20742,721 @@ function _inherits(subClass, superClass) {
  */
 
 var Trackball = function (_THREE$EventDispatche) {
-  _inherits(Trackball, _THREE$EventDispatche);
+      _inherits(Trackball, _THREE$EventDispatche);
 
-  function Trackball(object, domElement) {
-    _classCallCheck(this, Trackball);
+      function Trackball(object, domElement) {
+            _classCallCheck(this, Trackball);
 
-    var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(Trackball).call(this));
+            var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(Trackball).call(this));
 
-    var _this = _this2;
-    var STATE = { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM: 4, TOUCH_PAN: 5, CUSTOM: 99 };
+            var _this = _this2;
+            var STATE = { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM: 4, TOUCH_PAN: 5, CUSTOM: 99 };
 
-    _this2.object = object;
-    _this2.domElement = domElement !== undefined ? domElement : document;
+            _this2.object = object;
+            _this2.domElement = domElement !== undefined ? domElement : document;
 
-    // API
+            // API
 
-    _this2.enabled = true;
+            _this2.enabled = true;
 
-    _this2.screen = { left: 0, top: 0, width: 0, height: 0 };
+            _this2.screen = { left: 0, top: 0, width: 0, height: 0 };
 
-    _this2.rotateSpeed = 1.0;
-    _this2.zoomSpeed = 1.2;
-    _this2.panSpeed = 0.3;
+            _this2.rotateSpeed = 1.0;
+            _this2.zoomSpeed = 1.2;
+            _this2.panSpeed = 0.3;
 
-    _this2.noRotate = false;
-    _this2.noZoom = false;
-    _this2.noPan = false;
-    _this2.noCustom = false;
+            _this2.noRotate = false;
+            _this2.noZoom = false;
+            _this2.noPan = false;
+            _this2.noCustom = false;
 
-    _this2.forceState = -1;
+            _this2.forceState = -1;
 
-    _this2.staticMoving = false;
-    _this2.dynamicDampingFactor = 0.2;
+            _this2.staticMoving = false;
+            _this2.dynamicDampingFactor = 0.2;
 
-    _this2.minDistance = 0;
-    _this2.maxDistance = Infinity;
+            _this2.minDistance = 0;
+            _this2.maxDistance = Infinity;
 
-    _this2.keys = [65 /*A*/, 83 /*S*/, 68 /*D*/];
+            _this2.keys = [65 /*A*/, 83 /*S*/, 68 /*D*/];
 
-    // internals
+            // internals
 
-    _this2.target = new THREE.Vector3();
+            _this2.target = new THREE.Vector3();
 
-    var EPS = 0.000001;
+            var EPS = 0.000001;
 
-    var lastPosition = new THREE.Vector3();
+            var lastPosition = new THREE.Vector3();
 
-    var _state = STATE.NONE,
-        _prevState = STATE.NONE,
-        _eye = new THREE.Vector3(),
-        _movePrev = new THREE.Vector2(),
-        _moveCurr = new THREE.Vector2(),
-        _lastAxis = new THREE.Vector3(),
-        _lastAngle = 0,
-        _zoomStart = new THREE.Vector2(),
-        _zoomEnd = new THREE.Vector2(),
-        _touchZoomDistanceStart = 0,
-        _touchZoomDistanceEnd = 0,
-        _panStart = new THREE.Vector2(),
-        _panEnd = new THREE.Vector2(),
-        _customStart = new THREE.Vector2(),
-        _customEnd = new THREE.Vector2();
+            var _state = STATE.NONE,
+                _prevState = STATE.NONE,
+                _eye = new THREE.Vector3(),
+                _movePrev = new THREE.Vector2(),
+                _moveCurr = new THREE.Vector2(),
+                _lastAxis = new THREE.Vector3(),
+                _lastAngle = 0,
+                _zoomStart = new THREE.Vector2(),
+                _zoomEnd = new THREE.Vector2(),
+                _touchZoomDistanceStart = 0,
+                _touchZoomDistanceEnd = 0,
+                _panStart = new THREE.Vector2(),
+                _panEnd = new THREE.Vector2(),
+                _customStart = new THREE.Vector2(),
+                _customEnd = new THREE.Vector2();
 
-    // for reset
+            // for reset
 
-    _this2.target0 = _this2.target.clone();
-    _this2.position0 = _this2.object.position.clone();
-    _this2.up0 = _this2.object.up.clone();
+            _this2.target0 = _this2.target.clone();
+            _this2.position0 = _this2.object.position.clone();
+            _this2.up0 = _this2.object.up.clone();
 
-    // events
+            // events
 
-    var changeEvent = { type: 'change' };
-    var startEvent = { type: 'start' };
-    var endEvent = { type: 'end' };
+            var changeEvent = { type: 'change' };
+            var startEvent = { type: 'start' };
+            var endEvent = { type: 'end' };
 
-    // methods
+            // methods
 
-    _this2.handleResize = function () {
+            _this2.handleResize = function () {
 
-      if (this.domElement === document) {
+                  if (this.domElement === document) {
 
-        this.screen.left = 0;
-        this.screen.top = 0;
-        this.screen.width = window.innerWidth;
-        this.screen.height = window.innerHeight;
-      } else {
+                        this.screen.left = 0;
+                        this.screen.top = 0;
+                        this.screen.width = window.innerWidth;
+                        this.screen.height = window.innerHeight;
+                  } else {
 
-        var box = this.domElement.getBoundingClientRect();
-        // adjustments come from similar code in the jquery offset() function
-        var d = this.domElement.ownerDocument.documentElement;
-        this.screen.left = box.left + window.pageXOffset - d.clientLeft;
-        this.screen.top = box.top + window.pageYOffset - d.clientTop;
-        this.screen.width = box.width;
-        this.screen.height = box.height;
-      }
-    };
+                        var box = this.domElement.getBoundingClientRect();
+                        // adjustments come from similar code in the jquery offset() function
+                        var d = this.domElement.ownerDocument.documentElement;
+                        this.screen.left = box.left + window.pageXOffset - d.clientLeft;
+                        this.screen.top = box.top + window.pageYOffset - d.clientTop;
+                        this.screen.width = box.width;
+                        this.screen.height = box.height;
+                  }
+            };
 
-    _this2.handleEvent = function (event) {
+            _this2.handleEvent = function (event) {
 
-      if (typeof this[event.type] == 'function') {
+                  if (typeof this[event.type] == 'function') {
 
-        this[event.type](event);
-      }
-    };
+                        this[event.type](event);
+                  }
+            };
 
-    var getMouseOnScreen = function () {
+            var getMouseOnScreen = function () {
 
-      var vector = new THREE.Vector2();
+                  var vector = new THREE.Vector2();
 
-      return function (pageX, pageY) {
+                  return function (pageX, pageY) {
 
-        vector.set((pageX - _this.screen.left) / _this.screen.width, (pageY - _this.screen.top) / _this.screen.height);
+                        vector.set((pageX - _this.screen.left) / _this.screen.width, (pageY - _this.screen.top) / _this.screen.height);
 
-        return vector;
-      };
-    }();
+                        return vector;
+                  };
+            }();
 
-    var getMouseOnCircle = function () {
+            var getMouseOnCircle = function () {
 
-      var vector = new THREE.Vector2();
+                  var vector = new THREE.Vector2();
 
-      return function (pageX, pageY) {
+                  return function (pageX, pageY) {
 
-        vector.set((pageX - _this.screen.width * 0.5 - _this.screen.left) / (_this.screen.width * 0.5), (_this.screen.height + 2 * (_this.screen.top - pageY)) / _this.screen.width);
+                        vector.set((pageX - _this.screen.width * 0.5 - _this.screen.left) / (_this.screen.width * 0.5), (_this.screen.height + 2 * (_this.screen.top - pageY)) / _this.screen.width);
 
-        // screen.width intentional
-        return vector;
-      };
-    }();
+                        // screen.width intentional
+                        return vector;
+                  };
+            }();
 
-    _this2.rotateCamera = function () {
+            _this2.rotateCamera = function () {
 
-      var axis = new THREE.Vector3(),
-          quaternion = new THREE.Quaternion(),
-          eyeDirection = new THREE.Vector3(),
-          objectUpDirection = new THREE.Vector3(),
-          objectSidewaysDirection = new THREE.Vector3(),
-          moveDirection = new THREE.Vector3(),
-          angle;
+                  var axis = new THREE.Vector3(),
+                      quaternion = new THREE.Quaternion(),
+                      eyeDirection = new THREE.Vector3(),
+                      objectUpDirection = new THREE.Vector3(),
+                      objectSidewaysDirection = new THREE.Vector3(),
+                      moveDirection = new THREE.Vector3(),
+                      angle;
 
-      return function () {
+                  return function () {
 
-        moveDirection.set(_moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y, 0);
-        angle = moveDirection.length();
+                        moveDirection.set(_moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y, 0);
+                        angle = moveDirection.length();
 
-        if (angle) {
+                        if (angle) {
 
-          _eye.copy(_this.object.position).sub(_this.target);
+                              _eye.copy(_this.object.position).sub(_this.target);
 
-          eyeDirection.copy(_eye).normalize();
-          objectUpDirection.copy(_this.object.up).normalize();
-          objectSidewaysDirection.crossVectors(objectUpDirection, eyeDirection).normalize();
+                              eyeDirection.copy(_eye).normalize();
+                              objectUpDirection.copy(_this.object.up).normalize();
+                              objectSidewaysDirection.crossVectors(objectUpDirection, eyeDirection).normalize();
 
-          objectUpDirection.setLength(_moveCurr.y - _movePrev.y);
-          objectSidewaysDirection.setLength(_moveCurr.x - _movePrev.x);
+                              objectUpDirection.setLength(_moveCurr.y - _movePrev.y);
+                              objectSidewaysDirection.setLength(_moveCurr.x - _movePrev.x);
 
-          moveDirection.copy(objectUpDirection.add(objectSidewaysDirection));
+                              moveDirection.copy(objectUpDirection.add(objectSidewaysDirection));
 
-          axis.crossVectors(moveDirection, _eye).normalize();
+                              axis.crossVectors(moveDirection, _eye).normalize();
 
-          angle *= _this.rotateSpeed;
-          quaternion.setFromAxisAngle(axis, angle);
+                              angle *= _this.rotateSpeed;
+                              quaternion.setFromAxisAngle(axis, angle);
 
-          _eye.applyQuaternion(quaternion);
-          _this.object.up.applyQuaternion(quaternion);
+                              _eye.applyQuaternion(quaternion);
+                              _this.object.up.applyQuaternion(quaternion);
 
-          _lastAxis.copy(axis);
-          _lastAngle = angle;
-        } else if (!_this.staticMoving && _lastAngle) {
+                              _lastAxis.copy(axis);
+                              _lastAngle = angle;
+                        } else if (!_this.staticMoving && _lastAngle) {
 
-          _lastAngle *= Math.sqrt(1.0 - _this.dynamicDampingFactor);
-          _eye.copy(_this.object.position).sub(_this.target);
-          quaternion.setFromAxisAngle(_lastAxis, _lastAngle);
-          _eye.applyQuaternion(quaternion);
-          _this.object.up.applyQuaternion(quaternion);
-        }
+                              _lastAngle *= Math.sqrt(1.0 - _this.dynamicDampingFactor);
+                              _eye.copy(_this.object.position).sub(_this.target);
+                              quaternion.setFromAxisAngle(_lastAxis, _lastAngle);
+                              _eye.applyQuaternion(quaternion);
+                              _this.object.up.applyQuaternion(quaternion);
+                        }
 
-        _movePrev.copy(_moveCurr);
-      };
-    }();
+                        _movePrev.copy(_moveCurr);
+                  };
+            }();
 
-    _this2.zoomCamera = function () {
+            _this2.zoomCamera = function () {
 
-      var factor;
+                  var factor;
 
-      if (_state === STATE.TOUCH_ZOOM) {
+                  if (_state === STATE.TOUCH_ZOOM) {
 
-        factor = _touchZoomDistanceStart / _touchZoomDistanceEnd;
-        _touchZoomDistanceStart = _touchZoomDistanceEnd;
-        _eye.multiplyScalar(factor);
-      } else {
+                        factor = _touchZoomDistanceStart / _touchZoomDistanceEnd;
+                        _touchZoomDistanceStart = _touchZoomDistanceEnd;
+                        _eye.multiplyScalar(factor);
+                  } else {
 
-        factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * _this.zoomSpeed;
+                        factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * _this.zoomSpeed;
 
-        if (factor !== 1.0 && factor > 0.0) {
+                        if (factor !== 1.0 && factor > 0.0) {
 
-          _eye.multiplyScalar(factor);
+                              _eye.multiplyScalar(factor);
 
-          if (_this.staticMoving) {
+                              if (_this.staticMoving) {
 
-            _zoomStart.copy(_zoomEnd);
-          } else {
+                                    _zoomStart.copy(_zoomEnd);
+                              } else {
 
-            _zoomStart.y += (_zoomEnd.y - _zoomStart.y) * this.dynamicDampingFactor;
-          }
-        }
-      }
-    };
+                                    _zoomStart.y += (_zoomEnd.y - _zoomStart.y) * this.dynamicDampingFactor;
+                              }
+                        }
+                  }
+            };
 
-    _this2.panCamera = function () {
+            _this2.panCamera = function () {
 
-      var mouseChange = new THREE.Vector2(),
-          objectUp = new THREE.Vector3(),
-          pan = new THREE.Vector3();
+                  var mouseChange = new THREE.Vector2(),
+                      objectUp = new THREE.Vector3(),
+                      pan = new THREE.Vector3();
 
-      return function () {
+                  return function () {
 
-        mouseChange.copy(_panEnd).sub(_panStart);
+                        mouseChange.copy(_panEnd).sub(_panStart);
 
-        if (mouseChange.lengthSq()) {
+                        if (mouseChange.lengthSq()) {
 
-          mouseChange.multiplyScalar(_eye.length() * _this.panSpeed);
+                              mouseChange.multiplyScalar(_eye.length() * _this.panSpeed);
 
-          pan.copy(_eye).cross(_this.object.up).setLength(mouseChange.x);
-          pan.add(objectUp.copy(_this.object.up).setLength(mouseChange.y));
+                              pan.copy(_eye).cross(_this.object.up).setLength(mouseChange.x);
+                              pan.add(objectUp.copy(_this.object.up).setLength(mouseChange.y));
 
-          _this.object.position.add(pan);
-          _this.target.add(pan);
+                              _this.object.position.add(pan);
+                              _this.target.add(pan);
 
-          if (_this.staticMoving) {
+                              if (_this.staticMoving) {
 
-            _panStart.copy(_panEnd);
-          } else {
+                                    _panStart.copy(_panEnd);
+                              } else {
 
-            _panStart.add(mouseChange.subVectors(_panEnd, _panStart).multiplyScalar(_this.dynamicDampingFactor));
-          }
-        }
-      };
-    }();
+                                    _panStart.add(mouseChange.subVectors(_panEnd, _panStart).multiplyScalar(_this.dynamicDampingFactor));
+                              }
+                        }
+                  };
+            }();
 
-    _this2.checkDistances = function () {
+            _this2.checkDistances = function () {
 
-      if (!_this.noZoom || !_this.noPan) {
+                  if (!_this.noZoom || !_this.noPan) {
 
-        if (_eye.lengthSq() > _this.maxDistance * _this.maxDistance) {
+                        if (_eye.lengthSq() > _this.maxDistance * _this.maxDistance) {
 
-          _this.object.position.addVectors(_this.target, _eye.setLength(_this.maxDistance));
-        }
+                              _this.object.position.addVectors(_this.target, _eye.setLength(_this.maxDistance));
+                        }
 
-        if (_eye.lengthSq() < _this.minDistance * _this.minDistance) {
+                        if (_eye.lengthSq() < _this.minDistance * _this.minDistance) {
 
-          _this.object.position.addVectors(_this.target, _eye.setLength(_this.minDistance));
-        }
-      }
-    };
+                              _this.object.position.addVectors(_this.target, _eye.setLength(_this.minDistance));
+                        }
+                  }
+            };
 
-    _this2.update = function () {
+            _this2.update = function () {
 
-      _eye.subVectors(_this.object.position, _this.target);
+                  _eye.subVectors(_this.object.position, _this.target);
 
-      if (!_this.noRotate) {
+                  if (!_this.noRotate) {
 
-        _this.rotateCamera();
-      }
+                        _this.rotateCamera();
+                  }
 
-      if (!_this.noZoom) {
+                  if (!_this.noZoom) {
 
-        _this.zoomCamera();
-      }
+                        _this.zoomCamera();
+                  }
 
-      if (!_this.noPan) {
+                  if (!_this.noPan) {
 
-        _this.panCamera();
-      }
+                        _this.panCamera();
+                  }
 
-      if (!_this.noCustom) {
+                  if (!_this.noCustom) {
 
-        _this.custom(_customStart, _customEnd);
-      }
+                        _this.custom(_customStart, _customEnd);
+                  }
 
-      _this.object.position.addVectors(_this.target, _eye);
+                  _this.object.position.addVectors(_this.target, _eye);
 
-      _this.checkDistances();
+                  _this.checkDistances();
 
-      _this.object.lookAt(_this.target);
+                  _this.object.lookAt(_this.target);
 
-      if (lastPosition.distanceToSquared(_this.object.position) > EPS) {
+                  if (lastPosition.distanceToSquared(_this.object.position) > EPS) {
 
-        _this.dispatchEvent(changeEvent);
+                        _this.dispatchEvent(changeEvent);
 
-        lastPosition.copy(_this.object.position);
-      }
-    };
+                        lastPosition.copy(_this.object.position);
+                  }
+            };
 
-    _this2.reset = function () {
+            _this2.reset = function () {
 
-      _state = STATE.NONE;
-      _prevState = STATE.NONE;
+                  _state = STATE.NONE;
+                  _prevState = STATE.NONE;
 
-      _this.target.copy(_this.target0);
-      _this.object.position.copy(_this.position0);
-      _this.object.up.copy(_this.up0);
+                  _this.target.copy(_this.target0);
+                  _this.object.position.copy(_this.position0);
+                  _this.object.up.copy(_this.up0);
 
-      _eye.subVectors(_this.object.position, _this.target);
+                  _eye.subVectors(_this.object.position, _this.target);
 
-      _this.object.lookAt(_this.target);
+                  _this.object.lookAt(_this.target);
 
-      _this.dispatchEvent(changeEvent);
+                  _this.dispatchEvent(changeEvent);
 
-      lastPosition.copy(_this.object.position);
-    };
+                  lastPosition.copy(_this.object.position);
+            };
 
-    _this2.setState = function (targetState) {
+            _this2.setState = function (targetState) {
 
-      _this.forceState = targetState;
-      _prevState = targetState;
-      _state = targetState;
-    };
+                  _this.forceState = targetState;
+                  _prevState = targetState;
+                  _state = targetState;
+            };
 
-    _this2.custom = function (customStart, customEnd) {};
+            _this2.custom = function (customStart, customEnd) {};
 
-    // listeners
+            // listeners
 
-    function keydown(event) {
+            function keydown(event) {
 
-      if (_this.enabled === false) return;
+                  if (_this.enabled === false) return;
 
-      window.removeEventListener('keydown', keydown);
+                  window.removeEventListener('keydown', keydown);
 
-      _prevState = _state;
+                  _prevState = _state;
 
-      if (_state !== STATE.NONE) {
+                  if (_state !== STATE.NONE) {
 
-        return;
-      } else if (event.keyCode === _this.keys[STATE.ROTATE] && !_this.noRotate) {
+                        return;
+                  } else if (event.keyCode === _this.keys[STATE.ROTATE] && !_this.noRotate) {
 
-        _state = STATE.ROTATE;
-      } else if (event.keyCode === _this.keys[STATE.ZOOM] && !_this.noZoom) {
+                        _state = STATE.ROTATE;
+                  } else if (event.keyCode === _this.keys[STATE.ZOOM] && !_this.noZoom) {
 
-        _state = STATE.ZOOM;
-      } else if (event.keyCode === _this.keys[STATE.PAN] && !_this.noPan) {
+                        _state = STATE.ZOOM;
+                  } else if (event.keyCode === _this.keys[STATE.PAN] && !_this.noPan) {
 
-        _state = STATE.PAN;
-      }
-    }
-
-    function keyup(event) {
-
-      if (_this.enabled === false) return;
-
-      _state = _prevState;
-
-      window.addEventListener('keydown', keydown, false);
-    }
-
-    function mousedown(event) {
-
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (_state === STATE.NONE) {
-
-        _state = event.button;
-      }
-
-      if (_state === STATE.ROTATE && !_this.noRotate) {
-
-        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
-        _movePrev.copy(_moveCurr);
-      } else if (_state === STATE.ZOOM && !_this.noZoom) {
-
-        _zoomStart.copy(getMouseOnScreen(event.pageX, event.pageY));
-        _zoomEnd.copy(_zoomStart);
-      } else if (_state === STATE.PAN && !_this.noPan) {
-
-        _panStart.copy(getMouseOnScreen(event.pageX, event.pageY));
-        _panEnd.copy(_panStart);
-      } else if (_state === STATE.CUSTOM && !_this.noCustom) {
-
-        _customStart.copy(getMouseOnScreen(event.pageX, event.pageY));
-        _customEnd.copy(_panStart);
-      }
-
-      document.addEventListener('mousemove', mousemove, false);
-      document.addEventListener('mouseup', mouseup, false);
-
-      _this.dispatchEvent(startEvent);
-    }
-
-    function mousemove(event) {
-
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (_state === STATE.ROTATE && !_this.noRotate) {
-
-        _movePrev.copy(_moveCurr);
-        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
-      } else if (_state === STATE.ZOOM && !_this.noZoom) {
-
-        _zoomEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
-      } else if (_state === STATE.PAN && !_this.noPan) {
-
-        _panEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
-      } else if (_state === STATE.CUSTOM && !_this.noCustom) {
-
-        _customEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
-      }
-    }
-
-    function mouseup(event) {
-
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (_this.forceState === -1) {
-        _state = STATE.NONE;
-      }
-
-      document.removeEventListener('mousemove', mousemove);
-      document.removeEventListener('mouseup', mouseup);
-      _this.dispatchEvent(endEvent);
-    }
-
-    function mousewheel(event) {
-
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      var delta = 0;
-
-      if (event.wheelDelta) {
-        // WebKit / Opera / Explorer 9
-
-        delta = event.wheelDelta / 40;
-      } else if (event.detail) {
-        // Firefox
-
-        delta = -event.detail / 3;
-      }
-
-      if (_state !== STATE.CUSTOM) {
-        _zoomStart.y += delta * 0.01;
-      } else if (_state === STATE.CUSTOM) {
-        _customStart.y += delta * 0.01;
-      }
-
-      _this.dispatchEvent(startEvent);
-      _this.dispatchEvent(endEvent);
-    }
-
-    function touchstart(event) {
-
-      if (_this.enabled === false) return;
-
-      if (_this.forceState === -1) {
-
-        switch (event.touches.length) {
-
-          case 1:
-            _state = STATE.TOUCH_ROTATE;
-            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
-            _movePrev.copy(_moveCurr);
-            break;
-
-          case 2:
-            _state = STATE.TOUCH_ZOOM;
-            var dx = event.touches[0].pageX - event.touches[1].pageX;
-            var dy = event.touches[0].pageY - event.touches[1].pageY;
-            _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
-
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _panStart.copy(getMouseOnScreen(x, y));
-            _panEnd.copy(_panStart);
-            break;
-
-          default:
-            _state = STATE.NONE;
-
-        }
-      } else {
-
-        //{ NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4, CUSTOM: 99 };
-        switch (_state) {
-
-          case 0:
-            // 1 or 2 fingers, smae behavior
-            _state = STATE.TOUCH_ROTATE;
-            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
-            _movePrev.copy(_moveCurr);
-            break;
-
-          case 1:
-          case 4:
-            if (event.touches.length >= 2) {
-              _state = STATE.TOUCH_ZOOM;
-              var dx = event.touches[0].pageX - event.touches[1].pageX;
-              var dy = event.touches[0].pageY - event.touches[1].pageY;
-              _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
-            } else {
-              _state = STATE.ZOOM;
-              _zoomStart.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
-              _zoomEnd.copy(_zoomStart);
+                        _state = STATE.PAN;
+                  }
             }
-            break;
 
-          case 2:
-          case 5:
-            if (event.touches.length >= 2) {
-              _state = STATE.TOUCH_PAN;
-              var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-              var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-              _panStart.copy(getMouseOnScreen(x, y));
-              _panEnd.copy(_panStart);
-            } else {
-              _state = STATE.PAN;
-              _panStart.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
-              _panEnd.copy(_panStart);
+            function keyup(event) {
+
+                  if (_this.enabled === false) return;
+
+                  _state = _prevState;
+
+                  window.addEventListener('keydown', keydown, false);
             }
-            break;
 
-          case 99:
-            _state = STATE.CUSTOM;
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _customStart.copy(getMouseOnScreen(x, y));
-            _customEnd.copy(_customStart);
-            break;
+            function mousedown(event) {
 
-          default:
-            _state = STATE.NONE;
+                  if (_this.enabled === false) return;
 
-        }
-      }
+                  event.preventDefault();
+                  event.stopPropagation();
 
-      _this.dispatchEvent(startEvent);
-    }
+                  if (_state === STATE.NONE) {
 
-    function touchmove(event) {
+                        _state = event.button;
+                  }
 
-      if (_this.enabled === false) return;
+                  if (_state === STATE.ROTATE && !_this.noRotate) {
 
-      event.preventDefault();
-      event.stopPropagation();
+                        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
+                        _movePrev.copy(_moveCurr);
+                  } else if (_state === STATE.ZOOM && !_this.noZoom) {
 
-      if (_this.forceState === -1) {
+                        _zoomStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+                        _zoomEnd.copy(_zoomStart);
+                  } else if (_state === STATE.PAN && !_this.noPan) {
 
-        switch (event.touches.length) {
+                        _panStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+                        _panEnd.copy(_panStart);
+                  } else if (_state === STATE.CUSTOM && !_this.noCustom) {
 
-          case 1:
-            _movePrev.copy(_moveCurr);
-            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
-            break;
+                        _customStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+                        _customEnd.copy(_panStart);
+                  }
 
-          case 2:
-            var dx = event.touches[0].pageX - event.touches[1].pageX;
-            var dy = event.touches[0].pageY - event.touches[1].pageY;
-            _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
+                  document.addEventListener('mousemove', mousemove, false);
+                  document.addEventListener('mouseup', mouseup, false);
 
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _panEnd.copy(getMouseOnScreen(x, y));
-            break;
-
-          default:
-            _state = STATE.NONE;
-        }
-      } else {
-        //{ NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4, CUSTOM: 99 };
-        switch (_state) {
-
-          case 0:
-            _movePrev.copy(_moveCurr);
-            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
-            break;
-
-          case 1:
-            _zoomEnd.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
-            break;
-
-          case 2:
-            _panEnd.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
-            break;
-
-          case 4:
-            // 2 fingers!
-            // TOUCH ZOOM
-            var dx = event.touches[0].pageX - event.touches[1].pageX;
-            var dy = event.touches[0].pageY - event.touches[1].pageY;
-            _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
-            break;
-
-          case 5:
-            // 2 fingers
-            // TOUCH_PAN
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _panEnd.copy(getMouseOnScreen(x, y));
-            break;
-
-          case 99:
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _customEnd.copy(getMouseOnScreen(x, y));
-            break;
-
-          default:
-            _state = STATE.NONE;
-
-        }
-      }
-    }
-
-    function touchend(event) {
-
-      if (_this.enabled === false) return;
-
-      if (_this.forceState === -1) {
-        switch (event.touches.length) {
-
-          case 1:
-            _movePrev.copy(_moveCurr);
-            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
-            break;
-
-          case 2:
-            _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
-
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _panEnd.copy(getMouseOnScreen(x, y));
-            _panStart.copy(_panEnd);
-            break;
-
-        }
-
-        _state = STATE.NONE;
-      } else {
-        switch (_state) {
-
-          case 0:
-            _movePrev.copy(_moveCurr);
-            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
-            break;
-
-          case 1:
-          case 2:
-            break;
-
-          case 4:
-            // TOUCH ZOOM
-            _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
-            _state = STATE.ZOOM;
-            break;
-
-          case 5:
-            // TOUCH ZOOM
-            if (event.touches.length >= 2) {
-              var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-              var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-              _panEnd.copy(getMouseOnScreen(x, y));
-              _panStart.copy(_panEnd);
+                  _this.dispatchEvent(startEvent);
             }
-            _state = STATE.PAN;
-            break;
 
-          case 99:
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _customEnd.copy(getMouseOnScreen(x, y));
-            _customStart.copy(_customEnd);
-            break;
+            function mousemove(event) {
 
-          default:
-            _state = STATE.NONE;
+                  if (_this.enabled === false) return;
 
-        }
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  if (_state === STATE.ROTATE && !_this.noRotate) {
+
+                        _movePrev.copy(_moveCurr);
+                        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
+                  } else if (_state === STATE.ZOOM && !_this.noZoom) {
+
+                        _zoomEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
+                  } else if (_state === STATE.PAN && !_this.noPan) {
+
+                        _panEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
+                  } else if (_state === STATE.CUSTOM && !_this.noCustom) {
+
+                        _customEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
+                  }
+            }
+
+            function mouseup(event) {
+
+                  if (_this.enabled === false) return;
+
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  if (_this.forceState === -1) {
+                        _state = STATE.NONE;
+                  }
+
+                  document.removeEventListener('mousemove', mousemove);
+                  document.removeEventListener('mouseup', mouseup);
+                  _this.dispatchEvent(endEvent);
+            }
+
+            function mousewheel(event) {
+
+                  if (_this.enabled === false) return;
+
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  var delta = 0;
+
+                  if (event.wheelDelta) {
+                        // WebKit / Opera / Explorer 9
+
+                        delta = event.wheelDelta / 40;
+                  } else if (event.detail) {
+                        // Firefox
+
+                        delta = -event.detail / 3;
+                  }
+
+                  if (_state !== STATE.CUSTOM) {
+                        _zoomStart.y += delta * 0.01;
+                  } else if (_state === STATE.CUSTOM) {
+                        _customStart.y += delta * 0.01;
+                  }
+
+                  _this.dispatchEvent(startEvent);
+                  _this.dispatchEvent(endEvent);
+            }
+
+            function touchstart(event) {
+
+                  if (_this.enabled === false) return;
+
+                  if (_this.forceState === -1) {
+
+                        switch (event.touches.length) {
+
+                              case 1:
+                                    _state = STATE.TOUCH_ROTATE;
+                                    _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+                                    _movePrev.copy(_moveCurr);
+                                    break;
+
+                              case 2:
+                                    _state = STATE.TOUCH_ZOOM;
+                                    var dx = event.touches[0].pageX - event.touches[1].pageX;
+                                    var dy = event.touches[0].pageY - event.touches[1].pageY;
+                                    _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
+
+                                    var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                                    var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                                    _panStart.copy(getMouseOnScreen(x, y));
+                                    _panEnd.copy(_panStart);
+                                    break;
+
+                              default:
+                                    _state = STATE.NONE;
+
+                        }
+                  } else {
+
+                        //{ NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4, CUSTOM: 99 };
+                        switch (_state) {
+
+                              case 0:
+                                    // 1 or 2 fingers, smae behavior
+                                    _state = STATE.TOUCH_ROTATE;
+                                    _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+                                    _movePrev.copy(_moveCurr);
+                                    break;
+
+                              case 1:
+                              case 4:
+                                    if (event.touches.length >= 2) {
+                                          _state = STATE.TOUCH_ZOOM;
+                                          var dx = event.touches[0].pageX - event.touches[1].pageX;
+                                          var dy = event.touches[0].pageY - event.touches[1].pageY;
+                                          _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
+                                    } else {
+                                          _state = STATE.ZOOM;
+                                          _zoomStart.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
+                                          _zoomEnd.copy(_zoomStart);
+                                    }
+                                    break;
+
+                              case 2:
+                              case 5:
+                                    if (event.touches.length >= 2) {
+                                          _state = STATE.TOUCH_PAN;
+                                          var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                                          var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                                          _panStart.copy(getMouseOnScreen(x, y));
+                                          _panEnd.copy(_panStart);
+                                    } else {
+                                          _state = STATE.PAN;
+                                          _panStart.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
+                                          _panEnd.copy(_panStart);
+                                    }
+                                    break;
+
+                              case 99:
+                                    _state = STATE.CUSTOM;
+                                    var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                                    var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                                    _customStart.copy(getMouseOnScreen(x, y));
+                                    _customEnd.copy(_customStart);
+                                    break;
+
+                              default:
+                                    _state = STATE.NONE;
+
+                        }
+                  }
+
+                  _this.dispatchEvent(startEvent);
+            }
+
+            function touchmove(event) {
+
+                  if (_this.enabled === false) return;
+
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  if (_this.forceState === -1) {
+
+                        switch (event.touches.length) {
+
+                              case 1:
+                                    _movePrev.copy(_moveCurr);
+                                    _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+                                    break;
+
+                              case 2:
+                                    var dx = event.touches[0].pageX - event.touches[1].pageX;
+                                    var dy = event.touches[0].pageY - event.touches[1].pageY;
+                                    _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
+
+                                    var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                                    var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                                    _panEnd.copy(getMouseOnScreen(x, y));
+                                    break;
+
+                              default:
+                                    _state = STATE.NONE;
+                        }
+                  } else {
+                        //{ NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4, CUSTOM: 99 };
+                        switch (_state) {
+
+                              case 0:
+                                    _movePrev.copy(_moveCurr);
+                                    _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+                                    break;
+
+                              case 1:
+                                    _zoomEnd.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
+                                    break;
+
+                              case 2:
+                                    _panEnd.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
+                                    break;
+
+                              case 4:
+                                    // 2 fingers!
+                                    // TOUCH ZOOM
+                                    var dx = event.touches[0].pageX - event.touches[1].pageX;
+                                    var dy = event.touches[0].pageY - event.touches[1].pageY;
+                                    _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
+                                    break;
+
+                              case 5:
+                                    // 2 fingers
+                                    // TOUCH_PAN
+                                    var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                                    var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                                    _panEnd.copy(getMouseOnScreen(x, y));
+                                    break;
+
+                              case 99:
+                                    var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                                    var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                                    _customEnd.copy(getMouseOnScreen(x, y));
+                                    break;
+
+                              default:
+                                    _state = STATE.NONE;
+
+                        }
+                  }
+            }
+
+            function touchend(event) {
+
+                  if (_this.enabled === false) return;
+
+                  if (_this.forceState === -1) {
+                        switch (event.touches.length) {
+
+                              case 1:
+                                    _movePrev.copy(_moveCurr);
+                                    _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+                                    break;
+
+                              case 2:
+                                    _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
+
+                                    var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                                    var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                                    _panEnd.copy(getMouseOnScreen(x, y));
+                                    _panStart.copy(_panEnd);
+                                    break;
+
+                        }
+
+                        _state = STATE.NONE;
+                  } else {
+                        switch (_state) {
+
+                              case 0:
+                                    _movePrev.copy(_moveCurr);
+                                    _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+                                    break;
+
+                              case 1:
+                              case 2:
+                                    break;
+
+                              case 4:
+                                    // TOUCH ZOOM
+                                    _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
+                                    _state = STATE.ZOOM;
+                                    break;
+
+                              case 5:
+                                    // TOUCH ZOOM
+                                    if (event.touches.length >= 2) {
+                                          var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                                          var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                                          _panEnd.copy(getMouseOnScreen(x, y));
+                                          _panStart.copy(_panEnd);
+                                    }
+                                    _state = STATE.PAN;
+                                    break;
+
+                              case 99:
+                                    var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                                    var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                                    _customEnd.copy(getMouseOnScreen(x, y));
+                                    _customStart.copy(_customEnd);
+                                    break;
+
+                              default:
+                                    _state = STATE.NONE;
+
+                        }
+                  }
+
+                  _this.dispatchEvent(endEvent);
+            }
+
+            _this2.domElement.addEventListener('contextmenu', function (event) {
+                  event.preventDefault();
+            }, false);
+
+            _this2.domElement.addEventListener('mousedown', mousedown, false);
+
+            _this2.domElement.addEventListener('mousewheel', mousewheel, false);
+            _this2.domElement.addEventListener('DOMMouseScroll', mousewheel, false); // firefox
+
+            _this2.domElement.addEventListener('touchstart', touchstart, false);
+            _this2.domElement.addEventListener('touchend', touchend, false);
+            _this2.domElement.addEventListener('touchmove', touchmove, false);
+
+            window.addEventListener('keydown', keydown, false);
+            window.addEventListener('keyup', keyup, false);
+
+            _this2.handleResize();
+
+            // force an update at start
+            _this2.update();
+
+            return _this2;
       }
 
-      _this.dispatchEvent(endEvent);
-    }
-
-    _this2.domElement.addEventListener('contextmenu', function (event) {
-      event.preventDefault();
-    }, false);
-
-    _this2.domElement.addEventListener('mousedown', mousedown, false);
-
-    _this2.domElement.addEventListener('mousewheel', mousewheel, false);
-    _this2.domElement.addEventListener('DOMMouseScroll', mousewheel, false); // firefox
-
-    _this2.domElement.addEventListener('touchstart', touchstart, false);
-    _this2.domElement.addEventListener('touchend', touchend, false);
-    _this2.domElement.addEventListener('touchmove', touchmove, false);
-
-    window.addEventListener('keydown', keydown, false);
-    window.addEventListener('keyup', keyup, false);
-
-    _this2.handleResize();
-
-    // force an update at start
-    _this2.update();
-
-    return _this2;
-  }
-
-  return Trackball;
+      return Trackball;
 }(THREE.EventDispatcher);
 
 exports.default = Trackball;
@@ -21459,25 +21467,25 @@ exports.default = Trackball;
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+      value: true
 });
 
 function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
+      if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+      }
 }
 
 function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+      if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 }
 
 function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+      if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+      }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 }
 
 /**
@@ -21488,498 +21496,498 @@ function _inherits(subClass, superClass) {
  */
 
 var Trackballortho = function (_THREE$EventDispatche) {
-  _inherits(Trackballortho, _THREE$EventDispatche);
+      _inherits(Trackballortho, _THREE$EventDispatche);
 
-  function Trackballortho(object, domElement) {
-    _classCallCheck(this, Trackballortho);
+      function Trackballortho(object, domElement) {
+            _classCallCheck(this, Trackballortho);
 
-    var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(Trackballortho).call(this));
+            var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(Trackballortho).call(this));
 
-    var _this = _this2;
-    var STATE = { NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5 };
+            var _this = _this2;
+            var STATE = { NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5 };
 
-    _this2.object = object;
-    _this2.domElement = domElement !== undefined ? domElement : document;
+            _this2.object = object;
+            _this2.domElement = domElement !== undefined ? domElement : document;
 
-    // API
+            // API
 
-    _this2.enabled = true;
+            _this2.enabled = true;
 
-    _this2.screen = { left: 0, top: 0, width: 0, height: 0 };
+            _this2.screen = { left: 0, top: 0, width: 0, height: 0 };
 
-    _this2.radius = 0;
+            _this2.radius = 0;
 
-    _this2.zoomSpeed = 1.2;
+            _this2.zoomSpeed = 1.2;
 
-    _this2.noZoom = false;
-    _this2.noPan = false;
+            _this2.noZoom = false;
+            _this2.noPan = false;
 
-    _this2.staticMoving = false;
-    _this2.dynamicDampingFactor = 0.2;
+            _this2.staticMoving = false;
+            _this2.dynamicDampingFactor = 0.2;
 
-    _this2.keys = [65 /*A*/, 83 /*S*/, 68 /*D*/];
+            _this2.keys = [65 /*A*/, 83 /*S*/, 68 /*D*/];
 
-    // internals
+            // internals
 
-    _this2.target = new THREE.Vector3();
+            _this2.target = new THREE.Vector3();
 
-    var EPS = 0.000001;
+            var EPS = 0.000001;
 
-    var _changed = true;
+            var _changed = true;
 
-    var _state = STATE.NONE,
-        _prevState = STATE.NONE,
-        _eye = new THREE.Vector3(),
-        _zoomStart = new THREE.Vector2(),
-        _zoomEnd = new THREE.Vector2(),
-        _touchZoomDistanceStart = 0,
-        _touchZoomDistanceEnd = 0,
-        _panStart = new THREE.Vector2(),
-        _panEnd = new THREE.Vector2();
+            var _state = STATE.NONE,
+                _prevState = STATE.NONE,
+                _eye = new THREE.Vector3(),
+                _zoomStart = new THREE.Vector2(),
+                _zoomEnd = new THREE.Vector2(),
+                _touchZoomDistanceStart = 0,
+                _touchZoomDistanceEnd = 0,
+                _panStart = new THREE.Vector2(),
+                _panEnd = new THREE.Vector2();
 
-    // window level fire after...
+            // window level fire after...
 
-    // for reset
+            // for reset
 
-    _this2.target0 = _this2.target.clone();
-    _this2.position0 = _this2.object.position.clone();
-    _this2.up0 = _this2.object.up.clone();
+            _this2.target0 = _this2.target.clone();
+            _this2.position0 = _this2.object.position.clone();
+            _this2.up0 = _this2.object.up.clone();
 
-    _this2.left0 = _this2.object.left;
-    _this2.right0 = _this2.object.right;
-    _this2.top0 = _this2.object.top;
-    _this2.bottom0 = _this2.object.bottom;
+            _this2.left0 = _this2.object.left;
+            _this2.right0 = _this2.object.right;
+            _this2.top0 = _this2.object.top;
+            _this2.bottom0 = _this2.object.bottom;
 
-    // events
+            // events
 
-    var changeEvent = { type: 'change' };
-    var startEvent = { type: 'start' };
-    var endEvent = { type: 'end' };
+            var changeEvent = { type: 'change' };
+            var startEvent = { type: 'start' };
+            var endEvent = { type: 'end' };
 
-    // methods
+            // methods
 
-    _this2.handleResize = function () {
+            _this2.handleResize = function () {
 
-      if (this.domElement === document) {
+                  if (this.domElement === document) {
 
-        this.screen.left = 0;
-        this.screen.top = 0;
-        this.screen.width = window.innerWidth;
-        this.screen.height = window.innerHeight;
-      } else {
+                        this.screen.left = 0;
+                        this.screen.top = 0;
+                        this.screen.width = window.innerWidth;
+                        this.screen.height = window.innerHeight;
+                  } else {
 
-        var box = this.domElement.getBoundingClientRect();
-        // adjustments come from similar code in the jquery offset() function
-        var d = this.domElement.ownerDocument.documentElement;
-        this.screen.left = box.left + window.pageXOffset - d.clientLeft;
-        this.screen.top = box.top + window.pageYOffset - d.clientTop;
-        this.screen.width = box.width;
-        this.screen.height = box.height;
+                        var box = this.domElement.getBoundingClientRect();
+                        // adjustments come from similar code in the jquery offset() function
+                        var d = this.domElement.ownerDocument.documentElement;
+                        this.screen.left = box.left + window.pageXOffset - d.clientLeft;
+                        this.screen.top = box.top + window.pageYOffset - d.clientTop;
+                        this.screen.width = box.width;
+                        this.screen.height = box.height;
+                  }
+
+                  this.radius = 0.5 * Math.min(this.screen.width, this.screen.height);
+
+                  this.left0 = this.object.left;
+                  this.right0 = this.object.right;
+                  this.top0 = this.object.top;
+                  this.bottom0 = this.object.bottom;
+            };
+
+            _this2.handleEvent = function (event) {
+
+                  if (typeof this[event.type] == 'function') {
+
+                        this[event.type](event);
+                  }
+            };
+
+            var getMouseOnScreen = function () {
+
+                  var vector = new THREE.Vector2();
+
+                  return function getMouseOnScreen(pageX, pageY) {
+
+                        vector.set((pageX - _this.screen.left) / _this.screen.width, (pageY - _this.screen.top) / _this.screen.height);
+
+                        return vector;
+                  };
+            }();
+
+            _this2.zoomCamera = function () {
+
+                  if (_state === STATE.TOUCH_ZOOM_PAN) {
+
+                        var factor = _touchZoomDistanceEnd / _touchZoomDistanceStart;
+                        _touchZoomDistanceStart = _touchZoomDistanceEnd;
+
+                        _this.object.zoom *= factor;
+
+                        _changed = true;
+                  } else {
+
+                        var factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * _this.zoomSpeed;
+
+                        if (Math.abs(factor - 1.0) > EPS && factor > 0.0) {
+
+                              _this.object.zoom /= factor;
+
+                              if (_this.staticMoving) {
+
+                                    _zoomStart.copy(_zoomEnd);
+                              } else {
+
+                                    _zoomStart.y += (_zoomEnd.y - _zoomStart.y) * this.dynamicDampingFactor;
+                              }
+
+                              _changed = true;
+                        }
+                  }
+            };
+
+            _this2.panCamera = function () {
+
+                  var mouseChange = new THREE.Vector2(),
+                      objectUp = new THREE.Vector3(),
+                      pan = new THREE.Vector3();
+
+                  return function panCamera() {
+
+                        mouseChange.copy(_panEnd).sub(_panStart);
+
+                        if (mouseChange.lengthSq()) {
+
+                              // Scale movement to keep clicked/dragged position under cursor
+                              var scale_x = (_this.object.right - _this.object.left) / _this.object.zoom;
+                              var scale_y = (_this.object.top - _this.object.bottom) / _this.object.zoom;
+                              mouseChange.x *= scale_x;
+                              mouseChange.y *= scale_y;
+
+                              pan.copy(_eye).cross(_this.object.up).setLength(mouseChange.x);
+                              pan.add(objectUp.copy(_this.object.up).setLength(mouseChange.y));
+
+                              _this.object.position.add(pan);
+                              _this.target.add(pan);
+
+                              if (_this.staticMoving) {
+
+                                    _panStart.copy(_panEnd);
+                              } else {
+
+                                    _panStart.add(mouseChange.subVectors(_panEnd, _panStart).multiplyScalar(_this.dynamicDampingFactor));
+                              }
+
+                              _changed = true;
+                        }
+                  };
+            }();
+
+            _this2.update = function () {
+
+                  _eye.subVectors(_this.object.position, _this.target);
+
+                  if (!_this.noZoom) {
+
+                        _this.zoomCamera();
+
+                        if (_changed) {
+
+                              _this.object.updateProjectionMatrix();
+                        }
+                  }
+
+                  if (!_this.noPan) {
+
+                        _this.panCamera();
+                  }
+
+                  _this.object.position.addVectors(_this.target, _eye);
+
+                  _this.object.lookAt(_this.target);
+
+                  if (_changed) {
+
+                        _this.dispatchEvent(changeEvent);
+
+                        _changed = false;
+                  }
+            };
+
+            _this2.reset = function () {
+
+                  _state = STATE.NONE;
+                  _prevState = STATE.NONE;
+
+                  _this.target.copy(_this.target0);
+                  _this.object.position.copy(_this.position0);
+                  _this.object.up.copy(_this.up0);
+
+                  _eye.subVectors(_this.object.position, _this.target);
+
+                  _this.object.left = _this.left0;
+                  _this.object.right = _this.right0;
+                  _this.object.top = _this.top0;
+                  _this.object.bottom = _this.bottom0;
+
+                  _this.object.lookAt(_this.target);
+
+                  _this.dispatchEvent(changeEvent);
+
+                  _changed = false;
+            };
+
+            // listeners
+
+            function keydown(event) {
+
+                  if (_this.enabled === false) return;
+
+                  window.removeEventListener('keydown', keydown);
+
+                  _prevState = _state;
+
+                  if (_state !== STATE.NONE) {
+
+                        return;
+                  } else if (event.keyCode === _this.keys[STATE.ROTATE] && !_this.noRotate) {
+
+                        _state = STATE.ROTATE;
+                  } else if (event.keyCode === _this.keys[STATE.ZOOM] && !_this.noZoom) {
+
+                        _state = STATE.ZOOM;
+                  } else if (event.keyCode === _this.keys[STATE.PAN] && !_this.noPan) {
+
+                        _state = STATE.PAN;
+                  }
+            }
+
+            function keyup(event) {
+
+                  if (_this.enabled === false) return;
+
+                  _state = _prevState;
+
+                  window.addEventListener('keydown', keydown, false);
+            }
+
+            function mousedown(event) {
+
+                  if (_this.enabled === false) return;
+
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  if (_state === STATE.NONE) {
+
+                        _state = event.button;
+                  }
+
+                  if (_state === STATE.ROTATE && !_this.noRotate) {} else if (_state === STATE.ZOOM && !_this.noZoom) {
+
+                        _zoomStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+                        _zoomEnd.copy(_zoomStart);
+                  } else if (_state === STATE.PAN && !_this.noPan) {
+
+                        _panStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+                        _panEnd.copy(_panStart);
+                  }
+
+                  document.addEventListener('mousemove', mousemove, false);
+                  document.addEventListener('mouseup', mouseup, false);
+
+                  _this.dispatchEvent(startEvent);
+            }
+
+            function mousemove(event) {
+
+                  if (_this.enabled === false) return;
+
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  if (_state === STATE.ROTATE && !_this.noRotate) {} else if (_state === STATE.ZOOM && !_this.noZoom) {
+
+                        _zoomEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
+                  } else if (_state === STATE.PAN && !_this.noPan) {
+
+                        _panEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
+                  }
+            }
+
+            function mouseup(event) {
+
+                  if (_this.enabled === false) return;
+
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  _state = STATE.NONE;
+
+                  document.removeEventListener('mousemove', mousemove);
+                  document.removeEventListener('mouseup', mouseup);
+                  _this.dispatchEvent(endEvent);
+            }
+
+            function mousewheel(event) {
+
+                  if (_this.enabled === false) return;
+
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  var delta = 0;
+
+                  if (event.wheelDelta) {
+
+                        // WebKit / Opera / Explorer 9
+
+                        delta = event.wheelDelta / 40;
+                  } else if (event.detail) {
+
+                        // Firefox
+
+                        delta = -event.detail / 3;
+                  }
+
+                  // FIRE SCROLL EVENT
+
+                  _this.dispatchEvent({
+                        type: 'OnScroll',
+                        delta: delta
+                  });
+
+                  //_zoomStart.y += delta * 0.01;
+                  _this.dispatchEvent(startEvent);
+                  _this.dispatchEvent(endEvent);
+            }
+
+            function touchstart(event) {
+
+                  if (_this.enabled === false) return;
+
+                  switch (event.touches.length) {
+
+                        case 1:
+                              _state = STATE.TOUCH_ROTATE;
+
+                              break;
+
+                        case 2:
+                              _state = STATE.TOUCH_ZOOM_PAN;
+                              var dx = event.touches[0].pageX - event.touches[1].pageX;
+                              var dy = event.touches[0].pageY - event.touches[1].pageY;
+                              _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
+
+                              var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                              var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                              _panStart.copy(getMouseOnScreen(x, y));
+                              _panEnd.copy(_panStart);
+                              break;
+
+                        default:
+                              _state = STATE.NONE;
+
+                  }
+                  _this.dispatchEvent(startEvent);
+            }
+
+            function touchmove(event) {
+
+                  if (_this.enabled === false) return;
+
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  switch (event.touches.length) {
+
+                        case 1:
+
+                              break;
+
+                        case 2:
+                              var dx = event.touches[0].pageX - event.touches[1].pageX;
+                              var dy = event.touches[0].pageY - event.touches[1].pageY;
+                              _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
+
+                              var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                              var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                              _panEnd.copy(getMouseOnScreen(x, y));
+                              break;
+
+                        default:
+                              _state = STATE.NONE;
+
+                  }
+            }
+
+            function touchend(event) {
+
+                  if (_this.enabled === false) return;
+
+                  switch (event.touches.length) {
+
+                        case 1:
+
+                              break;
+
+                        case 2:
+                              _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
+
+                              var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                              var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                              _panEnd.copy(getMouseOnScreen(x, y));
+                              _panStart.copy(_panEnd);
+                              break;
+
+                  }
+
+                  _state = STATE.NONE;
+                  _this.dispatchEvent(endEvent);
+            }
+
+            function contextmenu(event) {
+
+                  event.preventDefault();
+            }
+
+            _this2.dispose = function () {
+
+                  this.domElement.removeEventListener('contextmenu', contextmenu, false);
+                  this.domElement.removeEventListener('mousedown', mousedown, false);
+                  this.domElement.removeEventListener('mousewheel', mousewheel, false);
+                  this.domElement.removeEventListener('MozMousePixelScroll', mousewheel, false); // firefox
+
+                  this.domElement.removeEventListener('touchstart', touchstart, false);
+                  this.domElement.removeEventListener('touchend', touchend, false);
+                  this.domElement.removeEventListener('touchmove', touchmove, false);
+
+                  document.removeEventListener('mousemove', mousemove, false);
+                  document.removeEventListener('mouseup', mouseup, false);
+
+                  window.removeEventListener('keydown', keydown, false);
+                  window.removeEventListener('keyup', keyup, false);
+            };
+
+            _this2.domElement.addEventListener('contextmenu', contextmenu, false);
+            _this2.domElement.addEventListener('mousedown', mousedown, false);
+            _this2.domElement.addEventListener('mousewheel', mousewheel, false);
+            _this2.domElement.addEventListener('MozMousePixelScroll', mousewheel, false); // firefox
+
+            _this2.domElement.addEventListener('touchstart', touchstart, false);
+            _this2.domElement.addEventListener('touchend', touchend, false);
+            _this2.domElement.addEventListener('touchmove', touchmove, false);
+
+            window.addEventListener('keydown', keydown, false);
+            window.addEventListener('keyup', keyup, false);
+
+            _this2.handleResize();
+
+            // force an update at start
+            _this2.update();
+
+            return _this2;
       }
 
-      this.radius = 0.5 * Math.min(this.screen.width, this.screen.height);
-
-      this.left0 = this.object.left;
-      this.right0 = this.object.right;
-      this.top0 = this.object.top;
-      this.bottom0 = this.object.bottom;
-    };
-
-    _this2.handleEvent = function (event) {
-
-      if (typeof this[event.type] == 'function') {
-
-        this[event.type](event);
-      }
-    };
-
-    var getMouseOnScreen = function () {
-
-      var vector = new THREE.Vector2();
-
-      return function getMouseOnScreen(pageX, pageY) {
-
-        vector.set((pageX - _this.screen.left) / _this.screen.width, (pageY - _this.screen.top) / _this.screen.height);
-
-        return vector;
-      };
-    }();
-
-    _this2.zoomCamera = function () {
-
-      if (_state === STATE.TOUCH_ZOOM_PAN) {
-
-        var factor = _touchZoomDistanceEnd / _touchZoomDistanceStart;
-        _touchZoomDistanceStart = _touchZoomDistanceEnd;
-
-        _this.object.zoom *= factor;
-
-        _changed = true;
-      } else {
-
-        var factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * _this.zoomSpeed;
-
-        if (Math.abs(factor - 1.0) > EPS && factor > 0.0) {
-
-          _this.object.zoom /= factor;
-
-          if (_this.staticMoving) {
-
-            _zoomStart.copy(_zoomEnd);
-          } else {
-
-            _zoomStart.y += (_zoomEnd.y - _zoomStart.y) * this.dynamicDampingFactor;
-          }
-
-          _changed = true;
-        }
-      }
-    };
-
-    _this2.panCamera = function () {
-
-      var mouseChange = new THREE.Vector2(),
-          objectUp = new THREE.Vector3(),
-          pan = new THREE.Vector3();
-
-      return function panCamera() {
-
-        mouseChange.copy(_panEnd).sub(_panStart);
-
-        if (mouseChange.lengthSq()) {
-
-          // Scale movement to keep clicked/dragged position under cursor
-          var scale_x = (_this.object.right - _this.object.left) / _this.object.zoom;
-          var scale_y = (_this.object.top - _this.object.bottom) / _this.object.zoom;
-          mouseChange.x *= scale_x;
-          mouseChange.y *= scale_y;
-
-          pan.copy(_eye).cross(_this.object.up).setLength(mouseChange.x);
-          pan.add(objectUp.copy(_this.object.up).setLength(mouseChange.y));
-
-          _this.object.position.add(pan);
-          _this.target.add(pan);
-
-          if (_this.staticMoving) {
-
-            _panStart.copy(_panEnd);
-          } else {
-
-            _panStart.add(mouseChange.subVectors(_panEnd, _panStart).multiplyScalar(_this.dynamicDampingFactor));
-          }
-
-          _changed = true;
-        }
-      };
-    }();
-
-    _this2.update = function () {
-
-      _eye.subVectors(_this.object.position, _this.target);
-
-      if (!_this.noZoom) {
-
-        _this.zoomCamera();
-
-        if (_changed) {
-
-          _this.object.updateProjectionMatrix();
-        }
-      }
-
-      if (!_this.noPan) {
-
-        _this.panCamera();
-      }
-
-      _this.object.position.addVectors(_this.target, _eye);
-
-      _this.object.lookAt(_this.target);
-
-      if (_changed) {
-
-        _this.dispatchEvent(changeEvent);
-
-        _changed = false;
-      }
-    };
-
-    _this2.reset = function () {
-
-      _state = STATE.NONE;
-      _prevState = STATE.NONE;
-
-      _this.target.copy(_this.target0);
-      _this.object.position.copy(_this.position0);
-      _this.object.up.copy(_this.up0);
-
-      _eye.subVectors(_this.object.position, _this.target);
-
-      _this.object.left = _this.left0;
-      _this.object.right = _this.right0;
-      _this.object.top = _this.top0;
-      _this.object.bottom = _this.bottom0;
-
-      _this.object.lookAt(_this.target);
-
-      _this.dispatchEvent(changeEvent);
-
-      _changed = false;
-    };
-
-    // listeners
-
-    function keydown(event) {
-
-      if (_this.enabled === false) return;
-
-      window.removeEventListener('keydown', keydown);
-
-      _prevState = _state;
-
-      if (_state !== STATE.NONE) {
-
-        return;
-      } else if (event.keyCode === _this.keys[STATE.ROTATE] && !_this.noRotate) {
-
-        _state = STATE.ROTATE;
-      } else if (event.keyCode === _this.keys[STATE.ZOOM] && !_this.noZoom) {
-
-        _state = STATE.ZOOM;
-      } else if (event.keyCode === _this.keys[STATE.PAN] && !_this.noPan) {
-
-        _state = STATE.PAN;
-      }
-    }
-
-    function keyup(event) {
-
-      if (_this.enabled === false) return;
-
-      _state = _prevState;
-
-      window.addEventListener('keydown', keydown, false);
-    }
-
-    function mousedown(event) {
-
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (_state === STATE.NONE) {
-
-        _state = event.button;
-      }
-
-      if (_state === STATE.ROTATE && !_this.noRotate) {} else if (_state === STATE.ZOOM && !_this.noZoom) {
-
-        _zoomStart.copy(getMouseOnScreen(event.pageX, event.pageY));
-        _zoomEnd.copy(_zoomStart);
-      } else if (_state === STATE.PAN && !_this.noPan) {
-
-        _panStart.copy(getMouseOnScreen(event.pageX, event.pageY));
-        _panEnd.copy(_panStart);
-      }
-
-      document.addEventListener('mousemove', mousemove, false);
-      document.addEventListener('mouseup', mouseup, false);
-
-      _this.dispatchEvent(startEvent);
-    }
-
-    function mousemove(event) {
-
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (_state === STATE.ROTATE && !_this.noRotate) {} else if (_state === STATE.ZOOM && !_this.noZoom) {
-
-        _zoomEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
-      } else if (_state === STATE.PAN && !_this.noPan) {
-
-        _panEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
-      }
-    }
-
-    function mouseup(event) {
-
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      _state = STATE.NONE;
-
-      document.removeEventListener('mousemove', mousemove);
-      document.removeEventListener('mouseup', mouseup);
-      _this.dispatchEvent(endEvent);
-    }
-
-    function mousewheel(event) {
-
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      var delta = 0;
-
-      if (event.wheelDelta) {
-
-        // WebKit / Opera / Explorer 9
-
-        delta = event.wheelDelta / 40;
-      } else if (event.detail) {
-
-        // Firefox
-
-        delta = -event.detail / 3;
-      }
-
-      // FIRE SCROLL EVENT
-
-      _this.dispatchEvent({
-        type: 'OnScroll',
-        delta: delta
-      });
-
-      //_zoomStart.y += delta * 0.01;
-      _this.dispatchEvent(startEvent);
-      _this.dispatchEvent(endEvent);
-    }
-
-    function touchstart(event) {
-
-      if (_this.enabled === false) return;
-
-      switch (event.touches.length) {
-
-        case 1:
-          _state = STATE.TOUCH_ROTATE;
-
-          break;
-
-        case 2:
-          _state = STATE.TOUCH_ZOOM_PAN;
-          var dx = event.touches[0].pageX - event.touches[1].pageX;
-          var dy = event.touches[0].pageY - event.touches[1].pageY;
-          _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
-
-          var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-          var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-          _panStart.copy(getMouseOnScreen(x, y));
-          _panEnd.copy(_panStart);
-          break;
-
-        default:
-          _state = STATE.NONE;
-
-      }
-      _this.dispatchEvent(startEvent);
-    }
-
-    function touchmove(event) {
-
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      switch (event.touches.length) {
-
-        case 1:
-
-          break;
-
-        case 2:
-          var dx = event.touches[0].pageX - event.touches[1].pageX;
-          var dy = event.touches[0].pageY - event.touches[1].pageY;
-          _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
-
-          var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-          var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-          _panEnd.copy(getMouseOnScreen(x, y));
-          break;
-
-        default:
-          _state = STATE.NONE;
-
-      }
-    }
-
-    function touchend(event) {
-
-      if (_this.enabled === false) return;
-
-      switch (event.touches.length) {
-
-        case 1:
-
-          break;
-
-        case 2:
-          _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
-
-          var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-          var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-          _panEnd.copy(getMouseOnScreen(x, y));
-          _panStart.copy(_panEnd);
-          break;
-
-      }
-
-      _state = STATE.NONE;
-      _this.dispatchEvent(endEvent);
-    }
-
-    function contextmenu(event) {
-
-      event.preventDefault();
-    }
-
-    _this2.dispose = function () {
-
-      this.domElement.removeEventListener('contextmenu', contextmenu, false);
-      this.domElement.removeEventListener('mousedown', mousedown, false);
-      this.domElement.removeEventListener('mousewheel', mousewheel, false);
-      this.domElement.removeEventListener('MozMousePixelScroll', mousewheel, false); // firefox
-
-      this.domElement.removeEventListener('touchstart', touchstart, false);
-      this.domElement.removeEventListener('touchend', touchend, false);
-      this.domElement.removeEventListener('touchmove', touchmove, false);
-
-      document.removeEventListener('mousemove', mousemove, false);
-      document.removeEventListener('mouseup', mouseup, false);
-
-      window.removeEventListener('keydown', keydown, false);
-      window.removeEventListener('keyup', keyup, false);
-    };
-
-    _this2.domElement.addEventListener('contextmenu', contextmenu, false);
-    _this2.domElement.addEventListener('mousedown', mousedown, false);
-    _this2.domElement.addEventListener('mousewheel', mousewheel, false);
-    _this2.domElement.addEventListener('MozMousePixelScroll', mousewheel, false); // firefox
-
-    _this2.domElement.addEventListener('touchstart', touchstart, false);
-    _this2.domElement.addEventListener('touchend', touchend, false);
-    _this2.domElement.addEventListener('touchmove', touchmove, false);
-
-    window.addEventListener('keydown', keydown, false);
-    window.addEventListener('keyup', keyup, false);
-
-    _this2.handleResize();
-
-    // force an update at start
-    _this2.update();
-
-    return _this2;
-  }
-
-  return Trackballortho;
+      return Trackballortho;
 }(THREE.EventDispatcher);
 
 exports.default = Trackballortho;
@@ -23908,6 +23916,7 @@ var HelpersSlice = function (_THREE$Object3D) {
     // image settings
     // index only used to grab window/level and intercept/slope
     _this._invert = false;
+
     _this._lut = 'none';
     _this._lutTexture = null;
     // if auto === true, get from index
@@ -23962,6 +23971,13 @@ var HelpersSlice = function (_THREE$Object3D) {
         this._halfDimensions = aaBBox.clone().multiplyScalar(0.5);
         this._center = this._stack.centerAABBox();
         this._toAABB = this._stack.lps2AABB;
+      }
+
+      try {
+        this._invert = this._stack.invert;
+      } catch (err) {
+        console.log(err);
+        this._invert = false;
       }
     }
 
@@ -25647,7 +25663,7 @@ var LoadersVolumes = function (_LoadersBase) {
         var stack = new _models4.default();
         stack.numberOfChannels = volumeParser.numberOfChannels();
         stack.pixelType = volumeParser.pixelType();
-
+        stack.invert = volumeParser.invert();
         series.stack.push(stack);
         // recursive call for each frame
         // better than for loop to be able to update dom with "progress" callback
@@ -26645,6 +26661,9 @@ var ModelsStack = function (_ModelsBase) {
     // convenience vars
     _this._prepared = false;
     _this._packed = false;
+
+    // photometricInterpretation Monochrome1 VS Monochrome2
+    _this._invert = false;
     return _this;
   }
 
@@ -27294,6 +27313,14 @@ var ModelsStack = function (_ModelsBase) {
     set: function set(pixelType) {
       this._pixelType = pixelType;
     }
+  }, {
+    key: 'invert',
+    set: function set(invert) {
+      this._invert = invert;
+    },
+    get: function get() {
+      return this._invert;
+    }
   }], [{
     key: 'worldToData',
     value: function worldToData(stack, worldCoordinates) {
@@ -27518,16 +27545,12 @@ var ParsersDicom = function (_ParsersVolume) {
     // catch error
     // throw error if any!
     _this._dataSet = null;
-
     try {
-
       _this._dataSet = DicomParser.parseDicom(byteArray);
     } catch (e) {
-
       window.console.log(e);
       throw 'parsers.dicom could not parse the file';
     }
-
     return _this;
   }
 
@@ -27536,19 +27559,16 @@ var ParsersDicom = function (_ParsersVolume) {
   _createClass(ParsersDicom, [{
     key: 'seriesInstanceUID',
     value: function seriesInstanceUID() {
-
       return this._dataSet.string('x0020000e');
     }
   }, {
     key: 'studyInstanceUID',
     value: function studyInstanceUID() {
-
       return this._dataSet.string('x0020000d');
     }
   }, {
     key: 'modality',
     value: function modality() {
-
       return this._dataSet.string('x00080060');
     }
   }, {
@@ -27564,23 +27584,19 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: 'transferSyntaxUID',
     value: function transferSyntaxUID() {
-
       return this._dataSet.string('x00020010');
     }
   }, {
     key: 'photometricInterpretation',
     value: function photometricInterpretation() {
-
       return this._dataSet.string('x00280004');
     }
   }, {
     key: 'planarConfiguration',
     value: function planarConfiguration() {
-
       var planarConfiguration = this._dataSet.uint16('x00280006');
 
       if (typeof planarConfiguration === 'undefined') {
-
         planarConfiguration = null;
       }
 
@@ -27589,18 +27605,15 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: 'samplesPerPixel',
     value: function samplesPerPixel() {
-
       return this._dataSet.uint16('x00280002');
     }
   }, {
     key: 'numberOfFrames',
     value: function numberOfFrames() {
-
       var numberOfFrames = this._dataSet.intString('x00280008');
 
       // need something smarter!
       if (typeof numberOfFrames === 'undefined') {
-
         numberOfFrames = null;
       }
 
@@ -27610,17 +27623,22 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: 'numberOfChannels',
     value: function numberOfChannels() {
-
       var numberOfChannels = 1;
       var photometricInterpretation = this.photometricInterpretation();
 
       if (!(photometricInterpretation !== 'RGB' && photometricInterpretation !== 'PALETTE COLOR' && photometricInterpretation !== 'YBR_FULL' && photometricInterpretation !== 'YBR_FULL_422' && photometricInterpretation !== 'YBR_PARTIAL_422' && photometricInterpretation !== 'YBR_PARTIAL_420' && photometricInterpretation !== 'YBR_RCT')) {
-
         numberOfChannels = 3;
       }
 
       // make sure we return a number! (not a string!)
       return numberOfChannels;
+    }
+  }, {
+    key: 'invert',
+    value: function invert() {
+      var photometricInterpretation = this.photometricInterpretation();
+
+      return photometricInterpretation === 'MONOCHROME1' ? true : false;
     }
   }, {
     key: 'imageOrientation',
@@ -27632,7 +27650,6 @@ var ParsersDicom = function (_ParsersVolume) {
 
       // format image orientation ('1\0\0\0\1\0') to array containing 6 numbers
       if (imageOrientation) {
-
         // make sure we return a number! (not a string!)
         // might not need to split (floatString + index)
         imageOrientation = imageOrientation.split('\\').map(Number);
@@ -27643,12 +27660,10 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: 'pixelAspectRatio',
     value: function pixelAspectRatio() {
-
       var pixelAspectRatio = [this._dataSet.intString('x00280034', 0), this._dataSet.intString('x00280034', 1)];
 
       // need something smarter!
       if (typeof pixelAspectRatio[0] === 'undefined') {
-
         pixelAspectRatio = null;
       }
 
@@ -27664,7 +27679,6 @@ var ParsersDicom = function (_ParsersVolume) {
 
       // format image orientation ('1\0\0\0\1\0') to array containing 6 numbers
       if (imagePosition) {
-
         // make sure we return a number! (not a string!)
         imagePosition = imagePosition.split('\\').map(Number);
       }
@@ -27682,28 +27696,22 @@ var ParsersDicom = function (_ParsersVolume) {
       var perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
       if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
-
         if (perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x2005140f) {
-
           var planeOrientationSequence = perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x2005140f.items[0].dataSet;
           instanceNumber = planeOrientationSequence.intString('x00200013');
         } else {
-
           instanceNumber = this._dataSet.intString('x00200013');
 
           if (typeof instanceNumber === 'undefined') {
-
             instanceNumber = null;
           }
         }
       } else {
-
         // should we default to undefined??
         // default orientation
         instanceNumber = this._dataSet.intString('x00200013');
 
         if (typeof instanceNumber === 'undefined') {
-
           instanceNumber = null;
         }
       }
@@ -27721,11 +27729,9 @@ var ParsersDicom = function (_ParsersVolume) {
       // format image orientation ('1\0\0\0\1\0') to array containing 6 numbers
       // should we default to undefined??
       if (pixelSpacing) {
-
         // make sure we return array of numbers! (not strings!)
         pixelSpacing = pixelSpacing.split('\\').map(Number);
       }
-
       return pixelSpacing;
     }
   }, {
@@ -27736,7 +27742,6 @@ var ParsersDicom = function (_ParsersVolume) {
       var rows = this._dataSet.uint16('x00280010');
 
       if (typeof rows === 'undefined') {
-
         rows = null;
         // print warning at least...
       }
@@ -27751,7 +27756,6 @@ var ParsersDicom = function (_ParsersVolume) {
       var columns = this._dataSet.uint16('x00280011');
 
       if (typeof columns === 'undefined') {
-
         columns = null;
         // print warning at least...
       }
@@ -27840,19 +27844,15 @@ var ParsersDicom = function (_ParsersVolume) {
       var perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
       if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
-
         // NOT A PHILIPS TRICK!
         var philipsPrivateSequence = perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
         var element = philipsPrivateSequence.elements.x00209157;
         // /4 because UL
         var nbValues = element.length / 4;
-
         for (var i = 0; i < nbValues; i++) {
-
           dimensionIndexValues.push(philipsPrivateSequence.uint32('x00209157', i));
         }
       } else {
-
         dimensionIndexValues = null;
       }
 
@@ -27870,12 +27870,10 @@ var ParsersDicom = function (_ParsersVolume) {
       var perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
       if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
-
         // NOT A PHILIPS TRICK!
         var philipsPrivateSequence = perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
         inStackPositionNumber = philipsPrivateSequence.uint32('x00209057');
       } else {
-
         inStackPositionNumber = null;
       }
 
@@ -27893,12 +27891,10 @@ var ParsersDicom = function (_ParsersVolume) {
       var perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
       if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
-
         // NOT A PHILIPS TRICK!
         var philipsPrivateSequence = perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
         stackID = philipsPrivateSequence.intString('x00209056');
       } else {
-
         stackID = null;
       }
 
@@ -27913,12 +27909,9 @@ var ParsersDicom = function (_ParsersVolume) {
       var decompressedData = this._decodePixelData(frameIndex);
 
       var numberOfChannels = this.numberOfChannels();
-
       if (numberOfChannels > 1) {
-
         return this._convertColorSpace(decompressedData);
       } else {
-
         return decompressedData;
       }
     }
@@ -27929,9 +27922,7 @@ var ParsersDicom = function (_ParsersVolume) {
 
       var minMax = [65535, -32768];
       var numPixels = pixelData.length;
-
       for (var index = 0; index < numPixels; index++) {
-
         var spv = pixelData[index];
         minMax[0] = Math.min(minMax[0], spv);
         minMax[1] = Math.max(minMax[1], spv);
@@ -27947,15 +27938,12 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: '_findInGroupSequence',
     value: function _findInGroupSequence(sequence, subsequence, index) {
-
       var functionalGroupSequence = this._dataSet.elements[sequence];
 
       if (typeof functionalGroupSequence !== 'undefined') {
-
         var inSequence = functionalGroupSequence.items[index].dataSet.elements[subsequence];
 
         if (typeof inSequence !== 'undefined') {
-
           return inSequence.items[0].dataSet;
         }
       }
@@ -27965,12 +27953,10 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: '_findStringInGroupSequence',
     value: function _findStringInGroupSequence(sequence, subsequence, tag, index) {
-
       // index = 0 if shared!!!
       var dataSet = this._findInGroupSequence(sequence, subsequence, index);
 
       if (dataSet !== null) {
-
         return dataSet.string(tag);
       }
 
@@ -27979,13 +27965,11 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: '_findStringInFrameGroupSequence',
     value: function _findStringInFrameGroupSequence(subsequence, tag, index) {
-
       return this._findStringInGroupSequence('x52009229', subsequence, tag, 0) || this._findStringInGroupSequence('x52009230', subsequence, tag, index);
     }
   }, {
     key: '_findStringEverywhere',
     value: function _findStringEverywhere(subsequence, tag, index) {
-
       var targetString = this._findStringInFrameGroupSequence(subsequence, tag, index);
 
       if (targetString === null) {
@@ -28007,14 +27991,11 @@ var ParsersDicom = function (_ParsersVolume) {
       // try to get it from enhanced MR images
       // per-frame functionnal group
       if (typeof dataInGroupSequence === 'undefined') {
-
         dataInGroupSequence = this._findInGroupSequence(sequence, subsequence, index);
 
         if (dataInGroupSequence !== null) {
-
           return dataInGroupSequence.floatString(tag);
         } else {
-
           return null;
         }
       }
@@ -28024,7 +28005,6 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: '_findFloatStringInFrameGroupSequence',
     value: function _findFloatStringInFrameGroupSequence(subsequence, tag, index) {
-
       return this._findFloatStringInGroupSequence('x52009229', subsequence, tag, 0) || this._findFloatStringInGroupSequence('x52009230', subsequence, tag, index);
     }
   }, {
@@ -28039,36 +28019,24 @@ var ParsersDicom = function (_ParsersVolume) {
       if (transferSyntaxUID === '1.2.840.10008.1.2.4.90' || // JPEG 2000 Lossless
       transferSyntaxUID === '1.2.840.10008.1.2.4.91') {
         // JPEG 2000 Lossy
-
         // JPEG 2000
         return this._decodeJ2K(frameIndex);
       } else if (transferSyntaxUID === '1.2.840.10008.1.2.4.57' || // JPEG Lossless, Nonhierarchical (Processes 14)
       transferSyntaxUID === '1.2.840.10008.1.2.4.70') {
         // JPEG Lossless, Nonhierarchical (Processes 14 [Selection 1])
-
         // JPEG LOSSLESS
         return this._decodeJPEGLossless(frameIndex);
       } else if (transferSyntaxUID === '1.2.840.10008.1.2.4.50' || // JPEG Baseline lossy process 1 (8 bit)
       transferSyntaxUID === '1.2.840.10008.1.2.4.51') {
         // JPEG Baseline lossy process 2 & 4 (12 bit)
-
         // JPEG Baseline
         return this._decodeJPEGBaseline(frameIndex);
       } else if (transferSyntaxUID === '1.2.840.10008.1.2' || // Implicit VR Little Endian
-      transferSyntaxUID === '1.2.840.10008.1.2.1') {
-        // Explicit VR Little Endian
-
-        // get data
-        return this._decodeUncompressed(frameIndex);
-      } else if (transferSyntaxUID === '1.2.840.10008.1.2.2') {
+      transferSyntaxUID === '1.2.840.10008.1.2.1' || // Explicit VR Little Endian
+      transferSyntaxUID === '1.2.840.10008.1.2.2') {
         // Explicit VR Big Endian
-
-        // get data
-        var frame = this._decodeUncompressed(frameIndex);
-        // and sawp it!
-        return this._swapFrame(frame);
+        return this._decodeUncompressed(frameIndex);
       } else {
-
         throw 'no decoder for transfer syntax ${transferSyntaxUID}';
       }
     }
@@ -28090,16 +28058,12 @@ var ParsersDicom = function (_ParsersVolume) {
 
       var componentsCount = jpxImage.componentsCount;
       if (componentsCount !== 1) {
-
         throw 'JPEG2000 decoder returned a componentCount of ${componentsCount}, when 1 is expected';
       }
       var tileCount = jpxImage.tiles.length;
-
       if (tileCount !== 1) {
-
         throw 'JPEG2000 decoder returned a tileCount of ${tileCount}, when 1 is expected';
       }
-
       var tileComponents = jpxImage.tiles[0];
       var pixelData = tileComponents.items;
 
@@ -28121,19 +28085,14 @@ var ParsersDicom = function (_ParsersVolume) {
       var byteOutput = bitsAllocated <= 8 ? 1 : 2;
       var decoder = new Jpeg.lossless.Decoder();
       var decompressedData = decoder.decode(encodedPixelData.buffer, encodedPixelData.byteOffset, encodedPixelData.length, byteOutput);
-
       if (pixelRepresentation === 0) {
-
         if (byteOutput === 2) {
-
           return new Uint16Array(decompressedData.buffer);
         } else {
-
           // untested!
           return new Uint8Array(decompressedData.buffer);
         }
       } else {
-
         return new Int16Array(decompressedData.buffer);
       }
     }
@@ -28148,12 +28107,9 @@ var ParsersDicom = function (_ParsersVolume) {
       var bitsAllocated = this.bitsAllocated(frameIndex);
       var jpegBaseline = new JpegBaseline();
       jpegBaseline.parse(encodedPixelData);
-
       if (bitsAllocated === 8) {
-
         return jpegBaseline.getData(columns, rows);
       } else if (bitsAllocated === 16) {
-
         return jpegBaseline.getData16(columns, rows);
       }
     }
@@ -28192,7 +28148,6 @@ var ParsersDicom = function (_ParsersVolume) {
         frameOffset = pixelDataOffset + frameIndex * numPixels * 4;
         return new Uint32Array(buffer, frameOffset, numPixels);
       } else if (pixelRepresentation === 0 && bitsAllocated === 1) {
-
         var newBuffer = new ArrayBuffer(numPixels);
         var newArray = new Uint8Array(newBuffer);
 
@@ -28316,34 +28271,6 @@ var ParsersDicom = function (_ParsersVolume) {
           }
 
       return rgbData;
-    }
-
-    /**
-     * Swap bytes in frame.
-     */
-
-  }, {
-    key: '_swapFrame',
-    value: function _swapFrame(frame) {
-
-      // swap bytes ( if 8bits (1byte), nothing to swap)
-      var bitsAllocated = this.bitsAllocated();
-
-      if (bitsAllocated === 16) {
-
-        for (var i = 0; i < frame.length; i++) {
-
-          frame[i] = this._swap16(frame[i]);
-        }
-      } else if (bitsAllocated === 32) {
-
-        for (var _i2 = 0; _i2 < frame.length; _i2++) {
-
-          frame[_i2] = this._swap32(frame[_i2]);
-        }
-      }
-
-      return frame;
     }
   }]);
 
@@ -28524,6 +28451,11 @@ var ParsersNifti = function () {
       var frameIndex = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
 
       return this._dataSet.dims[1];
+    }
+  }, {
+    key: 'invert',
+    value: function invert() {
+      return false;
     }
   }, {
     key: 'pixelType',
@@ -28947,6 +28879,11 @@ var ParsersNifti = function () {
       var frameIndex = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
 
       return this._dataSet.sizes[0];
+    }
+  }, {
+    key: 'invert',
+    value: function invert() {
+      return false;
     }
   }, {
     key: 'pixelType',

@@ -2,6 +2,7 @@
 .publish
 .sass-cache
 .tmp
+.idea
 bower_components
 build-old
 deprecated

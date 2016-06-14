@@ -22,6 +22,7 @@ export default class HelpersSlice extends THREE.Object3D{
     // image settings
     // index only used to grab window/level and intercept/slope
     this._invert = false;
+
     this._lut = 'none';
     this._lutTexture = null;
     // if auto === true, get from index
@@ -224,6 +225,12 @@ export default class HelpersSlice extends THREE.Object3D{
       this._halfDimensions = aaBBox.clone().multiplyScalar(0.5);
       this._center = this._stack.centerAABBox();
       this._toAABB = this._stack.lps2AABB;
+    }
+
+    try {
+      this._invert = this._stack.invert;
+    } catch (err) {
+      this._invert = false;
     }
   }
 
