@@ -6,12 +6,12 @@
  */
 
 export default class Trackballortho extends THREE.EventDispatcher {
-  constructor(object, domElement) {
+  constructor(object, domElement, state = {NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5}) {
 
     super();
 
     var _this = this;
-    var STATE = {NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5};
+    var STATE = state;
 
     this.object = object;
     this.domElement = (domElement !== undefined) ? domElement : document;
