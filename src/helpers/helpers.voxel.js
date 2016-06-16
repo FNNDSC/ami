@@ -35,7 +35,7 @@ export default class HelpersVoxel extends THREE.Object3D{
     this._showVoxel =  true;
     this._showDomSVG =  true;
     this._showDomMeasurements =  true;
-    this._color = '0x00B0FF';
+    this._color = '#00B0FF';
     // just visualization
     // this._svgPointer = '<svg width="40" height="40" \
     //      viewBox="0 0 140 140" version="1.1" \

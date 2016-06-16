@@ -45,7 +45,7 @@ function buildGUI() {
   color.onChange(function(value) {
     // update all colors...
     for (let i = 0; i < 10; i++) {
-      helpersVoxel[i].color = value.replace('#', '0x');
+      helpersVoxel[i].color = value;
     }
   });
   let showMesh = voxelFolder.add(voxelsSettings, 'showMesh');
@@ -78,19 +78,19 @@ function buildGUI() {
   let widgetFolder = gui.addFolder('Widget');
   let dColorW = widgetFolder.addColor(widgetSettings, 'defaultColor');
   dColorW.onChange(function(value) {
-    probe.defaultColor = value.replace('#', '0x');
+    probe.defaultColor = value;
   });
   let aColorW = widgetFolder.addColor(widgetSettings, 'activeColor');
   aColorW.onChange(function(value) {
-    probe.activeColor = value.replace('#', '0x');
+    probe.activeColor = value;
   });
   let hColorW = widgetFolder.addColor(widgetSettings, 'hoverColor');
   hColorW.onChange(function(value) {
-    probe.hoverColor = value.replace('#', '0x');
+    probe.hoverColor = value;
   });
   let sColorW = widgetFolder.addColor(widgetSettings, 'selectedColor');
   sColorW.onChange(function(value) {
-    probe.selectedColor = value.replace('#', '0x');
+    probe.selectedColor = value;
   });
 
   let showMeshW = widgetFolder.add(widgetSettings, 'showMesh');
@@ -234,7 +234,7 @@ window.onload = function() {
     directions = [];
     for (let i = 0; i < 10; i++) {
       let voxel = new HelpersVoxel(centerLPS, stackHelper.stack);
-      voxel.color = voxelsSettings.color.replace('#', '0x');
+      voxel.color = voxelsSettings.color;
       voxel.updateVoxelScreenCoordinates(camera, threeD);
       voxel.updateDom(threeD);
       helpersVoxel.push(voxel);
