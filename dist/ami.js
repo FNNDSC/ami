@@ -21499,12 +21499,14 @@ var Trackballortho = function (_THREE$EventDispatche) {
       _inherits(Trackballortho, _THREE$EventDispatche);
 
       function Trackballortho(object, domElement) {
+            var state = arguments.length <= 2 || arguments[2] === undefined ? { NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5 } : arguments[2];
+
             _classCallCheck(this, Trackballortho);
 
             var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(Trackballortho).call(this));
 
             var _this = _this2;
-            var STATE = { NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5 };
+            var STATE = state;
 
             _this2.object = object;
             _this2.domElement = domElement !== undefined ? domElement : document;
