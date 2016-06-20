@@ -15,12 +15,12 @@ uniform int       uSteps;
 uniform float     uAlphaCorrection;
 uniform float     uFrequence;
 uniform float     uAmplitude;
+uniform int       uInterpolation;
 
 // VARYING
 varying vec4 vPos;
 
-#pragma glslify: unpack = require('./glsl/shaders.unpack.glsl')
-#pragma glslify: texture3DPolyfill = require('./glsl/shaders.texture3DPolyfill.glsl')
+#pragma glslify: value = require('./glsl/shaders.value.glsl')
 #pragma glslify: transformPoint = require('CommonGL/transforms/transformPoint.glsl');
 #pragma glslify: intersectBox = require('./glsl/shaders.intersectBox.glsl')
 
@@ -31,11 +31,14 @@ varying vec4 vPos;
  *  - rescale slope/intercept
  *  - window center/width
  */
-void getIntensity(in ivec3 dataCoordinates, out float intensity){
+void getIntensity(in vec3 dataCoordinates, out float intensity){
 
-  vec4 packedValue = vec4(0., 0., 0., 0.);
-  texture3DPolyfill(
+  vec4 dataValue = vec4(0., 0., 0., 0.);
+  int kernelSize = 2;
+  value(
     dataCoordinates,
+    kernelSize,
+    0,
     uDataDimensions,
     uTextureSize,
     uTextureContainer[0],
@@ -46,17 +49,11 @@ void getIntensity(in ivec3 dataCoordinates, out float intensity){
     uTextureContainer[5],
     uTextureContainer[6],
     uTextureContainer,     // not working on Moto X 2014
-    packedValue
-    );
-
-  vec4 dataValue = vec4(0., 0., 0., 0.);
-  unpack(
-    packedValue,
     uBitsAllocated,
-    0,
     uNumberOfChannels,
     uPixelType,
-    dataValue);
+    dataValue
+  );
 
   intensity = dataValue.r;
 
@@ -99,37 +96,36 @@ void main(void) {
     // rounding trick
     // first center of first voxel in data space is CENTERED on (0,0,0)
     vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);
-    dataCoordinatesRaw += 0.5;
-    ivec3 dataCoordinates = ivec3(
-      int(floor(dataCoordinatesRaw.x)),
-      int(floor(dataCoordinatesRaw.y)),
-      int(floor(dataCoordinatesRaw.z)));
-    if ( all(greaterThanEqual(dataCoordinates, ivec3(0))) &&
-         all(lessThan(dataCoordinates, uDataDimensions))) {
-      // mapped intensity, given slope/intercept and window/level
-      float intensity = 0.0;
-      getIntensity(dataCoordinates, intensity);
-      vec4 colorSample;
-      float alphaSample;
-      if(uLut == 1){
-        vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );
-        // 256 colors
-        colorSample.r = colorFromLUT.r;
-        colorSample.g = colorFromLUT.g;
-        colorSample.b = colorFromLUT.b;
-        alphaSample = colorFromLUT.a;
-      }
-      else{
-        alphaSample = intensity;
-        colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;
-      }
+    vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);
 
-      alphaSample = alphaSample * uAlphaCorrection;
-      alphaSample *= (1.0 - accumulatedAlpha);
-
-      accumulatedColor += alphaSample * colorSample;
-      accumulatedAlpha += alphaSample;
+    if ( all(greaterThanEqual(currentVoxel, vec3(0.0))) &&
+         all(lessThan(currentVoxel, vec3(float(uDataDimensions.x), float(uDataDimensions.y), float(uDataDimensions.z))))) {
+    // mapped intensity, given slope/intercept and window/level
+    float intensity = 0.0;
+    getIntensity(currentVoxel, intensity);
+    vec4 colorSample;
+    float alphaSample;
+    if(uLut == 1){
+      vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );
+      // 256 colors
+      colorSample.r = colorFromLUT.r;
+      colorSample.g = colorFromLUT.g;
+      colorSample.b = colorFromLUT.b;
+      alphaSample = colorFromLUT.a;
     }
+    else{
+      alphaSample = intensity;
+      colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;
+    }
+
+    alphaSample = alphaSample * uAlphaCorrection;
+    alphaSample *= (1.0 - accumulatedAlpha);
+
+    accumulatedColor += alphaSample * colorSample;
+    accumulatedAlpha += alphaSample;
+
+    }
+
 
     tCurrent += tStep;
 

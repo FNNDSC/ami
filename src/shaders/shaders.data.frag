@@ -8,6 +8,7 @@ uniform int       uNumberOfChannels;
 uniform int       uPixelType;
 uniform int       uBitsAllocated;
 uniform int       uInvert;
+uniform int       uInterpolation;
 
 // hack because can not pass arrays if too big
 // best would be to pass texture but have to deal with 16bits
@@ -17,20 +18,19 @@ uniform sampler2D uTextureLUT;
 varying vec4      vPos;
 
 // include functions
-#pragma glslify: interpolation = require('./glsl/shaders.interpolation.glsl')
+#pragma glslify: value = require('./glsl/shaders.value.glsl')
 
 void main(void) {
 
   // get texture coordinates of current pixel
-  // doesn't need that in theory
   vec4 dataCoordinates = uWorldToData * vPos;
+  vec3 currentVoxel = vec3(dataCoordinates.x, dataCoordinates.y, dataCoordinates.z);
   int kernelSize = 2;
-  int interpolationMethod = 0;
   vec4 dataValue = vec4(0., 0., 0., 0.);
-  interpolation(
-    dataCoordinates,
+  value(
+    currentVoxel,
     kernelSize,
-    interpolationMethod,
+    uInterpolation,
     uDataDimensions,
     uTextureSize,
     uTextureContainer[0],
