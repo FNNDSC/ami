@@ -38,7 +38,7 @@ void getIntensity(in vec3 dataCoordinates, out float intensity){
   value(
     dataCoordinates,
     kernelSize,
-    0,
+    uInterpolation,
     uDataDimensions,
     uTextureSize,
     uTextureContainer[0],

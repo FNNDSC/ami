@@ -79,9 +79,6 @@ export default class ModelsFrame extends ModelsBase{
         this._instanceNumber === frame.instanceNumber &&
         this._sopInstanceUID === frame.sopInstanceUID) {
 
-      window.console.log(this);
-    window.console.log(frame);
-
       return true;
 
     } else {

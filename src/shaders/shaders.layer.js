@@ -77,6 +77,10 @@ export default class ShadersLayer {
       'uPixelType': {
         type: 'i',
         value: 0
+      },
+      'uInterpolation': {
+        type: 'i',
+        value: 0
       }
     };
   }

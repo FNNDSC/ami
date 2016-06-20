@@ -30,7 +30,8 @@ let camUtils = {
 
 let layer1 = {
   opacity: 1.0,
-  lut: null
+  lut: null,
+  interpolation: 0
 };
 
 // FUNCTIONS
@@ -278,6 +279,8 @@ window.onload = function() {
       updateLayer1();
     });
 
+    layer0Folder.add(stackHelper.slice, 'interpolation', 0, 1 ).step( 1 ).listen();
+
     layer0Folder.open();
 
 
@@ -286,6 +289,10 @@ window.onload = function() {
     let opacityLayer1 = layer1Folder.add(layer1, 'opacity', 0, 1).step(0.01).listen();
     opacityLayer1.onChange(function(value){
       uniformsLayer1.uOpacity.value = value;
+    });
+    let interpolationLayer1 = layer1Folder.add(layer1, 'interpolation', 0, 1 ).step( 1 ).listen();
+    interpolationLayer1.onChange(function(value){
+      uniformsLayer1.uInterpolation.value = value;
     });
 
     layer1Folder.open();
@@ -461,7 +468,7 @@ window.onload = function() {
       'default',
       'linear',
       [[0, 0, 0, 0], [1, 0, 1, 1]],
-      [[0, 1], [1, 1]]);
+      [[0, 0], [1, 1]]);
     uniformsLayer1.uLut.value = 1;
     uniformsLayer1.uTextureLUT.value = lutLayer1.texture;
 
