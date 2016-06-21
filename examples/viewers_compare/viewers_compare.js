@@ -353,7 +353,7 @@ window.onload = function() {
     uniformsLayer1.uBitsAllocated.value = stack2.bitsAllocated;
     uniformsLayer1.uWindowCenterWidth.value = [stack2.windowCenter, stack2.windowWidth];
     uniformsLayer1.uRescaleSlopeIntercept.value = [stack2.rescaleSlope, stack2.rescaleIntercept];
-    uniformsLayer1.uTextureBackTest.value = sceneBaseTextureTarget;
+    uniformsLayer1.uTextureBackTest.value = sceneBaseTextureTarget.texture;
     uniformsLayer1.uDataDimensions.value = [stack2.dimensionsIJK.x,
                                                 stack2.dimensionsIJK.y,
                                                 stack2.dimensionsIJK.z];

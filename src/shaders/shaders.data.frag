@@ -59,6 +59,7 @@ void main(void) {
     intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];
 
     dataValue.r = dataValue.g = dataValue.b = intensity;
+    dataValue.a = 1.0;
   }
 
   // Apply LUT table...

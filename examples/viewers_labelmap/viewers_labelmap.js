@@ -8,6 +8,7 @@ import ControlsOrthographic from '../../src/controls/controls.trackballortho';
 import HelpersLut           from '../../src/helpers/helpers.lut';
 import HelpersStack         from '../../src/helpers/helpers.stack';
 import LoadersVolume        from '../../src/loaders/loaders.volume';
+import ShadersData          from '../../src/shaders/shaders.data';
 import ShadersLayer         from '../../src/shaders/shaders.layer';
 
 var glslify = require('glslify');
@@ -15,12 +16,13 @@ var glslify = require('glslify');
 // standard global letiables
 let controls, renderer, camera, statsyay, threeD;
 //
-let sceneBaseTextureTarget;
+let sceneLayer0TextureTarget, sceneLayer1TextureTarget;
 //
-let scene, sceneBase;
+let scene, sceneLayer0;
 //
 let lutLayer0;
 let sceneLayer1, meshLayer1, uniformsLayer1, materialLayer1, lutLayer1;
+let sceneLayerMix, meshLayerMix, uniformsLayerMix, materialLayerMix, lutLayerMix;
 //probe
 let camUtils = {
   invertRows: false,
@@ -34,14 +36,28 @@ let layer1 = {
   interpolation: 0
 };
 
+let layerMix = {
+  opacity: 1.0,
+  opacity0: 1.0,
+  opacity1: 1.0,
+  type0: 0,
+  type1: 1,
+  lut: null,
+  interpolation: 0
+};
+
 // FUNCTIONS
 function init() {
   // this function is executed on each animation frame
   function animate() {
     // render
     controls.update();
-    renderer.render(sceneBase, camera, sceneBaseTextureTarget, true);
-    renderer.render(sceneLayer1, camera);
+    // render first layer offscreen
+    renderer.render(sceneLayer0, camera, sceneLayer0TextureTarget, true);
+    // render second layer offscreen
+    renderer.render(sceneLayer1, camera, sceneLayer1TextureTarget, true);
+    // mix the layers and render it ON screen!
+    renderer.render(sceneLayerMix, camera);
     statsyay.update();
 
     // request new frame
@@ -53,10 +69,11 @@ function init() {
   // renderer
   threeD = document.getElementById('r3d');
   renderer = new THREE.WebGLRenderer({
-    antialias: true
+    antialias: true,
+    alpha: true
   });
   renderer.setSize(threeD.clientWidth, threeD.clientHeight);
-  renderer.setClearColor(0x212121, 1);
+  renderer.setClearColor(0x210021, 1);
 
   threeD.appendChild(renderer.domElement);
 
@@ -66,16 +83,25 @@ function init() {
 
   // scene
   scene = new THREE.Scene();
-  sceneBase = new THREE.Scene();
+  sceneLayer0 = new THREE.Scene();
   sceneLayer1 = new THREE.Scene();
+  sceneLayerMix = new THREE.Scene();
 
   // render to texture!!!!
-  sceneBaseTextureTarget = new THREE.WebGLRenderTarget(
+  sceneLayer0TextureTarget = new THREE.WebGLRenderTarget(
     threeD.clientWidth,
     threeD.clientHeight,
     {minFilter: THREE.LinearFilter,
-      magFilter: THREE.NearestFilter,
-      format: THREE.RGBFormat
+     magFilter: THREE.NearestFilter,
+     format: THREE.RGBAFormat
+  });
+
+  sceneLayer1TextureTarget = new THREE.WebGLRenderTarget(
+    threeD.clientWidth,
+    threeD.clientHeight,
+    {minFilter: THREE.LinearFilter,
+     magFilter: THREE.NearestFilter,
+     format: THREE.RGBAFormat
   });
 
   // camera
@@ -253,6 +279,25 @@ window.onload = function() {
       }
     }
 
+    function updateLayerMix(){
+      // update layer1 geometry...
+      if (meshLayerMix) {
+
+        sceneLayerMix.remove(meshLayerMix);
+        meshLayerMix.material.dispose();
+        meshLayerMix.material = null;
+        meshLayerMix.geometry.dispose();
+        meshLayerMix.geometry = null;
+
+        // add mesh in this scene with right shaders...
+        meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
+        // go the LPS space
+        meshLayerMix.applyMatrix(stackHelper.stack._ijk2LPS);
+
+        sceneLayerMix.add(meshLayerMix);
+      }
+    }
+
     let stack = stackHelper.stack;
 
     let gui = new dat.GUI({
@@ -277,6 +322,7 @@ window.onload = function() {
     let indexUpdate = layer0Folder.add(stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
     indexUpdate.onChange(function(){
       updateLayer1();
+      updateLayerMix();
     });
 
     layer0Folder.add(stackHelper.slice, 'interpolation', 0, 1 ).step( 1 ).listen();
@@ -286,16 +332,41 @@ window.onload = function() {
 
     // layer 1 folder
     let layer1Folder = gui.addFolder('Layer 1');
-    let opacityLayer1 = layer1Folder.add(layer1, 'opacity', 0, 1).step(0.01).listen();
-    opacityLayer1.onChange(function(value){
-      uniformsLayer1.uOpacity.value = value;
-    });
+    // let opacityLayer1 = layer1Folder.add(layer1, 'opacity', 0, 1).step(0.01).listen();
+    // opacityLayer1.onChange(function(value){
+    //   uniformsLayer1.uOpacity.value = value;
+    // });
     let interpolationLayer1 = layer1Folder.add(layer1, 'interpolation', 0, 1 ).step( 1 ).listen();
     interpolationLayer1.onChange(function(value){
       uniformsLayer1.uInterpolation.value = value;
     });
 
     layer1Folder.open();
+
+        // layer 1 folder
+    let layerMixFolder = gui.addFolder('Layer Mix');
+    let opacityLayerMix = layerMixFolder.add(layerMix, 'opacity', 0, 1).step(0.01).listen();
+    opacityLayerMix.onChange(function(value){
+      uniformsLayerMix.uOpacity.value = value;
+    });
+    let opacityLayerMix0 = layerMixFolder.add(layerMix, 'opacity0', 0, 1).step(0.01).listen();
+    opacityLayerMix0.onChange(function(value){
+      uniformsLayerMix.uOpacity0.value = value;
+    });
+    let opacityLayerMix1 = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01).listen();
+    opacityLayerMix1.onChange(function(value){
+      uniformsLayerMix.uOpacity1.value = value;
+    });
+    let typeLayerMix0 = layerMixFolder.add(layerMix, 'type0', 0, 1).step( 1 ).listen();
+    typeLayerMix0.onChange(function(value){
+      uniformsLayerMix.uType0.value = value;
+    });
+    let typeLayerMix1 = layerMixFolder.add(layerMix, 'type1', 0, 1).step( 1 ).listen();
+    typeLayerMix1.onChange(function(value){
+      uniformsLayerMix.uType1.value = value;
+    });
+
+    layerMixFolder.open();
 
     // hook up callbacks
     controls.addEventListener('OnScroll', function(e) {
@@ -312,6 +383,7 @@ window.onload = function() {
       }
 
       updateLayer1();
+      updateLayerMix();
     });
 
     // camera
@@ -369,7 +441,7 @@ window.onload = function() {
     stackHelper.border.visible = false;
     stackHelper.index = 160;
 
-    sceneBase.add(stackHelper);
+    sceneLayer0.add(stackHelper);
 
     //
     //
@@ -404,25 +476,24 @@ window.onload = function() {
     }
 
     // create material && mesh then add it to sceneLayer1
-    uniformsLayer1 = ShadersLayer.uniforms();
+    uniformsLayer1 = ShadersData.uniforms();
     uniformsLayer1.uTextureSize.value = stack2.textureSize;
     uniformsLayer1.uTextureContainer.value = textures2;
     uniformsLayer1.uWorldToData.value = stack2.lps2IJK;
     uniformsLayer1.uNumberOfChannels.value = stack2.numberOfChannels;
+    uniformsLayer1.uPixelType.value = stack2.pixelType;
     uniformsLayer1.uBitsAllocated.value = stack2.bitsAllocated;
     uniformsLayer1.uWindowCenterWidth.value = [stack2.windowCenter, stack2.windowWidth];
     uniformsLayer1.uRescaleSlopeIntercept.value = [stack2.rescaleSlope, stack2.rescaleIntercept];
-    uniformsLayer1.uTextureBackTest.value = sceneBaseTextureTarget;
     uniformsLayer1.uDataDimensions.value = [stack2.dimensionsIJK.x,
                                                 stack2.dimensionsIJK.y,
                                                 stack2.dimensionsIJK.z];
-    uniformsLayer1.uMix.value = 1;
 
     materialLayer1 = new THREE.ShaderMaterial(
       {side: THREE.DoubleSide,
       uniforms: uniformsLayer1,
-      vertexShader: glslify('../../src/shaders/shaders.raycasting.secondPass.vert'),
-      fragmentShader: glslify('../../src/shaders/shaders.layer.frag')
+      vertexShader: glslify('../../src/shaders/shaders.data.vert'),
+      fragmentShader: glslify('../../src/shaders/shaders.data.frag')
     });
 
     // add mesh in this scene with right shaders...
@@ -430,6 +501,40 @@ window.onload = function() {
     // go the LPS space
     meshLayer1.applyMatrix(stack2._ijk2LPS);
     sceneLayer1.add(meshLayer1);
+
+    // Create the Mix layer
+    uniformsLayerMix = ShadersLayer.uniforms();
+    uniformsLayerMix.uTextureBackTest0.value = sceneLayer0TextureTarget.texture;
+    uniformsLayerMix.uTextureBackTest1.value = sceneLayer1TextureTarget.texture;
+    uniformsLayerMix.uType0.value = 0;
+    uniformsLayerMix.uType1.value = 0;
+    uniformsLayerMix.uTextureSize.value = stack2.textureSize;
+    uniformsLayerMix.uTextureContainer.value = textures2;
+    uniformsLayerMix.uWorldToData.value = stack2.lps2IJK;
+    uniformsLayerMix.uNumberOfChannels.value = stack2.numberOfChannels;
+    uniformsLayerMix.uPixelType.value = stack2.pixelType;
+    uniformsLayerMix.uBitsAllocated.value = stack2.bitsAllocated;
+    uniformsLayerMix.uWindowCenterWidth.value = [stack2.windowCenter, stack2.windowWidth];
+    uniformsLayerMix.uRescaleSlopeIntercept.value = [stack2.rescaleSlope, stack2.rescaleIntercept];
+    uniformsLayerMix.uDataDimensions.value = [stack2.dimensionsIJK.x,
+                                                stack2.dimensionsIJK.y,
+                                                stack2.dimensionsIJK.z];
+    uniformsLayerMix.uMix.value = 1;
+
+    materialLayerMix = new THREE.ShaderMaterial(
+      {side: THREE.DoubleSide,
+      uniforms: uniformsLayerMix,
+      vertexShader: glslify('../../src/shaders/shaders.raycasting.secondPass.vert'),
+      fragmentShader: glslify('../../src/shaders/shaders.layer.frag'),
+      transparent: true
+    });
+
+    // add mesh in this scene with right shaders...
+    meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
+    // go the LPS space
+    meshLayerMix.applyMatrix(stack2._ijk2LPS);
+    sceneLayerMix.add(meshLayerMix);
+
 
     //
     // set camera

@@ -8,7 +8,12 @@ uniform int       uNumberOfChannels;
 uniform int       uPixelType;
 uniform int       uBitsAllocated;
 uniform int       uInvert;
-uniform sampler2D uTextureBackTest;
+uniform sampler2D uTextureBackTest0;
+uniform float     uOpacity0;
+uniform int       uType0;
+uniform sampler2D uTextureBackTest1;
+uniform float     uOpacity1;
+uniform int       uType1;
 uniform float     uOpacity;
 uniform int       uInterpolation;
 
@@ -34,84 +39,76 @@ void main(void) {
   vec2 texc = vec2(((vProjectedCoords.x / vProjectedCoords.w) + 1.0 ) / 2.0,
                 ((vProjectedCoords.y / vProjectedCoords.w) + 1.0 ) / 2.0 );
 
+  // merge all images
+
+  // mix in all the
+
   //The back position is the world space position stored in the texture.
-  vec4 baseColor = texture2D(uTextureBackTest, texc);
+  vec4 baseColor0 = texture2D(uTextureBackTest0, texc);
+  vec4 baseColor1 = texture2D(uTextureBackTest1, texc);
 
-  // get texture coordinates of current pixel
-  // doesn't need that in theory
-  vec4 dataCoordinates = uWorldToData * vPos;
-  vec3 currentVoxel = vec3(dataCoordinates.x, dataCoordinates.y, dataCoordinates.z);
-  int kernelSize = 2;
-  vec4 dataValue = vec4(0., 0., 0., 0.);
-  value(
-    currentVoxel,
-    kernelSize,
-    uInterpolation,
-    uDataDimensions,
-    uTextureSize,
-    uTextureContainer[0],
-    uTextureContainer[1],
-    uTextureContainer[2],
-    uTextureContainer[3],
-    uTextureContainer[4],
-    uTextureContainer[5],
-    uTextureContainer[6],
-    uTextureContainer,     // not working on Moto X 2014
-    uBitsAllocated,
-    uNumberOfChannels,
-    uPixelType,
-    dataValue
-  );
+  // if( baseColor1.a <= 0.0 ){
 
-  // should commpare against minium value
-  // not working if minimum is different than 0...
-  // OK-ish for labelmaps but not fine if comapring 2 images
-  // 0.5 should be minimum of layer 1
-  // if(dataValue.r < 0.5 && uMix == 1){
-  //   gl_FragColor = baseColor;
+  //   gl_FragColor = baseColor0;
+  //   return;
+
   // }
-  // else{
-    // APPLY LUT after normalization...
-  float intensity = dataValue.r;
 
-  // rescale/slope
-  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
+  vec4 pixelColor = baseColor0;//vec4(0.0, 0.0, 0.0, 0.0);
 
-  // window level
-  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
-  float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;
-  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];
-
-  dataValue.r = dataValue.g = dataValue.b = intensity;
-
-  if(dataValue.r <= uMinMax[0] && uMix == 1){
-    gl_FragColor = baseColor;
-    return;
-  }
+  vec4 dataCoordinates2 = uWorldToData * vPos;
+  //gl_FragColor = uOpacity0 * baseColor0 + uOpacity1 * baseColor1;//mix(vec4(baseColor0.r, baseColor0.g, baseColor0.b, baseColor0.a), vec4(baseColor1.r, baseColor1.g, baseColor1.b, baseColor1.a), uOpacity);
   
-  if(uLut == 1){
-    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );
-  }
+  if( uType1 == 0){
 
+    //merge an inmage into
+    pixelColor = mix( pixelColor, baseColor1, uOpacity1 );
 
-  if(uTrackMouse == 1){
-    if(vProjectedCoords.x < uMouse.x){
-      gl_FragColor = baseColor;
-    }
-    else if(uMix == 1){
-      gl_FragColor = mix(baseColor, vec4(dataValue.xyz, 1.0), uOpacity * dataValue.a );
-    }
-    else{
-      gl_FragColor = dataValue;
-    }
   }
   else{
-    if(uMix == 1){
-      gl_FragColor = mix(baseColor, vec4(dataValue.xyz, 1.0), uOpacity * dataValue.a );
-    }
-    else{
-      gl_FragColor = dataValue;
-    }
+
+    // merge a label into
+    // if( baseColor1.a > 0.5 ){
+
+       float opacity = baseColor1.a;
+       pixelColor = mix(pixelColor, baseColor1, opacity * uOpacity1 );
+
+    // }
+
   }
+
+  gl_FragColor = pixelColor;
+
+  return;
+
+  // if(dataValue.r <= uMinMax[0] && uMix == 1){
+  //   gl_FragColor = baseColor;
+  //   return;
+  // }
+  
+  // if(uLut == 1){
+  //   dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );
+  // }
+
+
+  // if(uTrackMouse == 1){
+  //   if(vProjectedCoords.x < uMouse.x){
+  //     gl_FragColor = baseColor;
+  //   }
+  //   else if(uMix == 1){
+  //     gl_FragColor = mix(baseColor, vec4(dataValue.xyz, 1.0), uOpacity * dataValue.a );
+  //   }
+  //   else{
+  //     gl_FragColor = dataValue;
+  //   }
+  // }
+  // else{
+  //   if(uMix == 1){
+  //     gl_FragColor = mix(baseColor, vec4(dataValue.xyz, 1.0), uOpacity * dataValue.a );
+  //   }
+  //   else{
+  //     gl_FragColor = dataValue;
+  //   }
+  // }
 
 }

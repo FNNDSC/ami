@@ -42,13 +42,33 @@ export default class ShadersLayer {
         type: 'i',
         value: 0
       },
-      'uTextureBackTest': {
+      'uTextureBackTest0': {
+        type: 't',
+        value: []
+      },
+      'uTextureBackTest1': {
         type: 't',
         value: []
       },
       'uOpacity':{
         type: 'f',
         value: 1.0
+      },
+      'uOpacity0':{
+        type: 'f',
+        value: 1.0
+      },
+      'uOpacity1':{
+        type: 'f',
+        value: 1.0
+      },
+      'uType0':{
+        type: 'i',
+        value: 0
+      },
+      'uType1':{
+        type: '1',
+        value: 1
       },
       'uLut': {
         type: 'i',
