@@ -511,7 +511,7 @@ window.onload = function() {
       'my-lut-canvases-l1',
       'default',
       'linear',
-      [[0, 0, 0, 0], [1, 0.96, 0.447, 0.007]],
+      [[0, 0, 0, 0], [1, 0.913, 0.117, 0.388]],
       [[0, 0], [1, 1]]);
     uniformsLayer1.uLut.value = 1;
     uniformsLayer1.uTextureLUT.value = lutLayer1.texture;
