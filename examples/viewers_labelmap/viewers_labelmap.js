@@ -34,8 +34,7 @@ let layerMix = {
   opacity1: 1.0,
   type0: 0,
   type1: 1,
-  lut: null,
-  interpolation: 0
+  lut: null
 };
 
 // FUNCTIONS
@@ -370,10 +369,9 @@ window.onload = function() {
     }
     window.addEventListener('resize', onWindowResize, false);
     onWindowResize();
-
-          // updateLayer1();
-      updateLayerMix();
   }
+
+  updateLayerMix();
 
   function handleSeries() {
     loader.free();
@@ -473,7 +471,6 @@ window.onload = function() {
     // go the LPS space
     meshLayerMix.applyMatrix(stack2._ijk2LPS);
     sceneLayerMix.add(meshLayerMix);
-
 
     //
     // set camera

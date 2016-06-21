@@ -8,6 +8,7 @@ import ControlsOrthographic from '../../src/controls/controls.trackballortho';
 import HelpersLut           from '../../src/helpers/helpers.lut';
 import HelpersStack         from '../../src/helpers/helpers.stack';
 import LoadersVolume        from '../../src/loaders/loaders.volume';
+import ShadersData          from '../../src/shaders/shaders.data';
 import ShadersLayer         from '../../src/shaders/shaders.layer';
 
 var glslify = require('glslify');
@@ -29,16 +30,18 @@ function onMouseMove(event) {
   mouse.y = -(event.clientY / threeD.clientHeight) * 2 + 1;
 
   // push to shaders
-  uniformsLayer1.uMouse.value = new THREE.Vector2(mouse.x, mouse.y);
+  uniformsLayerMix.uMouse.value = new THREE.Vector2(mouse.x, mouse.y);
 }
 
 //
-let sceneBaseTextureTarget;
+let sceneLayer0TextureTarget, sceneLayer1TextureTarget;
 //
-let scene, sceneBase;
+let scene, sceneLayer0;
 //
 let lutLayer0;
 let sceneLayer1, meshLayer1, uniformsLayer1, materialLayer1, lutLayer1;
+let sceneLayerMix, meshLayerMix, uniformsLayerMix, materialLayerMix, lutLayerMix;
+
 //probe
 // stack for zcosine access for camera...
 let stack;
@@ -51,6 +54,14 @@ let camUtils = {
 
 let layer1 = {
   opacity: 1.0,
+  lut: null
+};
+
+let layerMix = {
+  opacity0: 1.0,
+  opacity1: 1.0,
+  type0: 0,
+  type1: 1,
   lut: null,
   mix: true,
   trackMouse: true
@@ -62,8 +73,12 @@ function init() {
   function animate() {
     // render
     controls.update();
-    renderer.render(sceneBase, camera, sceneBaseTextureTarget, true);
-    renderer.render(sceneLayer1, camera);
+    // render first layer offscreen
+    renderer.render(sceneLayer0, camera, sceneLayer0TextureTarget, true);
+    // render second layer offscreen
+    renderer.render(sceneLayer1, camera, sceneLayer1TextureTarget, true);
+    // mix the layers and render it ON screen!
+    renderer.render(sceneLayerMix, camera);
     statsyay.update();
 
     // request new frame
@@ -78,7 +93,7 @@ function init() {
     antialias: true
   });
   renderer.setSize(threeD.clientWidth, threeD.clientHeight);
-  renderer.setClearColor(0x212121, 1);
+  renderer.setClearColor(0x3F51B5, 1);
   
   threeD.appendChild(renderer.domElement);
 
@@ -88,16 +103,25 @@ function init() {
 
   // scene
   scene = new THREE.Scene();
-  sceneBase = new THREE.Scene();
+  sceneLayer0 = new THREE.Scene();
   sceneLayer1 = new THREE.Scene();
+  sceneLayerMix = new THREE.Scene();
 
   // render to texture!!!!
-  sceneBaseTextureTarget = new THREE.WebGLRenderTarget(
+  sceneLayer0TextureTarget = new THREE.WebGLRenderTarget(
     threeD.clientWidth,
     threeD.clientHeight,
     {minFilter: THREE.LinearFilter,
       magFilter: THREE.NearestFilter,
       format: THREE.RGBFormat
+  });
+
+  sceneLayer1TextureTarget = new THREE.WebGLRenderTarget(
+    threeD.clientWidth,
+    threeD.clientHeight,
+    {minFilter: THREE.LinearFilter,
+     magFilter: THREE.NearestFilter,
+     format: THREE.RGBAFormat
   });
 
   // camera
@@ -169,6 +193,25 @@ window.onload = function() {
       }
     }
 
+    function updateLayerMix(){
+      // update layer1 geometry...
+      if (meshLayerMix) {
+
+        sceneLayerMix.remove(meshLayerMix);
+        meshLayerMix.material.dispose();
+        meshLayerMix.material = null;
+        meshLayerMix.geometry.dispose();
+        meshLayerMix.geometry = null;
+
+        // add mesh in this scene with right shaders...
+        meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
+        // go the LPS space
+        meshLayerMix.applyMatrix(stackHelper.stack._ijk2LPS);
+
+        sceneLayerMix.add(meshLayerMix);
+      }
+    }
+
     let stack = stackHelper._stack;
 
     let gui = new dat.GUI({
@@ -178,6 +221,9 @@ window.onload = function() {
     let customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
 
+    //
+    // layer 0 folder
+    //
     let layer0Folder = gui.addFolder('Layer 0 (Base)');
     layer0Folder.add(stackHelper.slice, 'windowWidth', 1, stack.minMax[1]).step(1).listen();
     layer0Folder.add(stackHelper.slice, 'windowCenter', stack.minMax[0], stack.minMax[1]).step(1).listen();
@@ -193,17 +239,15 @@ window.onload = function() {
     let indexUpdate = layer0Folder.add(stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
     indexUpdate.onChange(function() {
       updateLayer1();
+      updateLayerMix();
     });
 
     layer0Folder.open();
 
+    //
     // layer 1 folder
+    //
     let layer1Folder = gui.addFolder('Layer 1');
-    let opacityLayer1 = layer1Folder.add(layer1, 'opacity', 0, 1).step(0.01).listen();
-    opacityLayer1.onChange(function(value) {
-      uniformsLayer1.uOpacity.value = value;
-    });
-
     let layer1LutUpdate = layer1Folder.add(layer1, 'lut', lutLayer1.lutsAvailable());
     layer1LutUpdate.onChange(function(value) {
       window.console.log(value);
@@ -213,25 +257,35 @@ window.onload = function() {
       uniformsLayer1.uTextureLUT.value = lutLayer1.texture;
     });
 
-    let layer1MixUpdate = layer1Folder.add(layer1, 'mix');
-    layer1MixUpdate.onChange(function(value) {
-      if (value) {
-        uniformsLayer1.uMix.value = 1;
-      } else {
-        uniformsLayer1.uMix.value = 0;
-      }
-    });
-
-    let layer1TrackMouseUpdate = layer1Folder.add(layer1, 'trackMouse');
-    layer1TrackMouseUpdate.onChange(function(value) {
-      if (value) {
-        uniformsLayer1.uTrackMouse.value = 1;
-      } else {
-        uniformsLayer1.uTrackMouse.value = 0;
-      }
-    });
-
     layer1Folder.open();
+
+    //
+    // layer mix folder
+    //
+    let layerMixFolder = gui.addFolder('Layer Mix');
+    let layerMixUpdate = layerMixFolder.add(layerMix, 'mix');
+    layerMixUpdate.onChange(function(value) {
+      if (value) {
+        uniformsLayerMix.uMix.value = 1;
+      } else {
+        uniformsLayerMix.uMix.value = 0;
+      }
+    });
+    let opacityLayerMix = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01).listen();
+    opacityLayerMix.onChange(function(value) {
+      uniformsLayerMix.uOpacity1.value = value;
+    });
+
+    let layerMixTrackMouseUpdate = layerMixFolder.add(layerMix, 'trackMouse');
+    layerMixTrackMouseUpdate.onChange(function(value) {
+      if (value) {
+        uniformsLayerMix.uTrackMouse.value = 1;
+      } else {
+        uniformsLayerMix.uTrackMouse.value = 0;
+      }
+    });
+
+    layerMixFolder.open();
 
     // hook up callbacks
     controls.addEventListener('OnScroll', function(e) {
@@ -248,7 +302,10 @@ window.onload = function() {
       }
 
       updateLayer1();
+      updateLayerMix();
     });
+
+    updateLayerMix();
 
     // camera
     let cameraFolder = gui.addFolder('Camera');
@@ -309,7 +366,7 @@ window.onload = function() {
     stackHelper.bbox.visible = false;
     stackHelper.border.visible = false;
 
-    sceneBase.add(stackHelper);
+    sceneLayer0.add(stackHelper);
 
     //
     //
@@ -345,7 +402,7 @@ window.onload = function() {
     }
 
     // create material && mesh then add it to sceneLayer1
-    uniformsLayer1 = ShadersLayer.uniforms();
+    uniformsLayer1 = ShadersData.uniforms();
     uniformsLayer1.uTextureSize.value = stack2.textureSize;
     uniformsLayer1.uTextureContainer.value = textures2;
     uniformsLayer1.uWorldToData.value = stack2.lps2IJK;
@@ -353,22 +410,15 @@ window.onload = function() {
     uniformsLayer1.uBitsAllocated.value = stack2.bitsAllocated;
     uniformsLayer1.uWindowCenterWidth.value = [stack2.windowCenter, stack2.windowWidth];
     uniformsLayer1.uRescaleSlopeIntercept.value = [stack2.rescaleSlope, stack2.rescaleIntercept];
-    uniformsLayer1.uTextureBackTest.value = sceneBaseTextureTarget.texture;
     uniformsLayer1.uDataDimensions.value = [stack2.dimensionsIJK.x,
                                                 stack2.dimensionsIJK.y,
                                                 stack2.dimensionsIJK.z];
-    uniformsLayer1.uMix.value = 1;
-    uniformsLayer1.uTrackMouse.value = 1;
-    uniformsLayer1.uMouse.value = new THREE.Vector2(0, 0);
-    uniformsLayer1.uMinMax.value = stack2.minMax;
-
-    window.console.log(uniformsLayer1);
 
     materialLayer1 = new THREE.ShaderMaterial(
       {side: THREE.DoubleSide,
       uniforms: uniformsLayer1,
-      vertexShader: glslify('../../src/shaders/shaders.raycasting.secondPass.vert'),
-      fragmentShader: glslify('../../src/shaders/shaders.layer.frag')
+      vertexShader: glslify('../../src/shaders/shaders.data.vert'),
+      fragmentShader: glslify('../../src/shaders/shaders.data.frag')
     });
 
     // add mesh in this scene with right shaders...
@@ -376,6 +426,29 @@ window.onload = function() {
     // go the LPS space
     meshLayer1.applyMatrix(stack2._ijk2LPS);
     sceneLayer1.add(meshLayer1);
+
+    // Create the Mix layer
+    uniformsLayerMix = ShadersLayer.uniforms();
+    uniformsLayerMix.uTextureBackTest0.value = sceneLayer0TextureTarget.texture;
+    uniformsLayerMix.uTextureBackTest1.value = sceneLayer1TextureTarget.texture;
+    uniformsLayerMix.uMix.value = 1;
+    uniformsLayerMix.uTrackMouse.value = 1;
+    uniformsLayerMix.uMouse.value = new THREE.Vector2(0, 0);
+    uniformsLayerMix.uMinMax.value = stack2.minMax;
+
+    materialLayerMix = new THREE.ShaderMaterial(
+      {side: THREE.DoubleSide,
+      uniforms: uniformsLayerMix,
+      vertexShader: glslify('../../src/shaders/shaders.raycasting.secondPass.vert'),
+      fragmentShader: glslify('../../src/shaders/shaders.layer.frag'),
+      transparent: true
+    });
+
+    // add mesh in this scene with right shaders...
+    meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
+    // go the LPS space
+    meshLayerMix.applyMatrix(stack2._ijk2LPS);
+    sceneLayerMix.add(meshLayerMix);
 
     // set camera
     let worldbb = stack.worldBoundingBox();

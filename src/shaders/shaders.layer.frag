@@ -33,16 +33,40 @@ void main(void) {
 
   vec4 pixelColor = baseColor0;
 
-  if( uType1 == 0 ){
+  if( uTrackMouse == 1 ){
 
-    //merge an inmage into
-    pixelColor = mix( pixelColor, baseColor1, uOpacity1 );
+      if(vProjectedCoords.x < uMouse.x){
+
+        pixelColor = baseColor0;
+
+      }
+      else if(uMix == 1){
+
+        float opacity = baseColor1.a;
+        pixelColor = mix(pixelColor, baseColor1, opacity * uOpacity1 );
+
+      }
+      else{
+
+        pixelColor = baseColor1;
+        
+      }
 
   }
   else{
 
-    float opacity = baseColor1.a;
-    pixelColor = mix(pixelColor, baseColor1, opacity * uOpacity1 );
+    if( uType1 == 0 ){
+
+      //merge an inmage into
+      pixelColor = mix( pixelColor, baseColor1, uOpacity1 );
+
+    }
+    else{
+
+      float opacity = baseColor1.a;
+      pixelColor = mix(pixelColor, baseColor1, opacity * uOpacity1 );
+
+    }
 
   }
 
