@@ -23,21 +23,13 @@ let scene, sceneLayer0;
 let lutLayer0;
 let sceneLayer1, meshLayer1, uniformsLayer1, materialLayer1, lutLayer1;
 let sceneLayerMix, meshLayerMix, uniformsLayerMix, materialLayerMix, lutLayerMix;
-//probe
-let camUtils = {
-  invertRows: false,
-  invertColumns: false,
-  rotate: false
-};
 
 let layer1 = {
-  opacity: 1.0,
   lut: null,
-  interpolation: 0
+  interpolation: 1
 };
 
 let layerMix = {
-  opacity: 1.0,
   opacity0: 1.0,
   opacity1: 1.0,
   type0: 0,
@@ -50,6 +42,7 @@ let layerMix = {
 function init() {
   // this function is executed on each animation frame
   function animate() {
+
     // render
     controls.update();
     // render first layer offscreen
@@ -73,7 +66,7 @@ function init() {
     alpha: true
   });
   renderer.setSize(threeD.clientWidth, threeD.clientHeight);
-  renderer.setClearColor(0x210021, 1);
+  renderer.setClearColor(0x607D8B, 1);
 
   threeD.appendChild(renderer.domElement);
 
@@ -226,15 +219,6 @@ window.onload = function() {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/andrei_abdomen/segmentation/' + v;
   });
 
-  // let data = [
-  //   '7001_subcortical.nii.gz',
-  //   '7001_t1_average_BRAINSABC.nii.gz'
-  // ];
-
-  // let files = data.map(function(v){
-  //   return '../../data/nii/slicer_labelmap/' + v;
-  // });
-
  let files = dataFullPath.concat(labelmapFullPath);
 
   // load sequence for each file
@@ -332,10 +316,6 @@ window.onload = function() {
 
     // layer 1 folder
     let layer1Folder = gui.addFolder('Layer 1');
-    // let opacityLayer1 = layer1Folder.add(layer1, 'opacity', 0, 1).step(0.01).listen();
-    // opacityLayer1.onChange(function(value){
-    //   uniformsLayer1.uOpacity.value = value;
-    // });
     let interpolationLayer1 = layer1Folder.add(layer1, 'interpolation', 0, 1 ).step( 1 ).listen();
     interpolationLayer1.onChange(function(value){
       uniformsLayer1.uInterpolation.value = value;
@@ -343,25 +323,13 @@ window.onload = function() {
 
     layer1Folder.open();
 
-        // layer 1 folder
+    // layer mix folder
     let layerMixFolder = gui.addFolder('Layer Mix');
-    let opacityLayerMix = layerMixFolder.add(layerMix, 'opacity', 0, 1).step(0.01).listen();
-    opacityLayerMix.onChange(function(value){
-      uniformsLayerMix.uOpacity.value = value;
-    });
-    let opacityLayerMix0 = layerMixFolder.add(layerMix, 'opacity0', 0, 1).step(0.01).listen();
-    opacityLayerMix0.onChange(function(value){
-      uniformsLayerMix.uOpacity0.value = value;
-    });
-    let opacityLayerMix1 = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01).listen();
+    let opacityLayerMix1 = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01);
     opacityLayerMix1.onChange(function(value){
       uniformsLayerMix.uOpacity1.value = value;
     });
-    let typeLayerMix0 = layerMixFolder.add(layerMix, 'type0', 0, 1).step( 1 ).listen();
-    typeLayerMix0.onChange(function(value){
-      uniformsLayerMix.uType0.value = value;
-    });
-    let typeLayerMix1 = layerMixFolder.add(layerMix, 'type1', 0, 1).step( 1 ).listen();
+    let typeLayerMix1 = layerMixFolder.add(layerMix, 'type1', 0, 1).step( 1 );
     typeLayerMix1.onChange(function(value){
       uniformsLayerMix.uType1.value = value;
     });
@@ -386,24 +354,6 @@ window.onload = function() {
       updateLayerMix();
     });
 
-    // camera
-    let cameraFolder = gui.addFolder('Camera');
-    let invertRows = cameraFolder.add(camUtils, 'invertRows');
-    invertRows.onChange(function() {
-      camera.invertRows();
-    });
-
-    let invertColumns = cameraFolder.add(camUtils, 'invertColumns');
-    invertColumns.onChange(function() {
-      camera.invertColumns();
-    });
-
-    let rotate = cameraFolder.add(camUtils, 'rotate');
-    rotate.onChange(function() {
-      camera.rotate();
-    });
-
-    cameraFolder.open();
     // set default view
     camera.invertColumns();
     camera.invertRows();
@@ -420,6 +370,9 @@ window.onload = function() {
     }
     window.addEventListener('resize', onWindowResize, false);
     onWindowResize();
+
+          // updateLayer1();
+      updateLayerMix();
   }
 
   function handleSeries() {
@@ -506,20 +459,6 @@ window.onload = function() {
     uniformsLayerMix = ShadersLayer.uniforms();
     uniformsLayerMix.uTextureBackTest0.value = sceneLayer0TextureTarget.texture;
     uniformsLayerMix.uTextureBackTest1.value = sceneLayer1TextureTarget.texture;
-    uniformsLayerMix.uType0.value = 0;
-    uniformsLayerMix.uType1.value = 0;
-    uniformsLayerMix.uTextureSize.value = stack2.textureSize;
-    uniformsLayerMix.uTextureContainer.value = textures2;
-    uniformsLayerMix.uWorldToData.value = stack2.lps2IJK;
-    uniformsLayerMix.uNumberOfChannels.value = stack2.numberOfChannels;
-    uniformsLayerMix.uPixelType.value = stack2.pixelType;
-    uniformsLayerMix.uBitsAllocated.value = stack2.bitsAllocated;
-    uniformsLayerMix.uWindowCenterWidth.value = [stack2.windowCenter, stack2.windowWidth];
-    uniformsLayerMix.uRescaleSlopeIntercept.value = [stack2.rescaleSlope, stack2.rescaleIntercept];
-    uniformsLayerMix.uDataDimensions.value = [stack2.dimensionsIJK.x,
-                                                stack2.dimensionsIJK.y,
-                                                stack2.dimensionsIJK.z];
-    uniformsLayerMix.uMix.value = 1;
 
     materialLayerMix = new THREE.ShaderMaterial(
       {side: THREE.DoubleSide,
@@ -572,7 +511,7 @@ window.onload = function() {
       'my-lut-canvases-l1',
       'default',
       'linear',
-      [[0, 0, 0, 0], [1, 0, 1, 1]],
+      [[0, 0, 0, 0], [1, 0.96, 0.447, 0.007]],
       [[0, 0], [1, 1]]);
     uniformsLayer1.uLut.value = 1;
     uniformsLayer1.uTextureLUT.value = lutLayer1.texture;
