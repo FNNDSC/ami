@@ -18,11 +18,16 @@
 /*** Imports ***/
 let NiftiReader = require('nifti-reader-js');
 
+import ParsersVolume from './parsers.volume';
+
 /**
  * @module parsers/nifti
  */
-export default class ParsersNifti{
+export default class ParsersNifti extends ParsersVolume {
   constructor(data, id) {
+
+    super();
+    
     /**
       * @member
       * @type {arraybuffer}

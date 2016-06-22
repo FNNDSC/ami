@@ -5,6 +5,9 @@ import DataUniforms from './shaders.data.js';
 let DataVertex   = glslify('./shaders.data.vert');
 let DataFragment = glslify('./shaders.data.frag');
 
+import LayerUniforms from './shaders.layer.js';
+let LayerFragment = glslify('./shaders.layer.frag');
+
 import RaycastingUniforms from './shaders.raycasting.js';
 let RaycastingFirstpassFragment  = glslify('./shaders.raycasting.firstPass.frag');
 let RaycastingSecondpassVertex   = glslify('./shaders.raycasting.secondPass.vert');
@@ -21,6 +24,9 @@ export default {
   DataUniforms,
   DataVertex,
   DataFragment,
+
+  LayerUniforms,
+  LayerFragment,
 
   RaycastingUniforms,
   RaycastingFirstpassFragment,

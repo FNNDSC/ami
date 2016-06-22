@@ -19,11 +19,16 @@
 let pako = require('pako');
 let NrrdReader = require('nrrd-js');
 
+import ParsersVolume from './parsers.volume';
+
 /**
  * @module parsers/nifti
  */
-export default class ParsersNifti{
+export default class ParsersNifti extends ParsersVolume {
   constructor(data, id) {
+
+    super();
+    
     /**
       * @member
       * @type {arraybuffer}

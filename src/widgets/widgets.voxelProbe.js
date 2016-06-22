@@ -50,10 +50,10 @@ export default class WidgetsVoxelProbe extends THREE.Object3D{
 
     window.addEventListener('keypress', this.onKeyPress.bind(this), false);
 
-    this._defaultColor = '0x00B0FF';
-    this._activeColor = '0xFFEB3B';
-    this._hoverColor = '0xF50057';
-    this._selectedColor = '0x76FF03';
+    this._defaultColor = '#00B0FF';
+    this._activeColor = '#FFEB3B';
+    this._hoverColor = '#F50057';
+    this._selectedColor = '#76FF03';
 
     this._showVoxel = true;
     this._showDomSVG = true;

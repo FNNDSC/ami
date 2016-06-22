@@ -236,7 +236,10 @@ window.onload = function() {
       worldBBox[2], worldBBox[3] ).step( 0.01 ).listen();
     let frameIndexControllerOriginK = positionFolder.add( stackHelper.slice.planePosition, 'z',
       worldBBox[4], worldBBox[5] ).step( 0.01 ).listen();
+    let interpolation = positionFolder.add( stackHelper.slice, 'interpolation',
+      0, 1 ).step( 1 ).listen();
     positionFolder.open();
+
 
     frameIndexControllerOriginI.onChange( updateGeometries );
     frameIndexControllerOriginJ.onChange( updateGeometries );

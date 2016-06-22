@@ -96,6 +96,7 @@ window.onload = function() {
     stackFolder.add(stackHelper.slice, 'windowCenter', stack.minMax[0], stack.minMax[1]).step(1).listen();
     stackFolder.add(stackHelper.slice, 'intensityAuto').listen();
     stackFolder.add(stackHelper.slice, 'invert');
+    stackFolder.add(stackHelper.slice, 'interpolation', 0, 1 ).step( 1 ).listen();
 
     // CREATE LUT
     lut = new HelpersLut(
