@@ -353,6 +353,9 @@ window.onload = function() {
       updateLayerMix();
     });
 
+    updateLayer1();
+    updateLayerMix();
+
     // set default view
     camera.invertColumns();
     camera.invertRows();
@@ -370,8 +373,6 @@ window.onload = function() {
     window.addEventListener('resize', onWindowResize, false);
     onWindowResize();
   }
-
-  updateLayerMix();
 
   function handleSeries() {
     loader.free();
