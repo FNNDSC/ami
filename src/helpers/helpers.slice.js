@@ -21,12 +21,14 @@ export default class HelpersSlice extends THREE.Object3D{
 
     // image settings
     // index only used to grab window/level and intercept/slope
-    this._invert = false;
+    this._invert = this._stack.invert;
+
     this._lut = 'none';
     this._lutTexture = null;
     // if auto === true, get from index
     // else from stack which holds the default values
     this._intensityAuto = true;
+    this._interpolation = 1; // default to trilinear interpolation
     // starts at 0
     this._index = index;
     this._windowWidth = null;
@@ -135,6 +137,15 @@ export default class HelpersSlice extends THREE.Object3D{
   set intensityAuto(intensityAuto) {
     this._intensityAuto = intensityAuto;
     this.updateIntensitySettings();
+    this.updateIntensitySettingsUniforms();
+  }
+
+  get interpolation() {
+    return this._interpolation;
+  }
+
+  set interpolation(interpolation) {
+    this._interpolation = interpolation;
     this.updateIntensitySettingsUniforms();
   }
 
@@ -341,6 +352,9 @@ export default class HelpersSlice extends THREE.Object3D{
 
     // invert
     this._uniforms.uInvert.value = this._invert === true ? 1 : 0;
+
+    // interpolation
+    this._uniforms.uInterpolation.value = this._interpolation;
 
     // lut
     if (this._lut === 'none') {

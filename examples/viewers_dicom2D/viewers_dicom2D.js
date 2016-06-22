@@ -47,7 +47,7 @@ function init() {
     antialias: true
   });
   renderer.setSize(threeD.clientWidth, threeD.clientHeight);
-  renderer.setClearColor(0x212121, 1);
+  renderer.setClearColor(0x607D8B, 1);
 
   //let maxTextureSize = renderer.context.getParameter(renderer.context.MAX_TEXTURE_SIZE);
   //let maxTextureImageUnits = renderer.context.getParameter(renderer.context.MAX_TEXTURE_IMAGE_UNITS);
@@ -96,6 +96,7 @@ window.onload = function() {
     stackFolder.add(stackHelper.slice, 'windowCenter', stack.minMax[0], stack.minMax[1]).step(1).listen();
     stackFolder.add(stackHelper.slice, 'intensityAuto').listen();
     stackFolder.add(stackHelper.slice, 'invert');
+    stackFolder.add(stackHelper.slice, 'interpolation', 0, 1 ).step( 1 ).listen();
 
     // CREATE LUT
     lut = new HelpersLut(

@@ -38,6 +38,23 @@ export default class ModelsFrame extends ModelsBase{
     this._dist = null;
   }
 
+  validate(model) {
+
+    if (!(super.validate(model) &&
+      typeof model.cosines === 'function' &&
+      typeof model.spacingXY === 'function' &&
+      model.hasOwnProperty('_sopInstanceUID') &&
+      model.hasOwnProperty('_dimensionIndexValues') &&
+      model.hasOwnProperty('_imageOrientation') &&
+      model.hasOwnProperty('_imagePosition'))) {
+
+      return false;
+
+    }
+
+    return true;
+  }
+
   /**
    * Merge current frame with provided frame.
    *
@@ -51,6 +68,11 @@ export default class ModelsFrame extends ModelsBase{
    * @returns {boolean} True if frames could be merge. False if not.
    */
   merge(frame) {
+
+    if(!this.validate(frame)){
+      return false;
+    }
+
     if (this._compareArrays(this._dimensionIndexValues, frame.dimensionIndexValues) &&
         this._compareArrays(this._imageOrientation, frame.imageOrientation) &&
         this._compareArrays(this._imagePosition, frame.imagePosition) &&
@@ -67,16 +89,39 @@ export default class ModelsFrame extends ModelsBase{
 
   }
 
+  /**
+   * Generate X, y and Z cosines from image orientation
+   * Returns default orientation if _imageOrientation was invalid.
+   *
+   * @returns {array} Array[3] containing cosinesX, Y and Z.
+   */
   cosines(){
+
     let cosines = [new THREE.Vector3(1, 0, 0), 
       new THREE.Vector3(0, 1, 0), 
       new THREE.Vector3(0, 0, 1)];
 
-     if (this.imageOrientation &&
-      this.imageOrientation.length === 6) {
-      cosines[0] = new THREE.Vector3(this.imageOrientation[0], this.imageOrientation[1], this.imageOrientation[2]);
-      cosines[1] = new THREE.Vector3(this.imageOrientation[3], this.imageOrientation[4], this.imageOrientation[5]);
-      cosines[2] = new THREE.Vector3(0, 0, 0).crossVectors(cosines[0], cosines[1]).normalize();
+     if (this._imageOrientation &&
+      this._imageOrientation.length === 6) {
+
+      let xCos = new THREE.Vector3(this._imageOrientation[0], this._imageOrientation[1], this._imageOrientation[2]);
+      let yCos = new THREE.Vector3(this._imageOrientation[3], this._imageOrientation[4], this._imageOrientation[5]);
+
+      if( xCos.length() > 0 && yCos.length() > 0){
+
+        cosines[0] = xCos;
+        cosines[1] = yCos;
+        cosines[2] = new THREE.Vector3(0, 0, 0).crossVectors(cosines[0], cosines[1]).normalize();
+
+      }
+
+    }
+    else{
+
+      window.console.log('No valid image orientation for frame');
+      window.console.log(this);
+      window.console.log('Returning default orientation.');
+
     }
 
     return cosines;
@@ -86,11 +131,15 @@ export default class ModelsFrame extends ModelsBase{
     let spacingXY = [1.0, 1.0];
 
     if (this.pixelSpacing) {
+
       spacingXY[0] = this.pixelSpacing[0];
+
       spacingXY[1] = this.pixelSpacing[1];
-    } else if (this.pixelAspectRatio) {
+    } else if ( this.pixelAspectRatio ) {
+
       spacingXY[0] = 1.0;
       spacingXY[1] = 1.0 * this.pixelAspectRatio[1] / this.pixelAspectRatio[0];
+
     } 
 
     return spacingXY;
@@ -104,6 +153,7 @@ export default class ModelsFrame extends ModelsBase{
    * Compare 2 arrays.
    *
    * 2 null arrays return true.
+   * Do no perform strict type checking.
    *
    * @returns {boolean} True if arrays are identicals. False if not.
    */

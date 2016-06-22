@@ -12481,11 +12481,11 @@ module.exports = pako;
 'use strict';
 
 
-var zlib_deflate = require('./zlib/deflate.js');
-var utils = require('./utils/common');
-var strings = require('./utils/strings');
-var msg = require('./zlib/messages');
-var zstream = require('./zlib/zstream');
+var zlib_deflate = require('./zlib/deflate');
+var utils        = require('./utils/common');
+var strings      = require('./utils/strings');
+var msg          = require('./zlib/messages');
+var ZStream      = require('./zlib/zstream');
 
 var toString = Object.prototype.toString;
 
@@ -12559,6 +12559,7 @@ var Z_DEFLATED  = 8;
  * - `windowBits`
  * - `memLevel`
  * - `strategy`
+ * - `dictionary`
  *
  * [http://zlib.net/manual.html#Advanced](http://zlib.net/manual.html#Advanced)
  * for more information on these.
@@ -12596,7 +12597,8 @@ var Z_DEFLATED  = 8;
  * console.log(deflate.result);
  * ```
  **/
-var Deflate = function(options) {
+function Deflate(options) {
+  if (!(this instanceof Deflate)) return new Deflate(options);
 
   this.options = utils.assign({
     level: Z_DEFAULT_COMPRESSION,
@@ -12623,7 +12625,7 @@ var Deflate = function(options) {
   this.ended  = false;  // used to avoid multiple onEnd() calls
   this.chunks = [];     // chunks of compressed data
 
-  this.strm = new zstream();
+  this.strm = new ZStream();
   this.strm.avail_out = 0;
 
   var status = zlib_deflate.deflateInit2(
@@ -12642,7 +12644,28 @@ var Deflate = function(options) {
   if (opt.header) {
     zlib_deflate.deflateSetHeader(this.strm, opt.header);
   }
-};
+
+  if (opt.dictionary) {
+    var dict;
+    // Convert data if needed
+    if (typeof opt.dictionary === 'string') {
+      // If we need to compress text, change encoding to utf8.
+      dict = strings.string2buf(opt.dictionary);
+    } else if (toString.call(opt.dictionary) === '[object ArrayBuffer]') {
+      dict = new Uint8Array(opt.dictionary);
+    } else {
+      dict = opt.dictionary;
+    }
+
+    status = zlib_deflate.deflateSetDictionary(this.strm, dict);
+
+    if (status !== Z_OK) {
+      throw new Error(msg[status]);
+    }
+
+    this._dict_set = true;
+  }
+}
 
 /**
  * Deflate#push(data[, mode]) -> Boolean
@@ -12673,7 +12696,7 @@ var Deflate = function(options) {
  * push(chunk, true);  // push last chunk
  * ```
  **/
-Deflate.prototype.push = function(data, mode) {
+Deflate.prototype.push = function (data, mode) {
   var strm = this.strm;
   var chunkSize = this.options.chunkSize;
   var status, _mode;
@@ -12745,7 +12768,7 @@ Deflate.prototype.push = function(data, mode) {
  * By default, stores data blocks in `chunks[]` property and glue
  * those in `onEnd`. Override this handler, if you need another behaviour.
  **/
-Deflate.prototype.onData = function(chunk) {
+Deflate.prototype.onData = function (chunk) {
   this.chunks.push(chunk);
 };
 
@@ -12760,7 +12783,7 @@ Deflate.prototype.onData = function(chunk) {
  * or if an error happened. By default - join collected chunks,
  * free memory and fill `results` / `err` properties.
  **/
-Deflate.prototype.onEnd = function(status) {
+Deflate.prototype.onEnd = function (status) {
   // On success - join
   if (status === Z_OK) {
     if (this.options.to === 'string') {
@@ -12780,7 +12803,7 @@ Deflate.prototype.onEnd = function(status) {
  * - data (Uint8Array|Array|String): input data to compress.
  * - options (Object): zlib deflate options.
  *
- * Compress `data` with deflate alrorythm and `options`.
+ * Compress `data` with deflate algorithm and `options`.
  *
  * Supported options are:
  *
@@ -12788,6 +12811,7 @@ Deflate.prototype.onEnd = function(status) {
  * - windowBits
  * - memLevel
  * - strategy
+ * - dictionary
  *
  * [http://zlib.net/manual.html#Advanced](http://zlib.net/manual.html#Advanced)
  * for more information on these.
@@ -12855,17 +12879,17 @@ exports.deflate = deflate;
 exports.deflateRaw = deflateRaw;
 exports.gzip = gzip;
 
-},{"./utils/common":32,"./utils/strings":33,"./zlib/deflate.js":37,"./zlib/messages":42,"./zlib/zstream":44}],31:[function(require,module,exports){
+},{"./utils/common":32,"./utils/strings":33,"./zlib/deflate":37,"./zlib/messages":42,"./zlib/zstream":44}],31:[function(require,module,exports){
 'use strict';
 
 
-var zlib_inflate = require('./zlib/inflate.js');
-var utils = require('./utils/common');
-var strings = require('./utils/strings');
-var c = require('./zlib/constants');
-var msg = require('./zlib/messages');
-var zstream = require('./zlib/zstream');
-var gzheader = require('./zlib/gzheader');
+var zlib_inflate = require('./zlib/inflate');
+var utils        = require('./utils/common');
+var strings      = require('./utils/strings');
+var c            = require('./zlib/constants');
+var msg          = require('./zlib/messages');
+var ZStream      = require('./zlib/zstream');
+var GZheader     = require('./zlib/gzheader');
 
 var toString = Object.prototype.toString;
 
@@ -12915,6 +12939,7 @@ var toString = Object.prototype.toString;
  * on bad params. Supported options:
  *
  * - `windowBits`
+ * - `dictionary`
  *
  * [http://zlib.net/manual.html#Advanced](http://zlib.net/manual.html#Advanced)
  * for more information on these.
@@ -12947,7 +12972,8 @@ var toString = Object.prototype.toString;
  * console.log(inflate.result);
  * ```
  **/
-var Inflate = function(options) {
+function Inflate(options) {
+  if (!(this instanceof Inflate)) return new Inflate(options);
 
   this.options = utils.assign({
     chunkSize: 16384,
@@ -12985,7 +13011,7 @@ var Inflate = function(options) {
   this.ended  = false;  // used to avoid multiple onEnd() calls
   this.chunks = [];     // chunks of compressed data
 
-  this.strm   = new zstream();
+  this.strm   = new ZStream();
   this.strm.avail_out = 0;
 
   var status  = zlib_inflate.inflateInit2(
@@ -12997,10 +13023,10 @@ var Inflate = function(options) {
     throw new Error(msg[status]);
   }
 
-  this.header = new gzheader();
+  this.header = new GZheader();
 
   zlib_inflate.inflateGetHeader(this.strm, this.header);
-};
+}
 
 /**
  * Inflate#push(data[, mode]) -> Boolean
@@ -13030,11 +13056,13 @@ var Inflate = function(options) {
  * push(chunk, true);  // push last chunk
  * ```
  **/
-Inflate.prototype.push = function(data, mode) {
+Inflate.prototype.push = function (data, mode) {
   var strm = this.strm;
   var chunkSize = this.options.chunkSize;
+  var dictionary = this.options.dictionary;
   var status, _mode;
   var next_out_utf8, tail, utf8str;
+  var dict;
 
   // Flag to properly process Z_BUF_ERROR on testing inflate call
   // when we check that all output data was flushed.
@@ -13064,6 +13092,20 @@ Inflate.prototype.push = function(data, mode) {
     }
 
     status = zlib_inflate.inflate(strm, c.Z_NO_FLUSH);    /* no bad return value */
+
+    if (status === c.Z_NEED_DICT && dictionary) {
+      // Convert data if needed
+      if (typeof dictionary === 'string') {
+        dict = strings.string2buf(dictionary);
+      } else if (toString.call(dictionary) === '[object ArrayBuffer]') {
+        dict = new Uint8Array(dictionary);
+      } else {
+        dict = dictionary;
+      }
+
+      status = zlib_inflate.inflateSetDictionary(this.strm, dict);
+
+    }
 
     if (status === c.Z_BUF_ERROR && allowBufError === true) {
       status = c.Z_OK;
@@ -13144,7 +13186,7 @@ Inflate.prototype.push = function(data, mode) {
  * By default, stores data blocks in `chunks[]` property and glue
  * those in `onEnd`. Override this handler, if you need another behaviour.
  **/
-Inflate.prototype.onData = function(chunk) {
+Inflate.prototype.onData = function (chunk) {
   this.chunks.push(chunk);
 };
 
@@ -13159,7 +13201,7 @@ Inflate.prototype.onData = function(chunk) {
  * or if an error happened. By default - join collected chunks,
  * free memory and fill `results` / `err` properties.
  **/
-Inflate.prototype.onEnd = function(status) {
+Inflate.prototype.onEnd = function (status) {
   // On success - join
   if (status === c.Z_OK) {
     if (this.options.to === 'string') {
@@ -13257,7 +13299,7 @@ exports.inflate = inflate;
 exports.inflateRaw = inflateRaw;
 exports.ungzip  = inflate;
 
-},{"./utils/common":32,"./utils/strings":33,"./zlib/constants":35,"./zlib/gzheader":38,"./zlib/inflate.js":40,"./zlib/messages":42,"./zlib/zstream":44}],32:[function(require,module,exports){
+},{"./utils/common":32,"./utils/strings":33,"./zlib/constants":35,"./zlib/gzheader":38,"./zlib/inflate":40,"./zlib/messages":42,"./zlib/zstream":44}],32:[function(require,module,exports){
 'use strict';
 
 
@@ -13299,28 +13341,28 @@ exports.shrinkBuf = function (buf, size) {
 var fnTyped = {
   arraySet: function (dest, src, src_offs, len, dest_offs) {
     if (src.subarray && dest.subarray) {
-      dest.set(src.subarray(src_offs, src_offs+len), dest_offs);
+      dest.set(src.subarray(src_offs, src_offs + len), dest_offs);
       return;
     }
     // Fallback to ordinary array
-    for (var i=0; i<len; i++) {
+    for (var i = 0; i < len; i++) {
       dest[dest_offs + i] = src[src_offs + i];
     }
   },
   // Join array of chunks to single array.
-  flattenChunks: function(chunks) {
+  flattenChunks: function (chunks) {
     var i, l, len, pos, chunk, result;
 
     // calculate data length
     len = 0;
-    for (i=0, l=chunks.length; i<l; i++) {
+    for (i = 0, l = chunks.length; i < l; i++) {
       len += chunks[i].length;
     }
 
     // join chunks
     result = new Uint8Array(len);
     pos = 0;
-    for (i=0, l=chunks.length; i<l; i++) {
+    for (i = 0, l = chunks.length; i < l; i++) {
       chunk = chunks[i];
       result.set(chunk, pos);
       pos += chunk.length;
@@ -13332,12 +13374,12 @@ var fnTyped = {
 
 var fnUntyped = {
   arraySet: function (dest, src, src_offs, len, dest_offs) {
-    for (var i=0; i<len; i++) {
+    for (var i = 0; i < len; i++) {
       dest[dest_offs + i] = src[src_offs + i];
     }
   },
   // Join array of chunks to single array.
-  flattenChunks: function(chunks) {
+  flattenChunks: function (chunks) {
     return [].concat.apply([], chunks);
   }
 };
@@ -13377,18 +13419,18 @@ var utils = require('./common');
 var STR_APPLY_OK = true;
 var STR_APPLY_UIA_OK = true;
 
-try { String.fromCharCode.apply(null, [0]); } catch(__) { STR_APPLY_OK = false; }
-try { String.fromCharCode.apply(null, new Uint8Array(1)); } catch(__) { STR_APPLY_UIA_OK = false; }
+try { String.fromCharCode.apply(null, [ 0 ]); } catch (__) { STR_APPLY_OK = false; }
+try { String.fromCharCode.apply(null, new Uint8Array(1)); } catch (__) { STR_APPLY_UIA_OK = false; }
 
 
 // Table with utf8 lengths (calculated by first byte of sequence)
 // Note, that 5 & 6-byte values and some 4-byte values can not be represented in JS,
 // because max possible codepoint is 0x10ffff
 var _utf8len = new utils.Buf8(256);
-for (var q=0; q<256; q++) {
+for (var q = 0; q < 256; q++) {
   _utf8len[q] = (q >= 252 ? 6 : q >= 248 ? 5 : q >= 240 ? 4 : q >= 224 ? 3 : q >= 192 ? 2 : 1);
 }
-_utf8len[254]=_utf8len[254]=1; // Invalid sequence start
+_utf8len[254] = _utf8len[254] = 1; // Invalid sequence start
 
 
 // convert string to array (typed, when possible)
@@ -13398,8 +13440,8 @@ exports.string2buf = function (str) {
   // count binary size
   for (m_pos = 0; m_pos < str_len; m_pos++) {
     c = str.charCodeAt(m_pos);
-    if ((c & 0xfc00) === 0xd800 && (m_pos+1 < str_len)) {
-      c2 = str.charCodeAt(m_pos+1);
+    if ((c & 0xfc00) === 0xd800 && (m_pos + 1 < str_len)) {
+      c2 = str.charCodeAt(m_pos + 1);
       if ((c2 & 0xfc00) === 0xdc00) {
         c = 0x10000 + ((c - 0xd800) << 10) + (c2 - 0xdc00);
         m_pos++;
@@ -13412,10 +13454,10 @@ exports.string2buf = function (str) {
   buf = new utils.Buf8(buf_len);
 
   // convert
-  for (i=0, m_pos = 0; i < buf_len; m_pos++) {
+  for (i = 0, m_pos = 0; i < buf_len; m_pos++) {
     c = str.charCodeAt(m_pos);
-    if ((c & 0xfc00) === 0xd800 && (m_pos+1 < str_len)) {
-      c2 = str.charCodeAt(m_pos+1);
+    if ((c & 0xfc00) === 0xd800 && (m_pos + 1 < str_len)) {
+      c2 = str.charCodeAt(m_pos + 1);
       if ((c2 & 0xfc00) === 0xdc00) {
         c = 0x10000 + ((c - 0xd800) << 10) + (c2 - 0xdc00);
         m_pos++;
@@ -13455,7 +13497,7 @@ function buf2binstring(buf, len) {
   }
 
   var result = '';
-  for (var i=0; i < len; i++) {
+  for (var i = 0; i < len; i++) {
     result += String.fromCharCode(buf[i]);
   }
   return result;
@@ -13463,15 +13505,15 @@ function buf2binstring(buf, len) {
 
 
 // Convert byte array to binary string
-exports.buf2binstring = function(buf) {
+exports.buf2binstring = function (buf) {
   return buf2binstring(buf, buf.length);
 };
 
 
 // Convert binary string (typed, when possible)
-exports.binstring2buf = function(str) {
+exports.binstring2buf = function (str) {
   var buf = new utils.Buf8(str.length);
-  for (var i=0, len=buf.length; i < len; i++) {
+  for (var i = 0, len = buf.length; i < len; i++) {
     buf[i] = str.charCodeAt(i);
   }
   return buf;
@@ -13486,16 +13528,16 @@ exports.buf2string = function (buf, max) {
   // Reserve max possible length (2 words per char)
   // NB: by unknown reasons, Array is significantly faster for
   //     String.fromCharCode.apply than Uint16Array.
-  var utf16buf = new Array(len*2);
+  var utf16buf = new Array(len * 2);
 
-  for (out=0, i=0; i<len;) {
+  for (out = 0, i = 0; i < len;) {
     c = buf[i++];
     // quick process ascii
     if (c < 0x80) { utf16buf[out++] = c; continue; }
 
     c_len = _utf8len[c];
     // skip 5 & 6 byte codes
-    if (c_len > 4) { utf16buf[out++] = 0xfffd; i += c_len-1; continue; }
+    if (c_len > 4) { utf16buf[out++] = 0xfffd; i += c_len - 1; continue; }
 
     // apply mask on first byte
     c &= c_len === 2 ? 0x1f : c_len === 3 ? 0x0f : 0x07;
@@ -13527,14 +13569,14 @@ exports.buf2string = function (buf, max) {
 //
 // buf[] - utf8 bytes array
 // max   - length limit (mandatory);
-exports.utf8border = function(buf, max) {
+exports.utf8border = function (buf, max) {
   var pos;
 
   max = max || buf.length;
   if (max > buf.length) { max = buf.length; }
 
   // go back from last position, until start of sequence found
-  pos = max-1;
+  pos = max - 1;
   while (pos >= 0 && (buf[pos] & 0xC0) === 0x80) { pos--; }
 
   // Fuckup - very small and broken sequence,
@@ -13583,6 +13625,9 @@ function adler32(adler, buf, len, pos) {
 module.exports = adler32;
 
 },{}],35:[function(require,module,exports){
+'use strict';
+
+
 module.exports = {
 
   /* Allowed flush values; see deflate() and inflate() below for details */
@@ -13643,10 +13688,10 @@ module.exports = {
 function makeTable() {
   var c, table = [];
 
-  for (var n =0; n < 256; n++) {
+  for (var n = 0; n < 256; n++) {
     c = n;
-    for (var k =0; k < 8; k++) {
-      c = ((c&1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
+    for (var k = 0; k < 8; k++) {
+      c = ((c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
     }
     table[n] = c;
   }
@@ -13662,7 +13707,7 @@ function crc32(crc, buf, len, pos) {
   var t = crcTable,
       end = pos + len;
 
-  crc = crc ^ (-1);
+  crc ^= -1;
 
   for (var i = pos; i < end; i++) {
     crc = (crc >>> 8) ^ t[(crc ^ buf[i]) & 0xFF];
@@ -13681,7 +13726,7 @@ var utils   = require('../utils/common');
 var trees   = require('./trees');
 var adler32 = require('./adler32');
 var crc32   = require('./crc32');
-var msg   = require('./messages');
+var msg     = require('./messages');
 
 /* Public constants ==========================================================*/
 /* ===========================================================================*/
@@ -13754,7 +13799,7 @@ var D_CODES       = 30;
 /* number of distance codes */
 var BL_CODES      = 19;
 /* number of codes used to transfer the bit lengths */
-var HEAP_SIZE     = 2*L_CODES + 1;
+var HEAP_SIZE     = 2 * L_CODES + 1;
 /* maximum heap size */
 var MAX_BITS  = 15;
 /* All codes must not exceed MAX_BITS bits */
@@ -13820,7 +13865,7 @@ function flush_pending(strm) {
 }
 
 
-function flush_block_only (s, last) {
+function flush_block_only(s, last) {
   trees._tr_flush_block(s, (s.block_start >= 0 ? s.block_start : -1), s.strstart - s.block_start, last);
   s.block_start = s.strstart;
   flush_pending(s.strm);
@@ -13860,6 +13905,7 @@ function read_buf(strm, buf, start, size) {
 
   strm.avail_in -= len;
 
+  // zmemcpy(buf, strm->next_in, len);
   utils.arraySet(buf, strm.input, strm.next_in, len, start);
   if (strm.state.wrap === 1) {
     strm.adler = adler32(strm.adler, buf, len, start);
@@ -14090,7 +14136,7 @@ function fill_window(s) {
 //#endif
       while (s.insert) {
         /* UPDATE_HASH(s, s->ins_h, s->window[str + MIN_MATCH-1]); */
-        s.ins_h = ((s.ins_h << s.hash_shift) ^ s.window[str + MIN_MATCH-1]) & s.hash_mask;
+        s.ins_h = ((s.ins_h << s.hash_shift) ^ s.window[str + MIN_MATCH - 1]) & s.hash_mask;
 
         s.prev[str & s.w_mask] = s.head[s.ins_h];
         s.head[s.ins_h] = str;
@@ -14354,7 +14400,7 @@ function deflate_fast(s, flush) {
       /***/
     }
   }
-  s.insert = ((s.strstart < (MIN_MATCH-1)) ? s.strstart : MIN_MATCH-1);
+  s.insert = ((s.strstart < (MIN_MATCH - 1)) ? s.strstart : MIN_MATCH - 1);
   if (flush === Z_FINISH) {
     /*** FLUSH_BLOCK(s, 1); ***/
     flush_block_only(s, true);
@@ -14417,10 +14463,10 @@ function deflate_slow(s, flush) {
      */
     s.prev_length = s.match_length;
     s.prev_match = s.match_start;
-    s.match_length = MIN_MATCH-1;
+    s.match_length = MIN_MATCH - 1;
 
     if (hash_head !== 0/*NIL*/ && s.prev_length < s.max_lazy_match &&
-        s.strstart - hash_head <= (s.w_size-MIN_LOOKAHEAD)/*MAX_DIST(s)*/) {
+        s.strstart - hash_head <= (s.w_size - MIN_LOOKAHEAD)/*MAX_DIST(s)*/) {
       /* To simplify the code, we prevent matches with the string
        * of window index 0 (in particular we have to avoid a match
        * of the string with itself at the start of the input file).
@@ -14434,7 +14480,7 @@ function deflate_slow(s, flush) {
         /* If prev_match is also MIN_MATCH, match_start is garbage
          * but we will ignore the current match anyway.
          */
-        s.match_length = MIN_MATCH-1;
+        s.match_length = MIN_MATCH - 1;
       }
     }
     /* If there was a match at the previous step and the current
@@ -14448,13 +14494,13 @@ function deflate_slow(s, flush) {
 
       /***_tr_tally_dist(s, s.strstart - 1 - s.prev_match,
                      s.prev_length - MIN_MATCH, bflush);***/
-      bflush = trees._tr_tally(s, s.strstart - 1- s.prev_match, s.prev_length - MIN_MATCH);
+      bflush = trees._tr_tally(s, s.strstart - 1 - s.prev_match, s.prev_length - MIN_MATCH);
       /* Insert in hash table all strings up to the end of the match.
        * strstart-1 and strstart are already inserted. If there is not
        * enough lookahead, the last two strings are not inserted in
        * the hash table.
        */
-      s.lookahead -= s.prev_length-1;
+      s.lookahead -= s.prev_length - 1;
       s.prev_length -= 2;
       do {
         if (++s.strstart <= max_insert) {
@@ -14466,7 +14512,7 @@ function deflate_slow(s, flush) {
         }
       } while (--s.prev_length !== 0);
       s.match_available = 0;
-      s.match_length = MIN_MATCH-1;
+      s.match_length = MIN_MATCH - 1;
       s.strstart++;
 
       if (bflush) {
@@ -14485,7 +14531,7 @@ function deflate_slow(s, flush) {
        */
       //Tracevv((stderr,"%c", s->window[s->strstart-1]));
       /*** _tr_tally_lit(s, s.window[s.strstart-1], bflush); ***/
-      bflush = trees._tr_tally(s, 0, s.window[s.strstart-1]);
+      bflush = trees._tr_tally(s, 0, s.window[s.strstart - 1]);
 
       if (bflush) {
         /*** FLUSH_BLOCK_ONLY(s, 0) ***/
@@ -14510,11 +14556,11 @@ function deflate_slow(s, flush) {
   if (s.match_available) {
     //Tracevv((stderr,"%c", s->window[s->strstart-1]));
     /*** _tr_tally_lit(s, s.window[s.strstart-1], bflush); ***/
-    bflush = trees._tr_tally(s, 0, s.window[s.strstart-1]);
+    bflush = trees._tr_tally(s, 0, s.window[s.strstart - 1]);
 
     s.match_available = 0;
   }
-  s.insert = s.strstart < MIN_MATCH-1 ? s.strstart : MIN_MATCH-1;
+  s.insert = s.strstart < MIN_MATCH - 1 ? s.strstart : MIN_MATCH - 1;
   if (flush === Z_FINISH) {
     /*** FLUSH_BLOCK(s, 1); ***/
     flush_block_only(s, true);
@@ -14694,13 +14740,13 @@ function deflate_huff(s, flush) {
  * exclude worst case performance for pathological files. Better values may be
  * found for specific files.
  */
-var Config = function (good_length, max_lazy, nice_length, max_chain, func) {
+function Config(good_length, max_lazy, nice_length, max_chain, func) {
   this.good_length = good_length;
   this.max_lazy = max_lazy;
   this.nice_length = nice_length;
   this.max_chain = max_chain;
   this.func = func;
-};
+}
 
 var configuration_table;
 
@@ -14850,8 +14896,8 @@ function DeflateState() {
   // Use flat array of DOUBLE size, with interleaved fata,
   // because JS does not support effective
   this.dyn_ltree  = new utils.Buf16(HEAP_SIZE * 2);
-  this.dyn_dtree  = new utils.Buf16((2*D_CODES+1) * 2);
-  this.bl_tree    = new utils.Buf16((2*BL_CODES+1) * 2);
+  this.dyn_dtree  = new utils.Buf16((2 * D_CODES + 1) * 2);
+  this.bl_tree    = new utils.Buf16((2 * BL_CODES + 1) * 2);
   zero(this.dyn_ltree);
   zero(this.dyn_dtree);
   zero(this.bl_tree);
@@ -14861,11 +14907,11 @@ function DeflateState() {
   this.bl_desc  = null;         /* desc. for bit length tree */
 
   //ush bl_count[MAX_BITS+1];
-  this.bl_count = new utils.Buf16(MAX_BITS+1);
+  this.bl_count = new utils.Buf16(MAX_BITS + 1);
   /* number of codes at each bit length for an optimal tree */
 
   //int heap[2*L_CODES+1];      /* heap used to build the Huffman trees */
-  this.heap = new utils.Buf16(2*L_CODES+1);  /* heap used to build the Huffman trees */
+  this.heap = new utils.Buf16(2 * L_CODES + 1);  /* heap used to build the Huffman trees */
   zero(this.heap);
 
   this.heap_len = 0;               /* number of elements in the heap */
@@ -14874,7 +14920,7 @@ function DeflateState() {
    * The same heap array is used to build all trees.
    */
 
-  this.depth = new utils.Buf16(2*L_CODES+1); //uch depth[2*L_CODES+1];
+  this.depth = new utils.Buf16(2 * L_CODES + 1); //uch depth[2*L_CODES+1];
   zero(this.depth);
   /* Depth of each subtree used as tie breaker for trees of equal frequency
    */
@@ -15415,12 +15461,94 @@ function deflateEnd(strm) {
   return status === BUSY_STATE ? err(strm, Z_DATA_ERROR) : Z_OK;
 }
 
+
 /* =========================================================================
- * Copy the source state to the destination state
+ * Initializes the compression dictionary from the given byte
+ * sequence without producing any compressed output.
  */
-//function deflateCopy(dest, source) {
-//
-//}
+function deflateSetDictionary(strm, dictionary) {
+  var dictLength = dictionary.length;
+
+  var s;
+  var str, n;
+  var wrap;
+  var avail;
+  var next;
+  var input;
+  var tmpDict;
+
+  if (!strm/*== Z_NULL*/ || !strm.state/*== Z_NULL*/) {
+    return Z_STREAM_ERROR;
+  }
+
+  s = strm.state;
+  wrap = s.wrap;
+
+  if (wrap === 2 || (wrap === 1 && s.status !== INIT_STATE) || s.lookahead) {
+    return Z_STREAM_ERROR;
+  }
+
+  /* when using zlib wrappers, compute Adler-32 for provided dictionary */
+  if (wrap === 1) {
+    /* adler32(strm->adler, dictionary, dictLength); */
+    strm.adler = adler32(strm.adler, dictionary, dictLength, 0);
+  }
+
+  s.wrap = 0;   /* avoid computing Adler-32 in read_buf */
+
+  /* if dictionary would fill window, just replace the history */
+  if (dictLength >= s.w_size) {
+    if (wrap === 0) {            /* already empty otherwise */
+      /*** CLEAR_HASH(s); ***/
+      zero(s.head); // Fill with NIL (= 0);
+      s.strstart = 0;
+      s.block_start = 0;
+      s.insert = 0;
+    }
+    /* use the tail */
+    // dictionary = dictionary.slice(dictLength - s.w_size);
+    tmpDict = new utils.Buf8(s.w_size);
+    utils.arraySet(tmpDict, dictionary, dictLength - s.w_size, s.w_size, 0);
+    dictionary = tmpDict;
+    dictLength = s.w_size;
+  }
+  /* insert dictionary into window and hash */
+  avail = strm.avail_in;
+  next = strm.next_in;
+  input = strm.input;
+  strm.avail_in = dictLength;
+  strm.next_in = 0;
+  strm.input = dictionary;
+  fill_window(s);
+  while (s.lookahead >= MIN_MATCH) {
+    str = s.strstart;
+    n = s.lookahead - (MIN_MATCH - 1);
+    do {
+      /* UPDATE_HASH(s, s->ins_h, s->window[str + MIN_MATCH-1]); */
+      s.ins_h = ((s.ins_h << s.hash_shift) ^ s.window[str + MIN_MATCH - 1]) & s.hash_mask;
+
+      s.prev[str & s.w_mask] = s.head[s.ins_h];
+
+      s.head[s.ins_h] = str;
+      str++;
+    } while (--n);
+    s.strstart = str;
+    s.lookahead = MIN_MATCH - 1;
+    fill_window(s);
+  }
+  s.strstart += s.lookahead;
+  s.block_start = s.strstart;
+  s.insert = s.lookahead;
+  s.lookahead = 0;
+  s.match_length = s.prev_length = MIN_MATCH - 1;
+  s.match_available = 0;
+  strm.next_in = next;
+  strm.input = input;
+  strm.avail_in = avail;
+  s.wrap = wrap;
+  return Z_OK;
+}
+
 
 exports.deflateInit = deflateInit;
 exports.deflateInit2 = deflateInit2;
@@ -15429,12 +15557,12 @@ exports.deflateResetKeep = deflateResetKeep;
 exports.deflateSetHeader = deflateSetHeader;
 exports.deflate = deflate;
 exports.deflateEnd = deflateEnd;
+exports.deflateSetDictionary = deflateSetDictionary;
 exports.deflateInfo = 'pako deflate (from Nodeca project)';
 
 /* Not implemented
 exports.deflateBound = deflateBound;
 exports.deflateCopy = deflateCopy;
-exports.deflateSetDictionary = deflateSetDictionary;
 exports.deflateParams = deflateParams;
 exports.deflatePending = deflatePending;
 exports.deflatePrime = deflatePrime;
@@ -15815,10 +15943,10 @@ module.exports = function inflate_fast(strm, start) {
 'use strict';
 
 
-var utils = require('../utils/common');
-var adler32 = require('./adler32');
-var crc32   = require('./crc32');
-var inflate_fast = require('./inffast');
+var utils         = require('../utils/common');
+var adler32       = require('./adler32');
+var crc32         = require('./crc32');
+var inflate_fast  = require('./inffast');
 var inflate_table = require('./inftrees');
 
 var CODES = 0;
@@ -15906,7 +16034,7 @@ var MAX_WBITS = 15;
 var DEF_WBITS = MAX_WBITS;
 
 
-function ZSWAP32(q) {
+function zswap32(q) {
   return  (((q >>> 24) & 0xff) +
           ((q >>> 8) & 0xff00) +
           ((q & 0xff00) << 8) +
@@ -16099,13 +16227,13 @@ function fixedtables(state) {
     while (sym < 280) { state.lens[sym++] = 7; }
     while (sym < 288) { state.lens[sym++] = 8; }
 
-    inflate_table(LENS,  state.lens, 0, 288, lenfix,   0, state.work, {bits: 9});
+    inflate_table(LENS,  state.lens, 0, 288, lenfix,   0, state.work, { bits: 9 });
 
     /* distance table */
     sym = 0;
     while (sym < 32) { state.lens[sym++] = 5; }
 
-    inflate_table(DISTS, state.lens, 0, 32,   distfix, 0, state.work, {bits: 5});
+    inflate_table(DISTS, state.lens, 0, 32,   distfix, 0, state.work, { bits: 5 });
 
     /* do this just once */
     virgin = false;
@@ -16147,7 +16275,7 @@ function updatewindow(strm, src, end, copy) {
 
   /* copy state->wsize or less output bytes into the circular window */
   if (copy >= state.wsize) {
-    utils.arraySet(state.window,src, end - state.wsize, state.wsize, 0);
+    utils.arraySet(state.window, src, end - state.wsize, state.wsize, 0);
     state.wnext = 0;
     state.whave = state.wsize;
   }
@@ -16157,11 +16285,11 @@ function updatewindow(strm, src, end, copy) {
       dist = copy;
     }
     //zmemcpy(state->window + state->wnext, end - copy, dist);
-    utils.arraySet(state.window,src, end - copy, dist, state.wnext);
+    utils.arraySet(state.window, src, end - copy, dist, state.wnext);
     copy -= dist;
     if (copy) {
       //zmemcpy(state->window, end - copy, copy);
-      utils.arraySet(state.window,src, end - copy, copy, 0);
+      utils.arraySet(state.window, src, end - copy, copy, 0);
       state.wnext = copy;
       state.whave = state.wsize;
     }
@@ -16198,7 +16326,7 @@ function inflate(strm, flush) {
   var n; // temporary var for NEED_BITS
 
   var order = /* permutation of code lengths */
-    [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
+    [ 16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15 ];
 
 
   if (!strm || !strm.state || !strm.output ||
@@ -16525,7 +16653,7 @@ function inflate(strm, flush) {
         state.head.hcrc = ((state.flags >> 9) & 1);
         state.head.done = true;
       }
-      strm.adler = state.check = 0 /*crc32(0L, Z_NULL, 0)*/;
+      strm.adler = state.check = 0;
       state.mode = TYPE;
       break;
     case DICTID:
@@ -16537,7 +16665,7 @@ function inflate(strm, flush) {
         bits += 8;
       }
       //===//
-      strm.adler = state.check = ZSWAP32(hold);
+      strm.adler = state.check = zswap32(hold);
       //=== INITBITS();
       hold = 0;
       bits = 0;
@@ -16729,7 +16857,7 @@ function inflate(strm, flush) {
       state.lencode = state.lendyn;
       state.lenbits = 7;
 
-      opts = {bits: state.lenbits};
+      opts = { bits: state.lenbits };
       ret = inflate_table(CODES, state.lens, 0, 19, state.lencode, 0, state.work, opts);
       state.lenbits = opts.bits;
 
@@ -16860,7 +16988,7 @@ function inflate(strm, flush) {
          concerning the ENOUGH constants, which depend on those values */
       state.lenbits = 9;
 
-      opts = {bits: state.lenbits};
+      opts = { bits: state.lenbits };
       ret = inflate_table(LENS, state.lens, 0, state.nlen, state.lencode, 0, state.work, opts);
       // We have separate tables & no pointers. 2 commented lines below not needed.
       // state.next_index = opts.table_index;
@@ -16877,7 +17005,7 @@ function inflate(strm, flush) {
       //state.distcode.copy(state.codes);
       // Switch to use dynamic table
       state.distcode = state.distdyn;
-      opts = {bits: state.distbits};
+      opts = { bits: state.distbits };
       ret = inflate_table(DISTS, state.lens, state.nlen, state.ndist, state.distcode, 0, state.work, opts);
       // We have separate tables & no pointers. 2 commented lines below not needed.
       // state.next_index = opts.table_index;
@@ -16925,7 +17053,7 @@ function inflate(strm, flush) {
       }
       state.back = 0;
       for (;;) {
-        here = state.lencode[hold & ((1 << state.lenbits) -1)];  /*BITS(state.lenbits)*/
+        here = state.lencode[hold & ((1 << state.lenbits) - 1)];  /*BITS(state.lenbits)*/
         here_bits = here >>> 24;
         here_op = (here >>> 16) & 0xff;
         here_val = here & 0xffff;
@@ -16944,7 +17072,7 @@ function inflate(strm, flush) {
         last_val = here_val;
         for (;;) {
           here = state.lencode[last_val +
-                  ((hold & ((1 << (last_bits + last_op)) -1))/*BITS(last.bits + last.op)*/ >> last_bits)];
+                  ((hold & ((1 << (last_bits + last_op)) - 1))/*BITS(last.bits + last.op)*/ >> last_bits)];
           here_bits = here >>> 24;
           here_op = (here >>> 16) & 0xff;
           here_val = here & 0xffff;
@@ -17001,7 +17129,7 @@ function inflate(strm, flush) {
           bits += 8;
         }
         //===//
-        state.length += hold & ((1 << state.extra) -1)/*BITS(state.extra)*/;
+        state.length += hold & ((1 << state.extra) - 1)/*BITS(state.extra)*/;
         //--- DROPBITS(state.extra) ---//
         hold >>>= state.extra;
         bits -= state.extra;
@@ -17014,7 +17142,7 @@ function inflate(strm, flush) {
       /* falls through */
     case DIST:
       for (;;) {
-        here = state.distcode[hold & ((1 << state.distbits) -1)];/*BITS(state.distbits)*/
+        here = state.distcode[hold & ((1 << state.distbits) - 1)];/*BITS(state.distbits)*/
         here_bits = here >>> 24;
         here_op = (here >>> 16) & 0xff;
         here_val = here & 0xffff;
@@ -17033,7 +17161,7 @@ function inflate(strm, flush) {
         last_val = here_val;
         for (;;) {
           here = state.distcode[last_val +
-                  ((hold & ((1 << (last_bits + last_op)) -1))/*BITS(last.bits + last.op)*/ >> last_bits)];
+                  ((hold & ((1 << (last_bits + last_op)) - 1))/*BITS(last.bits + last.op)*/ >> last_bits)];
           here_bits = here >>> 24;
           here_op = (here >>> 16) & 0xff;
           here_val = here & 0xffff;
@@ -17077,7 +17205,7 @@ function inflate(strm, flush) {
           bits += 8;
         }
         //===//
-        state.offset += hold & ((1 << state.extra) -1)/*BITS(state.extra)*/;
+        state.offset += hold & ((1 << state.extra) - 1)/*BITS(state.extra)*/;
         //--- DROPBITS(state.extra) ---//
         hold >>>= state.extra;
         bits -= state.extra;
@@ -17171,8 +17299,8 @@ function inflate(strm, flush) {
 
         }
         _out = left;
-        // NB: crc32 stored as signed 32-bit int, ZSWAP32 returns signed too
-        if ((state.flags ? hold : ZSWAP32(hold)) !== state.check) {
+        // NB: crc32 stored as signed 32-bit int, zswap32 returns signed too
+        if ((state.flags ? hold : zswap32(hold)) !== state.check) {
           strm.msg = 'incorrect data check';
           state.mode = BAD;
           break;
@@ -17294,6 +17422,41 @@ function inflateGetHeader(strm, head) {
   return Z_OK;
 }
 
+function inflateSetDictionary(strm, dictionary) {
+  var dictLength = dictionary.length;
+
+  var state;
+  var dictid;
+  var ret;
+
+  /* check state */
+  if (!strm /* == Z_NULL */ || !strm.state /* == Z_NULL */) { return Z_STREAM_ERROR; }
+  state = strm.state;
+
+  if (state.wrap !== 0 && state.mode !== DICT) {
+    return Z_STREAM_ERROR;
+  }
+
+  /* check for correct dictionary identifier */
+  if (state.mode === DICT) {
+    dictid = 1; /* adler32(0, null, 0)*/
+    /* dictid = adler32(dictid, dictionary, dictLength); */
+    dictid = adler32(dictid, dictionary, dictLength, 0);
+    if (dictid !== state.check) {
+      return Z_DATA_ERROR;
+    }
+  }
+  /* copy dictionary to window using updatewindow(), which will amend the
+   existing dictionary if appropriate */
+  ret = updatewindow(strm, dictionary, dictLength, dictLength);
+  if (ret) {
+    state.mode = MEM;
+    return Z_MEM_ERROR;
+  }
+  state.havedict = 1;
+  // Tracev((stderr, "inflate:   dictionary set\n"));
+  return Z_OK;
+}
 
 exports.inflateReset = inflateReset;
 exports.inflateReset2 = inflateReset2;
@@ -17303,6 +17466,7 @@ exports.inflateInit2 = inflateInit2;
 exports.inflate = inflate;
 exports.inflateEnd = inflateEnd;
 exports.inflateGetHeader = inflateGetHeader;
+exports.inflateSetDictionary = inflateSetDictionary;
 exports.inflateInfo = 'pako inflate (from Nodeca project)';
 
 /* Not implemented
@@ -17310,7 +17474,6 @@ exports.inflateCopy = inflateCopy;
 exports.inflateGetDictionary = inflateGetDictionary;
 exports.inflateMark = inflateMark;
 exports.inflatePrime = inflatePrime;
-exports.inflateSetDictionary = inflateSetDictionary;
 exports.inflateSync = inflateSync;
 exports.inflateSyncPoint = inflateSyncPoint;
 exports.inflateUndermine = inflateUndermine;
@@ -17376,8 +17539,8 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
   var base_index = 0;
 //  var shoextra;    /* extra bits table to use */
   var end;                    /* use base and extra for symbol > end */
-  var count = new utils.Buf16(MAXBITS+1); //[MAXBITS+1];    /* number of codes of each length */
-  var offs = new utils.Buf16(MAXBITS+1); //[MAXBITS+1];     /* offsets in table for each length */
+  var count = new utils.Buf16(MAXBITS + 1); //[MAXBITS+1];    /* number of codes of each length */
+  var offs = new utils.Buf16(MAXBITS + 1); //[MAXBITS+1];     /* offsets in table for each length */
   var extra = null;
   var extra_index = 0;
 
@@ -17546,7 +17709,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
     return 1;
   }
 
-  var i=0;
+  var i = 0;
   /* process all codes and make table entries */
   for (;;) {
     i++;
@@ -17649,9 +17812,9 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
 'use strict';
 
 module.exports = {
-  '2':    'need dictionary',     /* Z_NEED_DICT       2  */
-  '1':    'stream end',          /* Z_STREAM_END      1  */
-  '0':    '',                    /* Z_OK              0  */
+  2:      'need dictionary',     /* Z_NEED_DICT       2  */
+  1:      'stream end',          /* Z_STREAM_END      1  */
+  0:      '',                    /* Z_OK              0  */
   '-1':   'file error',          /* Z_ERRNO         (-1) */
   '-2':   'stream error',        /* Z_STREAM_ERROR  (-2) */
   '-3':   'data error',          /* Z_DATA_ERROR    (-3) */
@@ -17718,7 +17881,7 @@ var D_CODES       = 30;
 var BL_CODES      = 19;
 /* number of codes used to transfer the bit lengths */
 
-var HEAP_SIZE     = 2*L_CODES + 1;
+var HEAP_SIZE     = 2 * L_CODES + 1;
 /* maximum heap size */
 
 var MAX_BITS      = 15;
@@ -17747,6 +17910,7 @@ var REPZ_3_10   = 17;
 var REPZ_11_138 = 18;
 /* repeat a zero length 11-138 times  (7 bits of repeat count) */
 
+/* eslint-disable comma-spacing,array-bracket-spacing */
 var extra_lbits =   /* extra bits for each length code */
   [0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];
 
@@ -17758,6 +17922,8 @@ var extra_blbits =  /* extra bits for each bit length code */
 
 var bl_order =
   [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
+/* eslint-enable comma-spacing,array-bracket-spacing */
+
 /* The lengths of the bit length codes are sent in order of decreasing
  * probability, to avoid transmitting the lengths for unused bit length codes.
  */
@@ -17771,7 +17937,7 @@ var bl_order =
 var DIST_CODE_LEN = 512; /* see definition of array dist_code below */
 
 // !!!! Use flat array insdead of structure, Freq = i*2, Len = i*2+1
-var static_ltree  = new Array((L_CODES+2) * 2);
+var static_ltree  = new Array((L_CODES + 2) * 2);
 zero(static_ltree);
 /* The static literal tree. Since the bit lengths are imposed, there is no
  * need for the L_CODES extra codes used during heap construction. However
@@ -17792,7 +17958,7 @@ zero(_dist_code);
  * the 15 bit distances.
  */
 
-var _length_code  = new Array(MAX_MATCH-MIN_MATCH+1);
+var _length_code  = new Array(MAX_MATCH - MIN_MATCH + 1);
 zero(_length_code);
 /* length code for each normalized match length (0 == MIN_MATCH) */
 
@@ -17805,7 +17971,7 @@ zero(base_dist);
 /* First normalized distance for each code (0 = distance of 1) */
 
 
-var StaticTreeDesc = function (static_tree, extra_bits, extra_base, elems, max_length) {
+function StaticTreeDesc(static_tree, extra_bits, extra_base, elems, max_length) {
 
   this.static_tree  = static_tree;  /* static tree or NULL */
   this.extra_bits   = extra_bits;   /* extra bits for each code or NULL */
@@ -17815,7 +17981,7 @@ var StaticTreeDesc = function (static_tree, extra_bits, extra_base, elems, max_l
 
   // show if `static_tree` has data or dummy - needed for monomorphic objects
   this.has_stree    = static_tree && static_tree.length;
-};
+}
 
 
 var static_l_desc;
@@ -17823,11 +17989,11 @@ var static_d_desc;
 var static_bl_desc;
 
 
-var TreeDesc = function(dyn_tree, stat_desc) {
+function TreeDesc(dyn_tree, stat_desc) {
   this.dyn_tree = dyn_tree;     /* the dynamic tree */
   this.max_code = 0;            /* largest code with non zero frequency */
   this.stat_desc = stat_desc;   /* the corresponding static tree */
-};
+}
 
 
 
@@ -17840,7 +18006,7 @@ function d_code(dist) {
  * Output a short LSB first on the stream.
  * IN assertion: there is enough room in pendingBuf.
  */
-function put_short (s, w) {
+function put_short(s, w) {
 //    put_byte(s, (uch)((w) & 0xff));
 //    put_byte(s, (uch)((ush)(w) >> 8));
   s.pending_buf[s.pending++] = (w) & 0xff;
@@ -17866,7 +18032,7 @@ function send_bits(s, value, length) {
 
 
 function send_code(s, c, tree) {
-  send_bits(s, tree[c*2]/*.Code*/, tree[c*2 + 1]/*.Len*/);
+  send_bits(s, tree[c * 2]/*.Code*/, tree[c * 2 + 1]/*.Len*/);
 }
 
 
@@ -17938,16 +18104,16 @@ function gen_bitlen(s, desc)
   /* In a first pass, compute the optimal bit lengths (which may
    * overflow in the case of the bit length tree).
    */
-  tree[s.heap[s.heap_max]*2 + 1]/*.Len*/ = 0; /* root of the heap */
+  tree[s.heap[s.heap_max] * 2 + 1]/*.Len*/ = 0; /* root of the heap */
 
-  for (h = s.heap_max+1; h < HEAP_SIZE; h++) {
+  for (h = s.heap_max + 1; h < HEAP_SIZE; h++) {
     n = s.heap[h];
-    bits = tree[tree[n*2 +1]/*.Dad*/ * 2 + 1]/*.Len*/ + 1;
+    bits = tree[tree[n * 2 + 1]/*.Dad*/ * 2 + 1]/*.Len*/ + 1;
     if (bits > max_length) {
       bits = max_length;
       overflow++;
     }
-    tree[n*2 + 1]/*.Len*/ = bits;
+    tree[n * 2 + 1]/*.Len*/ = bits;
     /* We overwrite tree[n].Dad which is no longer needed */
 
     if (n > max_code) { continue; } /* not a leaf node */
@@ -17955,12 +18121,12 @@ function gen_bitlen(s, desc)
     s.bl_count[bits]++;
     xbits = 0;
     if (n >= base) {
-      xbits = extra[n-base];
+      xbits = extra[n - base];
     }
     f = tree[n * 2]/*.Freq*/;
     s.opt_len += f * (bits + xbits);
     if (has_stree) {
-      s.static_len += f * (stree[n*2 + 1]/*.Len*/ + xbits);
+      s.static_len += f * (stree[n * 2 + 1]/*.Len*/ + xbits);
     }
   }
   if (overflow === 0) { return; }
@@ -17970,10 +18136,10 @@ function gen_bitlen(s, desc)
 
   /* Find the first bit length which could increase: */
   do {
-    bits = max_length-1;
+    bits = max_length - 1;
     while (s.bl_count[bits] === 0) { bits--; }
     s.bl_count[bits]--;      /* move one leaf down the tree */
-    s.bl_count[bits+1] += 2; /* move one overflow item as its brother */
+    s.bl_count[bits + 1] += 2; /* move one overflow item as its brother */
     s.bl_count[max_length]--;
     /* The brother of the overflow item also moves one step up,
      * but this does not affect bl_count[max_length]
@@ -17991,10 +18157,10 @@ function gen_bitlen(s, desc)
     while (n !== 0) {
       m = s.heap[--h];
       if (m > max_code) { continue; }
-      if (tree[m*2 + 1]/*.Len*/ !== bits) {
+      if (tree[m * 2 + 1]/*.Len*/ !== bits) {
         // Trace((stderr,"code %d bits %d->%d\n", m, tree[m].Len, bits));
-        s.opt_len += (bits - tree[m*2 + 1]/*.Len*/)*tree[m*2]/*.Freq*/;
-        tree[m*2 + 1]/*.Len*/ = bits;
+        s.opt_len += (bits - tree[m * 2 + 1]/*.Len*/) * tree[m * 2]/*.Freq*/;
+        tree[m * 2 + 1]/*.Len*/ = bits;
       }
       n--;
     }
@@ -18015,7 +18181,7 @@ function gen_codes(tree, max_code, bl_count)
 //    int max_code;              /* largest code with non zero frequency */
 //    ushf *bl_count;            /* number of codes at each bit length */
 {
-  var next_code = new Array(MAX_BITS+1); /* next code value for each bit length */
+  var next_code = new Array(MAX_BITS + 1); /* next code value for each bit length */
   var code = 0;              /* running code value */
   var bits;                  /* bit index */
   var n;                     /* code index */
@@ -18024,7 +18190,7 @@ function gen_codes(tree, max_code, bl_count)
    * without bit reversal.
    */
   for (bits = 1; bits <= MAX_BITS; bits++) {
-    next_code[bits] = code = (code + bl_count[bits-1]) << 1;
+    next_code[bits] = code = (code + bl_count[bits - 1]) << 1;
   }
   /* Check that the bit counts in bl_count are consistent. The last code
    * must be all ones.
@@ -18034,10 +18200,10 @@ function gen_codes(tree, max_code, bl_count)
   //Tracev((stderr,"\ngen_codes: max_code %d ", max_code));
 
   for (n = 0;  n <= max_code; n++) {
-    var len = tree[n*2 + 1]/*.Len*/;
+    var len = tree[n * 2 + 1]/*.Len*/;
     if (len === 0) { continue; }
     /* Now reverse the bits */
-    tree[n*2]/*.Code*/ = bi_reverse(next_code[len]++, len);
+    tree[n * 2]/*.Code*/ = bi_reverse(next_code[len]++, len);
 
     //Tracecv(tree != static_ltree, (stderr,"\nn %3d %c l %2d c %4x (%x) ",
     //     n, (isgraph(n) ? n : ' '), len, tree[n].Code, next_code[len]-1));
@@ -18054,7 +18220,7 @@ function tr_static_init() {
   var length;   /* length value */
   var code;     /* code value */
   var dist;     /* distance index */
-  var bl_count = new Array(MAX_BITS+1);
+  var bl_count = new Array(MAX_BITS + 1);
   /* number of codes at each bit length for an optimal tree */
 
   // do check in _tr_init()
@@ -18071,9 +18237,9 @@ function tr_static_init() {
 
   /* Initialize the mapping length (0..255) -> length code (0..28) */
   length = 0;
-  for (code = 0; code < LENGTH_CODES-1; code++) {
+  for (code = 0; code < LENGTH_CODES - 1; code++) {
     base_length[code] = length;
-    for (n = 0; n < (1<<extra_lbits[code]); n++) {
+    for (n = 0; n < (1 << extra_lbits[code]); n++) {
       _length_code[length++] = code;
     }
   }
@@ -18082,13 +18248,13 @@ function tr_static_init() {
    * in two different ways: code 284 + 5 bits or code 285, so we
    * overwrite length_code[255] to use the best encoding:
    */
-  _length_code[length-1] = code;
+  _length_code[length - 1] = code;
 
   /* Initialize the mapping dist (0..32K) -> dist code (0..29) */
   dist = 0;
-  for (code = 0 ; code < 16; code++) {
+  for (code = 0; code < 16; code++) {
     base_dist[code] = dist;
-    for (n = 0; n < (1<<extra_dbits[code]); n++) {
+    for (n = 0; n < (1 << extra_dbits[code]); n++) {
       _dist_code[dist++] = code;
     }
   }
@@ -18096,7 +18262,7 @@ function tr_static_init() {
   dist >>= 7; /* from now on, all distances are divided by 128 */
   for (; code < D_CODES; code++) {
     base_dist[code] = dist << 7;
-    for (n = 0; n < (1<<(extra_dbits[code]-7)); n++) {
+    for (n = 0; n < (1 << (extra_dbits[code] - 7)); n++) {
       _dist_code[256 + dist++] = code;
     }
   }
@@ -18109,22 +18275,22 @@ function tr_static_init() {
 
   n = 0;
   while (n <= 143) {
-    static_ltree[n*2 + 1]/*.Len*/ = 8;
+    static_ltree[n * 2 + 1]/*.Len*/ = 8;
     n++;
     bl_count[8]++;
   }
   while (n <= 255) {
-    static_ltree[n*2 + 1]/*.Len*/ = 9;
+    static_ltree[n * 2 + 1]/*.Len*/ = 9;
     n++;
     bl_count[9]++;
   }
   while (n <= 279) {
-    static_ltree[n*2 + 1]/*.Len*/ = 7;
+    static_ltree[n * 2 + 1]/*.Len*/ = 7;
     n++;
     bl_count[7]++;
   }
   while (n <= 287) {
-    static_ltree[n*2 + 1]/*.Len*/ = 8;
+    static_ltree[n * 2 + 1]/*.Len*/ = 8;
     n++;
     bl_count[8]++;
   }
@@ -18132,18 +18298,18 @@ function tr_static_init() {
    * tree construction to get a canonical Huffman tree (longest code
    * all ones)
    */
-  gen_codes(static_ltree, L_CODES+1, bl_count);
+  gen_codes(static_ltree, L_CODES + 1, bl_count);
 
   /* The static distance tree is trivial: */
   for (n = 0; n < D_CODES; n++) {
-    static_dtree[n*2 + 1]/*.Len*/ = 5;
-    static_dtree[n*2]/*.Code*/ = bi_reverse(n, 5);
+    static_dtree[n * 2 + 1]/*.Len*/ = 5;
+    static_dtree[n * 2]/*.Code*/ = bi_reverse(n, 5);
   }
 
   // Now data ready and we can init static trees
-  static_l_desc = new StaticTreeDesc(static_ltree, extra_lbits, LITERALS+1, L_CODES, MAX_BITS);
+  static_l_desc = new StaticTreeDesc(static_ltree, extra_lbits, LITERALS + 1, L_CODES, MAX_BITS);
   static_d_desc = new StaticTreeDesc(static_dtree, extra_dbits, 0,          D_CODES, MAX_BITS);
-  static_bl_desc =new StaticTreeDesc(new Array(0), extra_blbits, 0,         BL_CODES, MAX_BL_BITS);
+  static_bl_desc = new StaticTreeDesc(new Array(0), extra_blbits, 0,         BL_CODES, MAX_BL_BITS);
 
   //static_init_done = true;
 }
@@ -18156,11 +18322,11 @@ function init_block(s) {
   var n; /* iterates over tree elements */
 
   /* Initialize the trees. */
-  for (n = 0; n < L_CODES;  n++) { s.dyn_ltree[n*2]/*.Freq*/ = 0; }
-  for (n = 0; n < D_CODES;  n++) { s.dyn_dtree[n*2]/*.Freq*/ = 0; }
-  for (n = 0; n < BL_CODES; n++) { s.bl_tree[n*2]/*.Freq*/ = 0; }
+  for (n = 0; n < L_CODES;  n++) { s.dyn_ltree[n * 2]/*.Freq*/ = 0; }
+  for (n = 0; n < D_CODES;  n++) { s.dyn_dtree[n * 2]/*.Freq*/ = 0; }
+  for (n = 0; n < BL_CODES; n++) { s.bl_tree[n * 2]/*.Freq*/ = 0; }
 
-  s.dyn_ltree[END_BLOCK*2]/*.Freq*/ = 1;
+  s.dyn_ltree[END_BLOCK * 2]/*.Freq*/ = 1;
   s.opt_len = s.static_len = 0;
   s.last_lit = s.matches = 0;
 }
@@ -18209,8 +18375,8 @@ function copy_block(s, buf, len, header)
  * the subtrees have equal frequency. This minimizes the worst case length.
  */
 function smaller(tree, n, m, depth) {
-  var _n2 = n*2;
-  var _m2 = m*2;
+  var _n2 = n * 2;
+  var _m2 = m * 2;
   return (tree[_n2]/*.Freq*/ < tree[_m2]/*.Freq*/ ||
          (tree[_n2]/*.Freq*/ === tree[_m2]/*.Freq*/ && depth[n] <= depth[m]));
 }
@@ -18231,7 +18397,7 @@ function pqdownheap(s, tree, k)
   while (j <= s.heap_len) {
     /* Set j to the smallest of the two sons: */
     if (j < s.heap_len &&
-      smaller(tree, s.heap[j+1], s.heap[j], s.depth)) {
+      smaller(tree, s.heap[j + 1], s.heap[j], s.depth)) {
       j++;
     }
     /* Exit if v is smaller than both sons */
@@ -18267,7 +18433,7 @@ function compress_block(s, ltree, dtree)
 
   if (s.last_lit !== 0) {
     do {
-      dist = (s.pending_buf[s.d_buf + lx*2] << 8) | (s.pending_buf[s.d_buf + lx*2 + 1]);
+      dist = (s.pending_buf[s.d_buf + lx * 2] << 8) | (s.pending_buf[s.d_buf + lx * 2 + 1]);
       lc = s.pending_buf[s.l_buf + lx];
       lx++;
 
@@ -18277,7 +18443,7 @@ function compress_block(s, ltree, dtree)
       } else {
         /* Here, lc is the match length - MIN_MATCH */
         code = _length_code[lc];
-        send_code(s, code+LITERALS+1, ltree); /* send the length code */
+        send_code(s, code + LITERALS + 1, ltree); /* send the length code */
         extra = extra_lbits[code];
         if (extra !== 0) {
           lc -= base_length[code];
@@ -18339,7 +18505,7 @@ function build_tree(s, desc)
       s.depth[n] = 0;
 
     } else {
-      tree[n*2 + 1]/*.Len*/ = 0;
+      tree[n * 2 + 1]/*.Len*/ = 0;
     }
   }
 
@@ -18355,7 +18521,7 @@ function build_tree(s, desc)
     s.opt_len--;
 
     if (has_stree) {
-      s.static_len -= stree[node*2 + 1]/*.Len*/;
+      s.static_len -= stree[node * 2 + 1]/*.Len*/;
     }
     /* node is 0 or 1 so it does not have extra bits */
   }
@@ -18386,7 +18552,7 @@ function build_tree(s, desc)
     /* Create a new node father of n and m */
     tree[node * 2]/*.Freq*/ = tree[n * 2]/*.Freq*/ + tree[m * 2]/*.Freq*/;
     s.depth[node] = (s.depth[n] >= s.depth[m] ? s.depth[n] : s.depth[m]) + 1;
-    tree[n*2 + 1]/*.Dad*/ = tree[m*2 + 1]/*.Dad*/ = node;
+    tree[n * 2 + 1]/*.Dad*/ = tree[m * 2 + 1]/*.Dad*/ = node;
 
     /* and insert the new node in the heap */
     s.heap[1/*SMALLEST*/] = node++;
@@ -18419,7 +18585,7 @@ function scan_tree(s, tree, max_code)
   var prevlen = -1;          /* last emitted length */
   var curlen;                /* length of current code */
 
-  var nextlen = tree[0*2 + 1]/*.Len*/; /* length of next code */
+  var nextlen = tree[0 * 2 + 1]/*.Len*/; /* length of next code */
 
   var count = 0;             /* repeat count of the current code */
   var max_count = 7;         /* max repeat count */
@@ -18429,11 +18595,11 @@ function scan_tree(s, tree, max_code)
     max_count = 138;
     min_count = 3;
   }
-  tree[(max_code+1)*2 + 1]/*.Len*/ = 0xffff; /* guard */
+  tree[(max_code + 1) * 2 + 1]/*.Len*/ = 0xffff; /* guard */
 
   for (n = 0; n <= max_code; n++) {
     curlen = nextlen;
-    nextlen = tree[(n+1)*2 + 1]/*.Len*/;
+    nextlen = tree[(n + 1) * 2 + 1]/*.Len*/;
 
     if (++count < max_count && curlen === nextlen) {
       continue;
@@ -18444,13 +18610,13 @@ function scan_tree(s, tree, max_code)
     } else if (curlen !== 0) {
 
       if (curlen !== prevlen) { s.bl_tree[curlen * 2]/*.Freq*/++; }
-      s.bl_tree[REP_3_6*2]/*.Freq*/++;
+      s.bl_tree[REP_3_6 * 2]/*.Freq*/++;
 
     } else if (count <= 10) {
-      s.bl_tree[REPZ_3_10*2]/*.Freq*/++;
+      s.bl_tree[REPZ_3_10 * 2]/*.Freq*/++;
 
     } else {
-      s.bl_tree[REPZ_11_138*2]/*.Freq*/++;
+      s.bl_tree[REPZ_11_138 * 2]/*.Freq*/++;
     }
 
     count = 0;
@@ -18485,7 +18651,7 @@ function send_tree(s, tree, max_code)
   var prevlen = -1;          /* last emitted length */
   var curlen;                /* length of current code */
 
-  var nextlen = tree[0*2 + 1]/*.Len*/; /* length of next code */
+  var nextlen = tree[0 * 2 + 1]/*.Len*/; /* length of next code */
 
   var count = 0;             /* repeat count of the current code */
   var max_count = 7;         /* max repeat count */
@@ -18499,7 +18665,7 @@ function send_tree(s, tree, max_code)
 
   for (n = 0; n <= max_code; n++) {
     curlen = nextlen;
-    nextlen = tree[(n+1)*2 + 1]/*.Len*/;
+    nextlen = tree[(n + 1) * 2 + 1]/*.Len*/;
 
     if (++count < max_count && curlen === nextlen) {
       continue;
@@ -18514,15 +18680,15 @@ function send_tree(s, tree, max_code)
       }
       //Assert(count >= 3 && count <= 6, " 3_6?");
       send_code(s, REP_3_6, s.bl_tree);
-      send_bits(s, count-3, 2);
+      send_bits(s, count - 3, 2);
 
     } else if (count <= 10) {
       send_code(s, REPZ_3_10, s.bl_tree);
-      send_bits(s, count-3, 3);
+      send_bits(s, count - 3, 3);
 
     } else {
       send_code(s, REPZ_11_138, s.bl_tree);
-      send_bits(s, count-11, 7);
+      send_bits(s, count - 11, 7);
     }
 
     count = 0;
@@ -18564,13 +18730,13 @@ function build_bl_tree(s) {
    * requires that at least 4 bit length codes be sent. (appnote.txt says
    * 3 but the actual value used is 4.)
    */
-  for (max_blindex = BL_CODES-1; max_blindex >= 3; max_blindex--) {
-    if (s.bl_tree[bl_order[max_blindex]*2 + 1]/*.Len*/ !== 0) {
+  for (max_blindex = BL_CODES - 1; max_blindex >= 3; max_blindex--) {
+    if (s.bl_tree[bl_order[max_blindex] * 2 + 1]/*.Len*/ !== 0) {
       break;
     }
   }
   /* Update opt_len to include the bit length tree and counts */
-  s.opt_len += 3*(max_blindex+1) + 5+5+4;
+  s.opt_len += 3 * (max_blindex + 1) + 5 + 5 + 4;
   //Tracev((stderr, "\ndyn trees: dyn %ld, stat %ld",
   //        s->opt_len, s->static_len));
 
@@ -18593,19 +18759,19 @@ function send_all_trees(s, lcodes, dcodes, blcodes)
   //Assert (lcodes <= L_CODES && dcodes <= D_CODES && blcodes <= BL_CODES,
   //        "too many codes");
   //Tracev((stderr, "\nbl counts: "));
-  send_bits(s, lcodes-257, 5); /* not +255 as stated in appnote.txt */
-  send_bits(s, dcodes-1,   5);
-  send_bits(s, blcodes-4,  4); /* not -3 as stated in appnote.txt */
+  send_bits(s, lcodes - 257, 5); /* not +255 as stated in appnote.txt */
+  send_bits(s, dcodes - 1,   5);
+  send_bits(s, blcodes - 4,  4); /* not -3 as stated in appnote.txt */
   for (rank = 0; rank < blcodes; rank++) {
     //Tracev((stderr, "\nbl code %2d ", bl_order[rank]));
-    send_bits(s, s.bl_tree[bl_order[rank]*2 + 1]/*.Len*/, 3);
+    send_bits(s, s.bl_tree[bl_order[rank] * 2 + 1]/*.Len*/, 3);
   }
   //Tracev((stderr, "\nbl tree: sent %ld", s->bits_sent));
 
-  send_tree(s, s.dyn_ltree, lcodes-1); /* literal tree */
+  send_tree(s, s.dyn_ltree, lcodes - 1); /* literal tree */
   //Tracev((stderr, "\nlit tree: sent %ld", s->bits_sent));
 
-  send_tree(s, s.dyn_dtree, dcodes-1); /* distance tree */
+  send_tree(s, s.dyn_dtree, dcodes - 1); /* distance tree */
   //Tracev((stderr, "\ndist tree: sent %ld", s->bits_sent));
 }
 
@@ -18633,7 +18799,7 @@ function detect_data_type(s) {
 
   /* Check for non-textual ("black-listed") bytes. */
   for (n = 0; n <= 31; n++, black_mask >>>= 1) {
-    if ((black_mask & 1) && (s.dyn_ltree[n*2]/*.Freq*/ !== 0)) {
+    if ((black_mask & 1) && (s.dyn_ltree[n * 2]/*.Freq*/ !== 0)) {
       return Z_BINARY;
     }
   }
@@ -18690,7 +18856,7 @@ function _tr_stored_block(s, buf, stored_len, last)
 //ulg stored_len;   /* length of input block */
 //int last;         /* one if this is the last block for a file */
 {
-  send_bits(s, (STORED_BLOCK<<1)+(last ? 1 : 0), 3);    /* send block type */
+  send_bits(s, (STORED_BLOCK << 1) + (last ? 1 : 0), 3);    /* send block type */
   copy_block(s, buf, stored_len, true); /* with header */
 }
 
@@ -18700,7 +18866,7 @@ function _tr_stored_block(s, buf, stored_len, last)
  * This takes 10 bits, of which 7 may remain in the bit buffer.
  */
 function _tr_align(s) {
-  send_bits(s, STATIC_TREES<<1, 3);
+  send_bits(s, STATIC_TREES << 1, 3);
   send_code(s, END_BLOCK, static_ltree);
   bi_flush(s);
 }
@@ -18745,8 +18911,8 @@ function _tr_flush_block(s, buf, stored_len, last)
     max_blindex = build_bl_tree(s);
 
     /* Determine the best encoding. Compute the block lengths in bytes. */
-    opt_lenb = (s.opt_len+3+7) >>> 3;
-    static_lenb = (s.static_len+3+7) >>> 3;
+    opt_lenb = (s.opt_len + 3 + 7) >>> 3;
+    static_lenb = (s.static_len + 3 + 7) >>> 3;
 
     // Tracev((stderr, "\nopt %lu(%lu) stat %lu(%lu) stored %lu lit %u ",
     //        opt_lenb, s->opt_len, static_lenb, s->static_len, stored_len,
@@ -18759,7 +18925,7 @@ function _tr_flush_block(s, buf, stored_len, last)
     opt_lenb = static_lenb = stored_len + 5; /* force a stored block */
   }
 
-  if ((stored_len+4 <= opt_lenb) && (buf !== -1)) {
+  if ((stored_len + 4 <= opt_lenb) && (buf !== -1)) {
     /* 4: two words for the lengths */
 
     /* The test buf != NULL is only necessary if LIT_BUFSIZE > WSIZE.
@@ -18772,12 +18938,12 @@ function _tr_flush_block(s, buf, stored_len, last)
 
   } else if (s.strategy === Z_FIXED || static_lenb === opt_lenb) {
 
-    send_bits(s, (STATIC_TREES<<1) + (last ? 1 : 0), 3);
+    send_bits(s, (STATIC_TREES << 1) + (last ? 1 : 0), 3);
     compress_block(s, static_ltree, static_dtree);
 
   } else {
-    send_bits(s, (DYN_TREES<<1) + (last ? 1 : 0), 3);
-    send_all_trees(s, s.l_desc.max_code+1, s.d_desc.max_code+1, max_blindex+1);
+    send_bits(s, (DYN_TREES << 1) + (last ? 1 : 0), 3);
+    send_all_trees(s, s.l_desc.max_code + 1, s.d_desc.max_code + 1, max_blindex + 1);
     compress_block(s, s.dyn_ltree, s.dyn_dtree);
   }
   // Assert (s->compressed_len == s->bits_sent, "bad compressed size");
@@ -18812,7 +18978,7 @@ function _tr_tally(s, dist, lc)
 
   if (dist === 0) {
     /* lc is the unmatched char */
-    s.dyn_ltree[lc*2]/*.Freq*/++;
+    s.dyn_ltree[lc * 2]/*.Freq*/++;
   } else {
     s.matches++;
     /* Here, lc is the match length - MIN_MATCH */
@@ -18821,7 +18987,7 @@ function _tr_tally(s, dist, lc)
     //       (ush)lc <= (ush)(MAX_MATCH-MIN_MATCH) &&
     //       (ush)d_code(dist) < (ush)D_CODES,  "_tr_tally: bad match");
 
-    s.dyn_ltree[(_length_code[lc]+LITERALS+1) * 2]/*.Freq*/++;
+    s.dyn_ltree[(_length_code[lc] + LITERALS + 1) * 2]/*.Freq*/++;
     s.dyn_dtree[d_code(dist) * 2]/*.Freq*/++;
   }
 
@@ -18848,7 +19014,7 @@ function _tr_tally(s, dist, lc)
 //  }
 //#endif
 
-  return (s.last_lit === s.lit_bufsize-1);
+  return (s.last_lit === s.lit_bufsize - 1);
   /* We avoid equality with lit_bufsize because of wraparound at 64K
    * on 16 bit machines and because stored blocks are restricted to
    * 64K-1 bytes.
@@ -18896,12 +19062,40 @@ module.exports = ZStream;
 // shim for using process in browser
 
 var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+(function () {
+  try {
+    cachedSetTimeout = setTimeout;
+  } catch (e) {
+    cachedSetTimeout = function () {
+      throw new Error('setTimeout is not defined');
+    }
+  }
+  try {
+    cachedClearTimeout = clearTimeout;
+  } catch (e) {
+    cachedClearTimeout = function () {
+      throw new Error('clearTimeout is not defined');
+    }
+  }
+} ())
 var queue = [];
 var draining = false;
 var currentQueue;
 var queueIndex = -1;
 
 function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
     draining = false;
     if (currentQueue.length) {
         queue = currentQueue.concat(queue);
@@ -18917,7 +19111,7 @@ function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = setTimeout(cleanUpNextTick);
+    var timeout = cachedSetTimeout(cleanUpNextTick);
     draining = true;
 
     var len = queue.length;
@@ -18934,7 +19128,7 @@ function drainQueue() {
     }
     currentQueue = null;
     draining = false;
-    clearTimeout(timeout);
+    cachedClearTimeout(timeout);
 }
 
 process.nextTick = function (fun) {
@@ -18946,7 +19140,7 @@ process.nextTick = function (fun) {
     }
     queue.push(new Item(fun, args));
     if (queue.length === 1 && !draining) {
-        setTimeout(drainQueue, 0);
+        cachedSetTimeout(drainQueue, 0);
     }
 };
 
@@ -20068,9 +20262,9 @@ exports.default = {
   Widgets: _widgets2.default
 };
 
-window.console.log('AMI - v0.0.7');
+window.console.log('AMI - v0.0.8');
 
-},{"./cameras/cameras":56,"./controls/controls":58,"./core/core":62,"./geometries/geometries":66,"./helpers/helpers":71,"./loaders/loaders":79,"./models/models":83,"./parsers/parsers":88,"./shaders/shaders":93,"./widgets/widgets":97}],56:[function(require,module,exports){
+},{"./cameras/cameras":56,"./controls/controls":58,"./core/core":62,"./geometries/geometries":66,"./helpers/helpers":71,"./loaders/loaders":79,"./models/models":83,"./parsers/parsers":88,"./shaders/shaders":93,"./widgets/widgets":96}],56:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21325,12 +21519,14 @@ var Trackballortho = function (_THREE$EventDispatche) {
   _inherits(Trackballortho, _THREE$EventDispatche);
 
   function Trackballortho(object, domElement) {
+    var state = arguments.length <= 2 || arguments[2] === undefined ? { NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5 } : arguments[2];
+
     _classCallCheck(this, Trackballortho);
 
     var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(Trackballortho).call(this));
 
     var _this = _this2;
-    var STATE = { NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5 };
+    var STATE = state;
 
     _this2.object = object;
     _this2.domElement = domElement !== undefined ? domElement : document;
@@ -23741,12 +23937,14 @@ var HelpersSlice = function (_THREE$Object3D) {
 
     // image settings
     // index only used to grab window/level and intercept/slope
-    _this._invert = false;
+    _this._invert = _this._stack.invert;
+
     _this._lut = 'none';
     _this._lutTexture = null;
     // if auto === true, get from index
     // else from stack which holds the default values
     _this._intensityAuto = true;
+    _this._interpolation = 1; // default to trilinear interpolation
     // starts at 0
     _this._index = index;
     _this._windowWidth = null;
@@ -23847,7 +24045,7 @@ var HelpersSlice = function (_THREE$Object3D) {
           'side': THREE.DoubleSide,
           'uniforms': this._uniforms,
           'vertexShader': "#define GLSLIFY 1\nvarying vec4 vPos;\n\n//\n// main\n//\nvoid main() {\n\n  vPos = modelMatrix * vec4(position, 1.0 );\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );\n\n}",
-          'fragmentShader': "#define GLSLIFY 1\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uInvert;\n\n// hack because can not pass arrays if too big\n// best would be to pass texture but have to deal with 16bits\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\n\nvarying vec4      vPos;\n\n// include functions\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid main(void) {\n\n  // get texture coordinates of current pixel\n  // doesn't need that in theory\n  vec4 dataCoordinatesRaw = uWorldToData * vPos;\n  // rounding trick\n  // first center of first voxel in data space is CENTERED on (0,0,0)\n  dataCoordinatesRaw += 0.5;\n  ivec3 dataCoordinates = ivec3(int(floor(dataCoordinatesRaw.x)), int(floor(dataCoordinatesRaw.y)), int(floor(dataCoordinatesRaw.z)));\n\n  // index 100\n  // dataCoordinates.x = 26; //25\n  // dataCoordinates.y = 1;\n  // dataCoordinates.z = 0;\n\n  // if data in range, look it up in the texture!\n  if ( all(greaterThanEqual(dataCoordinates, ivec3(0))) &&\n       all(lessThan(dataCoordinates, uDataDimensions))) {\n    vec4 packedValue = vec4(0., 0., 0., 0.);\n    texture3DPolyfill(\n        dataCoordinates,\n        uDataDimensions,\n        uTextureSize,\n        uTextureContainer[0],\n        uTextureContainer[1],\n        uTextureContainer[2],\n        uTextureContainer[3],\n        uTextureContainer[4],\n        uTextureContainer[5],\n        uTextureContainer[6],\n        uTextureContainer,     // not working on Moto X 2014\n        packedValue\n        );\n\n    vec4 dataValue = vec4(0., 0., 0., 0.);\n    unpack(\n      packedValue,\n      uBitsAllocated,\n      0,\n      uNumberOfChannels,\n      uPixelType,\n      dataValue);\n\n    // how do we deal wil more than 1 channel?\n    if(uNumberOfChannels == 1){\n      float intensity = dataValue.r;\n\n      // rescale/slope\n      intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n\n      // window level\n      // if(intensity < 2000.){\n      //   gl_FragColor = vec4(1.0, 0., 0., 1.);\n        //return;\n      // }\n      float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n      float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;\n      intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n\n      dataValue.r = dataValue.g = dataValue.b = intensity;\n    }\n\n    // Apply LUT table...\n    //\n    if(uLut == 1){\n      // should opacity be grabbed there?\n      dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n    }\n\n    if(uInvert == 1){\n      dataValue = vec4(1.) - dataValue;\n      // how do we deal with that and opacity?\n      dataValue.a = 1.;\n    }\n\n    gl_FragColor = dataValue;\n\n  }\n  else{\n    // should be able to choose what we want to do if not in range:\n    // discard or specific color\n    discard;\n    gl_FragColor = vec4(0.011, 0.662, 0.956, 1.0);\n  }\n}"
+          'fragmentShader': "#define GLSLIFY 1\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uInvert;\nuniform int       uInterpolation;\n\n// hack because can not pass arrays if too big\n// best would be to pass texture but have to deal with 16bits\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\n\nvarying vec4      vPos;\n\n// include functions\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid no(in vec3 currentVoxel,\n        in int kernelSize,\n        in ivec3 dataDimensions,\n        in int textureSize,\n        in sampler2D textureContainer0,\n        in sampler2D textureContainer1,\n        in sampler2D textureContainer2,\n        in sampler2D textureContainer3,\n        in sampler2D textureContainer4,\n        in sampler2D textureContainer5,\n        in sampler2D textureContainer6,\n        in sampler2D textureContainer[7], // not working on Moto X 2014\n        in int bitsAllocated, \n        in int numberOfChannels_2, \n        in int pixelType_2,\n        out vec4 intensity_2\n  ) {\n  \n  // lower bound\n  vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n  ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));\n\n  texture3DPolyfill(\n    voxel,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    intensity_2\n    );\n\n  unpack(\n    intensity_2,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    intensity_2);\n\n}\n\n// https://en.wikipedia.org/wiki/Trilinear_interpolation\n\nvoid trilinear(in vec3 currentVoxel,\n               in int kernelSize,\n               in ivec3 dataDimensions,\n               in int textureSize,\n               in sampler2D textureContainer0,\n               in sampler2D textureContainer1,\n               in sampler2D textureContainer2,\n               in sampler2D textureContainer3,\n               in sampler2D textureContainer4,\n               in sampler2D textureContainer5,\n               in sampler2D textureContainer6,\n               in sampler2D textureContainer[7], // not working on Moto X 2014\n               in int bitsAllocated, \n               in int numberOfChannels_1, \n               in int pixelType_1,\n               out vec4 intensity_1\n  ) {\n  \n  // lower bound\n  vec3 lb = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n\n  vec3 direction = currentVoxel - lb;\n\n  // higher bound\n  vec3 hb = lb + 1.0;\n\n  if( direction.x < 0.0){\n\n    hb.x -= 2.0;\n\n  }\n\n  if( direction.y < 0.0){\n\n    hb.y -= 2.0;\n\n  }\n\n  if( direction.z < 0.0){\n\n    hb.z -= 2.0;\n\n  }\n\n  vec3 lc = vec3(0.0, 0.0, 0.0);\n  vec3 hc = vec3(0.0, 0.0, 0.0);\n\n  if(lb.x < hb.x){\n\n    lc.x = lb.x;\n    hc.x = hb.x;\n\n  }\n  else{\n\n    lc.x = hb.x;\n    hc.x = lb.x;\n\n  }\n\n  if(lb.y < hb.y){\n\n    lc.y = lb.y;\n    hc.y = hb.y;\n\n  }\n  else{\n\n    lc.y = hb.y;\n    hc.y = lb.y;\n\n  }\n\n  if(lb.z < hb.z){\n\n    lc.z = lb.z;\n    hc.z = hb.z;\n\n  }\n  else{\n\n    lc.z = hb.z;\n    hc.z = lb.z;\n\n  }\n\n  float xd = ( currentVoxel.x - lc.x ) / ( hc.x - lc.x );\n  float yd = ( currentVoxel.y - lc.y ) / ( hc.y - lc.y );\n  float zd = ( currentVoxel.z - lc.z ) / ( hc.z - lc.z );\n\n  //\n  // c00\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c000,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v000\n    );\n\n  unpack(\n    v000,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v000);\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c100,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v100\n    );\n\n  unpack(\n    v100,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v100);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c001,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v001\n    );\n\n  unpack(\n    v001,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v001);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c101,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v101\n    );\n\n  unpack(\n    v101,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v101);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c010,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v010\n    );\n\n  unpack(\n    v010,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v010);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c110,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v110\n    );\n\n  unpack(\n    v110,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v110);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c011,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v011\n    );\n\n  unpack(\n    v011,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v011);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c111,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v111\n    );\n\n  unpack(\n    v111,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v111);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  intensity_1 = c;\n\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid value_0(in vec3 dataCoordinates,\n           in int kernelSize,\n           in int interpolationMethod,\n           in ivec3 dataDimensions,\n           in int textureSize,\n           in sampler2D textureContainer0,\n           in sampler2D textureContainer1,\n           in sampler2D textureContainer2,\n           in sampler2D textureContainer3,\n           in sampler2D textureContainer4,\n           in sampler2D textureContainer5,\n           in sampler2D textureContainer6,\n           in sampler2D textureContainer[7], // not working on Moto X 2014\n           in int bitsAllocated, \n           in int numberOfChannels_0, \n           in int pixelType_0,\n           out vec4 intensity_0\n  ) {\n\n  //\n  // no interpolation for now...\n  //\n\n  if( interpolationMethod == 0){\n\n    // no interpolation\n    no(dataCoordinates,\n       kernelSize,\n       dataDimensions,\n       textureSize,\n       textureContainer0,\n       textureContainer1,\n       textureContainer2,\n       textureContainer3,\n       textureContainer4,\n       textureContainer5,\n       textureContainer6,\n       textureContainer,\n       bitsAllocated,\n       numberOfChannels_0,\n       pixelType_0,\n       intensity_0);\n\n  }\n  else if( interpolationMethod == 1){\n\n    // trilinear interpolation\n\n    trilinear(dataCoordinates,\n      kernelSize,\n      dataDimensions,\n      textureSize,\n      textureContainer0,\n      textureContainer1,\n      textureContainer2,\n      textureContainer3,\n      textureContainer4,\n      textureContainer5,\n      textureContainer6,\n      textureContainer,\n      bitsAllocated,\n      numberOfChannels_0,\n      pixelType_0,\n      intensity_0);\n\n  }\n\n}\n\nvoid main(void) {\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = vec3(dataCoordinates.x, dataCoordinates.y, dataCoordinates.z);\n  int kernelSize = 2;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  value_0(\n    currentVoxel,\n    kernelSize,\n    uInterpolation,\n    uDataDimensions,\n    uTextureSize,\n    uTextureContainer[0],\n    uTextureContainer[1],\n    uTextureContainer[2],\n    uTextureContainer[3],\n    uTextureContainer[4],\n    uTextureContainer[5],\n    uTextureContainer[6],\n    uTextureContainer,     // not working on Moto X 2014\n    uBitsAllocated,\n    uNumberOfChannels,\n    uPixelType,\n    dataValue\n  );\n\n  // how do we deal wil more than 1 channel?\n  if(uNumberOfChannels == 1){\n    float intensity = dataValue.r;\n\n    // rescale/slope\n    intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;\n    intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n\n    dataValue.r = dataValue.g = dataValue.b = intensity;\n    dataValue.a = 1.0;\n  }\n\n  // Apply LUT table...\n  //\n  if(uLut == 1){\n    // should opacity be grabbed there?\n    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n\n}"
         });
       }
 
@@ -23902,6 +24100,9 @@ var HelpersSlice = function (_THREE$Object3D) {
 
       // invert
       this._uniforms.uInvert.value = this._invert === true ? 1 : 0;
+
+      // interpolation
+      this._uniforms.uInterpolation.value = this._interpolation;
 
       // lut
       if (this._lut === 'none') {
@@ -24014,6 +24215,15 @@ var HelpersSlice = function (_THREE$Object3D) {
     set: function set(intensityAuto) {
       this._intensityAuto = intensityAuto;
       this.updateIntensitySettings();
+      this.updateIntensitySettingsUniforms();
+    }
+  }, {
+    key: 'interpolation',
+    get: function get() {
+      return this._interpolation;
+    },
+    set: function set(interpolation) {
+      this._interpolation = interpolation;
       this.updateIntensitySettingsUniforms();
     }
   }, {
@@ -24698,7 +24908,7 @@ var HelpersVolumeRendering = function (_THREE$Object3D) {
       this._material = new THREE.ShaderMaterial({
         uniforms: this._uniforms,
         vertexShader: "#define GLSLIFY 1\nvarying vec4 vPos;\n\nvoid main() {\n\n  vPos = modelMatrix * vec4(position, 1.0 );\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );\n\n}\n",
-        fragmentShader: "#define GLSLIFY 1\n// UNIFORMS\nuniform float     uWorldBBox[6];\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\nuniform int       uSteps;\nuniform float     uAlphaCorrection;\nuniform float     uFrequence;\nuniform float     uAmplitude;\n\n// VARYING\nvarying vec4 vPos;\n\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvec3 transformPoint(const in vec3 samplePoint, const in float frequency, const in float amplitude)\n// Apply a spatial transformation to a world space point\n{\n  return samplePoint + amplitude * vec3(samplePoint.x * sin(frequency * samplePoint.z),\n                                        samplePoint.y * cos(frequency * samplePoint.z),\n                                        0);\n}\n\n// needed for glslify\n\nvoid intersectBox(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, out float tNear, out float tFar, out bool intersect){\n  // compute intersection of ray with all six bbox planes\n  vec3 invRay = vec3(1.) / rayDirection;\n  vec3 tBot = invRay * (boxMin - rayOrigin);\n  vec3 tTop = invRay * (boxMax - rayOrigin);\n  // re-order intersections to find smallest and largest on each axis\n  vec3 tMin = min(tTop, tBot);\n  vec3 tMax = max(tTop, tBot);\n  // find the largest tMin and the smallest tMax\n  float largest_tMin = max(max(tMin.x, tMin.y), max(tMin.x, tMin.z));\n  float smallest_tMax = min(min(tMax.x, tMax.y), min(tMax.x, tMax.z));\n  tNear = largest_tMin;\n  tFar = smallest_tMax;\n  intersect = smallest_tMax > largest_tMin;\n}\n\n/**\n * Get voxel value given IJK coordinates.\n * Also apply:\n *  - rescale slope/intercept\n *  - window center/width\n */\nvoid getIntensity(in ivec3 dataCoordinates, out float intensity){\n\n  vec4 packedValue = vec4(0., 0., 0., 0.);\n  texture3DPolyfill(\n    dataCoordinates,\n    uDataDimensions,\n    uTextureSize,\n    uTextureContainer[0],\n    uTextureContainer[1],\n    uTextureContainer[2],\n    uTextureContainer[3],\n    uTextureContainer[4],\n    uTextureContainer[5],\n    uTextureContainer[6],\n    uTextureContainer,     // not working on Moto X 2014\n    packedValue\n    );\n\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  unpack(\n    packedValue,\n    uBitsAllocated,\n    0,\n    uNumberOfChannels,\n    uPixelType,\n    dataValue);\n\n  intensity = dataValue.r;\n\n  // rescale/slope\n  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  // window level\n  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n}\n\nvoid main(void) {\n  const int maxSteps = 1024;\n\n  // the ray\n  vec3 rayOrigin = cameraPosition;\n  vec3 rayDirection = normalize(vPos.xyz - rayOrigin);\n\n  // the Axe-Aligned B-Box\n  vec3 AABBMin = vec3(uWorldBBox[0], uWorldBBox[2], uWorldBBox[4]);\n  vec3 AABBMax = vec3(uWorldBBox[1], uWorldBBox[3], uWorldBBox[5]);\n\n  // Intersection ray/bbox\n  float tNear, tFar;\n  bool intersect = false;\n  intersectBox(rayOrigin, rayDirection, AABBMin, AABBMax, tNear, tFar, intersect);\n  if (tNear < 0.0) tNear = 0.0;\n\n  // init the ray marching\n  float tCurrent = tNear;\n  float tStep = (tFar - tNear) / float(uSteps);\n  vec4 accumulatedColor = vec4(0.0);\n  float accumulatedAlpha = 0.0;\n\n  for(int rayStep = 0; rayStep < maxSteps; rayStep++){\n    vec3 currentPosition = rayOrigin + rayDirection * tCurrent;\n    // some non-linear FUN\n    // some occlusion issue to be fixed\n    vec3 transformedPosition = transformPoint(currentPosition, uAmplitude, uFrequence);\n    // world to data coordinates\n    // rounding trick\n    // first center of first voxel in data space is CENTERED on (0,0,0)\n    vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);\n    dataCoordinatesRaw += 0.5;\n    ivec3 dataCoordinates = ivec3(\n      int(floor(dataCoordinatesRaw.x)),\n      int(floor(dataCoordinatesRaw.y)),\n      int(floor(dataCoordinatesRaw.z)));\n    if ( all(greaterThanEqual(dataCoordinates, ivec3(0))) &&\n         all(lessThan(dataCoordinates, uDataDimensions))) {\n      // mapped intensity, given slope/intercept and window/level\n      float intensity = 0.0;\n      getIntensity(dataCoordinates, intensity);\n      vec4 colorSample;\n      float alphaSample;\n      if(uLut == 1){\n        vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );\n        // 256 colors\n        colorSample.r = colorFromLUT.r;\n        colorSample.g = colorFromLUT.g;\n        colorSample.b = colorFromLUT.b;\n        alphaSample = colorFromLUT.a;\n      }\n      else{\n        alphaSample = intensity;\n        colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;\n      }\n\n      alphaSample = alphaSample * uAlphaCorrection;\n      alphaSample *= (1.0 - accumulatedAlpha);\n\n      accumulatedColor += alphaSample * colorSample;\n      accumulatedAlpha += alphaSample;\n    }\n\n    tCurrent += tStep;\n\n    if(tCurrent > tFar || accumulatedAlpha >= 1.0 ) break;\n  }\n\n  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);\n  return;\n}\n",
+        fragmentShader: "#define GLSLIFY 1\n// UNIFORMS\nuniform float     uWorldBBox[6];\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\nuniform int       uSteps;\nuniform float     uAlphaCorrection;\nuniform float     uFrequence;\nuniform float     uAmplitude;\nuniform int       uInterpolation;\n\n// VARYING\nvarying vec4 vPos;\n\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid no(in vec3 currentVoxel,\n        in int kernelSize,\n        in ivec3 dataDimensions,\n        in int textureSize,\n        in sampler2D textureContainer0,\n        in sampler2D textureContainer1,\n        in sampler2D textureContainer2,\n        in sampler2D textureContainer3,\n        in sampler2D textureContainer4,\n        in sampler2D textureContainer5,\n        in sampler2D textureContainer6,\n        in sampler2D textureContainer[7], // not working on Moto X 2014\n        in int bitsAllocated, \n        in int numberOfChannels_1, \n        in int pixelType_1,\n        out vec4 intensity_1\n  ) {\n  \n  // lower bound\n  vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n  ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));\n\n  texture3DPolyfill(\n    voxel,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    intensity_1\n    );\n\n  unpack(\n    intensity_1,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    intensity_1);\n\n}\n\n// https://en.wikipedia.org/wiki/Trilinear_interpolation\n\nvoid trilinear(in vec3 currentVoxel,\n               in int kernelSize,\n               in ivec3 dataDimensions,\n               in int textureSize,\n               in sampler2D textureContainer0,\n               in sampler2D textureContainer1,\n               in sampler2D textureContainer2,\n               in sampler2D textureContainer3,\n               in sampler2D textureContainer4,\n               in sampler2D textureContainer5,\n               in sampler2D textureContainer6,\n               in sampler2D textureContainer[7], // not working on Moto X 2014\n               in int bitsAllocated, \n               in int numberOfChannels_0, \n               in int pixelType_0,\n               out vec4 intensity_0\n  ) {\n  \n  // lower bound\n  vec3 lb = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n\n  vec3 direction = currentVoxel - lb;\n\n  // higher bound\n  vec3 hb = lb + 1.0;\n\n  if( direction.x < 0.0){\n\n    hb.x -= 2.0;\n\n  }\n\n  if( direction.y < 0.0){\n\n    hb.y -= 2.0;\n\n  }\n\n  if( direction.z < 0.0){\n\n    hb.z -= 2.0;\n\n  }\n\n  vec3 lc = vec3(0.0, 0.0, 0.0);\n  vec3 hc = vec3(0.0, 0.0, 0.0);\n\n  if(lb.x < hb.x){\n\n    lc.x = lb.x;\n    hc.x = hb.x;\n\n  }\n  else{\n\n    lc.x = hb.x;\n    hc.x = lb.x;\n\n  }\n\n  if(lb.y < hb.y){\n\n    lc.y = lb.y;\n    hc.y = hb.y;\n\n  }\n  else{\n\n    lc.y = hb.y;\n    hc.y = lb.y;\n\n  }\n\n  if(lb.z < hb.z){\n\n    lc.z = lb.z;\n    hc.z = hb.z;\n\n  }\n  else{\n\n    lc.z = hb.z;\n    hc.z = lb.z;\n\n  }\n\n  float xd = ( currentVoxel.x - lc.x ) / ( hc.x - lc.x );\n  float yd = ( currentVoxel.y - lc.y ) / ( hc.y - lc.y );\n  float zd = ( currentVoxel.z - lc.z ) / ( hc.z - lc.z );\n\n  //\n  // c00\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c000,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v000\n    );\n\n  unpack(\n    v000,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v000);\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c100,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v100\n    );\n\n  unpack(\n    v100,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v100);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c001,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v001\n    );\n\n  unpack(\n    v001,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v001);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c101,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v101\n    );\n\n  unpack(\n    v101,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v101);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c010,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v010\n    );\n\n  unpack(\n    v010,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v010);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c110,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v110\n    );\n\n  unpack(\n    v110,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v110);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c011,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v011\n    );\n\n  unpack(\n    v011,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v011);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c111,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v111\n    );\n\n  unpack(\n    v111,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v111);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  intensity_0 = c;\n\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid value_0(in vec3 dataCoordinates,\n           in int kernelSize,\n           in int interpolationMethod,\n           in ivec3 dataDimensions,\n           in int textureSize,\n           in sampler2D textureContainer0,\n           in sampler2D textureContainer1,\n           in sampler2D textureContainer2,\n           in sampler2D textureContainer3,\n           in sampler2D textureContainer4,\n           in sampler2D textureContainer5,\n           in sampler2D textureContainer6,\n           in sampler2D textureContainer[7], // not working on Moto X 2014\n           in int bitsAllocated, \n           in int numberOfChannels_2, \n           in int pixelType_2,\n           out vec4 intensity_2\n  ) {\n\n  //\n  // no interpolation for now...\n  //\n\n  if( interpolationMethod == 0){\n\n    // no interpolation\n    no(dataCoordinates,\n       kernelSize,\n       dataDimensions,\n       textureSize,\n       textureContainer0,\n       textureContainer1,\n       textureContainer2,\n       textureContainer3,\n       textureContainer4,\n       textureContainer5,\n       textureContainer6,\n       textureContainer,\n       bitsAllocated,\n       numberOfChannels_2,\n       pixelType_2,\n       intensity_2);\n\n  }\n  else if( interpolationMethod == 1){\n\n    // trilinear interpolation\n\n    trilinear(dataCoordinates,\n      kernelSize,\n      dataDimensions,\n      textureSize,\n      textureContainer0,\n      textureContainer1,\n      textureContainer2,\n      textureContainer3,\n      textureContainer4,\n      textureContainer5,\n      textureContainer6,\n      textureContainer,\n      bitsAllocated,\n      numberOfChannels_2,\n      pixelType_2,\n      intensity_2);\n\n  }\n\n}\n\nvec3 transformPoint(const in vec3 samplePoint, const in float frequency, const in float amplitude)\n// Apply a spatial transformation to a world space point\n{\n  return samplePoint + amplitude * vec3(samplePoint.x * sin(frequency * samplePoint.z),\n                                        samplePoint.y * cos(frequency * samplePoint.z),\n                                        0);\n}\n\n// needed for glslify\n\nvoid intersectBox(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, out float tNear, out float tFar, out bool intersect){\n  // compute intersection of ray with all six bbox planes\n  vec3 invRay = vec3(1.) / rayDirection;\n  vec3 tBot = invRay * (boxMin - rayOrigin);\n  vec3 tTop = invRay * (boxMax - rayOrigin);\n  // re-order intersections to find smallest and largest on each axis\n  vec3 tMin = min(tTop, tBot);\n  vec3 tMax = max(tTop, tBot);\n  // find the largest tMin and the smallest tMax\n  float largest_tMin = max(max(tMin.x, tMin.y), max(tMin.x, tMin.z));\n  float smallest_tMax = min(min(tMax.x, tMax.y), min(tMax.x, tMax.z));\n  tNear = largest_tMin;\n  tFar = smallest_tMax;\n  intersect = smallest_tMax > largest_tMin;\n}\n\n/**\n * Get voxel value given IJK coordinates.\n * Also apply:\n *  - rescale slope/intercept\n *  - window center/width\n */\nvoid getIntensity(in vec3 dataCoordinates, out float intensity){\n\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  int kernelSize = 2;\n  value_0(\n    dataCoordinates,\n    kernelSize,\n    uInterpolation,\n    uDataDimensions,\n    uTextureSize,\n    uTextureContainer[0],\n    uTextureContainer[1],\n    uTextureContainer[2],\n    uTextureContainer[3],\n    uTextureContainer[4],\n    uTextureContainer[5],\n    uTextureContainer[6],\n    uTextureContainer,     // not working on Moto X 2014\n    uBitsAllocated,\n    uNumberOfChannels,\n    uPixelType,\n    dataValue\n  );\n\n  intensity = dataValue.r;\n\n  // rescale/slope\n  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  // window level\n  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n}\n\nvoid main(void) {\n  const int maxSteps = 1024;\n\n  // the ray\n  vec3 rayOrigin = cameraPosition;\n  vec3 rayDirection = normalize(vPos.xyz - rayOrigin);\n\n  // the Axe-Aligned B-Box\n  vec3 AABBMin = vec3(uWorldBBox[0], uWorldBBox[2], uWorldBBox[4]);\n  vec3 AABBMax = vec3(uWorldBBox[1], uWorldBBox[3], uWorldBBox[5]);\n\n  // Intersection ray/bbox\n  float tNear, tFar;\n  bool intersect = false;\n  intersectBox(rayOrigin, rayDirection, AABBMin, AABBMax, tNear, tFar, intersect);\n  if (tNear < 0.0) tNear = 0.0;\n\n  // init the ray marching\n  float tCurrent = tNear;\n  float tStep = (tFar - tNear) / float(uSteps);\n  vec4 accumulatedColor = vec4(0.0);\n  float accumulatedAlpha = 0.0;\n\n  for(int rayStep = 0; rayStep < maxSteps; rayStep++){\n    vec3 currentPosition = rayOrigin + rayDirection * tCurrent;\n    // some non-linear FUN\n    // some occlusion issue to be fixed\n    vec3 transformedPosition = transformPoint(currentPosition, uAmplitude, uFrequence);\n    // world to data coordinates\n    // rounding trick\n    // first center of first voxel in data space is CENTERED on (0,0,0)\n    vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);\n    vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);\n\n    if ( all(greaterThanEqual(currentVoxel, vec3(0.0))) &&\n         all(lessThan(currentVoxel, vec3(float(uDataDimensions.x), float(uDataDimensions.y), float(uDataDimensions.z))))) {\n    // mapped intensity, given slope/intercept and window/level\n    float intensity = 0.0;\n    getIntensity(currentVoxel, intensity);\n    vec4 colorSample;\n    float alphaSample;\n    if(uLut == 1){\n      vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );\n      // 256 colors\n      colorSample.r = colorFromLUT.r;\n      colorSample.g = colorFromLUT.g;\n      colorSample.b = colorFromLUT.b;\n      alphaSample = colorFromLUT.a;\n    }\n    else{\n      alphaSample = intensity;\n      colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;\n    }\n\n    alphaSample = alphaSample * uAlphaCorrection;\n    alphaSample *= (1.0 - accumulatedAlpha);\n\n    accumulatedColor += alphaSample * colorSample;\n    accumulatedAlpha += alphaSample;\n\n    }\n\n    tCurrent += tStep;\n\n    if(tCurrent > tFar || accumulatedAlpha >= 1.0 ) break;\n  }\n\n  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);\n  return;\n}\n",
         side: THREE.FrontSide,
         transparent: true
       });
@@ -24735,7 +24945,7 @@ var HelpersVolumeRendering = function (_THREE$Object3D) {
 
 exports.default = HelpersVolumeRendering;
 
-},{"../../src/shaders/shaders.raycasting":94}],77:[function(require,module,exports){
+},{"../../src/shaders/shaders.raycasting":95}],77:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -24828,7 +25038,7 @@ var HelpersVoxel = function (_THREE$Object3D) {
     _this._showVoxel = true;
     _this._showDomSVG = true;
     _this._showDomMeasurements = true;
-    _this._color = '0x00B0FF';
+    _this._color = '#00B0FF';
     // just visualization
     // this._svgPointer = '<svg width="40" height="40" \
     //      viewBox="0 0 140 140" version="1.1" \
@@ -25481,7 +25691,7 @@ var LoadersVolumes = function (_LoadersBase) {
         var stack = new _models4.default();
         stack.numberOfChannels = volumeParser.numberOfChannels();
         stack.pixelType = volumeParser.pixelType();
-
+        stack.invert = volumeParser.invert();
         series.stack.push(stack);
         // recursive call for each frame
         // better than for loop to be able to update dom with "progress" callback
@@ -25723,6 +25933,22 @@ var _createClass = function () {
   };
 }();
 
+var _get = function get(object, property, receiver) {
+  if (object === null) object = Function.prototype;var desc = Object.getOwnPropertyDescriptor(object, property);if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);if (parent === null) {
+      return undefined;
+    } else {
+      return get(parent, property, receiver);
+    }
+  } else if ("value" in desc) {
+    return desc.value;
+  } else {
+    var getter = desc.get;if (getter === undefined) {
+      return undefined;
+    }return getter.call(receiver);
+  }
+};
+
 var _models = require('../../src/models/models.base');
 
 var _models2 = _interopRequireDefault(_models);
@@ -25791,22 +26017,39 @@ var ModelsFrame = function (_ModelsBase) {
     return _this;
   }
 
-  /**
-   * Merge current frame with provided frame.
-   *
-   * Frames can be merged (i.e. are identical) if following are equals:
-   *  - dimensionIndexValues 
-   *  - imageOrientation
-   *  - imagePosition
-   *  - instanceNumber
-   *  - sopInstanceUID
-   *
-   * @returns {boolean} True if frames could be merge. False if not.
-   */
-
   _createClass(ModelsFrame, [{
+    key: 'validate',
+    value: function validate(model) {
+
+      if (!(_get(Object.getPrototypeOf(ModelsFrame.prototype), 'validate', this).call(this, model) && typeof model.cosines === 'function' && typeof model.spacingXY === 'function' && model.hasOwnProperty('_sopInstanceUID') && model.hasOwnProperty('_dimensionIndexValues') && model.hasOwnProperty('_imageOrientation') && model.hasOwnProperty('_imagePosition'))) {
+
+        return false;
+      }
+
+      return true;
+    }
+
+    /**
+     * Merge current frame with provided frame.
+     *
+     * Frames can be merged (i.e. are identical) if following are equals:
+     *  - dimensionIndexValues 
+     *  - imageOrientation
+     *  - imagePosition
+     *  - instanceNumber
+     *  - sopInstanceUID
+     *
+     * @returns {boolean} True if frames could be merge. False if not.
+     */
+
+  }, {
     key: 'merge',
     value: function merge(frame) {
+
+      if (!this.validate(frame)) {
+        return false;
+      }
+
       if (this._compareArrays(this._dimensionIndexValues, frame.dimensionIndexValues) && this._compareArrays(this._imageOrientation, frame.imageOrientation) && this._compareArrays(this._imagePosition, frame.imagePosition) && this._instanceNumber === frame.instanceNumber && this._sopInstanceUID === frame.sopInstanceUID) {
 
         return true;
@@ -25815,15 +26058,36 @@ var ModelsFrame = function (_ModelsBase) {
         return false;
       }
     }
+
+    /**
+     * Generate X, y and Z cosines from image orientation
+     * Returns default orientation if _imageOrientation was invalid.
+     *
+     * @returns {array} Array[3] containing cosinesX, Y and Z.
+     */
+
   }, {
     key: 'cosines',
     value: function cosines() {
+
       var cosines = [new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1)];
 
-      if (this.imageOrientation && this.imageOrientation.length === 6) {
-        cosines[0] = new THREE.Vector3(this.imageOrientation[0], this.imageOrientation[1], this.imageOrientation[2]);
-        cosines[1] = new THREE.Vector3(this.imageOrientation[3], this.imageOrientation[4], this.imageOrientation[5]);
-        cosines[2] = new THREE.Vector3(0, 0, 0).crossVectors(cosines[0], cosines[1]).normalize();
+      if (this._imageOrientation && this._imageOrientation.length === 6) {
+
+        var xCos = new THREE.Vector3(this._imageOrientation[0], this._imageOrientation[1], this._imageOrientation[2]);
+        var yCos = new THREE.Vector3(this._imageOrientation[3], this._imageOrientation[4], this._imageOrientation[5]);
+
+        if (xCos.length() > 0 && yCos.length() > 0) {
+
+          cosines[0] = xCos;
+          cosines[1] = yCos;
+          cosines[2] = new THREE.Vector3(0, 0, 0).crossVectors(cosines[0], cosines[1]).normalize();
+        }
+      } else {
+
+        window.console.log('No valid image orientation for frame');
+        window.console.log(this);
+        window.console.log('Returning default orientation.');
       }
 
       return cosines;
@@ -25834,9 +26098,12 @@ var ModelsFrame = function (_ModelsBase) {
       var spacingXY = [1.0, 1.0];
 
       if (this.pixelSpacing) {
+
         spacingXY[0] = this.pixelSpacing[0];
+
         spacingXY[1] = this.pixelSpacing[1];
       } else if (this.pixelAspectRatio) {
+
         spacingXY[0] = 1.0;
         spacingXY[1] = 1.0 * this.pixelAspectRatio[1] / this.pixelAspectRatio[0];
       }
@@ -25853,6 +26120,7 @@ var ModelsFrame = function (_ModelsBase) {
      * Compare 2 arrays.
      *
      * 2 null arrays return true.
+     * Do no perform strict type checking.
      *
      * @returns {boolean} True if arrays are identicals. False if not.
      */
@@ -26418,6 +26686,9 @@ var ModelsStack = function (_ModelsBase) {
     // convenience vars
     _this._prepared = false;
     _this._packed = false;
+
+    // photometricInterpretation Monochrome1 VS Monochrome2
+    _this._invert = false;
     return _this;
   }
 
@@ -26698,7 +26969,7 @@ var ModelsStack = function (_ModelsBase) {
         var _data = new Uint8Array(textureSize * textureSize * 1);
         for (var i = startVoxel; i < stopVoxel; i++) {
           /*jshint bitwise: false*/
-          frameIndex = ~ ~(i / frameDimension);
+          frameIndex = ~~(i / frameDimension);
           inFrameIndex = i % frameDimension;
           /*jshint bitwise: true*/
 
@@ -26711,7 +26982,7 @@ var ModelsStack = function (_ModelsBase) {
         var _data2 = new Uint8Array(textureSize * textureSize * 2);
         for (var _i = startVoxel; _i < stopVoxel; _i++) {
           /*jshint bitwise: false*/
-          frameIndex = ~ ~(_i / frameDimension);
+          frameIndex = ~~(_i / frameDimension);
           inFrameIndex = _i % frameDimension;
           /*jshint bitwise: true*/
 
@@ -26731,7 +27002,7 @@ var ModelsStack = function (_ModelsBase) {
         var _data3 = new Uint8Array(textureSize * textureSize * 4);
         for (var _i2 = startVoxel; _i2 < stopVoxel; _i2++) {
           /*jshint bitwise: false*/
-          frameIndex = ~ ~(_i2 / frameDimension);
+          frameIndex = ~~(_i2 / frameDimension);
           inFrameIndex = _i2 % frameDimension;
           /*jshint bitwise: true*/
 
@@ -26752,7 +27023,7 @@ var ModelsStack = function (_ModelsBase) {
         var _data4 = new Uint8Array(textureSize * textureSize * 4);
         for (var _i3 = startVoxel; _i3 < stopVoxel; _i3++) {
           /*jshint bitwise: false*/
-          frameIndex = ~ ~(_i3 / frameDimension);
+          frameIndex = ~~(_i3 / frameDimension);
           inFrameIndex = _i3 % frameDimension;
           /*jshint bitwise: true*/
 
@@ -26775,7 +27046,7 @@ var ModelsStack = function (_ModelsBase) {
         var _data5 = new Uint8Array(textureSize * textureSize * 3);
         for (var _i4 = startVoxel; _i4 < stopVoxel; _i4++) {
           /*jshint bitwise: false*/
-          frameIndex = ~ ~(_i4 / frameDimension);
+          frameIndex = ~~(_i4 / frameDimension);
           inFrameIndex = _i4 % frameDimension;
           /*jshint bitwise: true*/
 
@@ -26793,17 +27064,20 @@ var ModelsStack = function (_ModelsBase) {
   }, {
     key: 'worldCenter',
     value: function worldCenter() {
-      var center = this._halfDimensionsIJK.clone().addScalar(0.5).applyMatrix4(this._ijk2LPS);
+
+      var center = this._halfDimensionsIJK.clone().addScalar(-0.5).applyMatrix4(this._ijk2LPS);
       return center;
     }
   }, {
     key: 'worldBoundingBox',
     value: function worldBoundingBox() {
+
       var bbox = [Number.MAX_VALUE, Number.MIN_VALUE, Number.MAX_VALUE, Number.MIN_VALUE, Number.MAX_VALUE, Number.MIN_VALUE];
 
       for (var i = 0; i <= this._dimensionsIJK.x; i += this._dimensionsIJK.x) {
         for (var j = 0; j <= this._dimensionsIJK.y; j += this._dimensionsIJK.y) {
           for (var k = 0; k <= this._dimensionsIJK.z; k += this._dimensionsIJK.z) {
+
             var world = new THREE.Vector3(i, j, k).applyMatrix4(this._ijk2LPS);
             bbox = [Math.min(bbox[0], world.x), Math.max(bbox[1], world.x), // x min/max
             Math.min(bbox[2], world.y), Math.max(bbox[3], world.y), Math.min(bbox[4], world.z), Math.max(bbox[5], world.z)];
@@ -26816,7 +27090,8 @@ var ModelsStack = function (_ModelsBase) {
   }, {
     key: 'AABBox',
     value: function AABBox() {
-      var world0 = new THREE.Vector3().applyMatrix4(this._ijk2LPS).applyMatrix4(this._lps2AABB);
+
+      var world0 = new THREE.Vector3().addScalar(-0.5).applyMatrix4(this._ijk2LPS).applyMatrix4(this._lps2AABB);
 
       var world7 = this._dimensionsIJK.clone().addScalar(-0.5).applyMatrix4(this._ijk2LPS).applyMatrix4(this._lps2AABB);
 
@@ -26827,6 +27102,7 @@ var ModelsStack = function (_ModelsBase) {
   }, {
     key: 'centerAABBox',
     value: function centerAABBox() {
+
       var centerBBox = this.worldCenter();
       centerBBox.applyMatrix4(this._lps2AABB);
       return centerBBox;
@@ -27062,6 +27338,14 @@ var ModelsStack = function (_ModelsBase) {
     set: function set(pixelType) {
       this._pixelType = pixelType;
     }
+  }, {
+    key: 'invert',
+    set: function set(invert) {
+      this._invert = invert;
+    },
+    get: function get() {
+      return this._invert;
+    }
   }], [{
     key: 'worldToData',
     value: function worldToData(stack, worldCoordinates) {
@@ -27075,20 +27359,25 @@ var ModelsStack = function (_ModelsBase) {
   }, {
     key: 'value',
     value: function value(stack, ijkCoordinate) {
+
       if (ijkCoordinate.z >= 0 && ijkCoordinate.z < stack._frame.length) {
+
         return stack._frame[ijkCoordinate.z].value(ijkCoordinate.x, ijkCoordinate.y);
       } else {
+
         return null;
       }
     }
   }, {
     key: 'valueRescaleSlopeIntercept',
     value: function valueRescaleSlopeIntercept(value, slope, intercept) {
+
       return value * slope + intercept;
     }
   }, {
     key: 'indexInDimensions',
     value: function indexInDimensions(index, dimensions) {
+
       if (index.x >= 0 && index.y >= 0 && index.z >= 0 && index.x < dimensions.x && index.y < dimensions.y && index.z < dimensions.z) {
 
         return true;
@@ -27281,12 +27570,16 @@ var ParsersDicom = function (_ParsersVolume) {
     // catch error
     // throw error if any!
     _this._dataSet = null;
+
     try {
+
       _this._dataSet = DicomParser.parseDicom(byteArray);
     } catch (e) {
+
       window.console.log(e);
       throw 'parsers.dicom could not parse the file';
     }
+
     return _this;
   }
 
@@ -27295,16 +27588,19 @@ var ParsersDicom = function (_ParsersVolume) {
   _createClass(ParsersDicom, [{
     key: 'seriesInstanceUID',
     value: function seriesInstanceUID() {
+
       return this._dataSet.string('x0020000e');
     }
   }, {
     key: 'studyInstanceUID',
     value: function studyInstanceUID() {
+
       return this._dataSet.string('x0020000d');
     }
   }, {
     key: 'modality',
     value: function modality() {
+
       return this._dataSet.string('x00080060');
     }
   }, {
@@ -27320,19 +27616,23 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: 'transferSyntaxUID',
     value: function transferSyntaxUID() {
+
       return this._dataSet.string('x00020010');
     }
   }, {
     key: 'photometricInterpretation',
     value: function photometricInterpretation() {
+
       return this._dataSet.string('x00280004');
     }
   }, {
     key: 'planarConfiguration',
     value: function planarConfiguration() {
+
       var planarConfiguration = this._dataSet.uint16('x00280006');
 
       if (typeof planarConfiguration === 'undefined') {
+
         planarConfiguration = null;
       }
 
@@ -27341,15 +27641,18 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: 'samplesPerPixel',
     value: function samplesPerPixel() {
+
       return this._dataSet.uint16('x00280002');
     }
   }, {
     key: 'numberOfFrames',
     value: function numberOfFrames() {
+
       var numberOfFrames = this._dataSet.intString('x00280008');
 
       // need something smarter!
       if (typeof numberOfFrames === 'undefined') {
+
         numberOfFrames = null;
       }
 
@@ -27359,15 +27662,24 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: 'numberOfChannels',
     value: function numberOfChannels() {
+
       var numberOfChannels = 1;
       var photometricInterpretation = this.photometricInterpretation();
 
       if (!(photometricInterpretation !== 'RGB' && photometricInterpretation !== 'PALETTE COLOR' && photometricInterpretation !== 'YBR_FULL' && photometricInterpretation !== 'YBR_FULL_422' && photometricInterpretation !== 'YBR_PARTIAL_422' && photometricInterpretation !== 'YBR_PARTIAL_420' && photometricInterpretation !== 'YBR_RCT')) {
+
         numberOfChannels = 3;
       }
 
       // make sure we return a number! (not a string!)
       return numberOfChannels;
+    }
+  }, {
+    key: 'invert',
+    value: function invert() {
+      var photometricInterpretation = this.photometricInterpretation();
+
+      return photometricInterpretation === 'MONOCHROME1' ? true : false;
     }
   }, {
     key: 'imageOrientation',
@@ -27379,6 +27691,7 @@ var ParsersDicom = function (_ParsersVolume) {
 
       // format image orientation ('1\0\0\0\1\0') to array containing 6 numbers
       if (imageOrientation) {
+
         // make sure we return a number! (not a string!)
         // might not need to split (floatString + index)
         imageOrientation = imageOrientation.split('\\').map(Number);
@@ -27389,10 +27702,12 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: 'pixelAspectRatio',
     value: function pixelAspectRatio() {
+
       var pixelAspectRatio = [this._dataSet.intString('x00280034', 0), this._dataSet.intString('x00280034', 1)];
 
       // need something smarter!
       if (typeof pixelAspectRatio[0] === 'undefined') {
+
         pixelAspectRatio = null;
       }
 
@@ -27408,6 +27723,7 @@ var ParsersDicom = function (_ParsersVolume) {
 
       // format image orientation ('1\0\0\0\1\0') to array containing 6 numbers
       if (imagePosition) {
+
         // make sure we return a number! (not a string!)
         imagePosition = imagePosition.split('\\').map(Number);
       }
@@ -27425,22 +27741,28 @@ var ParsersDicom = function (_ParsersVolume) {
       var perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
       if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
+
         if (perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x2005140f) {
+
           var planeOrientationSequence = perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x2005140f.items[0].dataSet;
           instanceNumber = planeOrientationSequence.intString('x00200013');
         } else {
+
           instanceNumber = this._dataSet.intString('x00200013');
 
           if (typeof instanceNumber === 'undefined') {
+
             instanceNumber = null;
           }
         }
       } else {
+
         // should we default to undefined??
         // default orientation
         instanceNumber = this._dataSet.intString('x00200013');
 
         if (typeof instanceNumber === 'undefined') {
+
           instanceNumber = null;
         }
       }
@@ -27458,9 +27780,11 @@ var ParsersDicom = function (_ParsersVolume) {
       // format image orientation ('1\0\0\0\1\0') to array containing 6 numbers
       // should we default to undefined??
       if (pixelSpacing) {
+
         // make sure we return array of numbers! (not strings!)
         pixelSpacing = pixelSpacing.split('\\').map(Number);
       }
+
       return pixelSpacing;
     }
   }, {
@@ -27471,6 +27795,7 @@ var ParsersDicom = function (_ParsersVolume) {
       var rows = this._dataSet.uint16('x00280010');
 
       if (typeof rows === 'undefined') {
+
         rows = null;
         // print warning at least...
       }
@@ -27485,6 +27810,7 @@ var ParsersDicom = function (_ParsersVolume) {
       var columns = this._dataSet.uint16('x00280011');
 
       if (typeof columns === 'undefined') {
+
         columns = null;
         // print warning at least...
       }
@@ -27573,15 +27899,19 @@ var ParsersDicom = function (_ParsersVolume) {
       var perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
       if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
+
         // NOT A PHILIPS TRICK!
         var philipsPrivateSequence = perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
         var element = philipsPrivateSequence.elements.x00209157;
         // /4 because UL
         var nbValues = element.length / 4;
+
         for (var i = 0; i < nbValues; i++) {
+
           dimensionIndexValues.push(philipsPrivateSequence.uint32('x00209157', i));
         }
       } else {
+
         dimensionIndexValues = null;
       }
 
@@ -27599,10 +27929,12 @@ var ParsersDicom = function (_ParsersVolume) {
       var perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
       if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
+
         // NOT A PHILIPS TRICK!
         var philipsPrivateSequence = perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
         inStackPositionNumber = philipsPrivateSequence.uint32('x00209057');
       } else {
+
         inStackPositionNumber = null;
       }
 
@@ -27620,10 +27952,12 @@ var ParsersDicom = function (_ParsersVolume) {
       var perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
       if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
+
         // NOT A PHILIPS TRICK!
         var philipsPrivateSequence = perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
         stackID = philipsPrivateSequence.intString('x00209056');
       } else {
+
         stackID = null;
       }
 
@@ -27638,9 +27972,12 @@ var ParsersDicom = function (_ParsersVolume) {
       var decompressedData = this._decodePixelData(frameIndex);
 
       var numberOfChannels = this.numberOfChannels();
+
       if (numberOfChannels > 1) {
+
         return this._convertColorSpace(decompressedData);
       } else {
+
         return decompressedData;
       }
     }
@@ -27651,7 +27988,9 @@ var ParsersDicom = function (_ParsersVolume) {
 
       var minMax = [65535, -32768];
       var numPixels = pixelData.length;
+
       for (var index = 0; index < numPixels; index++) {
+
         var spv = pixelData[index];
         minMax[0] = Math.min(minMax[0], spv);
         minMax[1] = Math.max(minMax[1], spv);
@@ -27667,12 +28006,15 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: '_findInGroupSequence',
     value: function _findInGroupSequence(sequence, subsequence, index) {
+
       var functionalGroupSequence = this._dataSet.elements[sequence];
 
       if (typeof functionalGroupSequence !== 'undefined') {
+
         var inSequence = functionalGroupSequence.items[index].dataSet.elements[subsequence];
 
         if (typeof inSequence !== 'undefined') {
+
           return inSequence.items[0].dataSet;
         }
       }
@@ -27682,10 +28024,12 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: '_findStringInGroupSequence',
     value: function _findStringInGroupSequence(sequence, subsequence, tag, index) {
+
       // index = 0 if shared!!!
       var dataSet = this._findInGroupSequence(sequence, subsequence, index);
 
       if (dataSet !== null) {
+
         return dataSet.string(tag);
       }
 
@@ -27694,11 +28038,13 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: '_findStringInFrameGroupSequence',
     value: function _findStringInFrameGroupSequence(subsequence, tag, index) {
+
       return this._findStringInGroupSequence('x52009229', subsequence, tag, 0) || this._findStringInGroupSequence('x52009230', subsequence, tag, index);
     }
   }, {
     key: '_findStringEverywhere',
     value: function _findStringEverywhere(subsequence, tag, index) {
+
       var targetString = this._findStringInFrameGroupSequence(subsequence, tag, index);
 
       if (targetString === null) {
@@ -27720,11 +28066,14 @@ var ParsersDicom = function (_ParsersVolume) {
       // try to get it from enhanced MR images
       // per-frame functionnal group
       if (typeof dataInGroupSequence === 'undefined') {
+
         dataInGroupSequence = this._findInGroupSequence(sequence, subsequence, index);
 
         if (dataInGroupSequence !== null) {
+
           return dataInGroupSequence.floatString(tag);
         } else {
+
           return null;
         }
       }
@@ -27734,6 +28083,7 @@ var ParsersDicom = function (_ParsersVolume) {
   }, {
     key: '_findFloatStringInFrameGroupSequence',
     value: function _findFloatStringInFrameGroupSequence(subsequence, tag, index) {
+
       return this._findFloatStringInGroupSequence('x52009229', subsequence, tag, 0) || this._findFloatStringInGroupSequence('x52009230', subsequence, tag, index);
     }
   }, {
@@ -27748,24 +28098,36 @@ var ParsersDicom = function (_ParsersVolume) {
       if (transferSyntaxUID === '1.2.840.10008.1.2.4.90' || // JPEG 2000 Lossless
       transferSyntaxUID === '1.2.840.10008.1.2.4.91') {
         // JPEG 2000 Lossy
+
         // JPEG 2000
         return this._decodeJ2K(frameIndex);
       } else if (transferSyntaxUID === '1.2.840.10008.1.2.4.57' || // JPEG Lossless, Nonhierarchical (Processes 14)
       transferSyntaxUID === '1.2.840.10008.1.2.4.70') {
         // JPEG Lossless, Nonhierarchical (Processes 14 [Selection 1])
+
         // JPEG LOSSLESS
         return this._decodeJPEGLossless(frameIndex);
       } else if (transferSyntaxUID === '1.2.840.10008.1.2.4.50' || // JPEG Baseline lossy process 1 (8 bit)
       transferSyntaxUID === '1.2.840.10008.1.2.4.51') {
         // JPEG Baseline lossy process 2 & 4 (12 bit)
+
         // JPEG Baseline
         return this._decodeJPEGBaseline(frameIndex);
       } else if (transferSyntaxUID === '1.2.840.10008.1.2' || // Implicit VR Little Endian
-      transferSyntaxUID === '1.2.840.10008.1.2.1' || // Explicit VR Little Endian
-      transferSyntaxUID === '1.2.840.10008.1.2.2') {
-        // Explicit VR Big Endian
+      transferSyntaxUID === '1.2.840.10008.1.2.1') {
+        // Explicit VR Little Endian
+
+        // get data
         return this._decodeUncompressed(frameIndex);
+      } else if (transferSyntaxUID === '1.2.840.10008.1.2.2') {
+        // Explicit VR Big Endian
+
+        // get data
+        var frame = this._decodeUncompressed(frameIndex);
+        // and sawp it!
+        return this._swapFrame(frame);
       } else {
+
         throw 'no decoder for transfer syntax ${transferSyntaxUID}';
       }
     }
@@ -27787,12 +28149,16 @@ var ParsersDicom = function (_ParsersVolume) {
 
       var componentsCount = jpxImage.componentsCount;
       if (componentsCount !== 1) {
+
         throw 'JPEG2000 decoder returned a componentCount of ${componentsCount}, when 1 is expected';
       }
       var tileCount = jpxImage.tiles.length;
+
       if (tileCount !== 1) {
+
         throw 'JPEG2000 decoder returned a tileCount of ${tileCount}, when 1 is expected';
       }
+
       var tileComponents = jpxImage.tiles[0];
       var pixelData = tileComponents.items;
 
@@ -27814,14 +28180,19 @@ var ParsersDicom = function (_ParsersVolume) {
       var byteOutput = bitsAllocated <= 8 ? 1 : 2;
       var decoder = new Jpeg.lossless.Decoder();
       var decompressedData = decoder.decode(encodedPixelData.buffer, encodedPixelData.byteOffset, encodedPixelData.length, byteOutput);
+
       if (pixelRepresentation === 0) {
+
         if (byteOutput === 2) {
+
           return new Uint16Array(decompressedData.buffer);
         } else {
+
           // untested!
           return new Uint8Array(decompressedData.buffer);
         }
       } else {
+
         return new Int16Array(decompressedData.buffer);
       }
     }
@@ -27836,9 +28207,12 @@ var ParsersDicom = function (_ParsersVolume) {
       var bitsAllocated = this.bitsAllocated(frameIndex);
       var jpegBaseline = new JpegBaseline();
       jpegBaseline.parse(encodedPixelData);
+
       if (bitsAllocated === 8) {
+
         return jpegBaseline.getData(columns, rows);
       } else if (bitsAllocated === 16) {
+
         return jpegBaseline.getData16(columns, rows);
       }
     }
@@ -27877,6 +28251,7 @@ var ParsersDicom = function (_ParsersVolume) {
         frameOffset = pixelDataOffset + frameIndex * numPixels * 4;
         return new Uint32Array(buffer, frameOffset, numPixels);
       } else if (pixelRepresentation === 0 && bitsAllocated === 1) {
+
         var newBuffer = new ArrayBuffer(numPixels);
         var newArray = new Uint8Array(newBuffer);
 
@@ -28001,6 +28376,34 @@ var ParsersDicom = function (_ParsersVolume) {
 
       return rgbData;
     }
+
+    /**
+     * Swap bytes in frame.
+     */
+
+  }, {
+    key: '_swapFrame',
+    value: function _swapFrame(frame) {
+
+      // swap bytes ( if 8bits (1byte), nothing to swap)
+      var bitsAllocated = this.bitsAllocated();
+
+      if (bitsAllocated === 16) {
+
+        for (var i = 0; i < frame.length; i++) {
+
+          frame[i] = this._swap16(frame[i]);
+        }
+      } else if (bitsAllocated === 32) {
+
+        for (var _i2 = 0; _i2 < frame.length; _i2++) {
+
+          frame[_i2] = this._swap32(frame[_i2]);
+        }
+      }
+
+      return frame;
+    }
   }]);
 
   return ParsersDicom;
@@ -28062,6 +28465,8 @@ exports.default = {
 },{"./parsers.dicom":87,"./parsers.nifti":89,"./parsers.nrrd":90}],89:[function(require,module,exports){
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -28076,10 +28481,30 @@ var _createClass = function () {
   };
 }();
 
+var _parsers = require('./parsers.volume');
+
+var _parsers2 = _interopRequireDefault(_parsers);
+
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
+
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
   }
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 }
 
 // use nifti-js and just parse header.???
@@ -28106,7 +28531,9 @@ var NiftiReader = require('nifti-reader-js');
  * @module parsers/nifti
  */
 
-var ParsersNifti = function () {
+var ParsersNifti = function (_ParsersVolume) {
+  _inherits(ParsersNifti, _ParsersVolume);
+
   function ParsersNifti(data, id) {
     _classCallCheck(this, ParsersNifti);
 
@@ -28114,21 +28541,25 @@ var ParsersNifti = function () {
       * @member
       * @type {arraybuffer}
     */
-    this._id = id;
-    this._arrayBuffer = data.buffer;
-    this._url = data.url;
-    this._dataSet = null;
-    this._niftiHeader = null;
-    this._niftiImage = null;
-    this._ordered = true;
-    this._orderedData = null;
 
-    if (NiftiReader.isNIFTI(this._arrayBuffer)) {
-      this._dataSet = NiftiReader.readHeader(this._arrayBuffer);
-      this._niftiImage = NiftiReader.readImage(this._dataSet, this._arrayBuffer);
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ParsersNifti).call(this));
+
+    _this._id = id;
+    _this._arrayBuffer = data.buffer;
+    _this._url = data.url;
+    _this._dataSet = null;
+    _this._niftiHeader = null;
+    _this._niftiImage = null;
+    _this._ordered = true;
+    _this._orderedData = null;
+
+    if (NiftiReader.isNIFTI(_this._arrayBuffer)) {
+      _this._dataSet = NiftiReader.readHeader(_this._arrayBuffer);
+      _this._niftiImage = NiftiReader.readImage(_this._dataSet, _this._arrayBuffer);
     } else {
       throw 'parsers.nifti could not parse the file';
     }
+    return _this;
   }
 
   _createClass(ParsersNifti, [{
@@ -28492,12 +28923,14 @@ var ParsersNifti = function () {
   }]);
 
   return ParsersNifti;
-}();
+}(_parsers2.default);
 
 exports.default = ParsersNifti;
 
-},{"nifti-reader-js":24}],90:[function(require,module,exports){
+},{"./parsers.volume":91,"nifti-reader-js":24}],90:[function(require,module,exports){
 'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -28513,10 +28946,30 @@ var _createClass = function () {
   };
 }();
 
+var _parsers = require('./parsers.volume');
+
+var _parsers2 = _interopRequireDefault(_parsers);
+
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
+
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
   }
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 }
 
 // use nifti-js and just parse header.???
@@ -28544,7 +28997,9 @@ var NrrdReader = require('nrrd-js');
  * @module parsers/nifti
  */
 
-var ParsersNifti = function () {
+var ParsersNifti = function (_ParsersVolume) {
+  _inherits(ParsersNifti, _ParsersVolume);
+
   function ParsersNifti(data, id) {
     _classCallCheck(this, ParsersNifti);
 
@@ -28552,18 +29007,22 @@ var ParsersNifti = function () {
       * @member
       * @type {arraybuffer}
     */
-    this._id = id;
-    this._arrayBuffer = data.buffer;
-    this._url = data.url;
-    this._dataSet = null;
-    this._unpackedData = null;
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ParsersNifti).call(this));
+
+    _this._id = id;
+    _this._arrayBuffer = data.buffer;
+    _this._url = data.url;
+    _this._dataSet = null;
+    _this._unpackedData = null;
     try {
-      this._dataSet = NrrdReader.parse(this._arrayBuffer);
+      _this._dataSet = NrrdReader.parse(_this._arrayBuffer);
     } catch (error) {
       window.console.log('ooops... :(');
     }
 
-    window.console.log(this._dataSet);
+    window.console.log(_this._dataSet);
+    return _this;
   }
 
   _createClass(ParsersNifti, [{
@@ -28784,11 +29243,11 @@ var ParsersNifti = function () {
   }]);
 
   return ParsersNifti;
-}();
+}(_parsers2.default);
 
 exports.default = ParsersNifti;
 
-},{"nrrd-js":28,"pako":29}],91:[function(require,module,exports){
+},{"./parsers.volume":91,"nrrd-js":28,"pako":29}],91:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28823,6 +29282,25 @@ var ParsersVolume = function () {
   _createClass(ParsersVolume, [{
     key: "_decompressUncompressed",
     value: function _decompressUncompressed() {}
+
+    //http://stackoverflow.com/questions/5320439/how-do-i-swap-endian-ness-byte-order-of-a-variable-in-javascript
+
+  }, {
+    key: "_swap16",
+    value: function _swap16(val) {
+
+      return (val & 0xFF) << 8 | val >> 8 & 0xFF;
+    }
+  }, {
+    key: "_swap32",
+    value: function _swap32(val) {
+      return (val & 0xFF) << 24 | (val & 0xFF00) << 8 | val >> 8 & 0xFF00 | val >> 24 & 0xFF;
+    }
+  }, {
+    key: "invert",
+    value: function invert() {
+      return false;
+    }
   }]);
 
   return ParsersVolume;
@@ -28913,6 +29391,10 @@ var ShadersData = function () {
         'uPixelType': {
           type: 'i',
           value: 0
+        },
+        'uInterpolation': {
+          type: 'i',
+          value: 1
         }
       };
     }
@@ -28934,6 +29416,10 @@ var _shadersData = require('./shaders.data.js');
 
 var _shadersData2 = _interopRequireDefault(_shadersData);
 
+var _shadersLayer = require('./shaders.layer.js');
+
+var _shadersLayer2 = _interopRequireDefault(_shadersLayer);
+
 var _shadersRaycasting = require('./shaders.raycasting.js');
 
 var _shadersRaycasting2 = _interopRequireDefault(_shadersRaycasting);
@@ -28945,13 +29431,15 @@ function _interopRequireDefault(obj) {
 /*** Imports ***/
 
 var DataVertex = "#define GLSLIFY 1\nvarying vec4 vPos;\n\n//\n// main\n//\nvoid main() {\n\n  vPos = modelMatrix * vec4(position, 1.0 );\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );\n\n}";
-var DataFragment = "#define GLSLIFY 1\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uInvert;\n\n// hack because can not pass arrays if too big\n// best would be to pass texture but have to deal with 16bits\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\n\nvarying vec4      vPos;\n\n// include functions\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid main(void) {\n\n  // get texture coordinates of current pixel\n  // doesn't need that in theory\n  vec4 dataCoordinatesRaw = uWorldToData * vPos;\n  // rounding trick\n  // first center of first voxel in data space is CENTERED on (0,0,0)\n  dataCoordinatesRaw += 0.5;\n  ivec3 dataCoordinates = ivec3(int(floor(dataCoordinatesRaw.x)), int(floor(dataCoordinatesRaw.y)), int(floor(dataCoordinatesRaw.z)));\n\n  // index 100\n  // dataCoordinates.x = 26; //25\n  // dataCoordinates.y = 1;\n  // dataCoordinates.z = 0;\n\n  // if data in range, look it up in the texture!\n  if ( all(greaterThanEqual(dataCoordinates, ivec3(0))) &&\n       all(lessThan(dataCoordinates, uDataDimensions))) {\n    vec4 packedValue = vec4(0., 0., 0., 0.);\n    texture3DPolyfill(\n        dataCoordinates,\n        uDataDimensions,\n        uTextureSize,\n        uTextureContainer[0],\n        uTextureContainer[1],\n        uTextureContainer[2],\n        uTextureContainer[3],\n        uTextureContainer[4],\n        uTextureContainer[5],\n        uTextureContainer[6],\n        uTextureContainer,     // not working on Moto X 2014\n        packedValue\n        );\n\n    vec4 dataValue = vec4(0., 0., 0., 0.);\n    unpack(\n      packedValue,\n      uBitsAllocated,\n      0,\n      uNumberOfChannels,\n      uPixelType,\n      dataValue);\n\n    // how do we deal wil more than 1 channel?\n    if(uNumberOfChannels == 1){\n      float intensity = dataValue.r;\n\n      // rescale/slope\n      intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n\n      // window level\n      // if(intensity < 2000.){\n      //   gl_FragColor = vec4(1.0, 0., 0., 1.);\n        //return;\n      // }\n      float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n      float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;\n      intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n\n      dataValue.r = dataValue.g = dataValue.b = intensity;\n    }\n\n    // Apply LUT table...\n    //\n    if(uLut == 1){\n      // should opacity be grabbed there?\n      dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n    }\n\n    if(uInvert == 1){\n      dataValue = vec4(1.) - dataValue;\n      // how do we deal with that and opacity?\n      dataValue.a = 1.;\n    }\n\n    gl_FragColor = dataValue;\n\n  }\n  else{\n    // should be able to choose what we want to do if not in range:\n    // discard or specific color\n    discard;\n    gl_FragColor = vec4(0.011, 0.662, 0.956, 1.0);\n  }\n}";
+var DataFragment = "#define GLSLIFY 1\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uInvert;\nuniform int       uInterpolation;\n\n// hack because can not pass arrays if too big\n// best would be to pass texture but have to deal with 16bits\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\n\nvarying vec4      vPos;\n\n// include functions\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid no(in vec3 currentVoxel,\n        in int kernelSize,\n        in ivec3 dataDimensions,\n        in int textureSize,\n        in sampler2D textureContainer0,\n        in sampler2D textureContainer1,\n        in sampler2D textureContainer2,\n        in sampler2D textureContainer3,\n        in sampler2D textureContainer4,\n        in sampler2D textureContainer5,\n        in sampler2D textureContainer6,\n        in sampler2D textureContainer[7], // not working on Moto X 2014\n        in int bitsAllocated, \n        in int numberOfChannels_1, \n        in int pixelType_1,\n        out vec4 intensity_1\n  ) {\n  \n  // lower bound\n  vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n  ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));\n\n  texture3DPolyfill(\n    voxel,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    intensity_1\n    );\n\n  unpack(\n    intensity_1,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    intensity_1);\n\n}\n\n// https://en.wikipedia.org/wiki/Trilinear_interpolation\n\nvoid trilinear(in vec3 currentVoxel,\n               in int kernelSize,\n               in ivec3 dataDimensions,\n               in int textureSize,\n               in sampler2D textureContainer0,\n               in sampler2D textureContainer1,\n               in sampler2D textureContainer2,\n               in sampler2D textureContainer3,\n               in sampler2D textureContainer4,\n               in sampler2D textureContainer5,\n               in sampler2D textureContainer6,\n               in sampler2D textureContainer[7], // not working on Moto X 2014\n               in int bitsAllocated, \n               in int numberOfChannels_2, \n               in int pixelType_2,\n               out vec4 intensity_2\n  ) {\n  \n  // lower bound\n  vec3 lb = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n\n  vec3 direction = currentVoxel - lb;\n\n  // higher bound\n  vec3 hb = lb + 1.0;\n\n  if( direction.x < 0.0){\n\n    hb.x -= 2.0;\n\n  }\n\n  if( direction.y < 0.0){\n\n    hb.y -= 2.0;\n\n  }\n\n  if( direction.z < 0.0){\n\n    hb.z -= 2.0;\n\n  }\n\n  vec3 lc = vec3(0.0, 0.0, 0.0);\n  vec3 hc = vec3(0.0, 0.0, 0.0);\n\n  if(lb.x < hb.x){\n\n    lc.x = lb.x;\n    hc.x = hb.x;\n\n  }\n  else{\n\n    lc.x = hb.x;\n    hc.x = lb.x;\n\n  }\n\n  if(lb.y < hb.y){\n\n    lc.y = lb.y;\n    hc.y = hb.y;\n\n  }\n  else{\n\n    lc.y = hb.y;\n    hc.y = lb.y;\n\n  }\n\n  if(lb.z < hb.z){\n\n    lc.z = lb.z;\n    hc.z = hb.z;\n\n  }\n  else{\n\n    lc.z = hb.z;\n    hc.z = lb.z;\n\n  }\n\n  float xd = ( currentVoxel.x - lc.x ) / ( hc.x - lc.x );\n  float yd = ( currentVoxel.y - lc.y ) / ( hc.y - lc.y );\n  float zd = ( currentVoxel.z - lc.z ) / ( hc.z - lc.z );\n\n  //\n  // c00\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c000,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v000\n    );\n\n  unpack(\n    v000,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v000);\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c100,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v100\n    );\n\n  unpack(\n    v100,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v100);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c001,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v001\n    );\n\n  unpack(\n    v001,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v001);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c101,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v101\n    );\n\n  unpack(\n    v101,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v101);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c010,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v010\n    );\n\n  unpack(\n    v010,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v010);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c110,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v110\n    );\n\n  unpack(\n    v110,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v110);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c011,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v011\n    );\n\n  unpack(\n    v011,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v011);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c111,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v111\n    );\n\n  unpack(\n    v111,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v111);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  intensity_2 = c;\n\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid value_0(in vec3 dataCoordinates,\n           in int kernelSize,\n           in int interpolationMethod,\n           in ivec3 dataDimensions,\n           in int textureSize,\n           in sampler2D textureContainer0,\n           in sampler2D textureContainer1,\n           in sampler2D textureContainer2,\n           in sampler2D textureContainer3,\n           in sampler2D textureContainer4,\n           in sampler2D textureContainer5,\n           in sampler2D textureContainer6,\n           in sampler2D textureContainer[7], // not working on Moto X 2014\n           in int bitsAllocated, \n           in int numberOfChannels_0, \n           in int pixelType_0,\n           out vec4 intensity_0\n  ) {\n\n  //\n  // no interpolation for now...\n  //\n\n  if( interpolationMethod == 0){\n\n    // no interpolation\n    no(dataCoordinates,\n       kernelSize,\n       dataDimensions,\n       textureSize,\n       textureContainer0,\n       textureContainer1,\n       textureContainer2,\n       textureContainer3,\n       textureContainer4,\n       textureContainer5,\n       textureContainer6,\n       textureContainer,\n       bitsAllocated,\n       numberOfChannels_0,\n       pixelType_0,\n       intensity_0);\n\n  }\n  else if( interpolationMethod == 1){\n\n    // trilinear interpolation\n\n    trilinear(dataCoordinates,\n      kernelSize,\n      dataDimensions,\n      textureSize,\n      textureContainer0,\n      textureContainer1,\n      textureContainer2,\n      textureContainer3,\n      textureContainer4,\n      textureContainer5,\n      textureContainer6,\n      textureContainer,\n      bitsAllocated,\n      numberOfChannels_0,\n      pixelType_0,\n      intensity_0);\n\n  }\n\n}\n\nvoid main(void) {\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = vec3(dataCoordinates.x, dataCoordinates.y, dataCoordinates.z);\n  int kernelSize = 2;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  value_0(\n    currentVoxel,\n    kernelSize,\n    uInterpolation,\n    uDataDimensions,\n    uTextureSize,\n    uTextureContainer[0],\n    uTextureContainer[1],\n    uTextureContainer[2],\n    uTextureContainer[3],\n    uTextureContainer[4],\n    uTextureContainer[5],\n    uTextureContainer[6],\n    uTextureContainer,     // not working on Moto X 2014\n    uBitsAllocated,\n    uNumberOfChannels,\n    uPixelType,\n    dataValue\n  );\n\n  // how do we deal wil more than 1 channel?\n  if(uNumberOfChannels == 1){\n    float intensity = dataValue.r;\n\n    // rescale/slope\n    intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;\n    intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n\n    dataValue.r = dataValue.g = dataValue.b = intensity;\n    dataValue.a = 1.0;\n  }\n\n  // Apply LUT table...\n  //\n  if(uLut == 1){\n    // should opacity be grabbed there?\n    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n\n}";
 
-var RaycastingFirstpassFragment = "#define GLSLIFY 1\nuniform float uWorldBBox[6];\n\nvarying vec4 vPos;\n\nvoid main(void) {\n\n  // NORMALIZE LPS VALUES\n  gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),\n                      (vPos.y - uWorldBBox[2])/(uWorldBBox[3] - uWorldBBox[2]),\n                      (vPos.z - uWorldBBox[4])/(uWorldBBox[5] - uWorldBBox[4]),\n                      1.0);\n\n  // if((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]) > 1. ||\n  //    (vPos.y - uWorldBBox[2])/(uWorldBBox[3] - uWorldBBox[2]) > 1. ||\n  //    (vPos.z - uWorldBBox[4])/(uWorldBBox[5] - uWorldBBox[4]) > 1.){\n  //    gl_FragColor = vec4(0., 0., 0., 0.);\n  // }\n}";
+var LayerFragment = "#define GLSLIFY 1\nuniform sampler2D uTextureBackTest0;\nuniform float     uOpacity0;\nuniform int       uType0;\nuniform sampler2D uTextureBackTest1;\nuniform float     uOpacity1;\nuniform int       uType1;\nuniform int       uTrackMouse;\nuniform vec2      uMouse;\n\nvarying vec4      vPos;\nvarying vec4      vProjectedCoords;\n\n// include functions\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid no(in vec3 currentVoxel,\n        in int kernelSize,\n        in ivec3 dataDimensions,\n        in int textureSize,\n        in sampler2D textureContainer0,\n        in sampler2D textureContainer1,\n        in sampler2D textureContainer2,\n        in sampler2D textureContainer3,\n        in sampler2D textureContainer4,\n        in sampler2D textureContainer5,\n        in sampler2D textureContainer6,\n        in sampler2D textureContainer[7], // not working on Moto X 2014\n        in int bitsAllocated, \n        in int numberOfChannels_2, \n        in int pixelType_2,\n        out vec4 intensity_2\n  ) {\n  \n  // lower bound\n  vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n  ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));\n\n  texture3DPolyfill(\n    voxel,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    intensity_2\n    );\n\n  unpack(\n    intensity_2,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    intensity_2);\n\n}\n\n// https://en.wikipedia.org/wiki/Trilinear_interpolation\n\nvoid trilinear(in vec3 currentVoxel,\n               in int kernelSize,\n               in ivec3 dataDimensions,\n               in int textureSize,\n               in sampler2D textureContainer0,\n               in sampler2D textureContainer1,\n               in sampler2D textureContainer2,\n               in sampler2D textureContainer3,\n               in sampler2D textureContainer4,\n               in sampler2D textureContainer5,\n               in sampler2D textureContainer6,\n               in sampler2D textureContainer[7], // not working on Moto X 2014\n               in int bitsAllocated, \n               in int numberOfChannels_1, \n               in int pixelType_1,\n               out vec4 intensity_1\n  ) {\n  \n  // lower bound\n  vec3 lb = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n\n  vec3 direction = currentVoxel - lb;\n\n  // higher bound\n  vec3 hb = lb + 1.0;\n\n  if( direction.x < 0.0){\n\n    hb.x -= 2.0;\n\n  }\n\n  if( direction.y < 0.0){\n\n    hb.y -= 2.0;\n\n  }\n\n  if( direction.z < 0.0){\n\n    hb.z -= 2.0;\n\n  }\n\n  vec3 lc = vec3(0.0, 0.0, 0.0);\n  vec3 hc = vec3(0.0, 0.0, 0.0);\n\n  if(lb.x < hb.x){\n\n    lc.x = lb.x;\n    hc.x = hb.x;\n\n  }\n  else{\n\n    lc.x = hb.x;\n    hc.x = lb.x;\n\n  }\n\n  if(lb.y < hb.y){\n\n    lc.y = lb.y;\n    hc.y = hb.y;\n\n  }\n  else{\n\n    lc.y = hb.y;\n    hc.y = lb.y;\n\n  }\n\n  if(lb.z < hb.z){\n\n    lc.z = lb.z;\n    hc.z = hb.z;\n\n  }\n  else{\n\n    lc.z = hb.z;\n    hc.z = lb.z;\n\n  }\n\n  float xd = ( currentVoxel.x - lc.x ) / ( hc.x - lc.x );\n  float yd = ( currentVoxel.y - lc.y ) / ( hc.y - lc.y );\n  float zd = ( currentVoxel.z - lc.z ) / ( hc.z - lc.z );\n\n  //\n  // c00\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c000,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v000\n    );\n\n  unpack(\n    v000,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v000);\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c100,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v100\n    );\n\n  unpack(\n    v100,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v100);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c001,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v001\n    );\n\n  unpack(\n    v001,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v001);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c101,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v101\n    );\n\n  unpack(\n    v101,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v101);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c010,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v010\n    );\n\n  unpack(\n    v010,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v010);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c110,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v110\n    );\n\n  unpack(\n    v110,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v110);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c011,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v011\n    );\n\n  unpack(\n    v011,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v011);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c111,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v111\n    );\n\n  unpack(\n    v111,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v111);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  intensity_1 = c;\n\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid value_0(in vec3 dataCoordinates,\n           in int kernelSize,\n           in int interpolationMethod,\n           in ivec3 dataDimensions,\n           in int textureSize,\n           in sampler2D textureContainer0,\n           in sampler2D textureContainer1,\n           in sampler2D textureContainer2,\n           in sampler2D textureContainer3,\n           in sampler2D textureContainer4,\n           in sampler2D textureContainer5,\n           in sampler2D textureContainer6,\n           in sampler2D textureContainer[7], // not working on Moto X 2014\n           in int bitsAllocated, \n           in int numberOfChannels_0, \n           in int pixelType_0,\n           out vec4 intensity_0\n  ) {\n\n  //\n  // no interpolation for now...\n  //\n\n  if( interpolationMethod == 0){\n\n    // no interpolation\n    no(dataCoordinates,\n       kernelSize,\n       dataDimensions,\n       textureSize,\n       textureContainer0,\n       textureContainer1,\n       textureContainer2,\n       textureContainer3,\n       textureContainer4,\n       textureContainer5,\n       textureContainer6,\n       textureContainer,\n       bitsAllocated,\n       numberOfChannels_0,\n       pixelType_0,\n       intensity_0);\n\n  }\n  else if( interpolationMethod == 1){\n\n    // trilinear interpolation\n\n    trilinear(dataCoordinates,\n      kernelSize,\n      dataDimensions,\n      textureSize,\n      textureContainer0,\n      textureContainer1,\n      textureContainer2,\n      textureContainer3,\n      textureContainer4,\n      textureContainer5,\n      textureContainer6,\n      textureContainer,\n      bitsAllocated,\n      numberOfChannels_0,\n      pixelType_0,\n      intensity_0);\n\n  }\n\n}\n\nvoid main(void) {\n\n  vec2 texc = vec2(((vProjectedCoords.x / vProjectedCoords.w) + 1.0 ) / 2.0,\n                ((vProjectedCoords.y / vProjectedCoords.w) + 1.0 ) / 2.0 );\n\n  // just silence warning for\n  vec4 dummy = vPos;\n\n  //The back position is the world space position stored in the texture.\n  vec4 baseColor0 = texture2D(uTextureBackTest0, texc);\n  vec4 baseColor1 = texture2D(uTextureBackTest1, texc);\n\n  vec4 pixelColor = baseColor0;\n\n  if( uTrackMouse == 1 ){\n\n      if( vProjectedCoords.x < uMouse.x ){\n\n        pixelColor = baseColor0;\n\n      }\n      else{\n\n        pixelColor = baseColor1;\n\n      }\n\n  }\n  else{\n\n    if( uType1 == 0 ){\n\n      //merge an inmage into\n      pixelColor = mix( pixelColor, baseColor1, uOpacity1 );\n\n    }\n    else{\n\n      float opacity = baseColor1.a;\n      pixelColor = mix( pixelColor, baseColor1, opacity * uOpacity1 );\n\n    }\n\n  }\n\n  gl_FragColor = pixelColor;\n\n  return;\n\n}";
+
+var RaycastingFirstpassFragment = "#define GLSLIFY 1\nuniform float uWorldBBox[6];\n\nvarying vec4 vPos;\n\nvoid main(void) {\n\n  // NORMALIZE LPS VALUES\n  gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),\n                      (vPos.y - uWorldBBox[2])/(uWorldBBox[3] - uWorldBBox[2]),\n                      (vPos.z - uWorldBBox[4])/(uWorldBBox[5] - uWorldBBox[4]),\n                      1.0);\n\n}";
 var RaycastingSecondpassVertex = "#define GLSLIFY 1\nvarying vec4 vPos;\nvarying vec4 vProjectedCoords;\n//\n// main\n//\nvoid main() {\n\n  vPos = modelMatrix * vec4(position, 1.0 );\n  vProjectedCoords =  projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );\n\n}";
-var RaycastingSecondpassFragment = "#define GLSLIFY 1\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform float     uWorldBBox[6];\nuniform sampler2D uTextureBack;\nuniform int       uSteps;\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\nuniform float     uAlphaCorrection;\nuniform float     uFrequence;\nuniform float     uAmplitude;\n\nvarying vec4      vPos;\nvarying vec4      vProjectedCoords;\n\n// include functions\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvec3 transformPoint(const in vec3 samplePoint, const in float frequency, const in float amplitude)\n// Apply a spatial transformation to a world space point\n{\n  return samplePoint + amplitude * vec3(samplePoint.x * sin(frequency * samplePoint.z),\n                                        samplePoint.y * cos(frequency * samplePoint.z),\n                                        0);\n}\n\n// needed for glslify\n\nvoid getIntensity(in ivec3 dataCoordinates, out float intensity){\n\n  vec4 packedValue = vec4(0., 0., 0., 0.);\n  texture3DPolyfill(\n    dataCoordinates,\n    uDataDimensions,\n    uTextureSize,\n    uTextureContainer[0],\n    uTextureContainer[1],\n    uTextureContainer[2],\n    uTextureContainer[3],\n    uTextureContainer[4],\n    uTextureContainer[5],\n    uTextureContainer[6],\n    uTextureContainer,     // not working on Moto X 2014\n    packedValue\n    );\n\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  unpack(\n    packedValue,\n    uBitsAllocated,\n    0,\n    uNumberOfChannels,\n    uPixelType,\n    dataValue);\n  \n  intensity = dataValue.r;\n\n  // rescale/slope\n  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  // window level\n  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n  // float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;\n  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n}\n\nvoid main(void) {\n  const int maxSteps = 1024;\n\n  //\n  vec2 texc = vec2(((vProjectedCoords.x / vProjectedCoords.w) + 1.0 ) / 2.0,\n                ((vProjectedCoords.y / vProjectedCoords.w) + 1.0 ) / 2.0 );\n  //The back position is the world space position stored in the texture.\n  vec3 backPosNormalized = texture2D(uTextureBack, texc).xyz;\n  //\n  vec3 backPos = vec3(backPosNormalized.x * (uWorldBBox[1] - uWorldBBox[0]) + uWorldBBox[0],\n                     backPosNormalized.y * (uWorldBBox[3] - uWorldBBox[2]) + uWorldBBox[2],\n                     backPosNormalized.z * (uWorldBBox[5] - uWorldBBox[4]) + uWorldBBox[4]);\n  vec3 frontPos = vec3(vPos.x, vPos.y, vPos.z);\n\n  // init the ray\n  vec3 rayDir = backPos - frontPos;\n  float rayLength = length(rayDir);\n\n  // init the delta\n  float delta = 1.0 / float(uSteps);\n  vec3  deltaDirection = rayDir * delta;\n  float deltaDirectionLength = length(deltaDirection);\n\n  // init the ray marching\n  vec3 currentPosition = frontPos;\n  vec4 accumulatedColor = vec4(0.0);\n  float accumulatedAlpha = 0.0;\n  float accumulatedLength = 0.0;\n\n  // color and alpha at intersection\n  vec4 colorSample;\n  float alphaSample;\n  float gradientLPS = 1.;\n  for(int rayStep = 0; rayStep < maxSteps; rayStep++){\n\n    // get data value at given location\n    // need a function/polyfill to hide it\n\n    // get texture coordinates of current pixel\n    // doesn't need that in theory\n    vec3 currentPosition2 = transformPoint(currentPosition, uAmplitude, uFrequence);\n    vec4 currentPos4 = vec4(currentPosition2, 1.0);\n\n    vec4 dataCoordinatesRaw = uWorldToData * currentPos4;\n    // rounding trick\n    // first center of first voxel in data space is CENTERED on (0,0,0)\n    dataCoordinatesRaw += 0.5;\n    ivec3 dataCoordinates = ivec3(int(floor(dataCoordinatesRaw.x)), int(floor(dataCoordinatesRaw.y)), int(floor(dataCoordinatesRaw.z)));\n\n    if ( all(greaterThanEqual(dataCoordinates, ivec3(0))) &&\n         all(lessThan(dataCoordinates, uDataDimensions))) {\n      float intensity = 0.0;\n      getIntensity(dataCoordinates, intensity);\n\n      // compute gradient\n      // // vec4 sP00lps = currentPos4 + vec4(gradientLPS, 0, 0, 0);\n      // // vec4 sP00ijkRaw = uWorldToData * sP00lps;\n      // // sP00ijkRaw += 0.5;\n      // // ivec3 sP00ijk = ivec3(int(floor(sP00ijkRaw.x)), int(floor(sP00ijkRaw.y)), int(floor(sP00ijkRaw.z)));\n      // ivec3 sP00ijk = dataCoordinates + ivec3(gradientLPS, 0, 0);\n      // float sP00 = getIntensity(sP00ijk);\n\n      // // vec4 sN00lps = currentPos4 - vec4(gradientLPS, 0, 0, 0);\n      // // vec4 sN00ijkRaw = uWorldToData * sN00lps;\n      // // sN00ijkRaw += 0.5;\n      // // ivec3 sN00ijk = ivec3(int(floor(sN00ijkRaw.x)), int(floor(sN00ijkRaw.y)), int(floor(sN00ijkRaw.z)));\n      // ivec3 sN00ijk = dataCoordinates - ivec3(gradientLPS, 0, 0);\n      // float sN00 = getIntensity(sN00ijk);\n\n      // // vec4 s0P0lps = currentPos4 + vec4(0, gradientLPS, 0, 0);\n      // // vec4 s0P0ijkRaw = uWorldToData * s0P0lps;\n      // // s0P0ijkRaw += 0.5;\n      // // ivec3 s0P0ijk = ivec3(int(floor(s0P0ijkRaw.x)), int(floor(s0P0ijkRaw.y)), int(floor(s0P0ijkRaw.z)));\n      // ivec3 s0P0ijk = dataCoordinates + ivec3(0, gradientLPS, 0);\n      // float s0P0 = getIntensity(s0P0ijk);\n\n      // // vec4 s0N0lps = currentPos4 - vec4(0, gradientLPS, 0, 0);\n      // // vec4 s0N0ijkRaw = uWorldToData * s0N0lps;\n      // // s0N0ijkRaw += 0.5;\n      // // ivec3 s0N0ijk = ivec3(int(floor(s0N0ijkRaw.x)), int(floor(s0N0ijkRaw.y)), int(floor(s0N0ijkRaw.z)));\n      // ivec3 s0N0ijk = dataCoordinates - ivec3(0, gradientLPS, 0);\n      // float s0N0 = getIntensity(s0N0ijk);\n\n      // // vec4 s00Plps = currentPos4 + vec4(0, 0, gradientLPS, 0);\n      // // vec4 s00PijkRaw = uWorldToData * s00Plps;\n      // // s00PijkRaw += 0.5;\n      // // ivec3 s00Pijk = ivec3(int(floor(s00PijkRaw.x)), int(floor(s00PijkRaw.y)), int(floor(s00PijkRaw.z)));\n      // ivec3 s00Pijk  = dataCoordinates + ivec3(0, 0, gradientLPS);\n      // float s00P = getIntensity(s00Pijk);\n\n      // // vec4 s00Nlps = currentPos4 - vec4(0, 0, gradientLPS, 0);\n      // // vec4 s00NijkRaw = uWorldToData * s00Nlps;\n      // // s00NijkRaw += 0.5;\n      // // ivec3 s00Nijk = ivec3(int(floor(s00NijkRaw.x)), int(floor(s00NijkRaw.y)), int(floor(s00NijkRaw.z)));\n      // ivec3 s00Nijk  = dataCoordinates - ivec3(0, 0, gradientLPS);\n      // float s00N = getIntensity(s00Nijk);\n\n      // // gradient in IJK space\n      // vec3 gradient = vec3( (sP00-sN00), (s0P0-s0N0), (s00P-s00N));\n      // float gradientMagnitude = length(gradient);\n      // // back to LPS\n\n      // vec3 normal = -1. * normalize(gradient);\n\n      // float dotP = dot(deltaDirection, gradient);\n\n      // float sN00 = textureSampleDenormalized(volumeSampler, stpPoint - vec3(gradientSize,0,0));\n      // float s0P0 = textureSampleDenormalized(volumeSampler, stpPoint + vec3(0,gradientSize,0));\n      // float s0N0 = textureSampleDenormalized(volumeSampler, stpPoint - vec3(0,gradientSize,0));\n      // float s00P = textureSampleDenormalized(volumeSampler, stpPoint + vec3(0,0,gradientSize));\n      // float s00N = textureSampleDenormalized(volumeSampler, stpPoint - vec3(0,0,gradientSize));\n\n      if(uLut == 1){\n        vec4 test = texture2D( uTextureLUT, vec2( intensity, 1.0) );\n        // 256 colors\n        colorSample.r = test.r;//test.a;\n        colorSample.g = test.g;//test.a;\n        colorSample.b = test.b;///test.a;\n        alphaSample = test.a;\n\n//         if(abs(intensity - test.a) > .5){\n// colorSample.r = 1.;\n//         colorSample.g = 0.;\n//         colorSample.b = 0.;\n//         }\n      }\n      else{\n        alphaSample = intensity;\n        colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;\n      }\n\n      alphaSample = alphaSample * uAlphaCorrection;\n      alphaSample *= (1.0 - accumulatedAlpha);\n\n      // we have the intensity now\n      // colorSample.x = colorSample.y = colorSample.z = intensity;\n      // use a dummy alpha for now\n      // alphaSample = intensity;\n      // if(alphaSample < 0.15){\n      //   alphaSample = 0.;\n      // }\n\n      //Perform the composition.\n      // (1.0 - accumulatedAlpha) *\n      accumulatedColor += alphaSample * colorSample;// * alphaSample;\n\n//       if(accumulatedColor.y > .2){\n// accumulatedColor.y = accumulatedColor.z = 0.;\n//       }\n      // accumulatedColor = vec4((currentPosition.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),\n      //                (currentPosition.y - uWorldBBox[2])/(uWorldBBox[3] - uWorldBBox[2]),\n      //                (currentPosition.z - uWorldBBox[4])/(uWorldBBox[5] - uWorldBBox[4]),\n      //                1.0);\n      //Store the alpha accumulated so far.\n      accumulatedAlpha += alphaSample;\n      // accumulatedAlpha += 1.0;\n\n    }\n\n    //Advance the ray.\n    currentPosition += deltaDirection;\n    accumulatedLength += deltaDirectionLength;\n\n    if(accumulatedLength >= rayLength || accumulatedAlpha >= 1.0 ) break;\n  }\n\n  // debugging stuff...\n  // gl_FragColor = accumulatedColor;\n  // vec4 fn = vec4((frontPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),\n  //                     (frontPos.y - uWorldBBox[2])/(uWorldBBox[3] - uWorldBBox[2]),\n  //                     (frontPos.z - uWorldBBox[4])/(uWorldBBox[5] - uWorldBBox[4]),\n  //                     0.0);\n  // gl_FragColor = fn;\n\n  // vec4 bn = vec4((backPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),\n  //                     (backPos.y - uWorldBBox[2])/(uWorldBBox[3] - uWorldBBox[2]),\n  //                     (backPos.z - uWorldBBox[4])/(uWorldBBox[5] - uWorldBBox[4]),\n  //                     1.0);\n  // gl_FragColor = bn;\n\n  // gl_FragColor = bn - fn;\n  // gl_FragColor = vec4(dirN, 1.);\n  // gl_FragColor = vec4(currentPosition.x, currentPosition.y, 1., 1.);\n  // gl_FragColor = vec4(1. - dirN, 1.0);\n  // gl_FragColor = vec4((currentPosition.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),\n  //                     (currentPosition.y - uWorldBBox[2])/(uWorldBBox[3] - uWorldBBox[2]),\n  //                     (currentPosition.z - uWorldBBox[4])/(uWorldBBox[5] - uWorldBBox[4]),\n  //                     1.0);\n\n  // if(accumulatedAlpha < 0.1){\n  //   discard;\n  // }\n  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);\n}";
+var RaycastingSecondpassFragment = "#define GLSLIFY 1\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform float     uWorldBBox[6];\nuniform sampler2D uTextureBack;\nuniform int       uSteps;\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\nuniform float     uAlphaCorrection;\nuniform float     uFrequence;\nuniform float     uAmplitude;\nuniform int       uInterpolation;\n\nvarying vec4      vPos;\nvarying vec4      vProjectedCoords;\n\n// include functions\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid no(in vec3 currentVoxel,\n        in int kernelSize,\n        in ivec3 dataDimensions,\n        in int textureSize,\n        in sampler2D textureContainer0,\n        in sampler2D textureContainer1,\n        in sampler2D textureContainer2,\n        in sampler2D textureContainer3,\n        in sampler2D textureContainer4,\n        in sampler2D textureContainer5,\n        in sampler2D textureContainer6,\n        in sampler2D textureContainer[7], // not working on Moto X 2014\n        in int bitsAllocated, \n        in int numberOfChannels_2, \n        in int pixelType_2,\n        out vec4 intensity_2\n  ) {\n  \n  // lower bound\n  vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n  ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));\n\n  texture3DPolyfill(\n    voxel,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    intensity_2\n    );\n\n  unpack(\n    intensity_2,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    intensity_2);\n\n}\n\n// https://en.wikipedia.org/wiki/Trilinear_interpolation\n\nvoid trilinear(in vec3 currentVoxel,\n               in int kernelSize,\n               in ivec3 dataDimensions,\n               in int textureSize,\n               in sampler2D textureContainer0,\n               in sampler2D textureContainer1,\n               in sampler2D textureContainer2,\n               in sampler2D textureContainer3,\n               in sampler2D textureContainer4,\n               in sampler2D textureContainer5,\n               in sampler2D textureContainer6,\n               in sampler2D textureContainer[7], // not working on Moto X 2014\n               in int bitsAllocated, \n               in int numberOfChannels_0, \n               in int pixelType_0,\n               out vec4 intensity_0\n  ) {\n  \n  // lower bound\n  vec3 lb = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n\n  vec3 direction = currentVoxel - lb;\n\n  // higher bound\n  vec3 hb = lb + 1.0;\n\n  if( direction.x < 0.0){\n\n    hb.x -= 2.0;\n\n  }\n\n  if( direction.y < 0.0){\n\n    hb.y -= 2.0;\n\n  }\n\n  if( direction.z < 0.0){\n\n    hb.z -= 2.0;\n\n  }\n\n  vec3 lc = vec3(0.0, 0.0, 0.0);\n  vec3 hc = vec3(0.0, 0.0, 0.0);\n\n  if(lb.x < hb.x){\n\n    lc.x = lb.x;\n    hc.x = hb.x;\n\n  }\n  else{\n\n    lc.x = hb.x;\n    hc.x = lb.x;\n\n  }\n\n  if(lb.y < hb.y){\n\n    lc.y = lb.y;\n    hc.y = hb.y;\n\n  }\n  else{\n\n    lc.y = hb.y;\n    hc.y = lb.y;\n\n  }\n\n  if(lb.z < hb.z){\n\n    lc.z = lb.z;\n    hc.z = hb.z;\n\n  }\n  else{\n\n    lc.z = hb.z;\n    hc.z = lb.z;\n\n  }\n\n  float xd = ( currentVoxel.x - lc.x ) / ( hc.x - lc.x );\n  float yd = ( currentVoxel.y - lc.y ) / ( hc.y - lc.y );\n  float zd = ( currentVoxel.z - lc.z ) / ( hc.z - lc.z );\n\n  //\n  // c00\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c000,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v000\n    );\n\n  unpack(\n    v000,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v000);\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c100,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v100\n    );\n\n  unpack(\n    v100,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v100);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c001,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v001\n    );\n\n  unpack(\n    v001,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v001);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c101,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v101\n    );\n\n  unpack(\n    v101,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v101);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c010,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v010\n    );\n\n  unpack(\n    v010,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v010);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c110,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v110\n    );\n\n  unpack(\n    v110,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v110);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c011,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v011\n    );\n\n  unpack(\n    v011,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v011);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c111,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v111\n    );\n\n  unpack(\n    v111,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v111);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  intensity_0 = c;\n\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid value_0(in vec3 dataCoordinates,\n           in int kernelSize,\n           in int interpolationMethod,\n           in ivec3 dataDimensions,\n           in int textureSize,\n           in sampler2D textureContainer0,\n           in sampler2D textureContainer1,\n           in sampler2D textureContainer2,\n           in sampler2D textureContainer3,\n           in sampler2D textureContainer4,\n           in sampler2D textureContainer5,\n           in sampler2D textureContainer6,\n           in sampler2D textureContainer[7], // not working on Moto X 2014\n           in int bitsAllocated, \n           in int numberOfChannels_1, \n           in int pixelType_1,\n           out vec4 intensity_1\n  ) {\n\n  //\n  // no interpolation for now...\n  //\n\n  if( interpolationMethod == 0){\n\n    // no interpolation\n    no(dataCoordinates,\n       kernelSize,\n       dataDimensions,\n       textureSize,\n       textureContainer0,\n       textureContainer1,\n       textureContainer2,\n       textureContainer3,\n       textureContainer4,\n       textureContainer5,\n       textureContainer6,\n       textureContainer,\n       bitsAllocated,\n       numberOfChannels_1,\n       pixelType_1,\n       intensity_1);\n\n  }\n  else if( interpolationMethod == 1){\n\n    // trilinear interpolation\n\n    trilinear(dataCoordinates,\n      kernelSize,\n      dataDimensions,\n      textureSize,\n      textureContainer0,\n      textureContainer1,\n      textureContainer2,\n      textureContainer3,\n      textureContainer4,\n      textureContainer5,\n      textureContainer6,\n      textureContainer,\n      bitsAllocated,\n      numberOfChannels_1,\n      pixelType_1,\n      intensity_1);\n\n  }\n\n}\n\nvec3 transformPoint(const in vec3 samplePoint, const in float frequency, const in float amplitude)\n// Apply a spatial transformation to a world space point\n{\n  return samplePoint + amplitude * vec3(samplePoint.x * sin(frequency * samplePoint.z),\n                                        samplePoint.y * cos(frequency * samplePoint.z),\n                                        0);\n}\n\n// needed for glslify\n\nvoid getIntensity(in vec3 dataCoordinates, out float intensity){\n\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  int kernelSize = 2;\n  value_0(\n    dataCoordinates,\n    kernelSize,\n    uInterpolation,\n    uDataDimensions,\n    uTextureSize,\n    uTextureContainer[0],\n    uTextureContainer[1],\n    uTextureContainer[2],\n    uTextureContainer[3],\n    uTextureContainer[4],\n    uTextureContainer[5],\n    uTextureContainer[6],\n    uTextureContainer,     // not working on Moto X 2014\n    uBitsAllocated,\n    uNumberOfChannels,\n    uPixelType,\n    dataValue\n  );\n  \n  intensity = dataValue.r;\n\n  // rescale/slope\n  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  // window level\n  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n  // float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;\n  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n}\n\nvoid main(void) {\n  const int maxSteps = 1024;\n\n  //\n  vec2 texc = vec2(((vProjectedCoords.x / vProjectedCoords.w) + 1.0 ) / 2.0,\n                ((vProjectedCoords.y / vProjectedCoords.w) + 1.0 ) / 2.0 );\n  //The back position is the world space position stored in the texture.\n  vec3 backPosNormalized = texture2D(uTextureBack, texc).xyz;\n  //\n  vec3 backPos = vec3(backPosNormalized.x * (uWorldBBox[1] - uWorldBBox[0]) + uWorldBBox[0],\n                     backPosNormalized.y * (uWorldBBox[3] - uWorldBBox[2]) + uWorldBBox[2],\n                     backPosNormalized.z * (uWorldBBox[5] - uWorldBBox[4]) + uWorldBBox[4]);\n  vec3 frontPos = vec3(vPos.x, vPos.y, vPos.z);\n\n  // init the ray\n  vec3 rayDir = backPos - frontPos;\n  float rayLength = length(rayDir);\n\n  // init the delta\n  float delta = 1.0 / float(uSteps);\n  vec3  deltaDirection = rayDir * delta;\n  float deltaDirectionLength = length(deltaDirection);\n\n  // init the ray marching\n  vec3 currentPosition = frontPos;\n  vec4 accumulatedColor = vec4(0.0);\n  float accumulatedAlpha = 0.0;\n  float accumulatedLength = 0.0;\n\n  // color and alpha at intersection\n  vec4 colorSample;\n  float alphaSample;\n  float gradientLPS = 1.;\n  for(int rayStep = 0; rayStep < maxSteps; rayStep++){\n\n    // get data value at given location\n    // need a function/polyfill to hide it\n\n    // get texture coordinates of current pixel\n    // doesn't need that in theory\n    vec3 currentPosition2 = transformPoint(currentPosition, uAmplitude, uFrequence);\n    vec4 currentPos4 = vec4(currentPosition2, 1.0);\n\n    vec4 dataCoordinatesRaw = uWorldToData * currentPos4;\n    vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);\n\n    if ( all(greaterThanEqual(currentVoxel, vec3(0.0))) &&\n         all(lessThan(currentVoxel, vec3(float(uDataDimensions.x), float(uDataDimensions.y), float(uDataDimensions.z))))) {\n      \n      float intensity = 0.0;\n      getIntensity(currentVoxel, intensity);\n\n      if(uLut == 1){\n        vec4 test = texture2D( uTextureLUT, vec2( intensity, 1.0) );\n        // 256 colors\n        colorSample.r = test.r;//test.a;\n        colorSample.g = test.g;//test.a;\n        colorSample.b = test.b;///test.a;\n        alphaSample = test.a;\n\n      }\n      else{\n        alphaSample = intensity;\n        colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;\n      }\n\n      alphaSample = alphaSample * uAlphaCorrection;\n      alphaSample *= (1.0 - accumulatedAlpha);\n\n      // we have the intensity now\n      // colorSample.x = colorSample.y = colorSample.z = intensity;\n      // use a dummy alpha for now\n      // alphaSample = intensity;\n      // if(alphaSample < 0.15){\n      //   alphaSample = 0.;\n      // }\n\n      //Perform the composition.\n      // (1.0 - accumulatedAlpha) *\n      accumulatedColor += alphaSample * colorSample;// * alphaSample;\n\n      //Store the alpha accumulated so far.\n      accumulatedAlpha += alphaSample;\n      // accumulatedAlpha += 1.0;\n\n    }\n\n    //Advance the ray.\n    currentPosition += deltaDirection;\n    accumulatedLength += deltaDirectionLength;\n\n    if(accumulatedLength >= rayLength || accumulatedAlpha >= 1.0 ) break;\n  }\n\n  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);\n}";
 var RaycastingSinglepassVertex = "#define GLSLIFY 1\nvarying vec4 vPos;\n\nvoid main() {\n\n  vPos = modelMatrix * vec4(position, 1.0 );\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );\n\n}\n";
-var RaycastingSinglepassFragment = "#define GLSLIFY 1\n// UNIFORMS\nuniform float     uWorldBBox[6];\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\nuniform int       uSteps;\nuniform float     uAlphaCorrection;\nuniform float     uFrequence;\nuniform float     uAmplitude;\n\n// VARYING\nvarying vec4 vPos;\n\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvec3 transformPoint(const in vec3 samplePoint, const in float frequency, const in float amplitude)\n// Apply a spatial transformation to a world space point\n{\n  return samplePoint + amplitude * vec3(samplePoint.x * sin(frequency * samplePoint.z),\n                                        samplePoint.y * cos(frequency * samplePoint.z),\n                                        0);\n}\n\n// needed for glslify\n\nvoid intersectBox(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, out float tNear, out float tFar, out bool intersect){\n  // compute intersection of ray with all six bbox planes\n  vec3 invRay = vec3(1.) / rayDirection;\n  vec3 tBot = invRay * (boxMin - rayOrigin);\n  vec3 tTop = invRay * (boxMax - rayOrigin);\n  // re-order intersections to find smallest and largest on each axis\n  vec3 tMin = min(tTop, tBot);\n  vec3 tMax = max(tTop, tBot);\n  // find the largest tMin and the smallest tMax\n  float largest_tMin = max(max(tMin.x, tMin.y), max(tMin.x, tMin.z));\n  float smallest_tMax = min(min(tMax.x, tMax.y), min(tMax.x, tMax.z));\n  tNear = largest_tMin;\n  tFar = smallest_tMax;\n  intersect = smallest_tMax > largest_tMin;\n}\n\n/**\n * Get voxel value given IJK coordinates.\n * Also apply:\n *  - rescale slope/intercept\n *  - window center/width\n */\nvoid getIntensity(in ivec3 dataCoordinates, out float intensity){\n\n  vec4 packedValue = vec4(0., 0., 0., 0.);\n  texture3DPolyfill(\n    dataCoordinates,\n    uDataDimensions,\n    uTextureSize,\n    uTextureContainer[0],\n    uTextureContainer[1],\n    uTextureContainer[2],\n    uTextureContainer[3],\n    uTextureContainer[4],\n    uTextureContainer[5],\n    uTextureContainer[6],\n    uTextureContainer,     // not working on Moto X 2014\n    packedValue\n    );\n\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  unpack(\n    packedValue,\n    uBitsAllocated,\n    0,\n    uNumberOfChannels,\n    uPixelType,\n    dataValue);\n\n  intensity = dataValue.r;\n\n  // rescale/slope\n  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  // window level\n  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n}\n\nvoid main(void) {\n  const int maxSteps = 1024;\n\n  // the ray\n  vec3 rayOrigin = cameraPosition;\n  vec3 rayDirection = normalize(vPos.xyz - rayOrigin);\n\n  // the Axe-Aligned B-Box\n  vec3 AABBMin = vec3(uWorldBBox[0], uWorldBBox[2], uWorldBBox[4]);\n  vec3 AABBMax = vec3(uWorldBBox[1], uWorldBBox[3], uWorldBBox[5]);\n\n  // Intersection ray/bbox\n  float tNear, tFar;\n  bool intersect = false;\n  intersectBox(rayOrigin, rayDirection, AABBMin, AABBMax, tNear, tFar, intersect);\n  if (tNear < 0.0) tNear = 0.0;\n\n  // init the ray marching\n  float tCurrent = tNear;\n  float tStep = (tFar - tNear) / float(uSteps);\n  vec4 accumulatedColor = vec4(0.0);\n  float accumulatedAlpha = 0.0;\n\n  for(int rayStep = 0; rayStep < maxSteps; rayStep++){\n    vec3 currentPosition = rayOrigin + rayDirection * tCurrent;\n    // some non-linear FUN\n    // some occlusion issue to be fixed\n    vec3 transformedPosition = transformPoint(currentPosition, uAmplitude, uFrequence);\n    // world to data coordinates\n    // rounding trick\n    // first center of first voxel in data space is CENTERED on (0,0,0)\n    vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);\n    dataCoordinatesRaw += 0.5;\n    ivec3 dataCoordinates = ivec3(\n      int(floor(dataCoordinatesRaw.x)),\n      int(floor(dataCoordinatesRaw.y)),\n      int(floor(dataCoordinatesRaw.z)));\n    if ( all(greaterThanEqual(dataCoordinates, ivec3(0))) &&\n         all(lessThan(dataCoordinates, uDataDimensions))) {\n      // mapped intensity, given slope/intercept and window/level\n      float intensity = 0.0;\n      getIntensity(dataCoordinates, intensity);\n      vec4 colorSample;\n      float alphaSample;\n      if(uLut == 1){\n        vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );\n        // 256 colors\n        colorSample.r = colorFromLUT.r;\n        colorSample.g = colorFromLUT.g;\n        colorSample.b = colorFromLUT.b;\n        alphaSample = colorFromLUT.a;\n      }\n      else{\n        alphaSample = intensity;\n        colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;\n      }\n\n      alphaSample = alphaSample * uAlphaCorrection;\n      alphaSample *= (1.0 - accumulatedAlpha);\n\n      accumulatedColor += alphaSample * colorSample;\n      accumulatedAlpha += alphaSample;\n    }\n\n    tCurrent += tStep;\n\n    if(tCurrent > tFar || accumulatedAlpha >= 1.0 ) break;\n  }\n\n  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);\n  return;\n}\n";
+var RaycastingSinglepassFragment = "#define GLSLIFY 1\n// UNIFORMS\nuniform float     uWorldBBox[6];\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\nuniform int       uSteps;\nuniform float     uAlphaCorrection;\nuniform float     uFrequence;\nuniform float     uAmplitude;\nuniform int       uInterpolation;\n\n// VARYING\nvarying vec4 vPos;\n\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid no(in vec3 currentVoxel,\n        in int kernelSize,\n        in ivec3 dataDimensions,\n        in int textureSize,\n        in sampler2D textureContainer0,\n        in sampler2D textureContainer1,\n        in sampler2D textureContainer2,\n        in sampler2D textureContainer3,\n        in sampler2D textureContainer4,\n        in sampler2D textureContainer5,\n        in sampler2D textureContainer6,\n        in sampler2D textureContainer[7], // not working on Moto X 2014\n        in int bitsAllocated, \n        in int numberOfChannels_0, \n        in int pixelType_0,\n        out vec4 intensity_0\n  ) {\n  \n  // lower bound\n  vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n  ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));\n\n  texture3DPolyfill(\n    voxel,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    intensity_0\n    );\n\n  unpack(\n    intensity_0,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    intensity_0);\n\n}\n\n// https://en.wikipedia.org/wiki/Trilinear_interpolation\n\nvoid trilinear(in vec3 currentVoxel,\n               in int kernelSize,\n               in ivec3 dataDimensions,\n               in int textureSize,\n               in sampler2D textureContainer0,\n               in sampler2D textureContainer1,\n               in sampler2D textureContainer2,\n               in sampler2D textureContainer3,\n               in sampler2D textureContainer4,\n               in sampler2D textureContainer5,\n               in sampler2D textureContainer6,\n               in sampler2D textureContainer[7], // not working on Moto X 2014\n               in int bitsAllocated, \n               in int numberOfChannels_1, \n               in int pixelType_1,\n               out vec4 intensity_1\n  ) {\n  \n  // lower bound\n  vec3 lb = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n\n  vec3 direction = currentVoxel - lb;\n\n  // higher bound\n  vec3 hb = lb + 1.0;\n\n  if( direction.x < 0.0){\n\n    hb.x -= 2.0;\n\n  }\n\n  if( direction.y < 0.0){\n\n    hb.y -= 2.0;\n\n  }\n\n  if( direction.z < 0.0){\n\n    hb.z -= 2.0;\n\n  }\n\n  vec3 lc = vec3(0.0, 0.0, 0.0);\n  vec3 hc = vec3(0.0, 0.0, 0.0);\n\n  if(lb.x < hb.x){\n\n    lc.x = lb.x;\n    hc.x = hb.x;\n\n  }\n  else{\n\n    lc.x = hb.x;\n    hc.x = lb.x;\n\n  }\n\n  if(lb.y < hb.y){\n\n    lc.y = lb.y;\n    hc.y = hb.y;\n\n  }\n  else{\n\n    lc.y = hb.y;\n    hc.y = lb.y;\n\n  }\n\n  if(lb.z < hb.z){\n\n    lc.z = lb.z;\n    hc.z = hb.z;\n\n  }\n  else{\n\n    lc.z = hb.z;\n    hc.z = lb.z;\n\n  }\n\n  float xd = ( currentVoxel.x - lc.x ) / ( hc.x - lc.x );\n  float yd = ( currentVoxel.y - lc.y ) / ( hc.y - lc.y );\n  float zd = ( currentVoxel.z - lc.z ) / ( hc.z - lc.z );\n\n  //\n  // c00\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c000,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v000\n    );\n\n  unpack(\n    v000,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v000);\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c100,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v100\n    );\n\n  unpack(\n    v100,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v100);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c001,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v001\n    );\n\n  unpack(\n    v001,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v001);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c101,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v101\n    );\n\n  unpack(\n    v101,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v101);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c010,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v010\n    );\n\n  unpack(\n    v010,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v010);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c110,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v110\n    );\n\n  unpack(\n    v110,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v110);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c011,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v011\n    );\n\n  unpack(\n    v011,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v011);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c111,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v111\n    );\n\n  unpack(\n    v111,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v111);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  intensity_1 = c;\n\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid value_0(in vec3 dataCoordinates,\n           in int kernelSize,\n           in int interpolationMethod,\n           in ivec3 dataDimensions,\n           in int textureSize,\n           in sampler2D textureContainer0,\n           in sampler2D textureContainer1,\n           in sampler2D textureContainer2,\n           in sampler2D textureContainer3,\n           in sampler2D textureContainer4,\n           in sampler2D textureContainer5,\n           in sampler2D textureContainer6,\n           in sampler2D textureContainer[7], // not working on Moto X 2014\n           in int bitsAllocated, \n           in int numberOfChannels_2, \n           in int pixelType_2,\n           out vec4 intensity_2\n  ) {\n\n  //\n  // no interpolation for now...\n  //\n\n  if( interpolationMethod == 0){\n\n    // no interpolation\n    no(dataCoordinates,\n       kernelSize,\n       dataDimensions,\n       textureSize,\n       textureContainer0,\n       textureContainer1,\n       textureContainer2,\n       textureContainer3,\n       textureContainer4,\n       textureContainer5,\n       textureContainer6,\n       textureContainer,\n       bitsAllocated,\n       numberOfChannels_2,\n       pixelType_2,\n       intensity_2);\n\n  }\n  else if( interpolationMethod == 1){\n\n    // trilinear interpolation\n\n    trilinear(dataCoordinates,\n      kernelSize,\n      dataDimensions,\n      textureSize,\n      textureContainer0,\n      textureContainer1,\n      textureContainer2,\n      textureContainer3,\n      textureContainer4,\n      textureContainer5,\n      textureContainer6,\n      textureContainer,\n      bitsAllocated,\n      numberOfChannels_2,\n      pixelType_2,\n      intensity_2);\n\n  }\n\n}\n\nvec3 transformPoint(const in vec3 samplePoint, const in float frequency, const in float amplitude)\n// Apply a spatial transformation to a world space point\n{\n  return samplePoint + amplitude * vec3(samplePoint.x * sin(frequency * samplePoint.z),\n                                        samplePoint.y * cos(frequency * samplePoint.z),\n                                        0);\n}\n\n// needed for glslify\n\nvoid intersectBox(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, out float tNear, out float tFar, out bool intersect){\n  // compute intersection of ray with all six bbox planes\n  vec3 invRay = vec3(1.) / rayDirection;\n  vec3 tBot = invRay * (boxMin - rayOrigin);\n  vec3 tTop = invRay * (boxMax - rayOrigin);\n  // re-order intersections to find smallest and largest on each axis\n  vec3 tMin = min(tTop, tBot);\n  vec3 tMax = max(tTop, tBot);\n  // find the largest tMin and the smallest tMax\n  float largest_tMin = max(max(tMin.x, tMin.y), max(tMin.x, tMin.z));\n  float smallest_tMax = min(min(tMax.x, tMax.y), min(tMax.x, tMax.z));\n  tNear = largest_tMin;\n  tFar = smallest_tMax;\n  intersect = smallest_tMax > largest_tMin;\n}\n\n/**\n * Get voxel value given IJK coordinates.\n * Also apply:\n *  - rescale slope/intercept\n *  - window center/width\n */\nvoid getIntensity(in vec3 dataCoordinates, out float intensity){\n\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  int kernelSize = 2;\n  value_0(\n    dataCoordinates,\n    kernelSize,\n    uInterpolation,\n    uDataDimensions,\n    uTextureSize,\n    uTextureContainer[0],\n    uTextureContainer[1],\n    uTextureContainer[2],\n    uTextureContainer[3],\n    uTextureContainer[4],\n    uTextureContainer[5],\n    uTextureContainer[6],\n    uTextureContainer,     // not working on Moto X 2014\n    uBitsAllocated,\n    uNumberOfChannels,\n    uPixelType,\n    dataValue\n  );\n\n  intensity = dataValue.r;\n\n  // rescale/slope\n  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  // window level\n  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n}\n\nvoid main(void) {\n  const int maxSteps = 1024;\n\n  // the ray\n  vec3 rayOrigin = cameraPosition;\n  vec3 rayDirection = normalize(vPos.xyz - rayOrigin);\n\n  // the Axe-Aligned B-Box\n  vec3 AABBMin = vec3(uWorldBBox[0], uWorldBBox[2], uWorldBBox[4]);\n  vec3 AABBMax = vec3(uWorldBBox[1], uWorldBBox[3], uWorldBBox[5]);\n\n  // Intersection ray/bbox\n  float tNear, tFar;\n  bool intersect = false;\n  intersectBox(rayOrigin, rayDirection, AABBMin, AABBMax, tNear, tFar, intersect);\n  if (tNear < 0.0) tNear = 0.0;\n\n  // init the ray marching\n  float tCurrent = tNear;\n  float tStep = (tFar - tNear) / float(uSteps);\n  vec4 accumulatedColor = vec4(0.0);\n  float accumulatedAlpha = 0.0;\n\n  for(int rayStep = 0; rayStep < maxSteps; rayStep++){\n    vec3 currentPosition = rayOrigin + rayDirection * tCurrent;\n    // some non-linear FUN\n    // some occlusion issue to be fixed\n    vec3 transformedPosition = transformPoint(currentPosition, uAmplitude, uFrequence);\n    // world to data coordinates\n    // rounding trick\n    // first center of first voxel in data space is CENTERED on (0,0,0)\n    vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);\n    vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);\n\n    if ( all(greaterThanEqual(currentVoxel, vec3(0.0))) &&\n         all(lessThan(currentVoxel, vec3(float(uDataDimensions.x), float(uDataDimensions.y), float(uDataDimensions.z))))) {\n    // mapped intensity, given slope/intercept and window/level\n    float intensity = 0.0;\n    getIntensity(currentVoxel, intensity);\n    vec4 colorSample;\n    float alphaSample;\n    if(uLut == 1){\n      vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );\n      // 256 colors\n      colorSample.r = colorFromLUT.r;\n      colorSample.g = colorFromLUT.g;\n      colorSample.b = colorFromLUT.b;\n      alphaSample = colorFromLUT.a;\n    }\n    else{\n      alphaSample = intensity;\n      colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;\n    }\n\n    alphaSample = alphaSample * uAlphaCorrection;\n    alphaSample *= (1.0 - accumulatedAlpha);\n\n    accumulatedColor += alphaSample * colorSample;\n    accumulatedAlpha += alphaSample;\n\n    }\n\n    tCurrent += tStep;\n\n    if(tCurrent > tFar || accumulatedAlpha >= 1.0 ) break;\n  }\n\n  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);\n  return;\n}\n";
 
 /**
  * @module shaders
@@ -28963,13 +29451,93 @@ exports.default = {
   DataVertex: DataVertex,
   DataFragment: DataFragment,
 
+  LayerUniforms: _shadersLayer2.default,
+  LayerFragment: LayerFragment,
+
   RaycastingUniforms: _shadersRaycasting2.default,
   RaycastingFirstpassFragment: RaycastingFirstpassFragment,
   RaycastingSecondpassVertex: RaycastingSecondpassVertex,
   RaycastingSecondpassFragment: RaycastingSecondpassFragment
 };
 
-},{"./shaders.data.js":92,"./shaders.raycasting.js":94}],94:[function(require,module,exports){
+},{"./shaders.data.js":92,"./shaders.layer.js":94,"./shaders.raycasting.js":95}],94:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+/**
+ * @module shaders/layer
+ */
+
+var ShadersLayer = function () {
+  function ShadersLayer() {
+    _classCallCheck(this, ShadersLayer);
+  }
+
+  _createClass(ShadersLayer, null, [{
+    key: 'uniforms',
+    value: function uniforms() {
+      return {
+        'uTextureBackTest0': {
+          type: 't',
+          value: []
+        },
+        'uTextureBackTest1': {
+          type: 't',
+          value: []
+        },
+        'uOpacity0': {
+          type: 'f',
+          value: 1.0
+        },
+        'uOpacity1': {
+          type: 'f',
+          value: 1.0
+        },
+        'uType0': {
+          type: 'i',
+          value: 0
+        },
+        'uType1': {
+          type: 'i',
+          value: 1
+        },
+        'uTrackMouse': {
+          type: 'i',
+          value: 0
+        },
+        'uMouse': {
+          type: 'v2',
+          value: new THREE.Vector2()
+        }
+      };
+    }
+  }]);
+
+  return ShadersLayer;
+}();
+
+exports.default = ShadersLayer;
+
+},{}],95:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29068,6 +29636,10 @@ var ShadersRaycating = function () {
         'uPixelType': {
           type: 'i',
           value: 0
+        },
+        'uInterpolation': {
+          type: 'i',
+          value: 0
         }
       };
     }
@@ -29152,6 +29724,10 @@ var ShadersRaycating = function () {
         'uPixelType': {
           type: 'i',
           value: 0
+        },
+        'uInterpolation': {
+          type: 'i',
+          value: 0
         }
       };
     }
@@ -29162,723 +29738,16 @@ var ShadersRaycating = function () {
 
 exports.default = ShadersRaycating;
 
-},{}],95:[function(require,module,exports){
-'use strict';
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-  };
-}();
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
-
-/**
- *
- */
-
-var WidgetsBase = function (_THREE$Object3D) {
-  _inherits(WidgetsBase, _THREE$Object3D);
-
-  function WidgetsBase() {
-    _classCallCheck(this, WidgetsBase);
-
-    // is widget enabled?
-
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(WidgetsBase).call(this));
-
-    // init THREE Object 3D
-
-    _this._enabled = true;
-
-    // STATE, ENUM might be better
-    _this._selected = false;
-    _this._hovered = false;
-    _this._active = false;
-
-    _this._colors = {
-      default: '#00B0FF',
-      active: '#FFEB3B',
-      hover: '#F50057',
-      select: '#76FF03'
-    };
-    _this._color = _this._colors.default;
-
-    _this._dragged = false;
-    // can not call it visible because it conflicts with THREE.Object3D
-    _this._displayed = true;
-
-    return _this;
-  }
-
-  _createClass(WidgetsBase, [{
-    key: 'update',
-    value: function update() {
-
-      // to be overloaded
-      window.console.log('update() should be overloaded!');
-    }
-  }, {
-    key: 'updateColor',
-    value: function updateColor() {
-
-      if (this._active) {
-
-        this._color = this._colors.active;
-      } else if (this._hovered) {
-
-        this._color = this._colors.hover;
-      } else if (this._selected) {
-
-        this._color = this._colors.select;
-      } else {
-
-        this._color = this._colors.default;
-      }
-    }
-  }, {
-    key: 'enabled',
-    get: function get() {
-
-      return this._enabled;
-    },
-    set: function set(enabled) {
-
-      this._enabled = enabled;
-      this.update();
-    }
-  }, {
-    key: 'selected',
-    get: function get() {
-
-      return this._selected;
-    },
-    set: function set(selected) {
-
-      this._selected = selected;
-      this.update();
-    }
-  }, {
-    key: 'hovered',
-    get: function get() {
-
-      return this._hovered;
-    },
-    set: function set(hovered) {
-
-      this._hovered = hovered;
-      this.update();
-    }
-  }, {
-    key: 'dragged',
-    get: function get() {
-
-      return this._dragged;
-    },
-    set: function set(dragged) {
-
-      this._dragged = dragged;
-      this.update();
-    }
-  }, {
-    key: 'displayed',
-    get: function get() {
-
-      return this._displayed;
-    },
-    set: function set(displayed) {
-
-      this._displayed = displayed;
-      this.update();
-    }
-  }, {
-    key: 'active',
-    get: function get() {
-
-      return this._active;
-    },
-    set: function set(active) {
-
-      this._active = active;
-      this.update();
-    }
-  }, {
-    key: 'color',
-    get: function get() {
-
-      return this._color;
-    },
-    set: function set(color) {
-
-      this._color = color;
-      this.update();
-    }
-  }]);
-
-  return WidgetsBase;
-}(THREE.Object3D);
-
-exports.default = WidgetsBase;
-
 },{}],96:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-  };
-}();
-
-var _widgets = require('../../src/widgets/widgets.base');
+var _widgets = require('./widgets.voxelProbe');
 
 var _widgets2 = _interopRequireDefault(_widgets);
-
-var _core = require('../../src/core/core.intersections');
-
-var _core2 = _interopRequireDefault(_core);
-
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
-
-/**
- * @module widgets/handle
- * 
- */
-
-var WidgetsHandle = function (_WidgetsBase) {
-  _inherits(WidgetsHandle, _WidgetsBase);
-
-  function WidgetsHandle(targetMesh, controls, camera, container) {
-    _classCallCheck(this, WidgetsHandle);
-
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(WidgetsHandle).call(this));
-
-    _this._targetMesh = targetMesh;
-    _this._controls = controls;
-    _this._camera = camera;
-    _this._container = container;
-
-    // if no target mesh, use plane for FREE dragging.
-    _this._plane = {
-      position: new THREE.Vector3(),
-      direction: new THREE.Vector3()
-    };
-    _this._offset = new THREE.Vector3();
-    _this._raycaster = new THREE.Raycaster();
-
-    _this._tracking = false;
-
-    _this._mouse = new THREE.Vector2();
-
-    // world (LPS) position of this handle
-    _this._worldPosition = new THREE.Vector3();
-
-    // screen position of this handle
-    _this._screenPosition = new THREE.Vector2();
-
-    // mesh stuff
-    _this._material = null;
-    _this._geometry = null;
-    _this._mesh = null;
-    _this._meshDisplayed = true;
-    _this._meshHovered = false;
-    _this._meshStyle = 'sphere'; //cube, etc.
-
-    // dom stuff
-    _this._dom = null;
-    _this._domDisplayed = true;
-    _this._domHovered = false;
-    _this._domStyle = 'circle'; // square, triangle
-
-    if (_this._targetMesh !== null) {
-
-      _this._worldPosition.copy(_this._targetMesh.position);
-    }
-
-    _this._screenPosition = _this.worldToScreen(_this._worldPosition, _this._camera, _this._container);
-
-    // create handle
-    _this.create();
-
-    // event listeners
-    _this.onMove = _this.onMove.bind(_this);
-    _this.onHover = _this.onHover.bind(_this);
-    _this.addEventListeners();
-    return _this;
-  }
-
-  _createClass(WidgetsHandle, [{
-    key: 'addEventListeners',
-    value: function addEventListeners() {
-
-      this._dom.addEventListener('mouseenter', this.onHover);
-      this._dom.addEventListener('mouseleave', this.onHover);
-
-      this._container.addEventListener('mousewheel', this.onMove);
-      this._container.addEventListener('DOMMouseScroll', this.onMove);
-    }
-  }, {
-    key: 'removeEventListeners',
-    value: function removeEventListeners() {
-
-      this._dom.removeEventListener('mouseenter', this.onHover);
-      this._dom.removeEventListener('mouseleave', this.onHover);
-
-      this._container.removeEventListener('mousewheel', this.onMove);
-      this._container.removeEventListener('DOMMouseScroll', this.onMove);
-    }
-  }, {
-    key: 'create',
-    value: function create() {
-
-      this.createMesh();
-      this.createDOM();
-    }
-  }, {
-    key: 'onStart',
-    value: function onStart(evt) {
-
-      evt.preventDefault();
-
-      // update raycaster
-      this._raycaster.setFromCamera(this._mouse, this._camera);
-      this._raycaster.ray.position = this._raycaster.ray.origin;
-
-      if (this._hovered) {
-
-        this._active = true;
-        this._controls.enabled = false;
-
-        if (this._targetMesh) {
-
-          var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
-          if (intersectsTarget.length > 0) {
-
-            this._offset.copy(intersectsTarget[0].point).sub(this._mesh.position);
-          }
-        } else {
-
-          // update raycaster
-          var intersection = _core2.default.rayPlane(this._raycaster.ray, this._plane);
-          if (intersection !== null) {
-
-            this._offset.copy(intersection).sub(this._plane.position);
-          }
-        }
-
-        this.update();
-      }
-    }
-  }, {
-    key: 'onEnd',
-    value: function onEnd(evt) {
-
-      evt.preventDefault();
-
-      // stay active and keep controls disabled
-      if (this._tracking === true) {
-
-        return;
-      }
-
-      // unselect if go up without moving
-      if (!this._dragged && this._active) {
-
-        // change state if was not dragging
-        this._selected = !this._selected;
-      }
-
-      this._active = false;
-      this._dragged = false;
-      this._controls.enabled = true;
-
-      this.update();
-    }
-
-    /**
-     *
-     *
-     */
-
-  }, {
-    key: 'onMove',
-    value: function onMove(evt) {
-
-      evt.preventDefault();
-
-      this._mouse.set(event.clientX / this._container.offsetWidth * 2 - 1, -(event.clientY / this._container.offsetHeight) * 2 + 1);
-
-      // update screen position of handle
-      this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
-
-      // update raycaster
-      // set ray.position to satisfy CoreIntersections::rayPlane API
-      this._raycaster.setFromCamera(this._mouse, this._camera);
-      this._raycaster.ray.position = this._raycaster.ray.origin;
-
-      if (this._active) {
-
-        this._dragged = true;
-
-        if (this._targetMesh !== null) {
-
-          var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
-          if (intersectsTarget.length > 0) {
-
-            this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
-          }
-        } else {
-
-          if (this._plane.direction.length() === 0) {
-
-            // free mode!this._targetMesh
-            this._plane.position.copy(this._worldPosition);
-            this._plane.direction.copy(this._camera.getWorldDirection());
-          }
-
-          var intersection = _core2.default.rayPlane(this._raycaster.ray, this._plane);
-          if (intersection !== null) {
-
-            this._worldPosition.copy(intersection.sub(this._offset));
-          }
-        }
-      } else {
-
-        this.onHover(null);
-        if (this._targetMesh === null) {
-
-          //free mode!this._targetMesh
-          this._plane.position.copy(this._worldPosition);
-          this._plane.direction.copy(this._camera.getWorldDirection());
-        }
-      }
-
-      this.update();
-    }
-  }, {
-    key: 'onHover',
-    value: function onHover(evt) {
-
-      if (evt) {
-
-        evt.preventDefault();
-        this.hoverDom(evt);
-      }
-
-      this.hoverMesh();
-
-      this._hovered = this._meshHovered || this._domHovered;
-      this._container.style.cursor = this._hovered ? 'pointer' : 'default';
-    }
-  }, {
-    key: 'update',
-    value: function update() {
-
-      // general update
-      this.updateColor();
-
-      // mesh stuff
-      this.updateMeshColor();
-      this.updateMeshPosition();
-
-      // DOM stuff
-      this.updateDOMColor();
-      this.updateDOMPosition();
-    }
-
-    //
-
-  }, {
-    key: 'updateMeshColor',
-    value: function updateMeshColor() {
-
-      if (this._material) {
-
-        this._material.color.set(this._color);
-      }
-    }
-  }, {
-    key: 'updateMeshPosition',
-    value: function updateMeshPosition() {
-
-      if (this._mesh) {
-
-        this._mesh.position.x = this._worldPosition.x;
-        this._mesh.position.y = this._worldPosition.y;
-        this._mesh.position.z = this._worldPosition.z;
-      }
-    }
-  }, {
-    key: 'hoverMesh',
-    value: function hoverMesh() {
-
-      // check raycast intersection, do we want to hover on mesh or just css?
-      var intersectsHandle = this._raycaster.intersectObject(this._mesh);
-      this._meshHovered = intersectsHandle.length > 0;
-    }
-  }, {
-    key: 'hoverDom',
-    value: function hoverDom(evt) {
-
-      this._domHovered = evt.type === 'mouseenter';
-    }
-  }, {
-    key: 'worldToScreen',
-    value: function worldToScreen(worldCoordinate, camera, canvas) {
-
-      var screenCoordinates = worldCoordinate.clone();
-      screenCoordinates.project(camera);
-
-      screenCoordinates.x = Math.round((screenCoordinates.x + 1) * canvas.offsetWidth / 2);
-      screenCoordinates.y = Math.round((-screenCoordinates.y + 1) * canvas.offsetHeight / 2);
-      screenCoordinates.z = 0;
-
-      return screenCoordinates;
-    }
-  }, {
-    key: 'createMesh',
-    value: function createMesh() {
-
-      // geometry
-      this._geometry = new THREE.SphereGeometry(2, 32, 32);
-
-      // material
-      this._material = new THREE.MeshBasicMaterial({
-        wireframe: true,
-        wireframeLinewidth: 2
-      });
-
-      // mesh
-      this._mesh = new THREE.Mesh(this._geometry, this._material);
-      this._mesh.position.x = this._worldPosition.x;
-      this._mesh.position.y = this._worldPosition.y;
-      this._mesh.position.z = this._worldPosition.z;
-      this._mesh.visible = true;
-
-      this.updateMeshColor();
-
-      // add it!
-      this.add(this._mesh);
-    }
-  }, {
-    key: 'createDOM',
-    value: function createDOM() {
-
-      // dom
-      this._dom = document.createElement('div');
-      this._dom.setAttribute('id', this.uuid);
-      this._dom.setAttribute('class', 'widgets handle');
-      // this._domStyles.circle();
-      // this._domStyles.cross();
-      this._dom.style.border = '2px solid';
-      this._dom.style.backgroundColor = '#F9F9F9';
-      this._dom.style.color = '#F9F9F9';
-      this._dom.style.position = 'absolute';
-      this._dom.style.width = '12px';
-      this._dom.style.height = '12px';
-      this._dom.style.margin = '-6px';
-      this._dom.style.borderRadius = '50%';
-      this._dom.style.transformOrigin = '0 100%';
-
-      var posY = this._screenPosition.y - this._container.offsetHeight;
-      this._dom.style.transform = 'translate3D(' + this._screenPosition.x + 'px, ' + posY + 'px, 0)';
-
-      this.updateDOMColor();
-
-      // add it!
-      this._container.appendChild(this._dom);
-    }
-  }, {
-    key: 'updateDOMPosition',
-    value: function updateDOMPosition() {
-
-      if (this._dom) {
-
-        var posY = this._screenPosition.y - this._container.offsetHeight;
-        this._dom.style.transform = 'translate3D(' + this._screenPosition.x + 'px, ' + posY + 'px, 0)';
-      }
-    }
-  }, {
-    key: 'updateDOMColor',
-    value: function updateDOMColor() {
-
-      this._dom.style.borderColor = '' + this._color;
-    }
-  }, {
-    key: 'free',
-    value: function free() {
-
-      // threejs stuff
-
-      // dom
-
-      // event
-      this.removeEventListeners();
-    }
-  }, {
-    key: 'worldPosition',
-    set: function set(worldPosition) {
-
-      this._worldPosition.copy(worldPosition);
-      this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
-
-      this.update();
-    },
-    get: function get() {
-
-      return this._worldPosition;
-    }
-  }, {
-    key: 'screenPosition',
-    set: function set(screenPosition) {
-
-      this._screenPosition = screenPosition;
-    },
-    get: function get() {
-
-      return this._screenPosition;
-    }
-  }, {
-    key: 'active',
-    get: function get() {
-
-      return this._active;
-    },
-    set: function set(active) {
-
-      this._active = active;
-      // this._tracking = this._active;
-      this._controls.enabled = !this._active;
-
-      this.update();
-    }
-  }, {
-    key: 'tracking',
-    get: function get() {
-
-      return this._tracking;
-    },
-    set: function set(tracking) {
-
-      this._tracking = tracking;
-      this.update();
-    }
-  }]);
-
-  return WidgetsHandle;
-}(_widgets2.default);
-
-// maybe just a string...
-// this._domStyles = {
-//   circle: function(){
-//     this._dom.style.border = '2px solid #353535';
-//     this._dom.style.backgroundColor = '#F9F9F9';
-//     // this._dom.style.backgroundColor = 'rgba(230, 230, 230, 0.7)';
-//     this._dom.style.color = '#F9F9F9';
-//     this._dom.style.position = 'absolute';
-//     this._dom.style.width = '12px';
-//     this._dom.style.height = '12px';
-//     this._dom.style.margin = '-6px';
-//     this._dom.style.borderRadius =  '50%';
-//     this._dom.style.transformOrigin = '0 100%';
-//   },
-//   cross: function(){
-
-//   },
-//   triangle: ``
-// };
-
-// <svg height="12" width="12">
-//   <circle cx="6" cy="6" r="5" stroke="#353535" stroke-opacity="0.9" stroke-width="2" fill="#F9F9F9" fill-opacity="0.7" />
-//   Sorry, your browser does not support inline SVG.
-// </svg>
-
-// <svg height="12" width="12">
-// <line x1="0" y1="0" x2="12" y2="12" stroke="#353535" stroke-linecap="square" stroke-width="2" />
-// <line x1="0" y1="12" x2="12" y2="0" stroke="#353535" stroke-linecap="square" stroke-width="2" />
-// </svg>
-
-// <svg height="12" width="12">
-// <line x1="0" y1="12" x2="6" y2="6" stroke="#353535" stroke-linecap="square" stroke-width="2" />
-// <line x1="6" y1="6" x2="12" y2="12" stroke="#353535" stroke-linecap="square" stroke-width="2" />
-// </svg>
-//
-
-exports.default = WidgetsHandle;
-
-},{"../../src/core/core.intersections":61,"../../src/widgets/widgets.base":95}],97:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _widgets = require('./widgets.handle');
-
-var _widgets2 = _interopRequireDefault(_widgets);
-
-var _widgets3 = require('./widgets.voxelProbe');
-
-var _widgets4 = _interopRequireDefault(_widgets3);
-
-var _widgets5 = require('./widgets.ruler');
-
-var _widgets6 = _interopRequireDefault(_widgets5);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -29889,332 +29758,10 @@ function _interopRequireDefault(obj) {
  */
 
 exports.default = {
-  Handle: _widgets2.default,
-  VoxelProbe: _widgets4.default,
-  Ruler: _widgets6.default
+  VoxelProbe: _widgets2.default
 };
 
-},{"./widgets.handle":96,"./widgets.ruler":98,"./widgets.voxelProbe":99}],98:[function(require,module,exports){
-'use strict';
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-  };
-}();
-
-var _widgets = require('../../src/widgets/widgets.base');
-
-var _widgets2 = _interopRequireDefault(_widgets);
-
-var _widgets3 = require('../../src/widgets/widgets.handle');
-
-var _widgets4 = _interopRequireDefault(_widgets3);
-
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
-
-/**
- * @module widgets/handle
- * 
- */
-
-var WidgetsRuler = function (_WidgetsBase) {
-  _inherits(WidgetsRuler, _WidgetsBase);
-
-  function WidgetsRuler(targetMesh, controls, camera, container) {
-    _classCallCheck(this, WidgetsRuler);
-
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(WidgetsRuler).call(this));
-
-    _this._targetMesh = targetMesh;
-    _this._controls = controls;
-    _this._camera = camera;
-    _this._container = container;
-
-    _this._active = true;
-
-    _this._worldPosition = new THREE.Vector3();
-    if (_this._targetMesh !== null) {
-
-      _this._worldPosition = _this._targetMesh.position;
-    }
-
-    // mesh stuff
-    _this._material = null;
-    _this._geometry = null;
-    _this._mesh = null;
-
-    // dom stuff
-    _this._line = null;
-    _this._distance = null;
-
-    // add handles
-    _this._handles = [];
-
-    // first handle
-    var firstHandle = new _widgets4.default(_this._targetMesh, _this._controls, _this._camera, _this._container);
-    firstHandle.worldPosition = _this._worldPosition;
-    firstHandle.hovered = true;
-    _this.add(firstHandle);
-
-    _this._handles.push(firstHandle);
-
-    var secondHandle = new _widgets4.default(_this._targetMesh, _this._controls, _this._camera, _this._container);
-    secondHandle.worldPosition = _this._worldPosition;
-    secondHandle.hovered = true;
-    // active and tracking might be redundant
-    secondHandle.active = true;
-    secondHandle.tracking = true;
-    _this.add(secondHandle);
-
-    _this._handles.push(secondHandle);
-
-    // Create ruler
-    _this.create();
-
-    _this.onMove = _this.onMove.bind(_this);
-    _this.addEventListeners();
-
-    return _this;
-  }
-
-  _createClass(WidgetsRuler, [{
-    key: 'addEventListeners',
-    value: function addEventListeners() {
-
-      this._container.addEventListener('mousewheel', this.onMove);
-      this._container.addEventListener('DOMMouseScroll', this.onMove);
-    }
-  }, {
-    key: 'onMove',
-    value: function onMove(evt) {
-
-      this._dragged = true;
-
-      this._handles[0].onMove(evt);
-      this._handles[1].onMove(evt);
-
-      this._hovered = this._handles[0].hovered || this._handles[1].hovered;
-      this.update();
-    }
-  }, {
-    key: 'onStart',
-    value: function onStart(evt) {
-
-      this._dragged = false;
-
-      this._handles[0].onStart(evt);
-      this._handles[1].onStart(evt);
-
-      this._active = this._handles[0].active || this._handles[1].active;
-      this.update();
-    }
-  }, {
-    key: 'onEnd',
-    value: function onEnd(evt) {
-
-      // First Handle
-      this._handles[0].onEnd(evt);
-
-      window.console.log(this);
-
-      // Second Handle
-      if (this._dragged || !this._handles[1].tracking) {
-
-        this._handles[1].tracking = false;
-        this._handles[1].onEnd(evt);
-      } else {
-
-        this._handles[1].tracking = false;
-      }
-
-      // State of ruler widget
-      this._active = this._handles[0].active || this._handles[1].active;
-      this.update();
-    }
-  }, {
-    key: 'create',
-    value: function create() {
-
-      this.createMesh();
-      this.createDOM();
-    }
-  }, {
-    key: 'update',
-    value: function update() {
-
-      this.updateColor();
-
-      // mesh stuff
-      this.updateMeshColor();
-      this.updateMeshPosition();
-
-      // DOM stuff
-      this.updateDOMPosition();
-      this.updateDOMColor();
-    }
-  }, {
-    key: 'createMesh',
-    value: function createMesh() {
-
-      // geometry
-      this._geometry = new THREE.Geometry();
-      this._geometry.vertices.push(this._handles[0].worldPosition);
-      this._geometry.vertices.push(this._handles[1].worldPosition);
-
-      // material
-      this._material = new THREE.LineBasicMaterial();
-      this.updateMeshColor();
-
-      // mesh
-      this._mesh = new THREE.Line(this._geometry, this._material);
-      this._mesh.visible = true;
-
-      // add it!
-      this.add(this._mesh);
-    }
-  }, {
-    key: 'updateMeshColor',
-    value: function updateMeshColor() {
-
-      if (this._material) {
-
-        this._material.color.set(this._color);
-      }
-    }
-  }, {
-    key: 'updateMeshPosition',
-    value: function updateMeshPosition() {
-
-      if (this._geometry) {
-
-        this._geometry.verticesNeedUpdate = true;
-      }
-    }
-  }, {
-    key: 'createDOM',
-    value: function createDOM() {
-
-      // add line!
-      this._line = document.createElement('div');
-      this._line.setAttribute('class', 'widgets handle line');
-      this._line.style.position = 'absolute';
-      this._line.style.transformOrigin = '0 100%';
-      this._line.style.marginTop = '-1px';
-      this._line.style.height = '2px';
-      this._line.style.width = '3px';
-      this._container.appendChild(this._line);
-
-      // add distance!
-      this._distance = document.createElement('div');
-      this._distance.setAttribute('class', 'widgets handle distance');
-      this._distance.style.border = '2px solid';
-      this._distance.style.backgroundColor = '#F9F9F9';
-      // this._distance.style.opacity = '0.5';
-      this._distance.style.color = '#353535';
-      this._distance.style.padding = '4px';
-      this._distance.style.position = 'absolute';
-      this._distance.style.transformOrigin = '0 100%';
-      this._distance.innerHTML = 'Hello, world!';
-      this._container.appendChild(this._distance);
-
-      this.updateDOMColor();
-    }
-  }, {
-    key: 'updateDOMPosition',
-    value: function updateDOMPosition() {
-
-      //update rulers lines and text!
-      var x1 = this._handles[0].screenPosition.x;
-      var y1 = this._handles[0].screenPosition.y;
-      var x2 = this._handles[1].screenPosition.x;
-      var y2 = this._handles[1].screenPosition.y;
-
-      var x0 = x1 + (x2 - x1) / 2;
-      var y0 = y1 + (y2 - y1) / 2;
-
-      var length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-      var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-
-      var posY = y1 - this._container.offsetHeight;
-
-      // update line
-      var transform = 'translate3D(' + x1 + 'px,' + posY + 'px, 0)';
-      transform += ' rotate(' + angle + 'deg)';
-
-      this._line.style.transform = transform;
-      this._line.style.width = length;
-
-      // update distance
-      var w0 = this._handles[0].worldPosition;
-      var w1 = this._handles[1].worldPosition;
-
-      this._distance.innerHTML = Math.sqrt((w0.x - w1.x) * (w0.x - w1.x) + (w0.y - w1.y) * (w0.y - w1.y) + (w0.z - w1.z) * (w0.z - w1.z)).toFixed(2) + ' mm';
-      var posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight / 2;
-      x0 -= this._distance.offsetWidth / 2;
-
-      var transform2 = 'translate3D(' + Math.round(x0) + 'px,' + Math.round(posY0) + 'px, 0)';
-      this._distance.style.transform = transform2;
-    }
-  }, {
-    key: 'updateDOMColor',
-    value: function updateDOMColor() {
-
-      this._line.style.backgroundColor = '' + this._color;
-      this._distance.style.borderColor = '' + this._color;
-    }
-  }, {
-    key: 'worldPosition',
-    get: function get() {
-
-      return this._worldPosition;
-    },
-    set: function set(worldPosition) {
-
-      this._worldPosition = worldPosition;
-      this._handles[0].worldPosition = this._worldPosition;
-      this._handles[1].worldPosition = this._worldPosition;
-
-      this.update();
-    }
-  }]);
-
-  return WidgetsRuler;
-}(_widgets2.default);
-
-exports.default = WidgetsRuler;
-
-},{"../../src/widgets/widgets.base":95,"../../src/widgets/widgets.handle":96}],99:[function(require,module,exports){
+},{"./widgets.voxelProbe":97}],97:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -30312,10 +29859,10 @@ var WidgetsVoxelProbe = function (_THREE$Object3D) {
 
     window.addEventListener('keypress', _this.onKeyPress.bind(_this), false);
 
-    _this._defaultColor = '0x00B0FF';
-    _this._activeColor = '0xFFEB3B';
-    _this._hoverColor = '0xF50057';
-    _this._selectedColor = '0x76FF03';
+    _this._defaultColor = '#00B0FF';
+    _this._activeColor = '#FFEB3B';
+    _this._hoverColor = '#F50057';
+    _this._selectedColor = '#76FF03';
 
     _this._showVoxel = true;
     _this._showDomSVG = true;

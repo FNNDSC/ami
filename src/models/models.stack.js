@@ -77,6 +77,9 @@ export default class ModelsStack extends ModelsBase{
     // convenience vars
     this._prepared = false;
     this._packed = false;
+
+    // photometricInterpretation Monochrome1 VS Monochrome2
+    this._invert = false;
   }
 
   /**
@@ -479,84 +482,107 @@ export default class ModelsStack extends ModelsBase{
   }
 
   worldCenter() {
-    let center = this._halfDimensionsIJK.clone().addScalar(0.5)
+
+    let center = this._halfDimensionsIJK.clone().addScalar( -0.5 )
       .applyMatrix4(this._ijk2LPS);
     return center;
+
   }
 
   worldBoundingBox() {
+
     let bbox = [
       Number.MAX_VALUE, Number.MIN_VALUE,
       Number.MAX_VALUE, Number.MIN_VALUE,
       Number.MAX_VALUE, Number.MIN_VALUE
     ];
 
-    for (let i = 0; i <= this._dimensionsIJK.x; i += this._dimensionsIJK.x) {
-      for (let j = 0; j <= this._dimensionsIJK.y; j += this._dimensionsIJK.y) {
-        for (let k = 0; k <= this._dimensionsIJK.z; k += this._dimensionsIJK.z) {
-          let world = new THREE.Vector3(i, j, k).applyMatrix4(this._ijk2LPS);
+    for ( let i = 0; i <= this._dimensionsIJK.x; i += this._dimensionsIJK.x ) {
+      for ( let j = 0; j <= this._dimensionsIJK.y; j += this._dimensionsIJK.y ) {
+        for (let k = 0; k <= this._dimensionsIJK.z; k += this._dimensionsIJK.z ) {
+
+          let world = new THREE.Vector3( i, j, k ).applyMatrix4( this._ijk2LPS );
           bbox = [
             Math.min(bbox[0], world.x), Math.max(bbox[1], world.x), // x min/max
             Math.min(bbox[2], world.y), Math.max(bbox[3], world.y),
             Math.min(bbox[4], world.z), Math.max(bbox[5], world.z)
             ];
+
         }
+
       }
+
     }
 
     return bbox;
+
   }
 
   AABBox() {
-    let world0 = new THREE.Vector3()
-      .applyMatrix4(this._ijk2LPS)
-      .applyMatrix4(this._lps2AABB);
 
-    let world7 = this._dimensionsIJK.clone().addScalar(-0.5)
-      .applyMatrix4(this._ijk2LPS)
-      .applyMatrix4(this._lps2AABB);
+    let world0 = new THREE.Vector3().addScalar( -0.5 )
+      .applyMatrix4( this._ijk2LPS )
+      .applyMatrix4( this._lps2AABB );
+
+    let world7 = this._dimensionsIJK.clone().addScalar( -0.5 )
+      .applyMatrix4( this._ijk2LPS )
+      .applyMatrix4( this._lps2AABB );
 
     let minBBox = new THREE.Vector3(
-      Math.abs(world0.x - world7.x),
-      Math.abs(world0.y - world7.y),
-      Math.abs(world0.z - world7.z)
+      Math.abs( world0.x - world7.x ),
+      Math.abs( world0.y - world7.y ),
+      Math.abs( world0.z - world7.z )
     );
 
     return minBBox;
+
   }
 
   centerAABBox() {
+
     let centerBBox = this.worldCenter();
-    centerBBox.applyMatrix4(this._lps2AABB);
+    centerBBox.applyMatrix4( this._lps2AABB );
     return centerBBox;
+
   }
 
   static value(stack, ijkCoordinate) {
-    if (ijkCoordinate.z >= 0 && ijkCoordinate.z < stack._frame.length) {
+
+    if( ijkCoordinate.z >= 0 && ijkCoordinate.z < stack._frame.length ) {
+
       return stack._frame[ijkCoordinate.z].value(
         ijkCoordinate.x,
-        ijkCoordinate.y);
+        ijkCoordinate.y );
+
     } else {
+
       return null;
+
     }
+
   }
 
-  static valueRescaleSlopeIntercept(value, slope, intercept) {
+  static valueRescaleSlopeIntercept( value, slope, intercept ) {
+
     return value * slope + intercept;
+
   }
 
-  static indexInDimensions(index, dimensions) {
-    if (index.x >= 0 &&
-        index.y >= 0 &&
-        index.z >= 0 &&
-        index.x < dimensions.x &&
-        index.y < dimensions.y &&
-        index.z < dimensions.z) {
+  static indexInDimensions( index, dimensions ) {
+
+    if ( index.x >= 0 &&
+         index.y >= 0 &&
+         index.z >= 0 &&
+         index.x < dimensions.x &&
+         index.y < dimensions.y &&
+         index.z < dimensions.z ) {
 
       return true;
+
     }
 
     return false;
+
   }
 
   _vector3FromArray(array, index) {
@@ -780,5 +806,13 @@ export default class ModelsStack extends ModelsBase{
 
   set pixelType(pixelType) {
     this._pixelType = pixelType;
+  }
+
+  set invert(invert) {
+    this._invert = invert;
+  }
+
+  get invert() {
+    return this._invert;
   }
 }

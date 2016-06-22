@@ -69,6 +69,10 @@ export default class ShadersRaycating {
       'uPixelType': {
         type: 'i',
         value: 0
+      },
+      'uInterpolation': {
+        type: 'i',
+        value: 0
       }
     };
   }
@@ -149,6 +153,10 @@ export default class ShadersRaycating {
         value: 0.0
       },
       'uPixelType': {
+        type: 'i',
+        value: 0
+      },
+      'uInterpolation': {
         type: 'i',
         value: 0
       }

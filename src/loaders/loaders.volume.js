@@ -93,7 +93,7 @@ export default class LoadersVolumes extends LoadersBase{
       let stack = new ModelsStack();
       stack.numberOfChannels = volumeParser.numberOfChannels();
       stack.pixelType = volumeParser.pixelType();
-
+      stack.invert = volumeParser.invert();
       series.stack.push(stack);
       // recursive call for each frame
       // better than for loop to be able to update dom with "progress" callback

@@ -82,6 +82,7 @@ function gui(stackHelper){
   // of course we can do everything from lesson 01!
   var stackFolder = gui.addFolder('Stack');
   stackFolder.add(stackHelper, 'index', 0, stackHelper.stack.dimensionsIJK.z - 1).step(1).listen();
+  stackFolder.add(stackHelper.slice, 'interpolation', 0, 1 ).step( 1 ).listen();
   stackFolder.open();
 }
 
