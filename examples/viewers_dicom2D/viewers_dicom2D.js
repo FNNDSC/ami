@@ -47,7 +47,7 @@ function init() {
     antialias: true
   });
   renderer.setSize(threeD.clientWidth, threeD.clientHeight);
-  renderer.setClearColor(0x212121, 1);
+  renderer.setClearColor(0x607D8B, 1);
 
   //let maxTextureSize = renderer.context.getParameter(renderer.context.MAX_TEXTURE_SIZE);
   //let maxTextureImageUnits = renderer.context.getParameter(renderer.context.MAX_TEXTURE_IMAGE_UNITS);
