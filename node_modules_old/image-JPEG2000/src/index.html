@@ -1,0 +1,62 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <title>sample</title>
+        <meta name="description" content="">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.3.min.js"><\/script>')</script>
+        <script src="js/util.js"></script>
+        <script src="js/arithmetic_decoder.js"></script>
+        <script src="js/jpx.js"></script>
+        <script>
+        function getParameterByName(name) {
+          name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+          var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+          results = regex.exec(location.search);
+          return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+
+        var file = getParameterByName('file');
+        xhr = new XMLHttpRequest();
+        xhr.onload = function(e) {
+            jpxData = new Uint8Array(xhr.response);
+            var jpxImage = new JpxImage();
+            jpxImage.parse(jpxData);
+            var width = jpxImage.width;
+            var height = jpxImage.height;
+            var componentsCount = jpxImage.componentsCount;
+            var tileCount = jpxImage.tiles.length;
+            var tileComponents = jpxImage.tiles[0];
+            var pixelData = tileComponents.items;
+
+            var canvas = document.getElementById('myCanvas');
+            var context = canvas.getContext('2d');
+            var img = context.createImageData(width, height);
+
+            for (var i = 0; i < pixelData.length; i++) {
+              img.data[i*4+0] = 0;
+              img.data[i*4+1] = 0;
+              img.data[i*4+2] = 0;
+              img.data[i*4+3] = 255 - pixelData[i]/10;
+              //img[i*4+3] = pixelData[i];
+            }
+            context.putImageData(img,0,0);
+
+
+        }
+
+        xhr.open("GET", file, true);
+        xhr.responseType = 'arraybuffer';
+        xhr.send();
+
+        // do something with binary data
+        </script>
+    </head>
+    <body>
+        <!-- Add your site or application content here -->
+        <p>Hello world! This is HTML5 Boilerplate.</p>
+        <canvas id="myCanvas" width="800" height="600" style="border:1px solid #000000;"></canvas>
+
+    </body>
+</html>
