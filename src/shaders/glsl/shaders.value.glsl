@@ -1,5 +1,5 @@
-#pragma glslify: no = require('./interpolations/no.interpolations.glsl')
-#pragma glslify: trilinear = require('./interpolations/trilinear.interpolations.glsl')
+#pragma glslify: no = require('./interpolations/interpolations.no.glsl')
+#pragma glslify: trilinear = require('./interpolations/interpolations.trilinear.glsl')
 
 // Support up to textureSize*textureSize*7 voxels
 

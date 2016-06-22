@@ -263,14 +263,6 @@ window.onload = function() {
     // layer mix folder
     //
     let layerMixFolder = gui.addFolder('Layer Mix');
-    let layerMixUpdate = layerMixFolder.add(layerMix, 'mix');
-    layerMixUpdate.onChange(function(value) {
-      if (value) {
-        uniformsLayerMix.uMix.value = 1;
-      } else {
-        uniformsLayerMix.uMix.value = 0;
-      }
-    });
     let opacityLayerMix = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01).listen();
     opacityLayerMix.onChange(function(value) {
       uniformsLayerMix.uOpacity1.value = value;
@@ -307,24 +299,6 @@ window.onload = function() {
 
     updateLayerMix();
 
-    // camera
-    let cameraFolder = gui.addFolder('Camera');
-    let invertRows = cameraFolder.add(camUtils, 'invertRows');
-    invertRows.onChange(function() {
-      camera.invertRows();
-    });
-
-    let invertColumns = cameraFolder.add(camUtils, 'invertColumns');
-    invertColumns.onChange(function() {
-      camera.invertColumns();
-    });
-
-    let rotate = cameraFolder.add(camUtils, 'rotate');
-    rotate.onChange(function() {
-      camera.rotate();
-    });
-
-    cameraFolder.open();
     // set default view
     camera.invertColumns();
     camera.invertRows();
@@ -369,10 +343,7 @@ window.onload = function() {
     sceneLayer0.add(stackHelper);
 
     //
-    //
-    // create labelmap....
-    // we only care about the geometry....
-    // get first stack from series
+    // create layer 1....
 
     // prepare it
     // * ijk2LPS transforms
@@ -401,6 +372,7 @@ window.onload = function() {
       textures2.push(tex);
     }
 
+    //
     // create material && mesh then add it to sceneLayer1
     uniformsLayer1 = ShadersData.uniforms();
     uniformsLayer1.uTextureSize.value = stack2.textureSize;
@@ -427,14 +399,13 @@ window.onload = function() {
     meshLayer1.applyMatrix(stack2._ijk2LPS);
     sceneLayer1.add(meshLayer1);
 
+    //
     // Create the Mix layer
     uniformsLayerMix = ShadersLayer.uniforms();
     uniformsLayerMix.uTextureBackTest0.value = sceneLayer0TextureTarget.texture;
     uniformsLayerMix.uTextureBackTest1.value = sceneLayer1TextureTarget.texture;
-    uniformsLayerMix.uMix.value = 1;
     uniformsLayerMix.uTrackMouse.value = 1;
     uniformsLayerMix.uMouse.value = new THREE.Vector2(0, 0);
-    uniformsLayerMix.uMinMax.value = stack2.minMax;
 
     materialLayerMix = new THREE.ShaderMaterial(
       {side: THREE.DoubleSide,

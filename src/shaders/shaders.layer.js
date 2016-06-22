@@ -6,10 +6,6 @@
 export default class ShadersLayer {
   static uniforms(){
     return {
-      'uInvert': {
-        type: 'i',
-        value: 0
-      },
       'uTextureBackTest0': {
         type: 't',
         value: []
@@ -17,10 +13,6 @@ export default class ShadersLayer {
       'uTextureBackTest1': {
         type: 't',
         value: []
-      },
-      'uOpacity':{
-        type: 'f',
-        value: 1.0
       },
       'uOpacity0':{
         type: 'f',
@@ -37,14 +29,6 @@ export default class ShadersLayer {
       'uType1':{
         type: 'i',
         value: 1
-      },
-      'uMinMax': {
-        type: 'fv1',
-        value: [0.0, 0.0]
-      },
-      'uMix': {
-        type: 'i',
-        value: 0
       },
       'uTrackMouse': {
         type: 'i',
