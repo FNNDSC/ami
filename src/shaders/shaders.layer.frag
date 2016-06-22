@@ -29,7 +29,7 @@ void main(void) {
 
   if( uTrackMouse == 1 ){
 
-      if(vProjectedCoords.x < uMouse.x){
+      if( vProjectedCoords.x < uMouse.x ){
 
         pixelColor = baseColor0;
 
@@ -52,7 +52,7 @@ void main(void) {
     else{
 
       float opacity = baseColor1.a;
-      pixelColor = mix(pixelColor, baseColor1, opacity * uOpacity1 );
+      pixelColor = mix( pixelColor, baseColor1, opacity * uOpacity1 );
 
     }
 

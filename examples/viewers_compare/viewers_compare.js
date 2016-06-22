@@ -46,15 +46,10 @@ let sceneLayerMix, meshLayerMix, uniformsLayerMix, materialLayerMix, lutLayerMix
 // stack for zcosine access for camera...
 let stack;
 
-let camUtils = {
-  invertRows: false,
-  invertColumns: false,
-  rotate: false
-};
-
 let layer1 = {
   opacity: 1.0,
-  lut: null
+  lut: null,
+  interpolation: 1
 };
 
 let layerMix = {
@@ -62,8 +57,6 @@ let layerMix = {
   opacity1: 1.0,
   type0: 0,
   type1: 1,
-  lut: null,
-  mix: true,
   trackMouse: true
 };
 
@@ -90,7 +83,8 @@ function init() {
   // renderer
   threeD = document.getElementById('r3d');
   renderer = new THREE.WebGLRenderer({
-    antialias: true
+    antialias: true,
+    alpha: true
   });
   renderer.setSize(threeD.clientWidth, threeD.clientHeight);
   renderer.setClearColor(0x3F51B5, 1);
@@ -113,7 +107,7 @@ function init() {
     threeD.clientHeight,
     {minFilter: THREE.LinearFilter,
       magFilter: THREE.NearestFilter,
-      format: THREE.RGBFormat
+      format: THREE.RGBAFormat
   });
 
   sceneLayer1TextureTarget = new THREE.WebGLRenderTarget(
@@ -174,7 +168,9 @@ window.onload = function() {
   });
 
   function buildGUI(stackHelper) {
-    function updateLayer1() {
+
+    function updateLayer1(){
+
       // update layer1 geometry...
       if (meshLayer1) {
 
@@ -191,9 +187,11 @@ window.onload = function() {
 
         sceneLayer1.add(meshLayer1);
       }
+
     }
 
     function updateLayerMix(){
+
       // update layer1 geometry...
       if (meshLayerMix) {
 
@@ -210,6 +208,7 @@ window.onload = function() {
 
         sceneLayerMix.add(meshLayerMix);
       }
+
     }
 
     let stack = stackHelper._stack;
@@ -242,15 +241,20 @@ window.onload = function() {
       updateLayerMix();
     });
 
+    layer0Folder.add(stackHelper.slice, 'interpolation', 0, 1 ).step( 1 ).listen();
+
     layer0Folder.open();
 
     //
     // layer 1 folder
     //
     let layer1Folder = gui.addFolder('Layer 1');
+    let interpolationLayer1 = layer1Folder.add(layer1, 'interpolation', 0, 1 ).step( 1 ).listen();
+    interpolationLayer1.onChange(function(value){
+      uniformsLayer1.uInterpolation.value = value;
+    });
     let layer1LutUpdate = layer1Folder.add(layer1, 'lut', lutLayer1.lutsAvailable());
     layer1LutUpdate.onChange(function(value) {
-      window.console.log(value);
       lutLayer1.lut = value;
       // propagate to shaders
       uniformsLayer1.uLut.value = 1;
@@ -297,6 +301,7 @@ window.onload = function() {
       updateLayerMix();
     });
 
+    updateLayer1();
     updateLayerMix();
 
     // set default view
