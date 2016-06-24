@@ -20264,7 +20264,7 @@ exports.default = {
 
 window.console.log('AMI - v0.0.8');
 
-},{"./cameras/cameras":56,"./controls/controls":58,"./core/core":62,"./geometries/geometries":66,"./helpers/helpers":71,"./loaders/loaders":79,"./models/models":83,"./parsers/parsers":88,"./shaders/shaders":93,"./widgets/widgets":96}],56:[function(require,module,exports){
+},{"./cameras/cameras":56,"./controls/controls":58,"./core/core":62,"./geometries/geometries":66,"./helpers/helpers":71,"./loaders/loaders":79,"./models/models":83,"./parsers/parsers":88,"./shaders/shaders":93,"./widgets/widgets":98}],56:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24045,7 +24045,7 @@ var HelpersSlice = function (_THREE$Object3D) {
           'side': THREE.DoubleSide,
           'uniforms': this._uniforms,
           'vertexShader': "#define GLSLIFY 1\nvarying vec4 vPos;\n\n//\n// main\n//\nvoid main() {\n\n  vPos = modelMatrix * vec4(position, 1.0 );\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );\n\n}",
-          'fragmentShader': "#define GLSLIFY 1\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uInvert;\nuniform int       uInterpolation;\n\n// hack because can not pass arrays if too big\n// best would be to pass texture but have to deal with 16bits\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\n\nvarying vec4      vPos;\n\n// include functions\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid no(in vec3 currentVoxel,\n        in int kernelSize,\n        in ivec3 dataDimensions,\n        in int textureSize,\n        in sampler2D textureContainer0,\n        in sampler2D textureContainer1,\n        in sampler2D textureContainer2,\n        in sampler2D textureContainer3,\n        in sampler2D textureContainer4,\n        in sampler2D textureContainer5,\n        in sampler2D textureContainer6,\n        in sampler2D textureContainer[7], // not working on Moto X 2014\n        in int bitsAllocated, \n        in int numberOfChannels_2, \n        in int pixelType_2,\n        out vec4 intensity_2\n  ) {\n  \n  // lower bound\n  vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n  ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));\n\n  texture3DPolyfill(\n    voxel,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    intensity_2\n    );\n\n  unpack(\n    intensity_2,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    intensity_2);\n\n}\n\n// https://en.wikipedia.org/wiki/Trilinear_interpolation\n\nvoid trilinear(in vec3 currentVoxel,\n               in int kernelSize,\n               in ivec3 dataDimensions,\n               in int textureSize,\n               in sampler2D textureContainer0,\n               in sampler2D textureContainer1,\n               in sampler2D textureContainer2,\n               in sampler2D textureContainer3,\n               in sampler2D textureContainer4,\n               in sampler2D textureContainer5,\n               in sampler2D textureContainer6,\n               in sampler2D textureContainer[7], // not working on Moto X 2014\n               in int bitsAllocated, \n               in int numberOfChannels_1, \n               in int pixelType_1,\n               out vec4 intensity_1\n  ) {\n  \n  // lower bound\n  vec3 lb = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n\n  vec3 direction = currentVoxel - lb;\n\n  // higher bound\n  vec3 hb = lb + 1.0;\n\n  if( direction.x < 0.0){\n\n    hb.x -= 2.0;\n\n  }\n\n  if( direction.y < 0.0){\n\n    hb.y -= 2.0;\n\n  }\n\n  if( direction.z < 0.0){\n\n    hb.z -= 2.0;\n\n  }\n\n  vec3 lc = vec3(0.0, 0.0, 0.0);\n  vec3 hc = vec3(0.0, 0.0, 0.0);\n\n  if(lb.x < hb.x){\n\n    lc.x = lb.x;\n    hc.x = hb.x;\n\n  }\n  else{\n\n    lc.x = hb.x;\n    hc.x = lb.x;\n\n  }\n\n  if(lb.y < hb.y){\n\n    lc.y = lb.y;\n    hc.y = hb.y;\n\n  }\n  else{\n\n    lc.y = hb.y;\n    hc.y = lb.y;\n\n  }\n\n  if(lb.z < hb.z){\n\n    lc.z = lb.z;\n    hc.z = hb.z;\n\n  }\n  else{\n\n    lc.z = hb.z;\n    hc.z = lb.z;\n\n  }\n\n  float xd = ( currentVoxel.x - lc.x ) / ( hc.x - lc.x );\n  float yd = ( currentVoxel.y - lc.y ) / ( hc.y - lc.y );\n  float zd = ( currentVoxel.z - lc.z ) / ( hc.z - lc.z );\n\n  //\n  // c00\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c000,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v000\n    );\n\n  unpack(\n    v000,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v000);\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c100,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v100\n    );\n\n  unpack(\n    v100,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v100);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c001,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v001\n    );\n\n  unpack(\n    v001,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v001);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c101,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v101\n    );\n\n  unpack(\n    v101,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v101);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c010,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v010\n    );\n\n  unpack(\n    v010,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v010);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c110,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v110\n    );\n\n  unpack(\n    v110,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v110);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c011,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v011\n    );\n\n  unpack(\n    v011,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v011);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c111,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v111\n    );\n\n  unpack(\n    v111,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v111);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  intensity_1 = c;\n\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid value_0(in vec3 dataCoordinates,\n           in int kernelSize,\n           in int interpolationMethod,\n           in ivec3 dataDimensions,\n           in int textureSize,\n           in sampler2D textureContainer0,\n           in sampler2D textureContainer1,\n           in sampler2D textureContainer2,\n           in sampler2D textureContainer3,\n           in sampler2D textureContainer4,\n           in sampler2D textureContainer5,\n           in sampler2D textureContainer6,\n           in sampler2D textureContainer[7], // not working on Moto X 2014\n           in int bitsAllocated, \n           in int numberOfChannels_0, \n           in int pixelType_0,\n           out vec4 intensity_0\n  ) {\n\n  //\n  // no interpolation for now...\n  //\n\n  if( interpolationMethod == 0){\n\n    // no interpolation\n    no(dataCoordinates,\n       kernelSize,\n       dataDimensions,\n       textureSize,\n       textureContainer0,\n       textureContainer1,\n       textureContainer2,\n       textureContainer3,\n       textureContainer4,\n       textureContainer5,\n       textureContainer6,\n       textureContainer,\n       bitsAllocated,\n       numberOfChannels_0,\n       pixelType_0,\n       intensity_0);\n\n  }\n  else if( interpolationMethod == 1){\n\n    // trilinear interpolation\n\n    trilinear(dataCoordinates,\n      kernelSize,\n      dataDimensions,\n      textureSize,\n      textureContainer0,\n      textureContainer1,\n      textureContainer2,\n      textureContainer3,\n      textureContainer4,\n      textureContainer5,\n      textureContainer6,\n      textureContainer,\n      bitsAllocated,\n      numberOfChannels_0,\n      pixelType_0,\n      intensity_0);\n\n  }\n\n}\n\nvoid main(void) {\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = vec3(dataCoordinates.x, dataCoordinates.y, dataCoordinates.z);\n  int kernelSize = 2;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  value_0(\n    currentVoxel,\n    kernelSize,\n    uInterpolation,\n    uDataDimensions,\n    uTextureSize,\n    uTextureContainer[0],\n    uTextureContainer[1],\n    uTextureContainer[2],\n    uTextureContainer[3],\n    uTextureContainer[4],\n    uTextureContainer[5],\n    uTextureContainer[6],\n    uTextureContainer,     // not working on Moto X 2014\n    uBitsAllocated,\n    uNumberOfChannels,\n    uPixelType,\n    dataValue\n  );\n\n  // how do we deal wil more than 1 channel?\n  if(uNumberOfChannels == 1){\n    float intensity = dataValue.r;\n\n    // rescale/slope\n    intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;\n    intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n\n    dataValue.r = dataValue.g = dataValue.b = intensity;\n    dataValue.a = 1.0;\n  }\n\n  // Apply LUT table...\n  //\n  if(uLut == 1){\n    // should opacity be grabbed there?\n    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n\n}"
+          'fragmentShader': "#define GLSLIFY 1\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uInvert;\nuniform int       uInterpolation;\n\n// hack because can not pass arrays if too big\n// best would be to pass texture but have to deal with 16bits\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\n\nvarying vec4      vPos;\n\n// include functions\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid no(in vec3 currentVoxel,\n        in int kernelSize,\n        in ivec3 dataDimensions,\n        in int textureSize,\n        in sampler2D textureContainer0,\n        in sampler2D textureContainer1,\n        in sampler2D textureContainer2,\n        in sampler2D textureContainer3,\n        in sampler2D textureContainer4,\n        in sampler2D textureContainer5,\n        in sampler2D textureContainer6,\n        in sampler2D textureContainer[7], // not working on Moto X 2014\n        in int bitsAllocated, \n        in int numberOfChannels_1, \n        in int pixelType_1,\n        out vec4 intensity_1\n  ) {\n  \n  // lower bound\n  vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n  ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));\n\n  texture3DPolyfill(\n    voxel,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    intensity_1\n    );\n\n  unpack(\n    intensity_1,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    intensity_1);\n\n}\n\n// https://en.wikipedia.org/wiki/Trilinear_interpolation\n\nvoid trilinear(in vec3 currentVoxel,\n               in int kernelSize,\n               in ivec3 dataDimensions,\n               in int textureSize,\n               in sampler2D textureContainer0,\n               in sampler2D textureContainer1,\n               in sampler2D textureContainer2,\n               in sampler2D textureContainer3,\n               in sampler2D textureContainer4,\n               in sampler2D textureContainer5,\n               in sampler2D textureContainer6,\n               in sampler2D textureContainer[7], // not working on Moto X 2014\n               in int bitsAllocated, \n               in int numberOfChannels_2, \n               in int pixelType_2,\n               out vec4 intensity_2\n  ) {\n  \n  // lower bound\n  vec3 lb = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n\n  vec3 direction = currentVoxel - lb;\n\n  // higher bound\n  vec3 hb = lb + 1.0;\n\n  if( direction.x < 0.0){\n\n    hb.x -= 2.0;\n\n  }\n\n  if( direction.y < 0.0){\n\n    hb.y -= 2.0;\n\n  }\n\n  if( direction.z < 0.0){\n\n    hb.z -= 2.0;\n\n  }\n\n  vec3 lc = vec3(0.0, 0.0, 0.0);\n  vec3 hc = vec3(0.0, 0.0, 0.0);\n\n  if(lb.x < hb.x){\n\n    lc.x = lb.x;\n    hc.x = hb.x;\n\n  }\n  else{\n\n    lc.x = hb.x;\n    hc.x = lb.x;\n\n  }\n\n  if(lb.y < hb.y){\n\n    lc.y = lb.y;\n    hc.y = hb.y;\n\n  }\n  else{\n\n    lc.y = hb.y;\n    hc.y = lb.y;\n\n  }\n\n  if(lb.z < hb.z){\n\n    lc.z = lb.z;\n    hc.z = hb.z;\n\n  }\n  else{\n\n    lc.z = hb.z;\n    hc.z = lb.z;\n\n  }\n\n  float xd = ( currentVoxel.x - lc.x ) / ( hc.x - lc.x );\n  float yd = ( currentVoxel.y - lc.y ) / ( hc.y - lc.y );\n  float zd = ( currentVoxel.z - lc.z ) / ( hc.z - lc.z );\n\n  //\n  // c00\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c000,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v000\n    );\n\n  unpack(\n    v000,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v000);\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c100,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v100\n    );\n\n  unpack(\n    v100,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v100);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c001,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v001\n    );\n\n  unpack(\n    v001,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v001);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c101,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v101\n    );\n\n  unpack(\n    v101,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v101);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c010,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v010\n    );\n\n  unpack(\n    v010,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v010);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c110,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v110\n    );\n\n  unpack(\n    v110,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v110);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c011,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v011\n    );\n\n  unpack(\n    v011,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v011);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c111,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v111\n    );\n\n  unpack(\n    v111,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v111);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  intensity_2 = c;\n\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid value_0(in vec3 dataCoordinates,\n           in int kernelSize,\n           in int interpolationMethod,\n           in ivec3 dataDimensions,\n           in int textureSize,\n           in sampler2D textureContainer0,\n           in sampler2D textureContainer1,\n           in sampler2D textureContainer2,\n           in sampler2D textureContainer3,\n           in sampler2D textureContainer4,\n           in sampler2D textureContainer5,\n           in sampler2D textureContainer6,\n           in sampler2D textureContainer[7], // not working on Moto X 2014\n           in int bitsAllocated, \n           in int numberOfChannels_0, \n           in int pixelType_0,\n           out vec4 intensity_0\n  ) {\n\n  //\n  // no interpolation for now...\n  //\n\n  if( interpolationMethod == 0){\n\n    // no interpolation\n    no(dataCoordinates,\n       kernelSize,\n       dataDimensions,\n       textureSize,\n       textureContainer0,\n       textureContainer1,\n       textureContainer2,\n       textureContainer3,\n       textureContainer4,\n       textureContainer5,\n       textureContainer6,\n       textureContainer,\n       bitsAllocated,\n       numberOfChannels_0,\n       pixelType_0,\n       intensity_0);\n\n  }\n  else if( interpolationMethod == 1){\n\n    // trilinear interpolation\n\n    trilinear(dataCoordinates,\n      kernelSize,\n      dataDimensions,\n      textureSize,\n      textureContainer0,\n      textureContainer1,\n      textureContainer2,\n      textureContainer3,\n      textureContainer4,\n      textureContainer5,\n      textureContainer6,\n      textureContainer,\n      bitsAllocated,\n      numberOfChannels_0,\n      pixelType_0,\n      intensity_0);\n\n  }\n\n}\n\nvoid main(void) {\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = vec3(dataCoordinates.x, dataCoordinates.y, dataCoordinates.z);\n  int kernelSize = 2;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  value_0(\n    currentVoxel,\n    kernelSize,\n    uInterpolation,\n    uDataDimensions,\n    uTextureSize,\n    uTextureContainer[0],\n    uTextureContainer[1],\n    uTextureContainer[2],\n    uTextureContainer[3],\n    uTextureContainer[4],\n    uTextureContainer[5],\n    uTextureContainer[6],\n    uTextureContainer,     // not working on Moto X 2014\n    uBitsAllocated,\n    uNumberOfChannels,\n    uPixelType,\n    dataValue\n  );\n\n  // how do we deal wil more than 1 channel?\n  if(uNumberOfChannels == 1){\n    float intensity = dataValue.r;\n\n    // rescale/slope\n    intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;\n    intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n\n    dataValue.r = dataValue.g = dataValue.b = intensity;\n    dataValue.a = 1.0;\n  }\n\n  // Apply LUT table...\n  //\n  if(uLut == 1){\n    // should opacity be grabbed there?\n    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n\n}"
         });
       }
 
@@ -24908,7 +24908,7 @@ var HelpersVolumeRendering = function (_THREE$Object3D) {
       this._material = new THREE.ShaderMaterial({
         uniforms: this._uniforms,
         vertexShader: "#define GLSLIFY 1\nvarying vec4 vPos;\n\nvoid main() {\n\n  vPos = modelMatrix * vec4(position, 1.0 );\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );\n\n}\n",
-        fragmentShader: "#define GLSLIFY 1\n// UNIFORMS\nuniform float     uWorldBBox[6];\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\nuniform int       uSteps;\nuniform float     uAlphaCorrection;\nuniform float     uFrequence;\nuniform float     uAmplitude;\nuniform int       uInterpolation;\n\n// VARYING\nvarying vec4 vPos;\n\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid no(in vec3 currentVoxel,\n        in int kernelSize,\n        in ivec3 dataDimensions,\n        in int textureSize,\n        in sampler2D textureContainer0,\n        in sampler2D textureContainer1,\n        in sampler2D textureContainer2,\n        in sampler2D textureContainer3,\n        in sampler2D textureContainer4,\n        in sampler2D textureContainer5,\n        in sampler2D textureContainer6,\n        in sampler2D textureContainer[7], // not working on Moto X 2014\n        in int bitsAllocated, \n        in int numberOfChannels_1, \n        in int pixelType_1,\n        out vec4 intensity_1\n  ) {\n  \n  // lower bound\n  vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n  ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));\n\n  texture3DPolyfill(\n    voxel,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    intensity_1\n    );\n\n  unpack(\n    intensity_1,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    intensity_1);\n\n}\n\n// https://en.wikipedia.org/wiki/Trilinear_interpolation\n\nvoid trilinear(in vec3 currentVoxel,\n               in int kernelSize,\n               in ivec3 dataDimensions,\n               in int textureSize,\n               in sampler2D textureContainer0,\n               in sampler2D textureContainer1,\n               in sampler2D textureContainer2,\n               in sampler2D textureContainer3,\n               in sampler2D textureContainer4,\n               in sampler2D textureContainer5,\n               in sampler2D textureContainer6,\n               in sampler2D textureContainer[7], // not working on Moto X 2014\n               in int bitsAllocated, \n               in int numberOfChannels_0, \n               in int pixelType_0,\n               out vec4 intensity_0\n  ) {\n  \n  // lower bound\n  vec3 lb = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n\n  vec3 direction = currentVoxel - lb;\n\n  // higher bound\n  vec3 hb = lb + 1.0;\n\n  if( direction.x < 0.0){\n\n    hb.x -= 2.0;\n\n  }\n\n  if( direction.y < 0.0){\n\n    hb.y -= 2.0;\n\n  }\n\n  if( direction.z < 0.0){\n\n    hb.z -= 2.0;\n\n  }\n\n  vec3 lc = vec3(0.0, 0.0, 0.0);\n  vec3 hc = vec3(0.0, 0.0, 0.0);\n\n  if(lb.x < hb.x){\n\n    lc.x = lb.x;\n    hc.x = hb.x;\n\n  }\n  else{\n\n    lc.x = hb.x;\n    hc.x = lb.x;\n\n  }\n\n  if(lb.y < hb.y){\n\n    lc.y = lb.y;\n    hc.y = hb.y;\n\n  }\n  else{\n\n    lc.y = hb.y;\n    hc.y = lb.y;\n\n  }\n\n  if(lb.z < hb.z){\n\n    lc.z = lb.z;\n    hc.z = hb.z;\n\n  }\n  else{\n\n    lc.z = hb.z;\n    hc.z = lb.z;\n\n  }\n\n  float xd = ( currentVoxel.x - lc.x ) / ( hc.x - lc.x );\n  float yd = ( currentVoxel.y - lc.y ) / ( hc.y - lc.y );\n  float zd = ( currentVoxel.z - lc.z ) / ( hc.z - lc.z );\n\n  //\n  // c00\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c000,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v000\n    );\n\n  unpack(\n    v000,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v000);\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c100,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v100\n    );\n\n  unpack(\n    v100,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v100);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c001,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v001\n    );\n\n  unpack(\n    v001,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v001);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c101,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v101\n    );\n\n  unpack(\n    v101,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v101);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c010,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v010\n    );\n\n  unpack(\n    v010,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v010);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c110,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v110\n    );\n\n  unpack(\n    v110,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v110);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c011,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v011\n    );\n\n  unpack(\n    v011,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v011);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c111,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v111\n    );\n\n  unpack(\n    v111,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    v111);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  intensity_0 = c;\n\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid value_0(in vec3 dataCoordinates,\n           in int kernelSize,\n           in int interpolationMethod,\n           in ivec3 dataDimensions,\n           in int textureSize,\n           in sampler2D textureContainer0,\n           in sampler2D textureContainer1,\n           in sampler2D textureContainer2,\n           in sampler2D textureContainer3,\n           in sampler2D textureContainer4,\n           in sampler2D textureContainer5,\n           in sampler2D textureContainer6,\n           in sampler2D textureContainer[7], // not working on Moto X 2014\n           in int bitsAllocated, \n           in int numberOfChannels_2, \n           in int pixelType_2,\n           out vec4 intensity_2\n  ) {\n\n  //\n  // no interpolation for now...\n  //\n\n  if( interpolationMethod == 0){\n\n    // no interpolation\n    no(dataCoordinates,\n       kernelSize,\n       dataDimensions,\n       textureSize,\n       textureContainer0,\n       textureContainer1,\n       textureContainer2,\n       textureContainer3,\n       textureContainer4,\n       textureContainer5,\n       textureContainer6,\n       textureContainer,\n       bitsAllocated,\n       numberOfChannels_2,\n       pixelType_2,\n       intensity_2);\n\n  }\n  else if( interpolationMethod == 1){\n\n    // trilinear interpolation\n\n    trilinear(dataCoordinates,\n      kernelSize,\n      dataDimensions,\n      textureSize,\n      textureContainer0,\n      textureContainer1,\n      textureContainer2,\n      textureContainer3,\n      textureContainer4,\n      textureContainer5,\n      textureContainer6,\n      textureContainer,\n      bitsAllocated,\n      numberOfChannels_2,\n      pixelType_2,\n      intensity_2);\n\n  }\n\n}\n\nvec3 transformPoint(const in vec3 samplePoint, const in float frequency, const in float amplitude)\n// Apply a spatial transformation to a world space point\n{\n  return samplePoint + amplitude * vec3(samplePoint.x * sin(frequency * samplePoint.z),\n                                        samplePoint.y * cos(frequency * samplePoint.z),\n                                        0);\n}\n\n// needed for glslify\n\nvoid intersectBox(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, out float tNear, out float tFar, out bool intersect){\n  // compute intersection of ray with all six bbox planes\n  vec3 invRay = vec3(1.) / rayDirection;\n  vec3 tBot = invRay * (boxMin - rayOrigin);\n  vec3 tTop = invRay * (boxMax - rayOrigin);\n  // re-order intersections to find smallest and largest on each axis\n  vec3 tMin = min(tTop, tBot);\n  vec3 tMax = max(tTop, tBot);\n  // find the largest tMin and the smallest tMax\n  float largest_tMin = max(max(tMin.x, tMin.y), max(tMin.x, tMin.z));\n  float smallest_tMax = min(min(tMax.x, tMax.y), min(tMax.x, tMax.z));\n  tNear = largest_tMin;\n  tFar = smallest_tMax;\n  intersect = smallest_tMax > largest_tMin;\n}\n\n/**\n * Get voxel value given IJK coordinates.\n * Also apply:\n *  - rescale slope/intercept\n *  - window center/width\n */\nvoid getIntensity(in vec3 dataCoordinates, out float intensity){\n\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  int kernelSize = 2;\n  value_0(\n    dataCoordinates,\n    kernelSize,\n    uInterpolation,\n    uDataDimensions,\n    uTextureSize,\n    uTextureContainer[0],\n    uTextureContainer[1],\n    uTextureContainer[2],\n    uTextureContainer[3],\n    uTextureContainer[4],\n    uTextureContainer[5],\n    uTextureContainer[6],\n    uTextureContainer,     // not working on Moto X 2014\n    uBitsAllocated,\n    uNumberOfChannels,\n    uPixelType,\n    dataValue\n  );\n\n  intensity = dataValue.r;\n\n  // rescale/slope\n  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  // window level\n  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n}\n\nvoid main(void) {\n  const int maxSteps = 1024;\n\n  // the ray\n  vec3 rayOrigin = cameraPosition;\n  vec3 rayDirection = normalize(vPos.xyz - rayOrigin);\n\n  // the Axe-Aligned B-Box\n  vec3 AABBMin = vec3(uWorldBBox[0], uWorldBBox[2], uWorldBBox[4]);\n  vec3 AABBMax = vec3(uWorldBBox[1], uWorldBBox[3], uWorldBBox[5]);\n\n  // Intersection ray/bbox\n  float tNear, tFar;\n  bool intersect = false;\n  intersectBox(rayOrigin, rayDirection, AABBMin, AABBMax, tNear, tFar, intersect);\n  if (tNear < 0.0) tNear = 0.0;\n\n  // init the ray marching\n  float tCurrent = tNear;\n  float tStep = (tFar - tNear) / float(uSteps);\n  vec4 accumulatedColor = vec4(0.0);\n  float accumulatedAlpha = 0.0;\n\n  for(int rayStep = 0; rayStep < maxSteps; rayStep++){\n    vec3 currentPosition = rayOrigin + rayDirection * tCurrent;\n    // some non-linear FUN\n    // some occlusion issue to be fixed\n    vec3 transformedPosition = transformPoint(currentPosition, uAmplitude, uFrequence);\n    // world to data coordinates\n    // rounding trick\n    // first center of first voxel in data space is CENTERED on (0,0,0)\n    vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);\n    vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);\n\n    if ( all(greaterThanEqual(currentVoxel, vec3(0.0))) &&\n         all(lessThan(currentVoxel, vec3(float(uDataDimensions.x), float(uDataDimensions.y), float(uDataDimensions.z))))) {\n    // mapped intensity, given slope/intercept and window/level\n    float intensity = 0.0;\n    getIntensity(currentVoxel, intensity);\n    vec4 colorSample;\n    float alphaSample;\n    if(uLut == 1){\n      vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );\n      // 256 colors\n      colorSample.r = colorFromLUT.r;\n      colorSample.g = colorFromLUT.g;\n      colorSample.b = colorFromLUT.b;\n      alphaSample = colorFromLUT.a;\n    }\n    else{\n      alphaSample = intensity;\n      colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;\n    }\n\n    alphaSample = alphaSample * uAlphaCorrection;\n    alphaSample *= (1.0 - accumulatedAlpha);\n\n    accumulatedColor += alphaSample * colorSample;\n    accumulatedAlpha += alphaSample;\n\n    }\n\n    tCurrent += tStep;\n\n    if(tCurrent > tFar || accumulatedAlpha >= 1.0 ) break;\n  }\n\n  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);\n  return;\n}\n",
+        fragmentShader: "#define GLSLIFY 1\n// UNIFORMS\nuniform float     uWorldBBox[6];\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\nuniform int       uSteps;\nuniform float     uAlphaCorrection;\nuniform float     uFrequence;\nuniform float     uAmplitude;\nuniform int       uInterpolation;\n\n// VARYING\nvarying vec4 vPos;\n\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid no(in vec3 currentVoxel,\n        in int kernelSize,\n        in ivec3 dataDimensions,\n        in int textureSize,\n        in sampler2D textureContainer0,\n        in sampler2D textureContainer1,\n        in sampler2D textureContainer2,\n        in sampler2D textureContainer3,\n        in sampler2D textureContainer4,\n        in sampler2D textureContainer5,\n        in sampler2D textureContainer6,\n        in sampler2D textureContainer[7], // not working on Moto X 2014\n        in int bitsAllocated, \n        in int numberOfChannels_0, \n        in int pixelType_0,\n        out vec4 intensity_0\n  ) {\n  \n  // lower bound\n  vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n  ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));\n\n  texture3DPolyfill(\n    voxel,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    intensity_0\n    );\n\n  unpack(\n    intensity_0,\n    bitsAllocated,\n    0,\n    numberOfChannels_0,\n    pixelType_0,\n    intensity_0);\n\n}\n\n// https://en.wikipedia.org/wiki/Trilinear_interpolation\n\nvoid trilinear(in vec3 currentVoxel,\n               in int kernelSize,\n               in ivec3 dataDimensions,\n               in int textureSize,\n               in sampler2D textureContainer0,\n               in sampler2D textureContainer1,\n               in sampler2D textureContainer2,\n               in sampler2D textureContainer3,\n               in sampler2D textureContainer4,\n               in sampler2D textureContainer5,\n               in sampler2D textureContainer6,\n               in sampler2D textureContainer[7], // not working on Moto X 2014\n               in int bitsAllocated, \n               in int numberOfChannels_1, \n               in int pixelType_1,\n               out vec4 intensity_1\n  ) {\n  \n  // lower bound\n  vec3 lb = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n\n  vec3 direction = currentVoxel - lb;\n\n  // higher bound\n  vec3 hb = lb + 1.0;\n\n  if( direction.x < 0.0){\n\n    hb.x -= 2.0;\n\n  }\n\n  if( direction.y < 0.0){\n\n    hb.y -= 2.0;\n\n  }\n\n  if( direction.z < 0.0){\n\n    hb.z -= 2.0;\n\n  }\n\n  vec3 lc = vec3(0.0, 0.0, 0.0);\n  vec3 hc = vec3(0.0, 0.0, 0.0);\n\n  if(lb.x < hb.x){\n\n    lc.x = lb.x;\n    hc.x = hb.x;\n\n  }\n  else{\n\n    lc.x = hb.x;\n    hc.x = lb.x;\n\n  }\n\n  if(lb.y < hb.y){\n\n    lc.y = lb.y;\n    hc.y = hb.y;\n\n  }\n  else{\n\n    lc.y = hb.y;\n    hc.y = lb.y;\n\n  }\n\n  if(lb.z < hb.z){\n\n    lc.z = lb.z;\n    hc.z = hb.z;\n\n  }\n  else{\n\n    lc.z = hb.z;\n    hc.z = lb.z;\n\n  }\n\n  float xd = ( currentVoxel.x - lc.x ) / ( hc.x - lc.x );\n  float yd = ( currentVoxel.y - lc.y ) / ( hc.y - lc.y );\n  float zd = ( currentVoxel.z - lc.z ) / ( hc.z - lc.z );\n\n  //\n  // c00\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c000,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v000\n    );\n\n  unpack(\n    v000,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v000);\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c100,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v100\n    );\n\n  unpack(\n    v100,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v100);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c001,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v001\n    );\n\n  unpack(\n    v001,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v001);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c101,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v101\n    );\n\n  unpack(\n    v101,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v101);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c010,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v010\n    );\n\n  unpack(\n    v010,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v010);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c110,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v110\n    );\n\n  unpack(\n    v110,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v110);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c011,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v011\n    );\n\n  unpack(\n    v011,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v011);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c111,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v111\n    );\n\n  unpack(\n    v111,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v111);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  intensity_1 = c;\n\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid value_0(in vec3 dataCoordinates,\n           in int kernelSize,\n           in int interpolationMethod,\n           in ivec3 dataDimensions,\n           in int textureSize,\n           in sampler2D textureContainer0,\n           in sampler2D textureContainer1,\n           in sampler2D textureContainer2,\n           in sampler2D textureContainer3,\n           in sampler2D textureContainer4,\n           in sampler2D textureContainer5,\n           in sampler2D textureContainer6,\n           in sampler2D textureContainer[7], // not working on Moto X 2014\n           in int bitsAllocated, \n           in int numberOfChannels_2, \n           in int pixelType_2,\n           out vec4 intensity_2\n  ) {\n\n  //\n  // no interpolation for now...\n  //\n\n  if( interpolationMethod == 0){\n\n    // no interpolation\n    no(dataCoordinates,\n       kernelSize,\n       dataDimensions,\n       textureSize,\n       textureContainer0,\n       textureContainer1,\n       textureContainer2,\n       textureContainer3,\n       textureContainer4,\n       textureContainer5,\n       textureContainer6,\n       textureContainer,\n       bitsAllocated,\n       numberOfChannels_2,\n       pixelType_2,\n       intensity_2);\n\n  }\n  else if( interpolationMethod == 1){\n\n    // trilinear interpolation\n\n    trilinear(dataCoordinates,\n      kernelSize,\n      dataDimensions,\n      textureSize,\n      textureContainer0,\n      textureContainer1,\n      textureContainer2,\n      textureContainer3,\n      textureContainer4,\n      textureContainer5,\n      textureContainer6,\n      textureContainer,\n      bitsAllocated,\n      numberOfChannels_2,\n      pixelType_2,\n      intensity_2);\n\n  }\n\n}\n\nvec3 transformPoint(const in vec3 samplePoint, const in float frequency, const in float amplitude)\n// Apply a spatial transformation to a world space point\n{\n  return samplePoint + amplitude * vec3(samplePoint.x * sin(frequency * samplePoint.z),\n                                        samplePoint.y * cos(frequency * samplePoint.z),\n                                        0);\n}\n\n// needed for glslify\n\nvoid intersectBox(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, out float tNear, out float tFar, out bool intersect){\n  // compute intersection of ray with all six bbox planes\n  vec3 invRay = vec3(1.) / rayDirection;\n  vec3 tBot = invRay * (boxMin - rayOrigin);\n  vec3 tTop = invRay * (boxMax - rayOrigin);\n  // re-order intersections to find smallest and largest on each axis\n  vec3 tMin = min(tTop, tBot);\n  vec3 tMax = max(tTop, tBot);\n  // find the largest tMin and the smallest tMax\n  float largest_tMin = max(max(tMin.x, tMin.y), max(tMin.x, tMin.z));\n  float smallest_tMax = min(min(tMax.x, tMax.y), min(tMax.x, tMax.z));\n  tNear = largest_tMin;\n  tFar = smallest_tMax;\n  intersect = smallest_tMax > largest_tMin;\n}\n\n/**\n * Get voxel value given IJK coordinates.\n * Also apply:\n *  - rescale slope/intercept\n *  - window center/width\n */\nvoid getIntensity(in vec3 dataCoordinates, out float intensity){\n\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  int kernelSize = 2;\n  value_0(\n    dataCoordinates,\n    kernelSize,\n    uInterpolation,\n    uDataDimensions,\n    uTextureSize,\n    uTextureContainer[0],\n    uTextureContainer[1],\n    uTextureContainer[2],\n    uTextureContainer[3],\n    uTextureContainer[4],\n    uTextureContainer[5],\n    uTextureContainer[6],\n    uTextureContainer,     // not working on Moto X 2014\n    uBitsAllocated,\n    uNumberOfChannels,\n    uPixelType,\n    dataValue\n  );\n\n  intensity = dataValue.r;\n\n  // rescale/slope\n  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  // window level\n  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n}\n\nvoid main(void) {\n  const int maxSteps = 1024;\n\n  // the ray\n  vec3 rayOrigin = cameraPosition;\n  vec3 rayDirection = normalize(vPos.xyz - rayOrigin);\n\n  // the Axe-Aligned B-Box\n  vec3 AABBMin = vec3(uWorldBBox[0], uWorldBBox[2], uWorldBBox[4]);\n  vec3 AABBMax = vec3(uWorldBBox[1], uWorldBBox[3], uWorldBBox[5]);\n\n  // Intersection ray/bbox\n  float tNear, tFar;\n  bool intersect = false;\n  intersectBox(rayOrigin, rayDirection, AABBMin, AABBMax, tNear, tFar, intersect);\n  if (tNear < 0.0) tNear = 0.0;\n\n  // init the ray marching\n  float tCurrent = tNear;\n  float tStep = (tFar - tNear) / float(uSteps);\n  vec4 accumulatedColor = vec4(0.0);\n  float accumulatedAlpha = 0.0;\n\n  for(int rayStep = 0; rayStep < maxSteps; rayStep++){\n    vec3 currentPosition = rayOrigin + rayDirection * tCurrent;\n    // some non-linear FUN\n    // some occlusion issue to be fixed\n    vec3 transformedPosition = transformPoint(currentPosition, uAmplitude, uFrequence);\n    // world to data coordinates\n    // rounding trick\n    // first center of first voxel in data space is CENTERED on (0,0,0)\n    vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);\n    vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);\n\n    if ( all(greaterThanEqual(currentVoxel, vec3(0.0))) &&\n         all(lessThan(currentVoxel, vec3(float(uDataDimensions.x), float(uDataDimensions.y), float(uDataDimensions.z))))) {\n    // mapped intensity, given slope/intercept and window/level\n    float intensity = 0.0;\n    getIntensity(currentVoxel, intensity);\n    vec4 colorSample;\n    float alphaSample;\n    if(uLut == 1){\n      vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );\n      // 256 colors\n      colorSample.r = colorFromLUT.r;\n      colorSample.g = colorFromLUT.g;\n      colorSample.b = colorFromLUT.b;\n      alphaSample = colorFromLUT.a;\n    }\n    else{\n      alphaSample = intensity;\n      colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;\n    }\n\n    alphaSample = alphaSample * uAlphaCorrection;\n    alphaSample *= (1.0 - accumulatedAlpha);\n\n    accumulatedColor += alphaSample * colorSample;\n    accumulatedAlpha += alphaSample;\n\n    }\n\n    tCurrent += tStep;\n\n    if(tCurrent > tFar || accumulatedAlpha >= 1.0 ) break;\n  }\n\n  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);\n  return;\n}\n",
         side: THREE.FrontSide,
         transparent: true
       });
@@ -29433,7 +29433,7 @@ function _interopRequireDefault(obj) {
 var DataVertex = "#define GLSLIFY 1\nvarying vec4 vPos;\n\n//\n// main\n//\nvoid main() {\n\n  vPos = modelMatrix * vec4(position, 1.0 );\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );\n\n}";
 var DataFragment = "#define GLSLIFY 1\nuniform int       uTextureSize;\nuniform float     uWindowCenterWidth[2];\nuniform float     uRescaleSlopeIntercept[2];\nuniform sampler2D uTextureContainer[7];\nuniform ivec3     uDataDimensions;\nuniform mat4      uWorldToData;\nuniform int       uNumberOfChannels;\nuniform int       uPixelType;\nuniform int       uBitsAllocated;\nuniform int       uInvert;\nuniform int       uInterpolation;\n\n// hack because can not pass arrays if too big\n// best would be to pass texture but have to deal with 16bits\nuniform int       uLut;\nuniform sampler2D uTextureLUT;\n\nvarying vec4      vPos;\n\n// include functions\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid no(in vec3 currentVoxel,\n        in int kernelSize,\n        in ivec3 dataDimensions,\n        in int textureSize,\n        in sampler2D textureContainer0,\n        in sampler2D textureContainer1,\n        in sampler2D textureContainer2,\n        in sampler2D textureContainer3,\n        in sampler2D textureContainer4,\n        in sampler2D textureContainer5,\n        in sampler2D textureContainer6,\n        in sampler2D textureContainer[7], // not working on Moto X 2014\n        in int bitsAllocated, \n        in int numberOfChannels_1, \n        in int pixelType_1,\n        out vec4 intensity_1\n  ) {\n  \n  // lower bound\n  vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n  ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));\n\n  texture3DPolyfill(\n    voxel,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    intensity_1\n    );\n\n  unpack(\n    intensity_1,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    intensity_1);\n\n}\n\n// https://en.wikipedia.org/wiki/Trilinear_interpolation\n\nvoid trilinear(in vec3 currentVoxel,\n               in int kernelSize,\n               in ivec3 dataDimensions,\n               in int textureSize,\n               in sampler2D textureContainer0,\n               in sampler2D textureContainer1,\n               in sampler2D textureContainer2,\n               in sampler2D textureContainer3,\n               in sampler2D textureContainer4,\n               in sampler2D textureContainer5,\n               in sampler2D textureContainer6,\n               in sampler2D textureContainer[7], // not working on Moto X 2014\n               in int bitsAllocated, \n               in int numberOfChannels_2, \n               in int pixelType_2,\n               out vec4 intensity_2\n  ) {\n  \n  // lower bound\n  vec3 lb = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n\n  vec3 direction = currentVoxel - lb;\n\n  // higher bound\n  vec3 hb = lb + 1.0;\n\n  if( direction.x < 0.0){\n\n    hb.x -= 2.0;\n\n  }\n\n  if( direction.y < 0.0){\n\n    hb.y -= 2.0;\n\n  }\n\n  if( direction.z < 0.0){\n\n    hb.z -= 2.0;\n\n  }\n\n  vec3 lc = vec3(0.0, 0.0, 0.0);\n  vec3 hc = vec3(0.0, 0.0, 0.0);\n\n  if(lb.x < hb.x){\n\n    lc.x = lb.x;\n    hc.x = hb.x;\n\n  }\n  else{\n\n    lc.x = hb.x;\n    hc.x = lb.x;\n\n  }\n\n  if(lb.y < hb.y){\n\n    lc.y = lb.y;\n    hc.y = hb.y;\n\n  }\n  else{\n\n    lc.y = hb.y;\n    hc.y = lb.y;\n\n  }\n\n  if(lb.z < hb.z){\n\n    lc.z = lb.z;\n    hc.z = hb.z;\n\n  }\n  else{\n\n    lc.z = hb.z;\n    hc.z = lb.z;\n\n  }\n\n  float xd = ( currentVoxel.x - lc.x ) / ( hc.x - lc.x );\n  float yd = ( currentVoxel.y - lc.y ) / ( hc.y - lc.y );\n  float zd = ( currentVoxel.z - lc.z ) / ( hc.z - lc.z );\n\n  //\n  // c00\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c000,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v000\n    );\n\n  unpack(\n    v000,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v000);\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c100,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v100\n    );\n\n  unpack(\n    v100,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v100);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c001,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v001\n    );\n\n  unpack(\n    v001,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v001);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c101,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v101\n    );\n\n  unpack(\n    v101,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v101);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c010,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v010\n    );\n\n  unpack(\n    v010,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v010);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c110,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v110\n    );\n\n  unpack(\n    v110,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v110);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c011,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v011\n    );\n\n  unpack(\n    v011,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v011);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c111,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v111\n    );\n\n  unpack(\n    v111,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v111);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  intensity_2 = c;\n\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid value_0(in vec3 dataCoordinates,\n           in int kernelSize,\n           in int interpolationMethod,\n           in ivec3 dataDimensions,\n           in int textureSize,\n           in sampler2D textureContainer0,\n           in sampler2D textureContainer1,\n           in sampler2D textureContainer2,\n           in sampler2D textureContainer3,\n           in sampler2D textureContainer4,\n           in sampler2D textureContainer5,\n           in sampler2D textureContainer6,\n           in sampler2D textureContainer[7], // not working on Moto X 2014\n           in int bitsAllocated, \n           in int numberOfChannels_0, \n           in int pixelType_0,\n           out vec4 intensity_0\n  ) {\n\n  //\n  // no interpolation for now...\n  //\n\n  if( interpolationMethod == 0){\n\n    // no interpolation\n    no(dataCoordinates,\n       kernelSize,\n       dataDimensions,\n       textureSize,\n       textureContainer0,\n       textureContainer1,\n       textureContainer2,\n       textureContainer3,\n       textureContainer4,\n       textureContainer5,\n       textureContainer6,\n       textureContainer,\n       bitsAllocated,\n       numberOfChannels_0,\n       pixelType_0,\n       intensity_0);\n\n  }\n  else if( interpolationMethod == 1){\n\n    // trilinear interpolation\n\n    trilinear(dataCoordinates,\n      kernelSize,\n      dataDimensions,\n      textureSize,\n      textureContainer0,\n      textureContainer1,\n      textureContainer2,\n      textureContainer3,\n      textureContainer4,\n      textureContainer5,\n      textureContainer6,\n      textureContainer,\n      bitsAllocated,\n      numberOfChannels_0,\n      pixelType_0,\n      intensity_0);\n\n  }\n\n}\n\nvoid main(void) {\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = vec3(dataCoordinates.x, dataCoordinates.y, dataCoordinates.z);\n  int kernelSize = 2;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  value_0(\n    currentVoxel,\n    kernelSize,\n    uInterpolation,\n    uDataDimensions,\n    uTextureSize,\n    uTextureContainer[0],\n    uTextureContainer[1],\n    uTextureContainer[2],\n    uTextureContainer[3],\n    uTextureContainer[4],\n    uTextureContainer[5],\n    uTextureContainer[6],\n    uTextureContainer,     // not working on Moto X 2014\n    uBitsAllocated,\n    uNumberOfChannels,\n    uPixelType,\n    dataValue\n  );\n\n  // how do we deal wil more than 1 channel?\n  if(uNumberOfChannels == 1){\n    float intensity = dataValue.r;\n\n    // rescale/slope\n    intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;\n    intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n\n    dataValue.r = dataValue.g = dataValue.b = intensity;\n    dataValue.a = 1.0;\n  }\n\n  // Apply LUT table...\n  //\n  if(uLut == 1){\n    // should opacity be grabbed there?\n    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n\n}";
 
-var LayerFragment = "#define GLSLIFY 1\nuniform sampler2D uTextureBackTest0;\nuniform float     uOpacity0;\nuniform int       uType0;\nuniform sampler2D uTextureBackTest1;\nuniform float     uOpacity1;\nuniform int       uType1;\nuniform int       uTrackMouse;\nuniform vec2      uMouse;\n\nvarying vec4      vPos;\nvarying vec4      vProjectedCoords;\n\n// include functions\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid no(in vec3 currentVoxel,\n        in int kernelSize,\n        in ivec3 dataDimensions,\n        in int textureSize,\n        in sampler2D textureContainer0,\n        in sampler2D textureContainer1,\n        in sampler2D textureContainer2,\n        in sampler2D textureContainer3,\n        in sampler2D textureContainer4,\n        in sampler2D textureContainer5,\n        in sampler2D textureContainer6,\n        in sampler2D textureContainer[7], // not working on Moto X 2014\n        in int bitsAllocated, \n        in int numberOfChannels_2, \n        in int pixelType_2,\n        out vec4 intensity_2\n  ) {\n  \n  // lower bound\n  vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n  ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));\n\n  texture3DPolyfill(\n    voxel,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    intensity_2\n    );\n\n  unpack(\n    intensity_2,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    intensity_2);\n\n}\n\n// https://en.wikipedia.org/wiki/Trilinear_interpolation\n\nvoid trilinear(in vec3 currentVoxel,\n               in int kernelSize,\n               in ivec3 dataDimensions,\n               in int textureSize,\n               in sampler2D textureContainer0,\n               in sampler2D textureContainer1,\n               in sampler2D textureContainer2,\n               in sampler2D textureContainer3,\n               in sampler2D textureContainer4,\n               in sampler2D textureContainer5,\n               in sampler2D textureContainer6,\n               in sampler2D textureContainer[7], // not working on Moto X 2014\n               in int bitsAllocated, \n               in int numberOfChannels_1, \n               in int pixelType_1,\n               out vec4 intensity_1\n  ) {\n  \n  // lower bound\n  vec3 lb = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n\n  vec3 direction = currentVoxel - lb;\n\n  // higher bound\n  vec3 hb = lb + 1.0;\n\n  if( direction.x < 0.0){\n\n    hb.x -= 2.0;\n\n  }\n\n  if( direction.y < 0.0){\n\n    hb.y -= 2.0;\n\n  }\n\n  if( direction.z < 0.0){\n\n    hb.z -= 2.0;\n\n  }\n\n  vec3 lc = vec3(0.0, 0.0, 0.0);\n  vec3 hc = vec3(0.0, 0.0, 0.0);\n\n  if(lb.x < hb.x){\n\n    lc.x = lb.x;\n    hc.x = hb.x;\n\n  }\n  else{\n\n    lc.x = hb.x;\n    hc.x = lb.x;\n\n  }\n\n  if(lb.y < hb.y){\n\n    lc.y = lb.y;\n    hc.y = hb.y;\n\n  }\n  else{\n\n    lc.y = hb.y;\n    hc.y = lb.y;\n\n  }\n\n  if(lb.z < hb.z){\n\n    lc.z = lb.z;\n    hc.z = hb.z;\n\n  }\n  else{\n\n    lc.z = hb.z;\n    hc.z = lb.z;\n\n  }\n\n  float xd = ( currentVoxel.x - lc.x ) / ( hc.x - lc.x );\n  float yd = ( currentVoxel.y - lc.y ) / ( hc.y - lc.y );\n  float zd = ( currentVoxel.z - lc.z ) / ( hc.z - lc.z );\n\n  //\n  // c00\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c000,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v000\n    );\n\n  unpack(\n    v000,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v000);\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c100,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v100\n    );\n\n  unpack(\n    v100,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v100);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c001,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v001\n    );\n\n  unpack(\n    v001,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v001);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c101,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v101\n    );\n\n  unpack(\n    v101,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v101);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c010,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v010\n    );\n\n  unpack(\n    v010,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v010);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c110,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v110\n    );\n\n  unpack(\n    v110,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v110);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c011,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v011\n    );\n\n  unpack(\n    v011,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v011);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c111,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v111\n    );\n\n  unpack(\n    v111,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    v111);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  intensity_1 = c;\n\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid value_0(in vec3 dataCoordinates,\n           in int kernelSize,\n           in int interpolationMethod,\n           in ivec3 dataDimensions,\n           in int textureSize,\n           in sampler2D textureContainer0,\n           in sampler2D textureContainer1,\n           in sampler2D textureContainer2,\n           in sampler2D textureContainer3,\n           in sampler2D textureContainer4,\n           in sampler2D textureContainer5,\n           in sampler2D textureContainer6,\n           in sampler2D textureContainer[7], // not working on Moto X 2014\n           in int bitsAllocated, \n           in int numberOfChannels_0, \n           in int pixelType_0,\n           out vec4 intensity_0\n  ) {\n\n  //\n  // no interpolation for now...\n  //\n\n  if( interpolationMethod == 0){\n\n    // no interpolation\n    no(dataCoordinates,\n       kernelSize,\n       dataDimensions,\n       textureSize,\n       textureContainer0,\n       textureContainer1,\n       textureContainer2,\n       textureContainer3,\n       textureContainer4,\n       textureContainer5,\n       textureContainer6,\n       textureContainer,\n       bitsAllocated,\n       numberOfChannels_0,\n       pixelType_0,\n       intensity_0);\n\n  }\n  else if( interpolationMethod == 1){\n\n    // trilinear interpolation\n\n    trilinear(dataCoordinates,\n      kernelSize,\n      dataDimensions,\n      textureSize,\n      textureContainer0,\n      textureContainer1,\n      textureContainer2,\n      textureContainer3,\n      textureContainer4,\n      textureContainer5,\n      textureContainer6,\n      textureContainer,\n      bitsAllocated,\n      numberOfChannels_0,\n      pixelType_0,\n      intensity_0);\n\n  }\n\n}\n\nvoid main(void) {\n\n  vec2 texc = vec2(((vProjectedCoords.x / vProjectedCoords.w) + 1.0 ) / 2.0,\n                ((vProjectedCoords.y / vProjectedCoords.w) + 1.0 ) / 2.0 );\n\n  // just silence warning for\n  vec4 dummy = vPos;\n\n  //The back position is the world space position stored in the texture.\n  vec4 baseColor0 = texture2D(uTextureBackTest0, texc);\n  vec4 baseColor1 = texture2D(uTextureBackTest1, texc);\n\n  vec4 pixelColor = baseColor0;\n\n  if( uTrackMouse == 1 ){\n\n      if( vProjectedCoords.x < uMouse.x ){\n\n        pixelColor = baseColor0;\n\n      }\n      else{\n\n        pixelColor = baseColor1;\n\n      }\n\n  }\n  else{\n\n    if( uType1 == 0 ){\n\n      //merge an inmage into\n      pixelColor = mix( pixelColor, baseColor1, uOpacity1 );\n\n    }\n    else{\n\n      float opacity = baseColor1.a;\n      pixelColor = mix( pixelColor, baseColor1, opacity * uOpacity1 );\n\n    }\n\n  }\n\n  gl_FragColor = pixelColor;\n\n  return;\n\n}";
+var LayerFragment = "#define GLSLIFY 1\nuniform sampler2D uTextureBackTest0;\nuniform float     uOpacity0;\nuniform int       uType0;\nuniform sampler2D uTextureBackTest1;\nuniform float     uOpacity1;\nuniform int       uType1;\nuniform int       uTrackMouse;\nuniform vec2      uMouse;\n\nvarying vec4      vPos;\nvarying vec4      vProjectedCoords;\n\n// include functions\n// unpack int 8\nvoid uInt8(in float r, out float value){\n  value = r * 256.;\n}\n\n// unpack int 16\nvoid uInt16(in float r, in float a, out float value){\n  value = r * 256. + a * 65536.;\n}\n\n// unpack int 32\nvoid uInt32(in float r, in float g, in float b, in float a, out float value){\n  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;\n}\n\n// unpack float 32\nvoid uFloat32(in float r, in float g, in float b, in float a, out float value){\n\n  // create arrays containing bits for rgba values\n  // value between 0 and 255\n  value = r * 255.;\n  int bytemeR[8];\n  bytemeR[0] = int(floor(value / 128.));\n  value -= float(bytemeR[0] * 128);\n  bytemeR[1] = int(floor(value / 64.));\n  value -= float(bytemeR[1] * 64);\n  bytemeR[2] = int(floor(value / 32.));\n  value -= float(bytemeR[2] * 32);\n  bytemeR[3] = int(floor(value / 16.));\n  value -= float(bytemeR[3] * 16);\n  bytemeR[4] = int(floor(value / 8.));\n  value -= float(bytemeR[4] * 8);\n  bytemeR[5] = int(floor(value / 4.));\n  value -= float(bytemeR[5] * 4);\n  bytemeR[6] = int(floor(value / 2.));\n  value -= float(bytemeR[6] * 2);\n  bytemeR[7] = int(floor(value));\n\n  value = g * 255.;\n  int bytemeG[8];\n  bytemeG[0] = int(floor(value / 128.));\n  value -= float(bytemeG[0] * 128);\n  bytemeG[1] = int(floor(value / 64.));\n  value -= float(bytemeG[1] * 64);\n  bytemeG[2] = int(floor(value / 32.));\n  value -= float(bytemeG[2] * 32);\n  bytemeG[3] = int(floor(value / 16.));\n  value -= float(bytemeG[3] * 16);\n  bytemeG[4] = int(floor(value / 8.));\n  value -= float(bytemeG[4] * 8);\n  bytemeG[5] = int(floor(value / 4.));\n  value -= float(bytemeG[5] * 4);\n  bytemeG[6] = int(floor(value / 2.));\n  value -= float(bytemeG[6] * 2);\n  bytemeG[7] = int(floor(value));\n\n  value = b * 255.;\n  int bytemeB[8];\n  bytemeB[0] = int(floor(value / 128.));\n  value -= float(bytemeB[0] * 128);\n  bytemeB[1] = int(floor(value / 64.));\n  value -= float(bytemeB[1] * 64);\n  bytemeB[2] = int(floor(value / 32.));\n  value -= float(bytemeB[2] * 32);\n  bytemeB[3] = int(floor(value / 16.));\n  value -= float(bytemeB[3] * 16);\n  bytemeB[4] = int(floor(value / 8.));\n  value -= float(bytemeB[4] * 8);\n  bytemeB[5] = int(floor(value / 4.));\n  value -= float(bytemeB[5] * 4);\n  bytemeB[6] = int(floor(value / 2.));\n  value -= float(bytemeB[6] * 2);\n  bytemeB[7] = int(floor(value));\n\n  value = a * 255.;\n  int bytemeA[8];\n  bytemeA[0] = int(floor(value / 128.));\n  value -= float(bytemeA[0] * 128);\n  bytemeA[1] = int(floor(value / 64.));\n  value -= float(bytemeA[1] * 64);\n  bytemeA[2] = int(floor(value / 32.));\n  value -= float(bytemeA[2] * 32);\n  bytemeA[3] = int(floor(value / 16.));\n  value -= float(bytemeA[3] * 16);\n  bytemeA[4] = int(floor(value / 8.));\n  value -= float(bytemeA[4] * 8);\n  bytemeA[5] = int(floor(value / 4.));\n  value -= float(bytemeA[5] * 4);\n  bytemeA[6] = int(floor(value / 2.));\n  value -= float(bytemeA[6] * 2);\n  bytemeA[7] = int(floor(value));\n\n  // compute float32 value from bit arrays\n\n  // sign\n  int issigned = 1 - 2 * bytemeR[0];\n  //   issigned = int(pow(-1., float(bytemeR[0])));\n\n  // exponent\n  int exponent = 0;\n\n  exponent += bytemeR[1] * int(pow(2., 7.));\n  exponent += bytemeR[2] * int(pow(2., 6.));\n  exponent += bytemeR[3] * int(pow(2., 5.));\n  exponent += bytemeR[4] * int(pow(2., 4.));\n  exponent += bytemeR[5] * int(pow(2., 3.));\n  exponent += bytemeR[6] * int(pow(2., 2.));\n  exponent += bytemeR[7] * int(pow(2., 1.));\n\n  exponent += bytemeG[0];\n\n  // fraction\n  float fraction = 0.;\n\n  fraction = float(bytemeG[1]) * pow(2., -1.);\n  fraction += float(bytemeG[2]) * pow(2., -2.);\n  fraction += float(bytemeG[3]) * pow(2., -3.);\n  fraction += float(bytemeG[4]) * pow(2., -4.);\n  fraction += float(bytemeG[5]) * pow(2., -5.);\n  fraction += float(bytemeG[6]) * pow(2., -6.);\n  fraction += float(bytemeG[7]) * pow(2., -7.);\n\n  fraction += float(bytemeB[0]) * pow(2., -8.);\n  fraction += float(bytemeB[1]) * pow(2., -9.);\n  fraction += float(bytemeB[2]) * pow(2., -10.);\n  fraction += float(bytemeB[3]) * pow(2., -11.);\n  fraction += float(bytemeB[4]) * pow(2., -12.);\n  fraction += float(bytemeB[5]) * pow(2., -13.);\n  fraction += float(bytemeB[6]) * pow(2., -14.);\n  fraction += float(bytemeB[7]) * pow(2., -15.);\n\n  fraction += float(bytemeA[0]) * pow(2., -16.);\n  fraction += float(bytemeA[1]) * pow(2., -17.);\n  fraction += float(bytemeA[2]) * pow(2., -18.);\n  fraction += float(bytemeA[3]) * pow(2., -19.);\n  fraction += float(bytemeA[4]) * pow(2., -20.);\n  fraction += float(bytemeA[5]) * pow(2., -21.);\n  fraction += float(bytemeA[6]) * pow(2., -22.);\n  fraction += float(bytemeA[7]) * pow(2., -23.);\n\n  value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);\n}\n\n// entry point for the unpack function\nvoid unpack( in vec4 packedRGBA,\n             in int bitsAllocated,\n             in int signedNumber,\n             in int numberOfChannels,\n             in int pixelType,\n             out vec4 unpacked) {\n\n  if(numberOfChannels == 1){\n    if(bitsAllocated == 8 || bitsAllocated == 1){\n      uInt8(\n        packedRGBA.r,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 16){\n      uInt16(\n        packedRGBA.r,\n        packedRGBA.a,\n        unpacked.x);\n    }\n    else if(bitsAllocated == 32){\n      if(pixelType == 0){\n        uInt32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n      else{\n        uFloat32(\n          packedRGBA.r,\n          packedRGBA.g,\n          packedRGBA.b,\n          packedRGBA.a,\n          unpacked.x);\n      }\n\n    }\n  }\n  else if(numberOfChannels == 3){\n    unpacked = packedRGBA;\n  }\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid texture3DPolyfill(in ivec3 dataCoordinates,\n                       in ivec3 dataDimensions,\n                       in int textureSize,\n                       in sampler2D textureContainer0,\n                       in sampler2D textureContainer1,\n                       in sampler2D textureContainer2,\n                       in sampler2D textureContainer3,\n                       in sampler2D textureContainer4,\n                       in sampler2D textureContainer5,\n                       in sampler2D textureContainer6,\n                       in sampler2D textureContainer[7], // not working on Moto X 2014\n                       out vec4 dataValue\n  ) {\n\n  // Model coordinate to data index\n  int index = dataCoordinates.x\n            + dataCoordinates.y * dataDimensions.x\n            + dataCoordinates.z * dataDimensions.y * dataDimensions.x;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = textureSize*textureSize;\n  int textureIndex = int(floor(float(index) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = index - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(textureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(textureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(textureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(textureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(textureContainer0, uv); }\n  else if(textureIndex == 1){dataValue = texture2D(textureContainer1, uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(textureContainer2, uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(textureContainer3, uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(textureContainer4, uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(textureContainer5, uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(textureContainer6, uv); }\n}\n\nvoid no(in vec3 currentVoxel,\n        in int kernelSize,\n        in ivec3 dataDimensions,\n        in int textureSize,\n        in sampler2D textureContainer0,\n        in sampler2D textureContainer1,\n        in sampler2D textureContainer2,\n        in sampler2D textureContainer3,\n        in sampler2D textureContainer4,\n        in sampler2D textureContainer5,\n        in sampler2D textureContainer6,\n        in sampler2D textureContainer[7], // not working on Moto X 2014\n        in int bitsAllocated, \n        in int numberOfChannels_1, \n        in int pixelType_1,\n        out vec4 intensity_1\n  ) {\n  \n  // lower bound\n  vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n  ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));\n\n  texture3DPolyfill(\n    voxel,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    intensity_1\n    );\n\n  unpack(\n    intensity_1,\n    bitsAllocated,\n    0,\n    numberOfChannels_1,\n    pixelType_1,\n    intensity_1);\n\n}\n\n// https://en.wikipedia.org/wiki/Trilinear_interpolation\n\nvoid trilinear(in vec3 currentVoxel,\n               in int kernelSize,\n               in ivec3 dataDimensions,\n               in int textureSize,\n               in sampler2D textureContainer0,\n               in sampler2D textureContainer1,\n               in sampler2D textureContainer2,\n               in sampler2D textureContainer3,\n               in sampler2D textureContainer4,\n               in sampler2D textureContainer5,\n               in sampler2D textureContainer6,\n               in sampler2D textureContainer[7], // not working on Moto X 2014\n               in int bitsAllocated, \n               in int numberOfChannels_2, \n               in int pixelType_2,\n               out vec4 intensity_2\n  ) {\n  \n  // lower bound\n  vec3 lb = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));\n\n  vec3 direction = currentVoxel - lb;\n\n  // higher bound\n  vec3 hb = lb + 1.0;\n\n  if( direction.x < 0.0){\n\n    hb.x -= 2.0;\n\n  }\n\n  if( direction.y < 0.0){\n\n    hb.y -= 2.0;\n\n  }\n\n  if( direction.z < 0.0){\n\n    hb.z -= 2.0;\n\n  }\n\n  vec3 lc = vec3(0.0, 0.0, 0.0);\n  vec3 hc = vec3(0.0, 0.0, 0.0);\n\n  if(lb.x < hb.x){\n\n    lc.x = lb.x;\n    hc.x = hb.x;\n\n  }\n  else{\n\n    lc.x = hb.x;\n    hc.x = lb.x;\n\n  }\n\n  if(lb.y < hb.y){\n\n    lc.y = lb.y;\n    hc.y = hb.y;\n\n  }\n  else{\n\n    lc.y = hb.y;\n    hc.y = lb.y;\n\n  }\n\n  if(lb.z < hb.z){\n\n    lc.z = lb.z;\n    hc.z = hb.z;\n\n  }\n  else{\n\n    lc.z = hb.z;\n    hc.z = lb.z;\n\n  }\n\n  float xd = ( currentVoxel.x - lc.x ) / ( hc.x - lc.x );\n  float yd = ( currentVoxel.y - lc.y ) / ( hc.y - lc.y );\n  float zd = ( currentVoxel.z - lc.z ) / ( hc.z - lc.z );\n\n  //\n  // c00\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c000,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v000\n    );\n\n  unpack(\n    v000,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v000);\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c100,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v100\n    );\n\n  unpack(\n    v100,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v100);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c001,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v001\n    );\n\n  unpack(\n    v001,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v001);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c101,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v101\n    );\n\n  unpack(\n    v101,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v101);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c010,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v010\n    );\n\n  unpack(\n    v010,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v010);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));\n\n  texture3DPolyfill(\n    c110,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v110\n    );\n\n  unpack(\n    v110,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v110);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c011,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v011\n    );\n\n  unpack(\n    v011,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v011);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));\n\n  texture3DPolyfill(\n    c111,\n    dataDimensions,\n    textureSize,\n    textureContainer[0],\n    textureContainer[1],\n    textureContainer[2],\n    textureContainer[3],\n    textureContainer[4],\n    textureContainer[5],\n    textureContainer[6],\n    textureContainer,     // not working on Moto X 2014\n    v111\n    );\n\n  unpack(\n    v111,\n    bitsAllocated,\n    0,\n    numberOfChannels_2,\n    pixelType_2,\n    v111);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  intensity_2 = c;\n\n}\n\n// Support up to textureSize*textureSize*7 voxels\n\nvoid value_0(in vec3 dataCoordinates,\n           in int kernelSize,\n           in int interpolationMethod,\n           in ivec3 dataDimensions,\n           in int textureSize,\n           in sampler2D textureContainer0,\n           in sampler2D textureContainer1,\n           in sampler2D textureContainer2,\n           in sampler2D textureContainer3,\n           in sampler2D textureContainer4,\n           in sampler2D textureContainer5,\n           in sampler2D textureContainer6,\n           in sampler2D textureContainer[7], // not working on Moto X 2014\n           in int bitsAllocated, \n           in int numberOfChannels_0, \n           in int pixelType_0,\n           out vec4 intensity_0\n  ) {\n\n  //\n  // no interpolation for now...\n  //\n\n  if( interpolationMethod == 0){\n\n    // no interpolation\n    no(dataCoordinates,\n       kernelSize,\n       dataDimensions,\n       textureSize,\n       textureContainer0,\n       textureContainer1,\n       textureContainer2,\n       textureContainer3,\n       textureContainer4,\n       textureContainer5,\n       textureContainer6,\n       textureContainer,\n       bitsAllocated,\n       numberOfChannels_0,\n       pixelType_0,\n       intensity_0);\n\n  }\n  else if( interpolationMethod == 1){\n\n    // trilinear interpolation\n\n    trilinear(dataCoordinates,\n      kernelSize,\n      dataDimensions,\n      textureSize,\n      textureContainer0,\n      textureContainer1,\n      textureContainer2,\n      textureContainer3,\n      textureContainer4,\n      textureContainer5,\n      textureContainer6,\n      textureContainer,\n      bitsAllocated,\n      numberOfChannels_0,\n      pixelType_0,\n      intensity_0);\n\n  }\n\n}\n\nvoid main(void) {\n\n  vec2 texc = vec2(((vProjectedCoords.x / vProjectedCoords.w) + 1.0 ) / 2.0,\n                ((vProjectedCoords.y / vProjectedCoords.w) + 1.0 ) / 2.0 );\n\n  // just silence warning for\n  vec4 dummy = vPos;\n\n  //The back position is the world space position stored in the texture.\n  vec4 baseColor0 = texture2D(uTextureBackTest0, texc);\n  vec4 baseColor1 = texture2D(uTextureBackTest1, texc);\n\n  vec4 pixelColor = baseColor0;\n\n  if( uTrackMouse == 1 ){\n\n      if( vProjectedCoords.x < uMouse.x ){\n\n        pixelColor = baseColor0;\n\n      }\n      else{\n\n        pixelColor = baseColor1;\n\n      }\n\n  }\n  else{\n\n    if( uType1 == 0 ){\n\n      //merge an inmage into\n      pixelColor = mix( pixelColor, baseColor1, uOpacity1 );\n\n    }\n    else{\n\n      float opacity = baseColor1.a;\n      pixelColor = mix( pixelColor, baseColor1, opacity * uOpacity1 );\n\n    }\n\n  }\n\n  gl_FragColor = pixelColor;\n\n  return;\n\n}";
 
 var RaycastingFirstpassFragment = "#define GLSLIFY 1\nuniform float uWorldBBox[6];\n\nvarying vec4 vPos;\n\nvoid main(void) {\n\n  // NORMALIZE LPS VALUES\n  gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),\n                      (vPos.y - uWorldBBox[2])/(uWorldBBox[3] - uWorldBBox[2]),\n                      (vPos.z - uWorldBBox[4])/(uWorldBBox[5] - uWorldBBox[4]),\n                      1.0);\n\n}";
 var RaycastingSecondpassVertex = "#define GLSLIFY 1\nvarying vec4 vPos;\nvarying vec4 vProjectedCoords;\n//\n// main\n//\nvoid main() {\n\n  vPos = modelMatrix * vec4(position, 1.0 );\n  vProjectedCoords =  projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );\n\n}";
@@ -29741,13 +29741,720 @@ exports.default = ShadersRaycating;
 },{}],96:[function(require,module,exports){
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _widgets = require('./widgets.voxelProbe');
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
+/**
+ *
+ */
+
+var WidgetsBase = function (_THREE$Object3D) {
+  _inherits(WidgetsBase, _THREE$Object3D);
+
+  function WidgetsBase() {
+    _classCallCheck(this, WidgetsBase);
+
+    // is widget enabled?
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(WidgetsBase).call(this));
+
+    // init THREE Object 3D
+
+    _this._enabled = true;
+
+    // STATE, ENUM might be better
+    _this._selected = false;
+    _this._hovered = false;
+    _this._active = false;
+
+    _this._colors = {
+      default: '#00B0FF',
+      active: '#FFEB3B',
+      hover: '#F50057',
+      select: '#76FF03'
+    };
+    _this._color = _this._colors.default;
+
+    _this._dragged = false;
+    // can not call it visible because it conflicts with THREE.Object3D
+    _this._displayed = true;
+
+    return _this;
+  }
+
+  _createClass(WidgetsBase, [{
+    key: 'update',
+    value: function update() {
+
+      // to be overloaded
+      window.console.log('update() should be overloaded!');
+    }
+  }, {
+    key: 'updateColor',
+    value: function updateColor() {
+
+      if (this._active) {
+
+        this._color = this._colors.active;
+      } else if (this._hovered) {
+
+        this._color = this._colors.hover;
+      } else if (this._selected) {
+
+        this._color = this._colors.select;
+      } else {
+
+        this._color = this._colors.default;
+      }
+    }
+  }, {
+    key: 'enabled',
+    get: function get() {
+
+      return this._enabled;
+    },
+    set: function set(enabled) {
+
+      this._enabled = enabled;
+      this.update();
+    }
+  }, {
+    key: 'selected',
+    get: function get() {
+
+      return this._selected;
+    },
+    set: function set(selected) {
+
+      this._selected = selected;
+      this.update();
+    }
+  }, {
+    key: 'hovered',
+    get: function get() {
+
+      return this._hovered;
+    },
+    set: function set(hovered) {
+
+      this._hovered = hovered;
+      this.update();
+    }
+  }, {
+    key: 'dragged',
+    get: function get() {
+
+      return this._dragged;
+    },
+    set: function set(dragged) {
+
+      this._dragged = dragged;
+      this.update();
+    }
+  }, {
+    key: 'displayed',
+    get: function get() {
+
+      return this._displayed;
+    },
+    set: function set(displayed) {
+
+      this._displayed = displayed;
+      this.update();
+    }
+  }, {
+    key: 'active',
+    get: function get() {
+
+      return this._active;
+    },
+    set: function set(active) {
+
+      this._active = active;
+      this.update();
+    }
+  }, {
+    key: 'color',
+    get: function get() {
+
+      return this._color;
+    },
+    set: function set(color) {
+
+      this._color = color;
+      this.update();
+    }
+  }]);
+
+  return WidgetsBase;
+}(THREE.Object3D);
+
+exports.default = WidgetsBase;
+
+},{}],97:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
+
+var _widgets = require('../../src/widgets/widgets.base');
 
 var _widgets2 = _interopRequireDefault(_widgets);
+
+var _core = require('../../src/core/core.intersections');
+
+var _core2 = _interopRequireDefault(_core);
+
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
+/**
+ * @module widgets/handle
+ * 
+ */
+
+var WidgetsHandle = function (_WidgetsBase) {
+  _inherits(WidgetsHandle, _WidgetsBase);
+
+  function WidgetsHandle(targetMesh, controls, camera, container) {
+    _classCallCheck(this, WidgetsHandle);
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(WidgetsHandle).call(this));
+
+    _this._targetMesh = targetMesh;
+    _this._controls = controls;
+    _this._camera = camera;
+    _this._container = container;
+
+    // if no target mesh, use plane for FREE dragging.
+    _this._plane = {
+      position: new THREE.Vector3(),
+      direction: new THREE.Vector3()
+    };
+    _this._offset = new THREE.Vector3();
+    _this._raycaster = new THREE.Raycaster();
+
+    _this._tracking = false;
+
+    _this._mouse = new THREE.Vector2();
+
+    // world (LPS) position of this handle
+    _this._worldPosition = new THREE.Vector3();
+
+    // screen position of this handle
+    _this._screenPosition = new THREE.Vector2();
+
+    // mesh stuff
+    _this._material = null;
+    _this._geometry = null;
+    _this._mesh = null;
+    _this._meshDisplayed = true;
+    _this._meshHovered = false;
+    _this._meshStyle = 'sphere'; //cube, etc.
+
+    // dom stuff
+    _this._dom = null;
+    _this._domDisplayed = true;
+    _this._domHovered = false;
+    _this._domStyle = 'circle'; // square, triangle
+
+    if (_this._targetMesh !== null) {
+
+      _this._worldPosition.copy(_this._targetMesh.position);
+    }
+
+    _this._screenPosition = _this.worldToScreen(_this._worldPosition, _this._camera, _this._container);
+
+    // create handle
+    _this.create();
+
+    // event listeners
+    _this.onMove = _this.onMove.bind(_this);
+    _this.onHover = _this.onHover.bind(_this);
+    _this.addEventListeners();
+    return _this;
+  }
+
+  _createClass(WidgetsHandle, [{
+    key: 'addEventListeners',
+    value: function addEventListeners() {
+
+      this._dom.addEventListener('mouseenter', this.onHover);
+      this._dom.addEventListener('mouseleave', this.onHover);
+
+      this._container.addEventListener('mousewheel', this.onMove);
+      this._container.addEventListener('DOMMouseScroll', this.onMove);
+    }
+  }, {
+    key: 'removeEventListeners',
+    value: function removeEventListeners() {
+
+      this._dom.removeEventListener('mouseenter', this.onHover);
+      this._dom.removeEventListener('mouseleave', this.onHover);
+
+      this._container.removeEventListener('mousewheel', this.onMove);
+      this._container.removeEventListener('DOMMouseScroll', this.onMove);
+    }
+  }, {
+    key: 'create',
+    value: function create() {
+
+      this.createMesh();
+      this.createDOM();
+    }
+  }, {
+    key: 'onStart',
+    value: function onStart(evt) {
+
+      evt.preventDefault();
+
+      // update raycaster
+      this._raycaster.setFromCamera(this._mouse, this._camera);
+      this._raycaster.ray.position = this._raycaster.ray.origin;
+
+      if (this._hovered) {
+
+        this._active = true;
+        this._controls.enabled = false;
+
+        if (this._targetMesh) {
+
+          var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+          if (intersectsTarget.length > 0) {
+
+            this._offset.copy(intersectsTarget[0].point).sub(this._mesh.position);
+          }
+        } else {
+
+          // update raycaster
+          var intersection = _core2.default.rayPlane(this._raycaster.ray, this._plane);
+          if (intersection !== null) {
+
+            this._offset.copy(intersection).sub(this._plane.position);
+          }
+        }
+
+        this.update();
+      }
+    }
+  }, {
+    key: 'onEnd',
+    value: function onEnd(evt) {
+
+      evt.preventDefault();
+
+      // stay active and keep controls disabled
+      if (this._tracking === true) {
+
+        return;
+      }
+
+      // unselect if go up without moving
+      if (!this._dragged && this._active) {
+
+        // change state if was not dragging
+        this._selected = !this._selected;
+      }
+
+      this._active = false;
+      this._dragged = false;
+      this._controls.enabled = true;
+
+      this.update();
+    }
+
+    /**
+     *
+     *
+     */
+
+  }, {
+    key: 'onMove',
+    value: function onMove(evt) {
+
+      evt.preventDefault();
+
+      this._mouse.set(event.clientX / this._container.offsetWidth * 2 - 1, -(event.clientY / this._container.offsetHeight) * 2 + 1);
+
+      // update screen position of handle
+      this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
+
+      // update raycaster
+      // set ray.position to satisfy CoreIntersections::rayPlane API
+      this._raycaster.setFromCamera(this._mouse, this._camera);
+      this._raycaster.ray.position = this._raycaster.ray.origin;
+
+      if (this._active) {
+
+        this._dragged = true;
+
+        if (this._targetMesh !== null) {
+
+          var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+          if (intersectsTarget.length > 0) {
+
+            this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
+          }
+        } else {
+
+          if (this._plane.direction.length() === 0) {
+
+            // free mode!this._targetMesh
+            this._plane.position.copy(this._worldPosition);
+            this._plane.direction.copy(this._camera.getWorldDirection());
+          }
+
+          var intersection = _core2.default.rayPlane(this._raycaster.ray, this._plane);
+          if (intersection !== null) {
+
+            this._worldPosition.copy(intersection.sub(this._offset));
+          }
+        }
+      } else {
+
+        this.onHover(null);
+        if (this._targetMesh === null) {
+
+          //free mode!this._targetMesh
+          this._plane.position.copy(this._worldPosition);
+          this._plane.direction.copy(this._camera.getWorldDirection());
+        }
+      }
+
+      this.update();
+    }
+  }, {
+    key: 'onHover',
+    value: function onHover(evt) {
+
+      if (evt) {
+
+        evt.preventDefault();
+        this.hoverDom(evt);
+      }
+
+      this.hoverMesh();
+
+      this._hovered = this._meshHovered || this._domHovered;
+      this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+
+      // general update
+      this.updateColor();
+
+      // mesh stuff
+      this.updateMeshColor();
+      this.updateMeshPosition();
+
+      // DOM stuff
+      this.updateDOMColor();
+      this.updateDOMPosition();
+    }
+
+    //
+
+  }, {
+    key: 'updateMeshColor',
+    value: function updateMeshColor() {
+
+      if (this._material) {
+
+        this._material.color.set(this._color);
+      }
+    }
+  }, {
+    key: 'updateMeshPosition',
+    value: function updateMeshPosition() {
+
+      if (this._mesh) {
+
+        this._mesh.position.x = this._worldPosition.x;
+        this._mesh.position.y = this._worldPosition.y;
+        this._mesh.position.z = this._worldPosition.z;
+      }
+    }
+  }, {
+    key: 'hoverMesh',
+    value: function hoverMesh() {
+
+      // check raycast intersection, do we want to hover on mesh or just css?
+      var intersectsHandle = this._raycaster.intersectObject(this._mesh);
+      this._meshHovered = intersectsHandle.length > 0;
+    }
+  }, {
+    key: 'hoverDom',
+    value: function hoverDom(evt) {
+
+      this._domHovered = evt.type === 'mouseenter';
+    }
+  }, {
+    key: 'worldToScreen',
+    value: function worldToScreen(worldCoordinate, camera, canvas) {
+
+      var screenCoordinates = worldCoordinate.clone();
+      screenCoordinates.project(camera);
+
+      screenCoordinates.x = Math.round((screenCoordinates.x + 1) * canvas.offsetWidth / 2);
+      screenCoordinates.y = Math.round((-screenCoordinates.y + 1) * canvas.offsetHeight / 2);
+      screenCoordinates.z = 0;
+
+      return screenCoordinates;
+    }
+  }, {
+    key: 'createMesh',
+    value: function createMesh() {
+
+      // geometry
+      this._geometry = new THREE.SphereGeometry(2, 32, 32);
+
+      // material
+      this._material = new THREE.MeshBasicMaterial({
+        wireframe: true,
+        wireframeLinewidth: 2
+      });
+
+      // mesh
+      this._mesh = new THREE.Mesh(this._geometry, this._material);
+      this._mesh.position.x = this._worldPosition.x;
+      this._mesh.position.y = this._worldPosition.y;
+      this._mesh.position.z = this._worldPosition.z;
+      this._mesh.visible = true;
+
+      this.updateMeshColor();
+
+      // add it!
+      this.add(this._mesh);
+    }
+  }, {
+    key: 'createDOM',
+    value: function createDOM() {
+
+      // dom
+      this._dom = document.createElement('div');
+      this._dom.setAttribute('id', this.uuid);
+      this._dom.setAttribute('class', 'widgets handle');
+      // this._domStyles.circle();
+      // this._domStyles.cross();
+      this._dom.style.border = '2px solid';
+      this._dom.style.backgroundColor = '#F9F9F9';
+      this._dom.style.color = '#F9F9F9';
+      this._dom.style.position = 'absolute';
+      this._dom.style.width = '12px';
+      this._dom.style.height = '12px';
+      this._dom.style.margin = '-6px';
+      this._dom.style.borderRadius = '50%';
+      this._dom.style.transformOrigin = '0 100%';
+
+      var posY = this._screenPosition.y - this._container.offsetHeight;
+      this._dom.style.transform = 'translate3D(' + this._screenPosition.x + 'px, ' + posY + 'px, 0)';
+
+      this.updateDOMColor();
+
+      // add it!
+      this._container.appendChild(this._dom);
+    }
+  }, {
+    key: 'updateDOMPosition',
+    value: function updateDOMPosition() {
+
+      if (this._dom) {
+
+        var posY = this._screenPosition.y - this._container.offsetHeight;
+        this._dom.style.transform = 'translate3D(' + this._screenPosition.x + 'px, ' + posY + 'px, 0)';
+      }
+    }
+  }, {
+    key: 'updateDOMColor',
+    value: function updateDOMColor() {
+
+      this._dom.style.borderColor = '' + this._color;
+    }
+  }, {
+    key: 'free',
+    value: function free() {
+
+      // threejs stuff
+
+      // dom
+
+      // event
+      this.removeEventListeners();
+    }
+  }, {
+    key: 'worldPosition',
+    set: function set(worldPosition) {
+
+      this._worldPosition.copy(worldPosition);
+      this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
+
+      this.update();
+    },
+    get: function get() {
+
+      return this._worldPosition;
+    }
+  }, {
+    key: 'screenPosition',
+    set: function set(screenPosition) {
+
+      this._screenPosition = screenPosition;
+    },
+    get: function get() {
+
+      return this._screenPosition;
+    }
+  }, {
+    key: 'active',
+    get: function get() {
+
+      return this._active;
+    },
+    set: function set(active) {
+
+      this._active = active;
+      // this._tracking = this._active;
+      this._controls.enabled = !this._active;
+
+      this.update();
+    }
+  }, {
+    key: 'tracking',
+    get: function get() {
+
+      return this._tracking;
+    },
+    set: function set(tracking) {
+
+      this._tracking = tracking;
+      this.update();
+    }
+  }]);
+
+  return WidgetsHandle;
+}(_widgets2.default);
+
+// maybe just a string...
+// this._domStyles = {
+//   circle: function(){
+//     this._dom.style.border = '2px solid #353535';
+//     this._dom.style.backgroundColor = '#F9F9F9';
+//     // this._dom.style.backgroundColor = 'rgba(230, 230, 230, 0.7)';
+//     this._dom.style.color = '#F9F9F9';
+//     this._dom.style.position = 'absolute';
+//     this._dom.style.width = '12px';
+//     this._dom.style.height = '12px';
+//     this._dom.style.margin = '-6px';
+//     this._dom.style.borderRadius =  '50%';
+//     this._dom.style.transformOrigin = '0 100%';
+//   },
+//   cross: function(){
+
+//   },
+//   triangle: ``
+// };
+
+// <svg height="12" width="12">
+//   <circle cx="6" cy="6" r="5" stroke="#353535" stroke-opacity="0.9" stroke-width="2" fill="#F9F9F9" fill-opacity="0.7" />
+//   Sorry, your browser does not support inline SVG.
+// </svg>
+
+// <svg height="12" width="12">
+// <line x1="0" y1="0" x2="12" y2="12" stroke="#353535" stroke-linecap="square" stroke-width="2" />
+// <line x1="0" y1="12" x2="12" y2="0" stroke="#353535" stroke-linecap="square" stroke-width="2" />
+// </svg>
+
+// <svg height="12" width="12">
+// <line x1="0" y1="12" x2="6" y2="6" stroke="#353535" stroke-linecap="square" stroke-width="2" />
+// <line x1="6" y1="6" x2="12" y2="12" stroke="#353535" stroke-linecap="square" stroke-width="2" />
+// </svg>
+//
+
+exports.default = WidgetsHandle;
+
+},{"../../src/core/core.intersections":61,"../../src/widgets/widgets.base":96}],98:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _widgets = require('./widgets.handle');
+
+var _widgets2 = _interopRequireDefault(_widgets);
+
+var _widgets3 = require('./widgets.voxelProbe');
+
+var _widgets4 = _interopRequireDefault(_widgets3);
+
+var _widgets5 = require('./widgets.ruler');
+
+var _widgets6 = _interopRequireDefault(_widgets5);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -29758,10 +30465,332 @@ function _interopRequireDefault(obj) {
  */
 
 exports.default = {
-  VoxelProbe: _widgets2.default
+  Handle: _widgets2.default,
+  VoxelProbe: _widgets4.default,
+  Ruler: _widgets6.default
 };
 
-},{"./widgets.voxelProbe":97}],97:[function(require,module,exports){
+},{"./widgets.handle":97,"./widgets.ruler":99,"./widgets.voxelProbe":100}],99:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
+
+var _widgets = require('../../src/widgets/widgets.base');
+
+var _widgets2 = _interopRequireDefault(_widgets);
+
+var _widgets3 = require('../../src/widgets/widgets.handle');
+
+var _widgets4 = _interopRequireDefault(_widgets3);
+
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
+/**
+ * @module widgets/handle
+ * 
+ */
+
+var WidgetsRuler = function (_WidgetsBase) {
+  _inherits(WidgetsRuler, _WidgetsBase);
+
+  function WidgetsRuler(targetMesh, controls, camera, container) {
+    _classCallCheck(this, WidgetsRuler);
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(WidgetsRuler).call(this));
+
+    _this._targetMesh = targetMesh;
+    _this._controls = controls;
+    _this._camera = camera;
+    _this._container = container;
+
+    _this._active = true;
+
+    _this._worldPosition = new THREE.Vector3();
+    if (_this._targetMesh !== null) {
+
+      _this._worldPosition = _this._targetMesh.position;
+    }
+
+    // mesh stuff
+    _this._material = null;
+    _this._geometry = null;
+    _this._mesh = null;
+
+    // dom stuff
+    _this._line = null;
+    _this._distance = null;
+
+    // add handles
+    _this._handles = [];
+
+    // first handle
+    var firstHandle = new _widgets4.default(_this._targetMesh, _this._controls, _this._camera, _this._container);
+    firstHandle.worldPosition = _this._worldPosition;
+    firstHandle.hovered = true;
+    _this.add(firstHandle);
+
+    _this._handles.push(firstHandle);
+
+    var secondHandle = new _widgets4.default(_this._targetMesh, _this._controls, _this._camera, _this._container);
+    secondHandle.worldPosition = _this._worldPosition;
+    secondHandle.hovered = true;
+    // active and tracking might be redundant
+    secondHandle.active = true;
+    secondHandle.tracking = true;
+    _this.add(secondHandle);
+
+    _this._handles.push(secondHandle);
+
+    // Create ruler
+    _this.create();
+
+    _this.onMove = _this.onMove.bind(_this);
+    _this.addEventListeners();
+
+    return _this;
+  }
+
+  _createClass(WidgetsRuler, [{
+    key: 'addEventListeners',
+    value: function addEventListeners() {
+
+      this._container.addEventListener('mousewheel', this.onMove);
+      this._container.addEventListener('DOMMouseScroll', this.onMove);
+    }
+  }, {
+    key: 'onMove',
+    value: function onMove(evt) {
+
+      this._dragged = true;
+
+      this._handles[0].onMove(evt);
+      this._handles[1].onMove(evt);
+
+      this._hovered = this._handles[0].hovered || this._handles[1].hovered;
+      this.update();
+    }
+  }, {
+    key: 'onStart',
+    value: function onStart(evt) {
+
+      this._dragged = false;
+
+      this._handles[0].onStart(evt);
+      this._handles[1].onStart(evt);
+
+      this._active = this._handles[0].active || this._handles[1].active;
+      this.update();
+    }
+  }, {
+    key: 'onEnd',
+    value: function onEnd(evt) {
+
+      // First Handle
+      this._handles[0].onEnd(evt);
+
+      window.console.log(this);
+
+      // Second Handle
+      if (this._dragged || !this._handles[1].tracking) {
+
+        this._handles[1].tracking = false;
+        this._handles[1].onEnd(evt);
+      } else {
+
+        this._handles[1].tracking = false;
+      }
+
+      // State of ruler widget
+      this._active = this._handles[0].active || this._handles[1].active;
+      this.update();
+    }
+  }, {
+    key: 'create',
+    value: function create() {
+
+      this.createMesh();
+      this.createDOM();
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+
+      this.updateColor();
+
+      // mesh stuff
+      this.updateMeshColor();
+      this.updateMeshPosition();
+
+      // DOM stuff
+      this.updateDOMPosition();
+      this.updateDOMColor();
+    }
+  }, {
+    key: 'createMesh',
+    value: function createMesh() {
+
+      // geometry
+      this._geometry = new THREE.Geometry();
+      this._geometry.vertices.push(this._handles[0].worldPosition);
+      this._geometry.vertices.push(this._handles[1].worldPosition);
+
+      // material
+      this._material = new THREE.LineBasicMaterial();
+      this.updateMeshColor();
+
+      // mesh
+      this._mesh = new THREE.Line(this._geometry, this._material);
+      this._mesh.visible = true;
+
+      // add it!
+      this.add(this._mesh);
+    }
+  }, {
+    key: 'updateMeshColor',
+    value: function updateMeshColor() {
+
+      if (this._material) {
+
+        this._material.color.set(this._color);
+      }
+    }
+  }, {
+    key: 'updateMeshPosition',
+    value: function updateMeshPosition() {
+
+      if (this._geometry) {
+
+        this._geometry.verticesNeedUpdate = true;
+      }
+    }
+  }, {
+    key: 'createDOM',
+    value: function createDOM() {
+
+      // add line!
+      this._line = document.createElement('div');
+      this._line.setAttribute('class', 'widgets handle line');
+      this._line.style.position = 'absolute';
+      this._line.style.transformOrigin = '0 100%';
+      this._line.style.marginTop = '-1px';
+      this._line.style.height = '2px';
+      this._line.style.width = '3px';
+      this._container.appendChild(this._line);
+
+      // add distance!
+      this._distance = document.createElement('div');
+      this._distance.setAttribute('class', 'widgets handle distance');
+      this._distance.style.border = '2px solid';
+      this._distance.style.backgroundColor = '#F9F9F9';
+      // this._distance.style.opacity = '0.5';
+      this._distance.style.color = '#353535';
+      this._distance.style.padding = '4px';
+      this._distance.style.position = 'absolute';
+      this._distance.style.transformOrigin = '0 100%';
+      this._distance.innerHTML = 'Hello, world!';
+      this._container.appendChild(this._distance);
+
+      this.updateDOMColor();
+    }
+  }, {
+    key: 'updateDOMPosition',
+    value: function updateDOMPosition() {
+
+      //update rulers lines and text!
+      var x1 = this._handles[0].screenPosition.x;
+      var y1 = this._handles[0].screenPosition.y;
+      var x2 = this._handles[1].screenPosition.x;
+      var y2 = this._handles[1].screenPosition.y;
+
+      var x0 = x1 + (x2 - x1) / 2;
+      var y0 = y1 + (y2 - y1) / 2;
+
+      var length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+      var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+      var posY = y1 - this._container.offsetHeight;
+
+      // update line
+      var transform = 'translate3D(' + x1 + 'px,' + posY + 'px, 0)';
+      transform += ' rotate(' + angle + 'deg)';
+
+      this._line.style.transform = transform;
+      this._line.style.width = length;
+
+      // update distance
+      var w0 = this._handles[0].worldPosition;
+      var w1 = this._handles[1].worldPosition;
+
+      this._distance.innerHTML = Math.sqrt((w0.x - w1.x) * (w0.x - w1.x) + (w0.y - w1.y) * (w0.y - w1.y) + (w0.z - w1.z) * (w0.z - w1.z)).toFixed(2) + ' mm';
+      var posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight / 2;
+      x0 -= this._distance.offsetWidth / 2;
+
+      var transform2 = 'translate3D(' + Math.round(x0) + 'px,' + Math.round(posY0) + 'px, 0)';
+      this._distance.style.transform = transform2;
+    }
+  }, {
+    key: 'updateDOMColor',
+    value: function updateDOMColor() {
+
+      this._line.style.backgroundColor = '' + this._color;
+      this._distance.style.borderColor = '' + this._color;
+    }
+  }, {
+    key: 'worldPosition',
+    get: function get() {
+
+      return this._worldPosition;
+    },
+    set: function set(worldPosition) {
+
+      this._worldPosition = worldPosition;
+      this._handles[0].worldPosition = this._worldPosition;
+      this._handles[1].worldPosition = this._worldPosition;
+
+      this.update();
+    }
+  }]);
+
+  return WidgetsRuler;
+}(_widgets2.default);
+
+exports.default = WidgetsRuler;
+
+},{"../../src/widgets/widgets.base":96,"../../src/widgets/widgets.handle":97}],100:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
