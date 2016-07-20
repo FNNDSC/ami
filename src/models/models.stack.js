@@ -334,21 +334,30 @@ export default class ModelsStack extends ModelsBase{
 
     // Loop through all the textures we need
     let textureDimension = this._textureSize * this._textureSize;
-    let requiredTextures = Math.ceil(nbVoxels / textureDimension);
+    let requiredTextures = Math.ceil(0.5 * nbVoxels / textureDimension);
     let voxelIndexStart = 0;
-    let voxelIndexStop = this._textureSize * this._textureSize;
+    let voxelIndexStop = 2 * textureDimension;
     if (voxelIndexStop > nbVoxels) {
       voxelIndexStop = nbVoxels;
     }
 
     for (let ii = 0; ii < requiredTextures; ii++) {
+
+      // console.log( voxelIndexStart );
+      // console.log( voxelIndexStop );
+
       let packed = this._packTo8Bits(this._bitsAllocated, this._pixelType, this._numberOfChannels, this._frame, this._textureSize, voxelIndexStart, voxelIndexStop);
       this._textureType = packed.textureType;
       this._rawData.push(packed.data);
 
+      console.log( packed.data );
+
       // update voxelIndex
-      voxelIndexStart += textureDimension;
-      voxelIndexStop += textureDimension;
+      // depends on the number of bits
+      // 8 bits -> *4
+      // 16 bits= -> *2
+      voxelIndexStart += 2 * textureDimension;
+      voxelIndexStop +=  2 * textureDimension;
       if (voxelIndexStop > nbVoxels) {
         voxelIndexStop = nbVoxels;
       }
@@ -385,8 +394,13 @@ export default class ModelsStack extends ModelsBase{
       packed.textureType = THREE.LuminanceFormat;
       packed.data = data;
     } else if (bits === 16 && channels === 1) {
-      let data = new Uint8Array(textureSize * textureSize * 2);
+
+      let data = new Uint8Array(textureSize * textureSize * 2 * 2);
+      let coordinate = 0;
+      let channelOffset = 0;
+
       for (let i = startVoxel; i < stopVoxel; i++) {
+
         /*jshint bitwise: false*/
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
@@ -394,15 +408,26 @@ export default class ModelsStack extends ModelsBase{
 
         // slow!
         //let asb = VJS.core.pack.uint16ToAlphaLuminance(frame[frameIndex].pixelData[inFrameIndex]);
+        //let raw = -165 + 551 * Math.random();//inFrameIndex / ( 512 * 512 );//
         let raw = frame[frameIndex].pixelData[inFrameIndex];
+        // raw = 1024 * Math.random();//( i - startVoxel ) / ( stopVoxel - startVoxel );
+        // console.log( raw );
         // + 128..?
-        data[2 * packIndex] = raw & 0x00FF;
-        data[2 * packIndex + 1] = (raw >>> 8) & 0x00FF;
+        // console.log(4 * coordinate + 2 * channelOffset);
+        data[4 * coordinate + 2 * channelOffset] = raw & 0x00FF;
+        data[4 * coordinate + 2 * channelOffset + 1] = (raw >>> 8) & 0x00FF;
 
         packIndex++;
+        coordinate = Math.floor( packIndex / 2 );
+        channelOffset = packIndex % 2;
+
       }
-      packed.textureType = THREE.LuminanceAlphaFormat;
+
+      console.log( packIndex );
+
+      packed.textureType = THREE.RGBAFormat;
       packed.data = data;
+
     } else if (bits === 32 && channels === 1 && pixelType === 0) {
 
       let data = new Uint8Array(textureSize * textureSize * 4);

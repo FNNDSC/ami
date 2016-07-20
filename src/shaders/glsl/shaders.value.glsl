@@ -22,10 +22,6 @@ void value(in vec3 dataCoordinates,
            out vec4 intensity
   ) {
 
-  //
-  // no interpolation for now...
-  //
-
   if( interpolationMethod == 0){
 
     // no interpolation
@@ -50,7 +46,6 @@ void value(in vec3 dataCoordinates,
   else if( interpolationMethod == 1){
 
     // trilinear interpolation
-
     trilinear(dataCoordinates,
       kernelSize,
       dataDimensions,

@@ -1,6 +1,4 @@
-#pragma glslify: unpack = require('../shaders.unpack.glsl')
-#pragma glslify: texture3DPolyfill = require('../shaders.texture3DPolyfill.glsl')
-
+#pragma glslify: no = require('./interpolations.no.glsl')
 // https://en.wikipedia.org/wiki/Trilinear_interpolation
 
 void trilinear(in vec3 currentVoxel,
@@ -96,11 +94,14 @@ void trilinear(in vec3 currentVoxel,
   //
   // c00
   //
-  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);
-  ivec3 c000 = ivec3(int(lc.x), int(lc.y), int(lc.z));
 
-  texture3DPolyfill(
-    c000,
+  //
+
+  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);
+  vec3 c000 = vec3(lc.x, lc.y, lc.z);
+
+  no(c000,
+    kernelSize,
     dataDimensions,
     textureSize,
     textureContainer[0],
@@ -111,22 +112,19 @@ void trilinear(in vec3 currentVoxel,
     textureContainer[5],
     textureContainer[6],
     textureContainer,     // not working on Moto X 2014
-    v000
-    );
-
-  unpack(
-    v000,
-    bitsAllocated,
-    0,
-    numberOfChannels,
+    bitsAllocated, 
+    numberOfChannels, 
     pixelType,
-    v000);
+    v000
+  );
+
+  //
 
   vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);
-  ivec3 c100 = ivec3(int(hc.x), int(lc.y), int(lc.z));
+  vec3 c100 = vec3(hc.x, lc.y, lc.z);
 
-  texture3DPolyfill(
-    c100,
+  no(c100,
+    kernelSize,
     dataDimensions,
     textureSize,
     textureContainer[0],
@@ -137,16 +135,11 @@ void trilinear(in vec3 currentVoxel,
     textureContainer[5],
     textureContainer[6],
     textureContainer,     // not working on Moto X 2014
-    v100
-    );
-
-  unpack(
-    v100,
-    bitsAllocated,
-    0,
-    numberOfChannels,
+    bitsAllocated, 
+    numberOfChannels, 
     pixelType,
-    v100);
+    v100
+  );
 
   vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;
 
@@ -154,10 +147,10 @@ void trilinear(in vec3 currentVoxel,
   // c01
   //
   vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);
-  ivec3 c001 = ivec3(int(lc.x), int(lc.y), int(hc.z));
+  vec3 c001 = vec3(lc.x, lc.y, hc.z);
 
-  texture3DPolyfill(
-    c001,
+  no(c001,
+    kernelSize,
     dataDimensions,
     textureSize,
     textureContainer[0],
@@ -168,22 +161,17 @@ void trilinear(in vec3 currentVoxel,
     textureContainer[5],
     textureContainer[6],
     textureContainer,     // not working on Moto X 2014
-    v001
-    );
-
-  unpack(
-    v001,
-    bitsAllocated,
-    0,
-    numberOfChannels,
+    bitsAllocated, 
+    numberOfChannels, 
     pixelType,
-    v001);
+    v001
+  );
 
   vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);
-  ivec3 c101 = ivec3(int(hc.x), int(lc.y), int(hc.z));
+  vec3 c101 = vec3(hc.x, lc.y, hc.z);
 
-  texture3DPolyfill(
-    c101,
+  no(c101,
+    kernelSize,
     dataDimensions,
     textureSize,
     textureContainer[0],
@@ -194,16 +182,11 @@ void trilinear(in vec3 currentVoxel,
     textureContainer[5],
     textureContainer[6],
     textureContainer,     // not working on Moto X 2014
-    v101
-    );
-
-  unpack(
-    v101,
-    bitsAllocated,
-    0,
-    numberOfChannels,
+    bitsAllocated, 
+    numberOfChannels, 
     pixelType,
-    v101);
+    v101
+  );
 
   vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;
 
@@ -211,10 +194,10 @@ void trilinear(in vec3 currentVoxel,
   // c10
   //
   vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);
-  ivec3 c010 = ivec3(int(lc.x), int(hc.y), int(lc.z));
+  vec3 c010 = vec3(lc.x, hc.y, lc.z);
 
-  texture3DPolyfill(
-    c010,
+  no(c010,
+    kernelSize,
     dataDimensions,
     textureSize,
     textureContainer[0],
@@ -225,22 +208,17 @@ void trilinear(in vec3 currentVoxel,
     textureContainer[5],
     textureContainer[6],
     textureContainer,     // not working on Moto X 2014
-    v010
-    );
-
-  unpack(
-    v010,
-    bitsAllocated,
-    0,
-    numberOfChannels,
+    bitsAllocated, 
+    numberOfChannels, 
     pixelType,
-    v010);
+    v010
+  );
 
   vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);
-  ivec3 c110 = ivec3(int(hc.x), int(hc.y), int(lc.z));
+  vec3 c110 = vec3(hc.x, hc.y, lc.z);
 
-  texture3DPolyfill(
-    c110,
+  no(c110,
+    kernelSize,
     dataDimensions,
     textureSize,
     textureContainer[0],
@@ -251,16 +229,11 @@ void trilinear(in vec3 currentVoxel,
     textureContainer[5],
     textureContainer[6],
     textureContainer,     // not working on Moto X 2014
-    v110
-    );
-
-  unpack(
-    v110,
-    bitsAllocated,
-    0,
-    numberOfChannels,
+    bitsAllocated, 
+    numberOfChannels, 
     pixelType,
-    v110);
+    v110
+  );
 
   vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;
 
@@ -268,10 +241,10 @@ void trilinear(in vec3 currentVoxel,
   // c11
   //
   vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);
-  ivec3 c011 = ivec3(int(lc.x), int(hc.y), int(hc.z));
+  vec3 c011 = vec3(lc.x, hc.y, hc.z);
 
-  texture3DPolyfill(
-    c011,
+  no(c011,
+    kernelSize,
     dataDimensions,
     textureSize,
     textureContainer[0],
@@ -282,22 +255,17 @@ void trilinear(in vec3 currentVoxel,
     textureContainer[5],
     textureContainer[6],
     textureContainer,     // not working on Moto X 2014
-    v011
-    );
-
-  unpack(
-    v011,
-    bitsAllocated,
-    0,
-    numberOfChannels,
+    bitsAllocated, 
+    numberOfChannels, 
     pixelType,
-    v011);
+    v011
+  );
 
   vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);
-  ivec3 c111 = ivec3(int(hc.x), int(hc.y), int(hc.z));
+  vec3 c111 = vec3(hc.x, hc.y, hc.z);
 
-  texture3DPolyfill(
-    c111,
+  no(c111,
+    kernelSize,
     dataDimensions,
     textureSize,
     textureContainer[0],
@@ -308,16 +276,11 @@ void trilinear(in vec3 currentVoxel,
     textureContainer[5],
     textureContainer[6],
     textureContainer,     // not working on Moto X 2014
-    v111
-    );
-
-  unpack(
-    v111,
-    bitsAllocated,
-    0,
-    numberOfChannels,
+    bitsAllocated, 
+    numberOfChannels, 
     pixelType,
-    v111);
+    v111
+  );
 
   vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;
 

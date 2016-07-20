@@ -47,6 +47,9 @@ void main(void) {
     dataValue
   );
 
+  // gl_FragColor = dataValue;
+  // return;
+
   // how do we deal wil more than 1 channel?
   if(uNumberOfChannels == 1){
     float intensity = dataValue.r;

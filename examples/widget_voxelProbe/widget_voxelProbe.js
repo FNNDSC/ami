@@ -212,7 +212,9 @@ window.onload = function() {
     loader = null;
 
     let stack = series._stack[0];
+    console.log( series._stack[0] );
     let stackHelper = new HelpersStack(stack);
+    stackHelper.slice.interpolation = 0;
 
     scene.add(stackHelper);
 
