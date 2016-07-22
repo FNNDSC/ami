@@ -71,6 +71,7 @@ export default class HelpersVolumeRendering extends THREE.Object3D{
     this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
     this._uniforms.uPixelType.value = this._stack.pixelType;
     this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
+    this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
     this._uniforms.uWindowCenterWidth.value = [this._stack.windowCenter, this._stack.windowWidth * 0.8];
     this._uniforms.uRescaleSlopeIntercept.value = [this._stack.rescaleSlope, this._stack.rescaleIntercept];
     this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x,

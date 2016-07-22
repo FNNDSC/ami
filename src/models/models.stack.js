@@ -77,6 +77,7 @@ export default class ModelsStack extends ModelsBase{
     // convenience vars
     this._prepared = false;
     this._packed = false;
+    this._packedPerPixel = 1;
 
     // photometricInterpretation Monochrome1 VS Monochrome2
     this._invert = false;
@@ -332,11 +333,18 @@ export default class ModelsStack extends ModelsBase{
     // Get total number of voxels
     let nbVoxels = this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
 
+    // Packing style
+    if( this._bitsAllocated === 16 && this._numberOfChannels === 1 ){
+
+      this._packedPerPixel = 2;
+
+    }
+
     // Loop through all the textures we need
     let textureDimension = this._textureSize * this._textureSize;
-    let requiredTextures = Math.ceil(0.5 * nbVoxels / textureDimension);
+    let requiredTextures = Math.ceil( nbVoxels / (textureDimension * this._packedPerPixel ) );
     let voxelIndexStart = 0;
-    let voxelIndexStop = 2 * textureDimension;
+    let voxelIndexStop = this._packedPerPixel * textureDimension;
     if (voxelIndexStop > nbVoxels) {
       voxelIndexStop = nbVoxels;
     }
@@ -350,14 +358,8 @@ export default class ModelsStack extends ModelsBase{
       this._textureType = packed.textureType;
       this._rawData.push(packed.data);
 
-      console.log( packed.data );
-
-      // update voxelIndex
-      // depends on the number of bits
-      // 8 bits -> *4
-      // 16 bits= -> *2
-      voxelIndexStart += 2 * textureDimension;
-      voxelIndexStop +=  2 * textureDimension;
+      voxelIndexStart += this._packedPerPixel * textureDimension;
+      voxelIndexStop +=  this._packedPerPixel * textureDimension;
       if (voxelIndexStop > nbVoxels) {
         voxelIndexStop = nbVoxels;
       }
@@ -379,8 +381,9 @@ export default class ModelsStack extends ModelsBase{
     let frameDimension = frame[0].rows * frame[0].columns;
     let data = null;
 
-    if (bits === 8 && channels === 1 || bits === 1) {
-      let data = new Uint8Array(textureSize * textureSize * 1);
+    if ( bits === 8 && channels === 1 || bits === 1 ) {
+
+      let data = new Uint8Array( textureSize * textureSize * 1 );
       for (let i = startVoxel; i < stopVoxel; i++) {
         /*jshint bitwise: false*/
         frameIndex = ~~(i / frameDimension);
@@ -393,27 +396,21 @@ export default class ModelsStack extends ModelsBase{
       }
       packed.textureType = THREE.LuminanceFormat;
       packed.data = data;
+
     } else if (bits === 16 && channels === 1) {
 
-      let data = new Uint8Array(textureSize * textureSize * 2 * 2);
+      let data = new Uint8Array( textureSize * textureSize * 4 );
       let coordinate = 0;
       let channelOffset = 0;
 
-      for (let i = startVoxel; i < stopVoxel; i++) {
+      for ( let i = startVoxel; i < stopVoxel; i++ ) {
 
         /*jshint bitwise: false*/
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
         /*jshint bitwise: true*/
 
-        // slow!
-        //let asb = VJS.core.pack.uint16ToAlphaLuminance(frame[frameIndex].pixelData[inFrameIndex]);
-        //let raw = -165 + 551 * Math.random();//inFrameIndex / ( 512 * 512 );//
         let raw = frame[frameIndex].pixelData[inFrameIndex];
-        // raw = 1024 * Math.random();//( i - startVoxel ) / ( stopVoxel - startVoxel );
-        // console.log( raw );
-        // + 128..?
-        // console.log(4 * coordinate + 2 * channelOffset);
         data[4 * coordinate + 2 * channelOffset] = raw & 0x00FF;
         data[4 * coordinate + 2 * channelOffset + 1] = (raw >>> 8) & 0x00FF;
 
@@ -423,15 +420,14 @@ export default class ModelsStack extends ModelsBase{
 
       }
 
-      console.log( packIndex );
-
       packed.textureType = THREE.RGBAFormat;
       packed.data = data;
 
-    } else if (bits === 32 && channels === 1 && pixelType === 0) {
+    } else if ( bits === 32 && channels === 1 && pixelType === 0 ) {
 
-      let data = new Uint8Array(textureSize * textureSize * 4);
-      for (let i = startVoxel; i < stopVoxel; i++) {
+      let data = new Uint8Array(textureSize * textureSize * 4 );
+      for ( let i = startVoxel; i < stopVoxel; i++ ) {
+
         /*jshint bitwise: false*/
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
@@ -446,13 +442,16 @@ export default class ModelsStack extends ModelsBase{
         data[4 * packIndex + 3] = (raw >>> 8) & 0x000000FF;
 
         packIndex++;
+
       }
       packed.textureType = THREE.RGBAFormat;
       packed.data = data;
-    } else if (bits === 32 && channels === 1 && pixelType === 1) {
+
+    } else if ( bits === 32 && channels === 1 && pixelType === 1 ) {
 
       let data = new Uint8Array(textureSize * textureSize * 4);
-      for (let i = startVoxel; i < stopVoxel; i++) {
+
+      for ( let i = startVoxel; i < stopVoxel; i++ ) {
         /*jshint bitwise: false*/
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
@@ -470,12 +469,16 @@ export default class ModelsStack extends ModelsBase{
         data[4 * packIndex + 3] = parseInt(bitStringArray[3], 2);
 
         packIndex++;
+
       }
+
       packed.textureType = THREE.RGBAFormat;
       packed.data = data;
-    } else if (bits === 8 && channels === 3) {
-      let data = new Uint8Array(textureSize * textureSize * 3);
-      for (let i = startVoxel; i < stopVoxel; i++) {
+    } else if ( bits === 8 && channels === 3 ) {
+
+      let data = new Uint8Array( textureSize * textureSize * 3 );
+      for ( let i = startVoxel; i < stopVoxel; i++ ) {
+
         /*jshint bitwise: false*/
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
@@ -487,8 +490,10 @@ export default class ModelsStack extends ModelsBase{
         packIndex++;
 
       }
+
       packed.textureType = THREE.RGBFormat;
       packed.data = data;
+      
     }
 
     return packed;
@@ -665,20 +670,36 @@ export default class ModelsStack extends ModelsBase{
     return this._frame;
   }
 
-  set prepared(prepared) {
+  set prepared( prepared ) {
+
     this._prepared = prepared;
+
   }
 
   get prepared() {
+
     return this._prepared;
+
   }
 
-  set packed(packed) {
+  set packed( packed ) {
     this._packed = packed;
   }
 
   get packed() {
     return this._packed;
+  }
+
+  set packedPerPixel( packedPerPixel ) {
+
+    this._packedPerPixel = packedPerPixel;
+
+  }
+
+  get packedPerPixel() {
+
+    return this._packedPerPixel;
+
   }
 
   set dimensionsIJK(dimensionsIJK) {

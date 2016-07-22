@@ -11,17 +11,18 @@ void texture3DPolyfill(in ivec3 dataCoordinates,
                        in sampler2D textureContainer5,
                        in sampler2D textureContainer6,
                        in sampler2D textureContainer[7], // not working on Moto X 2014
+                       in int packedPerPixel,
                        out vec4 dataValue,
                        out int offset
   ) {
 
-  int pack = 2;
+  // int pack = 2;
 
     // Model coordinate to data index
   int index = dataCoordinates.x
             + dataCoordinates.y * dataDimensions.x
             + dataCoordinates.z * dataDimensions.y * dataDimensions.x;
-  int indexP = int(index/pack);
+  int indexP = int(index/packedPerPixel);
 
   if( 2*indexP < index){
     offset = 1;

@@ -275,6 +275,7 @@ export default class HelpersSlice extends THREE.Object3D{
       this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
       this._uniforms.uPixelType.value = this._stack.pixelType;
       this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
+      this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
 
       // compute texture if material exist
       let textures = [];

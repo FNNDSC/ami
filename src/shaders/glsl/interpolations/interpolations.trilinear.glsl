@@ -16,6 +16,7 @@ void trilinear(in vec3 currentVoxel,
                in int bitsAllocated, 
                in int numberOfChannels, 
                in int pixelType,
+               in int packedPerPixel,
                out vec4 intensity
   ) {
   
@@ -115,6 +116,7 @@ void trilinear(in vec3 currentVoxel,
     bitsAllocated, 
     numberOfChannels, 
     pixelType,
+    packedPerPixel,
     v000
   );
 
@@ -138,6 +140,7 @@ void trilinear(in vec3 currentVoxel,
     bitsAllocated, 
     numberOfChannels, 
     pixelType,
+    packedPerPixel,
     v100
   );
 
@@ -164,6 +167,7 @@ void trilinear(in vec3 currentVoxel,
     bitsAllocated, 
     numberOfChannels, 
     pixelType,
+    packedPerPixel,
     v001
   );
 
@@ -185,6 +189,7 @@ void trilinear(in vec3 currentVoxel,
     bitsAllocated, 
     numberOfChannels, 
     pixelType,
+    packedPerPixel,
     v101
   );
 
@@ -211,6 +216,7 @@ void trilinear(in vec3 currentVoxel,
     bitsAllocated, 
     numberOfChannels, 
     pixelType,
+    packedPerPixel,
     v010
   );
 
@@ -232,6 +238,7 @@ void trilinear(in vec3 currentVoxel,
     bitsAllocated, 
     numberOfChannels, 
     pixelType,
+    packedPerPixel,
     v110
   );
 
@@ -258,6 +265,7 @@ void trilinear(in vec3 currentVoxel,
     bitsAllocated, 
     numberOfChannels, 
     pixelType,
+    packedPerPixel,
     v011
   );
 
@@ -279,6 +287,7 @@ void trilinear(in vec3 currentVoxel,
     bitsAllocated, 
     numberOfChannels, 
     pixelType,
+    packedPerPixel,
     v111
   );
 

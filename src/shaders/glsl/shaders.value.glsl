@@ -19,6 +19,7 @@ void value(in vec3 dataCoordinates,
            in int bitsAllocated, 
            in int numberOfChannels, 
            in int pixelType,
+           in int packedPerPixel,
            out vec4 intensity
   ) {
 
@@ -40,6 +41,7 @@ void value(in vec3 dataCoordinates,
        bitsAllocated,
        numberOfChannels,
        pixelType,
+       packedPerPixel,
        intensity);
 
   }
@@ -61,6 +63,7 @@ void value(in vec3 dataCoordinates,
       bitsAllocated,
       numberOfChannels,
       pixelType,
+      packedPerPixel,
       intensity);
 
   }
