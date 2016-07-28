@@ -307,6 +307,7 @@ window.onload = function() {
     uniformsSecondPass.uWorldToData.value = stack.lps2IJK;
     uniformsSecondPass.uNumberOfChannels.value = stack.numberOfChannels;
     uniformsSecondPass.uBitsAllocated.value = stack.bitsAllocated;
+    uniformsSecondPass.uPackedPerPixel.value = stack.packedPerPixel;
     uniformsSecondPass.uWindowCenterWidth.value = [stack.windowCenter, stack.windowWidth * 0.8];
     uniformsSecondPass.uRescaleSlopeIntercept.value = [stack.rescaleSlope, stack.rescaleIntercept];
     uniformsSecondPass.uTextureBack.value = rtTexture;

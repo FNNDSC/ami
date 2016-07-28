@@ -219,6 +219,7 @@ window.onload = function() {
     // prepare for slice visualization
     // first stack of first series
     let stack  = seriesContainer[0].mergeSeries(seriesContainer)[0].stack[0];
+    console.log( stack );
 
     let stackHelper = new HelpersStack(stack);
     stackHelper.bbox.visible = false;

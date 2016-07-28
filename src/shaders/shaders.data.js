@@ -53,6 +53,10 @@ export default class ShadersData {
         type: 'i',
         value: 0
       },
+      'uPackedPerPixel': {
+        type: 'i',
+        value: 1
+      },
       'uInterpolation': {
         type: 'i',
         value: 1

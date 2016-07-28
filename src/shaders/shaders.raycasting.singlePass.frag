@@ -16,6 +16,7 @@ uniform float     uAlphaCorrection;
 uniform float     uFrequence;
 uniform float     uAmplitude;
 uniform int       uInterpolation;
+uniform int       uPackedPerPixel;
 
 // VARYING
 varying vec4 vPos;
@@ -52,6 +53,7 @@ void getIntensity(in vec3 dataCoordinates, out float intensity){
     uBitsAllocated,
     uNumberOfChannels,
     uPixelType,
+    uPackedPerPixel,
     dataValue
   );
 

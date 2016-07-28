@@ -16,12 +16,16 @@ void no(in vec3 currentVoxel,
         in int bitsAllocated, 
         in int numberOfChannels, 
         in int pixelType,
+        in int packedPerPixel,
         out vec4 intensity
   ) {
   
   // lower bound
   vec3 rCurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));
   ivec3 voxel = ivec3(int(rCurrentVoxel.x), int(rCurrentVoxel.y), int(rCurrentVoxel.z));
+
+  vec4 tmp = vec4(0., 0., 0., 0.);
+  int offset = 0;
 
   texture3DPolyfill(
     voxel,
@@ -35,15 +39,18 @@ void no(in vec3 currentVoxel,
     textureContainer[5],
     textureContainer[6],
     textureContainer,     // not working on Moto X 2014
-    intensity
+    packedPerPixel,
+    tmp,
+    offset
     );
 
   unpack(
-    intensity,
+    tmp,
     bitsAllocated,
     0,
     numberOfChannels,
     pixelType,
+    offset,
     intensity);
 
 }

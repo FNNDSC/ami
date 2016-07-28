@@ -9,6 +9,7 @@ uniform int       uPixelType;
 uniform int       uBitsAllocated;
 uniform int       uInvert;
 uniform int       uInterpolation;
+uniform int       uPackedPerPixel;
 
 // hack because can not pass arrays if too big
 // best would be to pass texture but have to deal with 16bits
@@ -44,8 +45,12 @@ void main(void) {
     uBitsAllocated,
     uNumberOfChannels,
     uPixelType,
+    uPackedPerPixel,
     dataValue
   );
+
+  // gl_FragColor = dataValue;
+  // return;
 
   // how do we deal wil more than 1 channel?
   if(uNumberOfChannels == 1){

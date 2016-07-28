@@ -149,6 +149,7 @@ void unpack( in vec4 packedRGBA,
              in int signedNumber,
              in int numberOfChannels,
              in int pixelType,
+             in int offset,
              out vec4 unpacked) {
 
   if(numberOfChannels == 1){
@@ -158,10 +159,19 @@ void unpack( in vec4 packedRGBA,
         unpacked.x);
     }
     else if(bitsAllocated == 16){
-      uInt16(
-        packedRGBA.r,
-        packedRGBA.a,
-        unpacked.x);
+      if( offset == 0 ){
+        uInt16(
+          packedRGBA.r,
+          packedRGBA.g,
+          unpacked.x);
+      }
+      else{
+        uInt16(
+          packedRGBA.b,
+          packedRGBA.a,
+          unpacked.x);
+      }
+
     }
     else if(bitsAllocated == 32){
       if(pixelType == 0){
