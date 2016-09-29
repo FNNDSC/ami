@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "CommonGL": "NicolasRannou/CommonGL#master",
-    "dicom-parser": "1.1.0",
+    "dicom-parser": "1.7.3",
     "image-JPEG2000": "OHIF/image-JPEG2000#master",
     "jpeg-lossless-decoder-js": "1.2.3",
     "math-float32-to-binary-string": "^1.0.0",
@@ -24,11 +24,11 @@
     "pako": "1.0.1"
     },
   "devDependencies": {
-    "babel-polyfill": "^6.5.0",
-    "babel-preset-es2015": "6.5.0",
+    "babel-polyfill": "^6.13.0",
+    "babel-preset-es2015": "^6.13.2",
     "babelify": "7.3.0",
     "browser-sync": "2.7.12",
-    "browserify": "10.2.4",
+    "browserify": "^13.1.0",
     "del": "1.2.0",
     "event-stream": "3.3.1",
     "globby": "2.1.0",

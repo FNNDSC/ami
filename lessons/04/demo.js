@@ -12,7 +12,7 @@ var ShadersLayerUniforms  = AMI.default.Shaders.LayerUniforms;
 var ShadersLayerFragment  = AMI.default.Shaders.LayerFragment;
 var ShadersCSPVertex      = AMI.default.Shaders.RaycastingSecondpassVertex;
 
-// standard global letiables
+// standard global variables
 var controls, renderer, camera, statsyay, threeD;
 //
 var sceneLayer0TextureTarget, sceneLayer1TextureTarget;
@@ -106,7 +106,7 @@ function init() {
   // init threeJS...
   init();
 
-  let data = [
+  var data = [
     '000183.dcm', '000219.dcm', '000117.dcm',
     '000240.dcm', '000033.dcm', '000060.dcm',
     '000211.dcm', '000081.dcm', '000054.dcm',
@@ -116,26 +116,26 @@ function init() {
     '000208.dcm', '000047.dcm', '000067.dcm'
     ];
 
-  let dataFullPath = data.map(function(v) {
+  var dataFullPath = data.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/andrei_abdomen/data/' + v;
   });
 
-  let labelmap = [
+  var labelmap = [
     '000000.dcm'
   ];
 
-  let labelmapFullPath = labelmap.map(function(v) {
+  var labelmapFullPath = labelmap.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/andrei_abdomen/segmentation/' + v;
   });
 
- let files = dataFullPath.concat(labelmapFullPath);
+ var files = dataFullPath.concat(labelmapFullPath);
 
   // load sequence for each file
   // instantiate the loader
   // it loads and parses the dicom image
-  let loader = new LoadersVolume(threeD);
-  let seriesContainer = [];
-  let loadSequence = [];
+  var loader = new LoadersVolume(threeD);
+  var seriesContainer = [];
+  var loadSequence = [];
   files.forEach((url) => {
     loadSequence.push(
       Promise.resolve()
@@ -191,25 +191,25 @@ function buildGUI(stackHelper) {
     }
   }
 
-  let stack = stackHelper.stack;
+  var stack = stackHelper.stack;
 
-  let gui = new dat.GUI({
+  var gui = new dat.GUI({
           autoPlace: false
         });
 
-  let customContainer = document.getElementById('my-gui-container');
+  var customContainer = document.getElementById('my-gui-container');
   customContainer.appendChild(gui.domElement);
 
-  let layer0Folder = gui.addFolder('Layer 0 (Base)');
+  var layer0Folder = gui.addFolder('Layer 0 (Base)');
   layer0Folder.add(stackHelper.slice, 'invert');
 
-  let lutUpdate = layer0Folder.add(stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
+  var lutUpdate = layer0Folder.add(stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
   lutUpdate.onChange(function(value) {
     lutLayer0.lut = value;
     stackHelper.slice.lutTexture = lutLayer0.texture;
   });
 
-  let indexUpdate = layer0Folder.add(stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
+  var indexUpdate = layer0Folder.add(stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
   indexUpdate.onChange(function(){
     updateLayer1();
     updateLayerMix();
@@ -221,8 +221,8 @@ function buildGUI(stackHelper) {
 
 
   // layer 1 folder
-  let layer1Folder = gui.addFolder('Layer 1');
-  let interpolationLayer1 = layer1Folder.add(layer1, 'interpolation', 0, 1 ).step( 1 ).listen();
+  var layer1Folder = gui.addFolder('Layer 1');
+  var interpolationLayer1 = layer1Folder.add(layer1, 'interpolation', 0, 1 ).step( 1 ).listen();
   interpolationLayer1.onChange(function(value){
     uniformsLayer1.uInterpolation.value = value;
   });
@@ -230,12 +230,12 @@ function buildGUI(stackHelper) {
   layer1Folder.open();
 
   // layer mix folder
-  let layerMixFolder = gui.addFolder('Layer Mix');
-  let opacityLayerMix1 = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01);
+  var layerMixFolder = gui.addFolder('Layer Mix');
+  var opacityLayerMix1 = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01);
   opacityLayerMix1.onChange(function(value){
     uniformsLayerMix.uOpacity1.value = value;
   });
-  let typeLayerMix1 = layerMixFolder.add(layerMix, 'type1', 0, 1).step( 1 );
+  var typeLayerMix1 = layerMixFolder.add(layerMix, 'type1', 0, 1).step( 1 );
   typeLayerMix1.onChange(function(value){
     uniformsLayerMix.uType1.value = value;
   });
@@ -268,7 +268,7 @@ function buildGUI(stackHelper) {
   camera.invertRows();
 
   function onWindowResize() {
-    let threeD = document.getElementById('container');
+    var threeD = document.getElementById('container');
     camera.canvas = {
       width: threeD.clientWidth,
       height: threeD.clientHeight
@@ -287,15 +287,15 @@ function handleSeries() {
   //
   //
   // first stack of first series
-  let mergedSeries = seriesContainer[0].mergeSeries(seriesContainer);
-  let stack  = mergedSeries[1].stack[0];
-  let stack2 = mergedSeries[0].stack[0];
+  var mergedSeries = seriesContainer[0].mergeSeries(seriesContainer);
+  var stack  = mergedSeries[1].stack[0];
+  var stack2 = mergedSeries[0].stack[0];
   if(stack.windowWidth < 2){
     stack  = mergedSeries[0].stack[0];
     stack2 = mergedSeries[1].stack[0];
   }
 
-  let stackHelper = new HelpersStack(stack);
+  var stackHelper = new HelpersStack(stack);
   stackHelper.bbox.visible = false;
   stackHelper.border.visible = false;
   stackHelper.index = 10;
@@ -316,9 +316,9 @@ function handleSeries() {
   // pixels packing for the fragment shaders now happens there
   stack2.pack();
 
-  let textures2 = [];
-  for (let m = 0; m < stack2._rawData.length; m++) {
-    let tex = new THREE.DataTexture(
+  var textures2 = [];
+  for (var m = 0; m < stack2._rawData.length; m++) {
+    var tex = new THREE.DataTexture(
           stack2.rawData[m],
           stack2.textureSize,
           stack2.textureSize,
@@ -382,21 +382,21 @@ function handleSeries() {
 
   //
   // set camera
-  let worldbb = stack.worldBoundingBox();
-  let lpsDims = new THREE.Vector3(
+  var worldbb = stack.worldBoundingBox();
+  var lpsDims = new THREE.Vector3(
     worldbb[1] - worldbb[0],
     worldbb[3] - worldbb[2],
     worldbb[5] - worldbb[4]
   );
 
   // box: {halfDimensions, center}
-  let bbox = {
+  var bbox = {
     center: stack.worldCenter().clone(),
     halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10)
   };
 
   // init and zoom
-  let canvas = {
+  var canvas = {
       width: threeD.clientWidth,
       height: threeD.clientHeight
     };

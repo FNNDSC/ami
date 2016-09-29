@@ -28592,6 +28592,8 @@ var ParsersNifti = function (_ParsersVolume) {
     if (NiftiReader.isNIFTI(_this._arrayBuffer)) {
       _this._dataSet = NiftiReader.readHeader(_this._arrayBuffer);
       _this._niftiImage = NiftiReader.readImage(_this._dataSet, _this._arrayBuffer);
+
+      console.log(_this._dataSet);
     } else {
       throw 'parsers.nifti could not parse the file';
     }
@@ -28763,7 +28765,7 @@ var ParsersNifti = function (_ParsersVolume) {
       var frameIndex = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
 
       // qoffset is RAS
-      return [-this._dataSet.qoffset_x, -this._dataSet.qoffset_y, this._dataSet.qoffset_z];
+      return [this._dataSet.qoffset_x, this._dataSet.qoffset_y, this._dataSet.qoffset_z];
     }
   }, {
     key: 'dimensionIndexValues',

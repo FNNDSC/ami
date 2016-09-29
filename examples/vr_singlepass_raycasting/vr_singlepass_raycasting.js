@@ -24,13 +24,13 @@ let myStack = {
 };
 
 function onMouseDown() {
-  if (vrHelper.uniforms) {
+  if (vrHelper &&  vrHelper.uniforms) {
     vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
   }
 }
 
 function onMouseUp() {
-  if (vrHelper.uniforms) {
+  if (vrHelper && vrHelper.uniforms) {
     vrHelper.uniforms.uSteps.value = myStack.steps;
   }
 }
@@ -179,6 +179,8 @@ window.onload = function() {
   let files = t2.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
   });
+
+  // files = ['http://127.0.0.1:8080/brainc.nii']
 
   //   let data = [
   //  'scan-00109_rec-01a.nii_.gz'
