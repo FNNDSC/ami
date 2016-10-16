@@ -9,6 +9,8 @@ import Parsers    from './parsers/parsers';
 import Shaders    from './shaders/shaders';
 import Widgets    from './widgets/widgets';
 
+const config = require('../scripts/config.js');
+
 export default{
   Cameras,
   Controls,
@@ -22,4 +24,4 @@ export default{
   Widgets
 };
 
-window.console.log('AMI - v0.0.9-dev');
+window.console.log(`AMI ${config.amiVersion()} ( ThreeJS ${config.threeVersion()})`);

@@ -13,6 +13,7 @@ var t2 = ['36444280', '36444294', '36444308', '36444322', '36444336'];
 var files = t2.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
   });
+  
 
 // load sequence for each file
 // 1- fetch

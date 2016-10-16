@@ -1,8 +1,5 @@
 /* globals Stats, dat*/
 
-// promises polyfill from the babel team
-import 'babel-polyfill';
-
 import CamerasOrthographic  from '../../src/cameras/cameras.orthographic';
 import ControlsOrthographic from '../../src/controls/controls.trackballortho';
 import HelpersLut           from '../../src/helpers/helpers.lut';

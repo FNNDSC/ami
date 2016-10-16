@@ -14,7 +14,12 @@ Please submit pull request, open issues or contact us for any question, feature 
 
 
 # <img align="left" src="https://cloud.githubusercontent.com/assets/214063/14279153/f74bc160-fb2b-11e5-9722-94501b191bc1.png" width="15%"> AMI JS ToolKit (Alpha - 0.0.*)
-> AMI Medical Imaging (AMI) JS ToolKit for THREEJS
+> A* Medical Imaging (AMI) JS ToolKit for THREEJS
+
+
+USE IMPORTS
+AMI-CORE + AMI-DEPS = AMI
+USE AMI-DEPS
 
 ### Content
 
@@ -219,85 +224,55 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
   
 :x: FSM
 
-## Usage
-
-If you know how to use THREEJS, you already know out to use AMI. Learn about THREEJS then checkout the lessons, examples and the API to dive in!
-
 ## Pre-requisites
+
+### Modern web browser
+AMI relies on ES2015 promises to perform many task so consider using a polyfill if needed.
 
 ### THREEJS
 Make sure that you are loading THREEJS your index.html **BEFORE** AMI.
 ```
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js"></script>
 ```
 
-### Promise polyfills (for older browsers)
-Follow the instructions from [babel's wiki](http://babeljs.io/docs/usage/polyfill/) or just use one of the many Promise polyfill available out there.
+## Usage
 
-**NOT FOR PRODUCTION**: available for convenience at:
-```
-<script type="text/javascript" src="https://cdn.rawgit.com/fnndsc/vjs/master/external/scripts/babel/polyfill.min.js"></script>
-```
-
-## NPM
-
-Check-out the ami-starter kit to get started quickly. It is already configured to use browserify, babelify and glslify,
-
-https://github.com/FNNDSC/ami-starter
-
-### Installation
-
-
+### NPM
 ```
 $> npm install ami.js
 ```
 
-Note that you might need to include [babel](https://github.com/babel/babel) and [glslify](https://github.com/stackgl/glslify) transforms in you build (browserify, webpack, etc.) process.
-```
-...
-browserify(
-  {entries: [entry],
-   debug: true
-  })
-  .transform(babelify, {"presets": ["es2015"]})
-  .transform(glslify)
-  .bundle()
-...
-```
-
-### Usage
+*Note*: you might need to include [babel](https://github.com/babel/babel) transforms in you build process.
 
 ```
-let AMI = require('ami.js');
-window.console.log(AMI);
-
-// Ready to rock
+# app.js
+const AMI = require('ami.js');
+window.console.log('Ready to rock!!');
 ```
 
-## Compiled
+### ami.js
 
-Check-out the lessons to get started quickly.
+Check-out the [lessons](#lessons) to get started quickly.
 
-[Lessons](#lessons)
-
-### Installation
-Add AMI in your index.html after THREEJS.
+Add AMI in your index.html **after** THREEJS.
 ```
-...
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.js"></script>
+# index.html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js"></script>
 <script src="https://rawgit.com/FNNDSC/ami/master/dist/ami.js"></script>
-...
-```
+<script src="app.js"></script>
 
-### Usage
-```
-let AMI = AMI.default;
-window.console.log(AMI);
-
-// Ready to rock
+#app.js
+const AMI = AMI.default;
+window.console.log('Ready to rock!!');
 ```
 
 ## Developer corner
+### Pre-requisite
+```
+$> npm i -g live-server
+```
+
+### Setup
 Get the source code and related packages.
 ```
 $> git clone https://github.com/FNNDSC/ami.git
@@ -307,43 +282,43 @@ $> npm install
 
 Default task (runs tests, documentation, etc. and create a directory ready to be pushed as gh-page)
 ```
-$> gulp
+$> npm run
 ```
 
-To run examples (browserify/babelify/glslify the example)
+To run examples (browserify/babelify/serve the example)
 ```
-$> gulp examples --<example>
+$> npm run example <examples name>
 
-# for instance to run the geometries_slice example
-
-$> gulp examples --geometries_slices
+#run the geometries_slice example
+$> npm run example geometries_slice
 ```
 
-To run lessons (runs example against compiled ami.js)
+To run lessons (browserify/babelify/serve the lesson)
 ```
-$> gulp lessons --<lesson #>
+$> run lesson <lesson number>
 
-# for instance to run lesson 00
-
-$> gulp lessons --00
+# run lesson 00
+$> npm run lesson 00
 ```
 
 Build standalone library to build/
 ```
-$> gulp build
+$> npm run build
 ```
 
 Tests
 ```
-$> gulp test
+$> npm run test
 ```
 
 Documentation
 ```
-$> gulp doc
+$> npm run doc
 ```
 
 # Credits
+
+AMI would not exist without them:
 
 ##### [THREEJS](https://github.com/mrdoob/three.js/)
 * Base components such as Vectors, Matrices and Objects3D.

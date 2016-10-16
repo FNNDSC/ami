@@ -1,8 +1,5 @@
 /* globals Stats, dat*/
 
-// promises polyfill from the babel team
-import 'babel-polyfill';
-
 import ControlsTrackball from '../../src/controls/controls.trackball';
 import HelpersLut        from '../../src/helpers/helpers.lut';
 import HelpersVR         from '../../src/helpers/helpers.volumerendering';

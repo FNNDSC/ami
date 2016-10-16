@@ -1,0 +1,59 @@
+body{
+  font-family: source-code-pro, sans-serif;
+  color:#F9F9F9;
+  background-color: #212121
+}
+
+#data0, #data1 {
+  background-color: #000;
+  /*left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;*/
+  position: relative;
+  width: 100%;
+  height: 50%;
+  overflow:hidden;
+}
+
+#my-gui-container {
+  position: fixed;
+  top: 30px;
+  right: 20px;
+  z-index:1;
+}
+
+#my-lut-container {
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 1;
+  color: #F9F9F9;
+  text-align: center;
+}
+
+#my-lut-container > div > .my-lut-canvases {
+  position: relative;
+}
+
+#my-lut-min {
+  margin-right: 10px;
+}
+
+#my-lut-max {
+  margin-left: 10px;
+}
+
+#my-lut-container > div {
+  margin-bottom: 10px;
+}
+
+#my-lut-container > div > .my-lut-canvases > :first-child {
+  background: repeating-linear-gradient(-45deg, #353535, #353535 5px, black 5px, black 10px);
+}
+
+#my-lut-container > div > .my-lut-canvases > :nth-child(2) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}

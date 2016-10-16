@@ -1,8 +1,5 @@
 /* globals Stats, dat*/
 
-// promises polyfill from the babel team
-import 'babel-polyfill';
-
 import LoadersVolume        from '../../src/loaders/loaders.volume';
 import HelpersStack         from '../../src/helpers/helpers.stack';
 import HelpersLut           from '../../src/helpers/helpers.lut';
