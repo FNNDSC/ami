@@ -1,6 +1,5 @@
 const fs     = require('fs');
 const path   = require('path');
-const config = require('./config.js');
 
 if (process.argv.length <= 2) {
     console.log(`Usage: ${__filename} --dev`);
@@ -28,10 +27,12 @@ const mode = _mode;
 const LessonTemplate = require('./templates/lessons.js');
 
 //
-try {
-  fs.statSync(destRootDir);
-} catch(e){
-  fs.mkdirSync(destRootDir);
+if(_destRootDir!==''){
+  try {
+    fs.statSync(destRootDir);
+  } catch(e){
+    fs.mkdirSync(destRootDir);
+  }
 }
 
 // <dev> or <dist> or <> / lessons

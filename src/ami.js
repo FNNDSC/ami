@@ -9,7 +9,8 @@ import Parsers    from './parsers/parsers';
 import Shaders    from './shaders/shaders';
 import Widgets    from './widgets/widgets';
 
-const config = require('../scripts/config.js');
+const pckg = require('../package.json');
+const config = pckg.config;
 
 export default{
   Cameras,
@@ -24,4 +25,4 @@ export default{
   Widgets
 };
 
-window.console.log(`AMI ${config.amiVersion()} ( ThreeJS ${config.threeVersion()})`);
+window.console.log(`AMI ${config.amiVersion} ( ThreeJS ${config.threeVersion})`);
