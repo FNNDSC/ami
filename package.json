@@ -1,7 +1,6 @@
 {
   "name": "ami.js",
   "version": "v0.0.9-dev",
-  "threeVersion": "r81",
   "main": "src/ami.js",
   "keywords": ["ami", "ami.js","three.js", "webgl", "dicom", "nifti", "awesome", "medical", "imaging", "xtk", "nrrd", "vtk", "stl", "trk"],
   "author": {
@@ -15,7 +14,9 @@
     "url": "https://fnndsc.github.io/ami"
   },
   "config" : { 
-    "target" : "lessons/00/00.js",
+    "threeVersion": "r81",
+    "amiCDN": "https://cdn.rawgit.com/fnndsc/ami/master/dist/ami.js",
+    "gaKey": "UA-39303022-3",
     "transforms" : "-t [babelify --presets [ es2015 ] ] -t glslify"
   },
   "dependencies": {
@@ -29,27 +30,20 @@
     "pako": "1.0.1"
     },
   "scripts": {
-    "//": "Generic tasks",
-    "clean:dist": "rm -rf dist/*",
-    "clean:dev": "rm -rf dev/*",
-    "demo": "node ./scripts/lessons.js --demo",
-    "//": "Development tasks https://github.com/npm/npm/issues/7919",
-    "dev:lessons": "node ./scripts/lessons.js --dev",
-    "dev:examples": "node ./scripts/examples.js --dev",
-    "dev:watch": "watchify $npm_package_config_target -d -v $npm_package_config_transforms -o dev/$npm_package_config_target",
-    "dev": "npm run dev:lessons && npm run dev:examples && ( live-server dev & npm run dev:watch --ami.js:target=$npm_package_config_target)",
-    "//": "Distribution tasks",
-    "dist:lessons": "node ./scripts/lessons.js --dist",
-    "dist:examples": "node ./scripts/examples.js --dist",
-    "dist:buildExamples": "find examples -name '*.js' -print0 | xargs -0 -n1 -I {} bash -c \"echo `date`: Compiling {}; browserify {} -d -v $npm_package_config_transforms | uglifyjs > dist/{} \"",
-    "dist:buildAmi": "browserify src/ami.js -d -v $npm_package_config_transforms | uglifyjs > build/ami.js",
-    "dist:build": "npm run dist:buildAmi",
-    "dist": "npm run clean:dist && npm run dist:lessons && npm run dist:examples && npm run dist:build",
-    "//": "Misc tasks",
-    "//": "Test",
-    "//": "Router for convenience: node run lesson 00 <or> node run example geometries_slice",
+    "dist:prepare": "node ./scripts/$npm_package_config_mode.js --dist",
+    "dist:watchAmi": "watchify -d -v src/ami $npm_package_config_transforms -o dist/ami.js",
+    "dist:watch": "watchify $npm_package_config_target -d -v $npm_package_config_transforms -o dist/$npm_package_config_target",
+    "dist": "npm run clean && npm run dist:prepare --ami.js:mode=$npm_package_config_mode && ( live-server dist --open=$npm_package_config_open & npm run dist:watch --ami.js:target=$npm_package_config_target)",
     "example": "node ./scripts/router.js examples ",
-    "lesson": "node ./scripts/router.js lessons "
+    "lesson": "node ./scripts/router.js lessons ",
+    "demo": "node ./scripts/lessons.js --demo",
+    "lint": "eslint **/*.js --quiet",
+    "build": "browserify src/ami.js -d -v $npm_package_config_transforms | uglifyjs > build/ami.min.js",
+    "clean": "rm -rf dist/*",
+    "test": "",
+    "doc": "jsdoc -p -r -R README.md -c jsdoc.conf -d dist/doc src",
+    "ami": "npm run clean && npm run lint && npm run demo && npm run build && npm run test && npm run doc",
+    "deploy": "npm run ami && gh-pages -d dist"
   },
   "devDependencies": {
     "browserify": "^13.1.0",
@@ -57,41 +51,22 @@
     "live-server": "^1.1.0",
     "babel-cli": "latest",
     "shelljs": "latest",
-    "yarn": "latest",
+    "gh-pages": "latest",
+    "eslint": "latest",
     "babel-polyfill": "^6.13.0",
     "babel-preset-es2015": "^6.13.2",
     "babelify": "7.3.0",
-    "browser-sync": "2.7.12",
-    "del": "1.2.0",
-    "event-stream": "3.3.1",
-    "globby": "2.1.0",
     "glslify": "5.1.0",
-    "glslify-hex": "2.0.1",
-    "gulp": "3.9.0",
-    "gulp-eslint": "2.0.0",
-    "gulp-gh-pages": "^0.5.4",
-    "gulp-if": "^2.0.0",
-    "gulp-load-plugins": "0.10.0",
-    "gulp-rename": "1.2.2",
-    "gulp-size": "1.2.2",
-    "gulp-sourcemaps": "1.5.2",
-    "gulp-uglify": "1.2.0",
-    "gulp-util": "3.0.6",
     "jsdoc": "jsdoc3/jsdoc#master",
-    "minami": "^1.1.1",
     "karma": "0.13.19",
     "karma-browserify": "^4.2.1",
     "karma-jasmine": "~0.2.0",
     "karma-phantomjs-launcher": "^0.1.4",
     "karma-spec-reporter": "^0.0.20",
-    "run-sequence": "1.1.1",
-    "vinyl-buffer": "1.0.0",
-    "vinyl-source-stream": "1.1.0",
-    "watchify": "3.7.0",
-    "yargs": "3.17.1"
+    "watchify": "3.7.0"
   },
   "engines": {
-    "node": ">=5.4.0"
+    "node": ">=6.9.0"
   },
   "browserify": {
     "transform": [

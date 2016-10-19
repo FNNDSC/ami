@@ -3,22 +3,17 @@ const path   = require('path');
 const config = require('./config.js');
 
 if (process.argv.length <= 2) {
-    console.log("Usage: " + __filename + " --dev");
+    console.log(`Usage: ${__filename} --dev`);
     process.exit(-1);
 }
 // --dev
-// --build
 // --demo
 
-let _mode = 'dev';
-let _destRootDir = 'dev'
+let _mode = 'dist';
+let _destRootDir = 'dist';
 let _destFile = 'index.html';
 
-if(process.argv[2] === '--dist'){
-  _mode = 'dist';
-  _destRootDir = 'dist';
-}
-else if(process.argv[2] === '--demo'){
+if(process.argv[2] === '--demo'){
   // inplace replace demo.thml
   _mode = 'demo';
   _destRootDir = '';
@@ -30,7 +25,7 @@ const destRootDir = _destRootDir;
 const destFile = _destFile;
 const destDir = path.join(destRootDir, targetDir);
 const mode = _mode;
-const LessonTemplate = require('./lessonsTemplate.js');
+const LessonTemplate = require('./templates/lessons.js');
 
 //
 try {

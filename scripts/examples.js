@@ -3,28 +3,21 @@ const path   = require('path');
 const config = require('./config.js');
 
 if (process.argv.length <= 2) {
-    console.log("Usage: " + __filename + " --dev");
+    console.log(`Usage ${__filename} --dev`);
     process.exit(-1);
 }
 // --dev
-// --build
-// --demo
 
-let _mode = 'dev';
-let _destRootDir = 'dev'
-let _destFile = 'index.html';
-
-if(process.argv[2] === '--dist'){
-  _mode = 'dist';
-  _destRootDir = 'dist';
-}
+const _mode = 'dist';
+const _destRootDir = 'dist';
+const _destFile = 'index.html';
 
 const targetDir = 'examples/';
 const destRootDir = _destRootDir;
 const destFile = _destFile;
 const destDir = path.join(destRootDir, targetDir);
 const mode = _mode;
-const ExampleTemplate = require('./examplesTemplate.js');
+const ExampleTemplate = require('./templates/examples.js');
 
 //
 try {
@@ -54,8 +47,7 @@ fs.readdir(targetDir, function(e, files) {
     const exampleTemplate = new ExampleTemplate.ExampleTemplate();
     exampleTemplate.name = lessonName;
     exampleTemplate.content = fs.readFileSync(lessonContentHMTL, 'utf8');
-    exampleTemplate.mode = mode;
-
+    
     // <dev> or <dist> or <> / lessons / <lessonName>
     try {
       fs.statSync(lessonDestDir);

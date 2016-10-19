@@ -277,7 +277,8 @@ Get the source code and related packages.
 ```
 $> git clone https://github.com/FNNDSC/ami.git
 $> cd ami
-$> npm install
+$> npm install yarn bower
+$> yarn install
 ```
 
 Default task (runs tests, documentation, etc. and create a directory ready to be pushed as gh-page)

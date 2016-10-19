@@ -1,34 +1,11 @@
-const config = require('./config.js');
+const packageJSON = require('../../package.json');
 
-class LessonTemplate{
+class ExampleTemplate{
   constructor(options={}) {
-    this.threeVersion = config.threeVersion();
-    this.amiCDN = config.amiCDN();
+    this.threeVersion = packageJSON.config.threeVersion;
     this.name = '';
-    this.mode = 'dev';
+    this.gaKey = '';
     this.content = '';
-    this.gaKey = config.gaKey();
-  }
-
-  scriptsAMI(){
-      if(this.mode === 'dev'){
-        return(`
-<!-- AMI Dev-->
-<script type="text/javascript" src="../../build/ami-deps.js"></script>
-<script type="text/javascript" src="../../build/ami-dev.js"></script>
-        `);
-      }else if(this.mode === 'dist'){
-        return(`
-<!-- AMI Dist-->
-<script type="text/javascript" src="../../build/ami.js"></script>
-        `);
-      }
-      else {
-        return(`
-<!-- AMI -->
-<script type="text/javascript" src="${this.amiCDN}"></script>
-        `); 
-      }
   }
 
   scripts(){
@@ -42,16 +19,18 @@ class LessonTemplate{
 <!-- THREEJS -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/${this.threeVersion}/three.min.js"></script>
 
-${this.scriptsAMI()}
+<!-- AMI -->
+<script type="text/javascript" type="text/javascript" src="${this.name}.js"></script>
+
       `);
   }
 
   head() {
       return(`
 <head>
-<title>AMI - Lesson ${this.name}</title>
+<title>AMI - Example ${this.name}</title>
 
-<link rel="stylesheet" type="text/css" href="demo.css">
+<link rel="stylesheet" type="text/css" href="${this.name}.css">
 ${this.scripts()}
 </head>
       `);
@@ -63,7 +42,6 @@ ${this.scripts()}
 
 ${this.content}
 
-<script type="text/javascript" src="demo.js"></script>
 </body>
       `);
   }
@@ -79,39 +57,23 @@ ${this.content}
   })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
   ga('create', ${this.gaKey}, 'auto');
-  var page = '/ami/lessons/${this.name}';
+  var page = '/ami/examples/${this.name}';
   ga('send', 'pageview', page);
 
 </script>
       `);
   }
 
-  demoHTML(){
-      return(`
-${this.content}
-
-${this.scripts()}
-${this.analytics()}
-      `);
-  }
-
-
   html() {
-    if(this.mode !== 'demo'){
       return(`
 <html>
 ${this.head()}
 ${this.body()}
 </html>
       `);
-    } else{
-      return(`
-${this.demoHTML()}
-      `);
-    }
 
   }
 
 }
 
-module.exports.LessonTemplate = LessonTemplate;
+module.exports.ExampleTemplate = ExampleTemplate;
