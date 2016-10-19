@@ -40,7 +40,7 @@
     "lint": "eslint **/*.js --quiet",
     "build": "browserify src/ami.js -d -v $npm_package_config_transforms | uglifyjs > build/ami.min.js",
     "clean": "rm -rf dist/*",
-    "test": "",
+    "test": "karma start",
     "doc": "jsdoc -p -r -R README.md -c jsdoc.conf -d dist/doc src",
     "ami": "npm run clean && npm run lint && npm run demo && npm run build && npm run test && npm run doc",
     "deploy": "npm run ami && gh-pages -d dist"
@@ -58,11 +58,13 @@
     "babelify": "7.3.0",
     "glslify": "5.1.0",
     "jsdoc": "jsdoc3/jsdoc#master",
-    "karma": "0.13.19",
-    "karma-browserify": "^4.2.1",
-    "karma-jasmine": "~0.2.0",
-    "karma-phantomjs-launcher": "^0.1.4",
-    "karma-spec-reporter": "^0.0.20",
+    "karma": "latest",
+    "phantomjs": "latest",
+    "karma-browserify": "latest",
+    "karma-jasmine": "latest",
+    "karma-phantomjs-launcher": "latest",
+    "karma-spec-reporter": "latest",
+    "jasmine-core": "latest",
     "watchify": "3.7.0"
   },
   "engines": {
