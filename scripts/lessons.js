@@ -68,10 +68,22 @@ fs.readdir(targetDir, function(e, files) {
     // if dev, generate proper index.html in proper location
     if(mode !== 'demo'){
 
-      // copy files to right location
+      // copy static files to right location
       toCopy.forEach(function(file){
-        const targetFile = path.join(lessonTargetDir,file);
-        const destFile = path.join(lessonDestDir,file);
+        let targetFile = path.join(lessonTargetDir,file);
+        let destFile = path.join(lessonDestDir,file);
+        fs.readFile(targetFile, 'utf8', function (err,data) {
+          if (err) {
+            return console.log(err);
+          }
+          
+          fs.writeFile(destFile, data, (err) => {
+          if (err) throw err;
+            console.log('Write: ' + destFile);
+          });
+
+        });
+
         fs.createReadStream(targetFile).pipe(fs.createWriteStream(destFile));
       });
 

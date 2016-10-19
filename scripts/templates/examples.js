@@ -11,7 +11,7 @@ class ExampleTemplate{
   scripts(){
       return(`
 <!-- Tools -->
-<script src="//use.edgefonts.net/source-code-pro.js"></script>
+<script src="https//use.edgefonts.net/source-code-pro.js"></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/dataarts/dat.gui/master/build/dat.gui.min.js"></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/mrdoob/stats.js/master/build/stats.min.js"></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/fnndsc/ami/master/external/scripts/babel/polyfill.min.js"></script>

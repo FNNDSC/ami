@@ -1,6 +1,5 @@
 const fs     = require('fs');
 const path   = require('path');
-const config = require('./config.js');
 
 if (process.argv.length <= 2) {
     console.log(`Usage ${__filename} --dev`);
@@ -55,10 +54,22 @@ fs.readdir(targetDir, function(e, files) {
       fs.mkdirSync(lessonDestDir);
     }
 
-    // copy files to right location
+    // copy static files to right location
     toCopy.forEach(function(file){
-      const targetFile = path.join(lessonTargetDir,file);
-      const destFile = path.join(lessonDestDir,file);
+      let targetFile = path.join(lessonTargetDir,file);
+      let destFile = path.join(lessonDestDir,file);
+      fs.readFile(targetFile, 'utf8', function (err,data) {
+        if (err) {
+          return console.log(err);
+        }
+        
+        fs.writeFile(destFile, data, (err) => {
+        if (err) throw err;
+          console.log('Write: ' + destFile);
+        });
+
+      });
+
       fs.createReadStream(targetFile).pipe(fs.createWriteStream(destFile));
     });
     

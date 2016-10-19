@@ -5,6 +5,6 @@ cache:
   directories:
     - node_modules
 script:
-  - ami
+  - npm run ami
 notifications:
   slack: fnndsc:UohaXDsjFDVqZj5IfdC88XRa
