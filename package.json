@@ -33,19 +33,19 @@
     "dist:prepare": "node ./scripts/$npm_package_config_mode.js --dist",
     "dist:watchAmi": "watchify -d -v src/ami $npm_package_config_transforms -o dist/ami.js",
     "dist:watch": "watchify $npm_package_config_target -d -v $npm_package_config_transforms -o dist/$npm_package_config_target",
-    "dist": "npm run clean && npm run dist:prepare --ami.js:mode=$npm_package_config_mode && ( live-server dist --open=$npm_package_config_open & npm run dist:watch --ami.js:target=$npm_package_config_target)",
+    "dist": "npm run clean && npm run dist:prepare --ami.js:mode=$npm_package_config_mode && (live-server dist --open=$npm_package_config_open & npm run dist:watch --ami.js:target=$npm_package_config_target)",
     "example": "node ./scripts/router.js examples ",
     "lesson": "node ./scripts/router.js lessons ",
     "demo": "node ./scripts/lessons.js --demo",
     "lint": "eslint **/*.js --quiet",
-    "build:examples": "npm run dist:prepare --ami.js:mode=examples && find examples -name '*.js' -print0 | xargs -0 -n1 -I {} bash -c \"echo `date`: Compiling {}; browserify {} -d -v $npm_package_config_transforms | uglifyjs > dist/{} \"",
+    "build:examples": "npm run dist:prepare --ami.js:mode=examples && find examples -name '*.js' -print0 | xargs -0 -n1 -I{} bash -c \"echo Building {}; browserify {} -d -v $npm_package_config_transforms > dist/{} \"",
     "build:ami": "browserify src/ami.js -d -v $npm_package_config_transforms --standalone AMI > build/ami.js && uglifyjs build/ami.js -o build/ami.min.js",
     "build": "npm run clean && cp index.html dist/index.html && npm run build:examples && npm run doc",
     "clean": "rm -rf dist/*",
     "test": "karma start",
     "doc": "jsdoc -p -r -R README.md -c jsdoc.conf -d dist/doc src",
     "ami": "npm run lint && npm run demo && npm run build:ami && npm run test",
-    "deploy": "npm run ami && gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "devDependencies": {
     "browserify": "^13.1.0",

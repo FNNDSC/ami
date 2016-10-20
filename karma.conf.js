@@ -8,8 +8,8 @@ module.exports = function(karma) {
 
     // list of files / patterns to load in the browser
     files: [
-      'node_modules/babel-polyfill/dist/polyfill.js',
-      'http://threejs.org/build/three.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js',
+      'https://threejs.org/build/three.min.js',
       //'src/core/*.spec.js',
       'specs/**/*.spec.js',
       {pattern: 'data/**/*.tar', included: false, watched: false, served: true}

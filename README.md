@@ -267,12 +267,6 @@ window.console.log('Ready to rock!!');
 ```
 
 ## Developer corner
-### Pre-requisite
-```
-$> npm i -g live-server
-```
-
-### Setup
 Get the source code and related packages.
 ```
 $> git clone https://github.com/FNNDSC/ami.git
