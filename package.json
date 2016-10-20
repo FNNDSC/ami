@@ -39,7 +39,7 @@
     "demo": "node ./scripts/lessons.js --demo",
     "lint": "eslint **/*.js --quiet",
     "build:examples": "npm run dist:prepare --ami.js:mode=examples && find examples -name '*.js' -print0 | xargs -0 -n1 -I {} bash -c \"echo `date`: Compiling {}; browserify {} -d -v $npm_package_config_transforms | uglifyjs > dist/{} \"",
-    "build:ami": "browserify src/ami.js -d -v $npm_package_config_transforms --standalone AMI | uglifyjs > build/ami.min.js",
+    "build:ami": "browserify src/ami.js -d -v $npm_package_config_transforms --standalone AMI > build/ami.js && uglifyjs build/ami.js -o build/ami.min.js",
     "build": "npm run clean && cp index.html dist/index.html && npm run build:examples && npm run doc",
     "clean": "rm -rf dist/*",
     "test": "karma start",
