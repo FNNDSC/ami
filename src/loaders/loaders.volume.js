@@ -9,6 +9,7 @@ import ParsersDicom from '../../src/parsers/parsers.dicom';
 import ParsersNifti from '../../src/parsers/parsers.nifti';
 import ParsersNrrd  from '../../src/parsers/parsers.nrrd';
 
+
 /**
  *
  * It is typically used to load a DICOM image. Use loading manager for
