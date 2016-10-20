@@ -16,11 +16,6 @@ Please submit pull request, open issues or contact us for any question, feature 
 # <img align="left" src="https://cloud.githubusercontent.com/assets/214063/14279153/f74bc160-fb2b-11e5-9722-94501b191bc1.png" width="15%"> AMI JS ToolKit (Alpha - 0.0.*)
 > A* Medical Imaging (AMI) JS ToolKit for THREEJS
 
-
-USE IMPORTS
-AMI-CORE + AMI-DEPS = AMI
-USE AMI-DEPS
-
 ### Content
 
 1. [Lessons](#lessons)
