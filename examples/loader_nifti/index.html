@@ -1,24 +1,35 @@
-<html>
-<head>
-<title>VJS Loader DicomS</title>
 
-<!-- External tools -->
+<html>
+
+<head>
+<title>AMI - Example loader_nifti</title>
+
+<link rel="stylesheet" type="text/css" href="loader_nifti.css">
+
 <!-- Tools -->
+<script type="text/javascript" src="https://use.edgefonts.net/source-code-pro.js"></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/dataarts/dat.gui/master/build/dat.gui.min.js"></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/mrdoob/stats.js/master/build/stats.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js"></script>
+
 <!-- THREEJS -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.min.js"></script>
-<script type="text/javascript"  src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/loaders/VTKLoader.js"></script>
-
-<script type="text/javascript" src="loader_nifti.js"></script>
-<link rel="stylesheet" type="text/css" href="loader_nifti.css">
+      
 </head>
+      
 
 <body>
-  <!-- the container for the renderers -->
-  <div id="my-gui-container"></div>
-  <div id="r3d">
-  </div>
-  <div style="background-color: #f9f9f9; width: 0; height: 0;"></div>
+
+<div id="my-gui-container"></div>
+<div id="r3d"></div>
+<div style="background-color: #f9f9f9; width: 0; height: 0;"></div>
+
+<script type="text/javascript" src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/loaders/VTKLoader.js"></script>
+
+<!-- WE LOAD SCRIPT HERE SO IT IS EASY FOR DEVS TO ADD EXTERNAL SCRIPTS IN EXAMPLE -->
+<script type="text/javascript" type="text/javascript" src="loader_nifti.js"></script>
+
 </body>
+      
 </html>
+      
