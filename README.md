@@ -271,11 +271,10 @@ Get the source code and related packages.
 ```
 $> git clone https://github.com/FNNDSC/ami.git
 $> cd ami
-$> npm install yarn bower
-$> yarn install
+$> npm install
 ```
 
-Default task (runs tests, documentation, etc. and create a directory ready to be pushed as gh-page)
+Default task (lint, tests, demo and build)
 ```
 $> npm run
 ```
@@ -298,7 +297,7 @@ $> npm run lesson 00
 
 Build standalone library to build/
 ```
-$> npm run build
+$> npm run build:ami
 ```
 
 Tests
@@ -309,6 +308,11 @@ $> npm run test
 Documentation
 ```
 $> npm run doc
+```
+
+Deploy dist/ to gh-pages
+```
+$> npm run deploy
 ```
 
 # Credits
