@@ -72,7 +72,7 @@ ${this.content}
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-  ga('create', ${this.gaKey}, 'auto');
+  ga('create', '${this.gaKey}', 'auto');
   var page = '/ami/lessons/${this.name}';
   ga('send', 'pageview', page);
 

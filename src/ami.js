@@ -25,4 +25,4 @@ export default{
   Widgets
 };
 
-window.console.log(`AMI ${config.amiVersion} ( ThreeJS ${config.threeVersion})`);
+window.console.log(`AMI ${config.version} ( ThreeJS ${config.threeVersion})`);
