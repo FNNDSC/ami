@@ -1,5 +1,7 @@
 import GeometriesSlice from '../../src/geometries/geometries.slice';
-import ShadersData     from '../../src/shaders/shaders.data';
+import ShadersUniform  from '../../src/shaders/shaders.uniform';
+import ShadersVertex   from '../../src/shaders/shaders.vertex';
+import ShadersFragment from '../../src/shaders/shaders.fragment';
 
 let glslify =  require('glslify');
 
@@ -45,7 +47,7 @@ export default class HelpersSlice extends THREE.Object3D{
     // there is also a switch to move back mesh to LPS space automatically
     this._aaBBspace = aabbSpace; // or LPS -> different transforms, esp for the geometry/mesh
     this._material = null;
-    this._uniforms = ShadersData.uniforms();
+    this._uniforms = ShadersUniform.uniforms();
     this._geometry = null;
     this._mesh = null;
     this._visible = true;
@@ -295,11 +297,15 @@ export default class HelpersSlice extends THREE.Object3D{
 
       this._uniforms.uTextureContainer.value = textures;
 
+      // generate shaders on-demand!
+      let fs = new ShadersFragment(this._uniforms);
+      let vs = new ShadersVertex();
+
       this._material = new THREE.ShaderMaterial({
         'side': THREE.DoubleSide,
         'uniforms': this._uniforms,
-        'vertexShader': glslify('../shaders/shaders.data.vert'),
-        'fragmentShader': glslify('../shaders/shaders.data.frag')
+        'vertexShader': vs.compute(),
+        'fragmentShader': fs.compute()
       });
     }
 

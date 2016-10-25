@@ -1,19 +1,6 @@
-/*** Imports ***/
-let glslify =  require('glslify');
-
-import DataUniforms from './shaders.data.js';
-let DataVertex   = glslify('./shaders.data.vert');
-let DataFragment = glslify('./shaders.data.frag');
-
-import LayerUniforms from './shaders.layer.js';
-let LayerFragment = glslify('./shaders.layer.frag');
-
-import RaycastingUniforms from './shaders.raycasting.js';
-let RaycastingFirstpassFragment  = glslify('./shaders.raycasting.firstPass.frag');
-let RaycastingSecondpassVertex   = glslify('./shaders.raycasting.secondPass.vert');
-let RaycastingSecondpassFragment = glslify('./shaders.raycasting.secondPass.frag');
-let RaycastingSinglepassVertex   = glslify('./shaders.raycasting.singlePass.vert');
-let RaycastingSinglepassFragment = glslify('./shaders.raycasting.singlePass.frag');
+import ShadersUniform  from './shaders.data';
+import ShadersFragment from './shaders.fragment';
+import ShadersVertex   from './shaders.vertex';
 
 /**
  * @module shaders
@@ -21,15 +8,8 @@ let RaycastingSinglepassFragment = glslify('./shaders.raycasting.singlePass.frag
 
 export default {
   
-  DataUniforms,
-  DataVertex,
-  DataFragment,
+  ShadersUniform,
+  ShadersFragment,
+  ShadersVertex
 
-  LayerUniforms,
-  LayerFragment,
-
-  RaycastingUniforms,
-  RaycastingFirstpassFragment,
-  RaycastingSecondpassVertex,
-  RaycastingSecondpassFragment
 };
