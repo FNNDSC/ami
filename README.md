@@ -40,11 +40,9 @@
 2. [Features](#features)
 3. [Usage](#usage)
 4. [Pre-requisites](#pre-requisites)
-5. [Use with NPM](#npm)
-6. [Use compiled version](#compiled)
-7. [API Documentation](https://fnndsc.github.io/ami/doc)
-8. [Developer corner](https://fnndsc.github.io/ami/doc)
-9. [Credits](#credits)
+5. [Usage](#npm)
+6. [Developer corner](#developer-corner)
+6. [Credits](#credits)
 
 ## Lessons
 <table>
@@ -290,6 +288,8 @@ Deploy dist/ to gh-pages
 ```
 $> npm run deploy
 ```
+
+Find out more about the [API](https://fnndsc.github.io/ami/doc).
 
 # Credits
 
