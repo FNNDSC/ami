@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://cloud.githubusercontent.com/assets/214063/19763517/a83873fc-9c3e-11e6-8390-229d7749246e.png" width="60%">
 </p>
-----------
+
 <p align="center">
     <a href="https://travis-ci.org/FNNDSC/ami">
         <img src="https://travis-ci.org/FNNDSC/ami.svg"
@@ -24,6 +24,8 @@
              alt="Slack">
     </a>
 </p>
+
+----------
 
 > **AMI Alpha** is now available for developer preview.</br>
 > Developper preview means that the API might change but we are confident you can already build cool apps with AMI.</br>
