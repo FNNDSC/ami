@@ -35,8 +35,7 @@
 
 ### Content
 
-1. [Lessons](#lessons)
-2. [Sandbox](#sandbox)
+1. [Hello AMI](#hello-ami)
 2. [Features](#features)
 3. [Usage](#usage)
 4. [Pre-requisites](#pre-requisites)
@@ -44,7 +43,7 @@
 6. [Developer corner](#developer-corner)
 6. [Credits](#credits)
 
-## Lessons
+## Hello AMI
 <table>
 <tr>
   <!-- Lesson 00 -->
@@ -181,7 +180,7 @@
 </tr>
 </table>
 
-## Sandbox
+### (more) Advanced demos
 
 Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced demos [there](https://fnndsc.github.io/ami)!
 
