@@ -102,18 +102,11 @@ uInt8(
     this._base._functions['uInt16'] = this.uInt16();
 
     return `
-if( offset == 0 ){
-  uInt16(
-    packedData.r,
-    packedData.g,
-    unpackedData.x);
-}
-else{
-  uInt16(
-    packedData.b,
-    packedData.a,
-    unpackedData.x);
-}
+uInt16(
+  packedData.r * float( 1 - offset) + packedData.b * float(offset),
+  packedData.g * float( 1 - offset) + packedData.a * float(offset),
+  unpackedData.x);
+
     `;
 
   }

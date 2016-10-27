@@ -39,13 +39,7 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
             + dataCoordinates.y * uDataDimensions.x
             + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;
   int indexP = int(index/uPackedPerPixel);
-
-  if( 2*indexP < index){
-    offset = 1;
-  }
-  else{
-    offset = 0;
-  }
+  offset = index - 2*indexP;
 
   // Map data index to right sampler2D texture
   int voxelsPerTexture = uTextureSize*uTextureSize;
