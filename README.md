@@ -201,11 +201,8 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 
 ### Pre-requisites
 
-#### Modern web browser
-AMI relies on ES2015 promises to perform many task so consider using a polyfill if needed.
-
-#### THREEJS
-Make sure that you are loading THREEJS your index.html **BEFORE** AMI.
+* ES2015 promises support: (consider using polyfills if needed)
+* Load THREEJS your index.html **BEFORE** AMI.
 ```
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js"></script>
 ```
