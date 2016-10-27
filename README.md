@@ -201,7 +201,7 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 
 ### Pre-requisites
 
-* ES2015 promises support: (consider using polyfills if needed)
+* ES2015 promises support. (consider using polyfills if needed)
 * Load THREEJS your index.html **BEFORE** AMI.
 ```
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js"></script>
