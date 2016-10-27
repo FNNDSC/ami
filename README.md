@@ -323,3 +323,6 @@ AMI would not exist without them:
 ##### [Pako](https://github.com/nodeca/pako)
 * GZ file decompression
 * Author(s): [nodeca](https://github.com/nodeca)
+
+##### [Clipart Panda](http://www.clipartpanda.com/)
+* [Baby blue dinausor png](http://www.clipartpanda.com/clipart_images/baby-blue-dinosaur-clip-art-37313455)
