@@ -325,4 +325,4 @@ AMI would not exist without them:
 * Author(s): [nodeca](https://github.com/nodeca)
 
 ##### [Clipart Panda](http://www.clipartpanda.com/)
-* [Baby blue dinausor png](http://www.clipartpanda.com/clipart_images/baby-blue-dinosaur-clip-art-37313455)
+* [Baby blue dinausor](http://www.clipartpanda.com/clipart_images/baby-blue-dinosaur-clip-art-37313455)
