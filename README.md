@@ -188,7 +188,9 @@
 Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced demos [there](https://fnndsc.github.io/ami)!
 
 ## Features
-:white_check_mark: READY - :large_orange_diamond: IN PROGRESS OR LIMITED SUPPORT - :x: ON ROADMAP
+
+> :white_check_mark: READY - :large_orange_diamond: IN PROGRESS OR LIMITED SUPPORT - :x: ON ROADMAP
+
 
 | Capabilities       	| Volumes   	| Meshes          	| Widgets                	|
 |--------------------	|-----------	|-----------------	|------------------------	|
