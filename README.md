@@ -189,52 +189,14 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 
 ## Features
 :white_check_mark: READY - :large_orange_diamond: IN PROGRESS OR LIMITED SUPPORT - :x: ON ROADMAP
-#### Capabilities
-:white_check_mark: 2D Visulization
 
-:white_check_mark: 3D Visualization
-
-:white_check_mark: Volume Rendering
-
-:white_check_mark: Lookup Tables
-
-:large_orange_diamond: Label Maps
-
-#### Widgets
-
-:large_orange_diamond: Handle (2D/3D)
-
-:large_orange_diamond: Probe (2D/3D)
-  
-:large_orange_diamond: Ruler (2D/3D)
-
-:large_orange_diamond: Angle (2D/3D)
-  
-:large_orange_diamond: Orientation (2D/3D)
-
-#### Volumes
-
-:white_check_mark: Dicom
-  
-:white_check_mark: NRRD
-
-:large_orange_diamond: Nifti
-  
-:x: MGH/MGZ
-  
-:x: JPEG
-  
-#### Meshes
-
-:white_check_mark: VTK (THREEJS)
-  
-:white_check_mark: STL (THREEJS)
-  
-:large_orange_diamond: TRK
-  
-:x: CURV
-  
-:x: FSM
+| Capabilities       	| Volumes   	| Meshes          	| Widgets                	|
+|--------------------	|-----------	|-----------------	|------------------------	|
+| ✅ 2D Visulization  	| ✅ Dicom   	| ✅ VTK (THREEJS) 	| 🔶 Handle (2D/3D)      	|
+| ✅ 3D Visualization 	| ✅ NRRD    	| ✅ STL (THREEJS) 	| 🔶 Probe (2D/3D)       	|
+| ✅ Volume Rendering 	| 🔶 Nifti  	| 🔶 TRK          	| 🔶 Ruler (2D/3D)       	|
+| ✅ Lookup Tables    	| ❌ MGH/MGZ 	| ❌ CURV          	| 🔶 Angle (2D/3D)       	|
+| 🔶 Label Maps       	| ❌ JPEG    	| ❌ FSM           	| 🔶 Orientation (2D/3D) 	|
 
 ## Pre-requisites
 
