@@ -1,20 +1,35 @@
+<p align="center">
+  <img src="https://cloud.githubusercontent.com/assets/214063/19763517/a83873fc-9c3e-11e6-8390-229d7749246e.png" width="60%">
+</p>
 ----------
+<p align="center">
+    <a href="https://travis-ci.org/FNNDSC/ami">
+        <img src="https://travis-ci.org/FNNDSC/ami.svg"
+             alt="Build Status">
+    </a>
+    <a href="https://codeclimate.com/github/FNNDSC/ami">
+        <img src="https://codeclimate.com/github/FNNDSC/ami/badges/gpa.svg"
+             alt="Code Climate">
+    </a>
+    <a href="https://www.npmjs.com/package/ami.js">
+        <img src="https://img.shields.io/npm/v/ami.js.svg"
+             alt="NPM Version">
+    </a>
+    <a href="https://www.npmjs.com/package/ami.js">
+        <img src="https://img.shields.io/npm/dm/ami.js.svg"
+             alt="NPM Downloads per Month">
+    </a>
+    <a href="http://slack.babymri.org">
+        <img src="https://img.shields.io/badge/slack-join-blue.svg"
+             alt="Slack">
+    </a>
+</p>
 
-**AMI Alpha** is now available for developer preview.</br>
-Developper preview means that the API might change but we are confident you can already build cool apps with AMI.</br>
-Please submit pull request, open issues or contact us for any question, feature request, etc.
+> **AMI Alpha** is now available for developer preview.</br>
+> Developper preview means that the API might change but we are confident you can already build cool apps with AMI.</br>
+> Please submit pull request, open issues or contact us for any question, feature request, etc.
 
 ----------
-
-[![Build Status](https://travis-ci.org/FNNDSC/ami.svg)](https://travis-ci.org/FNNDSC/ami)
-[![Code Climate](https://codeclimate.com/github/FNNDSC/ami/badges/gpa.svg)](https://codeclimate.com/github/FNNDSC/ami)
-[![Slack](https://img.shields.io/badge/slack-join-blue.svg)](http://slack.babymri.org)
-[![NPM Version](https://img.shields.io/npm/v/ami.js.svg)](https://www.npmjs.com/package/ami.js)
-[![NPM Downloads per Month](https://img.shields.io/npm/dm/ami.js.svg)](https://www.npmjs.com/package/ami.js)
-
-
-# <img align="left" src="https://cloud.githubusercontent.com/assets/214063/14279153/f74bc160-fb2b-11e5-9722-94501b191bc1.png" width="15%"> AMI JS ToolKit (Alpha - 0.0.*)
-> A* Medical Imaging (AMI) JS ToolKit for THREEJS
 
 ### Content
 
