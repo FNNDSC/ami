@@ -31,7 +31,7 @@
 Please submit pull request, open issues or contact us for any question, feature request, etc.
 
 - <Important Note>
--  Developper preview means that the API might change but you can already build cool apps with AMI.
+-  Developer preview means that the API might change but you can already build cool apps with AMI.
 ```
 ----------
 
