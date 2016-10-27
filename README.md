@@ -37,11 +37,9 @@
 
 1. [Hello AMI](#hello-ami)
 2. [Features](#features)
-3. [Usage](#usage)
-4. [Pre-requisites](#pre-requisites)
-5. [Usage](#npm)
-6. [Developer corner](#developer-corner)
-6. [Credits](#credits)
+3. [Usage](#npm)
+4. [Developer corner](#developer-corner)
+5. [Credits](#credits)
 
 ## Hello AMI
 <table>
@@ -197,18 +195,18 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 | ✅ Lookup Tables    	| ❌ MGH/MGZ 	| ❌ CURV          	| 🔶 Angle (2D/3D)       	|
 | 🔶 Label Maps       	| ❌ JPEG    	| ❌ FSM           	| 🔶 Orientation (2D/3D) 	|
 
-## Pre-requisites
+## Usage
 
-### Modern web browser
+### Pre-requisites
+
+#### Modern web browser
 AMI relies on ES2015 promises to perform many task so consider using a polyfill if needed.
 
-### THREEJS
+#### THREEJS
 Make sure that you are loading THREEJS your index.html **BEFORE** AMI.
 ```
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js"></script>
 ```
-
-## Usage
 
 ### NPM
 ```
