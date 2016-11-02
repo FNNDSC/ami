@@ -1,7 +1,8 @@
 /*** Imports ***/
-import ShadersRaycasting from '../../src/shaders/shaders.raycasting';
+import ShadersUniform  from '../../src/shaders/shaders.vr.uniform';
+import ShadersVertex   from '../../src/shaders/shaders.vr.vertex';
+import ShadersFragment from '../../src/shaders/shaders.vr.fragment';
 
-let glslify = require('glslify');
 
 /**
  * @module helpers/volumerendering
@@ -14,7 +15,7 @@ export default class HelpersVolumeRendering extends THREE.Object3D{
 
     this._stack = stack;
     this._textures = [];
-    this._uniforms = null;
+    this._uniforms = ShadersUniform.uniforms();
     this._material = null;
     this._geometry = null;
 
@@ -62,8 +63,9 @@ export default class HelpersVolumeRendering extends THREE.Object3D{
   }
 
   _prepareMaterial(){
+
     // uniforms
-    this._uniforms = ShadersRaycasting.singlePassUniforms();
+    this._uniforms = ShadersUniform.uniforms();
     this._uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
     this._uniforms.uTextureSize.value = this._stack.textureSize;
     this._uniforms.uTextureContainer.value = this._textures;
@@ -77,14 +79,29 @@ export default class HelpersVolumeRendering extends THREE.Object3D{
     this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x,
                                                 this._stack.dimensionsIJK.y,
                                                 this._stack.dimensionsIJK.z];
+
+    this._updateMaterial();
+
+  }
+
+  _updateMaterial(){
+
+    console.log( 'update material');
+
+    // generate shaders on-demand!
+    let fs = new ShadersFragment(this._uniforms);
+    let vs = new ShadersVertex();
+
     // material
     this._material = new THREE.ShaderMaterial({
       uniforms: this._uniforms,
-      vertexShader: glslify('../../src/shaders/shaders.raycasting.singlePass.vert'),
-      fragmentShader: glslify('../../src/shaders/shaders.raycasting.singlePass.frag'),
+      vertexShader: vs.compute(),
+      fragmentShader: fs.compute(),
       side: THREE.FrontSide,
       transparent: true
     });
+    this._material.needsUpdate = true;
+
   }
 
   _prepareGeometry(){

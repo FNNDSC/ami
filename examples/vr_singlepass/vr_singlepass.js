@@ -17,7 +17,8 @@ let myStack = {
   steps: 256,
   alphaCorrection: 0.5,
   frequence: 0,
-  amplitude: 0
+  amplitude: 0,
+  interpolation: 1
 };
 
 function onMouseDown() {
@@ -93,6 +94,15 @@ function buildGUI() {
   amplitudeUpdate.onChange(function(value) {
   if (vrHelper.uniforms) {
     vrHelper.uniforms.uAmplitude.value = value;
+  }
+  });
+
+  let interpolation = stackFolder.add(myStack, 'interpolation', 0, 1).step(1);
+  interpolation.onChange(function(value) {
+  if (vrHelper.uniforms) {
+    vrHelper.uniforms.uInterpolation.value = value;
+    vrHelper.uniforms.uInterpolation.needsUpdate = true;
+    vrHelper._updateMaterial();
   }
   });
 

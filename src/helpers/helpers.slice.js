@@ -1,9 +1,8 @@
+/*** Imports ***/
 import GeometriesSlice from '../../src/geometries/geometries.slice';
 import ShadersUniform  from '../../src/shaders/shaders.uniform';
 import ShadersVertex   from '../../src/shaders/shaders.vertex';
 import ShadersFragment from '../../src/shaders/shaders.fragment';
-
-let glslify =  require('glslify');
 
 /**
  * @module helpers/slice
@@ -47,6 +46,7 @@ export default class HelpersSlice extends THREE.Object3D{
     // there is also a switch to move back mesh to LPS space automatically
     this._aaBBspace = aabbSpace; // or LPS -> different transforms, esp for the geometry/mesh
     this._material = null;
+    this._textures = [];
     this._uniforms = ShadersUniform.uniforms();
     this._geometry = null;
     this._mesh = null;
@@ -240,6 +240,26 @@ export default class HelpersSlice extends THREE.Object3D{
     }
   }
 
+  _prepareTexture(){
+    this._textures = [];
+    for (let m = 0; m < this._stack._rawData.length; m++) {
+      let tex = new THREE.DataTexture(
+        this._stack.rawData[m],
+        this._stack.textureSize,
+        this._stack.textureSize,
+        this._stack.textureType,
+        THREE.UnsignedByteType,
+        THREE.UVMapping,
+        THREE.ClampToEdgeWrapping,
+        THREE.ClampToEdgeWrapping,
+        THREE.NearestFilter,
+        THREE.NearestFilter);
+      tex.needsUpdate = true;
+      tex.flipY = true;
+      this._textures.push(tex);
+    }
+  }
+
   // private methods
   _create() {
 
@@ -278,24 +298,9 @@ export default class HelpersSlice extends THREE.Object3D{
       this._uniforms.uPixelType.value = this._stack.pixelType;
       this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
       this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
-
       // compute texture if material exist
-      let textures = [];
-      // replace 7 by a letiable!!!!
-      for (let m = 0; m < this._stack.rawData.length; m++) {
-        let tex = new THREE.DataTexture(
-          this._stack.rawData[m],
-          this._stack.textureSize, this._stack.textureSize,
-          this._stack.textureType, THREE.UnsignedByteType,
-          THREE.UVMapping,
-          THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping,
-          THREE.NearestFilter, THREE.NearestFilter);
-        tex.needsUpdate = true;
-        tex.flipY = true;
-        textures.push(tex);
-      }
-
-      this._uniforms.uTextureContainer.value = textures;
+      this._prepareTexture();
+      this._uniforms.uTextureContainer.value = this._textures;
 
       // generate shaders on-demand!
       let fs = new ShadersFragment(this._uniforms);
