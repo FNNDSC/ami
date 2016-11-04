@@ -4,11 +4,13 @@ import ShadersUniform  from '../../src/shaders/shaders.uniform';
 import ShadersVertex   from '../../src/shaders/shaders.vertex';
 import ShadersFragment from '../../src/shaders/shaders.fragment';
 
+import HelpersMaterialMixin from '../../src/helpers/helpers.material.mixin';
+
 /**
  * @module helpers/slice
  */
 
-export default class HelpersSlice extends THREE.Object3D{
+export default class HelpersSlice extends HelpersMaterialMixin( THREE.Object3D ){
   constructor(stack,
               index = 0,
               position = new THREE.Vector3(0, 0, 0),
@@ -47,6 +49,8 @@ export default class HelpersSlice extends THREE.Object3D{
     this._aaBBspace = aabbSpace; // or LPS -> different transforms, esp for the geometry/mesh
     this._material = null;
     this._textures = [];
+    this._shadersFragment = ShadersFragment;
+    this._shadersVertex = ShadersVertex;
     this._uniforms = ShadersUniform.uniforms();
     this._geometry = null;
     this._mesh = null;
@@ -149,6 +153,7 @@ export default class HelpersSlice extends THREE.Object3D{
   set interpolation(interpolation) {
     this._interpolation = interpolation;
     this.updateIntensitySettingsUniforms();
+    this._updateMaterial();
   }
 
   get index() {
@@ -240,26 +245,6 @@ export default class HelpersSlice extends THREE.Object3D{
     }
   }
 
-  _prepareTexture(){
-    this._textures = [];
-    for (let m = 0; m < this._stack._rawData.length; m++) {
-      let tex = new THREE.DataTexture(
-        this._stack.rawData[m],
-        this._stack.textureSize,
-        this._stack.textureSize,
-        this._stack.textureType,
-        THREE.UnsignedByteType,
-        THREE.UVMapping,
-        THREE.ClampToEdgeWrapping,
-        THREE.ClampToEdgeWrapping,
-        THREE.NearestFilter,
-        THREE.NearestFilter);
-      tex.needsUpdate = true;
-      tex.flipY = true;
-      this._textures.push(tex);
-    }
-  }
-
   // private methods
   _create() {
 
@@ -302,16 +287,10 @@ export default class HelpersSlice extends THREE.Object3D{
       this._prepareTexture();
       this._uniforms.uTextureContainer.value = this._textures;
 
-      // generate shaders on-demand!
-      let fs = new ShadersFragment(this._uniforms);
-      let vs = new ShadersVertex();
-
-      this._material = new THREE.ShaderMaterial({
-        'side': THREE.DoubleSide,
-        'uniforms': this._uniforms,
-        'vertexShader': vs.compute(),
-        'fragmentShader': fs.compute()
+      this._createMaterial({
+        side: THREE.DoubleSide
       });
+
     }
 
     // update intensity related stuff

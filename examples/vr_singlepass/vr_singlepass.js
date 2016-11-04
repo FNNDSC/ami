@@ -10,6 +10,7 @@ let controls, threeD, renderer, stats, camera, scene;
 let vrHelper;
 let lut;
 let ready = false;
+let interpolationState;
 
 let myStack = {
   lut: 'walking_dead',
@@ -24,12 +25,16 @@ let myStack = {
 function onMouseDown() {
   if (vrHelper &&  vrHelper.uniforms) {
     vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
+    // save interpolation state
+    interpolationState = myStack.interpolation;
+    vrHelper.interpolation = 0;
   }
 }
 
 function onMouseUp() {
   if (vrHelper && vrHelper.uniforms) {
     vrHelper.uniforms.uSteps.value = myStack.steps;
+    vrHelper.interpolation = interpolationState;
   }
 }
 
@@ -97,14 +102,7 @@ function buildGUI() {
   }
   });
 
-  let interpolation = stackFolder.add(myStack, 'interpolation', 0, 1).step(1);
-  interpolation.onChange(function(value) {
-  if (vrHelper.uniforms) {
-    vrHelper.uniforms.uInterpolation.value = value;
-    vrHelper.uniforms.uInterpolation.needsUpdate = true;
-    vrHelper._updateMaterial();
-  }
-  });
+  let interpolation = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
 
   stackFolder.open();
 }

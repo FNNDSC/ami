@@ -92,7 +92,6 @@ ${content}
 uInt8(
   packedData.r,
   unpackedData.x);
-}
     `;
 
   }
@@ -106,7 +105,6 @@ uInt16(
   packedData.r * float( 1 - offset) + packedData.b * float(offset),
   packedData.g * float( 1 - offset) + packedData.a * float(offset),
   unpackedData.x);
-
     `;
 
   }
@@ -124,7 +122,6 @@ uInt32(
   packedData.b,
   packedData.a,
   unpackedData.x);
-}
       `;
 
     }
@@ -139,7 +136,6 @@ uFloat32(
   packedData.b,
   packedData.a,
   unpackedData.x);
-}
       `;
 
     }

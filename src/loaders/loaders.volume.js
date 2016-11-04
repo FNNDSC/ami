@@ -84,17 +84,28 @@ export default class LoadersVolumes extends LoadersBase{
       // create a series
       let series = new ModelsSeries();
       series.seriesInstanceUID = volumeParser.seriesInstanceUID();
-      series.numberOfFrames = volumeParser.numberOfFrames();
+      series.numberOfFrames    = volumeParser.numberOfFrames();
       if (!series.numberOfFrames) {
         series.numberOfFrames = 1;
       }
+      series.modality          = volumeParser.modality();
+      // if it is a segmentation, attach extra information
+      if(series.modality === 'SEG'){
+        // colors
+        // labels
+        // etc.
+        series.segmentationType     = volumeParser.segmentationType();
+        series.segmentationSegments = volumeParser.segmentationSegments();
+      }
+
       series.numberOfChannels = volumeParser.numberOfChannels();
 
       // just create 1 dummy stack for now
       let stack = new ModelsStack();
       stack.numberOfChannels = volumeParser.numberOfChannels();
-      stack.pixelType = volumeParser.pixelType();
-      stack.invert = volumeParser.invert();
+      stack.pixelType        = volumeParser.pixelType();
+      stack.invert           = volumeParser.invert();
+      stack.modality         = series.modality;
       series.stack.push(stack);
       // recursive call for each frame
       // better than for loop to be able to update dom with "progress" callback
@@ -104,15 +115,15 @@ export default class LoadersVolumes extends LoadersBase{
 
   parseFrame(series, stack, url, i, dataParser, resolve, reject) {
     let frame = new ModelsFrame();
-    frame.sopInstanceUID = dataParser.sopInstanceUID(i);
-    frame.url = url;
-    frame.rows = dataParser.rows(i);
-    frame.columns = dataParser.columns(i);
+    frame.sopInstanceUID   = dataParser.sopInstanceUID(i);
+    frame.url              = url;
+    frame.rows             = dataParser.rows(i);
+    frame.columns          = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;
-    frame.pixelType = dataParser.pixelType(i);
-    frame.pixelData = dataParser.extractPixelData(i);
-    frame.pixelSpacing = dataParser.pixelSpacing(i);
-    frame.sliceThickness = dataParser.sliceThickness(i);
+    frame.pixelType        = dataParser.pixelType(i);
+    frame.pixelData        = dataParser.extractPixelData(i);
+    frame.pixelSpacing     = dataParser.pixelSpacing(i);
+    frame.sliceThickness   = dataParser.sliceThickness(i);
     frame.imageOrientation = dataParser.imageOrientation(i);
     if (frame.imageOrientation === null) {
       frame.imageOrientation = [1, 0, 0, 0, 1, 0];
@@ -122,14 +133,19 @@ export default class LoadersVolumes extends LoadersBase{
       frame.imagePosition = [0, 0, i];
     }
     frame.dimensionIndexValues = dataParser.dimensionIndexValues(i);
-    frame.bitsAllocated = dataParser.bitsAllocated(i);
-    frame.instanceNumber = dataParser.instanceNumber(i);
-    frame.windowCenter = dataParser.windowCenter(i);
-    frame.windowWidth = dataParser.windowWidth(i);
-    frame.rescaleSlope = dataParser.rescaleSlope(i);
-    frame.rescaleIntercept = dataParser.rescaleIntercept(i);
+    frame.bitsAllocated        = dataParser.bitsAllocated(i);
+    frame.instanceNumber       = dataParser.instanceNumber(i);
+    frame.windowCenter         = dataParser.windowCenter(i);
+    frame.windowWidth          = dataParser.windowWidth(i);
+    frame.rescaleSlope         = dataParser.rescaleSlope(i);
+    frame.rescaleIntercept     = dataParser.rescaleIntercept(i);
     // should pass frame index for consistency...
     frame.minMax = dataParser.minMaxPixelData(frame.pixelData);
+
+    // if series.mo
+    if(series.modality === 'SEG'){
+      frame.referencedSegmentNumber = dataParser.referencedSegmentNumber(i);
+    }
 
     stack.frame.push(frame);
 

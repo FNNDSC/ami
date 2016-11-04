@@ -3,6 +3,30 @@
  */
 export default class ParsersVolume {
 
+  modality(){
+
+    return 'unkown';
+
+  }
+
+  segmentationType(){
+
+    return 'unknown';
+
+  }
+
+  segmentationSegments(){
+
+    return [];
+
+  }
+
+  referencedSegmentNumber(frameIndex){
+
+    return -1;
+
+  }
+
   _decompressUncompressed(){
     
   }
@@ -16,13 +40,17 @@ export default class ParsersVolume {
   }
 
   _swap32(val) {
+
     return ((val & 0xFF) << 24)
            | ((val & 0xFF00) << 8)
            | ((val >> 8) & 0xFF00)
            | ((val >> 24) & 0xFF);
+
   }
 
   invert() {
+
     return false;
+
   }
 }

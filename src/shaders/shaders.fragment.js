@@ -62,7 +62,8 @@ void main(void) {
   vec4 dataCoordinates = uWorldToData * vPos;
   vec3 currentVoxel = vec3(dataCoordinates.x, dataCoordinates.y, dataCoordinates.z);
   vec4 dataValue = vec4(0., 0., 0., 0.);
-  ${shadersInterpolation( this, 'currentVoxel', 'dataValue' )}
+  vec3 gradient = vec3(0., 0., 0.);
+  ${shadersInterpolation( this, 'currentVoxel', 'dataValue', 'gradient' )}
 
   // how do we deal wil more than 1 channel?
   if(uNumberOfChannels == 1){

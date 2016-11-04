@@ -36,6 +36,8 @@ export default class ModelsFrame extends ModelsBase{
 
     this._minMax = null;
     this._dist = null;
+
+    this._referencedSegmentNumber = -1;
   }
 
   validate(model) {
@@ -339,5 +341,13 @@ export default class ModelsFrame extends ModelsBase{
 
   set url(url){
     this._url = url;
+  }
+
+  get referencedSegmentNumber(){
+    return this._referencedSegmentNumber;
+  }
+
+  set referencedSegmentNumber(referencedSegmentNumber){
+    this._referencedSegmentNumber = referencedSegmentNumber;
   }
 }
