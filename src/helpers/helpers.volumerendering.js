@@ -108,6 +108,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin( THREE.
 
   set interpolation(interpolation) {
     this._interpolation = interpolation;
+    this._uniforms.uInterpolation.value = this._interpolation;
     this._updateMaterial();
   }
 }
