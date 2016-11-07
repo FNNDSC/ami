@@ -5,10 +5,15 @@ import ControlsOrthographic from '../../src/controls/controls.trackballortho';
 import HelpersLut           from '../../src/helpers/helpers.lut';
 import HelpersStack         from '../../src/helpers/helpers.stack';
 import LoadersVolume        from '../../src/loaders/loaders.volume';
-import ShadersData          from '../../src/shaders/shaders.data';
-import ShadersLayer         from '../../src/shaders/shaders.layer';
 
-var glslify = require('glslify');
+
+import ShadersLayerUniform  from '../../src/shaders/shaders.layer.uniform';
+import ShadersLayerVertex   from '../../src/shaders/shaders.layer.vertex';
+import ShadersLayerFragment from '../../src/shaders/shaders.layer.fragment';
+import ShadersUniform       from '../../src/shaders/shaders.uniform';
+import ShadersVertex        from '../../src/shaders/shaders.vertex';
+import ShadersFragment      from '../../src/shaders/shaders.fragment';
+
 
 // standard global letiables
 let controls, renderer, camera, statsyay, threeD;
@@ -315,6 +320,10 @@ window.onload = function() {
     let interpolationLayer1 = layer1Folder.add(layer1, 'interpolation', 0, 1 ).step( 1 ).listen();
     interpolationLayer1.onChange(function(value){
       uniformsLayer1.uInterpolation.value = value;
+      // re-compute shaders
+      let fs = new ShadersFragment(uniformsLayer1);
+      materialLayer1.fragmentShader = fs.compute();
+      materialLayer1.needsUpdate = true;
     });
 
     layer1Folder.open();
@@ -425,7 +434,7 @@ window.onload = function() {
     }
 
     // create material && mesh then add it to sceneLayer1
-    uniformsLayer1 = ShadersData.uniforms();
+    uniformsLayer1 = ShadersUniform.uniforms();
     uniformsLayer1.uTextureSize.value = stack2.textureSize;
     uniformsLayer1.uTextureContainer.value = textures2;
     uniformsLayer1.uWorldToData.value = stack2.lps2IJK;
@@ -438,36 +447,41 @@ window.onload = function() {
                                                 stack2.dimensionsIJK.y,
                                                 stack2.dimensionsIJK.z];
 
+    // generate shaders on-demand!
+    let fs = new ShadersFragment(uniformsLayer1);
+    let vs = new ShadersVertex();
     materialLayer1 = new THREE.ShaderMaterial(
       {side: THREE.DoubleSide,
       uniforms: uniformsLayer1,
-      vertexShader: glslify('../../src/shaders/shaders.data.vert'),
-      fragmentShader: glslify('../../src/shaders/shaders.data.frag')
+      vertexShader: vs.compute(),
+      fragmentShader: fs.compute()
     });
 
     // add mesh in this scene with right shaders...
     meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
     // go the LPS space
-    meshLayer1.applyMatrix(stack2._ijk2LPS);
+    meshLayer1.applyMatrix(stack._ijk2LPS);
     sceneLayer1.add(meshLayer1);
 
     // Create the Mix layer
-    uniformsLayerMix = ShadersLayer.uniforms();
+    uniformsLayerMix = ShadersLayerUniform.uniforms();
     uniformsLayerMix.uTextureBackTest0.value = sceneLayer0TextureTarget.texture;
     uniformsLayerMix.uTextureBackTest1.value = sceneLayer1TextureTarget.texture;
 
+    let fls = new ShadersLayerFragment(uniformsLayerMix);
+    let vls = new ShadersLayerVertex();
     materialLayerMix = new THREE.ShaderMaterial(
       {side: THREE.DoubleSide,
       uniforms: uniformsLayerMix,
-      vertexShader: glslify('../../src/shaders/shaders.raycasting.secondPass.vert'),
-      fragmentShader: glslify('../../src/shaders/shaders.layer.frag'),
+      vertexShader: vls.compute(),
+      fragmentShader: fls.compute(),
       transparent: true
     });
 
     // add mesh in this scene with right shaders...
-    meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
+    meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
     // go the LPS space
-    meshLayerMix.applyMatrix(stack2._ijk2LPS);
+    meshLayerMix.applyMatrix(stack._ijk2LPS);
     sceneLayerMix.add(meshLayerMix);
 
     //

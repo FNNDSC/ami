@@ -91,31 +91,58 @@ export default class ParsersDicom extends ParsersVolume {
     // lot to do!
     let segmentationSegments = [];
     let segmentSequence = this._dataSet.elements.x00620002;
+    
     for(let i = 0; i< segmentSequence.items.length; i++ ){
-      let rawColor                   = String(segmentSequence.items[i].dataSet.uint16('x0062000d'));
-      let recommendedDisplayCIELab   = String(`000000${rawColor}`).slice(-6);
-      let segmentationCodeDesignator = segmentSequence.items[i].dataSet.elements.x00082218.items[0].dataSet.string('x00080102');
-      let segmentationCodeValue      = segmentSequence.items[i].dataSet.elements.x00082218.items[0].dataSet.string('x00080100');
-      let segmentationCodeMeaning    = segmentSequence.items[i].dataSet.elements.x00082218.items[0].dataSet.string('x00080104');
-      let segmentNumber              = segmentSequence.items[i].dataSet.uint16('x00620004');
-      let segmentLabel               = segmentSequence.items[i].dataSet.string('x00620005');
-      let segmentAlgorithmType       = segmentSequence.items[i].dataSet.string('x00620008');
+      let recommendedDisplayCIELab = this._recommendedDisplayCIELab(segmentSequence.items[i]);
+      let segmentationCode         = this._segmentationCode(segmentSequence.items[i]);
+      let segmentNumber            = segmentSequence.items[i].dataSet.uint16('x00620004');
+      let segmentLabel             = segmentSequence.items[i].dataSet.string('x00620005');
+      let segmentAlgorithmType     = segmentSequence.items[i].dataSet.string('x00620008');
 
       segmentationSegments.push({
         recommendedDisplayCIELab,
-        segmentationCodeDesignator,
-        segmentationCodeValue,
-        segmentationCodeMeaning,
+        segmentationCodeDesignator: segmentationCode['segmentationCodeDesignator'],
+        segmentationCodeValue: segmentationCode['segmentationCodeValue'],
+        segmentationCodeMeaning: segmentationCode['segmentationCodeMeaning'],
         segmentNumber,
         segmentLabel,
         segmentAlgorithmType
       });
     }
 
-    console.log( segmentationSegments );
-
     return segmentationSegments;
 
+  }
+
+  _segmentationCode( segment ){
+
+    let segmentationCodeDesignator = 'unknown';
+    let segmentationCodeValue      = 'unknown';
+    let segmentationCodeMeaning    = 'unknown';
+    let element = segment.dataSet.elements.x00082218;
+
+    if( element && element.items && element.items.length > 0){
+
+      segmentationCodeDesignator = element.items[0].dataSet.string('x00080102');
+      segmentationCodeValue      = element.items[0].dataSet.string('x00080100');
+      segmentationCodeMeaning    = element.items[0].dataSet.string('x00080104');
+
+    }
+
+    return {
+      segmentationCodeDesignator,
+      segmentationCodeValue,
+      segmentationCodeMeaning
+    };
+    
+
+  }
+
+  _recommendedDisplayCIELab( segment ){
+      let rawColor                 = String(segment.dataSet.uint16('x0062000d'));
+      let recommendedDisplayCIELab = String(`000000${rawColor}`).slice(-6);
+
+      return recommendedDisplayCIELab;
   }
 
   sopInstanceUID(frameIndex = 0) {
@@ -222,7 +249,15 @@ export default class ParsersDicom extends ParsersVolume {
 
   referencedSegmentNumber(frameIndex = 0) {
 
-    let referencedSegmentNumber = this._findInGroupSequence('x52009230', 'x0062000a', frameIndex).uint16('x0062000b');
+    let referencedSegmentNumber = -1;
+    let referencedSegmentNumberElement = this._findInGroupSequence('x52009230', 'x0062000a', frameIndex);
+
+    if( referencedSegmentNumberElement !== null){
+
+      referencedSegmentNumber = referencedSegmentNumberElement.uint16('x0062000b');
+
+    }
+
     return referencedSegmentNumber;
 
   }
