@@ -5,12 +5,16 @@ var CamerasOrthographic   = AMI.default.Cameras.Orthographic;
 var ControlsOrthographic  = AMI.default.Controls.TrackballOrtho;
 var HelpersLut            = AMI.default.Helpers.Lut;
 var HelpersStack          = AMI.default.Helpers.Stack;
-var ShadersDataUniforms   = AMI.default.Shaders.DataUniforms;
+
+// Shaders
+// Data
+var ShadersDataUniforms   = AMI.default.Shaders.DataUniform;
 var ShadersDataFragment   = AMI.default.Shaders.DataFragment;
 var ShadersDataVertex     = AMI.default.Shaders.DataVertex;
-var ShadersLayerUniforms  = AMI.default.Shaders.LayerUniforms;
+// Layer
+var ShadersLayerUniforms  = AMI.default.Shaders.LayerUniform;
 var ShadersLayerFragment  = AMI.default.Shaders.LayerFragment;
-var ShadersCSPVertex      = AMI.default.Shaders.RaycastingSecondpassVertex;
+var ShadersLayerVertex    = AMI.default.Shaders.LayerVertex;
 
 // standard global variables
 var controls, renderer, camera, statsyay, threeD;
@@ -26,6 +30,7 @@ var sceneLayerMix, meshLayerMix, uniformsLayerMix, materialLayerMix, lutLayerMix
 var layer1 = {
   interpolation: 1
 };
+
 
 var layerMix = {
   opacity1: 1.0,
@@ -43,7 +48,7 @@ function init() {
     // render first layer offscreen
     renderer.render(sceneLayer0, camera, sceneLayer0TextureTarget, true);
     // render second layer offscreen
-    renderer.render(sceneLayer1, camera, sceneLayer1TextureTarget, true);
+    renderer.render(sceneLayer0, camera, sceneLayer1TextureTarget, true);
     // mix the layers and render it ON screen!
     renderer.render(sceneLayerMix, camera);
     statsyay.update();
@@ -225,6 +230,11 @@ function buildGUI(stackHelper) {
   var interpolationLayer1 = layer1Folder.add(layer1, 'interpolation', 0, 1 ).step( 1 ).listen();
   interpolationLayer1.onChange(function(value){
     uniformsLayer1.uInterpolation.value = value;
+
+    // re-compute shaders
+    let fs = new ShadersDataFragment(uniformsLayer1);
+    materialLayer1.fragmentShader = fs.compute();
+    materialLayer1.needsUpdate = true;
   });
 
   layer1Folder.open();
@@ -348,11 +358,14 @@ function handleSeries() {
                                               stack2.dimensionsIJK.y,
                                               stack2.dimensionsIJK.z];
 
+  // generate shaders on-demand!
+  var fs = new ShadersDataFragment(uniformsLayer1);
+  var vs = new ShadersDataVertex();
   materialLayer1 = new THREE.ShaderMaterial(
     {side: THREE.DoubleSide,
     uniforms: uniformsLayer1,
-    vertexShader: ShadersDataVertex,
-    fragmentShader: ShadersDataFragment
+    vertexShader: vs.compute(),
+    fragmentShader: fs.compute()
   });
 
   // add mesh in this scene with right shaders...
@@ -366,11 +379,13 @@ function handleSeries() {
   uniformsLayerMix.uTextureBackTest0.value = sceneLayer0TextureTarget.texture;
   uniformsLayerMix.uTextureBackTest1.value = sceneLayer1TextureTarget.texture;
 
+  let fls = new ShadersLayerFragment(uniformsLayerMix);
+  let vls = new ShadersLayerVertex();
   materialLayerMix = new THREE.ShaderMaterial(
     {side: THREE.DoubleSide,
     uniforms: uniformsLayerMix,
-    vertexShader: ShadersCSPVertex,
-    fragmentShader: ShadersLayerFragment,
+    vertexShader: vls.compute(),
+    fragmentShader: fls.compute(),
     transparent: true
   });
 

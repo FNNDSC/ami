@@ -7,11 +7,14 @@ if(process.argv[2] && process.argv[3]){
   const file = (mode === 'lessons') ? 'demo.js' : `${target}.js`;
   const directory = `${mode}/${target}`;
 
-  exec(`npm run dist --ami.js:mode=${mode} --ami.js:target=${directory}/${file} --ami.js:open=${directory}/`);
+  let buildAmi = '';
   // also watch AMI if lessons mode
   if(mode === 'lessons'){
-    exec('npm run dist:watchAmi');
+    buildAmi = 'npm run dist:watchAmi';
   }
+
+  exec(`npm run dist --ami.js:mode=${mode} --ami.js:target=${directory}/${file} --ami.js:open=${directory}/ & ${buildAmi}`);
+
 }
 else{
 

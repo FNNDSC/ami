@@ -10,9 +10,9 @@ import LoadersVolume        from '../../src/loaders/loaders.volume';
 import ShadersLayerUniform  from '../../src/shaders/shaders.layer.uniform';
 import ShadersLayerVertex   from '../../src/shaders/shaders.layer.vertex';
 import ShadersLayerFragment from '../../src/shaders/shaders.layer.fragment';
-import ShadersUniform       from '../../src/shaders/shaders.uniform';
-import ShadersVertex        from '../../src/shaders/shaders.vertex';
-import ShadersFragment      from '../../src/shaders/shaders.fragment';
+import ShadersDataUniform   from '../../src/shaders/shaders.uniform';
+import ShadersDataVertex    from '../../src/shaders/shaders.vertex';
+import ShadersDataFragment  from '../../src/shaders/shaders.fragment';
 
 
 // standard global letiables
@@ -321,7 +321,7 @@ window.onload = function() {
     interpolationLayer1.onChange(function(value){
       uniformsLayer1.uInterpolation.value = value;
       // re-compute shaders
-      let fs = new ShadersFragment(uniformsLayer1);
+      let fs = new ShadersDataFragment(uniformsLayer1);
       materialLayer1.fragmentShader = fs.compute();
       materialLayer1.needsUpdate = true;
     });
@@ -434,7 +434,7 @@ window.onload = function() {
     }
 
     // create material && mesh then add it to sceneLayer1
-    uniformsLayer1 = ShadersUniform.uniforms();
+    uniformsLayer1 = ShadersDataUniform.uniforms();
     uniformsLayer1.uTextureSize.value = stack2.textureSize;
     uniformsLayer1.uTextureContainer.value = textures2;
     uniformsLayer1.uWorldToData.value = stack2.lps2IJK;
@@ -448,8 +448,8 @@ window.onload = function() {
                                                 stack2.dimensionsIJK.z];
 
     // generate shaders on-demand!
-    let fs = new ShadersFragment(uniformsLayer1);
-    let vs = new ShadersVertex();
+    let fs = new ShadersDataFragment(uniformsLayer1);
+    let vs = new ShadersDataVertex();
     materialLayer1 = new THREE.ShaderMaterial(
       {side: THREE.DoubleSide,
       uniforms: uniformsLayer1,

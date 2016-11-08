@@ -17,7 +17,7 @@
     "threeVersion": "r81",
     "amiCDN": "https://cdn.rawgit.com/fnndsc/ami/dev/build/ami.min.js",
     "gaKey": "UA-39303022-3",
-    "transforms" : "-t [babelify --presets [ es2015 ] ] -t glslify"
+    "transforms" : "-t [babelify --presets [ es2015 ] ]"
   },
   "dependencies": {
     "CommonGL": "NicolasRannou/CommonGL#master",
@@ -31,11 +31,11 @@
     },
   "scripts": {
     "dist:prepare": "node ./scripts/$npm_package_config_mode.js --dist",
-    "dist:watchAmi": "watchify -d -v src/ami $npm_package_config_transforms -o dist/ami.js",
-    "dist:watch": "watchify $npm_package_config_target -d -v $npm_package_config_transforms -o dist/$npm_package_config_target",
-    "dist": "npm run clean && npm run dist:prepare --ami.js:mode=$npm_package_config_mode && (live-server dist --open=$npm_package_config_open & npm run dist:watch --ami.js:target=$npm_package_config_target)",
-    "example": "node ./scripts/router.js examples ",
-    "lesson": "node ./scripts/router.js lessons ",
+    "dist:watchAmi": "watchify -d src/ami $npm_package_config_transforms --standalone AMI -o dist/build/ami.js -v",
+    "dist:watch": "watchify $npm_package_config_target -d $npm_package_config_transforms -o dist/$npm_package_config_target -v",
+    "dist": "npm run dist:prepare --ami.js:mode=$npm_package_config_mode && (live-server dist --open=$npm_package_config_open & npm run dist:watch --ami.js:target=$npm_package_config_target)",
+    "example": "npm run clean && node ./scripts/router.js examples ",
+    "lesson": "npm run clean && mkdir dist/build && touch dist/build/ami.js && node ./scripts/router.js lessons ",
     "demo": "node ./scripts/lessons.js --demo",
     "lint": "eslint **/*.js --quiet",
     "build:examples": "npm run dist:prepare --ami.js:mode=examples && find examples -name '*.js' -print0 | xargs -0 -n1 -I{} bash -c \"echo Building {}; browserify {} -d -v $npm_package_config_transforms > dist/{} \"",
