@@ -10,9 +10,9 @@ import LoadersVolume        from '../../src/loaders/loaders.volume';
 import ShadersLayerUniform  from '../../src/shaders/shaders.layer.uniform';
 import ShadersLayerVertex   from '../../src/shaders/shaders.layer.vertex';
 import ShadersLayerFragment from '../../src/shaders/shaders.layer.fragment';
-import ShadersDataUniform   from '../../src/shaders/shaders.uniform';
-import ShadersDataVertex    from '../../src/shaders/shaders.vertex';
-import ShadersDataFragment  from '../../src/shaders/shaders.fragment';
+import ShadersDataUniform   from '../../src/shaders/shaders.data.uniform';
+import ShadersDataVertex    from '../../src/shaders/shaders.data.vertex';
+import ShadersDataFragment  from '../../src/shaders/shaders.data.fragment';
 
 
 // standard global letiables
@@ -249,18 +249,22 @@ window.onload = function() {
       // update layer1 geometry...
       if (meshLayer1) {
 
-        sceneLayer1.remove(meshLayer1);
-        meshLayer1.material.dispose();
-        meshLayer1.material = null;
         meshLayer1.geometry.dispose();
-        meshLayer1.geometry = null;
+        meshLayer1.geometry = stackHelper.slice.geometry;
+        meshLayer1.geometry.verticesNeedUpdate = true;
 
-        // add mesh in this scene with right shaders...
-        meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
-        // go the LPS space
-        meshLayer1.applyMatrix(stackHelper.stack._ijk2LPS);
+        // sceneLayer1.remove(meshLayer1);
+        // meshLayer1.material.dispose();
+        // meshLayer1.material = null;
+        // meshLayer1.geometry.dispose();
+        // meshLayer1.geometry = null;
 
-        sceneLayer1.add(meshLayer1);
+        // // add mesh in this scene with right shaders...
+        // meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
+        // // go the LPS space
+        // meshLayer1.applyMatrix(stackHelper.stack._ijk2LPS);
+
+        // sceneLayer1.add(meshLayer1);
       }
     }
 
@@ -387,11 +391,14 @@ window.onload = function() {
     //
     // first stack of first series
     let mergedSeries = seriesContainer[0].mergeSeries(seriesContainer);
-    let stack  = mergedSeries[1].stack[0];
-    let stack2 = mergedSeries[0].stack[0];
-    if(stack.windowWidth < 2){
+    let stack  = mergedSeries[0].stack[0];
+    let stack2 = mergedSeries[1].stack[0];
+
+    if(stack.modality === 'SEG'){
+
       stack  = mergedSeries[0].stack[0];
       stack2 = mergedSeries[1].stack[0];
+
     }
 
     let stackHelper = new HelpersStack(stack);

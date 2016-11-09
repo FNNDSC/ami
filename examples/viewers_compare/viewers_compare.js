@@ -9,9 +9,9 @@ import LoadersVolume        from '../../src/loaders/loaders.volume';
 import ShadersLayerUniform  from '../../src/shaders/shaders.layer.uniform';
 import ShadersLayerVertex   from '../../src/shaders/shaders.layer.vertex';
 import ShadersLayerFragment from '../../src/shaders/shaders.layer.fragment';
-import ShadersUniform       from '../../src/shaders/shaders.uniform';
-import ShadersVertex        from '../../src/shaders/shaders.vertex';
-import ShadersFragment      from '../../src/shaders/shaders.fragment';
+import ShadersUniform       from '../../src/shaders/shaders.data.uniform';
+import ShadersVertex        from '../../src/shaders/shaders.data.vertex';
+import ShadersFragment      from '../../src/shaders/shaders.data.fragment';
 
 // standard global letiables
 let controls, renderer, camera, statsyay, threeD;
@@ -143,6 +143,16 @@ window.onload = function() {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/' + v;
   });
 
+  let labelmap = [
+    '000000.dcm'
+  ];
+
+//   let labelmapFullPath = labelmap.map(function(v) {
+//     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/andrei_abdomen/segmentation/' + v;
+//   });
+
+//  files = files.concat(labelmapFullPath);
+
   //  let files = dataFullPath.concat(labelmapFullPath);
 
   // load sequence for each file
@@ -174,18 +184,24 @@ window.onload = function() {
       // update layer1 geometry...
       if (meshLayer1) {
 
-        sceneLayer1.remove(meshLayer1);
-        meshLayer1.material.dispose();
-        meshLayer1.material = null;
         meshLayer1.geometry.dispose();
-        meshLayer1.geometry = null;
+        meshLayer1.geometry = stackHelper.slice.geometry;
+        meshLayer1.geometry.verticesNeedUpdate = true;
 
         // add mesh in this scene with right shaders...
-        meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
-        // go the LPS space
-        meshLayer1.applyMatrix(stackHelper.stack._ijk2LPS);
+        //let meshLayer11 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
 
-        sceneLayer1.add(meshLayer1);
+        //sceneLayer1.remove(meshLayer1);
+        //meshLayer1.material.dispose();
+        //meshLayer1.material = null;
+        //meshLayer1.geometry.dispose();
+        //meshLayer1.geometry = null;
+
+
+        // go the LPS space
+        //meshLayer1.applyMatrix(stackHelper.stack._ijk2LPS);
+
+        //sceneLayer1.add(meshLayer1);
       }
 
     }
@@ -197,9 +213,9 @@ window.onload = function() {
 
         sceneLayerMix.remove(meshLayerMix);
         meshLayerMix.material.dispose();
-        meshLayerMix.material = null;
+        // meshLayerMix.material = null;
         meshLayerMix.geometry.dispose();
-        meshLayerMix.geometry = null;
+        // meshLayerMix.geometry = null;
 
         // add mesh in this scene with right shaders...
         meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
@@ -338,15 +354,16 @@ window.onload = function() {
     //
     // first stack of first series
     let mergedSeries = seriesContainer[0].mergeSeries(seriesContainer);
+    let stack = null;
     let stack2 = null;
-    if (mergedSeries[0].seriesInstanceUID === 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/patient1/7001_t1_average_BRAINSABC.nii.gz') {
+    if (mergedSeries[0].seriesInstanceUID !== 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/patient1/7001_t1_average_BRAINSABC.nii.gz') {
       stack  = mergedSeries[1].stack[0];
-      stack2 = mergedSeries[0]._stack[0];
+      stack2 = mergedSeries[0].stack[0];
     } else {
       stack  = mergedSeries[0].stack[0];
-      stack2 = mergedSeries[1]._stack[0];
+      stack2 = mergedSeries[1].stack[0];
     }
-    stack  = mergedSeries[1].stack[0];
+    //stack  = mergedSeries[1].stack[0];
     let stackHelper = new HelpersStack(stack);
     stackHelper.bbox.visible = false;
     stackHelper.border.visible = false;
