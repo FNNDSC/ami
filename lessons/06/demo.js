@@ -1,23 +1,21 @@
-/* globals Stats, dat*/
+/* globals Stats, dat, AMI*/
 
-import ControlsTrackball from '../../src/controls/controls.trackball';
-import HelpersLut        from '../../src/helpers/helpers.lut';
-import HelpersVR         from '../../src/helpers/helpers.volumerendering';
-import LoadersVolume     from '../../src/loaders/loaders.volume';
+var LoadersVolume         = AMI.default.Loaders.Volume;
+var ControlsTrackball     = AMI.default.Controls.Trackball;
+var HelpersLut            = AMI.default.Helpers.Lut;
+var HelpersVR             = AMI.default.Helpers.VolumeRendering;
 
 // standard global letiables
-let controls, threeD, renderer, stats, camera, scene;
-let vrHelper;
-let lut;
-let ready = false;
+var controls, threeD, renderer, stats, camera, scene;
+var vrHelper;
+var lut;
+var ready = false;
 
-let myStack = {
+var myStack = {
   lut: 'random',
   opacity: 'random',
   steps: 256,
   alphaCorrection: 0.5,
-  frequence: 0,
-  amplitude: 0,
   interpolation: 1
 };
 
@@ -85,20 +83,6 @@ function buildGUI() {
       }
     });
 
-  let frequenceUpdate = stackFolder.add(myStack, 'frequence', 0, 1).step(0.01);
-  frequenceUpdate.onChange(function(value) {
-  if (vrHelper.uniforms) {
-    vrHelper.uniforms.uFrequence.value = value;
-  }
-  });
-
-  let amplitudeUpdate = stackFolder.add(myStack, 'amplitude', 0, 0.5).step(0.01);
-  amplitudeUpdate.onChange(function(value) {
-  if (vrHelper.uniforms) {
-    vrHelper.uniforms.uAmplitude.value = value;
-  }
-  });
-
   let interpolation = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
 
   stackFolder.open();
@@ -135,11 +119,14 @@ function init() {
   stats = new Stats();
   threeD.appendChild(stats.domElement);
 
+  // scene
+  scene = new THREE.Scene();
+
   // camera
   camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 0.1, 100000);
-  camera.position.x = 166;
-  camera.position.y = -471;
-  camera.position.z = 153;
+  camera.position.x = 150;
+  camera.position.y = 400;
+  camera.position.z = -350;
   camera.up.set(-0.42, 0.86, 0.26);
 
   // controls
@@ -158,51 +145,35 @@ function init() {
   animate();
 }
 
-window.onload = function() {
+// init threeJS...
+init();
 
-  // init threeJS
-  init();
+var files = ['https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz'];
 
-  let files = ['https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz'];
+var loader = new LoadersVolume(threeD);
+var seriesContainer = [];
+var loadSequence = [];
+files.forEach((url) => {
+loadSequence.push(
+    Promise.resolve()
+    // fetch the file
+    .then(() => loader.fetch(url))
+    .then((data) => loader.parse(data))
+    .then((series) => {
+    seriesContainer.push(series);
+    })
+    .catch(function(error) {
+    window.console.log('oops... something went wrong...');
+    window.console.log(error);
+    })
+  );
+});
 
-  // files = ['http://127.0.0.1:8080/brainc.nii']
+// load sequence for all files
+Promise
+.all(loadSequence)
+.then(() => {
 
-  //   let data = [
-  //  'scan-00109_rec-01a.nii_.gz'
-  //   // '7002_t1_average_BRAINSABC.nii.gz'
-  // ];
-
-  // let files = data.map(function(v) {
-  //   return '../../data/nii/' + v;
-  // });
-
-  // load sequence for each file
-  // instantiate the loader
-  // it loads and parses the dicom image
-  // hookup a progress bar....
-  let loader = new LoadersVolume(threeD);
-  let seriesContainer = [];
-  let loadSequence = [];
-  files.forEach((url) => {
-    loadSequence.push(
-      Promise.resolve()
-      // fetch the file
-      .then(() => loader.fetch(url))
-      .then((data) => loader.parse(data))
-      .then((series) => {
-        seriesContainer.push(series);
-      })
-      .catch(function(error) {
-        window.console.log('oops... something went wrong...');
-        window.console.log(error);
-      })
-    );
-  });
-
-  // load sequence for all files
-  Promise
-  .all(loadSequence)
-  .then(() => {
     loader.free();
     loader = null;
 
@@ -211,11 +182,12 @@ window.onload = function() {
     let stack = series.stack[0];
 
     vrHelper = new HelpersVR(stack);
+    console.log( vrHelper );
     // scene
     scene.add(vrHelper);
 
     // CREATE LUT
-    lut = new HelpersLut('my-lut-canvases');
+    lut = new HelpersLut('my-tf');
     lut.luts = HelpersLut.presetLuts();
     lut.lutsO = HelpersLut.presetLutsO();
     // update related uniforms
@@ -231,23 +203,6 @@ window.onload = function() {
     // create GUI
     buildGUI();
 
-    // screenshot experiment
-    let screenshotElt = document.getElementById('screenshot');
-    screenshotElt.addEventListener('click', function() {
-      controls.update();
-
-      if (ready) {
-        renderer.render(scene, camera);
-      }
-
-      let screenshot = renderer.domElement.toDataURL();
-      screenshotElt.download = 'AMI-' + Date.now() + '.png';
-      screenshotElt.href = screenshot;
-    });
-
-    // good to go
     ready = true;
-  })
-  .catch((error) => window.console.log(error));
 
-};
+});
