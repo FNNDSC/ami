@@ -48,7 +48,7 @@ function init() {
     // render first layer offscreen
     renderer.render(sceneLayer0, camera, sceneLayer0TextureTarget, true);
     // render second layer offscreen
-    renderer.render(sceneLayer0, camera, sceneLayer1TextureTarget, true);
+    renderer.render(sceneLayer1, camera, sceneLayer1TextureTarget, true);
     // mix the layers and render it ON screen!
     renderer.render(sceneLayerMix, camera);
     statsyay.update();
@@ -303,11 +303,14 @@ function handleSeries() {
   //
   // first stack of first series
   var mergedSeries = seriesContainer[0].mergeSeries(seriesContainer);
-  var stack  = mergedSeries[1].stack[0];
-  var stack2 = mergedSeries[0].stack[0];
-  if(stack.windowWidth < 2){
+  var stack  = mergedSeries[0].stack[0];
+  var stack2 = mergedSeries[1].stack[0];
+
+  if(stack.modality === 'SEG'){
+
     stack  = mergedSeries[0].stack[0];
     stack2 = mergedSeries[1].stack[0];
+
   }
 
   var stackHelper = new HelpersStack(stack);
@@ -376,7 +379,7 @@ function handleSeries() {
   // add mesh in this scene with right shaders...
   meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
   // go the LPS space
-  meshLayer1.applyMatrix(stack2._ijk2LPS);
+  meshLayer1.applyMatrix(stack._ijk2LPS);
   sceneLayer1.add(meshLayer1);
 
   // Create the Mix layer
@@ -397,7 +400,7 @@ function handleSeries() {
   // add mesh in this scene with right shaders...
   meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
   // go the LPS space
-  meshLayerMix.applyMatrix(stack2._ijk2LPS);
+  meshLayerMix.applyMatrix(stack._ijk2LPS);
   sceneLayerMix.add(meshLayerMix);
 
   //
