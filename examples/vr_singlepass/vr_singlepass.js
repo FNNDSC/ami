@@ -85,19 +85,19 @@ function buildGUI() {
       }
     });
 
-  let frequenceUpdate = stackFolder.add(myStack, 'frequence', 0, 1).step(0.01);
-  frequenceUpdate.onChange(function(value) {
-  if (vrHelper.uniforms) {
-    vrHelper.uniforms.uFrequence.value = value;
-  }
-  });
+  // let frequenceUpdate = stackFolder.add(myStack, 'frequence', 0, 1).step(0.01);
+  // frequenceUpdate.onChange(function(value) {
+  // if (vrHelper.uniforms) {
+  //   vrHelper.uniforms.uFrequence.value = value;
+  // }
+  // });
 
-  let amplitudeUpdate = stackFolder.add(myStack, 'amplitude', 0, 0.5).step(0.01);
-  amplitudeUpdate.onChange(function(value) {
-  if (vrHelper.uniforms) {
-    vrHelper.uniforms.uAmplitude.value = value;
-  }
-  });
+  // let amplitudeUpdate = stackFolder.add(myStack, 'amplitude', 0, 0.5).step(0.01);
+  // amplitudeUpdate.onChange(function(value) {
+  // if (vrHelper.uniforms) {
+  //   vrHelper.uniforms.uAmplitude.value = value;
+  // }
+  // });
 
   let interpolation = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
 
@@ -130,6 +130,9 @@ function init() {
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
   threeD.appendChild(renderer.domElement);
+
+  // scene
+  scene = new THREE.Scene();
 
   // stats
   stats = new Stats();

@@ -182,7 +182,6 @@ Promise
     let stack = series.stack[0];
 
     vrHelper = new HelpersVR(stack);
-    console.log( vrHelper );
     // scene
     scene.add(vrHelper);
 
