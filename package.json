@@ -1,8 +1,8 @@
 {
   "name": "ami.js",
   "version": "v0.0.9-dev",
-  "main": "src/ami.js",
-  "keywords": ["ami", "ami.js","three.js", "webgl", "dicom", "nifti", "awesome", "medical", "imaging", "xtk", "nrrd", "vtk", "stl", "trk"],
+  "main": "src/ami.min.js",
+  "keywords": ["ami", "ami.js","three.js", "webgl", "dicom", "nifti","awesome", "medical", "imaging", "xtk", "nrrd", "vtk", "stl", "trk", "labelmap", "mesh"],
   "author": {
     "name" : "Nicolas Rannou",
     "email" : "nicolas@eunate.ch",
@@ -15,7 +15,7 @@
   },
   "config" : { 
     "threeVersion": "r81",
-    "amiCDN": "https://cdn.rawgit.com/fnndsc/ami/dev/build/ami.min.js",
+    "amiCDN": "https://cdn.rawgit.com/fnndsc/ami/master/build/ami.min.js",
     "gaKey": "UA-39303022-3",
     "transforms" : "-t [babelify --presets [ es2015 ] ]"
   },

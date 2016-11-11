@@ -10,11 +10,10 @@ let controls, threeD, renderer, stats, camera, scene;
 let vrHelper;
 let lut;
 let ready = false;
-let interpolationState;
 
 let myStack = {
-  lut: 'walking_dead',
-  opacity: 'linear',
+  lut: 'random',
+  opacity: 'random',
   steps: 256,
   alphaCorrection: 0.5,
   frequence: 0,
@@ -25,8 +24,6 @@ let myStack = {
 function onMouseDown() {
   if (vrHelper &&  vrHelper.uniforms) {
     vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
-    // save interpolation state
-    interpolationState = myStack.interpolation;
     vrHelper.interpolation = 0;
   }
 }
@@ -34,7 +31,7 @@ function onMouseDown() {
 function onMouseUp() {
   if (vrHelper && vrHelper.uniforms) {
     vrHelper.uniforms.uSteps.value = myStack.steps;
-    vrHelper.interpolation = interpolationState;
+    vrHelper.interpolation = myStack.interpolation;
   }
 }
 
@@ -185,6 +182,8 @@ window.onload = function() {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
   });
 
+  files = ['https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz'];
+
   // files = ['http://127.0.0.1:8080/brainc.nii']
 
   //   let data = [
@@ -262,7 +261,7 @@ window.onload = function() {
       }
 
       let screenshot = renderer.domElement.toDataURL();
-      screenshotElt.download = 'VJS-' + Date.now() + '.png';
+      screenshotElt.download = 'AMI-' + Date.now() + '.png';
       screenshotElt.href = screenshot;
     });
 

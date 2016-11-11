@@ -75,7 +75,7 @@ void main(void) {
       }
       else{
 
-        gl_FragColor = baseColor1;
+        gl_FragColor = mix( baseColor0, baseColor1, uOpacity1 );
 
       }
 
@@ -84,7 +84,7 @@ void main(void) {
 
     if( uType1 == 0 ){
 
-      //merge an inmage into
+      //merge an image into
       gl_FragColor = mix( baseColor0, baseColor1, uOpacity1 );
 
     }
