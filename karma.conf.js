@@ -1,4 +1,4 @@
-const packageJSON = require('package.json');
+const packageJSON = require('./package.json');
 
 'use strict';
 
