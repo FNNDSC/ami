@@ -1,8 +1,8 @@
 {
   "name": "ami.js",
-  "version": "v0.0.9",
-  "main": "src/ami.min.js",
-  "keywords": ["ami", "ami.js","three.js", "webgl", "dicom", "nifti","awesome", "medical", "imaging", "xtk", "nrrd", "vtk", "stl", "trk", "labelmap", "mesh"],
+  "version": "v0.0.10",
+  "main": "src/ami.js",
+  "keywords": ["ami", "ami.js","three.js", "webgl", "dicom", "nifti", "awesome", "medical", "imaging", "xtk", "nrrd", "vtk", "stl", "trk"],
   "author": {
     "name" : "Nicolas Rannou",
     "email" : "nicolas@eunate.ch",
