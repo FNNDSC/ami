@@ -1,35 +1,49 @@
-----------
+<p align="center">
+  <img src="https://cloud.githubusercontent.com/assets/214063/19763517/a83873fc-9c3e-11e6-8390-229d7749246e.png" width="60%">
+</p>
 
-**AMI Alpha** is now available for developer preview.</br>
-Developper preview means that the API might change but we are confident you can already build cool apps with AMI.</br>
+<p align="center">
+    <a href="https://travis-ci.org/FNNDSC/ami">
+        <img src="https://travis-ci.org/FNNDSC/ami.svg"
+             alt="Build Status">
+    </a>
+    <a href="https://codeclimate.com/github/FNNDSC/ami">
+        <img src="https://codeclimate.com/github/FNNDSC/ami/badges/gpa.svg"
+             alt="Code Climate">
+    </a>
+    <a href="https://www.npmjs.com/package/ami.js">
+        <img src="https://img.shields.io/npm/v/ami.js.svg"
+             alt="NPM Version">
+    </a>
+    <a href="https://www.npmjs.com/package/ami.js">
+        <img src="https://img.shields.io/npm/dm/ami.js.svg"
+             alt="NPM Downloads per Month">
+    </a>
+    <a href="http://slack.babymri.org">
+        <img src="https://img.shields.io/badge/slack-join-blue.svg"
+             alt="Slack">
+    </a>
+</p>
+
+----------
+```diff
+**AMI Alpha** is now available for developer preview.
 Please submit pull request, open issues or contact us for any question, feature request, etc.
 
+- <Important Note>
+-  Developer preview means that the API might change but you can already build cool apps with AMI.
+```
 ----------
-
-[![Build Status](https://travis-ci.org/FNNDSC/ami.svg)](https://travis-ci.org/FNNDSC/ami)
-[![Code Climate](https://codeclimate.com/github/FNNDSC/ami/badges/gpa.svg)](https://codeclimate.com/github/FNNDSC/ami)
-[![Slack](https://img.shields.io/badge/slack-join-blue.svg)](http://slack.babymri.org)
-[![NPM Version](https://img.shields.io/npm/v/ami.js.svg)](https://www.npmjs.com/package/ami.js)
-[![NPM Downloads per Month](https://img.shields.io/npm/dm/ami.js.svg)](https://www.npmjs.com/package/ami.js)
-
-
-# <img align="left" src="https://cloud.githubusercontent.com/assets/214063/14279153/f74bc160-fb2b-11e5-9722-94501b191bc1.png" width="15%"> AMI JS ToolKit (Alpha - 0.0.*)
-> A* Medical Imaging (AMI) JS ToolKit for THREEJS
 
 ### Content
 
-1. [Lessons](#lessons)
-2. [Sandbox](#sandbox)
+1. [Hello AMI](#hello-ami)
 2. [Features](#features)
-3. [Usage](#usage)
-4. [Pre-requisites](#pre-requisites)
-5. [Use with NPM](#npm)
-6. [Use compiled version](#compiled)
-7. [API Documentation](https://fnndsc.github.io/ami/doc)
-8. [Developer corner](https://fnndsc.github.io/ami/doc)
-9. [Credits](#credits)
+3. [Usage](#npm)
+4. [Developer corner](#developer-corner)
+5. [Credits](#credits)
 
-## Lessons
+## Hello AMI
 <table>
 <tr>
   <!-- Lesson 00 -->
@@ -166,71 +180,30 @@ Please submit pull request, open issues or contact us for any question, feature 
 </tr>
 </table>
 
-## Sandbox
+### (more) Advanced demos
 
 Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced demos [there](https://fnndsc.github.io/ami)!
 
 ## Features
-:white_check_mark: READY - :large_orange_diamond: IN PROGRESS OR LIMITED SUPPORT - :x: ON ROADMAP
-#### Capabilities
-:white_check_mark: 2D Visulization
+> :white_check_mark: READY - :large_orange_diamond: IN PROGRESS OR LIMITED SUPPORT - :x: ON ROADMAP
 
-:white_check_mark: 3D Visualization
+| Capabilities       	| Volumes   	| Meshes          	| Widgets                	|
+|--------------------	|-----------	|-----------------	|------------------------	|
+| ✅ 2D Visulization  	| ✅ Dicom   	| ✅ VTK (THREEJS) 	| 🔶 Handle (2D/3D)      	|
+| ✅ 3D Visualization 	| ✅ NRRD    	| ✅ STL (THREEJS) 	| 🔶 Probe (2D/3D)       	|
+| ✅ Volume Rendering 	| 🔶 Nifti  	| 🔶 TRK          	| 🔶 Ruler (2D/3D)       	|
+| ✅ Lookup Tables    	| ❌ MGH/MGZ 	| ❌ CURV          	| 🔶 Angle (2D/3D)       	|
+| 🔶 Label Maps       	| ❌ JPEG    	| ❌ FSM           	| 🔶 Orientation (2D/3D) 	|
 
-:white_check_mark: Volume Rendering
+## Usage
 
-:white_check_mark: Lookup Tables
+### Pre-requisites
 
-:large_orange_diamond: Label Maps
-
-#### Widgets
-
-:white_check_mark: Handle (2D/3D)
-
-:white_check_mark: Probe (2D/3D)
-  
-:white_check_mark: Ruler (2D/3D)
-
-:large_orange_diamond: Angle (2D/3D)
-  
-:large_orange_diamond: Orientation (2D/3D)
-
-#### Volumes
-
-:white_check_mark: Dicom
-  
-:white_check_mark: NRRD
-
-:white_check_mark: Nifti
-  
-:large_orange_diamond: MGH/MGZ
-  
-:x: JPEG
-  
-#### Meshes
-
-:white_check_mark: VTK (THREEJS)
-  
-:white_check_mark: STL (THREEJS)
-  
-:large_orange_diamond: TRK
-  
-:large_orange_diamond: FSM
-
-:x: CURV
-
-## Pre-requisites
-
-### Modern web browser
-AMI relies on ES2015 promises to perform many task so consider using a polyfill if needed.
-
-### THREEJS
-Make sure that you are loading THREEJS your index.html **BEFORE** AMI.
+* ES2015 promises support. (consider using polyfills if needed)
+* Load THREEJS your index.html **BEFORE** AMI.
 ```
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js"></script>
 ```
-
-## Usage
 
 ### NPM
 ```
@@ -310,6 +283,8 @@ Deploy dist/ to gh-pages
 $> npm run deploy
 ```
 
+Find out more about the [API](https://fnndsc.github.io/ami/doc).
+
 # Credits
 
 AMI would not exist without them:
@@ -346,3 +321,6 @@ AMI would not exist without them:
 ##### [Pako](https://github.com/nodeca/pako)
 * GZ file decompression
 * Author(s): [nodeca](https://github.com/nodeca)
+
+##### [Clipart Panda](http://www.clipartpanda.com/)
+* [Baby blue dinosaur](http://www.clipartpanda.com/clipart_images/baby-blue-dinosaur-clip-art-37313455)
