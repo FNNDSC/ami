@@ -1,3 +1,5 @@
+const packageJSON = require('./package.json');
+
 'use strict';
 
 module.exports = function(karma) {
@@ -9,7 +11,8 @@ module.exports = function(karma) {
     // list of files / patterns to load in the browser
     files: [
       'https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js',
-      'https://threejs.org/build/three.min.js',
+      `https://cdnjs.cloudflare.com/ajax/libs/three.js/${packageJSON.config.threeVersion}/three.js`
+,
       //'src/core/*.spec.js',
       'specs/**/*.spec.js',
       {pattern: 'data/**/*.tar', included: false, watched: false, served: true}
@@ -37,7 +40,7 @@ module.exports = function(karma) {
 
     browserify: {
       debug: true,
-      transform: [ ['babelify', {'presets': ['es2015']}], 'glslify' ]
+      transform: [ ['babelify', {'presets': ['es2015']}] ]
     }
   });
 };

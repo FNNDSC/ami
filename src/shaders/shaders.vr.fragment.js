@@ -1,61 +1,66 @@
-// UNIFORMS
-uniform float     uWorldBBox[6];
-uniform int       uTextureSize;
-uniform float     uWindowCenterWidth[2];
-uniform float     uRescaleSlopeIntercept[2];
-uniform sampler2D uTextureContainer[7];
-uniform ivec3     uDataDimensions;
-uniform mat4      uWorldToData;
-uniform int       uNumberOfChannels;
-uniform int       uPixelType;
-uniform int       uBitsAllocated;
-uniform int       uLut;
-uniform sampler2D uTextureLUT;
-uniform int       uSteps;
-uniform float     uAlphaCorrection;
-uniform float     uFrequence;
-uniform float     uAmplitude;
-uniform int       uInterpolation;
-uniform int       uPackedPerPixel;
+import shadersInterpolation from './interpolation/shaders.interpolation';
+import shadersIntersectBox  from './helpers/shaders.helpers.intersectBox';
 
-// VARYING
-varying vec4 vPos;
+export default class ShadersFragment {
 
-#pragma glslify: value = require('./glsl/shaders.value.glsl')
-#pragma glslify: transformPoint = require('CommonGL/transforms/transformPoint.glsl');
-#pragma glslify: intersectBox = require('./glsl/shaders.intersectBox.glsl')
+  // pass uniforms object
+  constructor( uniforms ){
 
+    this._uniforms = uniforms;
+    this._functions = {};
+    this._main = '';
 
-/**
- * Get voxel value given IJK coordinates.
- * Also apply:
- *  - rescale slope/intercept
- *  - window center/width
- */
-void getIntensity(in vec3 dataCoordinates, out float intensity){
+  }
+
+  functions(){
+
+    if( this._main === ''){
+      // if main is empty, functions can not have been computed
+      this.main();
+
+    }
+
+    let content = '';
+    for ( let property in this._functions ) {
+    
+      content  += this._functions[property] + '\n';
+    
+    }
+    
+    return content;
+
+  }
+
+  uniforms(){
+
+    let content = '';
+    for ( let property in this._uniforms ) {
+      
+      let uniform = this._uniforms[property];
+      content += `uniform ${uniform.typeGLSL} ${property}`; 
+      
+      if( uniform && uniform.length ){
+      
+        content += `[${uniform.length}]`;
+      
+      }
+      
+      content += ';\n';
+    
+    }
+    
+    return content;
+
+  }
+
+  main(){
+  
+    // need to pre-call main to fill up the functions list
+    this._main = `
+void getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradient){
 
   vec4 dataValue = vec4(0., 0., 0., 0.);
-  int kernelSize = 2;
-  value(
-    dataCoordinates,
-    kernelSize,
-    uInterpolation,
-    uDataDimensions,
-    uTextureSize,
-    uTextureContainer[0],
-    uTextureContainer[1],
-    uTextureContainer[2],
-    uTextureContainer[3],
-    uTextureContainer[4],
-    uTextureContainer[5],
-    uTextureContainer[6],
-    uTextureContainer,     // not working on Moto X 2014
-    uBitsAllocated,
-    uNumberOfChannels,
-    uPixelType,
-    uPackedPerPixel,
-    dataValue
-  );
+  ${shadersInterpolation( this, 'dataCoordinates', 'dataValue', 'gradient' )}
 
   intensity = dataValue.r;
 
@@ -80,7 +85,7 @@ void main(void) {
   // Intersection ray/bbox
   float tNear, tFar;
   bool intersect = false;
-  intersectBox(rayOrigin, rayDirection, AABBMin, AABBMax, tNear, tFar, intersect);
+  ${shadersIntersectBox.api( this, 'rayOrigin', 'rayDirection', 'AABBMin', 'AABBMax', 'tNear', 'tFar', 'intersect' )}
   if (tNear < 0.0) tNear = 0.0;
 
   // init the ray marching
@@ -93,7 +98,7 @@ void main(void) {
     vec3 currentPosition = rayOrigin + rayDirection * tCurrent;
     // some non-linear FUN
     // some occlusion issue to be fixed
-    vec3 transformedPosition = transformPoint(currentPosition, uAmplitude, uFrequence);
+    vec3 transformedPosition = currentPosition; //transformPoint(currentPosition, uAmplitude, uFrequence);
     // world to data coordinates
     // rounding trick
     // first center of first voxel in data space is CENTERED on (0,0,0)
@@ -104,15 +109,15 @@ void main(void) {
          all(lessThan(currentVoxel, vec3(float(uDataDimensions.x), float(uDataDimensions.y), float(uDataDimensions.z))))) {
     // mapped intensity, given slope/intercept and window/level
     float intensity = 0.0;
-    getIntensity(currentVoxel, intensity);
+    vec3 gradient = vec3(0., 0., 0.);
+    getIntensity(currentVoxel, intensity, gradient);
+
     vec4 colorSample;
     float alphaSample;
     if(uLut == 1){
       vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );
       // 256 colors
-      colorSample.r = colorFromLUT.r;
-      colorSample.g = colorFromLUT.g;
-      colorSample.b = colorFromLUT.b;
+      colorSample = colorFromLUT;
       alphaSample = colorFromLUT.a;
     }
     else{
@@ -135,5 +140,30 @@ void main(void) {
   }
 
   gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);
-  return;
+}
+   `;
+
+  }
+
+  compute(){
+
+    let shaderInterpolation = '';
+    // shaderInterpolation.inline(args) //true/false
+    // shaderInterpolation.functions(args)
+    
+    return `
+// uniforms
+${this.uniforms()}
+
+// varying (should fetch it from vertex directly)
+varying vec4      vPos;
+
+// tailored functions
+${this.functions()}
+
+// main loop
+${this._main}
+      `;
+    }
+
 }

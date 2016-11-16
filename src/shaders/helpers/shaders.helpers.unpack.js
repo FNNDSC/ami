@@ -1,19 +1,190 @@
-// unpack int 8
+import ShadersBase from '../shaders.base';
+
+class Unpack extends ShadersBase {
+  
+  constructor(){
+
+    super();
+    this.name = 'unpack';
+    
+    // default properties names
+    this._packedData = 'packedData';
+    this._offset = 'offset';
+    this._unpackedData = 'unpackedData';
+
+    this._base._uniforms ={
+      uNumberOfChannels: {
+        value: 1
+      },
+      uBitsAllocated: {
+        value: 16
+      },
+      uPixelType: {
+        value: 0
+      }
+    };
+
+  }
+
+  api( baseFragment = this._base, packedData = this._packedData, offset = this._offset, unpackedData = this._unpackedData){
+
+    this._base = baseFragment;
+    return this.compute( packedData, offset, unpackedData );
+
+  }
+
+  compute( packedData, offset, unpackedData ){
+
+    this.computeDefinition();
+    this._base._functions[this._name] = this._definition;
+    return `${this._name}(${packedData}, ${offset}, ${unpackedData});`;
+
+  }
+
+  computeDefinition(){
+
+    // fun stuff
+    let content = '';
+    if( this._base._uniforms.uNumberOfChannels.value === 1){
+
+      switch( this._base._uniforms.uBitsAllocated.value ){
+
+        case 1:
+        case 8:
+          content = this.upack8();
+          break;
+
+        case 16:
+          content = this.upack16();
+          break;
+
+        case 32:
+          content = this.upack32();
+          break;
+
+        default:
+          content = this.upackDefault();
+          break;
+
+      }
+    }
+    else{
+
+      content = this.upackIdentity();
+
+    }
+
+    this._definition = `
+void ${this._name}(in vec4 packedData, in int offset, out vec4 unpackedData){
+
+${content}
+
+}  
+    `;
+
+  }
+
+  upack8(){
+
+    this._base._functions['uInt8'] = this.uInt8();
+
+    return `
+uInt8(
+  packedData.r,
+  unpackedData.x);
+    `;
+
+  }
+
+  upack16(){
+
+    this._base._functions['uInt16'] = this.uInt16();
+
+    return `
+uInt16(
+  packedData.r * float( 1 - offset) + packedData.b * float(offset),
+  packedData.g * float( 1 - offset) + packedData.a * float(offset),
+  unpackedData.x);
+    `;
+
+  }
+
+  upack32(){
+
+    if( this._base._uniforms.uPixelType.value === 0){
+
+      this._base._functions['uInt32'] = this.uInt32();
+
+      return `
+uInt32(
+  packedData.r,
+  packedData.g,
+  packedData.b,
+  packedData.a,
+  unpackedData.x);
+      `;
+
+    }
+    else{
+
+      this._base._functions['uFloat32'] = this.uFloat32();
+
+      return `
+uFloat32(
+  packedData.r,
+  packedData.g,
+  packedData.b,
+  packedData.a,
+  unpackedData.x);
+      `;
+
+    }
+
+  }
+
+  upackIdentity(){
+
+    return `
+
+unpackedData = packedData;
+
+      `;
+
+  }
+
+  uInt8(){
+
+    return `
 void uInt8(in float r, out float value){
   value = r * 256.;
 }
+    `;
 
-// unpack int 16
+  }
+
+  uInt16(){
+  
+    return `
 void uInt16(in float r, in float a, out float value){
   value = r * 256. + a * 65536.;
 }
+    `;
 
-// unpack int 32
+  }
+
+  uInt32(){
+  
+    return `
 void uInt32(in float r, in float g, in float b, in float a, out float value){
   value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;
 }
+    `;
 
-// unpack float 32
+  }
+
+  uFloat32(){
+
+    return `
 void uFloat32(in float r, in float g, in float b, in float a, out float value){
 
   // create arrays containing bits for rgba values
@@ -141,61 +312,10 @@ void uFloat32(in float r, in float g, in float b, in float a, out float value){
 
   value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);
 }
+    `;
 
-
-// entry point for the unpack function
-void unpack( in vec4 packedRGBA,
-             in int bitsAllocated,
-             in int signedNumber,
-             in int numberOfChannels,
-             in int pixelType,
-             in int offset,
-             out vec4 unpacked) {
-
-  if(numberOfChannels == 1){
-    if(bitsAllocated == 8 || bitsAllocated == 1){
-      uInt8(
-        packedRGBA.r,
-        unpacked.x);
-    }
-    else if(bitsAllocated == 16){
-      if( offset == 0 ){
-        uInt16(
-          packedRGBA.r,
-          packedRGBA.g,
-          unpacked.x);
-      }
-      else{
-        uInt16(
-          packedRGBA.b,
-          packedRGBA.a,
-          unpacked.x);
-      }
-
-    }
-    else if(bitsAllocated == 32){
-      if(pixelType == 0){
-        uInt32(
-          packedRGBA.r,
-          packedRGBA.g,
-          packedRGBA.b,
-          packedRGBA.a,
-          unpacked.x);
-      }
-      else{
-        uFloat32(
-          packedRGBA.r,
-          packedRGBA.g,
-          packedRGBA.b,
-          packedRGBA.a,
-          unpacked.x);
-      }
-
-    }
   }
-  else if(numberOfChannels == 3){
-    unpacked = packedRGBA;
-  }
+
 }
 
-#pragma glslify: export(unpack)
+export default new Unpack();

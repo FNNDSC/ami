@@ -5,10 +5,13 @@ import ControlsOrthographic from '../../src/controls/controls.trackballortho';
 import HelpersLut           from '../../src/helpers/helpers.lut';
 import HelpersStack         from '../../src/helpers/helpers.stack';
 import LoadersVolume        from '../../src/loaders/loaders.volume';
-import ShadersData          from '../../src/shaders/shaders.data';
-import ShadersLayer         from '../../src/shaders/shaders.layer';
 
-var glslify = require('glslify');
+import ShadersLayerUniform  from '../../src/shaders/shaders.layer.uniform';
+import ShadersLayerVertex   from '../../src/shaders/shaders.layer.vertex';
+import ShadersLayerFragment from '../../src/shaders/shaders.layer.fragment';
+import ShadersUniform       from '../../src/shaders/shaders.data.uniform';
+import ShadersVertex        from '../../src/shaders/shaders.data.vertex';
+import ShadersFragment      from '../../src/shaders/shaders.data.fragment';
 
 // standard global letiables
 let controls, renderer, camera, statsyay, threeD;
@@ -140,6 +143,16 @@ window.onload = function() {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/' + v;
   });
 
+  let labelmap = [
+    '000000.dcm'
+  ];
+
+//   let labelmapFullPath = labelmap.map(function(v) {
+//     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/andrei_abdomen/segmentation/' + v;
+//   });
+
+//  files = files.concat(labelmapFullPath);
+
   //  let files = dataFullPath.concat(labelmapFullPath);
 
   // load sequence for each file
@@ -171,18 +184,24 @@ window.onload = function() {
       // update layer1 geometry...
       if (meshLayer1) {
 
-        sceneLayer1.remove(meshLayer1);
-        meshLayer1.material.dispose();
-        meshLayer1.material = null;
         meshLayer1.geometry.dispose();
-        meshLayer1.geometry = null;
+        meshLayer1.geometry = stackHelper.slice.geometry;
+        meshLayer1.geometry.verticesNeedUpdate = true;
 
         // add mesh in this scene with right shaders...
-        meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
-        // go the LPS space
-        meshLayer1.applyMatrix(stackHelper.stack._ijk2LPS);
+        //let meshLayer11 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
 
-        sceneLayer1.add(meshLayer1);
+        //sceneLayer1.remove(meshLayer1);
+        //meshLayer1.material.dispose();
+        //meshLayer1.material = null;
+        //meshLayer1.geometry.dispose();
+        //meshLayer1.geometry = null;
+
+
+        // go the LPS space
+        //meshLayer1.applyMatrix(stackHelper.stack._ijk2LPS);
+
+        //sceneLayer1.add(meshLayer1);
       }
 
     }
@@ -194,9 +213,9 @@ window.onload = function() {
 
         sceneLayerMix.remove(meshLayerMix);
         meshLayerMix.material.dispose();
-        meshLayerMix.material = null;
+        // meshLayerMix.material = null;
         meshLayerMix.geometry.dispose();
-        meshLayerMix.geometry = null;
+        // meshLayerMix.geometry = null;
 
         // add mesh in this scene with right shaders...
         meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
@@ -248,7 +267,13 @@ window.onload = function() {
     let layer1Folder = gui.addFolder('Layer 1');
     let interpolationLayer1 = layer1Folder.add(layer1, 'interpolation', 0, 1 ).step( 1 ).listen();
     interpolationLayer1.onChange(function(value){
+
       uniformsLayer1.uInterpolation.value = value;
+      // re-compute shaders
+      let fs = new ShadersFragment(uniformsLayer1);
+      materialLayer1.fragmentShader = fs.compute();
+      materialLayer1.needsUpdate = true;
+    
     });
     let layer1LutUpdate = layer1Folder.add(layer1, 'lut', lutLayer1.lutsAvailable());
     layer1LutUpdate.onChange(function(value) {
@@ -329,15 +354,16 @@ window.onload = function() {
     //
     // first stack of first series
     let mergedSeries = seriesContainer[0].mergeSeries(seriesContainer);
+    let stack = null;
     let stack2 = null;
-    if (mergedSeries[0].seriesInstanceUID === 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/patient1/7001_t1_average_BRAINSABC.nii.gz') {
+    if (mergedSeries[0].seriesInstanceUID !== 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/patient1/7001_t1_average_BRAINSABC.nii.gz') {
       stack  = mergedSeries[1].stack[0];
-      stack2 = mergedSeries[0]._stack[0];
+      stack2 = mergedSeries[0].stack[0];
     } else {
       stack  = mergedSeries[0].stack[0];
-      stack2 = mergedSeries[1]._stack[0];
+      stack2 = mergedSeries[1].stack[0];
     }
-    stack  = mergedSeries[1].stack[0];
+    //stack  = mergedSeries[1].stack[0];
     let stackHelper = new HelpersStack(stack);
     stackHelper.bbox.visible = false;
     stackHelper.border.visible = false;
@@ -376,7 +402,7 @@ window.onload = function() {
 
     //
     // create material && mesh then add it to sceneLayer1
-    uniformsLayer1 = ShadersData.uniforms();
+    uniformsLayer1 = ShadersUniform.uniforms();
     uniformsLayer1.uTextureSize.value = stack2.textureSize;
     uniformsLayer1.uTextureContainer.value = textures2;
     uniformsLayer1.uWorldToData.value = stack2.lps2IJK;
@@ -389,11 +415,14 @@ window.onload = function() {
                                                 stack2.dimensionsIJK.y,
                                                 stack2.dimensionsIJK.z];
 
+    // generate shaders on-demand!
+    let fs = new ShadersFragment(uniformsLayer1);
+    let vs = new ShadersVertex();
     materialLayer1 = new THREE.ShaderMaterial(
       {side: THREE.DoubleSide,
       uniforms: uniformsLayer1,
-      vertexShader: glslify('../../src/shaders/shaders.data.vert'),
-      fragmentShader: glslify('../../src/shaders/shaders.data.frag')
+      vertexShader: vs.compute(),
+      fragmentShader: fs.compute()
     });
 
     // add mesh in this scene with right shaders...
@@ -404,17 +433,20 @@ window.onload = function() {
 
     //
     // Create the Mix layer
-    uniformsLayerMix = ShadersLayer.uniforms();
+    uniformsLayerMix = ShadersLayerUniform.uniforms();
     uniformsLayerMix.uTextureBackTest0.value = sceneLayer0TextureTarget.texture;
     uniformsLayerMix.uTextureBackTest1.value = sceneLayer1TextureTarget.texture;
     uniformsLayerMix.uTrackMouse.value = 1;
     uniformsLayerMix.uMouse.value = new THREE.Vector2(0, 0);
 
+    // generate shaders on-demand!
+    let fls = new ShadersLayerFragment(uniformsLayerMix);
+    let vls = new ShadersLayerVertex();
     materialLayerMix = new THREE.ShaderMaterial(
       {side: THREE.DoubleSide,
       uniforms: uniformsLayerMix,
-      vertexShader: glslify('../../src/shaders/shaders.raycasting.secondPass.vert'),
-      fragmentShader: glslify('../../src/shaders/shaders.layer.frag'),
+      vertexShader: vls.compute(),
+      fragmentShader: fls.compute(),
       transparent: true
     });
 

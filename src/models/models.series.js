@@ -11,16 +11,22 @@ export default class ModelsSeries extends ModelsBase{
   constructor() {
     super();
 
-    this._concatenationUID = -1;
-    this._seriesInstanceUID = -1;
-    this._seriesNumber = -1;
+    this._concatenationUID       = -1;
+    this._seriesInstanceUID      = -1;
+    this._seriesNumber           = -1;
+    this._modality               = 'Modality not set';
     this._dimensionIndexSequence = [];
     // it is used in the loader in case a dicom/nifti contains multiple frames
     // should be updated after merge or renamed
-    this._numberOfFrames = 0;
-    this._numberOfChannels = 1;
+    this._numberOfFrames         = 0;
+    this._numberOfChannels       = 1;
 
-    this._stack = [];
+    // SEGMENTATION STUFF
+    this._segmentationType       = null;
+    this._segmentationSegments   = [];
+
+    // STACK
+    this._stack                  = [];
   }
 
   /**
@@ -128,5 +134,29 @@ export default class ModelsSeries extends ModelsBase{
 
   get stack() {
     return this._stack;
+  }
+
+  set modality(modality) {
+    this._modality = modality;
+  }
+
+  get modality() {
+    return this._modality;
+  }
+
+  set segmentationType(segmentationType) {
+    this._segmentationType = segmentationType;
+  }
+
+  get segmentationType() {
+    return this._segmentationType;
+  }
+
+  set segmentationSegments(segmentationSegments) {
+    this._segmentationSegments = segmentationSegments;
+  }
+
+  get segmentationSegments() {
+    return this._segmentationSegments;
   }
 }

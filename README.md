@@ -134,17 +134,17 @@ Please submit pull request, open issues or contact us for any question, feature 
 <tr>
   <!-- Lesson 06 -->
   <td valign="middle" width="100">
-    <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run' target=_blank>-->
-    <!--  <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/02/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">-->
-    <!--  <img src="http://xtk.github.com/fiddlelogo_small2.png">-->
-    <!--</a>-->
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/06#run' target=_blank>
+      <img src="https://cloud.githubusercontent.com/assets/214063/20212355/fdf512b2-a802-11e6-884d-bfafd0a1ec7d.gif" style="width:128x, height:128px" alt="lesson00" title="Click me!">
+      <img src="http://xtk.github.com/fiddlelogo_small2.png">
+    </a>
   </td>
   <td valign="top" width="326">
-    <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run'>-->
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/06#run'>
       <b>Lesson 06: Volume Rendering</b>
-    <!--</a>-->
+    </a>
     <div>
-      Volume Rendering - coming soon.
+      Volume Rendering.
     </div>
   </td>
   
@@ -185,11 +185,11 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 
 #### Widgets
 
-:large_orange_diamond: Handle (2D/3D)
+:white_check_mark: Handle (2D/3D)
 
-:large_orange_diamond: Probe (2D/3D)
+:white_check_mark: Probe (2D/3D)
   
-:large_orange_diamond: Ruler (2D/3D)
+:white_check_mark: Ruler (2D/3D)
 
 :large_orange_diamond: Angle (2D/3D)
   
@@ -201,9 +201,9 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
   
 :white_check_mark: NRRD
 
-:large_orange_diamond: Nifti
+:white_check_mark: Nifti
   
-:x: MGH/MGZ
+:large_orange_diamond: MGH/MGZ
   
 :x: JPEG
   
@@ -215,9 +215,9 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
   
 :large_orange_diamond: TRK
   
+:large_orange_diamond: FSM
+
 :x: CURV
-  
-:x: FSM
 
 ## Pre-requisites
 
@@ -284,7 +284,7 @@ $> npm run example geometries_slice
 
 To run lessons (browserify/babelify/serve the lesson)
 ```
-$> run lesson <lesson number>
+$> npm run lesson <lesson number>
 
 # run lesson 00
 $> npm run lesson 00
@@ -330,6 +330,10 @@ AMI would not exist without them:
 ##### [NIFTI-Reader-JS](https://github.com/rii-mango/NIFTI-Reader-JS)
 * Nifti parsing relies on it.
 * Author(s): [rii-mango](https://github.com/rii-mango)
+
+##### [NRRD-JS](https://github.com/scijs/nrrd-js)
+* NRRD parsing relies on it.
+* Author(s): [jaspervdg](https://github.com/jaspervdg) 
 
 ##### [JPEGLosslessDecoderJS](https://github.com/rii-mango/JPEGLosslessDecoderJS)
 * JPEG Lossless Decoder for DICOM images

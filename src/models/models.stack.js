@@ -1,5 +1,6 @@
 /*** Imports ***/
 import CorePack    from '../../src/core/core.pack';
+import CoreUtils    from '../../src/core/core.utils';
 import ModelsBase  from '../../src/models/models.base';
 
 let binaryString = require( 'math-float32-to-binary-string' );
@@ -80,8 +81,39 @@ export default class ModelsStack extends ModelsBase{
     this._packed = false;
     this._packedPerPixel = 1;
 
+    //
+    this._modality = 'Modality not set';
+    this._frameSegment = [];
+
     // photometricInterpretation Monochrome1 VS Monochrome2
     this._invert = false;
+  }
+
+  mergeFrames(){
+    let mergedFrames = [];
+    this.computeCosines();
+    this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
+    this._frame.sort(this._sortDistanceArraySort);
+
+    mergedFrames.push(this._frame[0]);
+    let prevIndex = 0;
+    for(let i = 1; i<this._frame.length; i++){
+      if(mergedFrames[prevIndex]._dist === this._frame[i]._dist){
+
+        for(let k=0; k<mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++){
+          mergedFrames[prevIndex]._pixelData[k] += this._frame[i].pixelData[k] * this._frame[i]._referencedSegmentNumber;
+        }
+
+        mergedFrames[prevIndex].minMax = CoreUtils.minMaxPixelData(mergedFrames[prevIndex]._pixelData);
+
+      }
+      else{
+        mergedFrames.push( this._frame[i] );
+        prevIndex++;
+      }
+    }
+
+    this._frame = mergedFrames;
   }
 
   /**
@@ -94,6 +126,14 @@ export default class ModelsStack extends ModelsBase{
    * compute transformation matrices
    */
   prepare() {
+    // if segmentation, merge some frames...
+    if( this._modality === 'SEG'){
+      console.log('do some special pre-processing');
+      // store frame and do special pre-processing
+      this._frameSegment = this._frame;
+      this.mergeFrames();
+    }
+
     // we need at least 1 frame
     if (this._frame && this._frame.length > 0) {
       this._numberOfFrames = this._frame.length;
@@ -125,7 +165,7 @@ export default class ModelsStack extends ModelsBase{
     this.computeSpacing();
 
     // set extra vars if nulls
-    // happens now because if it hapen before, we would think image position/orientation
+    // happens now because if it happen before, we would think image position/orientation
     // are defined and we would use it to compute spacing.
     if (!this._frame[0].imagePosition) {
       this._frame[0].imagePosition = [0, 0, 0];
@@ -861,5 +901,13 @@ export default class ModelsStack extends ModelsBase{
 
   get invert() {
     return this._invert;
+  }
+
+  set modality(modality) {
+    this._modality = modality;
+  }
+
+  get modality() {
+    return this._modality;
   }
 }

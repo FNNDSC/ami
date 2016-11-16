@@ -80,6 +80,71 @@ export default class ParsersDicom extends ParsersVolume {
 
   }
 
+  segmentationType(){
+
+    return this._dataSet.string('x00620001');
+
+  }
+
+  segmentationSegments(){
+
+    // lot to do!
+    let segmentationSegments = [];
+    let segmentSequence = this._dataSet.elements.x00620002;
+    
+    for(let i = 0; i< segmentSequence.items.length; i++ ){
+      let recommendedDisplayCIELab = this._recommendedDisplayCIELab(segmentSequence.items[i]);
+      let segmentationCode         = this._segmentationCode(segmentSequence.items[i]);
+      let segmentNumber            = segmentSequence.items[i].dataSet.uint16('x00620004');
+      let segmentLabel             = segmentSequence.items[i].dataSet.string('x00620005');
+      let segmentAlgorithmType     = segmentSequence.items[i].dataSet.string('x00620008');
+
+      segmentationSegments.push({
+        recommendedDisplayCIELab,
+        segmentationCodeDesignator: segmentationCode['segmentationCodeDesignator'],
+        segmentationCodeValue: segmentationCode['segmentationCodeValue'],
+        segmentationCodeMeaning: segmentationCode['segmentationCodeMeaning'],
+        segmentNumber,
+        segmentLabel,
+        segmentAlgorithmType
+      });
+    }
+
+    return segmentationSegments;
+
+  }
+
+  _segmentationCode( segment ){
+
+    let segmentationCodeDesignator = 'unknown';
+    let segmentationCodeValue      = 'unknown';
+    let segmentationCodeMeaning    = 'unknown';
+    let element = segment.dataSet.elements.x00082218;
+
+    if( element && element.items && element.items.length > 0){
+
+      segmentationCodeDesignator = element.items[0].dataSet.string('x00080102');
+      segmentationCodeValue      = element.items[0].dataSet.string('x00080100');
+      segmentationCodeMeaning    = element.items[0].dataSet.string('x00080104');
+
+    }
+
+    return {
+      segmentationCodeDesignator,
+      segmentationCodeValue,
+      segmentationCodeMeaning
+    };
+    
+
+  }
+
+  _recommendedDisplayCIELab( segment ){
+      let rawColor                 = String(segment.dataSet.uint16('x0062000d'));
+      let recommendedDisplayCIELab = String(`000000${rawColor}`).slice(-6);
+
+      return recommendedDisplayCIELab;
+  }
+
   sopInstanceUID(frameIndex = 0) {
 
     // 2005140f only works for siemens
@@ -132,7 +197,6 @@ export default class ParsersDicom extends ParsersVolume {
 
     }
 
-    // make sure we return a number! (not a string!)
     return numberOfFrames;
 
   }
@@ -180,6 +244,21 @@ export default class ParsersDicom extends ParsersVolume {
     }
 
     return imageOrientation;
+
+  }
+
+  referencedSegmentNumber(frameIndex = 0) {
+
+    let referencedSegmentNumber = -1;
+    let referencedSegmentNumberElement = this._findInGroupSequence('x52009230', 'x0062000a', frameIndex);
+
+    if( referencedSegmentNumberElement !== null){
+
+      referencedSegmentNumber = referencedSegmentNumberElement.uint16('x0062000b');
+
+    }
+
+    return referencedSegmentNumber;
 
   }
 
@@ -425,6 +504,8 @@ export default class ParsersDicom extends ParsersVolume {
       inStackPositionNumber = null;
 
     }
+
+    console.log(`instack position ${inStackPositionNumber}`);
 
     return inStackPositionNumber;
 

@@ -93,7 +93,7 @@ window.onload = function() {
     stackFolder.add(stackHelper.slice, 'windowCenter', stack.minMax[0], stack.minMax[1]).step(1).listen();
     stackFolder.add(stackHelper.slice, 'intensityAuto').listen();
     stackFolder.add(stackHelper.slice, 'invert');
-    stackFolder.add(stackHelper.slice, 'interpolation', 0, 1 ).step( 1 ).listen();
+    let interpolate = stackFolder.add(stackHelper.slice, 'interpolation', 0, 1 ).step( 1 ).listen();
 
     // CREATE LUT
     lut = new HelpersLut(
@@ -216,7 +216,6 @@ window.onload = function() {
     // prepare for slice visualization
     // first stack of first series
     let stack  = seriesContainer[0].mergeSeries(seriesContainer)[0].stack[0];
-    console.log( stack );
 
     let stackHelper = new HelpersStack(stack);
     stackHelper.bbox.visible = false;

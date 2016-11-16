@@ -10,6 +10,7 @@ let controls, threeD, renderer, stats, camera, scene;
 let vrHelper;
 let lut;
 let ready = false;
+let interpolationState;
 
 let myStack = {
   lut: 'walking_dead',
@@ -17,18 +18,23 @@ let myStack = {
   steps: 256,
   alphaCorrection: 0.5,
   frequence: 0,
-  amplitude: 0
+  amplitude: 0,
+  interpolation: 1
 };
 
 function onMouseDown() {
-  if (vrHelper.uniforms) {
+  if (vrHelper &&  vrHelper.uniforms) {
     vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
+    // save interpolation state
+    interpolationState = myStack.interpolation;
+    vrHelper.interpolation = 0;
   }
 }
 
 function onMouseUp() {
-  if (vrHelper.uniforms) {
+  if (vrHelper && vrHelper.uniforms) {
     vrHelper.uniforms.uSteps.value = myStack.steps;
+    vrHelper.interpolation = interpolationState;
   }
 }
 
@@ -95,6 +101,8 @@ function buildGUI() {
     vrHelper.uniforms.uAmplitude.value = value;
   }
   });
+
+  let interpolation = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
 
   stackFolder.open();
 }
@@ -165,6 +173,17 @@ window.onload = function() {
   let files = data.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/lifewatch_echinoidea/' + v;
   });
+
+  // files = ['http://127.0.0.1:8080/brainc.nii']
+
+  //   let data = [
+  //  'scan-00109_rec-01a.nii_.gz'
+  //   // '7002_t1_average_BRAINSABC.nii.gz'
+  // ];
+
+  // let files = data.map(function(v) {
+  //   return '../../data/nii/' + v;
+  // });
 
   // load sequence for each file
   // instantiate the loader
