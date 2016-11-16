@@ -284,7 +284,7 @@ $> npm run example geometries_slice
 
 To run lessons (browserify/babelify/serve the lesson)
 ```
-$> run lesson <lesson number>
+$> npm run lesson <lesson number>
 
 # run lesson 00
 $> npm run lesson 00
