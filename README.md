@@ -134,17 +134,17 @@ Please submit pull request, open issues or contact us for any question, feature 
 <tr>
   <!-- Lesson 06 -->
   <td valign="middle" width="100">
-    <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run' target=_blank>-->
-    <!--  <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/02/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">-->
-    <!--  <img src="http://xtk.github.com/fiddlelogo_small2.png">-->
-    <!--</a>-->
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/06#run' target=_blank>
+      <img src="https://cloud.githubusercontent.com/assets/214063/20212355/fdf512b2-a802-11e6-884d-bfafd0a1ec7d.gif" style="width:128x, height:128px" alt="lesson00" title="Click me!">
+      <img src="http://xtk.github.com/fiddlelogo_small2.png">
+    </a>
   </td>
   <td valign="top" width="326">
-    <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run'>-->
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/06#run'>
       <b>Lesson 06: Volume Rendering</b>
-    <!--</a>-->
+    </a>
     <div>
-      Volume Rendering - coming soon.
+      Volume Rendering.
     </div>
   </td>
   
