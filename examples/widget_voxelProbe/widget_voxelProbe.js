@@ -1,8 +1,5 @@
 /* globals Stats, dat*/
 
-// promises polyfill from the babel team
-import 'babel-polyfill';
-
 import HelpersStack      from '../../src/helpers/helpers.stack';
 import HelpersVoxel      from '../../src/helpers/helpers.voxel';
 import LoadersVolume     from '../../src/loaders/loaders.volume';
@@ -212,7 +209,9 @@ window.onload = function() {
     loader = null;
 
     let stack = series._stack[0];
+    console.log( series._stack[0] );
     let stackHelper = new HelpersStack(stack);
+    stackHelper.slice.interpolation = 0;
 
     scene.add(stackHelper);
 

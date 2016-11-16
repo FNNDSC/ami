@@ -16,11 +16,10 @@
 //http://brainder.org/2012/09/23/the-nifti-file-format/
 
 /*** Imports ***/
-let pako = require('pako');
-let NrrdReader = require('nrrd-js');
-
 import ParsersVolume from './parsers.volume';
 
+let pako = require('pako');
+let NrrdReader = require('nrrd-js');
 /**
  * @module parsers/nifti
  */

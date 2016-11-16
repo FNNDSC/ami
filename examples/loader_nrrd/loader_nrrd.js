@@ -1,16 +1,8 @@
 /* globals Stats*/
 
-// promises polyfill from the babel team
-import 'babel-polyfill';
-
 import ControlsTrackball from '../../src/controls/controls.trackball';
 import HelpersStack      from '../../src/helpers/helpers.stack';
 import LoadersVolume     from '../../src/loaders/loaders.volume';
-
-let VJS = VJS || {};
-
-VJS.widgets = VJS.widgets || {};
-VJS.widgets.orientation = require('../../src/widgets/widgets.orientation');
 
 // standard global variables
 let controls, renderer, stats, scene, camera, stackHelper, threeD;
@@ -66,13 +58,17 @@ function init() {
   // dirLight.position.set( 200, 200, 1000 ).normalize();
   // camera.add( dirLight );
   // camera.add( dirLight.target );
-//   let particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
-// scene.add( particleLight );
+  //   let particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
+  // scene.add( particleLight );
 
-scene.add( new THREE.AmbientLight( 0x353535 ) );
-let directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-directionalLight.position.set( 200, 200, 1000 ).normalize();
-scene.add( directionalLight );
+  scene.add( new THREE.AmbientLight( 0x353535 ) );
+  let directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+  directionalLight.position.set( 200, 200, 1000 ).normalize();
+  scene.add( directionalLight );
+
+  let directionalLight2 = new THREE.DirectionalLight( 0xffffff, 1 );
+  directionalLight2.position.set( -200, -200, -1000 ).normalize();
+  scene.add( directionalLight2 );
 
   // controls
   controls = new ControlsTrackball(camera, threeD);
@@ -93,10 +89,9 @@ window.onload = function() {
   loader1.load( 'https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk', function ( geometry ) {
     geometry.computeVertexNormals();
     var material = new THREE.MeshLambertMaterial( {
+      shading: THREE.SmoothShading,
       color: 0xE91E63,
-      side: THREE.DoubleSide,
-      opacity: 0.75,
-      transparent: true } );
+      side: THREE.DoubleSide} );
     var mesh = new THREE.Mesh( geometry, material );
     var RASToLPS = new THREE.Matrix4();
     RASToLPS.set(-1, 0, 0, 0,

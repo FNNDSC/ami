@@ -1,22 +1,29 @@
 /*** Imports ***/
-import ShadersRaycasting from '../../src/shaders/shaders.raycasting';
+import ShadersUniform       from '../../src/shaders/shaders.vr.uniform';
+import ShadersVertex        from '../../src/shaders/shaders.vr.vertex';
+import ShadersFragment      from '../../src/shaders/shaders.vr.fragment';
 
-let glslify = require('glslify');
+import HelpersMaterialMixin from '../../src/helpers/helpers.material.mixin';
+
 
 /**
  * @module helpers/volumerendering
  */
 
-export default class HelpersVolumeRendering extends THREE.Object3D{
+export default class HelpersVolumeRendering extends HelpersMaterialMixin( THREE.Object3D ){
   constructor(stack){
     //
     super();
 
     this._stack = stack;
     this._textures = [];
-    this._uniforms = null;
+    this._shadersFragment = ShadersFragment;
+    this._shadersVertex = ShadersVertex;
+    this._uniforms = ShadersUniform.uniforms();
     this._material = null;
     this._geometry = null;
+
+    this._interpolation = 1; // default to trilinear interpolation
 
     this._create();
   }
@@ -41,29 +48,10 @@ export default class HelpersVolumeRendering extends THREE.Object3D{
     }
   }
 
-  _prepareTexture(){
-    this._textures = [];
-    for (let m = 0; m < this._stack._rawData.length; m++) {
-      let tex = new THREE.DataTexture(
-        this._stack.rawData[m],
-        this._stack.textureSize,
-        this._stack.textureSize,
-        this._stack.textureType,
-        THREE.UnsignedByteType,
-        THREE.UVMapping,
-        THREE.ClampToEdgeWrapping,
-        THREE.ClampToEdgeWrapping,
-        THREE.NearestFilter,
-        THREE.NearestFilter);
-      tex.needsUpdate = true;
-      tex.flipY = true;
-      this._textures.push(tex);
-    }
-  }
-
   _prepareMaterial(){
+
     // uniforms
-    this._uniforms = ShadersRaycasting.singlePassUniforms();
+    this._uniforms = ShadersUniform.uniforms();
     this._uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
     this._uniforms.uTextureSize.value = this._stack.textureSize;
     this._uniforms.uTextureContainer.value = this._textures;
@@ -71,19 +59,19 @@ export default class HelpersVolumeRendering extends THREE.Object3D{
     this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
     this._uniforms.uPixelType.value = this._stack.pixelType;
     this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
+    this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
     this._uniforms.uWindowCenterWidth.value = [this._stack.windowCenter, this._stack.windowWidth * 0.8];
     this._uniforms.uRescaleSlopeIntercept.value = [this._stack.rescaleSlope, this._stack.rescaleIntercept];
     this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x,
                                                 this._stack.dimensionsIJK.y,
                                                 this._stack.dimensionsIJK.z];
-    // material
-    this._material = new THREE.ShaderMaterial({
-      uniforms: this._uniforms,
-      vertexShader: glslify('../../src/shaders/shaders.raycasting.singlePass.vert'),
-      fragmentShader: glslify('../../src/shaders/shaders.raycasting.singlePass.frag'),
+    this._uniforms.uInterpolation.value = this._interpolation;
+
+    this._createMaterial({
       side: THREE.FrontSide,
       transparent: true
     });
+
   }
 
   _prepareGeometry(){
@@ -112,5 +100,15 @@ export default class HelpersVolumeRendering extends THREE.Object3D{
 
   set stack(stack){
     this._stack = stack;
+  }
+
+  get interpolation() {
+    return this._interpolation;
+  }
+
+  set interpolation(interpolation) {
+    this._interpolation = interpolation;
+    this._uniforms.uInterpolation.value = this._interpolation;
+    this._updateMaterial();
   }
 }

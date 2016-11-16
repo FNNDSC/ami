@@ -4,8 +4,7 @@
 .tmp
 .idea
 bower_components
-build-old
 deprecated
-gh-pages
+dist
 node_modules
 old_data

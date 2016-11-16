@@ -16,10 +16,9 @@
 //http://brainder.org/2012/09/23/the-nifti-file-format/
 
 /*** Imports ***/
-let NiftiReader = require('nifti-reader-js');
-
 import ParsersVolume from './parsers.volume';
 
+let NiftiReader = require('nifti-reader-js');
 /**
  * @module parsers/nifti
  */

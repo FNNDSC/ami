@@ -1,13 +1,16 @@
+/*** Imports ***/
 import GeometriesSlice from '../../src/geometries/geometries.slice';
-import ShadersData     from '../../src/shaders/shaders.data';
+import ShadersUniform  from '../../src/shaders/shaders.data.uniform';
+import ShadersVertex   from '../../src/shaders/shaders.data.vertex';
+import ShadersFragment from '../../src/shaders/shaders.data.fragment';
 
-let glslify =  require('glslify');
+import HelpersMaterialMixin from '../../src/helpers/helpers.material.mixin';
 
 /**
  * @module helpers/slice
  */
 
-export default class HelpersSlice extends THREE.Object3D{
+export default class HelpersSlice extends HelpersMaterialMixin( THREE.Object3D ){
   constructor(stack,
               index = 0,
               position = new THREE.Vector3(0, 0, 0),
@@ -45,7 +48,10 @@ export default class HelpersSlice extends THREE.Object3D{
     // there is also a switch to move back mesh to LPS space automatically
     this._aaBBspace = aabbSpace; // or LPS -> different transforms, esp for the geometry/mesh
     this._material = null;
-    this._uniforms = ShadersData.uniforms();
+    this._textures = [];
+    this._shadersFragment = ShadersFragment;
+    this._shadersVertex = ShadersVertex;
+    this._uniforms = ShadersUniform.uniforms();
     this._geometry = null;
     this._mesh = null;
     this._visible = true;
@@ -147,6 +153,7 @@ export default class HelpersSlice extends THREE.Object3D{
   set interpolation(interpolation) {
     this._interpolation = interpolation;
     this.updateIntensitySettingsUniforms();
+    this._updateMaterial();
   }
 
   get index() {
@@ -275,31 +282,15 @@ export default class HelpersSlice extends THREE.Object3D{
       this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
       this._uniforms.uPixelType.value = this._stack.pixelType;
       this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
-
+      this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
       // compute texture if material exist
-      let textures = [];
-      // replace 7 by a letiable!!!!
-      for (let m = 0; m < this._stack.rawData.length; m++) {
-        let tex = new THREE.DataTexture(
-          this._stack.rawData[m],
-          this._stack.textureSize, this._stack.textureSize,
-          this._stack.textureType, THREE.UnsignedByteType,
-          THREE.UVMapping,
-          THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping,
-          THREE.NearestFilter, THREE.NearestFilter);
-        tex.needsUpdate = true;
-        tex.flipY = true;
-        textures.push(tex);
-      }
+      this._prepareTexture();
+      this._uniforms.uTextureContainer.value = this._textures;
 
-      this._uniforms.uTextureContainer.value = textures;
-
-      this._material = new THREE.ShaderMaterial({
-        'side': THREE.DoubleSide,
-        'uniforms': this._uniforms,
-        'vertexShader': glslify('../shaders/shaders.data.vert'),
-        'fragmentShader': glslify('../shaders/shaders.data.frag')
+      this._createMaterial({
+        side: THREE.DoubleSide
       });
+
     }
 
     // update intensity related stuff
