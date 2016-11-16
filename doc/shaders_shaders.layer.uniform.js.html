@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: parsers</title>
+    <title>JSDoc: Source: shaders/shaders.layer.uniform.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,50 +17,67 @@
 
 <div id="main">
 
-    <h1 class="page-title">Module: parsers</h1>
+    <h1 class="page-title">Source: shaders/shaders.layer.uniform.js</h1>
 
     
 
 
 
-
-<section>
-
-<header>
     
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>
+/**
+ * @module shaders/data
+ */
+export default class ShadersUniform {
+  static uniforms(){
+    return {
+    'uTextureBackTest0': {
+        type: 't',
+        value: [],
+        typeGLSL: 'sampler2D',
+      },
+      'uTextureBackTest1': {
+        type: 't',
+        value: [],
+        typeGLSL: 'sampler2D',
+      },
+      'uOpacity0':{
+        type: 'f',
+        value: 1.0,
+        typeGLSL: 'float',
+      },
+      'uOpacity1':{
+        type: 'f',
+        value: 1.0,
+        typeGLSL: 'float',
+      },
+      'uType0':{
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int',
+      },
+      'uType1':{
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int',
+      },
+      'uTrackMouse': {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int',
+      },
+      'uMouse':{
+        type: 'v2',
+        value: new THREE.Vector2(),
+        typeGLSL: 'vec2'
+      }
+    };
+  }
+}</code></pre>
+        </article>
+    </section>
 
 
 

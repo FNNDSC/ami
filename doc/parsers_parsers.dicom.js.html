@@ -108,6 +108,71 @@ export default class ParsersDicom extends ParsersVolume {
 
   }
 
+  segmentationType(){
+
+    return this._dataSet.string('x00620001');
+
+  }
+
+  segmentationSegments(){
+
+    // lot to do!
+    let segmentationSegments = [];
+    let segmentSequence = this._dataSet.elements.x00620002;
+    
+    for(let i = 0; i&lt; segmentSequence.items.length; i++ ){
+      let recommendedDisplayCIELab = this._recommendedDisplayCIELab(segmentSequence.items[i]);
+      let segmentationCode         = this._segmentationCode(segmentSequence.items[i]);
+      let segmentNumber            = segmentSequence.items[i].dataSet.uint16('x00620004');
+      let segmentLabel             = segmentSequence.items[i].dataSet.string('x00620005');
+      let segmentAlgorithmType     = segmentSequence.items[i].dataSet.string('x00620008');
+
+      segmentationSegments.push({
+        recommendedDisplayCIELab,
+        segmentationCodeDesignator: segmentationCode['segmentationCodeDesignator'],
+        segmentationCodeValue: segmentationCode['segmentationCodeValue'],
+        segmentationCodeMeaning: segmentationCode['segmentationCodeMeaning'],
+        segmentNumber,
+        segmentLabel,
+        segmentAlgorithmType
+      });
+    }
+
+    return segmentationSegments;
+
+  }
+
+  _segmentationCode( segment ){
+
+    let segmentationCodeDesignator = 'unknown';
+    let segmentationCodeValue      = 'unknown';
+    let segmentationCodeMeaning    = 'unknown';
+    let element = segment.dataSet.elements.x00082218;
+
+    if( element &amp;&amp; element.items &amp;&amp; element.items.length > 0){
+
+      segmentationCodeDesignator = element.items[0].dataSet.string('x00080102');
+      segmentationCodeValue      = element.items[0].dataSet.string('x00080100');
+      segmentationCodeMeaning    = element.items[0].dataSet.string('x00080104');
+
+    }
+
+    return {
+      segmentationCodeDesignator,
+      segmentationCodeValue,
+      segmentationCodeMeaning
+    };
+    
+
+  }
+
+  _recommendedDisplayCIELab( segment ){
+      let rawColor                 = String(segment.dataSet.uint16('x0062000d'));
+      let recommendedDisplayCIELab = String(`000000${rawColor}`).slice(-6);
+
+      return recommendedDisplayCIELab;
+  }
+
   sopInstanceUID(frameIndex = 0) {
 
     // 2005140f only works for siemens
@@ -160,7 +225,6 @@ export default class ParsersDicom extends ParsersVolume {
 
     }
 
-    // make sure we return a number! (not a string!)
     return numberOfFrames;
 
   }
@@ -208,6 +272,21 @@ export default class ParsersDicom extends ParsersVolume {
     }
 
     return imageOrientation;
+
+  }
+
+  referencedSegmentNumber(frameIndex = 0) {
+
+    let referencedSegmentNumber = -1;
+    let referencedSegmentNumberElement = this._findInGroupSequence('x52009230', 'x0062000a', frameIndex);
+
+    if( referencedSegmentNumberElement !== null){
+
+      referencedSegmentNumber = referencedSegmentNumberElement.uint16('x0062000b');
+
+    }
+
+    return referencedSegmentNumber;
 
   }
 
@@ -453,6 +532,8 @@ export default class ParsersDicom extends ParsersVolume {
       inStackPositionNumber = null;
 
     }
+
+    console.log(`instack position ${inStackPositionNumber}`);
 
     return inStackPositionNumber;
 
@@ -966,13 +1047,13 @@ export default class ParsersDicom extends ParsersVolume {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_layer.html">shaders/layer</a></li><li><a href="module-shaders_raycasting.html">shaders/raycasting</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Thu Oct 20 2016 11:11:42 GMT+0100 (BST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Wed Nov 16 2016 09:44:56 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>
