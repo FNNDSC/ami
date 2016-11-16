@@ -331,6 +331,10 @@ AMI would not exist without them:
 * Nifti parsing relies on it.
 * Author(s): [rii-mango](https://github.com/rii-mango)
 
+##### [NRRD-JS](https://github.com/scijs/nrrd-js)
+* NRRD parsing relies on it.
+* Author(s): [jaspervdg](https://github.com/jaspervdg) 
+
 ##### [JPEGLosslessDecoderJS](https://github.com/rii-mango/JPEGLosslessDecoderJS)
 * JPEG Lossless Decoder for DICOM images
 * Author(s): [rii-mango](https://github.com/rii-mango)
