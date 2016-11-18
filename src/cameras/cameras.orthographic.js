@@ -52,10 +52,6 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this._yCosine = this._positiveVector( yCosine );
     this._zCosine = new THREE.Vector3().cross( this._xCosine, this._yCosine );
 
-    console.log( this._xCosine );
-    console.log( this._yCosine );
-    console.log( this._zCosine );
-
     this._controls = controls;
     this._box = box;
     this._canvas = canvas;
