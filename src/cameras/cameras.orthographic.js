@@ -48,9 +48,14 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
       return false;
     }
 
-    this._xCosine = xCosine;
-    this._yCosine = yCosine;
-    this._zCosine = zCosine;
+    this._xCosine = this._positiveVector( xCosine );
+    this._yCosine = this._positiveVector( yCosine );
+    this._zCosine = new THREE.Vector3().cross( this._xCosine, this._yCosine );
+
+    console.log( this._xCosine );
+    console.log( this._yCosine );
+    console.log( this._zCosine );
+
     this._controls = controls;
     this._box = box;
     this._canvas = canvas;
@@ -221,6 +226,24 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this.zoom = zoom;
 
     this.center();
+  }
+
+  _positiveVector( vector ){
+
+    let rounded = new THREE.Vector3( vector.x, vector.y, vector.z ).round();
+    let max = Math.max( Math.max(rounded.x, rounded.y), rounded.z);
+
+    if( max === 0 ){
+
+      return vector.negate();
+
+    }
+    else{
+
+      return vector;
+      
+    }
+
   }
 
   _updateCanvas(){
