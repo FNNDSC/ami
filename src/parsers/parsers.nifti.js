@@ -40,6 +40,9 @@ export default class ParsersNifti extends ParsersVolume {
     this._ordered = true;
     this._orderedData = null;
 
+    //
+    this._qfac = 1.0;
+
     if (NiftiReader.isNIFTI(this._arrayBuffer)) {
       this._dataSet = NiftiReader.readHeader(this._arrayBuffer);
       this._niftiImage = NiftiReader.readImage(this._dataSet, this._arrayBuffer);
@@ -119,6 +122,7 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   pixelSpacing(frameIndex = 0) {
+
     return [
       this._dataSet.pixDims[1],
       this._dataSet.pixDims[2],
@@ -152,27 +156,22 @@ export default class ParsersNifti extends ParsersVolume {
 
       }
 
-      // let qfac = 1.0;
-      // if(this._dataSet.pixdim[0] < 0.0) {
-      //   qfac = -qfac;
-      // }
-
-      // window.console.log(a);
-      // window.console.log(b);
-      // window.console.log(c);
-      // window.console.log(d);
-
+      if(this._dataSet.pixDims[0] < 0.0) {
+        this._qfac = -1.0;
+      }
 
        return [
-          (a*a+b*b-c*c-d*d), // -
-          2*(b*c-a*d),       // -
-          2*(b*d+a*c),       // -
-          2*(b*c+a*d),
-          a*a+c*c-b*b-d*d,
-          2*(c*d-a*b)
+          -(a*a+b*b-c*c-d*d),
+          -2*(b*c+a*d),
+          2*(b*d-a*c),
+          -2*(b*c-a*d),
+          -(a*a+c*c-b*b-d*d),
+          2*(c*d+a*b)
         ];
 
     }else if(this._dataSet.sform_code > 0) {  
+
+      console.log( 'sform > 0' );
 
       var sx = this._dataSet.srow_x, sy = this._dataSet.srow_y, sz = this._dataSet.srow_z;
       // fill IJKToRAS
@@ -182,6 +181,10 @@ export default class ParsersNifti extends ParsersVolume {
 
     }
     else if(this._dataSet.qform_code === 0) {
+
+
+            console.log( 'qform === 0' );
+
 
       // fill IJKToRAS
       //goog.vec.Mat4.setRowValues(IJKToRAS, 0, MRI.pixdim[1], 0, 0, 0);
@@ -285,11 +288,15 @@ export default class ParsersNifti extends ParsersVolume {
 
     let numberOfChannels = this.numberOfChannels();
     let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+
+    // frameIndex or nb frames - index -1? maybe (probably) that is where qfac comes into play
+    if( this._qfac > 0 ){
+      frameIndex = this.numberOfFrames() - 1 - frameIndex; 
+    }
     let frameOffset = frameIndex * numPixels;
     let buffer = this._niftiImage;
 
     // use bits allocated && pixel reprensentation too
-
     if (!this._ordered && this._orderedData === null) {
       // order then
       this._reorderData();
@@ -366,10 +373,13 @@ export default class ParsersNifti extends ParsersVolume {
     var rIndex = 0;
     var gIndex = numPixels2;
     var bIndex = numPixels2 * 2;
+
     for (var i = 0; i < numPixels2; i++) {
+
       this._orderedData[rgbaIndex++] = tmp[rIndex++]; // red
       this._orderedData[rgbaIndex++] = tmp[gIndex++]; // green
       this._orderedData[rgbaIndex++] = tmp[bIndex++]; // blue
+
     }
 
     this._ordered = true;
