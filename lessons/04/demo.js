@@ -278,10 +278,6 @@ function buildGUI(stackHelper) {
   updateLayer1();
   updateLayerMix();
 
-  // set default view
-  camera.invertColumns();
-  camera.invertRows();
-
   function onWindowResize() {
     var threeD = document.getElementById('container');
     camera.canvas = {

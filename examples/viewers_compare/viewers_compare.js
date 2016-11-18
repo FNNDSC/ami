@@ -326,10 +326,6 @@ window.onload = function() {
     updateLayer1();
     updateLayerMix();
 
-    // set default view
-    camera.invertColumns();
-    camera.invertRows();
-
     function onWindowResize() {
       let threeD = document.getElementById('r3d');
       camera.canvas = {
