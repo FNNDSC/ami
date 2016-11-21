@@ -349,8 +349,8 @@ export default class ModelsStack extends ModelsBase{
     // tmp hack
     this._ijk2RAS = new THREE.Matrix4();
     this._ijk2RAS.set(
-      -this._xCosine.x * this._spacing.x, -this._yCosine.x * this._spacing.y, -this._zCosine.x * this._spacing.z, -this._origin.x,
-      -this._xCosine.y * this._spacing.x, -this._yCosine.y * this._spacing.y, -this._zCosine.y * this._spacing.z, -this._origin.y,
+      this._xCosine.x * this._spacing.x, this._yCosine.x * this._spacing.y, this._zCosine.x * this._spacing.z, this._origin.x,
+      this._xCosine.y * this._spacing.x, this._yCosine.y * this._spacing.y, this._zCosine.y * this._spacing.z, this._origin.y,
       this._xCosine.z * this._spacing.x, this._yCosine.z * this._spacing.y, this._zCosine.z * this._spacing.z, this._origin.z,
       0, 0, 0, 1);
 
