@@ -3,6 +3,12 @@
  */
 export default class ParsersVolume {
 
+  constructor(){
+
+    this._referenceSpace = ['L', 'P', 'S'];
+
+  }
+
   modality(){
 
     return 'unkown';
@@ -24,6 +30,12 @@ export default class ParsersVolume {
   referencedSegmentNumber(frameIndex){
 
     return -1;
+
+  }
+
+  referenceSpace(){
+
+    return this._referenceSpace;
 
   }
 

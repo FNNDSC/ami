@@ -143,18 +143,6 @@ window.onload = function() {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/' + v;
   });
 
-  let labelmap = [
-    '000000.dcm'
-  ];
-
-//   let labelmapFullPath = labelmap.map(function(v) {
-//     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/andrei_abdomen/segmentation/' + v;
-//   });
-
-//  files = files.concat(labelmapFullPath);
-
-  //  let files = dataFullPath.concat(labelmapFullPath);
-
   // load sequence for each file
   // instantiate the loader
   // it loads and parses the dicom image
@@ -352,14 +340,18 @@ window.onload = function() {
     let mergedSeries = seriesContainer[0].mergeSeries(seriesContainer);
     let stack = null;
     let stack2 = null;
-    if (mergedSeries[0].seriesInstanceUID !== 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/patient1/7001_t1_average_BRAINSABC.nii.gz') {
-      stack  = mergedSeries[1].stack[0];
-      stack2 = mergedSeries[0].stack[0];
-    } else {
-      stack  = mergedSeries[0].stack[0];
-      stack2 = mergedSeries[1].stack[0];
-    }
-    //stack  = mergedSeries[1].stack[0];
+    // if (mergedSeries[0].seriesInstanceUID !== 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/patient1/7001_t1_average_BRAINSABC.nii.gz') {
+    //   stack  = mergedSeries[1].stack[0];
+    //   stack2 = mergedSeries[0].stack[0];
+    // } else {
+    //   stack  = mergedSeries[0].stack[0];
+    //   stack2 = mergedSeries[1].stack[0];
+    // }
+    // //stack  = mergedSeries[1].stack[0];
+
+    stack = mergedSeries[0].stack[0];
+    stack2 = mergedSeries[1].stack[0];
+
     let stackHelper = new HelpersStack(stack);
     stackHelper.bbox.visible = false;
     stackHelper.border.visible = false;
@@ -463,15 +455,18 @@ window.onload = function() {
     // box: {halfDimensions, center}
     let bbox = {
       center: stack.worldCenter().clone(),
-      halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10)
+      halfDimensions: new THREE.Vector3(lpsDims.x + 500, lpsDims.y + 500, lpsDims.z + 500)
     };
+
+    console.log(stack);
+    console.log(stack2);
 
     // init and zoom
     let canvas = {
         width: threeD.clientWidth,
         height: threeD.clientHeight
       };
-    camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas);
+    camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas, stack.referenceSpace);
     camera.fitBox(2);
 
     // CREATE LUT

@@ -238,7 +238,7 @@ window.onload = function() {
         width: threeD.clientWidth,
         height: threeD.clientHeight
       };
-    camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas);
+    camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas,  stack.referenceSpace);
     camera.fitBox(2);
 
     buildGUI(stackHelper);

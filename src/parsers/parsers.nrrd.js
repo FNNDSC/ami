@@ -37,6 +37,9 @@ export default class ParsersNifti extends ParsersVolume {
     this._url = data.url;
     this._dataSet = null;
     this._unpackedData = null;
+    // "left-posterior-superior"
+    this._referenceSpace = ['L', 'P', 'S'];
+
     try{
       this._dataSet = NrrdReader.parse(this._arrayBuffer);
     }
@@ -45,6 +48,23 @@ export default class ParsersNifti extends ParsersVolume {
     }
 
     window.console.log(this._dataSet);
+  }
+
+  referenceSpace(){
+
+    let space = this._dataSet.space.split( '-' );
+    if( space.length === 3 ){
+
+      this._referenceSpace = space.map( function( direction ) {
+
+        return direction.charAt(0).toUpperCase();
+
+      });
+
+    }
+
+    return this._referenceSpace;
+
   }
 
   seriesInstanceUID() {

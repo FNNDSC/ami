@@ -19,6 +19,7 @@ export default class ModelsFrame extends ModelsBase{
     this._dimensionIndexValues = [];
     this._imagePosition = null;
     this._imageOrientation = null;
+    this._referenceSpace = ['L', 'P', 'S'];
     this._sliceThickness = 1;
     this._spacingBetweenSlices = null;
     this._pixelType = 0;
@@ -349,5 +350,13 @@ export default class ModelsFrame extends ModelsBase{
 
   set referencedSegmentNumber(referencedSegmentNumber){
     this._referencedSegmentNumber = referencedSegmentNumber;
+  }
+
+  get referenceSpace(){
+    return this._referenceSpace;
+  }
+
+  set referenceSpace(referenceSpace){
+    this._referenceSpace = referenceSpace;
   }
 }

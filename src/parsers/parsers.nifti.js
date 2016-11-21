@@ -39,6 +39,7 @@ export default class ParsersNifti extends ParsersVolume {
     this._niftiImage = null;
     this._ordered = true;
     this._orderedData = null;
+    this._referenceSpace = ['R', 'A', 'S'];
 
     //
     this._qfac = 1.0;

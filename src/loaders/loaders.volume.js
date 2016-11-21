@@ -106,6 +106,7 @@ export default class LoadersVolumes extends LoadersBase{
       stack.pixelType        = volumeParser.pixelType();
       stack.invert           = volumeParser.invert();
       stack.modality         = series.modality;
+      stack.referenceSpace   = volumeParser.referenceSpace();
       series.stack.push(stack);
       // recursive call for each frame
       // better than for loop to be able to update dom with "progress" callback
@@ -125,6 +126,7 @@ export default class LoadersVolumes extends LoadersBase{
     frame.pixelSpacing     = dataParser.pixelSpacing(i);
     frame.sliceThickness   = dataParser.sliceThickness(i);
     frame.imageOrientation = dataParser.imageOrientation(i);
+    frame.referenceSpace   = dataParser.referenceSpace();
     if (frame.imageOrientation === null) {
       frame.imageOrientation = [1, 0, 0, 0, 1, 0];
     }

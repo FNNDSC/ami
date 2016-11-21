@@ -41,9 +41,6 @@ export default class ModelsStack extends ModelsBase{
     this._bitsAllocated = 8;
     this._pixelType = 0;
 
-    // origin of the first slice of the stack!
-    this._origin = null;
-
     this._textureSize = 4096;
     this._nbTextures = 7; // HIGH RES..
     this._rawData = [];
@@ -72,6 +69,7 @@ export default class ModelsStack extends ModelsBase{
     this._spacingBetweenSlices = 0;
     this._sliceThickness = 0;
     this._origin = null;
+    this._referenceSpace = ['L', 'P', 'S'];
     this._xCosine = new THREE.Vector3(1, 0, 0);
     this._yCosine = new THREE.Vector3(0, 1, 0);
     this._zCosine = new THREE.Vector3(0, 0, 1);
@@ -347,6 +345,18 @@ export default class ModelsStack extends ModelsBase{
 
     this._lps2IJK = new THREE.Matrix4();
     this._lps2IJK.getInverse(this._ijk2LPS);
+
+    // tmp hack
+    this._ijk2RAS = new THREE.Matrix4();
+    this._ijk2RAS.set(
+      -this._xCosine.x * this._spacing.x, -this._yCosine.x * this._spacing.y, -this._zCosine.x * this._spacing.z, -this._origin.x,
+      -this._xCosine.y * this._spacing.x, -this._yCosine.y * this._spacing.y, -this._zCosine.y * this._spacing.z, -this._origin.y,
+      this._xCosine.z * this._spacing.x, this._yCosine.z * this._spacing.y, this._zCosine.z * this._spacing.z, this._origin.z,
+      0, 0, 0, 1);
+
+    this._ras2IJK = new THREE.Matrix4();
+    this._ras2IJK.getInverse(this._ijk2RAS);
+
   }
 
   computeLPS2AABB() {
@@ -909,5 +919,13 @@ export default class ModelsStack extends ModelsBase{
 
   get modality() {
     return this._modality;
+  }
+
+  get referenceSpace(){
+    return this._referenceSpace;
+  }
+
+  set referenceSpace(referenceSpace){
+    this._referenceSpace = referenceSpace;
   }
 }

@@ -10,7 +10,7 @@ VJS.widgets = VJS.widgets || {};
 VJS.widgets.orientation = require('../../src/widgets/widgets.orientation');
 
 // standard global variables
-let controls, renderer, stats, scene, camera, stackHelper, threeD;
+let controls, renderer, stats, scene, camera, stackHelper, threeD, brain;
 
 function init() {
 
@@ -89,17 +89,12 @@ window.onload = function() {
   var loader1 = new THREE.VTKLoader();
   loader1.load( 'https://cdn.rawgit.com/FNNDSC/data/master/vtk/fetalatlas_brain/cortex.vtk', function ( geometry ) {
     geometry.computeVertexNormals();
+    console.log( geometry );
     var material = new THREE.MeshLambertMaterial( {
       color: 0x009688,
       side: THREE.DoubleSide} );
-    var mesh = new THREE.Mesh( geometry, material );
-    var RASToLPS = new THREE.Matrix4();
-    RASToLPS.set( -1, 0, 0, 0,
-                   0, -1, 0, 0,
-                   0, 0, 1, 0,
-                   0, 0, 0, 1);
-    mesh.applyMatrix(RASToLPS);
-    scene.add( mesh );
+    brain = new THREE.Mesh( geometry, material );
+    scene.add( brain );
   });
 
   // instantiate the loader
@@ -151,6 +146,53 @@ window.onload = function() {
     stackHelper.border.color = 0xF9F9F9;
     scene.add(stackHelper);
 
+    /// 
+    var geometry = new THREE.SphereBufferGeometry( 5, 32, 32 );
+    var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+    var sphere = new THREE.Mesh( geometry, material );
+
+    // this._origin = null;
+    console.log( stack._origin );
+    sphere.position.set( stack._origin.x, stack._origin.y, stack._origin.z );
+    scene.add(sphere);
+
+    // brain location
+    // var toOrigin = new THREE.Matrix4();
+    // toOrigin.makeTranslation( stack._origin.x , stack._origin.y, -stack._origin.z);
+    // brain.applyMatrix(toOrigin);
+    // //rotate
+    // var toLPS = new THREE.Matrix4();
+    // toLPS.set( -1, 0, 0, 0,
+    //                0, -1, 0, 0,
+    //                0, 0, 1, 0,
+    //                0, 0, 0, 1);
+    // brain.applyMatrix(toLPS);
+
+    // var toPosition = new THREE.Matrix4();
+    // toPosition.makeTranslation( stack._origin.x , stack._origin.y, -stack._origin.z);
+
+
+    var matrix = new THREE.Matrix4();
+// matrix.multiply( stack._ijk2LPS );
+matrix.multiply( stack._ras2IJK );
+
+
+brain.updateMatrix(); 
+brain.geometry.applyMatrix( matrix );
+brain.matrix.identity();
+brain.geometry.verticesNeedUpdate = true;
+
+    var matrix2 = new THREE.Matrix4();
+matrix2.multiply( stack._ijk2LPS );
+brain.updateMatrix(); 
+brain.geometry.applyMatrix( matrix2 );
+brain.matrix.identity();
+brain.geometry.verticesNeedUpdate = true;
+
+console.log( matrix );
+
+
+//    brain.applyMatrix( matrix );
     window.console.log(stackHelper.stack);
 
     // update camrea's and control's target
