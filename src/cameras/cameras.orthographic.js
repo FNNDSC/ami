@@ -18,8 +18,6 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this._front = null;
     this._back = null;
 
-    this._referenceSpace = null;
-    this._baseSpace = ['L', 'P', 'S'];
     this._xCosine = null;
     this._yCosine = null;
     this._zCosine = null;
@@ -38,7 +36,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
   /**
    * Initialize orthographic camera variables
    */
-  init(xCosine, yCosine, zCosine, controls, box, canvas, referenceSpace = ['L', 'P', 'S']){
+  init( xCosine, yCosine, zCosine, controls, box, canvas ){
     //
     if(!(Validators.vector3(xCosine) &&
       Validators.vector3(yCosine) &&
@@ -50,10 +48,9 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
       return false;
     }
 
-    this._referenceSpace = referenceSpace;
     this._xCosine = xCosine;
-    this._yCosine = this._adjustTopDirection( yCosine );
-    this._zCosine = zCosine;
+    this._yCosine = this._adjustTopDirection( xCosine, yCosine );
+    this._zCosine = new THREE.Vector3().crossVectors(this._xCosine, this._yCosine);
     this._controls = controls;
     this._box = box;
     this._canvas = canvas;
@@ -81,6 +78,8 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
    *   * Look at the slice from the other side 
    */
   invertRows() {
+
+    console.log( 'invert rows ');
     // flip "up" vector
     // we flip up first because invertColumns update projectio matrices
     this.up.multiplyScalar(-1);    
@@ -94,6 +93,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
    */
   invertColumns( ) {
 
+    console.log( 'invert columns ');
     this.center();
     // rotate 180 degrees around the up vector...
     let oppositePosition = this._oppositePosition(this.position);
@@ -207,7 +207,9 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     }
 
     if(!zoom){
-      return false
+
+      return false;
+      
     }
 
     this.zoom = zoom;
@@ -215,18 +217,21 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this.center();
   }
 
-  _adjustTopDirection( vector ){
+  _adjustTopDirection( horizontalDirection, verticalDirection ){
 
-    let maxIndex = this._getMaxIndex( vector );
+    let hMaxIndex = this._getMaxIndex( horizontalDirection );
+    let vMaxIndex = this._getMaxIndex( verticalDirection );
 
-    if( ( this._baseSpace[1] === this._referenceSpace[1] ) || 
-        ( this._baseSpace[1] !== this._referenceSpace[1] && this._baseSpace[maxIndex] !== this._referenceSpace[maxIndex] ) ){
+    // should handle vMax index === 0
+    if( ( vMaxIndex === 2 && verticalDirection.getComponent(vMaxIndex) < 0 ) ||
+        ( vMaxIndex === 1 && verticalDirection.getComponent(vMaxIndex) > 0 ) ||
+        ( vMaxIndex === 0 && verticalDirection.getComponent(vMaxIndex) > 0 ) ){
 
-      return vector.negate();
- 
-   }
+      verticalDirection.negate();
 
-   return vector;
+    }
+
+   return verticalDirection;
 
   }
 
@@ -254,21 +259,16 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
   _orderIntersections( intersections, direction ){
 
     // order intersections depending on ray direction
-    let referencePoint = new THREE.Vector3().copy( intersections[0] ).add( direction );
     let maxIndex = this._getMaxIndex( direction );
     let ordered = intersections[0].dot( direction ) < intersections[1].dot( direction );
 
-    // not well orderered, invert.
-    if( ( this._baseSpace[0] === this._referenceSpace[0] && !ordered ) ||
-        ( this._baseSpace[0] !== this._referenceSpace[0] && ordered && this._baseSpace[maxIndex] !== this._referenceSpace[maxIndex]) ){
+    if( ordered ){
 
-        let tmp = intersections[0];
-        intersections[0] = intersections[1];
-        intersections[1] = tmp;
+        return [ intersections[1], intersections[0] ];
 
     }
 
-    return intersections;
+   return intersections;
 
   }
 

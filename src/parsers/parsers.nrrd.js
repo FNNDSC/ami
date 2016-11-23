@@ -37,8 +37,6 @@ export default class ParsersNifti extends ParsersVolume {
     this._url = data.url;
     this._dataSet = null;
     this._unpackedData = null;
-    // "left-posterior-superior"
-    this._referenceSpace = ['L', 'P', 'S'];
 
     try{
       this._dataSet = NrrdReader.parse(this._arrayBuffer);
@@ -50,20 +48,20 @@ export default class ParsersNifti extends ParsersVolume {
     window.console.log(this._dataSet);
   }
 
-  referenceSpace(){
+  rightHanded(){
 
-    let space = this._dataSet.space.split( '-' );
-    if( space.length === 3 ){
+    if( this._dataSet.space.match(/^right-anterior-superior/) ||
+        this._dataSet.space.match(/^left-posterior-superior/) ) {
 
-      this._referenceSpace = space.map( function( direction ) {
+     this._rightHanded = true;
 
-        return direction.charAt(0).toUpperCase();
+    } else {
 
-      });
+      this._rightHanded = false;
 
     }
 
-    return this._referenceSpace;
+    return this._rightHanded;
 
   }
 
@@ -150,15 +148,19 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   imageOrientation(frameIndex = 0) {
+
+    let invertX = this._dataSet.space.match(/right/) ? -1 : 1;
+    let invertY = this._dataSet.space.match(/anterior/) ? -1 : 1;
+
     let x = new THREE.Vector3(
-      this._dataSet.spaceDirections[0][0],
-      this._dataSet.spaceDirections[0][1],
+      this._dataSet.spaceDirections[0][0] * invertX,
+      this._dataSet.spaceDirections[0][1] * invertY,
       this._dataSet.spaceDirections[0][2]);
     x.normalize();
 
     let y = new THREE.Vector3(
-      this._dataSet.spaceDirections[1][0],
-      this._dataSet.spaceDirections[1][1],
+      this._dataSet.spaceDirections[1][0] * invertX,
+      this._dataSet.spaceDirections[1][1] * invertY,
       this._dataSet.spaceDirections[1][2]);
     y.normalize();
 
@@ -222,6 +224,9 @@ export default class ParsersNifti extends ParsersVolume {
     let buffer = this._dataSet.buffer;
     let numberOfChannels = this.numberOfChannels();
     let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    if( !this.rightHanded() ){
+      frameIndex = this.numberOfFrames() - 1 - frameIndex; 
+    }
     let frameOffset = frameIndex * numPixels;
 
     // unpack data if needed

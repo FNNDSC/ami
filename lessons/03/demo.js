@@ -183,7 +183,7 @@ Promise
         width: container.clientWidth,
         height: container.clientHeight
       };
-    camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas, stack.referenceSpace);
+    camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas);
     camera.fitBox(2);
   })
   .catch(function(error) {

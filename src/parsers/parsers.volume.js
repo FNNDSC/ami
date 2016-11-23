@@ -5,7 +5,7 @@ export default class ParsersVolume {
 
   constructor(){
 
-    this._referenceSpace = ['L', 'P', 'S'];
+    this._rightHanded  = true;
 
   }
 
@@ -33,9 +33,9 @@ export default class ParsersVolume {
 
   }
 
-  referenceSpace(){
+  rightHanded(){
 
-    return this._referenceSpace;
+    return this._rightHanded;
 
   }
 

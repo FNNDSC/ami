@@ -252,19 +252,7 @@ window.onload = function() {
         meshLayer1.geometry.dispose();
         meshLayer1.geometry = stackHelper.slice.geometry;
         meshLayer1.geometry.verticesNeedUpdate = true;
-
-        // sceneLayer1.remove(meshLayer1);
-        // meshLayer1.material.dispose();
-        // meshLayer1.material = null;
-        // meshLayer1.geometry.dispose();
-        // meshLayer1.geometry = null;
-
-        // // add mesh in this scene with right shaders...
-        // meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
-        // // go the LPS space
-        // meshLayer1.applyMatrix(stackHelper.stack._ijk2LPS);
-
-        // sceneLayer1.add(meshLayer1);
+        
       }
     }
 

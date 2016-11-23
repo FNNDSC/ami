@@ -19,7 +19,7 @@ export default class ModelsFrame extends ModelsBase{
     this._dimensionIndexValues = [];
     this._imagePosition = null;
     this._imageOrientation = null;
-    this._referenceSpace = ['L', 'P', 'S'];
+    this._rightHanded = true;
     this._sliceThickness = 1;
     this._spacingBetweenSlices = null;
     this._pixelType = 0;
@@ -124,6 +124,12 @@ export default class ModelsFrame extends ModelsBase{
       window.console.log('No valid image orientation for frame');
       window.console.log(this);
       window.console.log('Returning default orientation.');
+
+    }
+
+    if( !this._rightHanded ){
+
+      cosines[2].negate();
 
     }
 
@@ -352,11 +358,11 @@ export default class ModelsFrame extends ModelsBase{
     this._referencedSegmentNumber = referencedSegmentNumber;
   }
 
-  get referenceSpace(){
-    return this._referenceSpace;
+  get rightHanded(){
+    return this._rightHanded;
   }
 
-  set referenceSpace(referenceSpace){
-    this._referenceSpace = referenceSpace;
+  set rightHanded(rightHanded){
+    this._rightHanded = rightHanded;
   }
 }

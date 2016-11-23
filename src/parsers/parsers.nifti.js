@@ -39,13 +39,13 @@ export default class ParsersNifti extends ParsersVolume {
     this._niftiImage = null;
     this._ordered = true;
     this._orderedData = null;
-    this._referenceSpace = ['R', 'A', 'S'];
 
     //
     this._qfac = 1.0;
 
     if (NiftiReader.isNIFTI(this._arrayBuffer)) {
       this._dataSet = NiftiReader.readHeader(this._arrayBuffer);
+      console.log( this._dataSet );
       this._niftiImage = NiftiReader.readImage(this._dataSet, this._arrayBuffer);
     } else {
       throw 'parsers.nifti could not parse the file';
@@ -158,7 +158,9 @@ export default class ParsersNifti extends ParsersVolume {
       }
 
       if(this._dataSet.pixDims[0] < 0.0) {
-        this._qfac = -1.0;
+
+        this._rightHanded = false;
+
       }
 
        return [
@@ -289,9 +291,7 @@ export default class ParsersNifti extends ParsersVolume {
 
     let numberOfChannels = this.numberOfChannels();
     let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
-
-    // frameIndex or nb frames - index -1? maybe (probably) that is where qfac comes into play
-    if( this._qfac > 0 ){
+    if( !this.rightHanded() ){
       frameIndex = this.numberOfFrames() - 1 - frameIndex; 
     }
     let frameOffset = frameIndex * numPixels;
