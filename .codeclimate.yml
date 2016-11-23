@@ -19,7 +19,7 @@ ratings:
   - "**.js"
 exclude_paths:
 - assets/**/*
-- build/**/*
+- build/*
 - data/**/*
 - dist/**/*
 - examples/**/*
