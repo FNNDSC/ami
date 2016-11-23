@@ -23,6 +23,7 @@ exclude_paths:
 - data/**/*
 - dist/**/*
 - examples/**/*
+- lessons/**/*
 - external/**/*
 - deprecated/**/*
 - legacy/**/*
