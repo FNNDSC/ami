@@ -177,7 +177,8 @@ Please submit pull request, open issues or contact us for any question, feature 
       Lookup Tables - coming soon.
     </div>
   </td>
-
+</tr>
+<tr>
   <!-- Lesson 08 -->
   <td valign="middle" width="100">
     <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/08#run' target=_blank>
