@@ -108,11 +108,11 @@ window.onload = function() {
   let loader = new LoadersVolume(threeD);
 
   var t2 = [
-    ''
+    'template_T2.nii.gz'
   ];
 
   var files = t2.map(function(v) {
-    return '../../data/MRBrainTumor1.nii' + v;
+    return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/fetalatlas_brain/t2/' + v;
   });
 
   // load sequence for each file

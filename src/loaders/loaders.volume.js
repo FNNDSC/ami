@@ -39,79 +39,91 @@ import ParsersNrrd  from '../../src/parsers/parsers.nrrd';
 export default class LoadersVolumes extends LoadersBase{
 
   parse(response) {
-    return new Promise((resolve, reject) => {
-      let data = response;
-      data.gzcompressed = false;
-      data.filename = '';
-      data.extension = '';
 
-      // uncompress?
-      data.filename = response.url.split('/').pop();
-      data.gzcompressed = false;
+    // give a chance to the UI to update because after the rendering will be blocked with intensive JS
+    this._progressBar.update(0, 100, 'parse');
 
-      // find extension
-      let splittedName = data.filename.split('.');
-      if(splittedName.length <= 1){
-        data.extension = '';
-      }
-      else{
-        data.extension = data.filename.split('.').pop();
-      }
+    return new Promise(
+        (resolve, reject) => {
+            window.setTimeout(
+              () => {
+                resolve(new Promise((resolve, reject) => {
 
-      // unzip if extension is '.gz'
-      if (data.extension === 'gz') {
-        data.gzcompressed = true;
-        data.extension = data.filename.split('.gz').shift().split('.').pop();
-        let decompressedData = pako.inflate(data.buffer);
-        data.buffer = decompressedData.buffer;
-      }
+                  let data = response;
+                  data.gzcompressed = false;
+                  data.filename = '';
+                  data.extension = '';
 
-      let parser = this._parser(data.extension);
-      if (!parser) {
-        reject(data.filename + ' can not be parsed.');
-      }
+                  // uncompress?
+                  data.filename = response.url.split('/').pop();
+                  data.gzcompressed = false;
 
-      // check extension
-      let volumeParser = null;
-      try {
-        volumeParser = new parser(data, 0);
-      }
-      catch (e) {
-        window.console.log(e);
-        reject(e);
-      }
+                  // find extension
+                  let splittedName = data.filename.split('.');
+                  if(splittedName.length <= 1){
+                    data.extension = '';
+                  }
+                  else{
+                    data.extension = data.filename.split('.').pop();
+                  }
 
-      // create a series
-      let series = new ModelsSeries();
-      series.seriesInstanceUID = volumeParser.seriesInstanceUID();
-      series.numberOfFrames    = volumeParser.numberOfFrames();
-      if (!series.numberOfFrames) {
-        series.numberOfFrames = 1;
-      }
-      series.modality          = volumeParser.modality();
-      // if it is a segmentation, attach extra information
-      if(series.modality === 'SEG'){
-        // colors
-        // labels
-        // etc.
-        series.segmentationType     = volumeParser.segmentationType();
-        series.segmentationSegments = volumeParser.segmentationSegments();
-      }
+                  // unzip if extension is '.gz'
+                  if (data.extension === 'gz') {
+                    data.gzcompressed = true;
+                    data.extension = data.filename.split('.gz').shift().split('.').pop();
+                    let decompressedData = pako.inflate(data.buffer);
+                    data.buffer = decompressedData.buffer;
+                  }
 
-      series.numberOfChannels = volumeParser.numberOfChannels();
+                  let parser = this._parser(data.extension);
+                  if (!parser) {
+                    reject(data.filename + ' can not be parsed.');
+                  }
 
-      // just create 1 dummy stack for now
-      let stack = new ModelsStack();
-      stack.numberOfChannels = volumeParser.numberOfChannels();
-      stack.pixelType        = volumeParser.pixelType();
-      stack.invert           = volumeParser.invert();
-      stack.modality         = series.modality;
-      stack.rightHanded      = volumeParser.rightHanded();
-      series.stack.push(stack);
-      // recursive call for each frame
-      // better than for loop to be able to update dom with "progress" callback
-      setTimeout(this.parseFrame(series, stack, response.url, 0, volumeParser, resolve, reject), 0);
-    });
+                  // check extension
+                  let volumeParser = null;
+                  try {
+                    volumeParser = new parser(data, 0);
+                  }
+                  catch (e) {
+                    window.console.log(e);
+                    reject(e);
+                  }
+
+                  // create a series
+                  let series = new ModelsSeries();
+                  series.seriesInstanceUID = volumeParser.seriesInstanceUID();
+                  series.numberOfFrames    = volumeParser.numberOfFrames();
+                  if (!series.numberOfFrames) {
+                    series.numberOfFrames = 1;
+                  }
+                  series.modality          = volumeParser.modality();
+                  // if it is a segmentation, attach extra information
+                  if(series.modality === 'SEG'){
+                    // colors
+                    // labels
+                    // etc.
+                    series.segmentationType     = volumeParser.segmentationType();
+                    series.segmentationSegments = volumeParser.segmentationSegments();
+                  }
+
+                  series.numberOfChannels = volumeParser.numberOfChannels();
+
+                  // just create 1 dummy stack for now
+                  let stack = new ModelsStack();
+                  stack.numberOfChannels = volumeParser.numberOfChannels();
+                  stack.pixelType        = volumeParser.pixelType();
+                  stack.invert           = volumeParser.invert();
+                  stack.modality         = series.modality;
+                  stack.rightHanded      = volumeParser.rightHanded();
+                  series.stack.push(stack);
+                  // recursive call for each frame
+                  // better than for loop to be able to update dom with "progress" callback
+                  setTimeout(this.parseFrame(series, stack, response.url, 0, volumeParser, resolve, reject), 0);
+                }));
+             },10);
+           }
+        );
   }
 
   parseFrame(series, stack, url, i, dataParser, resolve, reject) {
