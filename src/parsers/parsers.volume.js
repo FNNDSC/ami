@@ -3,6 +3,12 @@
  */
 export default class ParsersVolume {
 
+  constructor(){
+
+    this._rightHanded  = true;
+
+  }
+
   modality(){
 
     return 'unkown';
@@ -24,6 +30,12 @@ export default class ParsersVolume {
   referencedSegmentNumber(frameIndex){
 
     return -1;
+
+  }
+
+  rightHanded(){
+
+    return this._rightHanded;
 
   }
 

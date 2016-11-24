@@ -278,10 +278,6 @@ function buildGUI(stackHelper) {
   updateLayer1();
   updateLayerMix();
 
-  // set default view
-  camera.invertColumns();
-  camera.invertRows();
-
   function onWindowResize() {
     var threeD = document.getElementById('container');
     camera.canvas = {
@@ -423,7 +419,7 @@ function handleSeries() {
       width: threeD.clientWidth,
       height: threeD.clientHeight
     };
-  camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas);
+  camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas, stack.referenceSpace);
   camera.fitBox(2);
 
   // CREATE LUT

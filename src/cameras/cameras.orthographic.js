@@ -27,7 +27,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this._canvas = {
       width: null,
       height: null
-    }
+    };
 
     this._fromFront = true;
     this._angle = 0;
@@ -36,7 +36,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
   /**
    * Initialize orthographic camera variables
    */
-  init(xCosine, yCosine, zCosine, controls, box, canvas){
+  init( xCosine, yCosine, zCosine, controls, box, canvas ){
     //
     if(!(Validators.vector3(xCosine) &&
       Validators.vector3(yCosine) &&
@@ -49,8 +49,8 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     }
 
     this._xCosine = xCosine;
-    this._yCosine = yCosine;
-    this._zCosine = zCosine;
+    this._yCosine = this._adjustTopDirection( xCosine, yCosine );
+    this._zCosine = new THREE.Vector3().crossVectors(this._xCosine, this._yCosine);
     this._controls = controls;
     this._box = box;
     this._canvas = canvas;
@@ -58,9 +58,9 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     let ray = {
       position: this._box.center,
       direction: this._zCosine
-    }
+    };
 
-    let intersections = Intersections.rayBox(ray, this._box);
+    let intersections = this._orderIntersections( Intersections.rayBox(ray, this._box), this._zCosine );
     this._front = intersections[0];
     this._back = intersections[1];
 
@@ -78,20 +78,11 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
    *   * Look at the slice from the other side 
    */
   invertRows() {
+
+    console.log( 'invert rows ');
     // flip "up" vector
     // we flip up first because invertColumns update projectio matrices
-    this.up.multiplyScalar(-1);
-    // this._angle -= 180;
-
-    // Rotate the up vector around the "zCosine"
-    // let rotation = new THREE.Matrix4().makeRotationAxis(
-    //   this._zCosine, 
-    //   Math.PI);
-    // this.up.applyMatrix4(rotation);
-
-    // this._updateMatrices();
-
-    
+    this.up.multiplyScalar(-1);    
     this.invertColumns();
   }
 
@@ -102,6 +93,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
    */
   invertColumns( ) {
 
+    console.log( 'invert columns ');
     this.center();
     // rotate 180 degrees around the up vector...
     let oppositePosition = this._oppositePosition(this.position);
@@ -215,7 +207,9 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     }
 
     if(!zoom){
-      return false
+
+      return false;
+      
     }
 
     this.zoom = zoom;
@@ -223,7 +217,63 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this.center();
   }
 
+  _adjustTopDirection( horizontalDirection, verticalDirection ){
+
+    let hMaxIndex = this._getMaxIndex( horizontalDirection );
+    let vMaxIndex = this._getMaxIndex( verticalDirection );
+
+    // should handle vMax index === 0
+    if( ( vMaxIndex === 2 && verticalDirection.getComponent(vMaxIndex) < 0 ) ||
+        ( vMaxIndex === 1 && verticalDirection.getComponent(vMaxIndex) > 0 ) ||
+        ( vMaxIndex === 0 && verticalDirection.getComponent(vMaxIndex) > 0 ) ){
+
+      verticalDirection.negate();
+
+    }
+
+   return verticalDirection;
+
+  }
+
+  _getMaxIndex( vector ){
+
+    // only one can be equal to 1 as it is normalized
+    if( Math.abs( Math.round( vector.x ) ) === 1 ){
+
+      return 0;
+
+    }
+    else if( Math.abs( Math.round( vector.y ) ) === 1 ){
+
+      return 1;
+
+    }
+    else if( Math.abs( Math.round( vector.z ) ) === 1 ){
+
+      return 2;
+
+    }
+
+  }
+
+  _orderIntersections( intersections, direction ){
+
+    // order intersections depending on ray direction
+    let maxIndex = this._getMaxIndex( direction );
+    let ordered = intersections[0].dot( direction ) < intersections[1].dot( direction );
+
+    if( ordered ){
+
+        return [ intersections[1], intersections[0] ];
+
+    }
+
+   return intersections;
+
+  }
+
   _updateCanvas(){
+
     var camFactor = 2;
     this.left = -this._canvas.width / camFactor;
     this.right = this._canvas.width / camFactor;
@@ -232,9 +282,11 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
 
     this._updateMatrices();
     this.controls.handleResize();
+
   }
 
   _oppositePosition(position){
+
     let oppositePosition = position.clone();
     // center world postion around box center
     oppositePosition.sub(this._box.center);
@@ -247,6 +299,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     // translate back to world position
     oppositePosition.add(this._box.center);
     return oppositePosition;
+    
   }
 
   _computeZoom(dimension, direction) {

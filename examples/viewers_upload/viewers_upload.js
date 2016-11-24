@@ -133,9 +133,6 @@ window.onload = function() {
     });
 
     cameraFolder.open();
-    // set default view
-    camera.invertColumns();
-    camera.invertRows();
   }
 
   function hookCallbacks(stackHelper) {

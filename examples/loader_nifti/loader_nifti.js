@@ -10,7 +10,7 @@ VJS.widgets = VJS.widgets || {};
 VJS.widgets.orientation = require('../../src/widgets/widgets.orientation');
 
 // standard global variables
-let controls, renderer, stats, scene, camera, stackHelper, threeD;
+let controls, renderer, stats, scene, camera, stackHelper, threeD, brain;
 
 function init() {
 
@@ -87,19 +87,20 @@ window.onload = function() {
 
   // load vtk file
   var loader1 = new THREE.VTKLoader();
-  loader1.load( 'https://cdn.rawgit.com/FNNDSC/data/master/vtk/fetalatlas_brain/cortex.vtk', function ( geometry ) {
+  loader1.load( '../../data/blood.vtk', function ( geometry ) {
     geometry.computeVertexNormals();
+    console.log( geometry );
     var material = new THREE.MeshLambertMaterial( {
       color: 0x009688,
       side: THREE.DoubleSide} );
-    var mesh = new THREE.Mesh( geometry, material );
-    var RASToLPS = new THREE.Matrix4();
-    RASToLPS.set( -1, 0, 0, 0,
+    brain = new THREE.Mesh( geometry, material );
+    var toLPS = new THREE.Matrix4();
+    toLPS.set( -1, 0, 0, 0,
                    0, -1, 0, 0,
                    0, 0, 1, 0,
                    0, 0, 0, 1);
-    mesh.applyMatrix(RASToLPS);
-    scene.add( mesh );
+    brain.applyMatrix(toLPS);
+    scene.add( brain );
   });
 
   // instantiate the loader
@@ -151,7 +152,29 @@ window.onload = function() {
     stackHelper.border.color = 0xF9F9F9;
     scene.add(stackHelper);
 
-    window.console.log(stackHelper.stack);
+    // fill second renderer
+    let stackHelper1 = new HelpersStack(stack);
+    stackHelper1.orientation = 2;
+    stackHelper1.bbox.visible = false;
+    stackHelper1.border.color = 0xFF1744;
+    scene.add(stackHelper1);
+
+    // fill second renderer
+    let stackHelper2 = new HelpersStack(stack);
+    stackHelper2.orientation = 1;
+    stackHelper2.bbox.visible = false;
+    stackHelper2.border.color = 0xFF1744;
+    scene.add(stackHelper2);
+
+    /// 
+    var geometry = new THREE.SphereBufferGeometry( 5, 32, 32 );
+    var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+    var sphere = new THREE.Mesh( geometry, material );
+
+    // this._origin = null;
+    console.log( stack._origin );
+    sphere.position.set( stack._origin.x, stack._origin.y, stack._origin.z );
+    scene.add(sphere);
 
     // update camrea's and control's target
     let centerLPS = stackHelper.stack.worldCenter();

@@ -178,6 +178,23 @@ Please submit pull request, open issues or contact us for any question, feature 
     </div>
   </td>
 </tr>
+<tr>
+  <!-- Lesson 08 -->
+  <td valign="middle" width="100">
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/08#run' target=_blank>
+      <img src="https://cloud.githubusercontent.com/assets/214063/20597899/9b7ec102-b246-11e6-804b-be8ac6dc9a68.gif" style="width:128x, height:128px" alt="lesson00" title="Click me!">
+      <img src="http://xtk.github.com/fiddlelogo_small2.png">
+    </a>
+  </td>
+  <td valign="top" width="326">
+    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/08#run'>
+      <b>Lesson 08: Custom progress bar</b>
+    </a>
+    <div>
+      Custom progress bars.
+    </div>
+  </td>
+</tr>
 </table>
 
 ### (more) Advanced demos

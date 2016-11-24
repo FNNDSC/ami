@@ -107,11 +107,11 @@ window.onload = function() {
   let loader = new LoadersVolume(threeD);
 
   var t2 = [
-    'avf_float_32.nrrd'
+    'avf_float_32.nii.gz'
   ];
 
   var files = t2.map(function(v) {
-    return 'https://cdn.rawgit.com/FNNDSC/data/master/nrrd/marc_avf/' + v;
+    return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/marc_avf/' + v;
   });
 
   // load sequence for each file

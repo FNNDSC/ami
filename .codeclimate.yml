@@ -19,12 +19,14 @@ ratings:
   - "**.js"
 exclude_paths:
 - assets/**/*
+- build/*
 - data/**/*
 - dist/**/*
 - examples/**/*
+- lessons/**/*
 - external/**/*
 - deprecated/**/*
+- legacy/**/*
 - specs/**/*
 - src/controls/**/*
-- gulpfile.js
 - karma.conf.js

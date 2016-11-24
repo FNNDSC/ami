@@ -143,18 +143,6 @@ window.onload = function() {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/' + v;
   });
 
-  let labelmap = [
-    '000000.dcm'
-  ];
-
-//   let labelmapFullPath = labelmap.map(function(v) {
-//     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/andrei_abdomen/segmentation/' + v;
-//   });
-
-//  files = files.concat(labelmapFullPath);
-
-  //  let files = dataFullPath.concat(labelmapFullPath);
-
   // load sequence for each file
   // instantiate the loader
   // it loads and parses the dicom image
@@ -188,20 +176,6 @@ window.onload = function() {
         meshLayer1.geometry = stackHelper.slice.geometry;
         meshLayer1.geometry.verticesNeedUpdate = true;
 
-        // add mesh in this scene with right shaders...
-        //let meshLayer11 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
-
-        //sceneLayer1.remove(meshLayer1);
-        //meshLayer1.material.dispose();
-        //meshLayer1.material = null;
-        //meshLayer1.geometry.dispose();
-        //meshLayer1.geometry = null;
-
-
-        // go the LPS space
-        //meshLayer1.applyMatrix(stackHelper.stack._ijk2LPS);
-
-        //sceneLayer1.add(meshLayer1);
       }
 
     }
@@ -326,10 +300,6 @@ window.onload = function() {
     updateLayer1();
     updateLayerMix();
 
-    // set default view
-    camera.invertColumns();
-    camera.invertRows();
-
     function onWindowResize() {
       let threeD = document.getElementById('r3d');
       camera.canvas = {
@@ -348,22 +318,32 @@ window.onload = function() {
   }
 
   function handleSeries() {
+
     // cleanup the loader and its progress bar
     loader.free();
     loader = null;
+
     //
     // first stack of first series
     let mergedSeries = seriesContainer[0].mergeSeries(seriesContainer);
     let stack = null;
     let stack2 = null;
+
     if (mergedSeries[0].seriesInstanceUID !== 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/patient1/7001_t1_average_BRAINSABC.nii.gz') {
+
       stack  = mergedSeries[1].stack[0];
       stack2 = mergedSeries[0].stack[0];
+
     } else {
+
       stack  = mergedSeries[0].stack[0];
       stack2 = mergedSeries[1].stack[0];
+
     }
-    //stack  = mergedSeries[1].stack[0];
+
+    stack = mergedSeries[0].stack[0];
+    stack2 = mergedSeries[1].stack[0];
+
     let stackHelper = new HelpersStack(stack);
     stackHelper.bbox.visible = false;
     stackHelper.border.visible = false;
@@ -467,7 +447,7 @@ window.onload = function() {
     // box: {halfDimensions, center}
     let bbox = {
       center: stack.worldCenter().clone(),
-      halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10)
+      halfDimensions: new THREE.Vector3(lpsDims.x + 500, lpsDims.y + 500, lpsDims.z + 500)
     };
 
     // init and zoom
