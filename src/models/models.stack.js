@@ -1,6 +1,6 @@
 /*** Imports ***/
-import CorePack    from '../../src/core/core.pack';
-import CoreUtils    from '../../src/core/core.utils';
+import CoreColors  from '../../src/core/core.colors';
+import CoreUtils   from '../../src/core/core.utils';
 import ModelsBase  from '../../src/models/models.base';
 
 let binaryString = require( 'math-float32-to-binary-string' );
@@ -81,34 +81,97 @@ export default class ModelsStack extends ModelsBase{
 
     //
     this._modality = 'Modality not set';
-    this._frameSegment = [];
+
+    // SEGMENTATION STUFF
+    this._segmentationType         = null;
+    this._segmentationSegments     = [];
+    this._segmentationDefaultColor = [63, 174, 128];
+    this._frameSegment             = [];
+    this._segmentationLUT          = [];
+    this._segmentationLUTO         = [];
 
     // photometricInterpretation Monochrome1 VS Monochrome2
     this._invert = false;
   }
 
-  mergeFrames(){
+  prepareSegmentation(){
+
+    // store frame and do special pre-processing
+    this._frameSegment = this._frame;
     let mergedFrames = [];
+
+    // order frames
     this.computeCosines();
     this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
     this._frame.sort(this._sortDistanceArraySort);
 
-    mergedFrames.push(this._frame[0]);
-    let prevIndex = 0;
-    for(let i = 1; i<this._frame.length; i++){
-      if(mergedFrames[prevIndex]._dist === this._frame[i]._dist){
+    // merge frames
+    let prevIndex = -1;
+    for(let i = 0; i<this._frame.length; i++){
+
+      if(!mergedFrames[prevIndex] || mergedFrames[prevIndex]._dist != this._frame[i]._dist){
+        mergedFrames.push( this._frame[i]);
+        prevIndex++;
+
+        // scale it..
+        for(let k=0; k<mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++){
+          mergedFrames[prevIndex]._pixelData[k] *= this._frame[i]._referencedSegmentNumber;
+        }
+
+        
+      } else{
 
         for(let k=0; k<mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++){
           mergedFrames[prevIndex]._pixelData[k] += this._frame[i].pixelData[k] * this._frame[i]._referencedSegmentNumber;
         }
 
-        mergedFrames[prevIndex].minMax = CoreUtils.minMaxPixelData(mergedFrames[prevIndex]._pixelData);
+      }
+
+      mergedFrames[prevIndex].minMax = CoreUtils.minMaxPixelData(mergedFrames[prevIndex]._pixelData);
+    }
+
+    // get information about segments
+    let dict = {};
+    let max = 0;
+    for(let i = 0; i<this._segmentationSegments.length; i++){
+
+      max = Math.max( max, parseInt( this._segmentationSegments[i].segmentNumber, 10) );
+
+      let color = this._segmentationSegments[i].recommendedDisplayCIELab;
+      if( color === null ){
+
+        dict[ this._segmentationSegments[i].segmentNumber ] = this._segmentationDefaultColor;
 
       }
-      else{
-        mergedFrames.push( this._frame[i] );
-        prevIndex++;
+      else {
+      
+        dict[ this._segmentationSegments[i].segmentNumber ] = CoreColors.cielab2RGB(...color);
+
       }
+  
+    }
+
+    // generate LUTs
+    var colors = [];
+    var index = [0];
+    for (let i = 0; i <= max; i++) {
+
+      let index = i / max;
+      let opacity = i ? 1 : 0;
+      let rgb = [0, 0, 0];
+      if(dict.hasOwnProperty( i.toString() ) ){
+
+        rgb = dict[ i.toString() ];
+
+      }
+
+      rgb[0] /= 255;
+      rgb[1] /= 255;
+      rgb[2] /= 255;
+
+      this._segmentationLUT.push([index, ...rgb]);
+      this._segmentationLUTO.push([index, opacity]);
+
     }
 
     this._frame = mergedFrames;
@@ -126,10 +189,9 @@ export default class ModelsStack extends ModelsBase{
   prepare() {
     // if segmentation, merge some frames...
     if( this._modality === 'SEG'){
-      console.log('do some special pre-processing');
-      // store frame and do special pre-processing
-      this._frameSegment = this._frame;
-      this.mergeFrames();
+
+      this.prepareSegmentation();
+
     }
 
     // we need at least 1 frame
@@ -916,5 +978,37 @@ export default class ModelsStack extends ModelsBase{
 
   set rightHanded(rightHanded){
     this._rightHanded = rightHanded;
+  }
+
+  set segmentationSegments(segmentationSegments) {
+    this._segmentationSegments = segmentationSegments;
+  }
+
+  get segmentationSegments() {
+    return this._segmentationSegments;
+  }
+
+  set segmentationType(segmentationType) {
+    this._segmentationType = segmentationType;
+  }
+
+  get segmentationType() {
+    return this._segmentationType;
+  }
+
+  set segmentationLUT(segmentationLUT) {
+    this._segmentationLUT = segmentationLUT;
+  }
+
+  get segmentationLUT() {
+    return this._segmentationLUT;
+  }
+
+  set segmentationLUTO(segmentationLUTO) {
+    this._segmentationLUTO = segmentationLUTO;
+  }
+
+  get segmentationLUTO() {
+    return this._segmentationLUTO;
   }
 }
