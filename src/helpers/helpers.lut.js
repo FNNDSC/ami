@@ -8,15 +8,17 @@ export default class HelpersLut{
               lut = 'default',
               lutO = 'linear',
               color = [[0, 0, 0, 0], [1, 1, 1, 1]],
-              opacity = [[0, 0], [1, 1]]) {
+              opacity = [[0, 0], [1, 1]],
+              discrete = false) {
     // min/max (0-1 or real intensities)
     // show/hide
     // horizontal/vertical
     this._containerID = containerID;
 
-    this._color = color;
-    this._lut = lut;
-    this._luts = {[lut]: color};
+    this._discrete = discrete;
+    this._color    = color;
+    this._lut      = lut;
+    this._luts     = {[lut]: color};
 
     this._opacity = opacity;
     this._lutO = lutO;
@@ -60,23 +62,70 @@ export default class HelpersLut{
     ctx.globalCompositeOperation = 'source-over';
 
     // apply color
-    let color = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
-    for (let i = 0; i < this._color.length; i++) {
-      color.addColorStop(this._color[i][0], 'rgba(' + Math.round(this._color[i][1] * 255) + ', ' + Math.round(this._color[i][2] * 255) + ', ' + Math.round(this._color[i][3] * 255) + ', 1)');
-    }
-    ctx.fillStyle = color;
-    ctx.fillRect(0, 0, this._canvas.width , this._canvas.height);
+    if( !this._discrete ){
 
-    // setup context
-    ctx.globalCompositeOperation = 'destination-in';
+      let color = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
+      for (let i = 0; i < this._color.length; i++) {
+        color.addColorStop(this._color[i][0], `rgba( ${Math.round(this._color[i][1] * 255)}, ${Math.round(this._color[i][2] * 255)}, ${Math.round(this._color[i][3] * 255)}, 1)`);
+      }
 
-    // apply opacity
-    let opacity = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
-    for (let i = 0; i < this._opacity.length; i++) {
-      opacity.addColorStop(this._opacity[i][0], 'rgba(255, 255, 255, ' + this._opacity[i][1] + ')');
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, this._canvas.width , this._canvas.height);
+
     }
-    ctx.fillStyle = opacity;
-    ctx.fillRect(0, 0, this._canvas.width , this._canvas.height);
+    else{
+
+      ctx.lineWidth=2*this._canvas.height;
+      let nextPos = 1.0;
+
+      for( let i=0; i<this._color.length; i++ ){
+
+        let currentPos  = this._color[i][0];
+        let nextPos     = 1;
+        if( i < this._color.length - 1){
+
+          nextPos = this._color[i+1][0];
+
+        }
+        let previousPos = 0;
+        if( i > 0){
+
+          previousPos = this._color[i-1][0];
+
+        }
+        
+        let from        = previousPos + (currentPos - previousPos)/2;
+        let to          = currentPos + (nextPos - currentPos)/2;
+        let color       = this._color[i];
+        let opacity     = this._opacity[i][1];
+
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba( ${Math.round(color[1] * 255)}, ${Math.round(color[2] * 255)}, ${Math.round(color[3] * 255)}, ${opacity})`;
+        ctx.moveTo(from*this._canvas.width,0);
+        ctx.lineTo( to*this._canvas.width, 0);
+        ctx.stroke();
+        ctx.closePath();
+        
+      }
+
+    }
+
+    if( !this._discrete ){
+
+      // if discrete, we already took care of the opacity.
+      // setup context
+      ctx.globalCompositeOperation = 'destination-in';
+
+      // apply opacity
+      let opacity = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
+      for (let i = 0; i < this._opacity.length; i++) {
+        opacity.addColorStop(this._opacity[i][0], 'rgba(255, 255, 255, ' + this._opacity[i][1] + ')');
+      }
+      ctx.fillStyle = opacity;
+      ctx.fillRect(0, 0, this._canvas.width , this._canvas.height);
+
+    }
+
   }
 
   get texture() {
@@ -86,6 +135,7 @@ export default class HelpersLut{
     texture.magFilter = texture.minFilter = THREE.NearestFilter;
     texture.premultiplyAlpha = true;
     texture.needsUpdate = true;
+    console.log( texture );
     return texture;
   }
 
