@@ -27,10 +27,7 @@ let sceneLayer1, meshLayer1, uniformsLayer1, materialLayer1, lutLayer1;
 let sceneLayerMix, meshLayerMix, uniformsLayerMix, materialLayerMix, lutLayerMix;
 
 let layerMix = {
-  opacity0: 1.0,
   opacity1: 1.0,
-  type0: 0,
-  type1: 1,
   lut: null
 };
 
@@ -392,7 +389,7 @@ let ds2 = [
     let customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
 
-    let layer0Folder = gui.addFolder('Layer 0 (Base)');
+    let layer0Folder = gui.addFolder('PET');
     layer0Folder.add(stackHelper.slice, 'windowWidth', 1, stack.minMax[1]).step(1).listen();
     layer0Folder.add(stackHelper.slice, 'windowCenter', stack.minMax[0], stack.minMax[1]).step(1).listen();
     layer0Folder.add(stackHelper.slice, 'intensityAuto');
@@ -415,14 +412,10 @@ let ds2 = [
     layer0Folder.open();
 
     // layer mix folder
-    let layerMixFolder = gui.addFolder('Layer Mix');
+    let layerMixFolder = gui.addFolder('Segmentation');
     let opacityLayerMix1 = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01);
     opacityLayerMix1.onChange(function(value){
       uniformsLayerMix.uOpacity1.value = value;
-    });
-    let typeLayerMix1 = layerMixFolder.add(layerMix, 'type1', 0, 1).step( 1 );
-    typeLayerMix1.onChange(function(value){
-      uniformsLayerMix.uType1.value = value;
     });
 
     layerMixFolder.open();
@@ -519,19 +512,19 @@ let ds2 = [
     }
 
     // create material && mesh then add it to sceneLayer1
-    uniformsLayer1 = ShadersDataUniform.uniforms();
-    uniformsLayer1.uTextureSize.value = stack2.textureSize;
-    uniformsLayer1.uTextureContainer.value = textures2;
-    uniformsLayer1.uWorldToData.value = stack2.lps2IJK;
-    uniformsLayer1.uNumberOfChannels.value = stack2.numberOfChannels;
-    uniformsLayer1.uPixelType.value = stack2.pixelType;
-    uniformsLayer1.uBitsAllocated.value = stack2.bitsAllocated;
-    uniformsLayer1.uWindowCenterWidth.value = [stack2.windowCenter, stack2.windowWidth];
+    uniformsLayer1                             = ShadersDataUniform.uniforms();
+    uniformsLayer1.uTextureSize.value           = stack2.textureSize;
+    uniformsLayer1.uTextureContainer.value      = textures2;
+    uniformsLayer1.uWorldToData.value           = stack2.lps2IJK;
+    uniformsLayer1.uNumberOfChannels.value      = stack2.numberOfChannels;
+    uniformsLayer1.uPixelType.value             = stack2.pixelType;
+    uniformsLayer1.uBitsAllocated.value         = stack2.bitsAllocated;
+    uniformsLayer1.uWindowCenterWidth.value     = [stack2.windowCenter, stack2.windowWidth];
     uniformsLayer1.uRescaleSlopeIntercept.value = [stack2.rescaleSlope, stack2.rescaleIntercept];
-    uniformsLayer1.uDataDimensions.value = [stack2.dimensionsIJK.x,
+    uniformsLayer1.uDataDimensions.value        = [stack2.dimensionsIJK.x,
                                                 stack2.dimensionsIJK.y,
                                                 stack2.dimensionsIJK.z];
-    uniformsLayer1.uInterpolation.value = 0;
+    uniformsLayer1.uInterpolation.value         = 0;
 
     // generate shaders on-demand!
     let fs = new ShadersDataFragment(uniformsLayer1);

@@ -114,7 +114,6 @@ export default class LoadersVolumes extends LoadersBase{
                   stack.pixelType        = volumeParser.pixelType();
                   stack.invert           = volumeParser.invert();
                   stack.modality         = series.modality;
-                  stack.rightHanded       = volumeParser.rightHanded();
                   // if it is a segmentation, attach extra information
                   if(stack.modality === 'SEG'){
                     // colors
@@ -145,7 +144,8 @@ export default class LoadersVolumes extends LoadersBase{
     frame.pixelSpacing     = dataParser.pixelSpacing(i);
     frame.sliceThickness   = dataParser.sliceThickness(i);
     frame.imageOrientation = dataParser.imageOrientation(i);
-    frame.rightHanded      = stack.rightHanded;
+    frame.rightHanded      = dataParser.rightHanded();
+    stack.rightHanded      = frame.rightHanded;
     if (frame.imageOrientation === null) {
       frame.imageOrientation = [1, 0, 0, 0, 1, 0];
     }
