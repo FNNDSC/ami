@@ -15,7 +15,7 @@ export default class HelpersProgressBar{
         'name' : 'parse',
         'color': '#2196F3'
       }
-    }
+    };
 
     this.requestAnimationFrameID = null;
 
