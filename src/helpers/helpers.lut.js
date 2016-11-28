@@ -76,7 +76,6 @@ export default class HelpersLut{
     else{
 
       ctx.lineWidth=2*this._canvas.height;
-      let nextPos = 1.0;
 
       for( let i=0; i<this._color.length; i++ ){
 
@@ -93,11 +92,11 @@ export default class HelpersLut{
           previousPos = this._color[i-1][0];
 
         }
-        
+
         let from        = previousPos + (currentPos - previousPos)/2;
         let to          = currentPos + (nextPos - currentPos)/2;
         let color       = this._color[i];
-        let opacity     = this._opacity[i][1];
+        let opacity     = this._opacity[i] ? this._opacity[i][1] : 1;
 
         ctx.beginPath();
         ctx.strokeStyle = `rgba( ${Math.round(color[1] * 255)}, ${Math.round(color[2] * 255)}, ${Math.round(color[3] * 255)}, ${opacity})`;
@@ -135,7 +134,6 @@ export default class HelpersLut{
     texture.magFilter = texture.minFilter = THREE.NearestFilter;
     texture.premultiplyAlpha = true;
     texture.needsUpdate = true;
-    console.log( texture );
     return texture;
   }
 
@@ -175,6 +173,16 @@ export default class HelpersLut{
 
   get lutsO(){
     return this._lutsO;
+  }
+
+  set discrete(discrete){
+    this._discrete = discrete;
+
+    this.paintCanvas();
+  }
+
+  get discrete(){
+    return this._discrete;
   }
 
   lutsAvailable(type = 'color') {

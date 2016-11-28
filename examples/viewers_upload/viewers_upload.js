@@ -109,6 +109,11 @@ window.onload = function() {
       lut.lut = value;
       stackHelper.slice.lutTexture = lut.texture;
     });
+    let lutDiscrete = stackFolder.add(lut, 'discrete', false);
+    lutDiscrete.onChange(function(value) {
+      lut.discrete = value;
+      stackHelper.slice.lutTexture = lut.texture;
+    });
 
     stackFolder.add(stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
     stackFolder.open();
