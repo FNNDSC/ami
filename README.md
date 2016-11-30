@@ -11,6 +11,10 @@
         <img src="https://codeclimate.com/github/FNNDSC/ami/badges/gpa.svg"
              alt="Code Climate">
     </a>
+     <a href="https://cdnjs.com/libraries/ami.js">
+        <img src="https://img.shields.io/cdnjs/v/ami.js.svg"
+             alt="CDNJS Version">
+    </a>
     <a href="https://www.npmjs.com/package/ami.js">
         <img src="https://img.shields.io/npm/v/ami.js.svg"
              alt="NPM Version">
