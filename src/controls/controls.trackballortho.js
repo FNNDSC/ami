@@ -34,6 +34,8 @@ export default class Trackballortho extends THREE.EventDispatcher {
 
     this.keys = [65 /*A*/, 83 /*S*/, 68 /*D*/];
 
+    this.hasChanged=false;
+
     // internals
 
     this.target = new THREE.Vector3();
@@ -244,6 +246,8 @@ export default class Trackballortho extends THREE.EventDispatcher {
         _this.dispatchEvent(changeEvent);
 
         _changed = false;
+
+        this.hasChanged=true;
 
       }
 
