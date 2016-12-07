@@ -247,7 +247,7 @@ Add AMI in your index.html **after** THREEJS.
 ```
 # index.html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js"></script>
-<script src="https://rawgit.com/FNNDSC/ami/master/dist/ami.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ami.js/0.0.11/ami.min.js"></script>
 <script src="app.js"></script>
 
 #app.js
