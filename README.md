@@ -11,6 +11,10 @@
         <img src="https://codeclimate.com/github/FNNDSC/ami/badges/gpa.svg"
              alt="Code Climate">
     </a>
+     <a href="https://cdnjs.com/libraries/ami.js">
+        <img src="https://img.shields.io/cdnjs/v/ami.js.svg"
+             alt="CDNJS Version">
+    </a>
     <a href="https://www.npmjs.com/package/ami.js">
         <img src="https://img.shields.io/npm/v/ami.js.svg"
              alt="NPM Version">
@@ -243,7 +247,7 @@ Add AMI in your index.html **after** THREEJS.
 ```
 # index.html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js"></script>
-<script src="https://rawgit.com/FNNDSC/ami/master/dist/ami.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ami.js/0.0.11/ami.min.js"></script>
 <script src="app.js"></script>
 
 #app.js
