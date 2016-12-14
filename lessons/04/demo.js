@@ -101,6 +101,7 @@ function init() {
   controls = new ControlsOrthographic(camera, threeD);
   controls.staticMoving = true;
   controls.noRotate = true;
+  camera.controls = controls;
 
   animate();
 }
@@ -388,7 +389,7 @@ function handleSeries() {
   );
 
   // box: {halfDimensions, center}
-  var bbox = {
+  var box = {
     center: stack.worldCenter().clone(),
     halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10)
   };
@@ -398,7 +399,10 @@ function handleSeries() {
       width: threeD.clientWidth,
       height: threeD.clientHeight
     };
-  camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas, stack.referenceSpace);
+  camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
+  camera.box = box;
+  camera.canvas = canvas;
+  camera.update();
   camera.fitBox(2);
 
   // CREATE LUT

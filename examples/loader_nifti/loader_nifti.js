@@ -87,7 +87,7 @@ window.onload = function() {
 
   // load vtk file
   var loader1 = new THREE.VTKLoader();
-  loader1.load( '../../data/blood.vtk', function ( geometry ) {
+  loader1.load( '../../blood1.vtk', function ( geometry ) {
     geometry.computeVertexNormals();
     console.log( geometry );
     var material = new THREE.MeshLambertMaterial( {
@@ -114,6 +114,7 @@ window.onload = function() {
   var files = t2.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/fetalatlas_brain/t2/' + v;
   });
+  files = ['../../data/MRBrainTumor1_PIL.nii'];
 
   // load sequence for each file
   let seriesContainer = [];

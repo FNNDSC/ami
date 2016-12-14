@@ -125,6 +125,7 @@ function init() {
   controls = new ControlsOrthographic(camera, threeD);
   controls.staticMoving = true;
   controls.noRotate = true;
+  camera.controls = controls;
 
   animate();
 }
@@ -445,9 +446,9 @@ window.onload = function() {
     );
 
     // box: {halfDimensions, center}
-    let bbox = {
+    let box = {
       center: stack.worldCenter().clone(),
-      halfDimensions: new THREE.Vector3(lpsDims.x + 500, lpsDims.y + 500, lpsDims.z + 500)
+      halfDimensions: new THREE.Vector3(lpsDims.x + 50, lpsDims.y + 50, lpsDims.z + 50)
     };
 
     // init and zoom
@@ -455,7 +456,11 @@ window.onload = function() {
         width: threeD.clientWidth,
         height: threeD.clientHeight
       };
-    camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas);
+
+    camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
+    camera.box = box;
+    camera.canvas = canvas;
+    camera.update();
     camera.fitBox(2);
 
     // CREATE LUT
