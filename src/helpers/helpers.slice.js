@@ -273,16 +273,15 @@ export default class HelpersSlice extends HelpersMaterialMixin( THREE.Object3D )
 
     if (!this._material) {
       //
-      this._uniforms.uTextureSize.value = this._stack.textureSize;
-      this._uniforms.uDataDimensions.value =
-        [this._stack.dimensionsIJK.x,
-         this._stack.dimensionsIJK.y,
-         this._stack.dimensionsIJK.z];
-      this._uniforms.uWorldToData.value = this._stack.lps2IJK;
+      this._uniforms.uTextureSize.value     = this._stack.textureSize;
+      this._uniforms.uDataDimensions.value  = [ this._stack.dimensionsIJK.x,
+                                                this._stack.dimensionsIJK.y,
+                                                this._stack.dimensionsIJK.z ];
+      this._uniforms.uWorldToData.value      = this._stack.lps2IJK;
       this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
-      this._uniforms.uPixelType.value = this._stack.pixelType;
-      this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
-      this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
+      this._uniforms.uPixelType.value        = this._stack.pixelType;
+      this._uniforms.uBitsAllocated.value    = this._stack.bitsAllocated;
+      this._uniforms.uPackedPerPixel.value   = this._stack.packedPerPixel;
       // compute texture if material exist
       this._prepareTexture();
       this._uniforms.uTextureContainer.value = this._textures;

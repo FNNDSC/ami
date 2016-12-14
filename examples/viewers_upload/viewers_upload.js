@@ -20,7 +20,9 @@ let drag = {
 let camUtils = {
   invertRows: false,
   invertColumns: false,
-  rotate: false
+  rotate: false,
+  orientation: 'default',
+  convention: 'radio'
 };
 
 // FUNCTIONS
@@ -64,6 +66,7 @@ function init() {
   controls = new ControlsOrthographic(camera, threeD);
   controls.staticMoving = true;
   controls.noRotate = true;
+  camera.controls = controls;
 
   animate();
 }
@@ -109,6 +112,11 @@ window.onload = function() {
       lut.lut = value;
       stackHelper.slice.lutTexture = lut.texture;
     });
+    let lutDiscrete = stackFolder.add(lut, 'discrete', false);
+    lutDiscrete.onChange(function(value) {
+      lut.discrete = value;
+      stackHelper.slice.lutTexture = lut.texture;
+    });
 
     stackFolder.add(stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
     stackFolder.open();
@@ -130,6 +138,21 @@ window.onload = function() {
     let rotate = cameraFolder.add(camUtils, 'rotate');
     rotate.onChange(function() {
       camera.rotate();
+    });
+
+    let orientationUpdate = cameraFolder.add(camUtils, 'orientation', ['default', 'axial', 'coronal', 'sagittal']);
+    orientationUpdate.onChange(function(value) {
+      camera.orientation = value;
+      camera.update();
+      camera.fitBox(2);
+      stackHelper.orientation = camera.stackOrientation;
+    });
+
+    let conventionUpdate = cameraFolder.add(camUtils, 'convention', ['radio', 'neuro']);
+    conventionUpdate.onChange(function(value) {
+      camera.convention = value;
+      camera.update();
+      camera.fitBox(2);
     });
 
     cameraFolder.open();
@@ -228,7 +251,7 @@ window.onload = function() {
     );
 
     // box: {halfDimensions, center}
-    let bbox = {
+    let box = {
       center: stack.worldCenter().clone(),
       halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10)
     };
@@ -238,7 +261,11 @@ window.onload = function() {
         width: threeD.clientWidth,
         height: threeD.clientHeight
       };
-    camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas);
+  
+    camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
+    camera.box = box;
+    camera.canvas = canvas;
+    camera.update();
     camera.fitBox(2);
 
     buildGUI(stackHelper);

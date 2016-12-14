@@ -26,6 +26,7 @@ var camera = new CamerasOrthographic(container.clientWidth / -2, container.clien
 var controls = new ControlsOrthographic(camera, container);
 controls.staticMoving = true;
 controls.noRotate = true;
+camera.controls = controls;
 
 // handle resize
 function onWindowResize() {
@@ -46,8 +47,9 @@ window.addEventListener('resize', onWindowResize, false);
 function gui(stackHelper){
 
   var gui = new dat.GUI({
-            autoPlace: false
+    autoPlace: false
   });
+
   var customContainer = document.getElementById('my-gui-container');
   customContainer.appendChild(gui.domElement);
   // only reason to use this object is to satusfy data.GUI
@@ -55,7 +57,9 @@ function gui(stackHelper){
     invertRows: false,
     invertColumns: false,
     rotate45: false,
-    rotate: 0
+    rotate: 0,
+    orientation: 'default',
+    convention: 'radio'
   };
 
   // camera
@@ -76,6 +80,21 @@ function gui(stackHelper){
   });
 
   var rotate = cameraFolder.add(camera, 'angle', 0, 360).step(1).listen();
+
+  let orientationUpdate = cameraFolder.add(camUtils, 'orientation', ['default', 'axial', 'coronal', 'sagittal']);
+  orientationUpdate.onChange(function(value) {
+      camera.orientation = value;
+      camera.update();
+      camera.fitBox(2);
+      stackHelper.orientation = camera.stackOrientation;
+  });
+
+  let conventionUpdate = cameraFolder.add(camUtils, 'convention', ['radio', 'neuro']);
+  conventionUpdate.onChange(function(value) {
+      camera.convention = value;
+      camera.update();
+      camera.fitBox(2);
+  });
 
   cameraFolder.open();
 
@@ -100,13 +119,7 @@ animate();
 
 // Setup loader
 var loader = new LoadersVolume(container);
-
-var t2 = [
-    '36444280', '36444294', '36444308', '36444322', '36444336'
-];
-var files = t2.map(function(v) {
-    return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
-  });
+var files = ['https://cdn.rawgit.com/FNNDSC/data/master/nifti/adi_brain/adi_brain.nii.gz'];
 
 // load sequence for each file
 // 1- fetch
@@ -173,7 +186,7 @@ Promise
     );
 
     // box: {halfDimensions, center}
-    var bbox = {
+    var box = {
       center: stack.worldCenter().clone(),
       halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10)
     };
@@ -183,8 +196,13 @@ Promise
         width: container.clientWidth,
         height: container.clientHeight
       };
-    camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas);
+
+    camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
+    camera.box = box;
+    camera.canvas = canvas;
+    camera.update();
     camera.fitBox(2);
+
   })
   .catch(function(error) {
     window.console.log('oops... something went wrong...');

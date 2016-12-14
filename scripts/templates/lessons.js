@@ -3,11 +3,12 @@ const packageJSON = require('../../package.json');
 class LessonTemplate{
   constructor(options={}) {
     this.threeVersion = packageJSON.config.threeVersion;
-    this.amiCDN = packageJSON.config.amiCDN;
-    this.name = '';
-    this.mode = 'dist';
-    this.content = '';
-    this.gaKey = packageJSON.config.gaKey;
+    this.version      = packageJSON.version;
+    this.amiCDN       = packageJSON.config.amiCDN;
+    this.name         = '';
+    this.mode         = 'dist';
+    this.content      = '';
+    this.gaKey        = packageJSON.config.gaKey;
   }
 
   scriptsAMI(){
@@ -20,7 +21,7 @@ class LessonTemplate{
       else {
         return(`
 <!-- AMI CDN -->
-<script type="text/javascript" src="${this.amiCDN}"></script>
+<script type="text/javascript" src="${this.amiCDN}/${this.version}/ami.min.js"></script>
         `); 
       }
   }

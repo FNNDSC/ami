@@ -31,11 +31,8 @@ var layer1 = {
   interpolation: 1
 };
 
-
 var layerMix = {
-  opacity1: 1.0,
-  type0: 0,
-  type1: 1
+  opacity1: 1.0
 };
 
 // FUNCTIONS
@@ -104,6 +101,7 @@ function init() {
   controls = new ControlsOrthographic(camera, threeD);
   controls.staticMoving = true;
   controls.noRotate = true;
+  camera.controls = controls;
 
   animate();
 }
@@ -210,7 +208,7 @@ function buildGUI(stackHelper) {
   var customContainer = document.getElementById('my-gui-container');
   customContainer.appendChild(gui.domElement);
 
-  var layer0Folder = gui.addFolder('Layer 0 (Base)');
+  var layer0Folder = gui.addFolder('CT');
   layer0Folder.add(stackHelper.slice, 'invert');
 
   var lutUpdate = layer0Folder.add(stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
@@ -229,30 +227,11 @@ function buildGUI(stackHelper) {
 
   layer0Folder.open();
 
-
-  // layer 1 folder
-  var layer1Folder = gui.addFolder('Layer 1');
-  var interpolationLayer1 = layer1Folder.add(layer1, 'interpolation', 0, 1 ).step( 1 ).listen();
-  interpolationLayer1.onChange(function(value){
-    uniformsLayer1.uInterpolation.value = value;
-
-    // re-compute shaders
-    let fs = new ShadersDataFragment(uniformsLayer1);
-    materialLayer1.fragmentShader = fs.compute();
-    materialLayer1.needsUpdate = true;
-  });
-
-  layer1Folder.open();
-
   // layer mix folder
-  var layerMixFolder = gui.addFolder('Layer Mix');
+  var layerMixFolder = gui.addFolder('Segmentation');
   var opacityLayerMix1 = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01);
   opacityLayerMix1.onChange(function(value){
     uniformsLayerMix.uOpacity1.value = value;
-  });
-  var typeLayerMix1 = layerMixFolder.add(layerMix, 'type1', 0, 1).step( 1 );
-  typeLayerMix1.onChange(function(value){
-    uniformsLayerMix.uType1.value = value;
   });
 
   layerMixFolder.open();
@@ -349,18 +328,19 @@ function handleSeries() {
   }
 
   // create material && mesh then add it to sceneLayer1
-  uniformsLayer1 = ShadersDataUniforms.uniforms();
-  uniformsLayer1.uTextureSize.value = stack2.textureSize;
-  uniformsLayer1.uTextureContainer.value = textures2;
-  uniformsLayer1.uWorldToData.value = stack2.lps2IJK;
-  uniformsLayer1.uNumberOfChannels.value = stack2.numberOfChannels;
-  uniformsLayer1.uPixelType.value = stack2.pixelType;
-  uniformsLayer1.uBitsAllocated.value = stack2.bitsAllocated;
-  uniformsLayer1.uWindowCenterWidth.value = [stack2.windowCenter, stack2.windowWidth];
+  uniformsLayer1                              = ShadersDataUniforms.uniforms();
+  uniformsLayer1.uTextureSize.value           = stack2.textureSize;
+  uniformsLayer1.uTextureContainer.value      = textures2;
+  uniformsLayer1.uWorldToData.value           = stack2.lps2IJK;
+  uniformsLayer1.uNumberOfChannels.value      = stack2.numberOfChannels;
+  uniformsLayer1.uPixelType.value             = stack2.pixelType;
+  uniformsLayer1.uBitsAllocated.value         = stack2.bitsAllocated;
+  uniformsLayer1.uWindowCenterWidth.value     = [stack2.windowCenter, stack2.windowWidth];
   uniformsLayer1.uRescaleSlopeIntercept.value = [stack2.rescaleSlope, stack2.rescaleIntercept];
-  uniformsLayer1.uDataDimensions.value = [stack2.dimensionsIJK.x,
+  uniformsLayer1.uDataDimensions.value        = [stack2.dimensionsIJK.x,
                                               stack2.dimensionsIJK.y,
                                               stack2.dimensionsIJK.z];
+  uniformsLayer1.uInterpolation.value         = 0;
 
   // generate shaders on-demand!
   var fs = new ShadersDataFragment(uniformsLayer1);
@@ -409,7 +389,7 @@ function handleSeries() {
   );
 
   // box: {halfDimensions, center}
-  var bbox = {
+  var box = {
     center: stack.worldCenter().clone(),
     halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10)
   };
@@ -419,7 +399,10 @@ function handleSeries() {
       width: threeD.clientWidth,
       height: threeD.clientHeight
     };
-  camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas, stack.referenceSpace);
+  camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
+  camera.box = box;
+  camera.canvas = canvas;
+  camera.update();
   camera.fitBox(2);
 
   // CREATE LUT
@@ -435,8 +418,9 @@ function handleSeries() {
     'my-lut-canvases-l1',
     'default',
     'linear',
-    [[0, 0, 0, 0], [1, 0.913, 0.117, 0.388]],
-    [[0, 0], [1, 1]]);
+    stack2.segmentationLUT,
+    stack2.segmentationLUTO,
+    true);
   uniformsLayer1.uLut.value = 1;
   uniformsLayer1.uTextureLUT.value = lutLayer1.texture;
 

@@ -88,7 +88,6 @@ export default class ParsersDicom extends ParsersVolume {
 
   segmentationSegments(){
 
-    // lot to do!
     let segmentationSegments = [];
     let segmentSequence = this._dataSet.elements.x00620002;
     
@@ -139,10 +138,29 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   _recommendedDisplayCIELab( segment ){
-      let rawColor                 = String(segment.dataSet.uint16('x0062000d'));
-      let recommendedDisplayCIELab = String(`000000${rawColor}`).slice(-6);
 
-      return recommendedDisplayCIELab;
+    if( !segment.dataSet.elements.x0062000d ){
+      return null;
+    }
+
+    let offset = segment.dataSet.elements.x0062000d.dataOffset;
+    let length = segment.dataSet.elements.x0062000d.length;
+    let byteArray = segment.dataSet.byteArray.slice(offset, offset+ length);
+
+    // https://www.dabsoft.ch/dicom/3/C.10.7.1.1/
+    let CIELabScaled = new Uint16Array(length/2);
+    for(let i = 0; i<length/2; i++){
+      CIELabScaled[i] = (byteArray[2*i + 1] << 8) + byteArray[2*i];
+    }
+
+    let CIELabNormalized = [
+      CIELabScaled[0] / 65535 * 100,
+      CIELabScaled[1] / 65535 * 255 - 128,
+      CIELabScaled[2] / 65535 * 255 - 128
+    ];
+
+    return CIELabNormalized;
+  
   }
 
   sopInstanceUID(frameIndex = 0) {
@@ -704,7 +722,7 @@ export default class ParsersDicom extends ParsersVolume {
 
     } else {
 
-      throw 'no decoder for transfer syntax ${transferSyntaxUID}';
+      throw `no decoder for transfer syntax ${transferSyntaxUID}`;
 
     }
 

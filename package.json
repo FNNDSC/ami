@@ -1,6 +1,6 @@
 {
   "name": "ami.js",
-  "version": "v0.0.11",
+  "version": "v0.0.12",
   "main": "src/ami.js",
   "keywords": ["ami", "ami.js","three.js", "webgl", "dicom", "nifti", "awesome", "medical", "imaging", "xtk", "nrrd", "vtk", "stl", "trk"],
   "author": {
@@ -15,7 +15,7 @@
   },
   "config" : { 
     "threeVersion": "r81",
-    "amiCDN": "https://cdn.rawgit.com/fnndsc/ami/master/build/ami.min.js",
+    "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js/",
     "gaKey": "UA-39303022-3",
     "transforms" : "-t [babelify --presets [ es2015 ] ]"
   },

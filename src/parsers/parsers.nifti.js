@@ -290,9 +290,9 @@ export default class ParsersNifti extends ParsersVolume {
 
     let numberOfChannels = this.numberOfChannels();
     let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
-    if( !this.rightHanded() ){
-      frameIndex = this.numberOfFrames() - 1 - frameIndex; 
-    }
+    // if( !this.rightHanded() ){
+    //   frameIndex = this.numberOfFrames() - 1 - frameIndex; 
+    // }
     let frameOffset = frameIndex * numPixels;
     let buffer = this._niftiImage;
 
