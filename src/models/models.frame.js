@@ -22,6 +22,7 @@ export default class ModelsFrame extends ModelsBase{
     this._rightHanded = true;
     this._sliceThickness = 1;
     this._spacingBetweenSlices = null;
+    this._pixelRepresentation = 0;
     this._pixelType = 0;
     this._pixelSpacing = null;
     this._pixelAspectRatio = null;
@@ -332,6 +333,14 @@ export default class ModelsFrame extends ModelsBase{
 
   get sopInstanceUID() {
     return this._sopInstanceUID;
+  }
+
+  get pixelRepresentation() {
+    return this._pixelRepresentation;
+  }
+
+  set pixelRepresentation(pixelRepresentation) {
+    this._pixelRepresentation = pixelRepresentation;
   }
 
   get pixelType() {

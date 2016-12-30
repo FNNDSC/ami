@@ -110,10 +110,11 @@ export default class LoadersVolumes extends LoadersBase{
 
                   // just create 1 dummy stack for now
                   let stack = new ModelsStack();
-                  stack.numberOfChannels = volumeParser.numberOfChannels();
-                  stack.pixelType        = volumeParser.pixelType();
-                  stack.invert           = volumeParser.invert();
-                  stack.modality         = series.modality;
+                  stack.numberOfChannels    = volumeParser.numberOfChannels();
+                  stack.pixelRepresentation = volumeParser.pixelRepresentation();
+                  stack.pixelType           = volumeParser.pixelType();
+                  stack.invert              = volumeParser.invert();
+                  stack.modality            = series.modality;
                   // if it is a segmentation, attach extra information
                   if(stack.modality === 'SEG'){
                     // colors
@@ -133,19 +134,20 @@ export default class LoadersVolumes extends LoadersBase{
   }
 
   parseFrame(series, stack, url, i, dataParser, resolve, reject) {
-    let frame = new ModelsFrame();
-    frame.sopInstanceUID   = dataParser.sopInstanceUID(i);
-    frame.url              = url;
-    frame.rows             = dataParser.rows(i);
-    frame.columns          = dataParser.columns(i);
-    frame.numberOfChannels = stack.numberOfChannels;
-    frame.pixelType        = stack.pixelType;
-    frame.pixelData        = dataParser.extractPixelData(i);
-    frame.pixelSpacing     = dataParser.pixelSpacing(i);
-    frame.sliceThickness   = dataParser.sliceThickness(i);
-    frame.imageOrientation = dataParser.imageOrientation(i);
-    frame.rightHanded      = dataParser.rightHanded();
-    stack.rightHanded      = frame.rightHanded;
+    let frame                 = new ModelsFrame();
+    frame.sopInstanceUID      = dataParser.sopInstanceUID(i);
+    frame.url                 = url;
+    frame.rows                = dataParser.rows(i);
+    frame.columns             = dataParser.columns(i);
+    frame.numberOfChannels    = stack.numberOfChannels;
+    frame.pixelRepresentation = stack.pixelRepresentation;
+    frame.pixelType           = stack.pixelType;
+    frame.pixelData           = dataParser.extractPixelData(i);
+    frame.pixelSpacing        = dataParser.pixelSpacing(i);
+    frame.sliceThickness      = dataParser.sliceThickness(i);
+    frame.imageOrientation    = dataParser.imageOrientation(i);
+    frame.rightHanded         = dataParser.rightHanded();
+    stack.rightHanded         = frame.rightHanded;
     if (frame.imageOrientation === null) {
       frame.imageOrientation = [1, 0, 0, 0, 1, 0];
     }

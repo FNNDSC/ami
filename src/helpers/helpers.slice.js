@@ -336,9 +336,19 @@ export default class HelpersSlice extends HelpersMaterialMixin( THREE.Object3D )
   }
 
   updateIntensitySettingsUniforms() {
+
+    // compensate for the offset to only pass > 0 values to shaders
+    // models > models.stack.js : _packTo8Bits
+    let offset = 0;
+    if( this._stack._minMax[0] < 0 ){
+
+      offset -= this._stack._minMax[0];
+
+    }
+
     // set slice window center and width
     this._uniforms.uRescaleSlopeIntercept.value = [this._rescaleSlope, this._rescaleIntercept];
-    this._uniforms.uWindowCenterWidth.value = [this._windowCenter, this._windowWidth];
+    this._uniforms.uWindowCenterWidth.value = [ offset + this._windowCenter, this._windowWidth];
 
     // invert
     this._uniforms.uInvert.value = this._invert === true ? 1 : 0;

@@ -9,6 +9,12 @@ export default class ParsersVolume {
 
   }
 
+  pixelRepresentation(){
+
+    return 0;
+
+  }
+
   modality(){
 
     return 'unkown';

@@ -40,6 +40,7 @@ export default class ModelsStack extends ModelsBase{
     this._numberOfChannels = 1;
     this._bitsAllocated = 8;
     this._pixelType = 0;
+    this._pixelRepresentation = 0;
 
     this._textureSize = 4096;
     this._nbTextures = 7; // HIGH RES..
@@ -476,6 +477,14 @@ export default class ModelsStack extends ModelsBase{
       data: null
     };
 
+    // transform signed to unsigned for convenience
+    let offset = 0;
+    if( this._minMax[0] < 0 ){
+
+      offset -= this._minMax[0];
+
+    }
+
     let packIndex = 0;
     let frameIndex = 0;
     let inFrameIndex = 0;
@@ -492,7 +501,7 @@ export default class ModelsStack extends ModelsBase{
         inFrameIndex = i % (frameDimension);
         /*jshint bitwise: true*/
 
-        data[packIndex] = frame[frameIndex].pixelData[inFrameIndex];
+        data[packIndex] = offset + frame[frameIndex].pixelData[inFrameIndex];
         packIndex++;
 
       }
@@ -512,7 +521,7 @@ export default class ModelsStack extends ModelsBase{
         inFrameIndex = i % (frameDimension);
         /*jshint bitwise: true*/
 
-        let raw = frame[frameIndex].pixelData[inFrameIndex];
+        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
         data[4 * coordinate + 2 * channelOffset] = raw & 0x00FF;
         data[4 * coordinate + 2 * channelOffset + 1] = (raw >>> 8) & 0x00FF;
 
@@ -537,7 +546,7 @@ export default class ModelsStack extends ModelsBase{
 
         // slow!
         //let asb = VJS.core.pack.uint16ToAlphaLuminance(frame[frameIndex].pixelData[inFrameIndex]);
-        let raw = frame[frameIndex].pixelData[inFrameIndex];
+        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
         data[4 * packIndex] = raw & 0x000000FF;
         data[4 * packIndex + 1] = (raw >>> 8) & 0x000000FF;
         data[4 * packIndex + 2] = (raw >>> 8) & 0x000000FF;
@@ -561,7 +570,7 @@ export default class ModelsStack extends ModelsBase{
 
         // slow!
         //let asb = VJS.core.pack.uint16ToAlphaLuminance(frame[frameIndex].pixelData[inFrameIndex]);
-        let raw = frame[frameIndex].pixelData[inFrameIndex];
+        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
         let bitString = binaryString(raw);
         let bitStringArray = bitString.match(/.{1,8}/g);
 
@@ -954,6 +963,14 @@ export default class ModelsStack extends ModelsBase{
 
   set pixelType(pixelType) {
     this._pixelType = pixelType;
+  }
+
+  get pixelRepresentation() {
+    return this._pixelRepresentation;
+  }
+
+  set pixelRepresentation(pixelRepresentation) {
+    this._pixelRepresentation = pixelRepresentation;
   }
 
   set invert(invert) {
