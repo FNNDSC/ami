@@ -32,7 +32,6 @@ function init() {
     // render
     controls.update();
     renderer.render(scene, camera);
-    statsyay.update();
 
     // request new frame
     requestAnimationFrame(function() {
@@ -46,16 +45,9 @@ function init() {
     antialias: true
   });
   renderer.setSize(threeD.clientWidth, threeD.clientHeight);
-  renderer.setClearColor(0x607D8B, 1);
-
-  //let maxTextureSize = renderer.context.getParameter(renderer.context.MAX_TEXTURE_SIZE);
-  //let maxTextureImageUnits = renderer.context.getParameter(renderer.context.MAX_TEXTURE_IMAGE_UNITS);
+  renderer.setClearColor(0x212121, 1);
 
   threeD.appendChild(renderer.domElement);
-
-  // stats
-  statsyay = new Stats();
-  threeD.appendChild(statsyay.domElement);
 
   // scene
   scene = new THREE.Scene();
@@ -80,6 +72,29 @@ window.onload = function() {
 
   // init threeJS...
   init();
+
+  function updateLabels( labels, modality ){
+
+    if( modality === 'CR' ||
+        modality === 'DX' ){
+
+          return;
+
+    }
+
+    var top = document.getElementById('top');
+    top.innerHTML = labels[0];
+
+    var bottom = document.getElementById('bottom');
+    bottom.innerHTML = labels[1];
+
+    var right = document.getElementById('right');
+    right.innerHTML = labels[2];
+
+    var left = document.getElementById('left');
+    left.innerHTML = labels[3];
+
+  }
 
   function buildGUI(stackHelper) {
     let stack = stackHelper._stack;
@@ -126,18 +141,24 @@ window.onload = function() {
     let invertRows = cameraFolder.add(camUtils, 'invertRows');
     invertRows.onChange(function() {
       camera.invertRows();
+      updateLabels( camera.directionsLabel, stack.modality );
     });
 
     let invertColumns = cameraFolder.add(camUtils, 'invertColumns');
     invertColumns.onChange(function() {
       camera.invertColumns();
+      updateLabels( camera.directionsLabel, stack.modality );
     });
 
     let angle = cameraFolder.add(camera, 'angle', 0, 360).step(1).listen();
+    angle.onChange(function() {
+      updateLabels( camera.directionsLabel, stack.modality );
+    });
 
     let rotate = cameraFolder.add(camUtils, 'rotate');
     rotate.onChange(function() {
       camera.rotate();
+      updateLabels( camera.directionsLabel, stack.modality );
     });
 
     let orientationUpdate = cameraFolder.add(camUtils, 'orientation', ['default', 'axial', 'coronal', 'sagittal']);
@@ -146,6 +167,7 @@ window.onload = function() {
       camera.update();
       camera.fitBox(2);
       stackHelper.orientation = camera.stackOrientation;
+      updateLabels( camera.directionsLabel, stack.modality );
     });
 
     let conventionUpdate = cameraFolder.add(camUtils, 'convention', ['radio', 'neuro']);
@@ -153,9 +175,10 @@ window.onload = function() {
       camera.convention = value;
       camera.update();
       camera.fitBox(2);
+      updateLabels( camera.directionsLabel, stack.modality );
     });
 
-    cameraFolder.open();
+    //cameraFolder.open();
   }
 
   function hookCallbacks(stackHelper) {
@@ -239,7 +262,7 @@ window.onload = function() {
 
     let stackHelper = new HelpersStack(stack);
     stackHelper.bbox.visible = false;
-    stackHelper.border.color = 0x9996F3;
+    stackHelper.border.visible = false;
     scene.add(stackHelper);
 
     // set camera
@@ -268,6 +291,7 @@ window.onload = function() {
     camera.update();
     camera.fitBox(2);
 
+    updateLabels( camera.directionsLabel, stack.modality );
     buildGUI(stackHelper);
     hookCallbacks(stackHelper);
   }
