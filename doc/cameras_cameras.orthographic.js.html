@@ -52,6 +52,12 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
       new THREE.Vector3(0, 0, 1)
       ];
 
+    this._directionsLabel = [
+      'A', 'P',// TOP/BOTTOM
+      'L', 'R',// LEFT/RIGHT
+      'I','S'// FROM/TO
+    ];
+
     this._orientation = 'default';
     this._convention = 'radio';
     this._stackOrientation = 0;
@@ -111,6 +117,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this._updateCanvas();
     this._updatePositionAndTarget(this._front, this._back);
     this._updateMatrices();
+    this._updateDirections();
   }
 
   update(){
@@ -149,8 +156,6 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
       this._direction = this._directions[2];
 
     } else {
-
-      // this._directions[2] = new THREE.Vector3().crossVectors( this._directions[0], this._directions[1] );
 
       let leftIndex = this.leftDirection();
       let leftDirection = this._directions[leftIndex];
@@ -328,6 +333,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this._updateCanvas();
     this._updatePositionAndTarget(this._front, this._back);
     this._updateMatrices();
+    this._updateDirections();
 
   }
 
@@ -357,11 +363,13 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
    */
   invertRows() {
 
-    console.log( 'invert rows ');
     // flip "up" vector
     // we flip up first because invertColumns update projectio matrices
     this.up.multiplyScalar(-1);    
     this.invertColumns();
+
+    this._updateDirections();
+
   }
 
   /**
@@ -371,7 +379,6 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
    */
   invertColumns( ) {
 
-    console.log( 'invert columns ');
     this.center();
     // rotate 180 degrees around the up vector...
     let oppositePosition = this._oppositePosition(this.position);
@@ -392,6 +399,8 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this._angle %= 360;
     this._angle = 360 - this._angle;
 
+    this._updateDirections();
+
   }
 
   /**
@@ -407,6 +416,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     }
 
     this._updateMatrices();
+    this._updateDirections();
   }
 
   /**
@@ -448,6 +458,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this.up.applyMatrix4(rotation);
 
     this._updateMatrices();
+    this._updateDirections();
   }
 
   // dimensions[0] // width
@@ -647,6 +658,100 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this.updateMatrixWorld();
   }
 
+  _updateLabels(){
+
+    this._directionsLabel = [
+      this._vector2Label( this._up ),
+      this._vector2Label( this._up.clone().negate() ),
+      this._vector2Label( this._right ),
+      this._vector2Label( this._right.clone().negate() ),
+      this._vector2Label( this._direction ),
+      this._vector2Label( this._direction.clone().negate() )
+    ];
+
+  }
+
+  _vector2Label( direction ){
+
+    let index = this._getMaxIndex( direction );
+    // set vector max value to 1
+    let scaledDirection = direction.clone().divideScalar( Math.abs( direction.getComponent( index ) ) );
+    let delta = 0.2;
+    let label = '';
+
+    // loop through components of the vector
+    for( let i = 0; i&lt;3; i++ ){
+
+      if( i === 0 ){
+
+        if( scaledDirection.getComponent( i ) + delta >= 1 ){
+
+          label += 'L';
+
+        }
+        else if( scaledDirection.getComponent( i ) - delta &lt;= -1 ){
+
+          label += 'R';
+
+        }
+
+      }
+
+      if( i === 1 ){
+
+        if( scaledDirection.getComponent( i ) + delta >= 1 ){
+
+          label += 'P';
+
+        }
+        else if( scaledDirection.getComponent( i ) - delta &lt;= -1 ){
+
+          label += 'A';
+
+        }
+
+      }
+
+      if( i === 2 ){
+
+        if( scaledDirection.getComponent( i ) + delta >= 1 ){
+
+          label += 'S';
+
+        }
+        else if( scaledDirection.getComponent( i ) - delta &lt;= -1 ){
+
+          label += 'I';
+
+        }
+
+      }
+
+
+    }
+
+    return label;
+
+
+  }
+
+  _updateDirections(){
+
+    // up is correct
+    this._up = this.up.clone();
+
+    // direction
+    var pLocal = new THREE.Vector3( 0, 0, -1 );
+    var pWorld = pLocal.applyMatrix4( this.matrixWorld );
+    this._direction = pWorld.sub( this.position ).normalize();
+
+    // right
+    this._right = new THREE.Vector3().crossVectors ( this._direction, this.up );
+
+    // update labels accordingly
+    this._updateLabels();
+  }
+
   set controls(controls) {
     this._controls = controls;
   }
@@ -702,6 +807,14 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
 
   get orientation(){
     return this._orientation;
+  }
+
+  set directionsLabel(directionsLabel){
+    this._directionsLabel = directionsLabel;
+  }
+
+  get directionsLabel(){
+    return this._directionsLabel;
   }
 
   set stackOrientation(stackOrientation){
@@ -780,7 +893,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Wed Dec 14 2016 14:43:56 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Dec 30 2016 15:49:18 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>
