@@ -507,7 +507,6 @@ export default class ModelsStack extends ModelsBase{
       }
       packed.textureType = THREE.LuminanceFormat;
       packed.data = data;
-      console.log( data );
 
     } else if (bits === 16 && channels === 1) {
 

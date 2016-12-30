@@ -337,6 +337,8 @@ export default class HelpersSlice extends HelpersMaterialMixin( THREE.Object3D )
 
   updateIntensitySettingsUniforms() {
 
+    // compensate for the offset to only pass > 0 values to shaders
+    // models > models.stack.js : _packTo8Bits
     let offset = 0;
     if( this._stack._minMax[0] < 0 ){
 
