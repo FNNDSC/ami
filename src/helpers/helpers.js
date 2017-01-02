@@ -6,7 +6,7 @@ import Slice           from './helpers.slice';
 import Stack           from './helpers.stack';
 import VolumeRendering from './helpers.volumerendering';
 import Voxel           from './helpers.voxel';
-import X               from './helpers/x/helpers.x';
+import X               from './x/helpers.x';
 
 /**
  * @module helpers
