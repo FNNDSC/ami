@@ -6,6 +6,7 @@ import Slice           from './helpers.slice';
 import Stack           from './helpers.stack';
 import VolumeRendering from './helpers.volumerendering';
 import Voxel           from './helpers.voxel';
+import X               from './helpers/x/helpers.x';
 
 /**
  * @module helpers
@@ -19,5 +20,6 @@ export default {
   Slice,
   Stack,
   VolumeRendering,
-  Voxel
+  Voxel,
+  X
 };
