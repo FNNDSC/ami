@@ -8,7 +8,7 @@ import HelpersStack      from '../../src/helpers/helpers.stack';
 import LoadersVolume     from '../../src/loaders/loaders.volume';
 
 // standard global variables
-let controls, renderer, stats, scene, camera, stackHelper, threeD;
+let controls, renderer, stackHelper, stackHelper2, stackHelper3;
 
 window.onload = function() {
 
@@ -36,7 +36,7 @@ window.onload = function() {
 
   // instantiate the loader
   // it loads and parses the dicom image
-  let loader = new LoadersVolume(threeD);
+  let loader = new LoadersVolume(renderer._container);
 
   var t2 = [
     'avf_float_32.nii.gz'
@@ -78,16 +78,29 @@ window.onload = function() {
     // make a proper function for this guy...
     let series = seriesContainer[0].mergeSeries(seriesContainer)[0];
     let stack = series.stack[0];
+
+    // slice orientation 0
     stackHelper = new HelpersStack(stack);
     stackHelper.bbox.color = 0xF9F9F9;
     stackHelper.border.color = 0xF9F9F9;
     renderer._scene.add(stackHelper);
 
-    // update camrea's and control's target
+    // slice orientation 1
+    stackHelper2 = new HelpersStack(stack);
+    stackHelper2.orientation = 1;
+    stackHelper2.bbox.visible = false;
+    stackHelper2.border.color = 0xFFEA00;
+    renderer._scene.add(stackHelper2);
+
+    // slice orientation 2
+    stackHelper3 = new HelpersStack(stack);
+    stackHelper3.orientation = 2;
+    stackHelper3.bbox.visible = false;
+    stackHelper3.border.color = 0x76FF03;
+    renderer._scene.add(stackHelper3);
+
     let centerLPS = stackHelper.stack.worldCenter();
-    renderer._camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
-    renderer._camera.updateProjectionMatrix();
-    renderer._controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
+    renderer.center(centerLPS);
   })
   .catch(function(error) {
     window.console.log('oops... something went wrong...');
