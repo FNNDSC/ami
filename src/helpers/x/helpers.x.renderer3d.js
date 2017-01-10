@@ -10,12 +10,27 @@ export default class Renderer3D {
     this._renderer = null;
     this._camera = null;
     this._controls = null;
-    this._scene = new THREE.Scene();
+    this._scene = null;
 
     this._initRenderer(containerId);
     this._initCamera();
     this._initScene();
     this._initControls();
+
+    this._onWindowResize = this._onWindowResize.bind(this);
+
+    this.addEventListeners();
+  }
+
+  addEventListeners(){
+    window.addEventListener('resize', this._onWindowResize, false);
+ }
+
+  _onWindowResize(){
+    this._camera.aspect = window.innerWidth / window.innerHeight;
+    this._camera.updateProjectionMatrix();
+
+    this._renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
   // private methods
@@ -40,6 +55,7 @@ export default class Renderer3D {
 
   _initScene(){
     // add some lights to the scene by default
+    this._scene = new THREE.Scene();
 
     // ambient
     this._scene.add( new THREE.AmbientLight( 0x353535 ) );

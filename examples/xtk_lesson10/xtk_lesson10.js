@@ -4,13 +4,11 @@
 import XRenderer3D from '../../src/helpers/x/helpers.x.renderer3d';
 
 // all the code below is a THREEJS/AMI mix that should be removed
-
 import HelpersStack      from '../../src/helpers/helpers.stack';
 import LoadersVolume     from '../../src/loaders/loaders.volume';
 
 // standard global variables
 let controls, renderer, stats, scene, camera, stackHelper, threeD;
-
 
 window.onload = function() {
 
@@ -90,17 +88,6 @@ window.onload = function() {
     renderer._camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
     renderer._camera.updateProjectionMatrix();
     renderer._controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
-
-    function onWindowResize() {
-
-      renderer._camera.aspect = window.innerWidth / window.innerHeight;
-      renderer._camera.updateProjectionMatrix();
-
-      renderer._renderer.setSize(window.innerWidth, window.innerHeight);
-
-    }
-
-    window.addEventListener('resize', onWindowResize, false);
   })
   .catch(function(error) {
     window.console.log('oops... something went wrong...');
