@@ -10,15 +10,50 @@ export default class Renderer3D {
     this._renderer = null;
     this._camera = null;
     this._controls = null;
-    this._scene = new THREE.Scene();
+    this._scene = null;
 
     this._initRenderer(containerId);
     this._initCamera();
     this._initScene();
     this._initControls();
+
+    // setup event listeners
+    this._onWindowResize = this._onWindowResize.bind(this);
+    this.addEventListeners();
+  }
+
+  addEventListeners(){
+    window.addEventListener('resize', this._onWindowResize, false);
+  }
+
+  removeEventListeners(){
+    window.removeEventListener('resize', this._onWindowResize, false);
+  }
+
+  center(worldPosition){
+    // update camrea's and control's target
+    this._camera.lookAt(worldPosition.x, worldPosition.y, worldPosition.z);
+    this._camera.updateProjectionMatrix();
+    this._controls.target.set(worldPosition.x, worldPosition.y, worldPosition.z);
+  }
+
+  animate(){
+    this._controls.update();
+    this._renderer.render(this._scene, this._camera);
+
+    // request new frame
+    requestAnimationFrame(this.animate.bind(this));
   }
 
   // private methods
+
+  _onWindowResize(){
+    this._camera.aspect = window.innerWidth / window.innerHeight;
+    this._camera.updateProjectionMatrix();
+
+    this._renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
   _initRenderer(containerId){
     // renderer
     this._container = document.getElementById(containerId);
@@ -40,6 +75,7 @@ export default class Renderer3D {
 
   _initScene(){
     // add some lights to the scene by default
+    this._scene = new THREE.Scene();
 
     // ambient
     this._scene.add( new THREE.AmbientLight( 0x353535 ) );
@@ -61,14 +97,6 @@ export default class Renderer3D {
     this._controls.rotateSpeed = 1.4;
     this._controls.zoomSpeed = 1.2;
     this._controls.panSpeed = 0.8;
-  }
-
-  animate(){
-    this._controls.update();
-    this._renderer.render(this._scene, this._camera);
-
-    // request new frame
-    requestAnimationFrame(this.animate.bind(this));
   }
 
 }
