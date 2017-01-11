@@ -2,6 +2,7 @@
 
 // XTK imports
 import XRenderer3D from '../../src/helpers/x/helpers.x.renderer3d';
+import XMesh       from '../../src/helpers/x/helpers.x.mesh';
 
 // all the code below is a THREEJS/AMI mix that should be removed
 import HelpersStack      from '../../src/helpers/helpers.stack';
@@ -15,6 +16,13 @@ window.onload = function() {
   // init the renderer
   renderer = new XRenderer3D();
   renderer.animate();
+
+  // set the mesh, i.e. the 3D object
+  mesh                  = new XMesh();
+  mesh._renderer        = renderer;
+  mesh._file            = 'https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk';
+  mesh._materialColor   = 0xE91E63;
+  mesh._intoRenderer_load();
 
   // load vtk file
   var loader1 = new THREE.VTKLoader();
