@@ -53,6 +53,7 @@ export default class HelpersStack extends THREE.Object3D{
     this._uniforms = null;
     this._autoWindowLevel = false;
     this._outOfBounds = false;
+    this._orientationMaxIndex = 0;
 
     // this._arrow = {
     //   visible: true,
@@ -153,6 +154,8 @@ export default class HelpersStack extends THREE.Object3D{
    */
   set orientation(orientation){
     this._orientation = orientation;
+    this._computeOrientationMaxIndex();
+
     this._slice.planeDirection = this._prepareDirection(this._orientation);
 
     // also update the border
@@ -174,6 +177,19 @@ export default class HelpersStack extends THREE.Object3D{
 
   get outOfBounds(){
     return this._outOfBounds;
+  }
+
+  /**
+   * Set/get the orientationMaxIndex flag.
+   *
+   * @type {boolean}
+   */
+  set orientationMaxIndex(orientationMaxIndex){
+    this._orientationMaxIndex = orientationMaxIndex;
+  }
+
+  get orientationMaxIndex(){
+    return this._orientationMaxIndex;
   }
 
   //
@@ -203,31 +219,33 @@ export default class HelpersStack extends THREE.Object3D{
     }
   }
 
+  _computeOrientationMaxIndex(){
+    let dimensionsIJK = this._stack.dimensionsIJK;
+    this._orientationMaxIndex = 0;
+    switch(this._orientation){
+      case 0:
+        this._orientationMaxIndex = dimensionsIJK.z - 1;
+        break;
+      case 1:
+        this._orientationMaxIndex = dimensionsIJK.x - 1;
+        break;
+      case 2:
+        this._orientationMaxIndex = dimensionsIJK.y - 1;
+        break;
+      default:
+        // do nothing!
+        break;
+    }
+  }
+
   /**
    * Given orientation, check if index is in/out of bounds.
    *
    * @private
    */
   _isIndexOutOfBounds(){
-
-    let dimensionsIJK = this._stack.dimensionsIJK;
-    let dimensions = 0;
-    switch(this._orientation){
-      case 0:
-        dimensions = dimensionsIJK.z;
-        break;
-      case 1:
-        dimensions = dimensionsIJK.x;
-        break;
-      case 2:
-        dimensions = dimensionsIJK.y;
-        break;
-      default:
-        // do nothing!
-        break;
-    }
-
-    if(this._index >= dimensions || this._index < 0){
+    this._computeOrientationMaxIndex();
+    if(this._index >= this._orientationMaxIndex || this._index < 0){
       this._outOfBounds = true;
     }
     else{

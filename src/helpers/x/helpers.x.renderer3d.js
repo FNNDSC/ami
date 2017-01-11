@@ -3,7 +3,7 @@
  */
 import ControlsTrackball from '../../controls/controls.trackball';
 
-export default class Renderer3D {
+export default class {
   constructor(containerId='r3d'){
 
     this._container = null;
@@ -20,6 +20,10 @@ export default class Renderer3D {
     // setup event listeners
     this._onWindowResize = this._onWindowResize.bind(this);
     this.addEventListeners();
+  }
+
+  add(object){
+    this._scene.add(object);
   }
 
   addEventListeners(){
@@ -48,10 +52,10 @@ export default class Renderer3D {
   // private methods
 
   _onWindowResize(){
-    this._camera.aspect = window.innerWidth / window.innerHeight;
+    this._camera.aspect = this._container.clientWidth / this._container.clientHeight;
     this._camera.updateProjectionMatrix();
 
-    this._renderer.setSize(window.innerWidth, window.innerHeight);
+    this._renderer.setSize(this._container.clientWidth, this._container.clientHeight);
   }
 
   _initRenderer(containerId){
@@ -60,14 +64,14 @@ export default class Renderer3D {
     this._renderer = new THREE.WebGLRenderer({
       antialias: true
     });
-    this._renderer.setSize(this._container.offsetWidth, this._container.offsetHeight);
-    this._renderer.setClearColor(0x673AB7, 1);
+    this._renderer.setSize(this._container.clientWidth, this._container.clientHeight);
+    this._renderer.setClearColor(0x424242, 1);
     this._renderer.setPixelRatio(window.devicePixelRatio);
     this._container.appendChild(this._renderer.domElement);
   }
 
   _initCamera(){
-    this._camera = new THREE.PerspectiveCamera(45, this._container.offsetWidth / this._container.offsetHeight, 1, 10000000);
+    this._camera = new THREE.PerspectiveCamera(45, this._container.clientWidth / this._container.clientHeight, 1, 10000000);
     this._camera.position.x = 250;
     this._camera.position.y = 250;
     this._camera.position.z = 250;

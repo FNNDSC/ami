@@ -22,7 +22,7 @@ window.onload = function() {
     geometry.computeVertexNormals();
     var material = new THREE.MeshLambertMaterial( {
       shading: THREE.SmoothShading,
-      color: 0xE91E63,
+      color: 0xFFEB3B,
       side: THREE.DoubleSide} );
     var mesh = new THREE.Mesh( geometry, material );
     var RASToLPS = new THREE.Matrix4();
@@ -31,7 +31,7 @@ window.onload = function() {
                 0, 0, 1, 0,
                 0, 0, 0, 1);
     mesh.applyMatrix(RASToLPS);
-    renderer._scene.add( mesh );
+    renderer.add( mesh );
   } );
 
   // instantiate the loader
@@ -81,23 +81,22 @@ window.onload = function() {
 
     // slice orientation 0
     stackHelper = new HelpersStack(stack);
-    stackHelper.bbox.color = 0xF9F9F9;
-    stackHelper.border.color = 0xF9F9F9;
-    renderer._scene.add(stackHelper);
+    stackHelper.border.color = 0xF44336;
+    renderer.add(stackHelper);
 
     // slice orientation 1
     stackHelper2 = new HelpersStack(stack);
     stackHelper2.orientation = 1;
     stackHelper2.bbox.visible = false;
-    stackHelper2.border.color = 0xFFEA00;
-    renderer._scene.add(stackHelper2);
+    stackHelper2.border.color = 0x4CAF50;
+    renderer.add(stackHelper2);
 
     // slice orientation 2
     stackHelper3 = new HelpersStack(stack);
     stackHelper3.orientation = 2;
     stackHelper3.bbox.visible = false;
-    stackHelper3.border.color = 0x76FF03;
-    renderer._scene.add(stackHelper3);
+    stackHelper3.border.color = 0x2196F3;
+    renderer.add(stackHelper3);
 
     let centerLPS = stackHelper.stack.worldCenter();
     renderer.center(centerLPS);

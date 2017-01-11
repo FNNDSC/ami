@@ -11,7 +11,7 @@ export default class HelpersBoundingBox extends THREE.Object3D{
     // private vars
     this._stack = stack;
     this._visible = true;
-    this._color = 0x61F2F3;
+    this._color = 0xFFFFFF;
     this._material = null;
     this._geometry = null;
     this._mesh = null;
@@ -57,14 +57,14 @@ export default class HelpersBoundingBox extends THREE.Object3D{
     this._geometry .applyMatrix(new THREE.Matrix4().makeTranslation(
       halfDimensions.x + offset.x, halfDimensions.y + offset.y, halfDimensions.z + offset.z));
 
-    // Material
-    this._material = new THREE.MeshBasicMaterial({
-      wireframe: true,
-      color: this._color
-    });
 
-    // mesh
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
+    // Mesh
+    let boxMesh = new THREE.Mesh(this._geometry, new THREE.MeshBasicMaterial( 0xff0000 ));
+    this._mesh = new THREE.BoxHelper( boxMesh, this._color);
+
+    // Material
+    this._material = this._mesh.material;
+
     // position bbox in world space
     this._mesh.applyMatrix(this._stack.ijk2LPS);
     this._mesh.visible = this._visible;

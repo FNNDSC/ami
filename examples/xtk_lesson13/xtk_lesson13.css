@@ -1,19 +1,41 @@
-#stats {
-  position: absolute;
-  top:0;
-  left: 0;
+body {
+  margin: 0;
+  overflow:hidden;
+  box-sizing: border-box;
 }
 
-#r3d {
-  background-color: #000;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  position: absolute;
+.visualizer {
   width: 100%;
-  height: 100%;
-  overflow:hidden;
+  display: flex;
+  flex-wrap: wrap;
+  background-color: #353535;
+}
+
+.renderer {
+  background-color: #000;
+  width: 50%;
+  height: 50%;
+  box-sizing:border-box;
+  border: 1px solid rgba(0, 0, 0, .2);
+  border-bottom: none;
+  position: relative;
+  overflow: hidden;
+}
+
+#r0 {
+  border-top: 2px solid #03a9f4;
+}
+
+#r1 {
+  border-top: 2px solid #f44336;
+}
+
+#r2 {
+  border-top: 2px solid #ffeb3b;
+}
+
+#r3 {
+  border-top: 2px solid #8bc34a;
 }
 
 #my-gui-container {
@@ -21,15 +43,4 @@
   top: 80px;
   right: 20px;
   z-index:1;
-}
-
-#VJSProbe {
-  position: absolute;
-  bottom:0;
-  left: 0;
-  width: 260px;
-  height: 45px;
-  font-family: monospace;
-  padding: 10px;
-  background-color: rgba(249, 249, 249, .7);
 }
