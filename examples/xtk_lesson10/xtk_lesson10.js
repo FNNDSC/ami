@@ -9,7 +9,7 @@ import HelpersStack      from '../../src/helpers/helpers.stack';
 import LoadersVolume     from '../../src/loaders/loaders.volume';
 
 // standard global variables
-let controls, renderer, stackHelper, stackHelper2, stackHelper3;
+let controls, renderer, mesh, stackHelper, stackHelper2, stackHelper3;
 
 window.onload = function() {
 
@@ -21,26 +21,9 @@ window.onload = function() {
   mesh                  = new XMesh();
   mesh._renderer        = renderer;
   mesh._file            = 'https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk';
-  mesh._materialColor   = 0xE91E63;
+  // color is changed line 78 for cooler demo :)
+  mesh._materialColor   = 0xFFEB3B;
   mesh._intoRenderer_load();
-
-  // load vtk file
-  var loader1 = new THREE.VTKLoader();
-  loader1.load( 'https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk', function ( geometry ) {
-    geometry.computeVertexNormals();
-    var material = new THREE.MeshLambertMaterial( {
-      shading: THREE.SmoothShading,
-      color: 0xFFEB3B,
-      side: THREE.DoubleSide} );
-    var mesh = new THREE.Mesh( geometry, material );
-    var RASToLPS = new THREE.Matrix4();
-    RASToLPS.set(-1, 0, 0, 0,
-                0, -1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1);
-    mesh.applyMatrix(RASToLPS);
-    renderer.add( mesh );
-  } );
 
   // instantiate the loader
   // it loads and parses the dicom image
@@ -91,6 +74,9 @@ window.onload = function() {
     stackHelper = new HelpersStack(stack);
     stackHelper.border.color = 0xF44336;
     renderer.add(stackHelper);
+
+    // add the raw data as "color"
+    mesh._mesh.material = stackHelper.slice._material;
 
     // slice orientation 1
     stackHelper2 = new HelpersStack(stack);
