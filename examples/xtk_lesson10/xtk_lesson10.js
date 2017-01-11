@@ -1,38 +1,28 @@
 /* globals Stats*/
 
 // XTK imports
-import XRenderer3D from '../../src/helpers/x/helpers.x.renderer3d';
+import XRenderer3D  from '../../src/helpers/x/helpers.x.renderer3d';
+import XMesh        from '../../src/helpers/x/helpers.x.mesh';
 
 // all the code below is a THREEJS/AMI mix that should be removed
 import HelpersStack      from '../../src/helpers/helpers.stack';
 import LoadersVolume     from '../../src/loaders/loaders.volume';
 
 // standard global variables
-let controls, renderer, stackHelper, stackHelper2, stackHelper3;
+let controls, renderer, mesh, stackHelper, stackHelper2, stackHelper3;
 
 window.onload = function() {
 
   // init the renderer
-  renderer = new XRenderer3D();
+  renderer              = new XRenderer3D();
   renderer.animate();
 
-  // load vtk file
-  var loader1 = new THREE.VTKLoader();
-  loader1.load( 'https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk', function ( geometry ) {
-    geometry.computeVertexNormals();
-    var material = new THREE.MeshLambertMaterial( {
-      shading: THREE.SmoothShading,
-      color: 0xE91E63,
-      side: THREE.DoubleSide} );
-    var mesh = new THREE.Mesh( geometry, material );
-    var RASToLPS = new THREE.Matrix4();
-    RASToLPS.set(-1, 0, 0, 0,
-                0, -1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1);
-    mesh.applyMatrix(RASToLPS);
-    renderer._scene.add( mesh );
-  } );
+  // set the mesh, i.e. the 3D object
+  mesh                  = new XMesh();
+  mesh._renderer        = renderer;
+  mesh._file            = 'https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk';
+  mesh._materialColor   = 0xE91E63;
+  mesh._intoRenderer_load();
 
   // instantiate the loader
   // it loads and parses the dicom image
