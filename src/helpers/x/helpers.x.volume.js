@@ -44,16 +44,18 @@ export default class {
       if (orientation===0) {
         stackHelper.border.color = 0xF44336;
         this.XSlice = stackHelper;
+
       } else if (orientation===1) {
         stackHelper.bbox.visible = false;
         stackHelper.border.color = 0x4CAF50;
         this.YSlice = stackHelper;
 
-      } else{
+      } else {
         stackHelper.bbox.visible = false;
-        stackHelper.border.color = 0x4CAF50;
+        stackHelper.border.color = 0x2196F3;
         this.ZSlice = stackHelper;
       }
+
       this._centerLPS = stackHelper.stack.worldCenter();
     }
   }
@@ -65,7 +67,7 @@ export default class {
     if (self.file) {
       // instantiate the loader
       // it loads and parses the dicom image
-      let loader = new LoadersVolume(self._progressbar_container);
+      const loader = new LoadersVolume(self._progressbar_container);
       const seriesContainer = [];
       const loadSequence = [];
 
