@@ -41,7 +41,9 @@ export default class LoadersVolumes extends LoadersBase{
   parse(response) {
 
     // give a chance to the UI to update because after the rendering will be blocked with intensive JS
-    this._progressBar.update(0, 100, 'parse');
+    if(this._progressBar){
+      this._progressBar.update(0, 100, 'parse');
+    }
 
     return new Promise(
         (resolve, reject) => {

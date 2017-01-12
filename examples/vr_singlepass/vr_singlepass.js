@@ -168,37 +168,13 @@ window.onload = function() {
 
   let files = ['https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz'];
 
-  // files = ['http://127.0.0.1:8080/brainc.nii']
-
-  //   let data = [
-  //  'scan-00109_rec-01a.nii_.gz'
-  //   // '7002_t1_average_BRAINSABC.nii.gz'
-  // ];
-
-  // let files = data.map(function(v) {
-  //   return '../../data/nii/' + v;
-  // });
-
   // load sequence for each file
   // instantiate the loader
-  // it loads and parses the dicom image
-  // hookup a progress bar....
   let loader = new LoadersVolume(threeD);
-  let seriesContainer = [];
   let loadSequence = [];
   files.forEach((url) => {
     loadSequence.push(
-      Promise.resolve()
-      // fetch the file
-      .then(() => loader.fetch(url))
-      .then((data) => loader.parse(data))
-      .then((series) => {
-        seriesContainer.push(series);
-      })
-      .catch(function(error) {
-        window.console.log('oops... something went wrong...');
-        window.console.log(error);
-      })
+      loader.load(url)
     );
   });
 
@@ -206,10 +182,9 @@ window.onload = function() {
   Promise
   .all(loadSequence)
   .then(() => {
+    let series = loader.data[0].mergeSeries(loader.data)[0];
     loader.free();
     loader = null;
-
-    let series = seriesContainer[0].mergeSeries(seriesContainer)[0];
     // get first stack from series
     let stack = series.stack[0];
 
