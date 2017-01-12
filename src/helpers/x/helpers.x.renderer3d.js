@@ -22,7 +22,7 @@ export default class {
     this.addEventListeners();
   }
 
-  add(obj){
+  add(obj) {
     if (obj.XSlice || obj.YSlice || obj.ZSlice) {
 
       if (obj.XSlice) {
@@ -36,7 +36,7 @@ export default class {
       }
 
     } else {
-      this._scene.add(object);
+      this._scene.add(obj);
     }
   }
 
