@@ -148,21 +148,10 @@ window.onload = function() {
   // instantiate the loader
   // it loads and parses the dicom image
   let loader = new LoadersVolume(threeD);
-  let seriesContainer = [];
   let loadSequence = [];
   files.forEach((url) => {
     loadSequence.push(
-      Promise.resolve()
-      // fetch the file
-      .then(() => loader.fetch(url))
-      .then((data) => loader.parse(data))
-      .then((series) => {
-        seriesContainer.push(series);
-      })
-      .catch(function(error) {
-        window.console.log('oops... something went wrong...');
-        window.console.log(error);
-      })
+      loader.load(url)
     );
   });
 
@@ -320,13 +309,12 @@ window.onload = function() {
 
   function handleSeries() {
 
-    // cleanup the loader and its progress bar
+    //
+    // first stack of first series
+    let mergedSeries = loader.data[0].mergeSeries(loader.data);
     loader.free();
     loader = null;
 
-    //
-    // first stack of first series
-    let mergedSeries = seriesContainer[0].mergeSeries(seriesContainer);
     let stack = null;
     let stack2 = null;
 

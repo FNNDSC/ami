@@ -32,11 +32,13 @@ import ModelsFrame        from '../../src/models/models.frame';
  * );
  */
 export default class LoadersBase{
-  constructor(container=document.body, helpersProgress=HelpersProgressBar) {
+  constructor(container=null, helpersProgress=HelpersProgressBar) {
     this._loaded = -1;
     this._totalLoaded = -1;
     this._parsed = -1;
     this._totalParsed = -1;
+
+    this._data = [];
 
     this._container = container;
     this._helpersProgressBar = helpersProgress;
@@ -100,4 +102,37 @@ export default class LoadersBase{
       request.send();
     });
   }
+
+  parse(response) {
+    return new Promise((resolve, reject) => {
+      resolve();
+    });
+  }
+
+  // default load sequence promise
+  load(url){
+    const loadSequence = this.fetch(url)
+      .then( rawdata => {
+        return this.parse(rawdata);
+      })
+      .then( data => {
+        this._data.push(data);
+      })
+      .catch( function(error) {
+        window.console.log('oops... something went wrong...');
+        window.console.log(error);
+      } );
+
+    return loadSequence;
+  }
+
+  set data(data){
+    this._data = data;
+  }
+
+  get data(){
+    return this._data;
+  }
+
+
 }
