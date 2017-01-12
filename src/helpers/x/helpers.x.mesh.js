@@ -9,7 +9,6 @@ export default class {
 
     this._3jsVTK_loader = new THREE.VTKLoader();
     this._mesh          = null;
-    this._file          = null;
     this._materialColor = 0xE91E63;
     this._RAStoLPS      = null;
     this._material      = new THREE.MeshLambertMaterial( {
@@ -20,9 +19,38 @@ export default class {
     this._b_loaded       = false;
 
     console.log('Leaving mesh constructor...');
-//    this._mesh_load();
   }
 
+  // accessor properties
+  get file() {
+    return this._file;
+  }
+
+  set file(fname) {
+    this._file = fname;
+  }
+
+  // load function
+  load(){
+    if (self.file) {
+      // make it a promise
+      return new Promise( (resolve) => {
+          this._3jsVTK_loader.load(self.file,
+            ( geometry )  => {
+                geometry.computeVertexNormals();
+                this._mesh      = new THREE.Mesh( geometry, self._material );
+                this._RAStoLPS  = new THREE.Matrix4();
+                this._RAStoLPS.set(-1,   0,    0,   0,
+                                    0,  -1,    0,   0,
+                                    0,   0,    1,   0,
+                                    0,   0,    0,   1);
+                this._mesh.applyMatrix(self._RAStoLPS);
+                // resolve the promise and return the mesh
+                resolve(this._mesh);
+            })
+      })
+    }
+  }
 
   // private methods
   _intoRenderer_load() {
