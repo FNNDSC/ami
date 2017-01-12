@@ -22,8 +22,22 @@ export default class {
     this.addEventListeners();
   }
 
-  add(object){
-    this._scene.add(object);
+  add(obj) {
+    if (obj.XSlice || obj.YSlice || obj.ZSlice) {
+
+      if (obj.XSlice) {
+        this._scene.add(obj.XSlice);
+      }
+      if (obj.YSlice) {
+        this._scene.add(obj.YSlice);
+      }
+      if (obj.ZSlice) {
+        this._scene.add(obj.ZSlice);
+      }
+
+    } else {
+      this._scene.add(obj);
+    }
   }
 
   addEventListeners(){

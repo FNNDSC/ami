@@ -2,100 +2,40 @@
 
 // XTK imports
 import XRenderer3D from '../../src/helpers/x/helpers.x.renderer3d';
-import XMesh       from '../../src/helpers/x/helpers.x.mesh';
-
-// all the code below is a THREEJS/AMI mix that should be removed
-import HelpersStack      from '../../src/helpers/helpers.stack';
-import LoadersVolume     from '../../src/loaders/loaders.volume';
-
-// standard global variables
-let controls, renderer, mesh, stackHelper, stackHelper2, stackHelper3;
+import XMesh from '../../src/helpers/x/helpers.x.mesh';
+import XVolume from '../../src/helpers/x/helpers.x.volume';
 
 window.onload = function() {
 
   // init the renderer
-  renderer = new XRenderer3D();
+  const renderer = new XRenderer3D();
   renderer.animate();
 
   // set the mesh, i.e. the 3D object
-  mesh                  = new XMesh();
-  mesh._renderer        = renderer;
-  mesh._file            = 'https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk';
-  // color is changed line 78 for cooler demo :)
-  mesh._materialColor   = 0xFFEB3B;
+  const mesh = new XMesh();
+  mesh._renderer = renderer;
+  mesh._file = 'https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk';
+  mesh._materialColor = 0xFFEB3B;
   mesh._intoRenderer_load();
 
-  // instantiate the loader
-  // it loads and parses the dicom image
-  let loader = new LoadersVolume(renderer._container);
-
-  var t2 = [
+  // set the 3D volume
+  const t2 = [
     'avf_float_32.nii.gz'
   ];
-
-  var files = t2.map(function(v) {
+  const files = t2.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/marc_avf/' + v;
   });
+  const volume = new XVolume();
+  volume.file = files;
+  volume.progressbar_container = renderer._container;
 
-  // load sequence for each file
-  let seriesContainer = [];
-  let loadSequence = [];
-  files.forEach(function(url) {
-    loadSequence.push(
-      Promise.resolve()
-      // fetch the file
-      .then(function() {
-        return loader.fetch(url);
-      })
-      .then(function(data) {
-        return loader.parse(data);
-      })
-      .then(function(series) {
-        seriesContainer.push(series);
-      })
-      .catch(function(error) {
-        window.console.log('oops... something went wrong...');
-        window.console.log(error);
-      })
-    );
-  });
+  volume.load().then( function() {
 
-  // load sequence for all files
-  Promise
-  .all(loadSequence)
-  .then(function() {
-    loader.free();
-    loader = null;
-    // make a proper function for this guy...
-    let series = seriesContainer[0].mergeSeries(seriesContainer)[0];
-    let stack = series.stack[0];
+    renderer.add(volume);
+    renderer.center(volume.centerLPS);
 
-    // slice orientation 0
-    stackHelper = new HelpersStack(stack);
-    stackHelper.border.color = 0xF44336;
-    renderer.add(stackHelper);
+  }).catch( function(error) {
 
-    // add the raw data as "color"
-    mesh._mesh.material = stackHelper.slice._material;
-
-    // slice orientation 1
-    stackHelper2 = new HelpersStack(stack);
-    stackHelper2.orientation = 1;
-    stackHelper2.bbox.visible = false;
-    stackHelper2.border.color = 0x4CAF50;
-    renderer.add(stackHelper2);
-
-    // slice orientation 2
-    stackHelper3 = new HelpersStack(stack);
-    stackHelper3.orientation = 2;
-    stackHelper3.bbox.visible = false;
-    stackHelper3.border.color = 0x2196F3;
-    renderer.add(stackHelper3);
-
-    let centerLPS = stackHelper.stack.worldCenter();
-    renderer.center(centerLPS);
-  })
-  .catch(function(error) {
     window.console.log('oops... something went wrong...');
     window.console.log(error);
   });
