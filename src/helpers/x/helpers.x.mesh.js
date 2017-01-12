@@ -2,9 +2,9 @@
  * @module helpers/x/mesh
  */
 export default class {
-  constructor(){
 
-    this._renderer      = null;
+  constructor() {
+
     this._file          = null;
 
     this._3jsVTK_loader = new THREE.VTKLoader();
@@ -16,9 +16,6 @@ export default class {
                                   color:    this._materialColor,
                                   side:     THREE.DoubleSide}
                                 );
-    this._b_loaded       = false;
-
-    console.log('Leaving mesh constructor...');
   }
 
   // accessor properties
@@ -30,67 +27,38 @@ export default class {
     this._file = fname;
   }
 
+  get materialColor() {
+    return this._materialColor;
+  }
+
+  set materialColor(color) {
+    this._materialColor = color;
+  }
+
   // load function
-  load(){
-    if (self.file) {
-      // make it a promise
-      return new Promise( (resolve) => {
-          this._3jsVTK_loader.load(self.file,
-            ( geometry )  => {
-                geometry.computeVertexNormals();
-                this._mesh      = new THREE.Mesh( geometry, self._material );
-                this._RAStoLPS  = new THREE.Matrix4();
-                this._RAStoLPS.set(-1,   0,    0,   0,
-                                    0,  -1,    0,   0,
-                                    0,   0,    1,   0,
-                                    0,   0,    0,   1);
-                this._mesh.applyMatrix(self._RAStoLPS);
-                // resolve the promise and return the mesh
-                resolve(this._mesh);
-            })
-      })
+  load() {
+
+    if (this.file) {
+
+      // make it a promise.
+      // NO REJECTION HANDLER HAS BEEN INCLUDED TO MANAGE WHEN this._3jsVTK_loader.load FAILS, PLEASE FIX IT!!
+      return new Promise( resolve => {
+        this._3jsVTK_loader.load(this.file,
+          ( geometry )  => {
+              geometry.computeVertexNormals();
+              this._mesh      = new THREE.Mesh( geometry, this._material );
+              this._RAStoLPS  = new THREE.Matrix4();
+              this._RAStoLPS.set(-1,   0,    0,   0,
+                                  0,  -1,    0,   0,
+                                  0,   0,    1,   0,
+                                  0,   0,    0,   1);
+              this._mesh.applyMatrix(this._RAStoLPS);
+              // resolve the promise and return the mesh
+              resolve(this._mesh);
+          });
+      });
     }
+
+    return Promise.reject( {message: `Couldn't load files: ${self.file}.`} );
   }
-
-  // private methods
-  _intoRenderer_load() {
-    // load vtk file
-    self  = this;
-
-    console.log('about to call asynchronous load...');
-
-    // Remember the callback is asynchronous!
-    this._3jsVTK_loader.load('https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk',
-                            function ( geometry ) {
-      geometry.computeVertexNormals();
-      console.log('in _mesh_load ' + self);
-      self._mesh      = new THREE.Mesh( geometry, self._material );
-      self._RAStoLPS  = new THREE.Matrix4();
-      self._RAStoLPS.set(-1,   0,    0,   0,
-                          0,  -1,    0,   0,
-                          0,   0,    1,   0,
-                          0,   0,    0,   1);
-      self._mesh.applyMatrix(self._RAStoLPS);
-      self._renderer._scene.add(self._mesh);
-
-      self._mesh_loaded();
-    } );
-
-    console.log('after asynchronous call.. the mesh load probably has not happened yet...');
-  }
-
-  _mesh_loaded() {
-    // This function is called when the callback is done...
-
-    console.log('load callback seems done...');
-    self._b_loaded  = true;
-    console.log(this);
-  }
-
-  _create(){
-  }
-
-  _update(){
-  }
-
 }
