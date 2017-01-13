@@ -75,6 +75,11 @@ export default class extends THREE.Object3D {
       const loader = new LoadersVolume(this._progressbarContainer);
       return loader.load(this.file).then( () => {
         return new Promise((resolve, reject) => {
+
+          if(loader.data.length <= 0){
+            return reject({message: `No data loaded: ${loader.data}.`});
+          }
+          
           // create the three slices when all files have been loaded
           const series = loader.data[0].mergeSeries(loader.data)[0];
           loader.free();
@@ -87,7 +92,7 @@ export default class extends THREE.Object3D {
           this._createSlice(2);
           this.add(this._zSlice);
 
-          resolve(this);
+          return resolve(this);
         });
 
       }).catch( function(error) {
@@ -98,6 +103,6 @@ export default class extends THREE.Object3D {
       });
     }
 
-    return Promise.reject( {message: `Couldn't load files: ${self.file}.`} );
+    return Promise.reject( {message: `File not defined: ${this.file}.`} );
   }
 }

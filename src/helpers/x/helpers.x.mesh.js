@@ -40,9 +40,7 @@ export default class {
 
     if (this.file) {
 
-      // make it a promise.
-      // NO REJECTION HANDLER HAS BEEN INCLUDED TO MANAGE WHEN this._3jsVTK_loader.load FAILS, PLEASE FIX IT!!
-      return new Promise( resolve => {
+      return new Promise( (resolve, reject) => {
         this._3jsVTK_loader.load(this.file,
           ( geometry )  => {
               geometry.computeVertexNormals();
@@ -55,10 +53,18 @@ export default class {
               this._mesh.applyMatrix(this._RAStoLPS);
               // resolve the promise and return the mesh
               resolve(this._mesh);
-          });
+          },
+          () => {},
+          (error) => {
+            console.log(error);
+            reject({
+              message: `Couldn't load file: ${this.file}.`,
+              error
+            });
+        });
       });
     }
 
-    return Promise.reject( {message: `Couldn't load files: ${self.file}.`} );
+    return Promise.reject( {message: `File is not defined: ${this.file}.`} );
   }
 }
