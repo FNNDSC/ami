@@ -1,13 +1,13 @@
-/*** Imports ***/
+/** * Imports ***/
 let pako = require('pako');
 
-import LoadersBase  from './loaders.base';
+import LoadersBase from './loaders.base';
 import ModelsSeries from '../../src/models/models.series';
-import ModelsStack  from '../../src/models/models.stack';
-import ModelsFrame  from '../../src/models/models.frame';
+import ModelsStack from '../../src/models/models.stack';
+import ModelsFrame from '../../src/models/models.frame';
 import ParsersDicom from '../../src/parsers/parsers.dicom';
 import ParsersNifti from '../../src/parsers/parsers.nifti';
-import ParsersNrrd  from '../../src/parsers/parsers.nrrd';
+import ParsersNrrd from '../../src/parsers/parsers.nrrd';
 
 
 /**
@@ -36,12 +36,11 @@ import ParsersNrrd  from '../../src/parsers/parsers.nrrd';
  *   }
  * );
  */
-export default class LoadersVolumes extends LoadersBase{
+export default class LoadersVolumes extends LoadersBase {
 
   parse(response) {
-
     // give a chance to the UI to update because after the rendering will be blocked with intensive JS
-    if(this._progressBar){
+    if(this._progressBar) {
       this._progressBar.update(0, 100, 'parse');
     }
 
@@ -50,7 +49,6 @@ export default class LoadersVolumes extends LoadersBase{
             window.setTimeout(
               () => {
                 resolve(new Promise((resolve, reject) => {
-
                   let data = response;
                   data.gzcompressed = false;
                   data.filename = '';
@@ -62,10 +60,9 @@ export default class LoadersVolumes extends LoadersBase{
 
                   // find extension
                   let splittedName = data.filename.split('.');
-                  if(splittedName.length <= 1){
+                  if(splittedName.length <= 1) {
                     data.extension = '';
-                  }
-                  else{
+                  } else{
                     data.extension = data.filename.split('.').pop();
                   }
 
@@ -86,8 +83,7 @@ export default class LoadersVolumes extends LoadersBase{
                   let volumeParser = null;
                   try {
                     volumeParser = new parser(data, 0);
-                  }
-                  catch (e) {
+                  } catch (e) {
                     window.console.log(e);
                     reject(e);
                   }
@@ -95,34 +91,34 @@ export default class LoadersVolumes extends LoadersBase{
                   // create a series
                   let series = new ModelsSeries();
                   series.seriesInstanceUID = volumeParser.seriesInstanceUID();
-                  series.numberOfFrames    = volumeParser.numberOfFrames();
+                  series.numberOfFrames = volumeParser.numberOfFrames();
                   if (!series.numberOfFrames) {
                     series.numberOfFrames = 1;
                   }
-                  series.numberOfChannels  = volumeParser.numberOfChannels();
-                  series.modality          = volumeParser.modality();
+                  series.numberOfChannels = volumeParser.numberOfChannels();
+                  series.modality = volumeParser.modality();
                   // if it is a segmentation, attach extra information
-                  if(series.modality === 'SEG'){
+                  if(series.modality === 'SEG') {
                     // colors
                     // labels
                     // etc.
-                    series.segmentationType     = volumeParser.segmentationType();
+                    series.segmentationType = volumeParser.segmentationType();
                     series.segmentationSegments = volumeParser.segmentationSegments();
                   }
 
                   // just create 1 dummy stack for now
                   let stack = new ModelsStack();
-                  stack.numberOfChannels    = volumeParser.numberOfChannels();
+                  stack.numberOfChannels = volumeParser.numberOfChannels();
                   stack.pixelRepresentation = volumeParser.pixelRepresentation();
-                  stack.pixelType           = volumeParser.pixelType();
-                  stack.invert              = volumeParser.invert();
-                  stack.modality            = series.modality;
+                  stack.pixelType = volumeParser.pixelType();
+                  stack.invert = volumeParser.invert();
+                  stack.modality = series.modality;
                   // if it is a segmentation, attach extra information
-                  if(stack.modality === 'SEG'){
+                  if(stack.modality === 'SEG') {
                     // colors
                     // labels
                     // etc.
-                    stack.segmentationType     = series.segmentationType;
+                    stack.segmentationType = series.segmentationType;
                     stack.segmentationSegments = series.segmentationSegments;
                   }
                   series.stack.push(stack);
@@ -130,26 +126,26 @@ export default class LoadersVolumes extends LoadersBase{
                   // better than for loop to be able to update dom with "progress" callback
                   setTimeout(this.parseFrame(series, stack, response.url, 0, volumeParser, resolve, reject), 0);
                 }));
-             },10);
+             }, 10);
            }
         );
   }
 
   parseFrame(series, stack, url, i, dataParser, resolve, reject) {
-    let frame                 = new ModelsFrame();
-    frame.sopInstanceUID      = dataParser.sopInstanceUID(i);
-    frame.url                 = url;
-    frame.rows                = dataParser.rows(i);
-    frame.columns             = dataParser.columns(i);
-    frame.numberOfChannels    = stack.numberOfChannels;
+    let frame = new ModelsFrame();
+    frame.sopInstanceUID = dataParser.sopInstanceUID(i);
+    frame.url = url;
+    frame.rows = dataParser.rows(i);
+    frame.columns = dataParser.columns(i);
+    frame.numberOfChannels = stack.numberOfChannels;
     frame.pixelRepresentation = stack.pixelRepresentation;
-    frame.pixelType           = stack.pixelType;
-    frame.pixelData           = dataParser.extractPixelData(i);
-    frame.pixelSpacing        = dataParser.pixelSpacing(i);
-    frame.sliceThickness      = dataParser.sliceThickness(i);
-    frame.imageOrientation    = dataParser.imageOrientation(i);
-    frame.rightHanded         = dataParser.rightHanded();
-    stack.rightHanded         = frame.rightHanded;
+    frame.pixelType = stack.pixelType;
+    frame.pixelData = dataParser.extractPixelData(i);
+    frame.pixelSpacing = dataParser.pixelSpacing(i);
+    frame.sliceThickness = dataParser.sliceThickness(i);
+    frame.imageOrientation = dataParser.imageOrientation(i);
+    frame.rightHanded = dataParser.rightHanded();
+    stack.rightHanded = frame.rightHanded;
     if (frame.imageOrientation === null) {
       frame.imageOrientation = [1, 0, 0, 0, 1, 0];
     }
@@ -158,17 +154,17 @@ export default class LoadersVolumes extends LoadersBase{
       frame.imagePosition = [0, 0, i];
     }
     frame.dimensionIndexValues = dataParser.dimensionIndexValues(i);
-    frame.bitsAllocated        = dataParser.bitsAllocated(i);
-    frame.instanceNumber       = dataParser.instanceNumber(i);
-    frame.windowCenter         = dataParser.windowCenter(i);
-    frame.windowWidth          = dataParser.windowWidth(i);
-    frame.rescaleSlope         = dataParser.rescaleSlope(i);
-    frame.rescaleIntercept     = dataParser.rescaleIntercept(i);
+    frame.bitsAllocated = dataParser.bitsAllocated(i);
+    frame.instanceNumber = dataParser.instanceNumber(i);
+    frame.windowCenter = dataParser.windowCenter(i);
+    frame.windowWidth = dataParser.windowWidth(i);
+    frame.rescaleSlope = dataParser.rescaleSlope(i);
+    frame.rescaleIntercept = dataParser.rescaleIntercept(i);
     // should pass frame index for consistency...
     frame.minMax = dataParser.minMaxPixelData(frame.pixelData);
 
     // if series.mo
-    if(series.modality === 'SEG'){
+    if(series.modality === 'SEG') {
       frame.referencedSegmentNumber = dataParser.referencedSegmentNumber(i);
     }
 
@@ -177,7 +173,7 @@ export default class LoadersVolumes extends LoadersBase{
     // update status
     this._parsed = i + 1;
     this._totalParsed = series.numberOfFrames;
-    if(this._progressBar){
+    if(this._progressBar) {
       this._progressBar.update(this._parsed, this._totalParsed, 'parse');
     }
 
@@ -189,10 +185,9 @@ export default class LoadersVolumes extends LoadersBase{
   }
 
   _parser(extension) {
-
     let parser = null;
 
-    switch (extension.toUpperCase()){
+    switch (extension.toUpperCase()) {
       case 'NII':
       case 'NII_':
         parser = ParsersNifti;

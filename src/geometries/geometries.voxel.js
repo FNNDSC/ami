@@ -3,7 +3,7 @@
  * @module geometries/voxel
  */
 
-export default class GeometriesVoxel extends THREE.BoxGeometry{
+export default class GeometriesVoxel extends THREE.BoxGeometry {
   constructor(dataPosition) {
     super(1, 1, 1);
 
@@ -28,7 +28,7 @@ export default class GeometriesVoxel extends THREE.BoxGeometry{
     this.vertices[7].set(-0.5, -0.5, 0.5);
   }
 
-  set location(location){
+  set location(location) {
     this._location = location;
 
     // update vertices from location
@@ -50,7 +50,7 @@ export default class GeometriesVoxel extends THREE.BoxGeometry{
     this.verticesNeedUpdate = true;
   }
 
-  get location(){
+  get location() {
     return this._location;
   }
 

@@ -1,7 +1,7 @@
-/*** Imports ***/
+/** * Imports ***/
 import GeometriesSlice from '../../src/geometries/geometries.slice';
-import ShadersUniform  from '../../src/shaders/shaders.data.uniform';
-import ShadersVertex   from '../../src/shaders/shaders.data.vertex';
+import ShadersUniform from '../../src/shaders/shaders.data.uniform';
+import ShadersVertex from '../../src/shaders/shaders.data.vertex';
 import ShadersFragment from '../../src/shaders/shaders.data.fragment';
 
 import HelpersMaterialMixin from '../../src/helpers/helpers.material.mixin';
@@ -10,7 +10,7 @@ import HelpersMaterialMixin from '../../src/helpers/helpers.material.mixin';
  * @module helpers/slice
  */
 
-export default class HelpersSlice extends HelpersMaterialMixin( THREE.Object3D ){
+export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
   constructor(stack,
               index = 0,
               position = new THREE.Vector3(0, 0, 0),
@@ -238,7 +238,7 @@ export default class HelpersSlice extends HelpersMaterialMixin( THREE.Object3D )
       this._toAABB = new THREE.Matrix4();
     } else {
       // LPS
-      let aaBBox  = this._stack.AABBox();
+      let aaBBox = this._stack.AABBox();
       this._halfDimensions = aaBBox.clone().multiplyScalar(0.5);
       this._center = this._stack.centerAABBox();
       this._toAABB = this._stack.lps2AABB;
@@ -247,7 +247,6 @@ export default class HelpersSlice extends HelpersMaterialMixin( THREE.Object3D )
 
   // private methods
   _create() {
-
     if (!this._stack || !this._stack.prepared || !this._stack.packed) {
       return;
     }
@@ -260,8 +259,7 @@ export default class HelpersSlice extends HelpersMaterialMixin( THREE.Object3D )
         this._planePosition,
         this._planeDirection,
         this._toAABB);
-    }
-    catch (e) {
+    } catch (e) {
       window.console.log(e);
       window.console.log('invalid slice geometry - exiting...');
       return;
@@ -273,23 +271,22 @@ export default class HelpersSlice extends HelpersMaterialMixin( THREE.Object3D )
 
     if (!this._material) {
       //
-      this._uniforms.uTextureSize.value     = this._stack.textureSize;
-      this._uniforms.uDataDimensions.value  = [ this._stack.dimensionsIJK.x,
+      this._uniforms.uTextureSize.value = this._stack.textureSize;
+      this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x,
                                                 this._stack.dimensionsIJK.y,
-                                                this._stack.dimensionsIJK.z ];
-      this._uniforms.uWorldToData.value      = this._stack.lps2IJK;
+                                                this._stack.dimensionsIJK.z];
+      this._uniforms.uWorldToData.value = this._stack.lps2IJK;
       this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
-      this._uniforms.uPixelType.value        = this._stack.pixelType;
-      this._uniforms.uBitsAllocated.value    = this._stack.bitsAllocated;
-      this._uniforms.uPackedPerPixel.value   = this._stack.packedPerPixel;
+      this._uniforms.uPixelType.value = this._stack.pixelType;
+      this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
+      this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
       // compute texture if material exist
       this._prepareTexture();
       this._uniforms.uTextureContainer.value = this._textures;
 
       this._createMaterial({
-        side: THREE.DoubleSide
+        side: THREE.DoubleSide,
       });
-
     }
 
     // update intensity related stuff
@@ -332,23 +329,19 @@ export default class HelpersSlice extends HelpersMaterialMixin( THREE.Object3D )
         this._rescaleIntercept = this._stack.rescaleIntercept;
       }
     }
-
   }
 
   updateIntensitySettingsUniforms() {
-
     // compensate for the offset to only pass > 0 values to shaders
     // models > models.stack.js : _packTo8Bits
     let offset = 0;
-    if( this._stack._minMax[0] < 0 ){
-
+    if(this._stack._minMax[0] < 0) {
       offset -= this._stack._minMax[0];
-
     }
 
     // set slice window center and width
     this._uniforms.uRescaleSlopeIntercept.value = [this._rescaleSlope, this._rescaleIntercept];
-    this._uniforms.uWindowCenterWidth.value = [ offset + this._windowCenter, this._windowWidth];
+    this._uniforms.uWindowCenterWidth.value = [offset + this._windowCenter, this._windowWidth];
 
     // invert
     this._uniforms.uInvert.value = this._invert === true ? 1 : 0;

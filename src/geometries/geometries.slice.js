@@ -1,4 +1,4 @@
-/*** Imports ***/
+/** * Imports ***/
 import coreIntersections from '../../src/core/core.intersections';
 
 /**
@@ -41,7 +41,7 @@ import coreIntersections from '../../src/core/core.intersections';
  *  scene.add(slice);
  */
 
-export default class GeometriesSlice extends THREE.ShapeGeometry{
+export default class GeometriesSlice extends THREE.ShapeGeometry {
     constructor(halfDimensions, center, position, direction, toAABB = new THREE.Matrix4()) {
       //
       // prepare data for the shape!
@@ -49,12 +49,12 @@ export default class GeometriesSlice extends THREE.ShapeGeometry{
       let aabb = {
         halfDimensions,
         center,
-        toAABB
+        toAABB,
       };
 
       let plane = {
         position,
-        direction
+        direction,
       };
 
       // BOOM!
@@ -140,7 +140,6 @@ export default class GeometriesSlice extends THREE.ShapeGeometry{
   * @returns {Array<Object>} Set of object representing the ordered points.
   */
   static orderIntersections(points, direction) {
-
     let reference = GeometriesSlice.centerOfMass(points);
     // direction from first point to reference
     let referenceDirection = new THREE.Vector3(
@@ -172,7 +171,7 @@ export default class GeometriesSlice extends THREE.ShapeGeometry{
 
       let theta = Math.atan2(y, x) * (180 / Math.PI);
       point.angle = theta;
-      
+
       orderedpoints.push(point);
     }
 

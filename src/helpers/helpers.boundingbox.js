@@ -3,8 +3,8 @@
  * @module helpers/boundingbox
  */
 
-export default class HelpersBoundingBox extends THREE.Object3D{
-  constructor(stack){
+export default class HelpersBoundingBox extends THREE.Object3D {
+  constructor(stack) {
     //
     super();
 
@@ -21,34 +21,34 @@ export default class HelpersBoundingBox extends THREE.Object3D{
   }
 
   // getters/setters
-  set visible(visible){
+  set visible(visible) {
     this._visible = visible;
-    if(this._mesh){
+    if(this._mesh) {
       this._mesh.visible = this._visible;
     }
   }
 
-  get visible(){
+  get visible() {
     return this._visible;
   }
 
-  set color(color){
+  set color(color) {
     this._color = color;
-    if(this._material){
+    if(this._material) {
       this._material.color.set(this._color);
     }
   }
 
-  get color(){
+  get color() {
     return this._color;
   }
 
   // private methods
-  _create(){
+  _create() {
     // Convenience vars
-    var dimensions = this._stack.dimensionsIJK;
-    var halfDimensions = this._stack.halfDimensionsIJK;
-    var offset = new THREE.Vector3(-0.5, -0.5, -0.5);
+    let dimensions = this._stack.dimensionsIJK;
+    let halfDimensions = this._stack.halfDimensionsIJK;
+    let offset = new THREE.Vector3(-0.5, -0.5, -0.5);
 
     // Geometry
     this._geometry = new THREE.BoxGeometry(
@@ -59,8 +59,8 @@ export default class HelpersBoundingBox extends THREE.Object3D{
 
 
     // Mesh
-    let boxMesh = new THREE.Mesh(this._geometry, new THREE.MeshBasicMaterial( 0xff0000 ));
-    this._mesh = new THREE.BoxHelper( boxMesh, this._color);
+    let boxMesh = new THREE.Mesh(this._geometry, new THREE.MeshBasicMaterial(0xff0000));
+    this._mesh = new THREE.BoxHelper(boxMesh, this._color);
 
     // Material
     this._material = this._mesh.material;
@@ -73,9 +73,9 @@ export default class HelpersBoundingBox extends THREE.Object3D{
     this.add(this._mesh);
   }
 
-  _update(){
+  _update() {
     // update slice
-    if(this._mesh){
+    if(this._mesh) {
       this.remove(this._mesh);
       this._mesh.geometry.dispose();
       this._mesh.geometry = null;

@@ -1,66 +1,52 @@
 import shadersInterpolation from './interpolation/shaders.interpolation';
-import shadersIntersectBox  from './helpers/shaders.helpers.intersectBox';
+import shadersIntersectBox from './helpers/shaders.helpers.intersectBox';
 
 export default class ShadersFragment {
 
   // pass uniforms object
-  constructor( uniforms ){
-
+  constructor(uniforms) {
     this._uniforms = uniforms;
     this._functions = {};
     this._main = '';
-
   }
 
-  functions(){
-
-    if( this._main === ''){
+  functions() {
+    if(this._main === '') {
       // if main is empty, functions can not have been computed
       this.main();
-
     }
 
     let content = '';
-    for ( let property in this._functions ) {
-    
-      content  += this._functions[property] + '\n';
-    
+    for (let property in this._functions) {
+      content += this._functions[property] + '\n';
     }
-    
-    return content;
 
+    return content;
   }
 
-  uniforms(){
-
+  uniforms() {
     let content = '';
-    for ( let property in this._uniforms ) {
-      
+    for (let property in this._uniforms) {
       let uniform = this._uniforms[property];
-      content += `uniform ${uniform.typeGLSL} ${property}`; 
-      
-      if( uniform && uniform.length ){
-      
-        content += `[${uniform.length}]`;
-      
-      }
-      
-      content += ';\n';
-    
-    }
-    
-    return content;
+      content += `uniform ${uniform.typeGLSL} ${property}`;
 
+      if(uniform && uniform.length) {
+        content += `[${uniform.length}]`;
+      }
+
+      content += ';\n';
+    }
+
+    return content;
   }
 
-  main(){
-  
+  main() {
     // need to pre-call main to fill up the functions list
     this._main = `
 void getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradient){
 
   vec4 dataValue = vec4(0., 0., 0., 0.);
-  ${shadersInterpolation( this, 'dataCoordinates', 'dataValue', 'gradient' )}
+  ${shadersInterpolation(this, 'dataCoordinates', 'dataValue', 'gradient')}
 
   intensity = dataValue.r;
 
@@ -85,7 +71,7 @@ void main(void) {
   // Intersection ray/bbox
   float tNear, tFar;
   bool intersect = false;
-  ${shadersIntersectBox.api( this, 'rayOrigin', 'rayDirection', 'AABBMin', 'AABBMax', 'tNear', 'tFar', 'intersect' )}
+  ${shadersIntersectBox.api(this, 'rayOrigin', 'rayDirection', 'AABBMin', 'AABBMax', 'tNear', 'tFar', 'intersect')}
   if (tNear < 0.0) tNear = 0.0;
 
   // init the ray marching
@@ -142,15 +128,13 @@ void main(void) {
   gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);
 }
    `;
-
   }
 
-  compute(){
-
+  compute() {
     let shaderInterpolation = '';
     // shaderInterpolation.inline(args) //true/false
     // shaderInterpolation.functions(args)
-    
+
     return `
 // uniforms
 ${this.uniforms()}

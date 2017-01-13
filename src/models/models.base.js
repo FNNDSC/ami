@@ -4,7 +4,7 @@
  * @module models/base
  */
 
-export default class ModelsBase{
+export default class ModelsBase {
   constructor() {
     this._id = -1;
   }
@@ -36,7 +36,6 @@ export default class ModelsBase{
           referenceArray.push(targetArray[i]);
         }
       }
-
     }
 
     return true;
@@ -46,14 +45,13 @@ export default class ModelsBase{
    * Merge model against current model.
    */
   merge(model) {
-
     // make sure model is valid
-    if(!(this.validate(model))){
+    if(!(this.validate(model))) {
       return false;
     }
 
     // they can be merged if they match
-    if(this._id === model._id){
+    if(this._id === model._id) {
       return true;
     }
     return false;

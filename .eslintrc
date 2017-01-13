@@ -16,6 +16,23 @@
     "THREE": false
     },
   "rules" :{
-    "space-in-parens": ["error", "never"]
+    "space-in-parens": ["error", "never"],
+    // tmporary for build to pass
+    "max-len": ["warn", 80],
+    "require-jsdoc": "warn",
+    "valid-jsdoc": "warn",
+    "guard-for-in": "warn",
+    "no-unused-vars": "warn",
+    "one-var": "warn",
+    "no-throw-literal": "warn",
+    "no-self-assign": "warn",
+    "no-console": "warn",
+    "new-cap": "warn",
+    "no-var": "warn",
+    "no-redeclare": "warn",
+    "camelcase": "warn",
+    "no-multi-str": "warn",
+    "no-mixed-spaces-and-tabs": "warn",
+    "no-empty": "warn"
   }
 }

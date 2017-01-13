@@ -3,81 +3,81 @@
  * @module shaders/data
  */
 export default class ShadersUniform {
-  static uniforms(){
+  static uniforms() {
     return {
       'uTextureSize': {
         type: 'i',
         value: 0,
-        typeGLSL: 'int'
+        typeGLSL: 'int',
       },
       'uTextureContainer': {
         type: 'tv',
         value: [],
         typeGLSL: 'sampler2D',
-        length: 7
+        length: 7,
       },
       'uDataDimensions': {
         type: 'iv',
         value: [0, 0, 0],
-        typeGLSL: 'ivec3'
+        typeGLSL: 'ivec3',
       },
       'uWorldToData': {
         type: 'm4',
         value: new THREE.Matrix4(),
-        typeGLSL: 'mat4'
+        typeGLSL: 'mat4',
       },
       'uWindowCenterWidth': {
         type: 'fv1',
         value: [0.0, 0.0],
         typeGLSL: 'float',
-        length: 2
+        length: 2,
       },
       'uRescaleSlopeIntercept': {
         type: 'fv1',
         value: [0.0, 0.0],
         typeGLSL: 'float',
-        length: 2
+        length: 2,
       },
       'uNumberOfChannels': {
         type: 'i',
         value: 1,
-        typeGLSL: 'int'
+        typeGLSL: 'int',
       },
       'uBitsAllocated': {
         type: 'i',
         value: 8,
-        typeGLSL: 'int'
+        typeGLSL: 'int',
       },
       'uInvert': {
         type: 'i',
         value: 0,
-        typeGLSL: 'int'
+        typeGLSL: 'int',
       },
       'uLut': {
         type: 'i',
         value: 0,
-        typeGLSL: 'int'
+        typeGLSL: 'int',
       },
-      'uTextureLUT':{
+      'uTextureLUT': {
         type: 't',
         value: [],
-        typeGLSL: 'sampler2D'
+        typeGLSL: 'sampler2D',
       },
       'uPixelType': {
         type: 'i',
         value: 0,
-        typeGLSL: 'int'
+        typeGLSL: 'int',
       },
       'uPackedPerPixel': {
         type: 'i',
         value: 1,
-        typeGLSL: 'int'
+        typeGLSL: 'int',
       },
       'uInterpolation': {
         type: 'i',
         value: 1,
-        typeGLSL: 'int'
-      }
+        typeGLSL: 'int',
+      },
     };
   }
 }

@@ -3,57 +3,43 @@ import shadersInterpolation from './interpolation/shaders.interpolation';
 export default class ShadersFragment {
 
   // pass uniforms object
-  constructor( uniforms ){
-
+  constructor(uniforms) {
     this._uniforms = uniforms;
     this._functions = {};
     this._main = '';
-
   }
 
-  functions(){
-
-    if( this._main === ''){
+  functions() {
+    if(this._main === '') {
       // if main is empty, functions can not have been computed
       this.main();
-
     }
 
     let content = '';
-    for ( let property in this._functions ) {
-    
-      content  += this._functions[property] + '\n';
-    
+    for (let property in this._functions) {
+      content += this._functions[property] + '\n';
     }
-    
-    return content;
 
+    return content;
   }
 
-  uniforms(){
-
+  uniforms() {
     let content = '';
-    for ( let property in this._uniforms ) {
-      
+    for (let property in this._uniforms) {
       let uniform = this._uniforms[property];
-      content += `uniform ${uniform.typeGLSL} ${property}`; 
-      
-      if( uniform && uniform.length ){
-      
-        content += `[${uniform.length}]`;
-      
-      }
-      
-      content += ';\n';
-    
-    }
-    
-    return content;
+      content += `uniform ${uniform.typeGLSL} ${property}`;
 
+      if(uniform && uniform.length) {
+        content += `[${uniform.length}]`;
+      }
+
+      content += ';\n';
+    }
+
+    return content;
   }
 
-  main(){
-  
+  main() {
     // need to pre-call main to fill up the functions list
     this._main = `
 void main(void) {
@@ -63,7 +49,7 @@ void main(void) {
   vec3 currentVoxel = vec3(dataCoordinates.x, dataCoordinates.y, dataCoordinates.z);
   vec4 dataValue = vec4(0., 0., 0., 0.);
   vec3 gradient = vec3(0., 0., 0.);
-  ${shadersInterpolation( this, 'currentVoxel', 'dataValue', 'gradient' )}
+  ${shadersInterpolation(this, 'currentVoxel', 'dataValue', 'gradient')}
 
   // how do we deal wil more than 1 channel?
   if(uNumberOfChannels == 1){
@@ -97,15 +83,13 @@ void main(void) {
 
 }
    `;
-
   }
 
-  compute(){
-
+  compute() {
     let shaderInterpolation = '';
     // shaderInterpolation.inline(args) //true/false
     // shaderInterpolation.functions(args)
-    
+
     return `
 // uniforms
 ${this.uniforms()}
