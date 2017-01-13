@@ -107,7 +107,7 @@ window.onload = function() {
   // init threeJS...
   init();
 
-  let ds2 = [
+  let filenames = [
     '000000.dcm', '000001.dcm', '000002.dcm', '000003.dcm', '000004.dcm', '000005.dcm', '000006.dcm', '000007.dcm', '000008.dcm', '000009.dcm', '000010.dcm', 
     '000011.dcm', '000012.dcm', '000013.dcm', '000014.dcm', '000015.dcm', '000016.dcm', '000017.dcm', '000018.dcm', '000019.dcm', '000020.dcm', '000021.dcm', 
     '000022.dcm', '000023.dcm', '000024.dcm', '000025.dcm', '000026.dcm', '000027.dcm', '000028.dcm', '000029.dcm', '000030.dcm', '000031.dcm', '000032.dcm', 
@@ -138,21 +138,15 @@ window.onload = function() {
     '000297.dcm', '000298.dcm'
   ];
 
-  let ds2fp = ds2.map(function(v) {
+  let files = filenames.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/rsna_2/PET/' + v;
   });
 
-  ds2fp.push('https://cdn.rawgit.com/FNNDSC/data/master/dicom/rsna_2/SEG/3DSlicer/tumor_User1_Manual_Trial1.dcm');
+  files.push('https://cdn.rawgit.com/FNNDSC/data/master/dicom/rsna_2/SEG/3DSlicer/tumor_User1_Manual_Trial1.dcm');
 
   // load sequence for each file
   // it loads and parses the dicom image
   let loader = new LoadersVolume(threeD);
-  let loadSequence = [];
-  ds2fp.forEach((url) => {
-    loadSequence.push(
-      loader.load(url)
-    );
-  });
 
   function buildGUI(stackHelper) {
     function updateLayer1(){
@@ -420,13 +414,12 @@ window.onload = function() {
     buildGUI(stackHelper);
   }
 
-  Promise
-    .all(loadSequence)
-    .then(function() {
-      handleSeries();
-    })
-    .catch(function(error) {
-      window.console.log('oops... something went wrong...');
-      window.console.log(error);
-    });
+  loader.load(files)
+  .then(function() {
+    handleSeries();
+  })
+  .catch(function(error) {
+    window.console.log('oops... something went wrong...');
+    window.console.log(error);
+  });
 };

@@ -166,21 +166,12 @@ window.onload = function() {
   // init threeJS
   init();
 
-  let files = ['https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz'];
+  let filename = 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz';
 
   // load sequence for each file
   // instantiate the loader
   let loader = new LoadersVolume(threeD);
-  let loadSequence = [];
-  files.forEach((url) => {
-    loadSequence.push(
-      loader.load(url)
-    );
-  });
-
-  // load sequence for all files
-  Promise
-  .all(loadSequence)
+  loader.load(filename)
   .then(() => {
     let series = loader.data[0].mergeSeries(loader.data)[0];
     loader.free();

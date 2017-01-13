@@ -151,17 +151,7 @@ window.onload = function() {
 
   });
 
-  // load sequence for each file
-  let loadSequence = [];
-  files.forEach( function( url ) {
-    loadSequence.push(
-      loader.load(url)
-    );
-  });
-
-  // load sequence for all files
-  Promise
-  .all( loadSequence )
+  loader.load(files)
   .then( function() {
 
     let series = loader.data[0].mergeSeries( loader.data )[0];

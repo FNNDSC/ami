@@ -5,16 +5,19 @@
 import HelpersStack from '../helpers.stack';
 import LoadersVolume from '../../loaders/loaders.volume';
 
-export default class {
+export default class extends THREE.Object3D {
 
   constructor() {
+
+    super();
+
     this._file = null;
-    this._progressbar_container = null
-    this._stack = null
-    this._centerLPS = null
-    this.XSlice = null
-    this.YSlice = null
-    this.ZSlice = null
+    this._progressbarContainer = null;
+    this._stack = null;
+    this._centerLPS = null;
+    this._xSlice = null;
+    this._ySlice = null;
+    this._zSlice = null;
   }
 
   // accessor properties
@@ -26,12 +29,16 @@ export default class {
     this._file = fname;
   }
 
-  set progressbar_container(container) {
-    this._progressbar_container = container;
+  set progressbarContainer(container) {
+    this._progressbarContainer = container;
   }
 
   get centerLPS() {
     return this._centerLPS;
+  }
+
+  get stack(){
+    return this._stack;
   }
 
   // private methods
@@ -43,17 +50,17 @@ export default class {
 
       if (orientation===0) {
         stackHelper.border.color = 0xF44336;
-        this.XSlice = stackHelper;
+        this._xSlice = stackHelper;
 
       } else if (orientation===1) {
         stackHelper.bbox.visible = false;
         stackHelper.border.color = 0x4CAF50;
-        this.YSlice = stackHelper;
+        this._ySlice = stackHelper;
 
       } else {
         stackHelper.bbox.visible = false;
         stackHelper.border.color = 0x2196F3;
-        this.ZSlice = stackHelper;
+        this._zSlice = stackHelper;
       }
 
       this._centerLPS = stackHelper.stack.worldCenter();
@@ -62,46 +69,26 @@ export default class {
 
   // public methods
   load() {
-    const self = this;
-
-    if (self.file) {
+    if (this.file) {
       // instantiate the loader
       // it loads and parses the dicom image
-      const loader = new LoadersVolume(self._progressbar_container);
-      const seriesContainer = [];
-      const loadSequence = [];
+      const loader = new LoadersVolume(this._progressbarContainer);
+      return loader.load(this.file).then( () => {
+        return new Promise((resolve, reject) => {
+          // create the three slices when all files have been loaded
+          const series = loader.data[0].mergeSeries(loader.data)[0];
+          loader.free();
 
-      // create the array of promises, a promise for each file to be loaded
-      self.file.forEach( function(url) {
+          this._stack = series.stack[0];
+          this._createSlice(0);
+          this.add(this._xSlice);
+          this._createSlice(1);
+          this.add(this._ySlice);
+          this._createSlice(2);
+          this.add(this._zSlice);
 
-        loadSequence.push(
-          Promise.resolve()
-          // fetch the file
-          .then( function() {
-            return loader.fetch(url);
-          })
-          .then( function(data) {
-            return loader.parse(data);
-          })
-          .then( function(series) {
-            seriesContainer.push(series);
-          })
-          .catch( function(error) {
-            window.console.log('oops... something went wrong loading the volume...');
-            window.console.log(error);
-          })
-        );
-      });
-
-      return Promise.all(loadSequence).then( function() {
-        // create the three slices when all files have been loaded
-
-        loader.free();
-        const series = seriesContainer[0].mergeSeries(seriesContainer)[0];
-        self._stack = series.stack[0];
-        self._createSlice(0);
-        self._createSlice(1);
-        self._createSlice(2);
+          resolve(this);
+        });
 
       }).catch( function(error) {
 

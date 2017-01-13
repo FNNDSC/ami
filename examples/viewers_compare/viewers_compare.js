@@ -144,17 +144,6 @@ window.onload = function() {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/' + v;
   });
 
-  // load sequence for each file
-  // instantiate the loader
-  // it loads and parses the dicom image
-  let loader = new LoadersVolume(threeD);
-  let loadSequence = [];
-  files.forEach((url) => {
-    loadSequence.push(
-      loader.load(url)
-    );
-  });
-
   function buildGUI(stackHelper) {
 
     function updateLayer1(){
@@ -307,6 +296,7 @@ window.onload = function() {
     window.addEventListener('mousemove', onMouseMove, false);
   }
 
+  let loader = new LoadersVolume(threeD);
   function handleSeries() {
 
     //
@@ -472,13 +462,13 @@ window.onload = function() {
     buildGUI(stackHelper);
   }
 
-  Promise
-    .all(loadSequence)
-    .then(function() {
-      handleSeries();
-    })
-    .catch(function(error) {
-      window.console.log('oops... something went wrong...');
-      window.console.log(error);
-    });
+  // load sequence for each file
+  loader.load(files)
+  .then(function() {
+    handleSeries();
+  })
+  .catch(function(error) {
+    window.console.log('oops... something went wrong...');
+    window.console.log(error);
+  });
 };

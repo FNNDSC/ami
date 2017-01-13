@@ -22,22 +22,16 @@ export default class {
     this.addEventListeners();
   }
 
+  set container(container){
+    this._container = container;
+  }
+
+  get container(){
+    return this._container;
+  }
+
   add(obj) {
-    if (obj.XSlice || obj.YSlice || obj.ZSlice) {
-
-      if (obj.XSlice) {
-        this._scene.add(obj.XSlice);
-      }
-      if (obj.YSlice) {
-        this._scene.add(obj.YSlice);
-      }
-      if (obj.ZSlice) {
-        this._scene.add(obj.ZSlice);
-      }
-
-    } else {
-      this._scene.add(obj);
-    }
+    this._scene.add(obj);
   }
 
   addEventListeners(){

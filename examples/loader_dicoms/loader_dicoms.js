@@ -94,17 +94,8 @@ window.onload = function() {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
   });
 
-  // load sequence for each file
-  let loadSequence = [];
-  files.forEach(function(url) {
-    loadSequence.push(
-      loader.load(url)
-    );
-  });
-
   // load sequence for all files
-  Promise
-  .all(loadSequence)
+  loader.load(files)
   .then(function() {
     // make a proper function for this guy...
     let series = loader.data[0].mergeSeries(loader.data)[0];

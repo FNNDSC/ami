@@ -105,13 +105,13 @@ export default class LoadersBase{
 
   parse(response) {
     return new Promise((resolve, reject) => {
-      resolve();
+      resolve(null);
     });
   }
 
   // default load sequence promise
-  load(url){
-    const loadSequence = this.fetch(url)
+  loadSequence (url){
+    return this.fetch(url)
       .then( rawdata => {
         return this.parse(rawdata);
       })
@@ -122,8 +122,23 @@ export default class LoadersBase{
         window.console.log('oops... something went wrong...');
         window.console.log(error);
       } );
+  }
 
-    return loadSequence;
+  load(url){
+
+    // if we load a single file, convert it to an array
+    if(!Array.isArray(url)){
+      url = [url];
+    }
+
+    let loadSequences = [];
+    url.forEach( file => {
+     loadSequences.push(
+       this.loadSequence(file)
+      );
+    });
+
+    return Promise.all(loadSequences);
   }
 
   set data(data){

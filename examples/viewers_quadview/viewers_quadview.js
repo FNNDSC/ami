@@ -172,16 +172,7 @@ window.onload = function() {
   // instantiate the loader
   // it loads and parses the dicom image
   var loader = new LoadersVolume();
-  var loadSequence = [];
-  files.forEach(function(url) {
-    loadSequence.push(
-      loader.load(url)
-    );
-  });
-
-  // load sequence for all files
-  Promise
-  .all(loadSequence)
+  loader.load(files)
   .then(function() {
     var series = loader.data[0].mergeSeries(loader.data)[0];
     loader.free();
