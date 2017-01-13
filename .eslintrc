@@ -33,6 +33,7 @@
     "camelcase": "warn",
     "no-multi-str": "warn",
     "no-mixed-spaces-and-tabs": "warn",
-    "no-empty": "warn"
+    "no-empty": "warn",
+    "no-undef": "warn"
   }
 }
