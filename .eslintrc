@@ -1,11 +1,11 @@
-module.exports = {
+{
+  "extends": ["eslint:recommended", "./node_modules/eslint-config-google/index.js"],
   "parserOptions": { 
     "ecmaVersion": 6,
       "sourceType": "module",
       "ecmaFeatures": {
         "modules": true
-      },
-      
+      }
   },
   "env": {
     "browser": true,
@@ -15,8 +15,7 @@ module.exports = {
   "globals": {
     "THREE": false
     },
-  "rules": {
-    "semi": [2, "always"],
-    "quotes": [2, "single"]
+  "rules" :{
+    "space-in-parens": ["error", "never"]
   }
 }

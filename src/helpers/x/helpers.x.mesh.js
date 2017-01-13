@@ -4,17 +4,16 @@
 export default class {
 
   constructor() {
-
-    this._file          = null;
+    this._file = null;
 
     this._3jsVTK_loader = new THREE.VTKLoader();
-    this._mesh          = null;
+    this._mesh = null;
     this._materialColor = 0xE91E63;
-    this._RAStoLPS      = null;
-    this._material      = new THREE.MeshLambertMaterial( {
-                                  shading:  THREE.SmoothShading,
-                                  color:    this._materialColor,
-                                  side:     THREE.DoubleSide}
+    this._RAStoLPS = null;
+    this._material = new THREE.MeshLambertMaterial({
+                                  shading: THREE.SmoothShading,
+                                  color: this._materialColor,
+                                  side: THREE.DoubleSide}
                                 );
   }
 
@@ -37,19 +36,17 @@ export default class {
 
   // load function
   load() {
-
     if (this.file) {
-
-      return new Promise( (resolve, reject) => {
+      return new Promise((resolve, reject) => {
         this._3jsVTK_loader.load(this.file,
-          ( geometry )  => {
+          (geometry) => {
               geometry.computeVertexNormals();
-              this._mesh      = new THREE.Mesh( geometry, this._material );
-              this._RAStoLPS  = new THREE.Matrix4();
-              this._RAStoLPS.set(-1,   0,    0,   0,
-                                  0,  -1,    0,   0,
-                                  0,   0,    1,   0,
-                                  0,   0,    0,   1);
+              this._mesh = new THREE.Mesh(geometry, this._material);
+              this._RAStoLPS = new THREE.Matrix4();
+              this._RAStoLPS.set(-1, 0, 0, 0,
+                                  0, -1, 0, 0,
+                                  0, 0, 1, 0,
+                                  0, 0, 0, 1);
               this._mesh.applyMatrix(this._RAStoLPS);
               // resolve the promise and return the mesh
               resolve(this._mesh);
@@ -59,12 +56,12 @@ export default class {
             console.log(error);
             reject({
               message: `Couldn't load file: ${this.file}.`,
-              error
+              error,
             });
         });
       });
     }
 
-    return Promise.reject( {message: `File is not defined: ${this.file}.`} );
+    return Promise.reject({message: `File is not defined: ${this.file}.`});
   }
 }

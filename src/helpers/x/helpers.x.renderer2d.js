@@ -1,11 +1,11 @@
 /**
  * @module helpers/x/renderer2d
  */
-import CamerasOrthographic  from '../../cameras/cameras.orthographic';
+import CamerasOrthographic from '../../cameras/cameras.orthographic';
 import ControlsOrthographic from '../../controls/controls.trackballortho';
 
 export default class {
-  constructor(containerId='r2d', orientation='default'){
+  constructor(containerId='r2d', orientation='default') {
     this._container = null;
     this._renderer = null;
     this._camera = null;
@@ -25,7 +25,7 @@ export default class {
     this.addEventListeners();
   }
 
-  add(object){
+  add(object) {
     this._object = object;
     this._scene.add(this._object);
 
@@ -33,45 +33,17 @@ export default class {
     this._orientCamera(this._object, this._orientation);
   }
 
-  addEventListeners(){
+  addEventListeners() {
     this._controls.addEventListener('OnScroll', this._onScroll, false);
     window.addEventListener('resize', this._onWindowResize, false);
   }
 
-  removeEventListeners(){
+  removeEventListeners() {
     this._controls.removeEventListener('OnScroll', this._onScroll, false);
     window.removeEventListener('resize', this._onWindowResize, false);
   }
 
-  center(stack){
-    // set camera
-    let worldbb = stakHelper.stack.worldBoundingBox();
-    let lpsDims = new THREE.Vector3(
-      worldbb[1] - worldbb[0],
-      worldbb[3] - worldbb[2],
-      worldbb[5] - worldbb[4]
-    );
-
-    // box: {halfDimensions, center}
-    let box = {
-      center: stakHelperstack.worldCenter().clone(),
-      halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10)
-    };
-
-    // init and zoom
-    let canvas = {
-        width: this._container.clientWidth,
-        height: this._container.clientHeight
-      };
-  
-    camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
-    camera.box = box;
-    camera.canvas = canvas;
-    camera.update();
-    camera.fitBox(2);
-  }
-
-  animate(){
+  animate() {
     this._controls.update();
     this._renderer.render(this._scene, this._camera);
 
@@ -81,27 +53,30 @@ export default class {
 
   // private methods
 
-  _initRenderer(containerId){
+  _initRenderer(containerId) {
     // renderer
     this._container = document.getElementById(containerId);
     this._renderer = new THREE.WebGLRenderer({
-      antialias: true
+      antialias: true,
     });
-    this._renderer.setSize(this._container.clientWidth, this._container.clientHeight);
+    this._renderer.setSize(this._container.clientWidth,
+      this._container.clientHeight);
     this._renderer.setClearColor(0x212121, 1);
     this._renderer.setPixelRatio(window.devicePixelRatio);
     this._container.appendChild(this._renderer.domElement);
   }
 
-  _initCamera(){
-    this._camera = new CamerasOrthographic(this._container.clientWidth / -2, this._container.clientWidth / 2, this._container.clientHeight / 2, this._container.clientHeight / -2, 1, 1000);
+  _initCamera() {
+    this._camera = new CamerasOrthographic(this._container.clientWidth / -2,
+      this._container.clientWidth / 2, this._container.clientHeight / 2,
+      this._container.clientHeight / -2, 1, 1000);
   }
 
-  _initScene(){
+  _initScene() {
     this._scene = new THREE.Scene();
   }
 
-  _initControls(){
+  _initControls() {
     // controls
     this._controls = new ControlsOrthographic(this._camera, this._container);
     this._controls.staticMoving = true;
@@ -109,7 +84,7 @@ export default class {
     this._camera.controls = this._controls;
   }
 
-  _setupCamera(stack){
+  _setupCamera(stack) {
     // set camera
     let worldbb = stack.worldBoundingBox();
     let lpsDims = new THREE.Vector3(
@@ -121,15 +96,16 @@ export default class {
     // box: {halfDimensions, center}
     let box = {
       center: stack.worldCenter().clone(),
-      halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10)
+      halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10,
+        lpsDims.z + 10),
     };
 
     // init and zoom
     let canvas = {
         width: this._container.clientWidth,
-        height: this._container.clientHeight
+        height: this._container.clientHeight,
       };
-  
+
     this._camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
     this._camera.box = box;
     this._camera.canvas = canvas;
@@ -137,23 +113,24 @@ export default class {
     this._camera.fitBox(2);
   }
 
-  _orientCamera(target, orientation='default'){
+  _orientCamera(target, orientation='default') {
       this._camera.orientation = orientation;
       this._camera.update();
       this._camera.fitBox(2);
       target.orientation = this._camera.stackOrientation;
   }
 
-  _onWindowResize(){
+  _onWindowResize() {
       this._camera.canvas = {
         width: this._container.clientWidth,
-        height: this._container.clientHeight
+        height: this._container.clientHeight,
       };
       this._camera.fitBox(2);
-      this._renderer.setSize(this._container.clientWidth, this._container.clientHeight);
+      this._renderer.setSize(this._container.clientWidth,
+        this._container.clientHeight);
   }
 
-  _onScroll(event){
+  _onScroll(event) {
     if (event.delta > 0) {
       if (this._object.index >= this._object.orientationMaxIndex) {
         return false;

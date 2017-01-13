@@ -1,8 +1,8 @@
 import Interactor from './helpers.x.interactor';
-import Mesh       from './helpers.x.mesh';
+import Mesh from './helpers.x.mesh';
 import Renderer3D from './helpers.x.renderer3d';
 import Renderer2D from './helpers.x.renderer2d';
-import Volume     from './helpers.x.volume';
+import Volume from './helpers.x.volume';
 
 /**
  * @module helpers
@@ -13,5 +13,5 @@ export default {
   Mesh,
   Renderer3D,
   Renderer2D,
-  Volume
+  Volume,
 };

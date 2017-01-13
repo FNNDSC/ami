@@ -8,7 +8,6 @@ import LoadersVolume from '../../loaders/loaders.volume';
 export default class extends THREE.Object3D {
 
   constructor() {
-
     super();
 
     this._file = null;
@@ -37,13 +36,12 @@ export default class extends THREE.Object3D {
     return this._centerLPS;
   }
 
-  get stack(){
+  get stack() {
     return this._stack;
   }
 
   // private methods
   _createSlice(orientation) {
-
     if (this._stack) {
       const stackHelper = new HelpersStack(this._stack);
       stackHelper.orientation = orientation;
@@ -51,12 +49,10 @@ export default class extends THREE.Object3D {
       if (orientation===0) {
         stackHelper.border.color = 0xF44336;
         this._xSlice = stackHelper;
-
       } else if (orientation===1) {
         stackHelper.bbox.visible = false;
         stackHelper.border.color = 0x4CAF50;
         this._ySlice = stackHelper;
-
       } else {
         stackHelper.bbox.visible = false;
         stackHelper.border.color = 0x2196F3;
@@ -73,13 +69,12 @@ export default class extends THREE.Object3D {
       // instantiate the loader
       // it loads and parses the dicom image
       const loader = new LoadersVolume(this._progressbarContainer);
-      return loader.load(this.file).then( () => {
+      return loader.load(this.file).then(() => {
         return new Promise((resolve, reject) => {
-
-          if(loader.data.length <= 0){
+          if(loader.data.length <= 0) {
             return reject({message: `No data loaded: ${loader.data}.`});
           }
-          
+
           // create the three slices when all files have been loaded
           const series = loader.data[0].mergeSeries(loader.data)[0];
           loader.free();
@@ -94,15 +89,13 @@ export default class extends THREE.Object3D {
 
           return resolve(this);
         });
-
-      }).catch( function(error) {
-
+      }).catch(function(error) {
         loader.free();
-        window.console.log('oops... something went wrong loading the volume...');
+        window.console.log('Something went wrong loading the volume...');
         window.console.log(error);
       });
     }
 
-    return Promise.reject( {message: `File not defined: ${this.file}.`} );
+    return Promise.reject({message: `File not defined: ${this.file}.`});
   }
 }
