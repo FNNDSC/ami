@@ -37,7 +37,7 @@ export default class LoadersBase {
     this._parsed = -1;
     this._totalParsed = -1;
 
-    this._data = [1, 2];
+    this._data = [];
 
     this._container = container;
     this._progressBar = null;

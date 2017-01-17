@@ -1,8 +1,0 @@
-{
-    "preset": "google",
-    "requireCurlyBraces": null,
-    "validateLineBreaks" : "LF",
-    "validateIndentation" : 2,
-    "excludeFiles" : ["node_modules/**", "bower_components/**"],
-    "esnext": true
-}
