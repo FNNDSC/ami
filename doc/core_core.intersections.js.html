@@ -26,10 +26,10 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import Utils      from './core.utils';
+            <pre class="prettyprint source linenums"><code>import Utils from './core.utils';
 import Validators from './core.validators';
 
-/** 
+/**
  * Compute/test intersection between different objects.
  *
  * @module core/intersections
@@ -77,10 +77,10 @@ export default class Intersections {
  *
  * //Returns empty array with 0 intersections
  * let aabb = {
- * 
+ *
  * }
  * let plane = {
- *  
+ *
  * }
  *
  * let intersections = VJS.Core.Validators.matrix4(new THREE.Vector3());
@@ -97,24 +97,24 @@ export default class Intersections {
     // LOGIC:
     //
     // Test intersection of each edge of the Oriented Bounding Box with the Plane
-    // 
-    // ALL EDGES 
     //
-    //      .+-------+  
-    //    .' |     .'|  
-    //   +---+---+'  |  
-    //   |   |   |   |  
-    //   |  ,+---+---+  
-    //   |.'     | .'   
-    //   +-------+'     
+    // ALL EDGES
+    //
+    //      .+-------+
+    //    .' |     .'|
+    //   +---+---+'  |
+    //   |   |   |   |
+    //   |  ,+---+---+
+    //   |.'     | .'
+    //   +-------+'
     //
     // SPACE ORIENTATION
     //
     //       +
     //     j |
     //       |
-    //       |   i 
-    //   k  ,+-------+  
+    //       |   i
+    //   k  ,+-------+
     //    .'
     //   +
     //
@@ -126,7 +126,7 @@ export default class Intersections {
     let intersections = [];
 
     if(!(this.validateAabb(aabb) &amp;&amp;
-       this.validatePlane(plane))){
+       this.validatePlane(plane))) {
       window.console.log('Invalid aabb or plane provided.');
       return false;
     }
@@ -156,10 +156,10 @@ export default class Intersections {
     //       +
     //       |
     //       |
-    //       | 
+    //       |
     //      ,+---+---+
-    //    .'   
-    //   +   
+    //    .'
+    //   +
 
     let ray = this.posdir(
       new THREE.Vector3(aabb.center.x - aabb.halfDimensions.x, aabb.center.y - aabb.halfDimensions.y, aabb.center.z - aabb.halfDimensions.z),
@@ -217,13 +217,13 @@ export default class Intersections {
 
     // RAYS STARTING FROM THE THIRD CORNER
     //
-    //      .+-------+  
+    //      .+-------+
     //    .'
     //   +
-    //   
-    //   
-    //   
-    //   
+    //
+    //
+    //
+    //
 
     let ray4 = this.posdir(
       new THREE.Vector3(aabb.center.x - aabb.halfDimensions.x, aabb.center.y + aabb.halfDimensions.y, aabb.center.z - aabb.halfDimensions.z),
@@ -236,11 +236,11 @@ export default class Intersections {
 
     // RAYS STARTING FROM THE FOURTH CORNER
     //
-    //   
-    //   
+    //
+    //
     //   +
     //   |
-    //   |  
+    //   |
     //   |
     //   +-------+
 
@@ -324,11 +324,9 @@ export default class Intersections {
         ray.position.z + t * ray.direction.z);
 
     return intersection;
-
   }
 
   return null;
-
 }
 
   static rayBox(ray, box) {
@@ -337,7 +335,7 @@ export default class Intersections {
     // box: {halfDimensions, center}
 
     let intersections = [];
-    
+
     let bbox = Utils.bbox(box.center, box.halfDimensions);
 
     // window.console.log(bbox);
@@ -409,23 +407,23 @@ export default class Intersections {
   static rayPlaneInBBox(ray, planeAABB, bbox, intersections) {
     let intersection = this.rayPlane(ray, planeAABB);
     // window.console.log(intersection);
-    if (intersection &amp;&amp; this.inBBox(intersection, bbox)){
-      if(!intersections.find(this.findIntersection(intersection))){
+    if (intersection &amp;&amp; this.inBBox(intersection, bbox)) {
+      if(!intersections.find(this.findIntersection(intersection))) {
         intersections.push(intersection);
       }
     }
   }
 
-  static findIntersection(myintersection){
+  static findIntersection(myintersection) {
     return function found(element, index, array) {
       if(myintersection.x === element.x &amp;&amp;
         myintersection.y === element.y &amp;&amp;
-        myintersection.z === element.z){
+        myintersection.z === element.z) {
         return true;
       }
 
       return false;
-    }
+    };
   }
 
   static inBBox(point, bbox) {
@@ -439,30 +437,27 @@ export default class Intersections {
     return false;
   }
 
-  static posdir(position, direction){
+  static posdir(position, direction) {
     return {position, direction};
   }
 
-  static validatePlane(plane){
+  static validatePlane(plane) {
     //
-    if(plane === null){
-
+    if(plane === null) {
       window.console.log('Invalid plane.');
       window.console.log(plane);
 
       return false;
     }
 
-    if(!Validators.vector3(plane.position)){
-
+    if(!Validators.vector3(plane.position)) {
       window.console.log('Invalid plane.position.');
       window.console.log(plane.position);
 
       return false;
     }
 
-    if(!Validators.vector3(plane.direction)){
-
+    if(!Validators.vector3(plane.direction)) {
       window.console.log('Invalid plane.direction.');
       window.console.log(plane.direction);
 
@@ -472,24 +467,22 @@ export default class Intersections {
     return true;
   }
 
-  static validateAabb(aabb){
+  static validateAabb(aabb) {
     //
-    if(aabb === null){
+    if(aabb === null) {
       window.console.log('Invalid aabb.');
       window.console.log(aabb);
       return false;
     }
 
-    if(!Validators.matrix4(aabb.toAABB)){
-
+    if(!Validators.matrix4(aabb.toAABB)) {
       window.console.log('Invalid aabb.toAABB: ');
       window.console.log(aabb.toAABB);
 
       return false;
     }
 
-    if(!Validators.vector3(aabb.center)){
-
+    if(!Validators.vector3(aabb.center)) {
       window.console.log('Invalid aabb.center.');
       window.console.log(aabb.center);
 
@@ -499,8 +492,7 @@ export default class Intersections {
     if(!(Validators.vector3(aabb.halfDimensions) &amp;&amp;
        aabb.halfDimensions.x >= 0 &amp;&amp;
        aabb.halfDimensions.y >= 0 &amp;&amp;
-       aabb.halfDimensions.z >= 0)){
-
+       aabb.halfDimensions.z >= 0)) {
       window.console.log('Invalid aabb.halfDimensions.');
       window.console.log(aabb.halfDimensions);
 
@@ -521,13 +513,13 @@ export default class Intersections {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#pako">pako</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Jan 13 2017 11:24:22 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Tue Jan 17 2017 12:13:04 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

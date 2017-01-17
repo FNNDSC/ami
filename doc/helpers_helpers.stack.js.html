@@ -26,10 +26,10 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/*** Imports ***/
-import HelpersBorder      from '../../src/helpers/helpers.border';
+            <pre class="prettyprint source linenums"><code>/** * Imports ***/
+import HelpersBorder from '../../src/helpers/helpers.border';
 import HelpersBoundingBox from '../../src/helpers/helpers.boundingbox';
-import HelpersSlice       from '../../src/helpers/helpers.slice';
+import HelpersSlice from '../../src/helpers/helpers.slice';
 
 /**
  * Helper to easily display and interact with a stack.&lt;br>
@@ -48,7 +48,7 @@ import HelpersSlice       from '../../src/helpers/helpers.slice';
  * @example
  * let stack = new VJS.Models.Stack();
  * ... // prepare the stack
- * 
+ *
  * let stackHelper = new VJS.Helpers.Stack(stack);
  * stackHelper.bbox.color = 0xF9F9F9;
  * stackHelper.border.color = 0xF9F9F9;
@@ -64,8 +64,8 @@ import HelpersSlice       from '../../src/helpers/helpers.slice';
  *
  * @module helpers/stack
  */
-export default class HelpersStack extends THREE.Object3D{
-  constructor(stack){
+export default class HelpersStack extends THREE.Object3D {
+  constructor(stack) {
     //
     super();
 
@@ -107,7 +107,7 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @type {ModelsStack}
    */
-  get stack(){
+  get stack() {
     return this._stack;
   }
 
@@ -116,7 +116,7 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @type {HelpersBoundingBox}
    */
-  get bbox(){
+  get bbox() {
     return this._bBox;
   }
 
@@ -125,7 +125,7 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @type {HelpersSlice}
    */
-  get slice(){
+  get slice() {
     return this._slice;
   }
 
@@ -134,7 +134,7 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @type {HelpersSlice}
    */
-  get border(){
+  get border() {
     return this._border;
   }
 
@@ -147,12 +147,11 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @type {number}
    */
-  get index(){
+  get index() {
     return this._index;
   }
 
-  set index(index){
-
+  set index(index) {
     this._index = index;
 
     // update the slice
@@ -180,7 +179,7 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @type {number}
    */
-  set orientation(orientation){
+  set orientation(orientation) {
     this._orientation = orientation;
     this._computeOrientationMaxIndex();
 
@@ -190,7 +189,7 @@ export default class HelpersStack extends THREE.Object3D{
     this._border.helpersSlice = this._slice;
   }
 
-  get orientation(){
+  get orientation() {
     return this._orientation;
   }
 
@@ -199,11 +198,11 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @type {boolean}
    */
-  set outOfBounds(outOfBounds){
+  set outOfBounds(outOfBounds) {
     this._outOfBounds = outOfBounds;
   }
 
-  get outOfBounds(){
+  get outOfBounds() {
     return this._outOfBounds;
   }
 
@@ -212,11 +211,11 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @type {boolean}
    */
-  set orientationMaxIndex(orientationMaxIndex){
+  set orientationMaxIndex(orientationMaxIndex) {
     this._orientationMaxIndex = orientationMaxIndex;
   }
 
-  get orientationMaxIndex(){
+  get orientationMaxIndex() {
     return this._orientationMaxIndex;
   }
 
@@ -230,9 +229,8 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @private
    */
-  _create(){
+  _create() {
     if (this._stack) {
-
       // prepare sthe stack internals
       this._prepareStack();
 
@@ -241,16 +239,15 @@ export default class HelpersStack extends THREE.Object3D{
       this._prepareSlice();
       this._prepareBorder();
       // todo: Arrow
-
     } else {
       window.console.log('no stack to be prepared...');
     }
   }
 
-  _computeOrientationMaxIndex(){
+  _computeOrientationMaxIndex() {
     let dimensionsIJK = this._stack.dimensionsIJK;
     this._orientationMaxIndex = 0;
-    switch(this._orientation){
+    switch(this._orientation) {
       case 0:
         this._orientationMaxIndex = dimensionsIJK.z - 1;
         break;
@@ -271,12 +268,11 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @private
    */
-  _isIndexOutOfBounds(){
+  _isIndexOutOfBounds() {
     this._computeOrientationMaxIndex();
-    if(this._index >= this._orientationMaxIndex || this._index &lt; 0){
+    if(this._index >= this._orientationMaxIndex || this._index &lt; 0) {
       this._outOfBounds = true;
-    }
-    else{
+    } else{
       this._outOfBounds = false;
     }
   }
@@ -287,16 +283,16 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @private
    */
-  _prepareStack(){
+  _prepareStack() {
     // make sure there is something, if not throw an error
     // compute image to workd transform, order frames, etc.
-    if(!this._stack.prepared){
+    if(!this._stack.prepared) {
       this._stack.prepare();
     }
-    
+
     // pack data into 8 bits rgba texture for the shader
     // this one can be slow...
-    if(!this._stack.packed){
+    if(!this._stack.packed) {
       this._stack.pack();
     }
   }
@@ -307,7 +303,7 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @private
    */
-  _prepareBBox(){
+  _prepareBBox() {
     this._bBox = new HelpersBoundingBox(this._stack);
     this.add(this._bBox);
   }
@@ -318,7 +314,7 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @private
    */
-  _prepareBorder(){
+  _prepareBorder() {
     this._border = new HelpersBorder(this._slice);
     this.add(this._border);
   }
@@ -329,7 +325,7 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @private
    */
-  _prepareSlice(){
+  _prepareSlice() {
     let halfDimensionsIJK = this._stack.halfDimensionsIJK;
     // compute initial index given orientation
     this._index = this._prepareSliceIndex(halfDimensionsIJK);
@@ -351,9 +347,9 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @private
    */
-  _prepareSliceIndex(indices){
+  _prepareSliceIndex(indices) {
     let index = 0;
-    switch(this._orientation){
+    switch(this._orientation) {
       case 0:
         index = Math.floor(indices.z);
         break;
@@ -381,9 +377,9 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @private
    */
-  _prepareSlicePosition(rPosition, index){
+  _prepareSlicePosition(rPosition, index) {
     let position = new THREE.Vector3(0, 0, 0);
-    switch(this._orientation){
+    switch(this._orientation) {
       case 0:
         position = new THREE.Vector3(
           Math.floor(rPosition.x),
@@ -418,9 +414,9 @@ export default class HelpersStack extends THREE.Object3D{
    *
    * @private
    */
-  _prepareDirection(orientation){
+  _prepareDirection(orientation) {
     let direction = new THREE.Vector3(0, 0, 1);
-    switch(orientation){
+    switch(orientation) {
       case 0:
         direction = new THREE.Vector3(0, 0, 1);
         break;
@@ -438,7 +434,8 @@ export default class HelpersStack extends THREE.Object3D{
     return direction;
   }
 
-}</code></pre>
+}
+</code></pre>
         </article>
     </section>
 
@@ -448,13 +445,13 @@ export default class HelpersStack extends THREE.Object3D{
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#pako">pako</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Jan 13 2017 11:24:22 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Tue Jan 17 2017 12:13:04 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -32,8 +32,7 @@
 import ControlsTrackball from '../../controls/controls.trackball';
 
 export default class {
-  constructor(containerId='r3d'){
-
+  constructor(containerId='r3d') {
     this._container = null;
     this._renderer = null;
     this._camera = null;
@@ -50,11 +49,11 @@ export default class {
     this.addEventListeners();
   }
 
-  set container(container){
+  set container(container) {
     this._container = container;
   }
 
-  get container(){
+  get container() {
     return this._container;
   }
 
@@ -62,22 +61,23 @@ export default class {
     this._scene.add(obj);
   }
 
-  addEventListeners(){
+  addEventListeners() {
     window.addEventListener('resize', this._onWindowResize, false);
   }
 
-  removeEventListeners(){
+  removeEventListeners() {
     window.removeEventListener('resize', this._onWindowResize, false);
   }
 
-  center(worldPosition){
+  center(worldPosition) {
     // update camrea's and control's target
     this._camera.lookAt(worldPosition.x, worldPosition.y, worldPosition.z);
     this._camera.updateProjectionMatrix();
-    this._controls.target.set(worldPosition.x, worldPosition.y, worldPosition.z);
+    this._controls.target.set(worldPosition.x, worldPosition.y,
+      worldPosition.z);
   }
 
-  animate(){
+  animate() {
     this._controls.update();
     this._renderer.render(this._scene, this._camera);
 
@@ -87,51 +87,55 @@ export default class {
 
   // private methods
 
-  _onWindowResize(){
-    this._camera.aspect = this._container.clientWidth / this._container.clientHeight;
+  _onWindowResize() {
+    this._camera.aspect =
+      this._container.clientWidth / this._container.clientHeight;
     this._camera.updateProjectionMatrix();
 
-    this._renderer.setSize(this._container.clientWidth, this._container.clientHeight);
+    this._renderer.setSize(this._container.clientWidth,
+      this._container.clientHeight);
   }
 
-  _initRenderer(containerId){
+  _initRenderer(containerId) {
     // renderer
     this._container = document.getElementById(containerId);
     this._renderer = new THREE.WebGLRenderer({
-      antialias: true
+      antialias: true,
     });
-    this._renderer.setSize(this._container.clientWidth, this._container.clientHeight);
+    this._renderer.setSize(this._container.clientWidth,
+      this._container.clientHeight);
     this._renderer.setClearColor(0x424242, 1);
     this._renderer.setPixelRatio(window.devicePixelRatio);
     this._container.appendChild(this._renderer.domElement);
   }
 
-  _initCamera(){
-    this._camera = new THREE.PerspectiveCamera(45, this._container.clientWidth / this._container.clientHeight, 1, 10000000);
+  _initCamera() {
+    this._camera = new THREE.PerspectiveCamera(45,
+      this._container.clientWidth / this._container.clientHeight, 1, 10000000);
     this._camera.position.x = 250;
     this._camera.position.y = 250;
     this._camera.position.z = 250;
   }
 
-  _initScene(){
+  _initScene() {
     // add some lights to the scene by default
     this._scene = new THREE.Scene();
 
     // ambient
-    this._scene.add( new THREE.AmbientLight( 0x353535 ) );
+    this._scene.add(new THREE.AmbientLight(0x353535));
 
     // directional 1
-    let directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-    directionalLight.position.set( 200, 200, 1000 ).normalize();
-    this._scene.add( directionalLight );
+    let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(200, 200, 1000).normalize();
+    this._scene.add(directionalLight);
 
     // directional 2
-    let directionalLight2 = new THREE.DirectionalLight( 0xffffff, 1 );
-    directionalLight2.position.set( -200, -200, -1000 ).normalize();
-    this._scene.add( directionalLight2 );
+    let directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight2.position.set(-200, -200, -1000).normalize();
+    this._scene.add(directionalLight2);
   }
 
-  _initControls(){
+  _initControls() {
     // controls
     this._controls = new ControlsTrackball(this._camera, this._container);
     this._controls.rotateSpeed = 1.4;
@@ -150,13 +154,13 @@ export default class {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#pako">pako</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Jan 13 2017 11:24:22 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Tue Jan 17 2017 12:13:04 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -27,9 +27,9 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>import Intersections from '../core/core.intersections';
-import Validators    from '../core/core.validators';
+import Validators from '../core/core.validators';
 
-/** 
+/**
  * Orthographic camera from THREE.JS with some extra convenience
  * functionalities.
  *
@@ -39,7 +39,7 @@ import Validators    from '../core/core.validators';
  *
  * @module cameras/orthographic
  */
-export default class CamerasOrthographic extends THREE.OrthographicCamera{
+export default class CamerasOrthographic extends THREE.OrthographicCamera {
   constructor(left, right, top, bottom, near, far) {
     super(left, right, top, bottom, near, far);
 
@@ -49,13 +49,13 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this._directions = [
       new THREE.Vector3(1, 0, 0),
       new THREE.Vector3(0, 1, 0),
-      new THREE.Vector3(0, 0, 1)
+      new THREE.Vector3(0, 0, 1),
       ];
 
     this._directionsLabel = [
-      'A', 'P',// TOP/BOTTOM
-      'L', 'R',// LEFT/RIGHT
-      'I','S'// FROM/TO
+      'A', 'P', // TOP/BOTTOM
+      'L', 'R', // LEFT/RIGHT
+      'I', 'S', // FROM/TO
     ];
 
     this._orientation = 'default';
@@ -70,7 +70,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this._box = null;
     this._canvas = {
       width: null,
-      height: null
+      height: null,
     };
 
     this._fromFront = true;
@@ -80,8 +80,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
   /**
    * Initialize orthographic camera variables
    */
-  init( xCosine, yCosine, zCosine, controls, box, canvas ){
-
+  init(xCosine, yCosine, zCosine, controls, box, canvas) {
     // DEPRECATED
     console.warn('cameras.orthographic.init(...) is deprecated. Use .cosines, .controls, .box and .canvas instead.');
 
@@ -90,14 +89,14 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
       Validators.vector3(yCosine) &amp;&amp;
       Validators.vector3(zCosine) &amp;&amp;
       Validators.box(box) &amp;&amp;
-      controls)){
+      controls)) {
       window.console.log('Invalid input provided.');
 
       return false;
     }
 
     this._right = xCosine;
-    this._up = this._adjustTopDirection( xCosine, yCosine );
+    this._up = this._adjustTopDirection(xCosine, yCosine);
     this._direction = new THREE.Vector3().crossVectors(this._right, this._up);
     this._controls = controls;
     this._box = box;
@@ -105,10 +104,10 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
 
     let ray = {
       position: this._box.center,
-      direction: this._direction
+      direction: this._direction,
     };
 
-    let intersections = this._orderIntersections( Intersections.rayBox(ray, this._box), this._direction );
+    let intersections = this._orderIntersections(Intersections.rayBox(ray, this._box), this._direction);
     this._front = intersections[0];
     this._back = intersections[1];
 
@@ -120,16 +119,14 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this._updateDirections();
   }
 
-  update(){
-
+  update() {
     // http://www.grahamwideman.com/gw/brain/orientation/orientterms.htm
     // do magics depending on orientation and convention
     // also needs a default mode
-  
-    if( this._orientation === 'default' ){
 
-      switch( this._getMaxIndex( this._directions[2] ) ){
-        
+    if(this._orientation === 'default') {
+      switch(this._getMaxIndex(this._directions[2])) {
+
         case 0:
           this._orientation = 'sagittal';
           break;
@@ -146,17 +143,13 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
           this._orientation = 'free';
           break;
       }
-
     }
 
-    if( this._orientation === 'free' ){
-
+    if(this._orientation === 'free') {
       this._right = this._directions[0];
       this._up = this._directions[1];
       this._direction = this._directions[2];
-
     } else {
-
       let leftIndex = this.leftDirection();
       let leftDirection = this._directions[leftIndex];
       let posteriorIndex = this.posteriorDirection();
@@ -164,23 +157,18 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
       let superiorIndex = this.superiorDirection();
       let superiorDirection = this._directions[superiorIndex];
 
-      if( this._convention === 'radio' ){
-
-          switch( this._orientation ){
+      if(this._convention === 'radio') {
+          switch(this._orientation) {
 
             case 'axial':
               // up vector is 'anterior'
-              if( posteriorDirection.y > 0 ){
-
+              if(posteriorDirection.y > 0) {
                 posteriorDirection.negate();
-
               }
 
               // looking towards superior
-              if( superiorDirection.z &lt; 0 ){
-
+              if(superiorDirection.z &lt; 0) {
                 superiorDirection.negate();
-
               }
 
               //
@@ -191,17 +179,13 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
 
             case 'coronal':
               // up vector is 'superior'
-              if( superiorDirection.z &lt; 0 ){
-
+              if(superiorDirection.z &lt; 0) {
                 superiorDirection.negate();
-
               }
 
               // looking towards posterior
-              if( posteriorDirection.y &lt; 0 ){
-
+              if(posteriorDirection.y &lt; 0) {
                 posteriorDirection.negate();
-
               }
 
               //
@@ -212,17 +196,13 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
 
             case 'sagittal':
               // up vector is 'superior'
-              if( superiorDirection.z &lt; 0 ){
-
+              if(superiorDirection.z &lt; 0) {
                 superiorDirection.negate();
-
               }
 
               // looking towards right
-              if( leftDirection.x > 0 ){
-
+              if(leftDirection.x > 0) {
                 leftDirection.negate();
-
               }
 
               //
@@ -237,24 +217,18 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
               break;
 
           }
-
-      } else if ( this._convention === 'neuro' ){
-
-          switch( this._orientation ){
+      } else if (this._convention === 'neuro') {
+          switch(this._orientation) {
 
             case 'axial':
               // up vector is 'anterior'
-              if( posteriorDirection.y > 0 ){
-
+              if(posteriorDirection.y > 0) {
                 posteriorDirection.negate();
-
               }
 
               // looking towards inferior
-              if( superiorDirection.z > 0 ){
-
+              if(superiorDirection.z > 0) {
                 superiorDirection.negate();
-
               }
 
               //
@@ -265,17 +239,13 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
 
             case 'coronal':
               // up vector is 'superior'
-              if( superiorDirection.z &lt; 0 ){
-
+              if(superiorDirection.z &lt; 0) {
                 superiorDirection.negate();
-
               }
 
               // looking towards anterior
-              if( posteriorDirection.y > 0 ){
-
+              if(posteriorDirection.y > 0) {
                 posteriorDirection.negate();
-
               }
 
               //
@@ -286,17 +256,13 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
 
             case 'sagittal':
               // up vector is 'superior'
-              if( superiorDirection.z &lt; 0 ){
-
+              if(superiorDirection.z &lt; 0) {
                 superiorDirection.negate();
-
               }
 
               // looking towards right
-              if( leftDirection.x > 0 ){
-
+              if(leftDirection.x > 0) {
                 leftDirection.negate();
-
               }
 
               //
@@ -310,21 +276,18 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
               console.warn(`"${this._orientation}" orientation is not valid. (choices: axial, coronal, sagittal)`);
               break;
           }
-
-      }
-      else{
+      } else{
         console.warn(`${this._convention} is not valid (choices: radio, neuro)`);
       }
-
     }
 
     // that is what determines left/right
     let ray = {
       position: this._box.center,
-      direction: this._direction
+      direction: this._direction,
     };
 
-    let intersections = this._orderIntersections( Intersections.rayBox(ray, this._box), this._direction );
+    let intersections = this._orderIntersections(Intersections.rayBox(ray, this._box), this._direction);
     this._front = intersections[0];
     this._back = intersections[1];
 
@@ -334,51 +297,41 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this._updatePositionAndTarget(this._front, this._back);
     this._updateMatrices();
     this._updateDirections();
-
   }
 
-  leftDirection(){
-
-    return this._findMaxIndex( this._directions, 0 );
-
+  leftDirection() {
+    return this._findMaxIndex(this._directions, 0);
   }
 
-  posteriorDirection(){
-
-    return this._findMaxIndex( this._directions, 1 );
-
+  posteriorDirection() {
+    return this._findMaxIndex(this._directions, 1);
   }
 
-  superiorDirection(){
-
-    return this._findMaxIndex( this._directions, 2 );
-
+  superiorDirection() {
+    return this._findMaxIndex(this._directions, 2);
   }
 
   /**
    * Invert rows in the current slice.
    * Inverting rows in 2 steps:
    *   * Flip the "up" vector
-   *   * Look at the slice from the other side 
+   *   * Look at the slice from the other side
    */
   invertRows() {
-
     // flip "up" vector
     // we flip up first because invertColumns update projectio matrices
-    this.up.multiplyScalar(-1);    
+    this.up.multiplyScalar(-1);
     this.invertColumns();
 
     this._updateDirections();
-
   }
 
   /**
    * Invert rows in the current slice.
    * Inverting rows in 1 step:
-   *   * Look at the slice from the other side 
+   *   * Look at the slice from the other side
    */
-  invertColumns( ) {
-
+  invertColumns() {
     this.center();
     // rotate 180 degrees around the up vector...
     let oppositePosition = this._oppositePosition(this.position);
@@ -390,17 +343,14 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this._fromFront = !this._fromFront;
 
     let clockwise = 1;
-    if( !this._fromFront ){
-
+    if(!this._fromFront) {
       clockwise = -1;
-      
     }
 
     this._angle %= 360;
     this._angle = 360 - this._angle;
 
     this._updateDirections();
-
   }
 
   /**
@@ -408,7 +358,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
    * It also updates the controllers properly.
    * We can center a camera from the front or from the back.
    */
-  center(){
+  center() {
     if (this._fromFront) {
       this._updatePositionAndTarget(this._front, this._back);
     } else {
@@ -423,37 +373,29 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
    * Pi/2 rotation around the zCosine axis.
    * Clock-wise rotation from the user point of view.
    */
-  rotate( angle=null ) {
-
+  rotate(angle=null) {
     this.center();
 
-    var computedAngle = 90;
+    let computedAngle = 90;
 
     let clockwise = 1;
-    if( !this._fromFront ){
-
+    if(!this._fromFront) {
       clockwise = -1;
-      
     }
 
-    if( angle === null ){
-
+    if(angle === null) {
       computedAngle *= -clockwise;
       this._angle += 90;
-
-    }
-    else{
-      
+    } else{
       computedAngle = 360 - clockwise * (angle - this._angle);
       this._angle = angle;
-
     }
 
     this._angle %= 360;
 
     // Rotate the up vector around the "zCosine"
     let rotation = new THREE.Matrix4().makeRotationAxis(
-      this._direction, 
+      this._direction,
       computedAngle * Math.PI/180);
     this.up.applyMatrix4(rotation);
 
@@ -478,7 +420,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     let zoom = 1;
 
     // update zoom
-    switch (direction){
+    switch (direction) {
       case 0:
         zoom = factor * this._computeZoom(this._canvas.width, this._right);
         break;
@@ -495,10 +437,8 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
         break;
     }
 
-    if(!zoom){
-
+    if(!zoom) {
       return false;
-      
     }
 
     this.zoom = zoom;
@@ -506,90 +446,63 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this.center();
   }
 
-  _adjustTopDirection( horizontalDirection, verticalDirection ){
-
-    let hMaxIndex = this._getMaxIndex( horizontalDirection );
-    let vMaxIndex = this._getMaxIndex( verticalDirection );
+  _adjustTopDirection(horizontalDirection, verticalDirection) {
+    let hMaxIndex = this._getMaxIndex(horizontalDirection);
+    let vMaxIndex = this._getMaxIndex(verticalDirection);
 
     // should handle vMax index === 0
-    if( ( vMaxIndex === 2 &amp;&amp; verticalDirection.getComponent(vMaxIndex) &lt; 0 ) ||
-        ( vMaxIndex === 1 &amp;&amp; verticalDirection.getComponent(vMaxIndex) > 0 ) ||
-        ( vMaxIndex === 0 &amp;&amp; verticalDirection.getComponent(vMaxIndex) > 0 ) ){
-
+    if((vMaxIndex === 2 &amp;&amp; verticalDirection.getComponent(vMaxIndex) &lt; 0) ||
+        (vMaxIndex === 1 &amp;&amp; verticalDirection.getComponent(vMaxIndex) > 0) ||
+        (vMaxIndex === 0 &amp;&amp; verticalDirection.getComponent(vMaxIndex) > 0)) {
       verticalDirection.negate();
-
     }
 
    return verticalDirection;
-
   }
 
-  _getMaxIndex( vector ){
-
+  _getMaxIndex(vector) {
     // only one can be equal to 1 as it is normalized
-    if( Math.abs( Math.round( vector.x ) ) === 1 ){
-
+    if(Math.abs(Math.round(vector.x)) === 1) {
       return 0;
-
-    }
-    else if( Math.abs( Math.round( vector.y ) ) === 1 ){
-
+    } else if(Math.abs(Math.round(vector.y)) === 1) {
       return 1;
-
-    }
-    else if( Math.abs( Math.round( vector.z ) ) === 1 ){
-
+    } else if(Math.abs(Math.round(vector.z)) === 1) {
       return 2;
-
     }
-
   }
 
-  _findMaxIndex( directions, target ){
-
+  _findMaxIndex(directions, target) {
     // get index of the most superior direction
-    let maxIndices = this._getMaxIndices( directions );
+    let maxIndices = this._getMaxIndices(directions);
 
-    for( let i = 0; i &lt; maxIndices.length; i++ ){
-
-      if( maxIndices[i] === target){
-
+    for(let i = 0; i &lt; maxIndices.length; i++) {
+      if(maxIndices[i] === target) {
         return i;
-
       }
-
     }
-    
   }
 
-  _getMaxIndices( directions ){
-
-    let indices  = [];
-    indices.push( this._getMaxIndex( directions[0] ) );
-    indices.push( this._getMaxIndex( directions[1] ) );
-    indices.push( this._getMaxIndex( directions[2] ) );
+  _getMaxIndices(directions) {
+    let indices = [];
+    indices.push(this._getMaxIndex(directions[0]));
+    indices.push(this._getMaxIndex(directions[1]));
+    indices.push(this._getMaxIndex(directions[2]));
 
     return indices;
-
   }
 
-  _orderIntersections( intersections, direction ){
+  _orderIntersections(intersections, direction) {
+    let ordered = intersections[0].dot(direction) &lt; intersections[1].dot(direction);
 
-    let ordered = intersections[0].dot( direction ) &lt; intersections[1].dot( direction );
-
-    if( !ordered ){
-
-        return [ intersections[1], intersections[0] ];
-
+    if(!ordered) {
+        return [intersections[1], intersections[0]];
     }
 
    return intersections;
-
   }
 
-  _updateCanvas(){
-
-    var camFactor = 2;
+  _updateCanvas() {
+    let camFactor = 2;
     this.left = -this._canvas.width / camFactor;
     this.right = this._canvas.width / camFactor;
     this.top = this._canvas.height / camFactor;
@@ -597,29 +510,25 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
 
     this._updateMatrices();
     this.controls.handleResize();
-
   }
 
-  _oppositePosition(position){
-
+  _oppositePosition(position) {
     let oppositePosition = position.clone();
     // center world postion around box center
     oppositePosition.sub(this._box.center);
     // rotate
     let rotation = new THREE.Matrix4().makeRotationAxis(
-      this.up, 
+      this.up,
       Math.PI);
 
     oppositePosition.applyMatrix4(rotation);
     // translate back to world position
     oppositePosition.add(this._box.center);
     return oppositePosition;
-    
   }
 
   _computeZoom(dimension, direction) {
-
-    if(!(dimension &amp;&amp; dimension > 0)){
+    if(!(dimension &amp;&amp; dimension > 0)) {
       window.console.log('Invalid dimension provided.');
       window.console.log(dimension);
       return false;
@@ -628,7 +537,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     // ray
     let ray = {
       position: this._box.center.clone(),
-      direction: direction
+      direction: direction,
     };
 
     let intersections = Intersections.rayBox(ray, this._box);
@@ -642,7 +551,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     return dimension / intersections[0].distanceTo(intersections[1]);
   }
 
-  _updatePositionAndTarget(position, target){
+  _updatePositionAndTarget(position, target) {
       // position
       this.position.set(position.x, position.y, position.z);
 
@@ -658,95 +567,65 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     this.updateMatrixWorld();
   }
 
-  _updateLabels(){
-
+  _updateLabels() {
     this._directionsLabel = [
-      this._vector2Label( this._up ),
-      this._vector2Label( this._up.clone().negate() ),
-      this._vector2Label( this._right ),
-      this._vector2Label( this._right.clone().negate() ),
-      this._vector2Label( this._direction ),
-      this._vector2Label( this._direction.clone().negate() )
+      this._vector2Label(this._up),
+      this._vector2Label(this._up.clone().negate()),
+      this._vector2Label(this._right),
+      this._vector2Label(this._right.clone().negate()),
+      this._vector2Label(this._direction),
+      this._vector2Label(this._direction.clone().negate()),
     ];
-
   }
 
-  _vector2Label( direction ){
-
-    let index = this._getMaxIndex( direction );
+  _vector2Label(direction) {
+    let index = this._getMaxIndex(direction);
     // set vector max value to 1
-    let scaledDirection = direction.clone().divideScalar( Math.abs( direction.getComponent( index ) ) );
+    let scaledDirection = direction.clone().divideScalar(Math.abs(direction.getComponent(index)));
     let delta = 0.2;
     let label = '';
 
     // loop through components of the vector
-    for( let i = 0; i&lt;3; i++ ){
-
-      if( i === 0 ){
-
-        if( scaledDirection.getComponent( i ) + delta >= 1 ){
-
+    for(let i = 0; i&lt;3; i++) {
+      if(i === 0) {
+        if(scaledDirection.getComponent(i) + delta >= 1) {
           label += 'L';
-
-        }
-        else if( scaledDirection.getComponent( i ) - delta &lt;= -1 ){
-
+        } else if(scaledDirection.getComponent(i) - delta &lt;= -1) {
           label += 'R';
-
         }
-
       }
 
-      if( i === 1 ){
-
-        if( scaledDirection.getComponent( i ) + delta >= 1 ){
-
+      if(i === 1) {
+        if(scaledDirection.getComponent(i) + delta >= 1) {
           label += 'P';
-
-        }
-        else if( scaledDirection.getComponent( i ) - delta &lt;= -1 ){
-
+        } else if(scaledDirection.getComponent(i) - delta &lt;= -1) {
           label += 'A';
-
         }
-
       }
 
-      if( i === 2 ){
-
-        if( scaledDirection.getComponent( i ) + delta >= 1 ){
-
+      if(i === 2) {
+        if(scaledDirection.getComponent(i) + delta >= 1) {
           label += 'S';
-
-        }
-        else if( scaledDirection.getComponent( i ) - delta &lt;= -1 ){
-
+        } else if(scaledDirection.getComponent(i) - delta &lt;= -1) {
           label += 'I';
-
         }
-
       }
-
-
     }
 
     return label;
-
-
   }
 
-  _updateDirections(){
-
+  _updateDirections() {
     // up is correct
     this._up = this.up.clone();
 
     // direction
-    var pLocal = new THREE.Vector3( 0, 0, -1 );
-    var pWorld = pLocal.applyMatrix4( this.matrixWorld );
-    this._direction = pWorld.sub( this.position ).normalize();
+    let pLocal = new THREE.Vector3(0, 0, -1);
+    let pWorld = pLocal.applyMatrix4(this.matrixWorld);
+    this._direction = pWorld.sub(this.position).normalize();
 
     // right
-    this._right = new THREE.Vector3().crossVectors ( this._direction, this.up );
+    this._right = new THREE.Vector3().crossVectors(this._direction, this.up);
 
     // update labels accordingly
     this._updateLabels();
@@ -768,109 +647,87 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
     return this._box;
   }
 
-  set canvas(canvas){
+  set canvas(canvas) {
     this._canvas = canvas;
     this._updateCanvas();
   }
 
-  get canvas(){
+  get canvas() {
     return this._canvas;
   }
 
-  set angle(angle){
+  set angle(angle) {
     this.rotate(angle);
   }
 
-  get angle(){
+  get angle() {
     return this._angle;
   }
 
-  set directions(directions){
+  set directions(directions) {
     this._directions = directions;
   }
 
-  get directions(){
+  get directions() {
     return this._directions;
   }
 
-  set convention(convention){
+  set convention(convention) {
     this._convention = convention;
   }
 
-  get convention(){
+  get convention() {
     return this._convention;
   }
 
-  set orientation(orientation){
+  set orientation(orientation) {
     this._orientation = orientation;
   }
 
-  get orientation(){
+  get orientation() {
     return this._orientation;
   }
 
-  set directionsLabel(directionsLabel){
+  set directionsLabel(directionsLabel) {
     this._directionsLabel = directionsLabel;
   }
 
-  get directionsLabel(){
+  get directionsLabel() {
     return this._directionsLabel;
   }
 
-  set stackOrientation(stackOrientation){
-
+  set stackOrientation(stackOrientation) {
     this._stackOrientation = stackOrientation;
 
-    if( this._stackOrientation === 0){
-
+    if(this._stackOrientation === 0) {
       this._orientation = 'default';
-
     } else {
+      let maxIndex = this._getMaxIndex(this._directions[(this._stackOrientation + 2) % 3]);
 
-      let maxIndex = this._getMaxIndex( this._directions[ (this._stackOrientation + 2) % 3] );
-
-      if( maxIndex === 0 ){
-
+      if(maxIndex === 0) {
         this._orientation = 'sagittal';
-
-      } else if( maxIndex === 1 ){
-
+      } else if(maxIndex === 1) {
         this._orientation = 'coronal';
-
-      } else if( maxIndex === 2 ){
-
+      } else if(maxIndex === 2) {
         this._orientation = 'axial';
-
       }
-
     }
   }
 
-  get stackOrientation(){
-
-    // 
-    if( this._orientation === 'default' ){
-
+  get stackOrientation() {
+    //
+    if(this._orientation === 'default') {
       this._stackOrientation = 0;
-
     } else {
+      let maxIndex = this._getMaxIndex(this._direction);
 
-      let maxIndex = this._getMaxIndex( this._direction );
-
-      if( maxIndex === this._getMaxIndex( this._directions[2] ) ){
-
+      if(maxIndex === this._getMaxIndex(this._directions[2])) {
         this._stackOrientation = 0;
-
-      } else if( maxIndex === this._getMaxIndex( this._directions[0] ) ){
-
+      } else if(maxIndex === this._getMaxIndex(this._directions[0])) {
         this._stackOrientation = 1;
-
-      } else if( maxIndex === this._getMaxIndex( this._directions[1] ) ){
-
+      } else if(maxIndex === this._getMaxIndex(this._directions[1])) {
         this._stackOrientation = 2;
-
       }
-
     }
 
     return this._stackOrientation;
@@ -887,13 +744,13 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera{
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#pako">pako</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Jan 13 2017 11:24:22 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Tue Jan 17 2017 12:13:04 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

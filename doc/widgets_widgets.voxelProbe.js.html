@@ -26,14 +26,14 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/*** Imports ***/
+            <pre class="prettyprint source linenums"><code>/** * Imports ***/
 import HelpersVoxel from '../../src/helpers/helpers.voxel';
 
 /**
  * @module widgets/voxelProbe
  */
 
-export default class WidgetsVoxelProbe extends THREE.Object3D{
+export default class WidgetsVoxelProbe extends THREE.Object3D {
   constructor(stack, targetMesh, controls, camera, container) {
     super();
 
@@ -48,7 +48,7 @@ export default class WidgetsVoxelProbe extends THREE.Object3D{
       x: 0,
       y: 0,
       screenX: 0,
-      screenY: 0
+      screenY: 0,
     };
     // show only voxels that interesect the mesh
     this._showFrame = -1;
@@ -62,9 +62,9 @@ export default class WidgetsVoxelProbe extends THREE.Object3D{
 
     this._voxels = [];
     this._current = new HelpersVoxel(stack.worldCenter(), stack);
-    this._current._showVoxel =  true;
-    this._current._showDomSVG =  true;
-    this._current._showDomMeasurements =  true;
+    this._current._showVoxel = true;
+    this._current._showDomSVG = true;
+    this._current._showDomMeasurements = true;
 
     this.add(this._current);
 
@@ -103,33 +103,30 @@ export default class WidgetsVoxelProbe extends THREE.Object3D{
   }
 
   onMouseMove() {
-
     if (this._enabled === false) {
       return;
     }
 
     this.updateRaycaster(this._raycaster, event, this._container);
 
-    this._draggingMouse  = true;
+    this._draggingMouse = true;
 
     this.update();
   }
 
   onMouseDown(event) {
-
     if (this._enabled === false) {
       return;
     }
 
     this.updateRaycaster(this._raycaster, event, this._container);
 
-    this._draggingMouse  = false;
-  
+    this._draggingMouse = false;
+
     this.activateVoxel();
   }
 
   onMouseUp(event) {
-
     if (this._enabled === false) {
       return;
     }
@@ -160,7 +157,7 @@ export default class WidgetsVoxelProbe extends THREE.Object3D{
       x: (event.clientX / container.offsetWidth) * 2 - 1,
       y: -(event.clientY / container.offsetHeight) * 2 + 1,
       screenX: event.clientX,
-      screenY: event.clientY
+      screenY: event.clientY,
     };
     // update the raycaster
     raycaster.setFromCamera(this._mouse, this._camera);
@@ -183,7 +180,6 @@ export default class WidgetsVoxelProbe extends THREE.Object3D{
     while (i--) {
       let match = this._selected.indexOf(i);
       if (match >= 0) {
-
         // selected &amp;&amp; active
         if (this._active === i) {
           this._active = -1;
@@ -229,7 +225,6 @@ export default class WidgetsVoxelProbe extends THREE.Object3D{
           this._controls.enabled = false;
         }
       }
-
     } else {
       // change color + select it and nothing else selected
       this._voxels[this._active].active = false;
@@ -354,7 +349,7 @@ export default class WidgetsVoxelProbe extends THREE.Object3D{
       // update distance mouse/this._voxel
       let dx = mouseScreenCoordinates.screenX - helpersVoxel.voxel.screenCoordinates.x;
       let dy = mouseScreenCoordinates.screenY - helpersVoxel.voxel.screenCoordinates.y;
-      let distance =  Math.sqrt(dx * dx + dy * dy);
+      let distance = Math.sqrt(dx * dx + dy * dy);
       helpersVoxel.distance = distance;
       if (distance >= 0 &amp;&amp; distance &lt; 10) {
         helpersVoxel.hover = true;
@@ -367,11 +362,11 @@ export default class WidgetsVoxelProbe extends THREE.Object3D{
   showOfIntersectsFrame(voxelHelper, frameIndex) {
     if (frameIndex === voxelHelper.voxel.dataCoordinates.z ||
       frameIndex === -1) {
-      voxelHelper._showDomSVG =  true;
-      voxelHelper._showDomMeasurements =  true;
+      voxelHelper._showDomSVG = true;
+      voxelHelper._showDomMeasurements = true;
     } else {
-      voxelHelper._showDomSVG =  false;
-      voxelHelper._showDomMeasurements =  false;
+      voxelHelper._showDomSVG = false;
+      voxelHelper._showDomMeasurements = false;
     }
   }
 
@@ -448,13 +443,13 @@ export default class WidgetsVoxelProbe extends THREE.Object3D{
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#pako">pako</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Jan 13 2017 11:24:23 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Tue Jan 17 2017 12:13:04 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

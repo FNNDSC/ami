@@ -28,7 +28,7 @@
         <article>
             <pre class="prettyprint source linenums"><code>'use strict';
 
-var VJS = VJS || {};
+let VJS = VJS || {};
 VJS.widgets = VJS.widgets || {};
 
 /**
@@ -54,18 +54,18 @@ VJS.widgets.squareProbe = function(helper, image, imageMeshes) {
 
     this.volumeCore = null;
 
-    this._worldCoordinate = null; //LPS
-    this._dataCoordinate = null; //IJK
+    this._worldCoordinate = null; // LPS
+    this._dataCoordinate = null; // IJK
     this._dataValue = null; //
     this._labelValue = null; //
 };
 
 VJS.widgets.squareProbe.prototype.select = function(raycaster) {
     // calculate image intersecting against itself (ideally N spheres)
-    var intersects = raycaster.intersectObjects(this.helper.children);
-    var worldCoordinates = null;
+    let intersects = raycaster.intersectObjects(this.helper.children);
+    let worldCoordinates = null;
     // Look for a handle
-    for (var intersect in intersects) {
+    for (let intersect in intersects) {
         worldCoordinates = new THREE.Vector3().copy(intersects[intersect].point);
 
         // if intersect a handle, select/un-select it!
@@ -84,7 +84,7 @@ VJS.widgets.squareProbe.prototype.select = function(raycaster) {
     // Look for intersection against image
     window.console.log(this);
     intersects = raycaster.intersectObjects(this.imageMeshes);
-    for (var intersect2 in intersects) {
+    for (let intersect2 in intersects) {
         worldCoordinates = new THREE.Vector3().copy(intersects[intersect2].point);
 
         // might be better to re-loop
@@ -95,14 +95,14 @@ VJS.widgets.squareProbe.prototype.select = function(raycaster) {
             window.console.log(intersects[intersect2]);
             if (this.handles.length &lt; 2) {
                 // create the geometry for it!
-                var sphereGeometry = new THREE.SphereGeometry(1);
-                var material = new THREE.MeshBasicMaterial({
+                let sphereGeometry = new THREE.SphereGeometry(1);
+                let material = new THREE.MeshBasicMaterial({
                     // not selected: amber? #FFC107
                     // orange? #FF9800
                     // selected: deep orange? #FF5722
-                    color: 0xFF5722
+                    color: 0xFF5722,
                 });
-                var sphere = new THREE.Mesh(sphereGeometry, material);
+                let sphere = new THREE.Mesh(sphereGeometry, material);
                 sphere.applyMatrix(new THREE.Matrix4().makeTranslation(
                     worldCoordinates.x, worldCoordinates.y, worldCoordinates.z));
                 sphere.name = 'squareProbeHandle';
@@ -129,9 +129,9 @@ VJS.widgets.squareProbe.prototype.unselect = function() {
 VJS.widgets.squareProbe.prototype.computeValues = function() {
     // convert point to IJK
     if (this.image) {
-        var worldToData = this.image._stack[0]._lps2IJK;
+        let worldToData = this.image._stack[0]._lps2IJK;
 
-        var dataCoordinate = new THREE.Vector3().copy(this._worldCoordinate).applyMatrix4(worldToData);
+        let dataCoordinate = new THREE.Vector3().copy(this._worldCoordinate).applyMatrix4(worldToData);
 
         // same rounding in the shaders
         // window.console.log(dataCoordinate);
@@ -140,27 +140,27 @@ VJS.widgets.squareProbe.prototype.computeValues = function() {
         dataCoordinate.z = Math.floor(dataCoordinate.z + 0.5);
         this._dataCoordinate = dataCoordinate;
 
-        var textureSize = this.image._stack[0]._textureSize;
-        var rows = this.image._stack[0]._rows;
-        var columns = this.image._stack[0]._columns;
+        let textureSize = this.image._stack[0]._textureSize;
+        let rows = this.image._stack[0]._rows;
+        let columns = this.image._stack[0]._columns;
 
-        var index = this._dataCoordinate.x + columns * this._dataCoordinate.y + rows * columns * this._dataCoordinate.z;
+        let index = this._dataCoordinate.x + columns * this._dataCoordinate.y + rows * columns * this._dataCoordinate.z;
 
-        var textureIndex = Math.floor(index / (textureSize * textureSize));
-        var inTextureIndex = index % (textureSize * textureSize);
+        let textureIndex = Math.floor(index / (textureSize * textureSize));
+        let inTextureIndex = index % (textureSize * textureSize);
 
         this._dataValue = this.image._stack[0]._rawData[textureIndex][inTextureIndex];
     }
 };
 
 VJS.widgets.squareProbe.prototype.updateUI = function(mouse) {
-    var rasContent = this._worldCoordinate.x.toFixed(2) + ' : ' + this._worldCoordinate.y.toFixed(2) + ' : ' + this._worldCoordinate.z.toFixed(2);
+    let rasContent = this._worldCoordinate.x.toFixed(2) + ' : ' + this._worldCoordinate.y.toFixed(2) + ' : ' + this._worldCoordinate.z.toFixed(2);
     this.rasContainer.innerHTML = 'LPS: ' + rasContent;
 
-    var ijkContent = this._dataCoordinate.x + ' : ' + this._dataCoordinate.y + ' : ' + this._dataCoordinate.z;
+    let ijkContent = this._dataCoordinate.x + ' : ' + this._dataCoordinate.y + ' : ' + this._dataCoordinate.z;
     this.ijkContainer.innerHTML = 'IJK: ' + ijkContent;
 
-    var valueContent = this._dataValue;
+    let valueContent = this._dataValue;
     this.valueContainer.innerHTML = 'Value: ' + valueContent;
 
     // position of the div...
@@ -168,20 +168,18 @@ VJS.widgets.squareProbe.prototype.updateUI = function(mouse) {
     document.getElementById('VJSProbe').style.display = 'block';
     document.getElementById('VJSProbe').style.top = mouse.clientY + 20;
     document.getElementById('VJSProbe').style.left = mouse.clientX + 20;
-
 };
 
 VJS.widgets.squareProbe.prototype.update = function(raycaster, mouse) {
-
     if (!this.imageMeshes) {
         return;
     }
 
     // calculate image intersecting the picking ray
-    var intersects = raycaster.intersectObjects(this.imageMeshes);
+    let intersects = raycaster.intersectObjects(this.imageMeshes);
 
-    for (var intersect in intersects) {
-        var worldCoordinates = new THREE.Vector3().copy(intersects[intersect].point);
+    for (let intersect in intersects) {
+        let worldCoordinates = new THREE.Vector3().copy(intersects[intersect].point);
 
         // if we intersect an image with a ShaderMaterial
         // TODO: review that
@@ -202,9 +200,9 @@ VJS.widgets.squareProbe.prototype.hideUI = function() {
     document.getElementById('VJSProbe').style.display = 'none';
 };
 
-/*** Exports ***/
+/** * Exports ***/
 
-var moduleType = typeof module;
+let moduleType = typeof module;
 if ((moduleType !== 'undefined') &amp;&amp; module.exports) {
     module.exports = VJS.widgets.squareProbe;
 }
@@ -218,13 +216,13 @@ if ((moduleType !== 'undefined') &amp;&amp; module.exports) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#pako">pako</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Jan 13 2017 11:24:23 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Tue Jan 17 2017 12:13:04 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

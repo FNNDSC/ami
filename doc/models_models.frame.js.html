@@ -26,7 +26,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/*** Imports ***/
+            <pre class="prettyprint source linenums"><code>/** * Imports ***/
 import ModelsBase from '../../src/models/models.base';
 
 /**
@@ -35,7 +35,7 @@ import ModelsBase from '../../src/models/models.base';
  * @module models/frame
  */
 
-export default class ModelsFrame extends ModelsBase{
+export default class ModelsFrame extends ModelsBase {
   constructor() {
     super();
 
@@ -71,7 +71,6 @@ export default class ModelsFrame extends ModelsBase{
   }
 
   validate(model) {
-
     if (!(super.validate(model) &amp;&amp;
       typeof model.cosines === 'function' &amp;&amp;
       typeof model.spacingXY === 'function' &amp;&amp;
@@ -79,9 +78,7 @@ export default class ModelsFrame extends ModelsBase{
       model.hasOwnProperty('_dimensionIndexValues') &amp;&amp;
       model.hasOwnProperty('_imageOrientation') &amp;&amp;
       model.hasOwnProperty('_imagePosition'))) {
-
       return false;
-
     }
 
     return true;
@@ -91,7 +88,7 @@ export default class ModelsFrame extends ModelsBase{
    * Merge current frame with provided frame.
    *
    * Frames can be merged (i.e. are identical) if following are equals:
-   *  - dimensionIndexValues 
+   *  - dimensionIndexValues
    *  - imageOrientation
    *  - imagePosition
    *  - instanceNumber
@@ -100,8 +97,7 @@ export default class ModelsFrame extends ModelsBase{
    * @returns {boolean} True if frames could be merge. False if not.
    */
   merge(frame) {
-
-    if(!this.validate(frame)){
+    if(!this.validate(frame)) {
       return false;
     }
 
@@ -110,15 +106,10 @@ export default class ModelsFrame extends ModelsBase{
         this._compareArrays(this._imagePosition, frame.imagePosition) &amp;&amp;
         this._instanceNumber === frame.instanceNumber &amp;&amp;
         this._sopInstanceUID === frame.sopInstanceUID) {
-
       return true;
-
     } else {
-
       return false;
-
     }
-
   }
 
   /**
@@ -127,58 +118,45 @@ export default class ModelsFrame extends ModelsBase{
    *
    * @returns {array} Array[3] containing cosinesX, Y and Z.
    */
-  cosines(){
-
-    let cosines = [new THREE.Vector3(1, 0, 0), 
-      new THREE.Vector3(0, 1, 0), 
+  cosines() {
+    let cosines = [new THREE.Vector3(1, 0, 0),
+      new THREE.Vector3(0, 1, 0),
       new THREE.Vector3(0, 0, 1)];
 
      if (this._imageOrientation &amp;&amp;
       this._imageOrientation.length === 6) {
-
       let xCos = new THREE.Vector3(this._imageOrientation[0], this._imageOrientation[1], this._imageOrientation[2]);
       let yCos = new THREE.Vector3(this._imageOrientation[3], this._imageOrientation[4], this._imageOrientation[5]);
 
-      if( xCos.length() > 0 &amp;&amp; yCos.length() > 0){
-
+      if(xCos.length() > 0 &amp;&amp; yCos.length() > 0) {
         cosines[0] = xCos;
         cosines[1] = yCos;
         cosines[2] = new THREE.Vector3(0, 0, 0).crossVectors(cosines[0], cosines[1]).normalize();
-
       }
-
-    }
-    else{
-
+    } else{
       window.console.log('No valid image orientation for frame');
       window.console.log(this);
       window.console.log('Returning default orientation.');
-
     }
 
-    if( !this._rightHanded ){
-
+    if(!this._rightHanded) {
       cosines[2].negate();
-
     }
 
     return cosines;
   }
 
-  spacingXY(){
+  spacingXY() {
     let spacingXY = [1.0, 1.0];
 
     if (this.pixelSpacing) {
-
       spacingXY[0] = this.pixelSpacing[0];
 
       spacingXY[1] = this.pixelSpacing[1];
-    } else if ( this.pixelAspectRatio ) {
-
+    } else if (this.pixelAspectRatio) {
       spacingXY[0] = 1.0;
       spacingXY[1] = 1.0 * this.pixelAspectRatio[1] / this.pixelAspectRatio[0];
-
-    } 
+    }
 
     return spacingXY;
   }
@@ -379,27 +357,27 @@ export default class ModelsFrame extends ModelsBase{
     this._pixelType = pixelType;
   }
 
-  get url(){
+  get url() {
     return this._url;
   }
 
-  set url(url){
+  set url(url) {
     this._url = url;
   }
 
-  get referencedSegmentNumber(){
+  get referencedSegmentNumber() {
     return this._referencedSegmentNumber;
   }
 
-  set referencedSegmentNumber(referencedSegmentNumber){
+  set referencedSegmentNumber(referencedSegmentNumber) {
     this._referencedSegmentNumber = referencedSegmentNumber;
   }
 
-  get rightHanded(){
+  get rightHanded() {
     return this._rightHanded;
   }
 
-  set rightHanded(rightHanded){
+  set rightHanded(rightHanded) {
     this._rightHanded = rightHanded;
   }
 }
@@ -413,13 +391,13 @@ export default class ModelsFrame extends ModelsBase{
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#pako">pako</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Jan 13 2017 11:24:22 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Tue Jan 17 2017 12:13:04 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

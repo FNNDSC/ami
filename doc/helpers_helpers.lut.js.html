@@ -31,7 +31,7 @@
  * @module helpers/lut
  */
 
-export default class HelpersLut{
+export default class HelpersLut {
   constructor(containerID,
               lut = 'default',
               lutO = 'linear',
@@ -44,17 +44,16 @@ export default class HelpersLut{
     this._containerID = containerID;
 
     this._discrete = discrete;
-    this._color    = color;
-    this._lut      = lut;
-    this._luts     = {[lut]: color};
+    this._color = color;
+    this._lut = lut;
+    this._luts = {[lut]: color};
 
     this._opacity = opacity;
     this._lutO = lutO;
     this._lutsO = {[lutO]: opacity};
-    
+
     this.initCanvas();
     this.paintCanvas();
-
   }
 
   initCanvas() {
@@ -90,55 +89,43 @@ export default class HelpersLut{
     ctx.globalCompositeOperation = 'source-over';
 
     // apply color
-    if( !this._discrete ){
-
+    if(!this._discrete) {
       let color = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
       for (let i = 0; i &lt; this._color.length; i++) {
         color.addColorStop(this._color[i][0], `rgba( ${Math.round(this._color[i][1] * 255)}, ${Math.round(this._color[i][2] * 255)}, ${Math.round(this._color[i][3] * 255)}, 1)`);
       }
 
       ctx.fillStyle = color;
-      ctx.fillRect(0, 0, this._canvas.width , this._canvas.height);
-
-    }
-    else{
-
+      ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+    } else{
       ctx.lineWidth=2*this._canvas.height;
 
-      for( let i=0; i&lt;this._color.length; i++ ){
-
-        let currentPos  = this._color[i][0];
-        let nextPos     = 1;
-        if( i &lt; this._color.length - 1){
-
+      for(let i=0; i&lt;this._color.length; i++) {
+        let currentPos = this._color[i][0];
+        let nextPos = 1;
+        if(i &lt; this._color.length - 1) {
           nextPos = this._color[i+1][0];
-
         }
         let previousPos = 0;
-        if( i > 0){
-
+        if(i > 0) {
           previousPos = this._color[i-1][0];
-
         }
 
-        let from        = previousPos + (currentPos - previousPos)/2;
-        let to          = currentPos + (nextPos - currentPos)/2;
-        let color       = this._color[i];
-        let opacity     = this._opacity[i] ? this._opacity[i][1] : 1;
+        let from = previousPos + (currentPos - previousPos)/2;
+        let to = currentPos + (nextPos - currentPos)/2;
+        let color = this._color[i];
+        let opacity = this._opacity[i] ? this._opacity[i][1] : 1;
 
         ctx.beginPath();
         ctx.strokeStyle = `rgba( ${Math.round(color[1] * 255)}, ${Math.round(color[2] * 255)}, ${Math.round(color[3] * 255)}, ${opacity})`;
-        ctx.moveTo(from*this._canvas.width,0);
-        ctx.lineTo( to*this._canvas.width, 0);
+        ctx.moveTo(from*this._canvas.width, 0);
+        ctx.lineTo(to*this._canvas.width, 0);
         ctx.stroke();
         ctx.closePath();
-        
       }
-
     }
 
-    if( !this._discrete ){
-
+    if(!this._discrete) {
       // if discrete, we already took care of the opacity.
       // setup context
       ctx.globalCompositeOperation = 'destination-in';
@@ -149,14 +136,12 @@ export default class HelpersLut{
         opacity.addColorStop(this._opacity[i][0], 'rgba(255, 255, 255, ' + this._opacity[i][1] + ')');
       }
       ctx.fillStyle = opacity;
-      ctx.fillRect(0, 0, this._canvas.width , this._canvas.height);
-
+      ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
     }
-
   }
 
   get texture() {
-    let texture =  new THREE.Texture(this._canvas);
+    let texture = new THREE.Texture(this._canvas);
     texture.mapping = THREE.UVMapping;
     texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
     texture.magFilter = texture.minFilter = THREE.NearestFilter;
@@ -176,11 +161,11 @@ export default class HelpersLut{
     return this._lut;
   }
 
-  set luts(newLuts){
+  set luts(newLuts) {
     this._luts = newLuts;
   }
 
-  get luts(){
+  get luts() {
     return this._luts;
   }
 
@@ -195,21 +180,21 @@ export default class HelpersLut{
     return this._lutO;
   }
 
-  set lutsO(newLutsO){
+  set lutsO(newLutsO) {
     this._lutsO = newLutsO;
   }
 
-  get lutsO(){
+  get lutsO() {
     return this._lutsO;
   }
 
-  set discrete(discrete){
+  set discrete(discrete) {
     this._discrete = discrete;
 
     this.paintCanvas();
   }
 
-  get discrete(){
+  get discrete() {
     return this._discrete;
   }
 
@@ -217,7 +202,7 @@ export default class HelpersLut{
     let available = [];
     let luts = this._luts;
 
-    if(type !== 'color'){
+    if(type !== 'color') {
       luts = this._lutsO;
     }
 
@@ -231,30 +216,31 @@ export default class HelpersLut{
   // add luts to class' lut (so a user can add its own as well)
   static presetLuts() {
     return {
-      'default':      [[0, 0, 0, 0], [1, 1, 1, 1]],
-      'spectrum':     [[0, 0, 0, 0], [0.1, 0, 0, 1], [0.33, 0, 1, 1], [0.5, 0, 1, 0], [0.66, 1, 1, 0], [0.9, 1, 0, 0], [1, 1, 1, 1]],
+      'default': [[0, 0, 0, 0], [1, 1, 1, 1]],
+      'spectrum': [[0, 0, 0, 0], [0.1, 0, 0, 1], [0.33, 0, 1, 1], [0.5, 0, 1, 0], [0.66, 1, 1, 0], [0.9, 1, 0, 0], [1, 1, 1, 1]],
       'hot_and_cold': [[0, 0, 0, 1], [0.15, 0, 1, 1], [0.3, 0, 1, 0], [0.45, 0, 0, 0], [0.5, 0, 0, 0], [0.55, 0, 0, 0], [0.7, 1, 1, 0], [0.85, 1, 0, 0], [1, 1, 1, 1]],
-      'gold':         [[0, 0, 0, 0], [0.13, 0.19, 0.03, 0], [0.25, 0.39, 0.12, 0], [0.38, 0.59, 0.26, 0], [0.50, 0.80, 0.46, 0.08], [0.63, 0.99, 0.71, 0.21], [0.75, 0.99, 0.88, 0.34], [0.88, 0.99, 0.99, 0.48], [1, 0.90, 0.95, 0.61]],
-      'red':          [[0, 0.75, 0, 0], [0.5, 1, 0.5, 0], [0.95, 1, 1, 0], [1, 1, 1, 1]],
-      'green':        [[0, 0, 0.75, 0], [0.5, 0.5, 1, 0], [0.95, 1, 1, 0], [1, 1, 1, 1]],
-      'blue':         [[0, 0, 0, 1], [0.5, 0, 0.5, 1], [0.95, 0, 1, 1], [1, 1, 1, 1]],
+      'gold': [[0, 0, 0, 0], [0.13, 0.19, 0.03, 0], [0.25, 0.39, 0.12, 0], [0.38, 0.59, 0.26, 0], [0.50, 0.80, 0.46, 0.08], [0.63, 0.99, 0.71, 0.21], [0.75, 0.99, 0.88, 0.34], [0.88, 0.99, 0.99, 0.48], [1, 0.90, 0.95, 0.61]],
+      'red': [[0, 0.75, 0, 0], [0.5, 1, 0.5, 0], [0.95, 1, 1, 0], [1, 1, 1, 1]],
+      'green': [[0, 0, 0.75, 0], [0.5, 0.5, 1, 0], [0.95, 1, 1, 0], [1, 1, 1, 1]],
+      'blue': [[0, 0, 0, 1], [0.5, 0, 0.5, 1], [0.95, 0, 1, 1], [1, 1, 1, 1]],
       'walking_dead': [[0, 0.1, 1, 1], [1, 1, 1, 1]],
-      'random':       [[0, 0, 0, 0], [0.27, 0.18, 0.18, 0.18], [0.41, 1, 1, 1], [0.7, 1, 0, 0], [1, 1, 1, 1]]
+      'random': [[0, 0, 0, 0], [0.27, 0.18, 0.18, 0.18], [0.41, 1, 1, 1], [0.7, 1, 0, 0], [1, 1, 1, 1]],
     };
   }
 
   static presetLutsO() {
     return {
-      'linear':   [[0, 0],[1, 1]],
-      'lowpass':  [[0, 0.8], [0.2, 0.6], [0.3, 0.1], [1, 0]],
+      'linear': [[0, 0], [1, 1]],
+      'lowpass': [[0, 0.8], [0.2, 0.6], [0.3, 0.1], [1, 0]],
       'bandpass': [[0, 0], [0.4, 0.8], [0.6, 0.8], [1, 0]],
       'highpass': [[0, 0], [0.7, 0.1], [0.8, 0.6], [1, 0.8]],
-      'flat':     [[0, .7], [1, 1]],
-      'random':   [[0, 0.], [0.38, 0.], [0.55, 1.], [0.72, 1.], [1, 0.05]]
+      'flat': [[0, .7], [1, 1]],
+      'random': [[0, 0.], [0.38, 0.], [0.55, 1.], [0.72, 1.], [1, 0.05]],
     };
   }
 
-}</code></pre>
+}
+</code></pre>
         </article>
     </section>
 
@@ -264,13 +250,13 @@ export default class HelpersLut{
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#pako">pako</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Jan 13 2017 11:24:22 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Tue Jan 17 2017 12:13:04 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

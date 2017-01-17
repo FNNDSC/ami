@@ -27,14 +27,14 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>import GeometriesVoxel from '../../src/geometries/geometries.voxel';
-import ModelsStack     from '../../src/models/models.stack';
-import ModelsVoxel     from '../../src/models/models.voxel';
+import ModelsStack from '../../src/models/models.stack';
+import ModelsVoxel from '../../src/models/models.voxel';
 
 /**
  * @module helpers/voxel
  */
 
-export default class HelpersVoxel extends THREE.Object3D{
+export default class HelpersVoxel extends THREE.Object3D {
   constructor(worldCoordinates = null, stack = null) {
     super();
 
@@ -46,23 +46,23 @@ export default class HelpersVoxel extends THREE.Object3D{
     this._voxel.worldCoordinates = this._worldCoordinates;
 
     // if stack provided, compute IJK and value
-    if(this._stack &amp;&amp; this._stack.prepared &amp;&amp; this._worldCoordinates){
+    if(this._stack &amp;&amp; this._stack.prepared &amp;&amp; this._worldCoordinates) {
       this.updateVoxel(this._worldCoordinates);
     }
 
     // part of the helper...?
-    this._mesh =  null;
+    this._mesh = null;
     this._geometry = null;
     this._material = null;
     // 3 next purpose is just to change the color: at widget level
-    this._selected =  false;
-    this._active =  false;
-    this._hover =  false;
+    this._selected = false;
+    this._active = false;
+    this._hover = false;
     this._distance = null;
 
-    this._showVoxel =  true;
-    this._showDomSVG =  true;
-    this._showDomMeasurements =  true;
+    this._showVoxel = true;
+    this._showDomSVG = true;
+    this._showDomMeasurements = true;
     this._color = '#00B0FF';
     // just visualization
     // this._svgPointer = '&lt;svg width="40" height="40" \
@@ -74,7 +74,7 @@ export default class HelpersVoxel extends THREE.Object3D{
     //                       130,70" />\
     //   \
     //   &lt;/svg>';
-    /*jshint multistr: true */
+    /* jshint multistr: true */
     this._svgPointer = '&lt;svg width="40" height="40" \
                       viewBox="0 0 140 140" version="1.1" \
                       xmlns="http://www.w3.org/2000/svg"> \
@@ -84,8 +84,8 @@ export default class HelpersVoxel extends THREE.Object3D{
                                A10,10 0 1 1 10,10\
                                A10,10 0 1 1 30,30" />\
                       \
-                      &lt;/svg>'                        ;
-                      
+                      &lt;/svg>';
+
 
     this.createMesh();
   }
@@ -95,7 +95,7 @@ export default class HelpersVoxel extends THREE.Object3D{
     this._voxel.worldCoordinates = worldCoordinates;
 
     // update data coordinates
-    this._voxel.dataCoordinates =  ModelsStack.worldToData(
+    this._voxel.dataCoordinates = ModelsStack.worldToData(
                   this._stack,
                   this._voxel.worldCoordinates);
 
@@ -110,15 +110,14 @@ export default class HelpersVoxel extends THREE.Object3D{
       this._stack.rescaleIntercept);
   }
 
-  updateVoxelScreenCoordinates(camera, container){
+  updateVoxelScreenCoordinates(camera, container) {
     this._voxel.screenCoordinates = HelpersVoxel.worldToScreen(
       this._worldCoordinates,
       camera,
       container);
   }
-  
-  createMesh() {
 
+  createMesh() {
     let dataCoordinates = ModelsStack.worldToData(
       this._stack,
       this._worldCoordinates);
@@ -126,7 +125,7 @@ export default class HelpersVoxel extends THREE.Object3D{
     this._geometry = new GeometriesVoxel(dataCoordinates);
     this._material = new THREE.MeshBasicMaterial({
         wireframe: true,
-        wireframeLinewidth: 2
+        wireframeLinewidth: 2,
       });
     this._material.color.set(this._color);
     this._mesh = new THREE.Mesh(this._geometry, this._material);
@@ -163,7 +162,6 @@ export default class HelpersVoxel extends THREE.Object3D{
   }
 
   updateDom(container) {
-
     if (document.getElementById('VJSVoxelProbeWorld' + this.id) === null) {
       container.appendChild(this.createDom());
     }
@@ -260,7 +258,7 @@ export default class HelpersVoxel extends THREE.Object3D{
 
     return divContainer;
   }
-  
+
   set color(color) {
     this._color = color;
     if (this._material) {
@@ -269,13 +267,13 @@ export default class HelpersVoxel extends THREE.Object3D{
 
     // also update the dom
     let selectedElement = document.getElementById('VJSVoxelMeasurements' + this.id);
-    if(selectedElement){
-      selectedElement.style.borderColor = this._color.replace( '0x','#' );
+    if(selectedElement) {
+      selectedElement.style.borderColor = this._color.replace('0x', '#');
     }
-    
+
     selectedElement = document.querySelector('#VJSVoxelProbeSVG' + this.id + '> svg > path');
-    if(selectedElement){
-      selectedElement.style.stroke = this._color.replace( '0x','#' );
+    if(selectedElement) {
+      selectedElement.style.stroke = this._color.replace('0x', '#');
     }
   }
 
@@ -283,86 +281,86 @@ export default class HelpersVoxel extends THREE.Object3D{
     return this._color;
   }
 
-  set worldCoordinates(worldCoordinates){
+  set worldCoordinates(worldCoordinates) {
     this._worldCoordinates = worldCoordinates;
     this._voxel._worldCoordinates = worldCoordinates;
 
     // set data coordinates &amp;&amp; value
     this.updateVoxel(this._worldCoordinates);
 
-    if(this._mesh &amp;&amp; this._mesh.geometry){
+    if(this._mesh &amp;&amp; this._mesh.geometry) {
       this._mesh.geometry.location = this._voxel.dataCoordinates;
     }
   }
 
-  get worldCoordinates(){
+  get worldCoordinates() {
     return this._worldCoordinates;
   }
 
-  get voxel(){
+  get voxel() {
     return this._voxel;
   }
 
-  set voxel(voxel){
+  set voxel(voxel) {
     this._voxel = voxel;
   }
 
-  set showVoxel(showVoxel){
+  set showVoxel(showVoxel) {
     this._showVoxel = showVoxel;
 
-    if(this._mesh){
+    if(this._mesh) {
       this._mesh.visible = this._showVoxel;
     }
   }
-  get showVoxel(){
+  get showVoxel() {
     return this._showVoxel;
   }
 
-  set showDomSVG(showDomSVG){
+  set showDomSVG(showDomSVG) {
     this._showDomSVG = showDomSVG;
     this.updateDomClass();
   }
-  get showDomSVG(){
+  get showDomSVG() {
     return this._showDomSVG;
   }
 
-  set showDomMeasurements(showDomMeasurements){
+  set showDomMeasurements(showDomMeasurements) {
     this._showDomMeasurements = showDomMeasurements;
     this.updateDomClass();
   }
-  get showDomMeasurements(){
+  get showDomMeasurements() {
     return this._showDomMeasurements;
   }
 
-  set distance(distance){
+  set distance(distance) {
     this._distance = distance;
   }
 
-  get distance(){
+  get distance() {
     return this._distance;
   }
 
-  set selected(selected){
+  set selected(selected) {
     this._selected = selected;
   }
 
-  get selected(){
+  get selected() {
     return this._selected;
   }
 
-  set hover(hover){
+  set hover(hover) {
     this._hover = hover;
   }
 
-  get hover(){
+  get hover() {
     return this._hover;
   }
 
-  set active(active){
+  set active(active) {
     this._active = active;
   }
 
-  get active(){
+  get active() {
     return this._active;
   }
 }
@@ -376,13 +374,13 @@ export default class HelpersVoxel extends THREE.Object3D{
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#pako">pako</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Jan 13 2017 11:24:22 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Tue Jan 17 2017 12:13:04 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>
