@@ -30,6 +30,16 @@ void ${this._name}(in vec3 currentVoxel, out vec4 dataValue, out vec3 gradient){
 
   // https://en.wikipedia.org/wiki/Trilinear_interpolation
   vec3 lower_bound = vec3(floor(currentVoxel.x), floor(currentVoxel.y), floor(currentVoxel.z));
+  if(lower_bound.x < 0.){
+    lower_bound.x = 0.;
+  }
+  if(lower_bound.y < 0.){
+    lower_bound.y = 0.;
+  }
+  if(lower_bound.z < 0.){
+    lower_bound.z = 0.;
+  }
+  
   vec3 higher_bound = lower_bound + vec3(1);
 
   float xd = ( currentVoxel.x - lower_bound.x ) / ( higher_bound.x - lower_bound.x );

@@ -90,10 +90,6 @@ void main(void) {
     // first center of first voxel in data space is CENTERED on (0,0,0)
     vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);
     vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);
-
-    if ( all(greaterThanEqual(currentVoxel, vec3(0.0))) &&
-         all(lessThan(currentVoxel, vec3(float(uDataDimensions.x), float(uDataDimensions.y), float(uDataDimensions.z))))) {
-    // mapped intensity, given slope/intercept and window/level
     float intensity = 0.0;
     vec3 gradient = vec3(0., 0., 0.);
     getIntensity(currentVoxel, intensity, gradient);
@@ -116,9 +112,6 @@ void main(void) {
 
     accumulatedColor += alphaSample * colorSample;
     accumulatedAlpha += alphaSample;
-
-    }
-
 
     tCurrent += tStep;
 
