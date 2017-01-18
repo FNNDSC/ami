@@ -3,6 +3,12 @@
   outline: none;
 }
 
+body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
 #stats {
   position: absolute;
   top:0;
@@ -38,6 +44,35 @@
   pointer-events: all;
 }
 
+#editorStats {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  padding: 10px;
+  border: solid 1px #212121;
+  background-color: #d4d4d4;
+  flex-direction: column;
+}
+
+.segment {
+  display: flex;
+}
+
+.label::after{
+  content: ": ";
+}
+
+#help {
+  font-size: 24px;
+  color: #ffffff;
+  pointer-events: none;
+  position: absolute;
+  padding: 16px;
+  background-color: rgba(0, 0, 0, .7);
+  border: 1px solid #FFEB3B;
+}
+
 #my-gui-container {
   position: fixed;
   top: 30px;
@@ -46,6 +81,7 @@
 }
 
 #my-lut-container {
+  top: 0;
   position: fixed;
   left: 50%;
   transform: translate(-50%, 0);
