@@ -1,4 +1,4 @@
-/* globals Stats, dat, AMI*/
+/* globals Stats, dat*/
 
 import ControlsTrackball from '../../src/controls/controls.trackball';
 import HelpersStack      from '../../src/helpers/helpers.stack';
