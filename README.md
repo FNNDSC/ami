@@ -15,7 +15,7 @@
         <img src="https://img.shields.io/cdnjs/v/ami.js.svg"
              alt="CDNJS Version">
     </a>
-    <a href="https://www.npmjs.com/package/ami.js">
+    <a href="https://github.com/FNNDSC/ami/">
         <img src="https://img.shields.io/bower/v/ami.js.svg"
              alt="Bower Version">
     </a>
