@@ -30,6 +30,8 @@
 </p>
 
 ----------
+
+[![Join the chat at https://gitter.im/FNNDSC/ami](https://badges.gitter.im/FNNDSC/ami.svg)](https://gitter.im/FNNDSC/ami?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 ```diff
 **AMI Alpha** is now available for developer preview.
 Please submit pull request, open issues or contact us for any question, feature request, etc.
