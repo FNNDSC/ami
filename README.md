@@ -16,6 +16,10 @@
              alt="CDNJS Version">
     </a>
     <a href="https://www.npmjs.com/package/ami.js">
+        <img src="https://img.shields.io/bower/v/ami.js.svg"
+             alt="Bower Version">
+    </a>
+    <a href="https://www.npmjs.com/package/ami.js">
         <img src="https://img.shields.io/npm/v/ami.js.svg"
              alt="NPM Version">
     </a>
