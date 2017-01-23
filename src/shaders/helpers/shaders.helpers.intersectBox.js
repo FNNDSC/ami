@@ -1,44 +1,38 @@
 import ShadersBase from '../shaders.base';
 
 class IntersectBox extends ShadersBase {
-  
-  constructor(){
 
+  constructor() {
     super();
     this.name = 'intersectBox';
-    
+
     // default properties names
-    this._rayOrigin    = 'rayOrigin';
+    this._rayOrigin = 'rayOrigin';
     this._rayDirection = 'rayDirection';
-    this._aabbMin      = 'aabbMin';
-    this._aabbMax      = 'aabbMax';
-    this._tNear        = 'tNear';
-    this._tFar         = 'tFar';
-    this._intersect    = 'intersect';
+    this._aabbMin = 'aabbMin';
+    this._aabbMax = 'aabbMax';
+    this._tNear = 'tNear';
+    this._tFar = 'tFar';
+    this._intersect = 'intersect';
   }
 
-  api( baseFragment = this._base      ,
-       rayOrigin    = this._rayOrigin ,rayDirection = this._rayDirection,
-       aabbMin      = this._aabbMin   ,aabbMax      = this._aabbMax     ,
-       tNear        = this._tNear     ,tFar         = this._tFar        ,
-       intersect    = this._intersect){
-
+  api(baseFragment = this._base,
+       rayOrigin = this._rayOrigin, rayDirection = this._rayDirection,
+       aabbMin = this._aabbMin, aabbMax = this._aabbMax,
+       tNear = this._tNear, tFar = this._tFar,
+       intersect = this._intersect) {
     this._base = baseFragment;
     return this.compute(rayOrigin, rayDirection, aabbMin, aabbMax, tNear, tFar, intersect);
-
   }
 
-  compute( rayOrigin, rayDirection, aabbMin, aabbMax, tNear, tFar, intersect ){
-
+  compute(rayOrigin, rayDirection, aabbMin, aabbMax, tNear, tFar, intersect) {
     this.computeDefinition();
     this._base._functions[this._name] = this._definition;
     return `${this._name}(${rayOrigin}, ${rayDirection}, ${aabbMin}, ${aabbMax}, ${tNear}, ${tFar}, ${intersect});`;
-
   }
 
 
-  computeDefinition(){
-
+  computeDefinition() {
     this._definition = `
 void ${this._name}(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, out float tNear, out float tFar, out bool intersect){
   // compute intersection of ray with all six bbox planes
@@ -58,7 +52,7 @@ void ${this._name}(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, 
 
     `;
   }
-  
+
 }
 
 export default new IntersectBox();

@@ -172,35 +172,11 @@ window.onload = function() {
   // instantiate the loader
   // it loads and parses the dicom image
   var loader = new LoadersVolume();
-  var seriesContainer = [];
-  var loadSequence = [];
-  files.forEach(function(url) {
-    loadSequence.push(
-      Promise.resolve()
-      // fetch the file
-      .then(function() {
-        return loader.fetch(url);
-      })
-      .then(function(data) {
-        return loader.parse(data);
-      })
-      .then(function(series) {
-        seriesContainer.push(series);
-      })
-      .catch(function(error) {
-        window.console.log('oops... something went wrong...');
-        window.console.log(error);
-      })
-    );
-  });
-
-  // load sequence for all files
-  Promise
-  .all(loadSequence)
+  loader.load(files)
   .then(function() {
+    var series = loader.data[0].mergeSeries(loader.data)[0];
     loader.free();
     loader = null;
-    var series = seriesContainer[0].mergeSeries(seriesContainer)[0];
     // get first stack from series
     var stack = series.stack[0];
     // prepare it

@@ -1,4 +1,4 @@
-/* globals Stats, dat, AMI*/
+/* globals Stats, dat*/
 
 import ControlsTrackball from '../../src/controls/controls.trackball';
 import HelpersStack      from '../../src/helpers/helpers.stack';
@@ -151,47 +151,10 @@ window.onload = function() {
 
   });
 
-  // load sequence for each file
-  let seriesContainer = [];
-  let loadSequence = [];
-  files.forEach( function( url ) {
-
-    loadSequence.push(
-      Promise.resolve()
-      // fetch the file
-      .then (function() {
-
-        return loader.fetch( url );
-
-      } )
-      .then( function( data ) {
-
-        return loader.parse( data );
-
-      } )
-      .then( function( series) {
-
-        seriesContainer.push(series);
-
-      } )
-      .catch( function( error ) {
-
-        window.console.log( 'oops... something went wrong...' );
-        window.console.log( error );
-
-      } )
-    );
-  });
-
-  // load sequence for all files
-  Promise
-  .all( loadSequence )
+  loader.load(files)
   .then( function() {
 
-    loader.free();
-    loader = null;
-
-    let series = seriesContainer[0].mergeSeries( seriesContainer )[0];
+    let series = loader.data[0].mergeSeries( loader.data )[0];
     let stack = series.stack[0];
     stackHelper = new HelpersStack( stack );
     let centerLPS = stackHelper.stack.worldCenter();
@@ -237,10 +200,12 @@ window.onload = function() {
       0, 1 ).step( 1 ).listen();
     positionFolder.open();
 
-
     frameIndexControllerOriginI.onChange( updateGeometries );
     frameIndexControllerOriginJ.onChange( updateGeometries );
     frameIndexControllerOriginK.onChange( updateGeometries );
+
+    loader.free();
+    loader = null;
 
     function onWindowResize() {
 

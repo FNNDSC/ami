@@ -1,0 +1,46 @@
+body {
+  margin: 0;
+  overflow:hidden;
+  box-sizing: border-box;
+}
+
+.visualizer {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  background-color: #353535;
+}
+
+.renderer {
+  background-color: #000;
+  width: 50%;
+  height: 50%;
+  box-sizing:border-box;
+  border: 1px solid rgba(0, 0, 0, .2);
+  border-bottom: none;
+  position: relative;
+  overflow: hidden;
+}
+
+#r0 {
+  border-top: 2px solid #03a9f4;
+}
+
+#r1 {
+  border-top: 2px solid #f44336;
+}
+
+#r2 {
+  border-top: 2px solid #ffeb3b;
+}
+
+#r3 {
+  border-top: 2px solid #8bc34a;
+}
+
+#my-gui-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index:1;
+}

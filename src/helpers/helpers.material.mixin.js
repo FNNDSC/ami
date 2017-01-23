@@ -4,10 +4,9 @@
  * @module helpers/material/mixin
  */
 
-let HerlpersMaterialMixin = ( superclass ) => class extends superclass {
+let HerlpersMaterialMixin = (superclass) => class extends superclass {
 
-  _createMaterial( extraOptions ){
-
+  _createMaterial(extraOptions) {
     // generate shaders on-demand!
     let fs = new this._shadersFragment(this._uniforms);
     let vs = new this._shadersVertex();
@@ -16,30 +15,26 @@ let HerlpersMaterialMixin = ( superclass ) => class extends superclass {
     let globalOptions = {
       uniforms: this._uniforms,
       vertexShader: vs.compute(),
-      fragmentShader: fs.compute()   
+      fragmentShader: fs.compute(),
     };
 
     let options = Object.assign(extraOptions, globalOptions);
     this._material = new THREE.ShaderMaterial(options);
     this._material.needsUpdate = true;
-
   }
 
-  _updateMaterial(){
-
+  _updateMaterial() {
     // generate shaders on-demand!
     let fs = new this._shadersFragment(this._uniforms);
     let vs = new this._shadersVertex();
-    
+
     this._material.vertexShader = vs.compute();
     this._material.fragmentShader = fs.compute();
 
     this._material.needsUpdate = true;
-
   }
 
-  _prepareTexture(){
-
+  _prepareTexture() {
     this._textures = [];
     for (let m = 0; m < this._stack._rawData.length; m++) {
       let tex = new THREE.DataTexture(
@@ -56,7 +51,6 @@ let HerlpersMaterialMixin = ( superclass ) => class extends superclass {
       tex.needsUpdate = true;
       tex.flipY = true;
       this._textures.push(tex);
-
     }
   }
 

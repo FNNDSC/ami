@@ -194,22 +194,12 @@ window.onload = function() {
 
   let loader = new LoadersVolume(threeD);
   // Start off with a promise that always resolves
-  let sequence = Promise.resolve();
-  sequence
-  // fetch the file
+  loader.load(file)
   .then(function() {
-    return loader.fetch(file);
-  })
-  .then(function(data) {
-    return loader.parse(data);
-  })
-  .then(function(series) {
-
+    let stack = loader.data[0]._stack[0];
     loader.free();
     loader = null;
-
-    let stack = series._stack[0];
-    console.log( series._stack[0] );
+    
     let stackHelper = new HelpersStack(stack);
     stackHelper.slice.interpolation = 0;
 

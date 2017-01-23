@@ -144,28 +144,6 @@ window.onload = function() {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/' + v;
   });
 
-  // load sequence for each file
-  // instantiate the loader
-  // it loads and parses the dicom image
-  let loader = new LoadersVolume(threeD);
-  let seriesContainer = [];
-  let loadSequence = [];
-  files.forEach((url) => {
-    loadSequence.push(
-      Promise.resolve()
-      // fetch the file
-      .then(() => loader.fetch(url))
-      .then((data) => loader.parse(data))
-      .then((series) => {
-        seriesContainer.push(series);
-      })
-      .catch(function(error) {
-        window.console.log('oops... something went wrong...');
-        window.console.log(error);
-      })
-    );
-  });
-
   function buildGUI(stackHelper) {
 
     function updateLayer1(){
@@ -318,15 +296,15 @@ window.onload = function() {
     window.addEventListener('mousemove', onMouseMove, false);
   }
 
+  let loader = new LoadersVolume(threeD);
   function handleSeries() {
-
-    // cleanup the loader and its progress bar
-    loader.free();
-    loader = null;
 
     //
     // first stack of first series
-    let mergedSeries = seriesContainer[0].mergeSeries(seriesContainer);
+    let mergedSeries = loader.data[0].mergeSeries(loader.data);
+    loader.free();
+    loader = null;
+
     let stack = null;
     let stack2 = null;
 
@@ -484,13 +462,13 @@ window.onload = function() {
     buildGUI(stackHelper);
   }
 
-  Promise
-    .all(loadSequence)
-    .then(function() {
-      handleSeries();
-    })
-    .catch(function(error) {
-      window.console.log('oops... something went wrong...');
-      window.console.log(error);
-    });
+  // load sequence for each file
+  loader.load(files)
+  .then(function() {
+    handleSeries();
+  })
+  .catch(function(error) {
+    window.console.log('oops... something went wrong...');
+    window.console.log(error);
+  });
 };

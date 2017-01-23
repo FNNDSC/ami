@@ -1,7 +1,7 @@
-import Utils      from './core.utils';
+import Utils from './core.utils';
 import Validators from './core.validators';
 
-/** 
+/**
  * Compute/test intersection between different objects.
  *
  * @module core/intersections
@@ -49,10 +49,10 @@ export default class Intersections {
  *
  * //Returns empty array with 0 intersections
  * let aabb = {
- * 
+ *
  * }
  * let plane = {
- *  
+ *
  * }
  *
  * let intersections = VJS.Core.Validators.matrix4(new THREE.Vector3());
@@ -69,24 +69,24 @@ export default class Intersections {
     // LOGIC:
     //
     // Test intersection of each edge of the Oriented Bounding Box with the Plane
-    // 
-    // ALL EDGES 
     //
-    //      .+-------+  
-    //    .' |     .'|  
-    //   +---+---+'  |  
-    //   |   |   |   |  
-    //   |  ,+---+---+  
-    //   |.'     | .'   
-    //   +-------+'     
+    // ALL EDGES
+    //
+    //      .+-------+
+    //    .' |     .'|
+    //   +---+---+'  |
+    //   |   |   |   |
+    //   |  ,+---+---+
+    //   |.'     | .'
+    //   +-------+'
     //
     // SPACE ORIENTATION
     //
     //       +
     //     j |
     //       |
-    //       |   i 
-    //   k  ,+-------+  
+    //       |   i
+    //   k  ,+-------+
     //    .'
     //   +
     //
@@ -98,7 +98,7 @@ export default class Intersections {
     let intersections = [];
 
     if(!(this.validateAabb(aabb) &&
-       this.validatePlane(plane))){
+       this.validatePlane(plane))) {
       window.console.log('Invalid aabb or plane provided.');
       return false;
     }
@@ -128,10 +128,10 @@ export default class Intersections {
     //       +
     //       |
     //       |
-    //       | 
+    //       |
     //      ,+---+---+
-    //    .'   
-    //   +   
+    //    .'
+    //   +
 
     let ray = this.posdir(
       new THREE.Vector3(aabb.center.x - aabb.halfDimensions.x, aabb.center.y - aabb.halfDimensions.y, aabb.center.z - aabb.halfDimensions.z),
@@ -189,13 +189,13 @@ export default class Intersections {
 
     // RAYS STARTING FROM THE THIRD CORNER
     //
-    //      .+-------+  
+    //      .+-------+
     //    .'
     //   +
-    //   
-    //   
-    //   
-    //   
+    //
+    //
+    //
+    //
 
     let ray4 = this.posdir(
       new THREE.Vector3(aabb.center.x - aabb.halfDimensions.x, aabb.center.y + aabb.halfDimensions.y, aabb.center.z - aabb.halfDimensions.z),
@@ -208,11 +208,11 @@ export default class Intersections {
 
     // RAYS STARTING FROM THE FOURTH CORNER
     //
-    //   
-    //   
+    //
+    //
     //   +
     //   |
-    //   |  
+    //   |
     //   |
     //   +-------+
 
@@ -296,11 +296,9 @@ export default class Intersections {
         ray.position.z + t * ray.direction.z);
 
     return intersection;
-
   }
 
   return null;
-
 }
 
   static rayBox(ray, box) {
@@ -309,7 +307,7 @@ export default class Intersections {
     // box: {halfDimensions, center}
 
     let intersections = [];
-    
+
     let bbox = Utils.bbox(box.center, box.halfDimensions);
 
     // window.console.log(bbox);
@@ -381,23 +379,23 @@ export default class Intersections {
   static rayPlaneInBBox(ray, planeAABB, bbox, intersections) {
     let intersection = this.rayPlane(ray, planeAABB);
     // window.console.log(intersection);
-    if (intersection && this.inBBox(intersection, bbox)){
-      if(!intersections.find(this.findIntersection(intersection))){
+    if (intersection && this.inBBox(intersection, bbox)) {
+      if(!intersections.find(this.findIntersection(intersection))) {
         intersections.push(intersection);
       }
     }
   }
 
-  static findIntersection(myintersection){
+  static findIntersection(myintersection) {
     return function found(element, index, array) {
       if(myintersection.x === element.x &&
         myintersection.y === element.y &&
-        myintersection.z === element.z){
+        myintersection.z === element.z) {
         return true;
       }
 
       return false;
-    }
+    };
   }
 
   static inBBox(point, bbox) {
@@ -411,30 +409,27 @@ export default class Intersections {
     return false;
   }
 
-  static posdir(position, direction){
+  static posdir(position, direction) {
     return {position, direction};
   }
 
-  static validatePlane(plane){
+  static validatePlane(plane) {
     //
-    if(plane === null){
-
+    if(plane === null) {
       window.console.log('Invalid plane.');
       window.console.log(plane);
 
       return false;
     }
 
-    if(!Validators.vector3(plane.position)){
-
+    if(!Validators.vector3(plane.position)) {
       window.console.log('Invalid plane.position.');
       window.console.log(plane.position);
 
       return false;
     }
 
-    if(!Validators.vector3(plane.direction)){
-
+    if(!Validators.vector3(plane.direction)) {
       window.console.log('Invalid plane.direction.');
       window.console.log(plane.direction);
 
@@ -444,24 +439,22 @@ export default class Intersections {
     return true;
   }
 
-  static validateAabb(aabb){
+  static validateAabb(aabb) {
     //
-    if(aabb === null){
+    if(aabb === null) {
       window.console.log('Invalid aabb.');
       window.console.log(aabb);
       return false;
     }
 
-    if(!Validators.matrix4(aabb.toAABB)){
-
+    if(!Validators.matrix4(aabb.toAABB)) {
       window.console.log('Invalid aabb.toAABB: ');
       window.console.log(aabb.toAABB);
 
       return false;
     }
 
-    if(!Validators.vector3(aabb.center)){
-
+    if(!Validators.vector3(aabb.center)) {
       window.console.log('Invalid aabb.center.');
       window.console.log(aabb.center);
 
@@ -471,8 +464,7 @@ export default class Intersections {
     if(!(Validators.vector3(aabb.halfDimensions) &&
        aabb.halfDimensions.x >= 0 &&
        aabb.halfDimensions.y >= 0 &&
-       aabb.halfDimensions.z >= 0)){
-
+       aabb.halfDimensions.z >= 0)) {
       window.console.log('Invalid aabb.halfDimensions.');
       window.console.log(aabb.halfDimensions);
 

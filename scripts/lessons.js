@@ -1,5 +1,5 @@
-const fs     = require('fs');
-const path   = require('path');
+const fs = require('fs');
+const path = require('path');
 
 if (process.argv.length <= 2) {
     console.log(`Usage: ${__filename} --dev`);
@@ -12,7 +12,7 @@ let _mode = 'dist';
 let _destRootDir = 'dist';
 let _destFile = 'index.html';
 
-if(process.argv[2] === '--demo'){
+if(process.argv[2] === '--demo') {
   // inplace replace demo.thml
   _mode = 'demo';
   _destRootDir = '';
@@ -27,10 +27,10 @@ const mode = _mode;
 const LessonTemplate = require('./templates/lessons.js');
 
 //
-if(_destRootDir!==''){
+if(_destRootDir!=='') {
   try {
     fs.statSync(destRootDir);
-  } catch(e){
+  } catch(e) {
     fs.mkdirSync(destRootDir);
   }
 }
@@ -38,7 +38,7 @@ if(_destRootDir!==''){
 // <dev> or <dist> or <> / lessons
 try {
   fs.statSync(destDir);
-} catch(e){
+} catch(e) {
   fs.mkdirSync(destDir);
 }
 
@@ -46,11 +46,10 @@ try {
 fs.readdir(targetDir, function(e, files) {
   // each lesson directory
   files.forEach(function(file) {
-
     const lessonName = file;
-    const lessonTargetDir = path.join(targetDir,lessonName);
+    const lessonTargetDir = path.join(targetDir, lessonName);
     const lessonContentHMTL = path.join(lessonTargetDir, lessonName + '.html');
-    const lessonDestDir = path.join(destDir,lessonName);
+    const lessonDestDir = path.join(destDir, lessonName);
     const lessonDestFile = path.join(lessonDestDir, destFile);
     const toCopy = ['demo.js', 'demo.css'];
     const lessonTemplate = new LessonTemplate.LessonTemplate();
@@ -61,35 +60,32 @@ fs.readdir(targetDir, function(e, files) {
     // <dev> or <dist> or <> / lessons / <lessonName>
     try {
       fs.statSync(lessonDestDir);
-    } catch(e){
+    } catch(e) {
       fs.mkdirSync(lessonDestDir);
     }
 
     // if dev, generate proper index.html in proper location
-    if(mode !== 'demo'){
-
+    if(mode !== 'demo') {
       // copy static files to right location
-      toCopy.forEach(function(file){
-        let targetFile = path.join(lessonTargetDir,file);
-        let destFile = path.join(lessonDestDir,file);
-        fs.readFile(targetFile, 'utf8', function (err,data) {
+      toCopy.forEach(function(file) {
+        let targetFile = path.join(lessonTargetDir, file);
+        let destFile = path.join(lessonDestDir, file);
+        fs.readFile(targetFile, 'utf8', function(err, data) {
           if (err) {
             return console.log(err);
           }
-          
+
           fs.writeFile(destFile, data, (err) => {
           if (err) throw err;
             console.log('Write: ' + destFile);
           });
-
         });
 
         fs.createReadStream(targetFile).pipe(fs.createWriteStream(destFile));
       });
-
     }
 
-    
+
     fs.writeFile(lessonDestFile, lessonTemplate.html(), (err) => {
       if (err) throw err;
       console.log('Write: ' + lessonDestFile);
@@ -98,7 +94,5 @@ fs.readdir(targetDir, function(e, files) {
     // if build, generate proper index.html in proper location
 
     // if demo, create proper demo.html in proper location
-
   });
-
 });

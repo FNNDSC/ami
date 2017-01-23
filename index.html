@@ -213,9 +213,9 @@ www.threejs.org
 'use strict';
 
 var files = {
-  // 'controls': [
-  //   'controls_trackball'
-  // ],
+  'editor': [
+    'editor_draw'
+  ],
   'geometries': [
     'geometries_slice'
   ],
@@ -236,6 +236,10 @@ var files = {
   ],
   'volume rendering': [
     'vr_singlepass'
+  ],
+  'xtk': [
+    'xtk_lesson10',
+    'xtk_lesson13'
   ]
 };
 
@@ -273,7 +277,7 @@ expandButton.addEventListener( 'click', function ( event ) {
       var array = location.href.split( '/' );
       array.pop();
 
-      window.open( 'https://github.com/FNNDSC/vjs/blob/master/examples/' + selected + '/' + selected + '.js' );
+      window.open( 'https://github.com/FNNDSC/vjs/blob/dev/examples/' + selected + '/' + selected + '.js' );
 
     }, false );
     button.style.display = 'none';
