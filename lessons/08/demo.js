@@ -1,33 +1,33 @@
-/* globals Stats, dat, AMI*/
+/* globals AMI*/
 
 // VJS classes we will be using in this lesson
-var LoadersVolume     = AMI.default.Loaders.Volume;
+var LoadersVolume = AMI.default.Loaders.Volume;
 var ControlsTrackball = AMI.default.Controls.Trackball;
-var HelpersStack      = AMI.default.Helpers.Stack;
+var HelpersStack = AMI.default.Helpers.Stack;
 
-var CustomProgressBar = function( container ){
-
-  this._container               = container;
+var CustomProgressBar = function(container) {
+  this._container = container;
   this._modes = {
-    'load': {
-      'name' : 'load',
-      'color': '#FF0000'
+    load: {
+      name: 'load',
+      color: '#FF0000',
     },
-    'parse': {
-      'name' : 'parse',
-      'color': '#00FF00'
-    }
+    parse: {
+      name: 'parse',
+      color: '#00FF00',
+    },
   };
   this._requestAnimationFrameID = null;
-  this._mode                    = null;
-  this._value                   = null;
-  this._total                   = null;
+  this._mode = null;
+  this._value = null;
+  this._total = null;
 
   this.init = function() {
     var container = document.createElement('div');
     container.classList.add('progress');
     container.classList.add('container');
-    container.innerHTML = '<div class="progress load"></div><div class="progress parse">Parsing data <div class="beat">♥</div></div>';
+    container.innerHTML =
+      '<div class="progress load"></div><div class="progress parse">Parsing data <div class="beat">♥</div></div>';
     this._container.appendChild(container);
     // start rendering loop
     this.updateUI();
@@ -38,18 +38,17 @@ var CustomProgressBar = function( container ){
     this._value = value;
     // depending on CDN, total return to XHTTPRequest can be 0.
     // In this case, we generate a random number to animate the progressbar
-    if(total === 0){
+    if(total === 0) {
       this._total = value;
       this._value = Math.random()*value;
-    }
-    else{
+    } else {
       this._total = total;
     }
   }.bind(this);
 
-  this.updateUI = function(){
+  this.updateUI = function() {
     var self = this;
-    this._requestAnimationFrameID = requestAnimationFrame( self.updateUI );
+    this._requestAnimationFrameID = requestAnimationFrame(self.updateUI);
 
     if (!(this._modes.hasOwnProperty(this._mode) &&
       this._modes[this._mode].hasOwnProperty('name') &&
@@ -57,23 +56,24 @@ var CustomProgressBar = function( container ){
       return false;
     }
 
-    const message = '';
-    const progress = Math.round((this._value / this._total) * 100);
-    const color = this._modes[this._mode].color;
+    var progress = Math.round((this._value / this._total) * 100);
+    var color = this._modes[this._mode].color;
 
-    var progressBar = this._container.getElementsByClassName('progress ' + this._modes[this._mode].name);
-    if(progressBar.length > 0){
+    var progressBar = this._container.getElementsByClassName(
+      'progress ' + this._modes[this._mode].name);
+    if(progressBar.length > 0) {
       progressBar[0].style.borderColor = color;
       progressBar[0].style.width = progress + '%';
     }
     progressBar = null;
 
-    if( this._mode === 'parse'){
+    if(this._mode === 'parse') {
       // hide progress load
       var loader = this._container.getElementsByClassName('progress load');
       loader[0].style.display = 'none';
       // show progress parse
-      var container = this._container.getElementsByClassName('progress container');
+      var container =
+        this._container.getElementsByClassName('progress container');
       container[0].style.height = 'auto';
       container[0].style.width = 'auto';
       container[0].style.padding = '10px';
@@ -81,13 +81,13 @@ var CustomProgressBar = function( container ){
       parser[0].style.display = 'block';
       parser[0].style.width = '100%';
     }
-
   }.bind(this);
 
   this.free = function() {
-    var progressContainers = this._container.getElementsByClassName('progress container');
+    var progressContainers =
+      this._container.getElementsByClassName('progress container');
     // console.log( progressContainers );
-    if(progressContainers.length > 0){
+    if(progressContainers.length > 0) {
       progressContainers[0].parentNode.removeChild(progressContainers[0]);
     }
     progressContainers = null;
@@ -96,13 +96,12 @@ var CustomProgressBar = function( container ){
   }.bind(this);
 
   this.init();
-
 };
 
 // Setup renderer
 var container = document.getElementById('container');
 var renderer = new THREE.WebGLRenderer({
-    antialias: true
+    antialias: true,
   });
 renderer.setSize(container.offsetWidth, container.offsetHeight);
 renderer.setClearColor(0x353535, 1);
@@ -113,7 +112,8 @@ container.appendChild(renderer.domElement);
 var scene = new THREE.Scene();
 
 // Setup camera
-var  camera = new THREE.PerspectiveCamera(45, container.offsetWidth / container.offsetHeight, 0.01, 10000000);
+var camera = new THREE.PerspectiveCamera(
+  45, container.offsetWidth / container.offsetHeight, 0.01, 10000000);
 camera.position.x = 150;
 camera.position.y = 150;
 camera.position.z = 100;
@@ -121,14 +121,14 @@ camera.position.z = 100;
 // Setup controls
 var controls = new ControlsTrackball(camera, container);
 
-// handle resize
+/**
+ * Handle window resize
+ */
 function onWindowResize() {
-
   camera.aspect = container.offsetWidth / container.offsetHeight;
   camera.updateProjectionMatrix();
 
   renderer.setSize(container.offsetWidth, container.offsetHeight);
-
 }
 window.addEventListener('resize', onWindowResize, false);
 
@@ -136,50 +136,19 @@ window.addEventListener('resize', onWindowResize, false);
 var loader = new LoadersVolume(container, CustomProgressBar);
 
 var t2 = [
-  'template_T2.nii.gz'
+  'template_T2.nii.gz',
 ];
-
 var files = t2.map(function(v) {
   return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/fetalatlas_brain/t2/' + v;
 });
 
-// load sequence for each file
-// 1- fetch
-// 2- parse
-// 3- add to array
-var seriesContainer = [];
-var loadSequence = [];
-files.forEach(function(url) {
-    loadSequence.push(
-      Promise.resolve()
-      // fetch the file
-      .then(function() {
-        return loader.fetch(url);
-      })
-      .then(function(data) {
-        return loader.parse(data);
-      })
-      .then(function(series) {
-        seriesContainer.push(series);
-      })
-      .catch(function(error) {
-        window.console.log('oops... something went wrong...');
-        window.console.log(error);
-      })
-    );
-  });
-
-// once all files have been loaded (fetch + parse + add to array)
-// merge them into series / stacks / frames
-Promise
-.all(loadSequence)
-  .then(function() {
+loader.load(files)
+.then(function() {
+    // merge files into clean series/stack/frame structure
+    var series = loader.data[0].mergeSeries(loader.data);
     loader.free();
     loader = null;
 
-    // merge files into clean series/stack/frame structure
-    var series = seriesContainer[0].mergeSeries(seriesContainer);
-    
     // be carefull that series and target stack exist!
     var stackHelper = new HelpersStack(series[0].stack[0]);
     stackHelper.border.color = 0xFFEB3B;
@@ -192,13 +161,15 @@ Promise
     camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
     camera.updateProjectionMatrix();
     controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
-  })
-  .catch(function(error) {
+})
+.catch(function(error) {
     window.console.log('oops... something went wrong...');
     window.console.log(error);
-  });
+});
 
-// Start animation loop
+/**
+ * Animation loop
+ */
 function animate() {
     controls.update();
     renderer.render(scene, camera);
