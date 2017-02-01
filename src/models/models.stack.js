@@ -333,6 +333,9 @@ export default class ModelsStack extends ModelsBase {
     this.zSpacing();
   }
 
+  /**
+   * 
+   */
   zSpacing() {
     if (this._numberOfFrames > 1) {
       if (this._spacingBetweenSlices) {
@@ -343,13 +346,16 @@ export default class ModelsStack extends ModelsBase {
         this._spacing.z = this._frame[0].pixelSpacing[2];
       }else {
         // compute and sort by dist in this series
-        this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
+        this._frame.map(
+          this._computeDistanceArrayMap.bind(null, this._zCosine));
         this._frame.sort(this._sortDistanceArraySort);
 
         this._spacing.z = this._frame[1].dist - this._frame[0].dist;
+
+        if (this._spacing.z === 0 && this._frame[0].sliceThickness) {
+          this._spacing.z = this._frame[0].sliceThickness;
+        }
       }
-      // } else if (this._frame[0].sliceThickness) {
-      //   zSpacing = this._frame[0].sliceThickness;
     }
 
     // Spacing
@@ -359,7 +365,9 @@ export default class ModelsStack extends ModelsBase {
     }
   }
 
-  // FRAME CAN DO IT
+  /**
+   *  FRAME CAN DO IT
+   */
   xySpacing() {
     if (this._frame &&
       this._frame[0]) {
@@ -429,6 +437,7 @@ export default class ModelsStack extends ModelsBase {
       voxelIndexStop = nbVoxels;
     }
 
+    console.log(requiredTextures);
     for (let ii = 0; ii < requiredTextures; ii++) {
       // console.log( voxelIndexStart );
       // console.log( voxelIndexStop );
@@ -548,15 +557,18 @@ export default class ModelsStack extends ModelsBase {
       packed.data = data;
     } else if (bits === 8 && channels === 3) {
       let data = new Uint8Array(textureSize * textureSize * 3);
+
       for (let i = startVoxel; i < stopVoxel; i++) {
         /* jshint bitwise: false*/
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
         /* jshint bitwise: true*/
-
-        data[3 * packIndex] = frame[frameIndex].pixelData[3 * inFrameIndex];
-        data[3 * packIndex + 1] = frame[frameIndex].pixelData[3 * inFrameIndex + 1];
-        data[3 * packIndex + 2] = frame[frameIndex].pixelData[3 * inFrameIndex + 2];
+        data[3 * packIndex] =
+          frame[frameIndex].pixelData[3 * inFrameIndex];
+        data[3 * packIndex + 1] =
+          frame[frameIndex].pixelData[3 * inFrameIndex + 1];
+        data[3 * packIndex + 2] =
+          frame[frameIndex].pixelData[3 * inFrameIndex + 2];
         packIndex++;
       }
 
@@ -924,6 +936,14 @@ return a.sopInstanceUID - b.sopInstanceUID;
 
   set rightHanded(rightHanded) {
     this._rightHanded = rightHanded;
+  }
+
+  get spacingBetweenSlices() {
+    return this._spacingBetweenSlices;
+  }
+
+  set spacingBetweenSlices(spacingBetweenSlices) {
+    this._spacingBetweenSlices = spacingBetweenSlices;
   }
 
   set segmentationSegments(segmentationSegments) {

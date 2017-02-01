@@ -31,6 +31,10 @@ export default class ParsersVolume {
     return this._rightHanded;
   }
 
+  spacingBetweenSlices() {
+    return null;
+  }
+
   _decompressUncompressed() {
 
   }
