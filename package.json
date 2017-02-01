@@ -1,6 +1,6 @@
 {
   "name": "ami.js",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "main": "src/ami.js",
   "keywords": ["ami", "ami.js","three.js", "webgl", "dicom", "nifti", "awesome", "medical", "imaging", "xtk", "nrrd", "vtk", "stl", "trk"],
   "author": {

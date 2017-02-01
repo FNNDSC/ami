@@ -25,7 +25,6 @@ const files = t2.map(function(v) {
 });
 
 window.onload = function() {
-
   // CREATE RENDERER 3D
   const renderer0 = new XRenderer3D('r0');
   renderer0.animate();
@@ -48,52 +47,56 @@ window.onload = function() {
   xVolume.progressbarContainer = renderer0.container;
 
   // LOAD AND RENDER THE 3D VOLUME
-  xVolume.load().then( volume => {
-
+  xVolume.load().then((volume) => {
     // white BBox
-    var box = new HelpersBoundingBox( volume.stack );
+    let box = new HelpersBoundingBox(volume.stack);
     renderer0.add(box);
     renderer0.center(volume.centerLPS);
 
     // sagittal view
     volume._xSlice.bbox.visible = false;
-    volume._xSlice.border.color = 0xF44336;
+    volume._xSlice.borderColor = 0xF44336;
     renderer1.add(volume._xSlice);
     renderer0.add(renderer1._scene);
 
     // axial view
     volume._ySlice.bbox.visible = false;
-    volume._ySlice.border.color = 0xFFEB3B;
+    volume._ySlice.borderColor = 0xFFEB3B;
     renderer2.add(volume._ySlice);
     renderer0.add(renderer2._scene);
 
     // coronal view
     volume._zSlice.bbox.visible = false;
-    volume._zSlice.border.color = 0x8BC34A;
+    volume._zSlice.borderColor = 0x8BC34A;
     renderer3.add(volume._zSlice);
     renderer0.add(renderer3._scene);
 
     // build the GUI
     let gui = new dat.GUI({
-      autoPlace: false
+      autoPlace: false,
     });
 
     let customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
 
     let stackFolder1 = gui.addFolder('Sagittal');
-    stackFolder1.add(volume._xSlice, 'index', 0, volume._xSlice.orientationMaxIndex).step(1).listen();
+    stackFolder1.add(
+      volume._xSlice, 'index', 0, volume._xSlice.orientationMaxIndex)
+      .step(1).listen();
     volume._xSlice.index = Math.floor(volume._xSlice.orientationMaxIndex/2);
 
     let stackFolder2 = gui.addFolder('Axial');
-    stackFolder2.add(volume._ySlice, 'index', 0, volume._ySlice.orientationMaxIndex).step(1).listen();
+    stackFolder2.add(
+      volume._ySlice, 'index', 0, volume._ySlice.orientationMaxIndex)
+      .step(1).listen();
     volume._ySlice.index = Math.floor(volume._ySlice.orientationMaxIndex/2);
 
     let stackFolder3 = gui.addFolder('Coronal');
-    stackFolder3.add(volume._zSlice, 'index', 0, volume._zSlice.orientationMaxIndex).step(1).listen();
+    stackFolder3.add(
+      volume._zSlice, 'index', 0, volume._zSlice.orientationMaxIndex)
+      .step(1).listen();
     volume._zSlice.index = Math.floor(volume._zSlice.orientationMaxIndex/2);
-
-  }).catch( error =>
-    console.log('ERROR: something went wrong with the volume load.', error) );
-
+  }).catch((error) => {
+    console.log('ERROR: something went wrong with the volume load.', error);
+  });
 };

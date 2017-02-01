@@ -39,6 +39,8 @@ export default class ModelsFrame extends ModelsBase {
     this._minMax = null;
     this._dist = null;
 
+    this._index = -1;
+
     this._referencedSegmentNumber = -1;
   }
 
@@ -351,5 +353,13 @@ export default class ModelsFrame extends ModelsBase {
 
   set rightHanded(rightHanded) {
     this._rightHanded = rightHanded;
+  }
+
+  get index() {
+    return this._index;
+  }
+
+  set index(index) {
+    this._index = index;
   }
 }

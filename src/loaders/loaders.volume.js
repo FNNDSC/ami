@@ -112,6 +112,7 @@ export default class LoadersVolumes extends LoadersBase {
                   stack.pixelRepresentation = volumeParser.pixelRepresentation();
                   stack.pixelType = volumeParser.pixelType();
                   stack.invert = volumeParser.invert();
+                  stack.spacingBetweenSlices = volumeParser.spacingBetweenSlices();
                   stack.modality = series.modality;
                   // if it is a segmentation, attach extra information
                   if(stack.modality === 'SEG') {
@@ -135,6 +136,7 @@ export default class LoadersVolumes extends LoadersBase {
     let frame = new ModelsFrame();
     frame.sopInstanceUID = dataParser.sopInstanceUID(i);
     frame.url = url;
+    frame.index = i;
     frame.rows = dataParser.rows(i);
     frame.columns = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;
@@ -142,6 +144,7 @@ export default class LoadersVolumes extends LoadersBase {
     frame.pixelType = stack.pixelType;
     frame.pixelData = dataParser.extractPixelData(i);
     frame.pixelSpacing = dataParser.pixelSpacing(i);
+    frame.spacingBetweenSlices = dataParser.spacingBetweenSlices(i);
     frame.sliceThickness = dataParser.sliceThickness(i);
     frame.imageOrientation = dataParser.imageOrientation(i);
     frame.rightHanded = dataParser.rightHanded();

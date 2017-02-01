@@ -55,6 +55,11 @@ export default class HelpersStack extends THREE.Object3D {
     this._outOfBounds = false;
     this._orientationMaxIndex = 0;
 
+    this._canvasWidth = 0;
+    this._canvasHeight = 0;
+    this._borderColor = null;
+
+
     // this._arrow = {
     //   visible: true,
     //   color: 0xFFF336,
@@ -191,6 +196,34 @@ export default class HelpersStack extends THREE.Object3D {
     return this._orientationMaxIndex;
   }
 
+  set canvasWidth(canvasWidth) {
+    this._canvasWidth = canvasWidth;
+    this._slice.canvasWidth = this._canvasWidth;
+  }
+
+  get canvasWidth() {
+    return this._canvasWidth;
+  }
+
+  set canvasHeight(canvasHeight) {
+    this._canvasHeight = canvasHeight;
+    this._slice.canvasHeight = this._canvasHeight;
+  }
+
+  get canvasHeight() {
+    return this._canvasHeight;
+  }
+
+  set borderColor(borderColor) {
+    this._borderColor = borderColor;
+    this._border.color = borderColor;
+    this._slice.borderColor = this._borderColor;
+  }
+
+  get borderColor() {
+    return this._borderColor;
+  }
+
   //
   // PRIVATE METHODS
   //
@@ -261,7 +294,6 @@ export default class HelpersStack extends THREE.Object3D {
     if(!this._stack.prepared) {
       this._stack.prepare();
     }
-
     // pack data into 8 bits rgba texture for the shader
     // this one can be slow...
     if(!this._stack.packed) {

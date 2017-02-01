@@ -347,23 +347,38 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   rescaleIntercept(frameIndex = 0) {
-    return this._findFloatStringInFrameGroupSequence('x00289145', 'x00281052', frameIndex);
+    return this._findFloatStringInFrameGroupSequence(
+      'x00289145', 'x00281052', frameIndex);
   }
 
   rescaleSlope(frameIndex = 0) {
-    return this._findFloatStringInFrameGroupSequence('x00289145', 'x00281053', frameIndex);
+    return this._findFloatStringInFrameGroupSequence(
+      'x00289145', 'x00281053', frameIndex);
   }
 
   windowCenter(frameIndex = 0) {
-    return this._findFloatStringInFrameGroupSequence('x00289132', 'x00281050', frameIndex);
+    return this._findFloatStringInFrameGroupSequence(
+      'x00289132', 'x00281050', frameIndex);
   }
 
   windowWidth(frameIndex = 0) {
-    return this._findFloatStringInFrameGroupSequence('x00289132', 'x00281051', frameIndex);
+    return this._findFloatStringInFrameGroupSequence(
+      'x00289132', 'x00281051', frameIndex);
   }
 
   sliceThickness(frameIndex = 0) {
-    return this._findFloatStringInFrameGroupSequence('x00289110', 'x00180050', frameIndex);
+    return this._findFloatStringInFrameGroupSequence(
+      'x00289110', 'x00180050', frameIndex);
+  }
+
+  spacingBetweenSlices(frameIndex = 0) {
+    let spacing = this._dataSet.intString('x00180088');
+
+    if (typeof spacing === 'undefined') {
+      spacing = null;
+    }
+
+    return spacing;
   }
 
   dimensionIndexValues(frameIndex = 0) {
@@ -382,7 +397,8 @@ export default class ParsersDicom extends ParsersVolume {
       let nbValues = element.length / 4;
 
       for (let i = 0; i < nbValues; i++) {
-        dimensionIndexValues.push(philipsPrivateSequence.uint32('x00209157', i));
+        dimensionIndexValues.push(
+          philipsPrivateSequence.uint32('x00209157', i));
       }
     } else {
       dimensionIndexValues = null;
@@ -641,7 +657,8 @@ export default class ParsersDicom extends ParsersVolume {
     let pixelDataElement = this._dataSet.elements.x7fe00010;
     let pixelDataOffset = pixelDataElement.dataOffset;
     let numberOfChannels = this.numberOfChannels();
-    let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    let numPixels =
+      this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
     let frameOffset = 0;
     let buffer = this._dataSet.byteArray.buffer;
 
