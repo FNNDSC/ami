@@ -657,11 +657,10 @@ export default class ParsersDicom extends ParsersVolume {
     let pixelDataElement = this._dataSet.elements.x7fe00010;
     let pixelDataOffset = pixelDataElement.dataOffset;
     let numberOfChannels = this.numberOfChannels();
-    let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    let numPixels =
+      this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
     let frameOffset = 0;
     let buffer = this._dataSet.byteArray.buffer;
-
-
 
     if (pixelRepresentation === 0 && bitsAllocated === 8) {
       // unsigned 8 bit

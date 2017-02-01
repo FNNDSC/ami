@@ -143,7 +143,7 @@ window.onload = function() {
       stackHelper.slice.lutTexture = lut.texture;
     });
 
-    stackFolder.add(
+    let index = stackFolder.add(
       stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
     stackFolder.open();
 
@@ -180,6 +180,9 @@ window.onload = function() {
       camera.fitBox(2);
       stackHelper.orientation = camera.stackOrientation;
       updateLabels(camera.directionsLabel, stack.modality);
+
+      index.__max = stackHelper.orientationMaxIndex;
+      stackHelper.index = Math.floor(index.__max/2);
     });
 
     let conventionUpdate = cameraFolder.add(
@@ -200,7 +203,7 @@ window.onload = function() {
     // hook up callbacks
     controls.addEventListener('OnScroll', function(e) {
       if(e.delta > 0) {
-        if(stackHelper.index >= stack.dimensionsIJK.z - 1) {
+        if(stackHelper.index >= stackHelper.orientationMaxIndex - 1) {
           return false;
         }
         stackHelper.index += 1;

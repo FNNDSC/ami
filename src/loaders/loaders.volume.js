@@ -136,6 +136,7 @@ export default class LoadersVolumes extends LoadersBase {
     let frame = new ModelsFrame();
     frame.sopInstanceUID = dataParser.sopInstanceUID(i);
     frame.url = url;
+    frame.index = i;
     frame.rows = dataParser.rows(i);
     frame.columns = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;

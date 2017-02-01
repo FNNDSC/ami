@@ -294,7 +294,6 @@ export default class HelpersStack extends THREE.Object3D {
     if(!this._stack.prepared) {
       this._stack.prepare();
     }
-
     // pack data into 8 bits rgba texture for the shader
     // this one can be slow...
     if(!this._stack.packed) {

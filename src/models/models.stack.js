@@ -184,7 +184,6 @@ export default class ModelsStack extends ModelsBase {
       window.console.log(this._frame);
       return false;
     }
-
     // pass parameters from frame to stack
     this._rows = this._frame[0].rows;
     this._columns = this._frame[0].columns;
@@ -205,14 +204,12 @@ export default class ModelsStack extends ModelsBase {
 
     // compute/guess spacing
     this.computeSpacing();
-
     // set extra vars if nulls
     // happens now because if it happen before, we would think image position/orientation
     // are defined and we would use it to compute spacing.
     if (!this._frame[0].imagePosition) {
       this._frame[0].imagePosition = [0, 0, 0];
     }
-
     if (!this._frame[0].imageOrientation) {
       this._frame[0].imageOrientation = [1, 0, 0, 0, 1, 0];
     }
@@ -221,8 +218,8 @@ export default class ModelsStack extends ModelsBase {
 
     // compute transforms
     this.computeIJK2LPS();
+  
     this.computeLPS2AABB();
-
     // this.packEchos();
 
     this._rescaleSlope = this._frame[0].rescaleSlope || 1;
@@ -246,7 +243,6 @@ export default class ModelsStack extends ModelsBase {
     this._windowCenter = this._rescaleSlope * center + this._rescaleIntercept;
 
     this._bitsAllocated = this._frame[0].bitsAllocated;
-
     this._prepared = true;
   }
 
@@ -338,21 +334,20 @@ export default class ModelsStack extends ModelsBase {
    */
   zSpacing() {
     if (this._numberOfFrames > 1) {
-      if (this._spacingBetweenSlices) {
-        this._spacing.z = this._spacingBetweenSlices;
-      // if pixelSpacing in Z direction is already defined
-      // i.e. by nifti parser
-      }else if (this._frame[0].pixelSpacing && this._frame[0].pixelSpacing[2]) {
+      if(this._frame[0].pixelSpacing && this._frame[0].pixelSpacing[2]) {
         this._spacing.z = this._frame[0].pixelSpacing[2];
-      }else {
+      } else {
         // compute and sort by dist in this series
         this._frame.map(
           this._computeDistanceArrayMap.bind(null, this._zCosine));
-        this._frame.sort(this._sortDistanceArraySort);
 
-        this._spacing.z = this._frame[1].dist - this._frame[0].dist;
-
-        if (this._spacing.z === 0 && this._frame[0].sliceThickness) {
+        // if distances are different, re-sort array
+        if(this._frame[1].dist !== this._frame[0].dist) {
+          this._frame.sort(this._sortDistanceArraySort);
+          this._spacing.z = this._frame[1].dist - this._frame[0].dist;
+        } else if(this._spacingBetweenSlices) {
+          this._spacing.z = this._spacingBetweenSlices;
+        } else if(this._frame[0].sliceThickness) {
           this._spacing.z = this._frame[0].sliceThickness;
         }
       }
