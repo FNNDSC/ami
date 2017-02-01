@@ -437,7 +437,6 @@ export default class ModelsStack extends ModelsBase {
       voxelIndexStop = nbVoxels;
     }
 
-    console.log(requiredTextures);
     for (let ii = 0; ii < requiredTextures; ii++) {
       // console.log( voxelIndexStart );
       // console.log( voxelIndexStop );

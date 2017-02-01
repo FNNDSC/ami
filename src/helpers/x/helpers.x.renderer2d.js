@@ -31,6 +31,9 @@ export default class {
 
     this._setupCamera(this._object.stack);
     this._orientCamera(this._object, this._orientation);
+
+    this._object.canvasWidth = this._container.clientWidth;
+    this._object.canvasHeight = this._container.clientHeight;
   }
 
   addEventListeners() {
@@ -128,6 +131,8 @@ export default class {
       this._camera.fitBox(2);
       this._renderer.setSize(this._container.clientWidth,
         this._container.clientHeight);
+      this._object.canvasWidth = this._container.clientWidth;
+      this._object.canvasHeight = this._container.clientHeight;
   }
 
   _onScroll(event) {

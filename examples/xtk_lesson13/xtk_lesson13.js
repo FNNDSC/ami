@@ -57,19 +57,19 @@ window.onload = function() {
 
     // sagittal view
     volume._xSlice.bbox.visible = false;
-    volume._xSlice.border.color = 0xF44336;
+    volume._xSlice.borderColor = 0xF44336;
     renderer1.add(volume._xSlice);
     renderer0.add(renderer1._scene);
 
     // axial view
     volume._ySlice.bbox.visible = false;
-    volume._ySlice.border.color = 0xFFEB3B;
+    volume._ySlice.borderColor = 0xFFEB3B;
     renderer2.add(volume._ySlice);
     renderer0.add(renderer2._scene);
 
     // coronal view
     volume._zSlice.bbox.visible = false;
-    volume._zSlice.border.color = 0x8BC34A;
+    volume._zSlice.borderColor = 0x8BC34A;
     renderer3.add(volume._zSlice);
     renderer0.add(renderer3._scene);
 

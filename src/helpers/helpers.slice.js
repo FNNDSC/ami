@@ -39,6 +39,10 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this._rescaleSlope = null;
     this._rescaleIntercept = null;
 
+    this._canvasWidth = 0;
+    this._canvasHeight = 0;
+    this._borderColor = null;
+
     // Object3D settings
     // shape
     this._planePosition = position;
@@ -222,6 +226,33 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
 
   get geometry() {
     return this._geometry;
+  }
+
+  set canvasWidth(canvasWidth) {
+    this._canvasWidth = canvasWidth;
+    this._uniforms.uCanvasWidth.value = this._canvasWidth;
+  }
+
+  get canvasWidth() {
+    return this._canvasWidth;
+  }
+
+  set canvasHeight(canvasHeight) {
+    this._canvasHeight = canvasHeight;
+    this._uniforms.uCanvasHeight.value = this._canvasHeight;
+  }
+
+  get canvasHeight() {
+    return this._canvasHeight;
+  }
+
+  set borderColor(borderColor) {
+    this._borderColor = borderColor;
+    this._uniforms.uBorderColor.value = new THREE.Color(borderColor);
+  }
+
+  get borderColor() {
+    return this._borderColor;
   }
 
   _init() {

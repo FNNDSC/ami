@@ -44,6 +44,29 @@ export default class ShadersFragment {
     this._main = `
 void main(void) {
 
+  // draw border if slice is cropped
+  // float uBorderDashLength = 10.;
+
+  if( uCanvasWidth > 0. &&
+      ((gl_FragCoord.x > uBorderMargin && (gl_FragCoord.x - uBorderMargin) < uBorderWidth) ||
+       (gl_FragCoord.x < (uCanvasWidth - uBorderMargin) && (gl_FragCoord.x + uBorderMargin) > (uCanvasWidth - uBorderWidth) ))){
+    float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);
+    if( valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin) ){
+      gl_FragColor = vec4(uBorderColor, 1.);
+      return;
+    }
+  }
+
+  if( uCanvasHeight > 0. &&
+      ((gl_FragCoord.y > uBorderMargin && (gl_FragCoord.y - uBorderMargin) < uBorderWidth) ||
+       (gl_FragCoord.y < (uCanvasHeight - uBorderMargin) && (gl_FragCoord.y + uBorderMargin) > (uCanvasHeight - uBorderWidth) ))){
+    float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);
+    if( valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin) ){
+      gl_FragColor = vec4(uBorderColor, 1.);
+      return;
+    }
+  }
+
   // get texture coordinates of current pixel
   vec4 dataCoordinates = uWorldToData * vPos;
   vec3 currentVoxel = vec3(dataCoordinates.x, dataCoordinates.y, dataCoordinates.z);
@@ -80,6 +103,14 @@ void main(void) {
   }
 
   gl_FragColor = dataValue;
+
+    // if on edge, draw line
+  // float xPos = gl_FragCoord.x/512.;
+  // float yPos = gl_FragCoord.y/512.;
+  // if( xPos < 0.05 || xPos > .95 || yPos < 0.05 || yPos > .95){
+  //   gl_FragColor = vec4(xPos, yPos, 0., 1.);//dataValue;
+  //   //return;
+  // }
 
 }
    `;
