@@ -1,5 +1,6 @@
 /** * Imports ***/
-let pako = require('pako');
+const PAKO = require('pako');
+const URL = require('url');
 
 import LoadersBase from './loaders.base';
 import ModelsSeries from '../../src/models/models.series';
@@ -38,8 +39,12 @@ import ParsersNrrd from '../../src/parsers/parsers.nrrd';
  */
 export default class LoadersVolumes extends LoadersBase {
 
+  /**
+   * Parse response
+   */
   parse(response) {
-    // give a chance to the UI to update because after the rendering will be blocked with intensive JS
+    // give a chance to the UI to update because
+    // after the rendering will be blocked with intensive JS
     if(this._progressBar) {
       this._progressBar.update(0, 100, 'parse');
     }
@@ -53,36 +58,52 @@ export default class LoadersVolumes extends LoadersBase {
                   data.gzcompressed = false;
                   data.filename = '';
                   data.extension = '';
+                  data.pathname = '';
+                  data.query = '';
 
-                  // uncompress?
-                  data.filename = response.url.split('/').pop();
+                  let parsedUrl = URL.parse(response.url);
+                  data.pathname = parsedUrl.pathname;
+                  data.query = parsedUrl.query;
+
+                  // get file name
+                  data.filename = data.pathname.split('/').pop();
                   data.gzcompressed = false;
 
                   // find extension
                   let splittedName = data.filename.split('.');
                   if(splittedName.length <= 1) {
-                    data.extension = '';
+                    data.extension = 'dicom';
                   } else{
                     data.extension = data.filename.split('.').pop();
+                  }
+
+                  if(!isNaN(data.extension)) {
+                    data.extension = 'dicom';
+                  }
+
+                  if(data.query &&
+                     data.query.includes('contentType=application%2Fdicom')) {
+                    data.extension = 'dicom';
                   }
 
                   // unzip if extension is '.gz'
                   if (data.extension === 'gz') {
                     data.gzcompressed = true;
-                    data.extension = data.filename.split('.gz').shift().split('.').pop();
-                    let decompressedData = pako.inflate(data.buffer);
+                    data.extension =
+                      data.filename.split('.gz').shift().split('.').pop();
+                    let decompressedData = PAKO.inflate(data.buffer);
                     data.buffer = decompressedData.buffer;
                   }
 
-                  let parser = this._parser(data.extension);
-                  if (!parser) {
+                  let Parser = this._parser(data.extension);
+                  if (!Parser) {
                     reject(data.filename + ' can not be parsed.');
                   }
 
                   // check extension
                   let volumeParser = null;
                   try {
-                    volumeParser = new parser(data, 0);
+                    volumeParser = new Parser(data, 0);
                   } catch (e) {
                     window.console.log(e);
                     reject(e);
@@ -103,16 +124,19 @@ export default class LoadersVolumes extends LoadersBase {
                     // labels
                     // etc.
                     series.segmentationType = volumeParser.segmentationType();
-                    series.segmentationSegments = volumeParser.segmentationSegments();
+                    series.segmentationSegments =
+                      volumeParser.segmentationSegments();
                   }
 
                   // just create 1 dummy stack for now
                   let stack = new ModelsStack();
                   stack.numberOfChannels = volumeParser.numberOfChannels();
-                  stack.pixelRepresentation = volumeParser.pixelRepresentation();
+                  stack.pixelRepresentation =
+                    volumeParser.pixelRepresentation();
                   stack.pixelType = volumeParser.pixelType();
                   stack.invert = volumeParser.invert();
-                  stack.spacingBetweenSlices = volumeParser.spacingBetweenSlices();
+                  stack.spacingBetweenSlices =
+                    volumeParser.spacingBetweenSlices();
                   stack.modality = series.modality;
                   // if it is a segmentation, attach extra information
                   if(stack.modality === 'SEG') {
@@ -124,14 +148,21 @@ export default class LoadersVolumes extends LoadersBase {
                   }
                   series.stack.push(stack);
                   // recursive call for each frame
-                  // better than for loop to be able to update dom with "progress" callback
-                  setTimeout(this.parseFrame(series, stack, response.url, 0, volumeParser, resolve, reject), 0);
+                  // better than for loop to be able
+                  // to update dom with "progress" callback
+                  setTimeout(
+                    this.parseFrame(
+                      series, stack, response.url, 0,
+                      volumeParser, resolve, reject), 0);
                 }));
              }, 10);
            }
         );
   }
 
+  /**
+   * Parse frame
+   */
   parseFrame(series, stack, url, i, dataParser, resolve, reject) {
     let frame = new ModelsFrame();
     frame.sopInstanceUID = dataParser.sopInstanceUID(i);
@@ -183,31 +214,36 @@ export default class LoadersVolumes extends LoadersBase {
     if (this._parsed === this._totalParsed) {
       resolve(series);
     } else {
-      setTimeout(this.parseFrame(series, stack, url, this._parsed, dataParser, resolve, reject), 0);
+      setTimeout(
+        this.parseFrame(
+          series, stack, url, this._parsed, dataParser, resolve, reject), 0);
     }
   }
 
+  /**
+   * Return parser given an extension
+   */
   _parser(extension) {
-    let parser = null;
+    let Parser = null;
 
     switch (extension.toUpperCase()) {
       case 'NII':
       case 'NII_':
-        parser = ParsersNifti;
+        Parser = ParsersNifti;
         break;
       case 'DCM':
       case 'DICOM':
       case 'IMA':
       case '':
-        parser = ParsersDicom;
+        Parser = ParsersDicom;
         break;
       case 'NRRD':
-        parser = ParsersNrrd;
+        Parser = ParsersNrrd;
         break;
       default:
         window.console.log('unsupported extension: ' + extension);
         return false;
     }
-    return parser;
+    return Parser;
   }
 }
