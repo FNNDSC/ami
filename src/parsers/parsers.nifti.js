@@ -45,8 +45,6 @@ export default class ParsersNifti extends ParsersVolume {
     if (NiftiReader.isNIFTI(this._arrayBuffer)) {
       this._dataSet = NiftiReader.readHeader(this._arrayBuffer);
       this._niftiImage = NiftiReader.readImage(this._dataSet, this._arrayBuffer);
-      console.log(this._dataSet);
-      console.log(this._niftiImage);
     } else {
       throw 'parsers.nifti could not parse the file';
     }
