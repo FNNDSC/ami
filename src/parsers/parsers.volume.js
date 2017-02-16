@@ -12,7 +12,7 @@ export default class ParsersVolume {
   }
 
   modality() {
-    return 'unkown';
+    return 'unknown';
   }
 
   segmentationType() {

@@ -45,6 +45,8 @@ export default class ParsersNifti extends ParsersVolume {
     if (NiftiReader.isNIFTI(this._arrayBuffer)) {
       this._dataSet = NiftiReader.readHeader(this._arrayBuffer);
       this._niftiImage = NiftiReader.readImage(this._dataSet, this._arrayBuffer);
+      console.log(this._dataSet);
+      console.log(this._niftiImage);
     } else {
       throw 'parsers.nifti could not parse the file';
     }
@@ -293,23 +295,30 @@ export default class ParsersNifti extends ParsersVolume {
       // just a slice...
       return this._orderedData.slice(frameOffset, frameOffset + numPixels);
     } else if (this._dataSet.datatypeCode === 2) {
-      // unsigned 8 bit
+      // unsigned int 8 bit
       return new Uint8Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.datatypeCode === 256) {
-      // signed 8 bit
+      // signed int 8 bit
       return new Int8Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.datatypeCode === 512) {
-      // unsigned 16 bit
+      // unsigned int 16 bit
       frameOffset = frameOffset * 2;
       return new Uint16Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.datatypeCode === 4) {
-      // signed 16 bit
+      // signed int 16 bit
       frameOffset = frameOffset * 2;
       return new Int16Array(buffer, frameOffset, numPixels);
+    } else if (this._dataSet.datatypeCode === 8) {
+      // signed int 32 bit
+      frameOffset = frameOffset * 4;
+      return new Int32Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.datatypeCode === 16) {
-      // float 32 bit
+      // signed float 32 bit
       frameOffset = frameOffset * 4;
       return new Float32Array(buffer, frameOffset, numPixels);
+    } else {
+      console.log(
+        `Unknown data type: datatypeCode : ${this._dataSet.datatypeCode}`);
     }
   }
 
