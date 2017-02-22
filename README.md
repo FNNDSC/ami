@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cloud.githubusercontent.com/assets/214063/19763517/a83873fc-9c3e-11e6-8390-229d7749246e.png" width="60%">
+  <img src="https://cloud.githubusercontent.com/assets/214063/23212395/d3951558-f906-11e6-825e-4794fc7f2cfd.png" width="60%">
 </p>
 
 <p align="center">
@@ -343,5 +343,3 @@ AMI would not exist without them:
 * GZ file decompression
 * Author(s): [nodeca](https://github.com/nodeca)
 
-##### [Clipart Panda](http://www.clipartpanda.com/)
-* [Baby blue dinosaur](http://www.clipartpanda.com/clipart_images/baby-blue-dinosaur-clip-art-37313455)
