@@ -55,7 +55,9 @@ export default class ModelsStack extends ModelsBase {
     this._minMax = [65535, -32768];
 
     // TRANSFORMATION MATRICES
-
+    this._regMatrix = new THREE.Matrix4();
+	this._regMatrix.identity();
+	
     this._ijk2LPS = null;
     this._lps2IJK = null;
 
@@ -388,7 +390,7 @@ export default class ModelsStack extends ModelsBase {
       this._xCosine.y * this._spacing.x, this._yCosine.y * this._spacing.y, this._zCosine.y * this._spacing.z, this._origin.y,
       this._xCosine.z * this._spacing.x, this._yCosine.z * this._spacing.y, this._zCosine.z * this._spacing.z, this._origin.z,
       0, 0, 0, 1);
-
+    this._ijk2LPS.premultiply(this._regMatrix);
     this._lps2IJK = new THREE.Matrix4();
     this._lps2IJK.getInverse(this._ijk2LPS);
   }
@@ -762,6 +764,14 @@ return a.sopInstanceUID - b.sopInstanceUID;
 
   get halfDimensionsIJK() {
     return this._halfDimensionsIJK;
+  }
+  
+  set regMatrix(regMatrix) {
+	  this._regMatrix = regMatrix;
+  }
+  
+  get regMatrix() {
+	  return this._regMatrix;
   }
 
   set ijk2LPS(ijk2LPS) {
