@@ -1,30 +1,37 @@
 import ShadersBase from '../shaders.base';
 
 class Texture3d extends ShadersBase {
+  
+  constructor(){
 
-  constructor() {
     super();
     this.name = 'texture3d';
-
+    
     // default properties names
     this._dataCoordinates = 'dataCoordinates';
     this._dataValue = 'dataValue';
     this._offset = 'offset';
+
   }
 
-    api(baseFragment = this._base, dataCoordinates = this._dataCoordinates, dataValue = this._dataValue, offset = this._offset) {
+    api( baseFragment = this._base, dataCoordinates = this._dataCoordinates, dataValue = this._dataValue, offset = this._offset){
+
     this._base = baseFragment;
     return this.compute(dataCoordinates, dataValue, offset);
+
   }
 
-  compute(dataCoordinates, dataValue, offset) {
+  compute( dataCoordinates, dataValue, offset ){
+
     this.computeDefinition();
     this._base._functions[this._name] = this._definition;
     return `${this._name}(${dataCoordinates}, ${dataValue}, ${offset});`;
+
   }
 
 
-  computeDefinition() {
+  computeDefinition(){
+
     this._definition = `
 void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset){
     
@@ -62,7 +69,7 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
 }
     `;
   }
-
+  
 }
 
 export default new Texture3d();

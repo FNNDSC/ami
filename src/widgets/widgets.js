@@ -1,6 +1,6 @@
-import Handle from './widgets.handle';
+import Handle     from './widgets.handle';
 import VoxelProbe from './widgets.voxelProbe';
-import Ruler from './widgets.ruler';
+import Ruler      from './widgets.ruler';
 
 /**
  * @module widgets
@@ -9,5 +9,5 @@ import Ruler from './widgets.ruler';
 export default {
 	Handle,
   VoxelProbe,
-  Ruler,
+  Ruler
 };

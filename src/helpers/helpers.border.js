@@ -1,10 +1,10 @@
-/** * Imports ***/
+/*** Imports ***/
 
 /**
  * @module helpers/border
  */
-export default class HelpersBorder extends THREE.Object3D {
-  constructor(helpersSlice) {
+export default class HelpersBorder extends THREE.Object3D{
+  constructor(helpersSlice){
     //
     super();
 
@@ -19,58 +19,58 @@ export default class HelpersBorder extends THREE.Object3D {
     this._create();
   }
 
-  set helpersSlice(helpersSlice) {
+  set helpersSlice(helpersSlice){
     this._helpersSlice = helpersSlice;
     this._update();
   }
 
-  get helpersSlice() {
+  get helpersSlice(){
     return this._helpersSlice;
   }
 
-  set visible(visible) {
+  set visible(visible){
     this._visible = visible;
-    if(this._mesh) {
+    if(this._mesh){
       this._mesh.visible = this._visible;
     }
   }
 
-  get visible() {
+  get visible(){
     return this._visible;
   }
 
-  set color(color) {
+  set color(color){
     this._color = color;
-    if(this._material) {
+    if(this._material){
       this._material.color.set(this._color);
     }
   }
 
-  get color() {
+  get color(){
     return this._color;
   }
 
-  _create() {
-    if(!this._material) {
+  _create(){
+    if(!this._material){
       this._material = new THREE.LineBasicMaterial({
         color: this._color,
-        linewidth: 1,
+        linewidth: 1
       });
     }
 
     //
-    if(!this._helpersSlice.geometry.vertices) {
+    if(!this._helpersSlice.geometry.vertices){
       return;
     }
 
     this._geometry = new THREE.Geometry();
-    for (let i = 0; i < this._helpersSlice.geometry.vertices.length; i++) {
+    for (var i = 0; i < this._helpersSlice.geometry.vertices.length; i++) {
       this._geometry.vertices.push(this._helpersSlice.geometry.vertices[i]);
     }
     this._geometry.vertices.push(this._helpersSlice.geometry.vertices[0]);
 
     this._mesh = new THREE.Line(this._geometry, this._material);
-    if(this._helpersSlice.aabbSpace === 'IJK') {
+    if(this._helpersSlice.aabbSpace === 'IJK'){
       this._mesh.applyMatrix(this._helpersSlice.stack.ijk2LPS);
     }
     this._mesh.visible = this._visible;
@@ -79,9 +79,9 @@ export default class HelpersBorder extends THREE.Object3D {
     this.add(this._mesh);
   }
 
-  _update() {
-    // update slice
-    if(this._mesh) {
+  _update(){
+    //update slice
+    if(this._mesh){
       this.remove(this._mesh);
       this._mesh.geometry.dispose();
       this._mesh = null;

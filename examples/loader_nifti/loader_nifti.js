@@ -87,7 +87,7 @@ window.onload = function() {
 
   // load vtk file
   var loader1 = new THREE.VTKLoader();
-  loader1.load( '../../blood1.vtk', function ( geometry ) {
+  loader1.load( '../../data/blood.vtk', function ( geometry ) {
     geometry.computeVertexNormals();
     console.log( geometry );
     var material = new THREE.MeshLambertMaterial( {
@@ -114,14 +114,27 @@ window.onload = function() {
   var files = t2.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/fetalatlas_brain/t2/' + v;
   });
-  files = ['../../data/MRBrainTumor1_PIL.nii'];
 
   // load sequence for each file
   let seriesContainer = [];
   let loadSequence = [];
   files.forEach(function(url) {
     loadSequence.push(
-      loader.load(url)
+      Promise.resolve()
+      // fetch the file
+      .then(function() {
+        return loader.fetch(url);
+      })
+      .then(function(data) {
+        return loader.parse(data);
+      })
+      .then(function(series) {
+        seriesContainer.push(series);
+      })
+      .catch(function(error) {
+        window.console.log('oops... something went wrong...');
+        window.console.log(error);
+      })
     );
   });
 
@@ -129,8 +142,10 @@ window.onload = function() {
   Promise
   .all(loadSequence)
   .then(function() {
+    loader.free();
+    loader = null;
     // make a proper function for this guy...
-    let series = loader.data[0].mergeSeries(loader.data)[0];
+    let series = seriesContainer[0].mergeSeries(seriesContainer)[0];
     let stack = series.stack[0];
     stackHelper = new HelpersStack(stack);
     stackHelper.bbox.color = 0xF9F9F9;
@@ -166,9 +181,6 @@ window.onload = function() {
     camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
     camera.updateProjectionMatrix();
     controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
-
-    loader.free();
-    loader = null;
 
     function onWindowResize() {
 

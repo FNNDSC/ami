@@ -1,6 +1,6 @@
 import Validators from './core.validators';
 
-/**
+/** 
  * General purpose functions.
  *
  * @module core/utils
@@ -37,9 +37,10 @@ export default class Utils {
    *
    */
   static bbox(center, halfDimensions) {
+
     // make sure we have valid inputs
     if(!(Validators.vector3(center) &&
-      Validators.vector3(halfDimensions))) {
+      Validators.vector3(halfDimensions))){
       window.console.log('Invalid center or plane halfDimensions.');
       return false;
     }
@@ -47,7 +48,7 @@ export default class Utils {
     // make sure half dimensions are >= 0
     if(!(halfDimensions.x >= 0 &&
       halfDimensions.y >= 0 &&
-      halfDimensions.z >= 0)) {
+      halfDimensions.z >= 0)){
       window.console.log('halfDimensions must be >= 0.');
       window.console.log(halfDimensions);
       return false;
@@ -59,20 +60,25 @@ export default class Utils {
 
     return {
       min,
-      max,
-    };
+      max
+    }
+
   }
 
   static minMaxPixelData(pixelData = []) {
+
     let minMax = [65535, -32768];
     let numPixels = pixelData.length;
 
     for (let index = 0; index < numPixels; index++) {
+
       let spv = pixelData[index];
       minMax[0] = Math.min(minMax[0], spv);
       minMax[1] = Math.max(minMax[1], spv);
+
     }
 
     return minMax;
+
   }
 }

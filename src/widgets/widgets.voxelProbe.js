@@ -1,11 +1,11 @@
-/** * Imports ***/
+/*** Imports ***/
 import HelpersVoxel from '../../src/helpers/helpers.voxel';
 
 /**
  * @module widgets/voxelProbe
  */
 
-export default class WidgetsVoxelProbe extends THREE.Object3D {
+export default class WidgetsVoxelProbe extends THREE.Object3D{
   constructor(stack, targetMesh, controls, camera, container) {
     super();
 
@@ -20,7 +20,7 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
       x: 0,
       y: 0,
       screenX: 0,
-      screenY: 0,
+      screenY: 0
     };
     // show only voxels that interesect the mesh
     this._showFrame = -1;
@@ -34,9 +34,9 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
 
     this._voxels = [];
     this._current = new HelpersVoxel(stack.worldCenter(), stack);
-    this._current._showVoxel = true;
-    this._current._showDomSVG = true;
-    this._current._showDomMeasurements = true;
+    this._current._showVoxel =  true;
+    this._current._showDomSVG =  true;
+    this._current._showDomMeasurements =  true;
 
     this.add(this._current);
 
@@ -75,30 +75,33 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
   }
 
   onMouseMove() {
+
     if (this._enabled === false) {
       return;
     }
 
     this.updateRaycaster(this._raycaster, event, this._container);
 
-    this._draggingMouse = true;
+    this._draggingMouse  = true;
 
     this.update();
   }
 
   onMouseDown(event) {
+
     if (this._enabled === false) {
       return;
     }
 
     this.updateRaycaster(this._raycaster, event, this._container);
 
-    this._draggingMouse = false;
-
+    this._draggingMouse  = false;
+  
     this.activateVoxel();
   }
 
   onMouseUp(event) {
+
     if (this._enabled === false) {
       return;
     }
@@ -129,7 +132,7 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
       x: (event.clientX / container.offsetWidth) * 2 - 1,
       y: -(event.clientY / container.offsetHeight) * 2 + 1,
       screenX: event.clientX,
-      screenY: event.clientY,
+      screenY: event.clientY
     };
     // update the raycaster
     raycaster.setFromCamera(this._mouse, this._camera);
@@ -152,6 +155,7 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
     while (i--) {
       let match = this._selected.indexOf(i);
       if (match >= 0) {
+
         // selected && active
         if (this._active === i) {
           this._active = -1;
@@ -197,6 +201,7 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
           this._controls.enabled = false;
         }
       }
+
     } else {
       // change color + select it and nothing else selected
       this._voxels[this._active].active = false;
@@ -321,7 +326,7 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
       // update distance mouse/this._voxel
       let dx = mouseScreenCoordinates.screenX - helpersVoxel.voxel.screenCoordinates.x;
       let dy = mouseScreenCoordinates.screenY - helpersVoxel.voxel.screenCoordinates.y;
-      let distance = Math.sqrt(dx * dx + dy * dy);
+      let distance =  Math.sqrt(dx * dx + dy * dy);
       helpersVoxel.distance = distance;
       if (distance >= 0 && distance < 10) {
         helpersVoxel.hover = true;
@@ -334,11 +339,11 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
   showOfIntersectsFrame(voxelHelper, frameIndex) {
     if (frameIndex === voxelHelper.voxel.dataCoordinates.z ||
       frameIndex === -1) {
-      voxelHelper._showDomSVG = true;
-      voxelHelper._showDomMeasurements = true;
+      voxelHelper._showDomSVG =  true;
+      voxelHelper._showDomMeasurements =  true;
     } else {
-      voxelHelper._showDomSVG = false;
-      voxelHelper._showDomMeasurements = false;
+      voxelHelper._showDomSVG =  false;
+      voxelHelper._showDomMeasurements =  false;
     }
   }
 

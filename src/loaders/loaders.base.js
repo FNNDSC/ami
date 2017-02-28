@@ -1,5 +1,9 @@
-/** Imports **/
+/*** Imports ***/
 import HelpersProgressBar from '../../src/helpers/helpers.progressbar';
+import ModelsSeries       from '../../src/models/models.series';
+import ModelsStack        from '../../src/models/models.stack';
+import ModelsFrame        from '../../src/models/models.frame';
+
 
 /**
  *
@@ -27,33 +31,29 @@ import HelpersProgressBar from '../../src/helpers/helpers.progressbar';
  *   }
  * );
  */
-export default class LoadersBase {
-  /**
-   * Some text
-   */
-  constructor(container=null, ProgressBar=HelpersProgressBar) {
+export default class LoadersBase{
+  constructor(container=document.body, helpersProgress=HelpersProgressBar) {
     this._loaded = -1;
     this._totalLoaded = -1;
     this._parsed = -1;
     this._totalParsed = -1;
 
-    this._data = [];
-
     this._container = container;
+    this._helpersProgressBar = helpersProgress;
     this._progressBar = null;
-    if(this._container && ProgressBar) {
-      this._progressBar = new ProgressBar(this._container);
+    if(this._container && this._helpersProgressBar){
+      this._progressBar = new helpersProgress(this._container);
     }
   }
 
   /**
    *
    */
-  free() {
+  free(){
     this._container = null;
     this._helpersProgressBar = null;
 
-    if(this._progressBar) {
+    if(this._progressBar){
       this._progressBar.free();
       this._progressBar = null;
     }
@@ -67,17 +67,17 @@ export default class LoadersBase {
       request.responseType = 'arraybuffer';
 
       request.onload = (event) => {
-        if(request.status === 200) {
+        if (request.status === 200) {
           this._loaded = event.loaded;
           this._totalLoaded = event.total;
-          if(this._progressBar) {
+          if(this._progressBar){
             this._progressBar.update(this._loaded, this._totalLoaded, 'load');
           }
 
           let buffer = request.response;
           let response = {
             url,
-            buffer,
+            buffer
           };
 
           resolve(response);
@@ -92,7 +92,7 @@ export default class LoadersBase {
       request.onprogress = (event) => {
         this._loaded = event.loaded;
         this._totalLoaded = event.total;
-        if(this._progressBar) {
+        if(this._progressBar){
           this._progressBar.update(this._loaded, this._totalLoaded, 'load');
         }
       };
@@ -100,51 +100,4 @@ export default class LoadersBase {
       request.send();
     });
   }
-
-  parse(response) {
-    return new Promise((resolve, reject) => {
-      resolve(null);
-    });
-  }
-
-  // default load sequence promise
-  loadSequence(url) {
-    return this.fetch(url)
-      .then((rawdata) => {
-        return this.parse(rawdata);
-      })
-      .then((data) => {
-        this._data.push(data);
-      })
-      .catch(function(error) {
-        window.console.log('oops... something went wrong...');
-        window.console.log(error);
-      });
-  }
-
-  load(url) {
-    // if we load a single file, convert it to an array
-    if(!Array.isArray(url)) {
-      url = [url];
-    }
-
-    let loadSequences = [];
-    url.forEach((file) => {
-     loadSequences.push(
-       this.loadSequence(file)
-      );
-    });
-
-    return Promise.all(loadSequences);
-  }
-
-  set data(data) {
-    this._data = data;
-  }
-
-  get data() {
-    return this._data;
-  }
-
-
 }

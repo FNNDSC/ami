@@ -3,9 +3,9 @@ const packageJSON = require('../../package.json');
 class ExampleTemplate{
   constructor(options={}) {
     this.threeVersion = packageJSON.config.threeVersion;
-    this.name         = '';
-    this.gaKey        = '';
-    this.content      = packageJSON.config.gaKey;
+    this.name = '';
+    this.gaKey = '';
+    this.content = '';
   }
 
   scripts(){

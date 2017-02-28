@@ -1,11 +1,12 @@
 import ShadersBase from '../shaders.base';
 
 class Unpack extends ShadersBase {
+  
+  constructor(){
 
-  constructor() {
     super();
     this.name = 'unpack';
-
+    
     // default properties names
     this._packedData = 'packedData';
     this._offset = 'offset';
@@ -13,33 +14,40 @@ class Unpack extends ShadersBase {
 
     this._base._uniforms ={
       uNumberOfChannels: {
-        value: 1,
+        value: 1
       },
       uBitsAllocated: {
-        value: 16,
+        value: 16
       },
       uPixelType: {
-        value: 0,
-      },
+        value: 0
+      }
     };
+
   }
 
-  api(baseFragment = this._base, packedData = this._packedData, offset = this._offset, unpackedData = this._unpackedData) {
+  api( baseFragment = this._base, packedData = this._packedData, offset = this._offset, unpackedData = this._unpackedData){
+
     this._base = baseFragment;
-    return this.compute(packedData, offset, unpackedData);
+    return this.compute( packedData, offset, unpackedData );
+
   }
 
-  compute(packedData, offset, unpackedData) {
+  compute( packedData, offset, unpackedData ){
+
     this.computeDefinition();
     this._base._functions[this._name] = this._definition;
     return `${this._name}(${packedData}, ${offset}, ${unpackedData});`;
+
   }
 
-  computeDefinition() {
+  computeDefinition(){
+
     // fun stuff
     let content = '';
-    if(this._base._uniforms.uNumberOfChannels.value === 1) {
-      switch(this._base._uniforms.uBitsAllocated.value) {
+    if( this._base._uniforms.uNumberOfChannels.value === 1){
+
+      switch( this._base._uniforms.uBitsAllocated.value ){
 
         case 1:
         case 8:
@@ -59,8 +67,11 @@ class Unpack extends ShadersBase {
           break;
 
       }
-    } else{
+    }
+    else{
+
       content = this.upackIdentity();
+
     }
 
     this._definition = `
@@ -70,9 +81,11 @@ ${content}
 
 }  
     `;
+
   }
 
-  upack8() {
+  upack8(){
+
     this._base._functions['uInt8'] = this.uInt8();
 
     return `
@@ -80,9 +93,11 @@ uInt8(
   packedData.r,
   unpackedData.x);
     `;
+
   }
 
-  upack16() {
+  upack16(){
+
     this._base._functions['uInt16'] = this.uInt16();
 
     return `
@@ -91,10 +106,13 @@ uInt16(
   packedData.g * float( 1 - offset) + packedData.a * float(offset),
   unpackedData.x);
     `;
+
   }
 
-  upack32() {
-    if(this._base._uniforms.uPixelType.value === 0) {
+  upack32(){
+
+    if( this._base._uniforms.uPixelType.value === 0){
+
       this._base._functions['uInt32'] = this.uInt32();
 
       return `
@@ -105,7 +123,10 @@ uInt32(
   packedData.a,
   unpackedData.x);
       `;
-    } else{
+
+    }
+    else{
+
       this._base._functions['uFloat32'] = this.uFloat32();
 
       return `
@@ -116,42 +137,53 @@ uFloat32(
   packedData.a,
   unpackedData.x);
       `;
+
     }
+
   }
 
-  upackIdentity() {
+  upackIdentity(){
+
     return `
 
 unpackedData = packedData;
 
       `;
+
   }
 
-  uInt8() {
+  uInt8(){
+
     return `
 void uInt8(in float r, out float value){
   value = r * 256.;
 }
     `;
+
   }
 
-  uInt16() {
+  uInt16(){
+  
     return `
 void uInt16(in float r, in float a, out float value){
   value = r * 256. + a * 65536.;
 }
     `;
+
   }
 
-  uInt32() {
+  uInt32(){
+  
     return `
 void uInt32(in float r, in float g, in float b, in float a, out float value){
   value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;
 }
     `;
+
   }
 
-  uFloat32() {
+  uFloat32(){
+
     return `
 void uFloat32(in float r, in float g, in float b, in float a, out float value){
 
@@ -281,6 +313,7 @@ void uFloat32(in float r, in float g, in float b, in float a, out float value){
   value = float(issigned) * pow( 2., float(exponent - 127)) * (1. + fraction);
 }
     `;
+
   }
 
 }

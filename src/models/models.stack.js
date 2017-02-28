@@ -1,9 +1,9 @@
-/** * Imports ***/
-import CoreColors from '../../src/core/core.colors';
-import CoreUtils from '../../src/core/core.utils';
-import ModelsBase from '../../src/models/models.base';
+/*** Imports ***/
+import CoreColors  from '../../src/core/core.colors';
+import CoreUtils   from '../../src/core/core.utils';
+import ModelsBase  from '../../src/models/models.base';
 
-let binaryString = require('math-float32-to-binary-string');
+let binaryString = require( 'math-float32-to-binary-string' );
 
 
 // Slicer way to handle images
@@ -25,7 +25,7 @@ let binaryString = require('math-float32-to-binary-string');
  * @module models/stack
  */
 
-export default class ModelsStack extends ModelsBase {
+export default class ModelsStack extends ModelsBase{
   constructor() {
     super();
 
@@ -40,7 +40,6 @@ export default class ModelsStack extends ModelsBase {
     this._numberOfChannels = 1;
     this._bitsAllocated = 8;
     this._pixelType = 0;
-    this._pixelRepresentation = 0;
 
     this._textureSize = 4096;
     this._nbTextures = 7; // HIGH RES..
@@ -84,18 +83,19 @@ export default class ModelsStack extends ModelsBase {
     this._modality = 'Modality not set';
 
     // SEGMENTATION STUFF
-    this._segmentationType = null;
-    this._segmentationSegments = [];
+    this._segmentationType         = null;
+    this._segmentationSegments     = [];
     this._segmentationDefaultColor = [63, 174, 128];
-    this._frameSegment = [];
-    this._segmentationLUT = [];
-    this._segmentationLUTO = [];
+    this._frameSegment             = [];
+    this._segmentationLUT          = [];
+    this._segmentationLUTO         = [];
 
     // photometricInterpretation Monochrome1 VS Monochrome2
     this._invert = false;
   }
 
-  prepareSegmentation() {
+  prepareSegmentation(){
+
     // store frame and do special pre-processing
     this._frameSegment = this._frame;
     let mergedFrames = [];
@@ -107,19 +107,24 @@ export default class ModelsStack extends ModelsBase {
 
     // merge frames
     let prevIndex = -1;
-    for(let i = 0; i<this._frame.length; i++) {
-      if(!mergedFrames[prevIndex] || mergedFrames[prevIndex]._dist != this._frame[i]._dist) {
-        mergedFrames.push(this._frame[i]);
+    for(let i = 0; i<this._frame.length; i++){
+
+      if(!mergedFrames[prevIndex] || mergedFrames[prevIndex]._dist != this._frame[i]._dist){
+        mergedFrames.push( this._frame[i]);
         prevIndex++;
 
         // scale it..
-        for(let k=0; k<mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
+        for(let k=0; k<mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++){
           mergedFrames[prevIndex]._pixelData[k] *= this._frame[i]._referencedSegmentNumber;
         }
+
+        
       } else{
-        for(let k=0; k<mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
+
+        for(let k=0; k<mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++){
           mergedFrames[prevIndex]._pixelData[k] += this._frame[i].pixelData[k] * this._frame[i]._referencedSegmentNumber;
         }
+
       }
 
       mergedFrames[prevIndex].minMax = CoreUtils.minMaxPixelData(mergedFrames[prevIndex]._pixelData);
@@ -128,26 +133,36 @@ export default class ModelsStack extends ModelsBase {
     // get information about segments
     let dict = {};
     let max = 0;
-    for(let i = 0; i<this._segmentationSegments.length; i++) {
-      max = Math.max(max, parseInt(this._segmentationSegments[i].segmentNumber, 10));
+    for(let i = 0; i<this._segmentationSegments.length; i++){
+
+      max = Math.max( max, parseInt( this._segmentationSegments[i].segmentNumber, 10) );
 
       let color = this._segmentationSegments[i].recommendedDisplayCIELab;
-      if(color === null) {
-        dict[this._segmentationSegments[i].segmentNumber] = this._segmentationDefaultColor;
-      } else {
-        dict[this._segmentationSegments[i].segmentNumber] = CoreColors.cielab2RGB(...color);
+      if( color === null ){
+
+        dict[ this._segmentationSegments[i].segmentNumber ] = this._segmentationDefaultColor;
+
       }
+      else {
+      
+        dict[ this._segmentationSegments[i].segmentNumber ] = CoreColors.cielab2RGB(...color);
+
+      }
+  
     }
 
     // generate LUTs
-    let colors = [];
-    let index = [0];
+    var colors = [];
+    var index = [0];
     for (let i = 0; i <= max; i++) {
+
       let index = i / max;
       let opacity = i ? 1 : 0;
       let rgb = [0, 0, 0];
-      if(dict.hasOwnProperty(i.toString())) {
-        rgb = dict[i.toString()];
+      if(dict.hasOwnProperty( i.toString() ) ){
+
+        rgb = dict[ i.toString() ];
+
       }
 
       rgb[0] /= 255;
@@ -156,6 +171,7 @@ export default class ModelsStack extends ModelsBase {
 
       this._segmentationLUT.push([index, ...rgb]);
       this._segmentationLUTO.push([index, opacity]);
+
     }
 
     this._frame = mergedFrames;
@@ -172,8 +188,10 @@ export default class ModelsStack extends ModelsBase {
    */
   prepare() {
     // if segmentation, merge some frames...
-    if(this._modality === 'SEG') {
+    if( this._modality === 'SEG'){
+
       this.prepareSegmentation();
+
     }
 
     // we need at least 1 frame
@@ -184,6 +202,7 @@ export default class ModelsStack extends ModelsBase {
       window.console.log(this._frame);
       return false;
     }
+
     // pass parameters from frame to stack
     this._rows = this._frame[0].rows;
     this._columns = this._frame[0].columns;
@@ -204,12 +223,14 @@ export default class ModelsStack extends ModelsBase {
 
     // compute/guess spacing
     this.computeSpacing();
+
     // set extra vars if nulls
     // happens now because if it happen before, we would think image position/orientation
     // are defined and we would use it to compute spacing.
     if (!this._frame[0].imagePosition) {
       this._frame[0].imagePosition = [0, 0, 0];
     }
+
     if (!this._frame[0].imageOrientation) {
       this._frame[0].imageOrientation = [1, 0, 0, 0, 1, 0];
     }
@@ -218,9 +239,9 @@ export default class ModelsStack extends ModelsBase {
 
     // compute transforms
     this.computeIJK2LPS();
-  
     this.computeLPS2AABB();
-    // this.packEchos();
+
+    //this.packEchos();
 
     this._rescaleSlope = this._frame[0].rescaleSlope || 1;
     this._rescaleIntercept = this._frame[0].rescaleIntercept || 0;
@@ -243,17 +264,18 @@ export default class ModelsStack extends ModelsBase {
     this._windowCenter = this._rescaleSlope * center + this._rescaleIntercept;
 
     this._bitsAllocated = this._frame[0].bitsAllocated;
+
     this._prepared = true;
   }
 
-  packEchos() {
+  packEchos(){
     // 4 echo times...
     let echos = 4;
     let packedEcho = [];
-    for(let i=0; i< this._frame.length; i+=echos) {
+    for(let i=0; i< this._frame.length; i+=echos){
       let frame = this._frame[i];
-      for(let k=0; k<this._rows * this._columns; k++) {
-        for(let j=1; j<echos; j++) {
+      for(let k=0; k<this._rows * this._columns; k++){
+        for(let j=1; j<echos; j++){
           frame.pixelData[k] += this._frame[i+j].pixelData[k];
         }
         frame.pixelData[k] /= echos;
@@ -311,10 +333,10 @@ export default class ModelsStack extends ModelsBase {
       this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
       this._frame.sort(this._sortSopInstanceUIDArraySort);
     } else {
-      // window.console.log(this._frame[0]);
-      // window.console.log(this._frame[1]);
+      //window.console.log(this._frame[0]);
+      //window.console.log(this._frame[1]);
       // window.console.log(this._frame[0].instanceNumber !== null && true);
-      // window.console.log(this._frame[0].instanceNumber !== this._frame[1].instanceNumber);
+      //window.console.log(this._frame[0].instanceNumber !== this._frame[1].instanceNumber);
       window.console.log('do not know how to order the frames...');
       // else slice location
       // image number
@@ -329,28 +351,24 @@ export default class ModelsStack extends ModelsBase {
     this.zSpacing();
   }
 
-  /**
-   * 
-   */
   zSpacing() {
-    if (this._numberOfFrames > 1) {
-      if(this._frame[0].pixelSpacing && this._frame[0].pixelSpacing[2]) {
-        this._spacing.z = this._frame[0].pixelSpacing[2];
-      } else {
-        // compute and sort by dist in this series
-        this._frame.map(
-          this._computeDistanceArrayMap.bind(null, this._zCosine));
 
-        // if distances are different, re-sort array
-        if(this._frame[1].dist !== this._frame[0].dist) {
-          this._frame.sort(this._sortDistanceArraySort);
-          this._spacing.z = this._frame[1].dist - this._frame[0].dist;
-        } else if(this._spacingBetweenSlices) {
-          this._spacing.z = this._spacingBetweenSlices;
-        } else if(this._frame[0].sliceThickness) {
-          this._spacing.z = this._frame[0].sliceThickness;
-        }
+    if (this._numberOfFrames > 1) {
+      if (this._spacingBetweenSlices) {
+        this._spacing.z = this._spacingBetweenSlices;
+      // if pixelSpacing in Z direction is already defined
+      // i.e. by nifti parser
+      }else if (this._frame[0].pixelSpacing && this._frame[0].pixelSpacing[2]) {
+        this._spacing.z = this._frame[0].pixelSpacing[2];
+      }else {
+        // compute and sort by dist in this series
+        this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
+        this._frame.sort(this._sortDistanceArraySort);
+
+        this._spacing.z = this._frame[1].dist - this._frame[0].dist;
       }
+      // } else if (this._frame[0].sliceThickness) {
+      //   zSpacing = this._frame[0].sliceThickness;
     }
 
     // Spacing
@@ -360,9 +378,7 @@ export default class ModelsStack extends ModelsBase {
     }
   }
 
-  /**
-   *  FRAME CAN DO IT
-   */
+  // FRAME CAN DO IT
   xySpacing() {
     if (this._frame &&
       this._frame[0]) {
@@ -391,6 +407,7 @@ export default class ModelsStack extends ModelsBase {
 
     this._lps2IJK = new THREE.Matrix4();
     this._lps2IJK.getInverse(this._ijk2LPS);
+
   }
 
   computeLPS2AABB() {
@@ -419,13 +436,15 @@ export default class ModelsStack extends ModelsBase {
     let nbVoxels = this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
 
     // Packing style
-    if(this._bitsAllocated === 16 && this._numberOfChannels === 1) {
+    if( this._bitsAllocated === 16 && this._numberOfChannels === 1 ){
+
       this._packedPerPixel = 2;
+
     }
 
     // Loop through all the textures we need
     let textureDimension = this._textureSize * this._textureSize;
-    let requiredTextures = Math.ceil(nbVoxels / (textureDimension * this._packedPerPixel));
+    let requiredTextures = Math.ceil( nbVoxels / (textureDimension * this._packedPerPixel ) );
     let voxelIndexStart = 0;
     let voxelIndexStop = this._packedPerPixel * textureDimension;
     if (voxelIndexStop > nbVoxels) {
@@ -433,6 +452,7 @@ export default class ModelsStack extends ModelsBase {
     }
 
     for (let ii = 0; ii < requiredTextures; ii++) {
+
       // console.log( voxelIndexStart );
       // console.log( voxelIndexStop );
 
@@ -441,7 +461,7 @@ export default class ModelsStack extends ModelsBase {
       this._rawData.push(packed.data);
 
       voxelIndexStart += this._packedPerPixel * textureDimension;
-      voxelIndexStop += this._packedPerPixel * textureDimension;
+      voxelIndexStop +=  this._packedPerPixel * textureDimension;
       if (voxelIndexStop > nbVoxels) {
         voxelIndexStop = nbVoxels;
       }
@@ -453,14 +473,8 @@ export default class ModelsStack extends ModelsBase {
   _packTo8Bits(bits, pixelType, channels, frame, textureSize, startVoxel, stopVoxel) {
     let packed = {
       textureType: null,
-      data: null,
+      data: null
     };
-
-    // transform signed to unsigned for convenience
-    let offset = 0;
-    if(this._minMax[0] < 0) {
-      offset -= this._minMax[0];
-    }
 
     let packIndex = 0;
     let frameIndex = 0;
@@ -469,73 +483,85 @@ export default class ModelsStack extends ModelsBase {
     let frameDimension = frame[0].rows * frame[0].columns;
     let data = null;
 
-    if (bits === 8 && channels === 1 || bits === 1) {
-      let data = new Uint8Array(textureSize * textureSize * 1);
+    if ( bits === 8 && channels === 1 || bits === 1 ) {
+
+      let data = new Uint8Array( textureSize * textureSize * 1 );
       for (let i = startVoxel; i < stopVoxel; i++) {
-        /* jshint bitwise: false*/
+        /*jshint bitwise: false*/
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
-        /* jshint bitwise: true*/
+        /*jshint bitwise: true*/
 
-        data[packIndex] = offset + frame[frameIndex].pixelData[inFrameIndex];
+        data[packIndex] = frame[frameIndex].pixelData[inFrameIndex];
         packIndex++;
+
       }
       packed.textureType = THREE.LuminanceFormat;
       packed.data = data;
+
     } else if (bits === 16 && channels === 1) {
-      let data = new Uint8Array(textureSize * textureSize * 4);
+
+      let data = new Uint8Array( textureSize * textureSize * 4 );
       let coordinate = 0;
       let channelOffset = 0;
 
-      for (let i = startVoxel; i < stopVoxel; i++) {
-        /* jshint bitwise: false*/
+      for ( let i = startVoxel; i < stopVoxel; i++ ) {
+
+        /*jshint bitwise: false*/
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
-        /* jshint bitwise: true*/
+        /*jshint bitwise: true*/
 
-        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
+        let raw = frame[frameIndex].pixelData[inFrameIndex];
         data[4 * coordinate + 2 * channelOffset] = raw & 0x00FF;
         data[4 * coordinate + 2 * channelOffset + 1] = (raw >>> 8) & 0x00FF;
 
         packIndex++;
-        coordinate = Math.floor(packIndex / 2);
+        coordinate = Math.floor( packIndex / 2 );
         channelOffset = packIndex % 2;
+
       }
 
       packed.textureType = THREE.RGBAFormat;
       packed.data = data;
-    } else if (bits === 32 && channels === 1 && pixelType === 0) {
-      let data = new Uint8Array(textureSize * textureSize * 4);
-      for (let i = startVoxel; i < stopVoxel; i++) {
-        /* jshint bitwise: false*/
+
+    } else if ( bits === 32 && channels === 1 && pixelType === 0 ) {
+
+      let data = new Uint8Array(textureSize * textureSize * 4 );
+      for ( let i = startVoxel; i < stopVoxel; i++ ) {
+
+        /*jshint bitwise: false*/
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
-        /* jshint bitwise: true*/
+        /*jshint bitwise: true*/
 
         // slow!
-        // let asb = VJS.core.pack.uint16ToAlphaLuminance(frame[frameIndex].pixelData[inFrameIndex]);
-        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
+        //let asb = VJS.core.pack.uint16ToAlphaLuminance(frame[frameIndex].pixelData[inFrameIndex]);
+        let raw = frame[frameIndex].pixelData[inFrameIndex];
         data[4 * packIndex] = raw & 0x000000FF;
         data[4 * packIndex + 1] = (raw >>> 8) & 0x000000FF;
         data[4 * packIndex + 2] = (raw >>> 8) & 0x000000FF;
         data[4 * packIndex + 3] = (raw >>> 8) & 0x000000FF;
 
         packIndex++;
+
       }
       packed.textureType = THREE.RGBAFormat;
       packed.data = data;
-    } else if (bits === 32 && channels === 1 && pixelType === 1) {
+
+    } else if ( bits === 32 && channels === 1 && pixelType === 1 ) {
+
       let data = new Uint8Array(textureSize * textureSize * 4);
 
-      for (let i = startVoxel; i < stopVoxel; i++) {
-        /* jshint bitwise: false*/
+      for ( let i = startVoxel; i < stopVoxel; i++ ) {
+        /*jshint bitwise: false*/
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
-        /* jshint bitwise: true*/
+        /*jshint bitwise: true*/
 
         // slow!
-        // let asb = VJS.core.pack.uint16ToAlphaLuminance(frame[frameIndex].pixelData[inFrameIndex]);
-        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
+        //let asb = VJS.core.pack.uint16ToAlphaLuminance(frame[frameIndex].pixelData[inFrameIndex]);
+        let raw = frame[frameIndex].pixelData[inFrameIndex];
         let bitString = binaryString(raw);
         let bitStringArray = bitString.match(/.{1,8}/g);
 
@@ -545,32 +571,35 @@ export default class ModelsStack extends ModelsBase {
         data[4 * packIndex + 3] = parseInt(bitStringArray[3], 2);
 
         packIndex++;
+
       }
 
       packed.textureType = THREE.RGBAFormat;
       packed.data = data;
-    } else if (bits === 8 && channels === 3) {
-      let data = new Uint8Array(textureSize * textureSize * 3);
+    } else if ( bits === 8 && channels === 3 ) {
 
-      for (let i = startVoxel; i < stopVoxel; i++) {
-        /* jshint bitwise: false*/
+      let data = new Uint8Array( textureSize * textureSize * 3 );
+      for ( let i = startVoxel; i < stopVoxel; i++ ) {
+
+        /*jshint bitwise: false*/
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
-        /* jshint bitwise: true*/
-        data[3 * packIndex] =
-          frame[frameIndex].pixelData[3 * inFrameIndex];
-        data[3 * packIndex + 1] =
-          frame[frameIndex].pixelData[3 * inFrameIndex + 1];
-        data[3 * packIndex + 2] =
-          frame[frameIndex].pixelData[3 * inFrameIndex + 2];
+        /*jshint bitwise: true*/
+
+        data[3 * packIndex] = frame[frameIndex].pixelData[3 * inFrameIndex];
+        data[3 * packIndex + 1] = frame[frameIndex].pixelData[3 * inFrameIndex + 1];
+        data[3 * packIndex + 2] = frame[frameIndex].pixelData[3 * inFrameIndex + 2];
         packIndex++;
+
       }
 
       packed.textureType = THREE.RGBFormat;
       packed.data = data;
+      
     }
 
     return packed;
+
   }
 
   static worldToData(stack, worldCoordinates) {
@@ -585,83 +614,107 @@ export default class ModelsStack extends ModelsBase {
   }
 
   worldCenter() {
-    let center = this._halfDimensionsIJK.clone().addScalar(-0.5)
+
+    let center = this._halfDimensionsIJK.clone().addScalar( -0.5 )
       .applyMatrix4(this._ijk2LPS);
     return center;
+
   }
 
   worldBoundingBox() {
+
     let bbox = [
       Number.MAX_VALUE, Number.MIN_VALUE,
       Number.MAX_VALUE, Number.MIN_VALUE,
-      Number.MAX_VALUE, Number.MIN_VALUE,
+      Number.MAX_VALUE, Number.MIN_VALUE
     ];
 
-    for (let i = 0; i <= this._dimensionsIJK.x; i += this._dimensionsIJK.x) {
-      for (let j = 0; j <= this._dimensionsIJK.y; j += this._dimensionsIJK.y) {
-        for (let k = 0; k <= this._dimensionsIJK.z; k += this._dimensionsIJK.z) {
-          let world = new THREE.Vector3(i, j, k).applyMatrix4(this._ijk2LPS);
+    for ( let i = 0; i <= this._dimensionsIJK.x; i += this._dimensionsIJK.x ) {
+      for ( let j = 0; j <= this._dimensionsIJK.y; j += this._dimensionsIJK.y ) {
+        for (let k = 0; k <= this._dimensionsIJK.z; k += this._dimensionsIJK.z ) {
+
+          let world = new THREE.Vector3( i, j, k ).applyMatrix4( this._ijk2LPS );
           bbox = [
             Math.min(bbox[0], world.x), Math.max(bbox[1], world.x), // x min/max
             Math.min(bbox[2], world.y), Math.max(bbox[3], world.y),
-            Math.min(bbox[4], world.z), Math.max(bbox[5], world.z),
+            Math.min(bbox[4], world.z), Math.max(bbox[5], world.z)
             ];
+
         }
+
       }
+
     }
 
     return bbox;
+
   }
 
   AABBox() {
-    let world0 = new THREE.Vector3().addScalar(-0.5)
-      .applyMatrix4(this._ijk2LPS)
-      .applyMatrix4(this._lps2AABB);
 
-    let world7 = this._dimensionsIJK.clone().addScalar(-0.5)
-      .applyMatrix4(this._ijk2LPS)
-      .applyMatrix4(this._lps2AABB);
+    let world0 = new THREE.Vector3().addScalar( -0.5 )
+      .applyMatrix4( this._ijk2LPS )
+      .applyMatrix4( this._lps2AABB );
+
+    let world7 = this._dimensionsIJK.clone().addScalar( -0.5 )
+      .applyMatrix4( this._ijk2LPS )
+      .applyMatrix4( this._lps2AABB );
 
     let minBBox = new THREE.Vector3(
-      Math.abs(world0.x - world7.x),
-      Math.abs(world0.y - world7.y),
-      Math.abs(world0.z - world7.z)
+      Math.abs( world0.x - world7.x ),
+      Math.abs( world0.y - world7.y ),
+      Math.abs( world0.z - world7.z )
     );
 
     return minBBox;
+
   }
 
   centerAABBox() {
+
     let centerBBox = this.worldCenter();
-    centerBBox.applyMatrix4(this._lps2AABB);
+    centerBBox.applyMatrix4( this._lps2AABB );
     return centerBBox;
+
   }
 
   static value(stack, ijkCoordinate) {
-    if(ijkCoordinate.z >= 0 && ijkCoordinate.z < stack._frame.length) {
+
+    if( ijkCoordinate.z >= 0 && ijkCoordinate.z < stack._frame.length ) {
+
       return stack._frame[ijkCoordinate.z].value(
         ijkCoordinate.x,
-        ijkCoordinate.y);
+        ijkCoordinate.y );
+
     } else {
+
       return null;
+
     }
+
   }
 
-  static valueRescaleSlopeIntercept(value, slope, intercept) {
+  static valueRescaleSlopeIntercept( value, slope, intercept ) {
+
     return value * slope + intercept;
+
   }
 
-  static indexInDimensions(index, dimensions) {
-    if (index.x >= 0 &&
+  static indexInDimensions( index, dimensions ) {
+
+    if ( index.x >= 0 &&
          index.y >= 0 &&
          index.z >= 0 &&
          index.x < dimensions.x &&
          index.y < dimensions.y &&
-         index.z < dimensions.z) {
+         index.z < dimensions.z ) {
+
       return true;
+
     }
 
     return false;
+
   }
 
   _vector3FromArray(array, index) {
@@ -673,6 +726,7 @@ export default class ModelsStack extends ModelsBase {
   }
 
   _orderFrameOnDimensionIndicesArraySort(a, b) {
+
     if ('dimensionIndexValues' in a && Object.prototype.toString.call(a.dimensionIndexValues) === '[object Array]' && 'dimensionIndexValues' in b && Object.prototype.toString.call(b.dimensionIndexValues) === '[object Array]') {
       for (let i = 0; i < a.dimensionIndexValues.length; i++) {
         if (parseInt(a.dimensionIndexValues[i], 10) > parseInt(b.dimensionIndexValues[i], 10)) {
@@ -698,15 +752,9 @@ export default class ModelsStack extends ModelsBase {
     return frame;
   }
 
-  _sortDistanceArraySort(a, b) {
-return a.dist - b.dist;
-}
-  _sortInstanceNumberArraySort(a, b) {
-return a.instanceNumber - b.instanceNumber;
-}
-  _sortSopInstanceUIDArraySort(a, b) {
-return a.sopInstanceUID - b.sopInstanceUID;
-}
+  _sortDistanceArraySort(a, b) {return a.dist - b.dist;}
+  _sortInstanceNumberArraySort(a, b) {return a.instanceNumber - b.instanceNumber;}
+  _sortSopInstanceUIDArraySort(a, b) {return a.sopInstanceUID - b.sopInstanceUID;}
 
   set numberOfChannels(numberOfChannels) {
     this._numberOfChannels = numberOfChannels;
@@ -724,15 +772,19 @@ return a.sopInstanceUID - b.sopInstanceUID;
     return this._frame;
   }
 
-  set prepared(prepared) {
+  set prepared( prepared ) {
+
     this._prepared = prepared;
+
   }
 
   get prepared() {
+
     return this._prepared;
+
   }
 
-  set packed(packed) {
+  set packed( packed ) {
     this._packed = packed;
   }
 
@@ -740,12 +792,16 @@ return a.sopInstanceUID - b.sopInstanceUID;
     return this._packed;
   }
 
-  set packedPerPixel(packedPerPixel) {
+  set packedPerPixel( packedPerPixel ) {
+
     this._packedPerPixel = packedPerPixel;
+
   }
 
   get packedPerPixel() {
+
     return this._packedPerPixel;
+
   }
 
   set dimensionsIJK(dimensionsIJK) {
@@ -900,14 +956,6 @@ return a.sopInstanceUID - b.sopInstanceUID;
     this._pixelType = pixelType;
   }
 
-  get pixelRepresentation() {
-    return this._pixelRepresentation;
-  }
-
-  set pixelRepresentation(pixelRepresentation) {
-    this._pixelRepresentation = pixelRepresentation;
-  }
-
   set invert(invert) {
     this._invert = invert;
   }
@@ -924,20 +972,12 @@ return a.sopInstanceUID - b.sopInstanceUID;
     return this._modality;
   }
 
-  get rightHanded() {
+  get rightHanded(){
     return this._rightHanded;
   }
 
-  set rightHanded(rightHanded) {
+  set rightHanded(rightHanded){
     this._rightHanded = rightHanded;
-  }
-
-  get spacingBetweenSlices() {
-    return this._spacingBetweenSlices;
-  }
-
-  set spacingBetweenSlices(spacingBetweenSlices) {
-    this._spacingBetweenSlices = spacingBetweenSlices;
   }
 
   set segmentationSegments(segmentationSegments) {

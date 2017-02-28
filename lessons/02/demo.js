@@ -1,14 +1,14 @@
-/* globals AMI*/
+/* globals Stats, dat, AMI*/
 
 // VJS classes we will be using in this lesson
-var LoadersVolume = AMI.default.Loaders.Volume;
+var LoadersVolume     = AMI.default.Loaders.Volume;
 var ControlsTrackball = AMI.default.Controls.Trackball;
-var HelpersStack = AMI.default.Helpers.Stack;
+var HelpersStack      = AMI.default.Helpers.Stack;
 
 // Setup renderer
 var container = document.getElementById('container');
 var renderer = new THREE.WebGLRenderer({
-    antialias: true,
+    antialias: true
   });
 renderer.setSize(container.offsetWidth, container.offsetHeight);
 renderer.setClearColor(0x353535, 1);
@@ -19,8 +19,7 @@ container.appendChild(renderer.domElement);
 var scene = new THREE.Scene();
 
 // Setup camera
-var camera = new THREE.PerspectiveCamera(
-  45, container.offsetWidth / container.offsetHeight, 0.01, 10000000);
+var  camera = new THREE.PerspectiveCamera(45, container.offsetWidth / container.offsetHeight, 0.01, 10000000);
 camera.position.x = 150;
 camera.position.y = 150;
 camera.position.z = 100;
@@ -28,48 +27,42 @@ camera.position.z = 100;
 // Setup controls
 var controls = new ControlsTrackball(camera, container);
 
-/**
- * Handle window resize
- */
+// handle resize
 function onWindowResize() {
+
   camera.aspect = container.offsetWidth / container.offsetHeight;
   camera.updateProjectionMatrix();
 
   renderer.setSize(container.offsetWidth, container.offsetHeight);
+
 }
 window.addEventListener('resize', onWindowResize, false);
 
 // Setup lights
-var particleLight = new THREE.Mesh(
-  new THREE.SphereBufferGeometry(4, 8, 8),
-  new THREE.MeshBasicMaterial({color: 0xffffff}));
-scene.add(particleLight);
+var particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
+scene.add( particleLight );
 
-scene.add(new THREE.AmbientLight(0x222222));
-
-var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(1, 1, 1).normalize();
-scene.add(directionalLight);
-
-var pointLight = new THREE.PointLight(0xffffff, 2, 800);
-particleLight.add(pointLight);
+scene.add( new THREE.AmbientLight( 0x222222 ) );
+var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+directionalLight.position.set( 1, 1, 1 ).normalize();
+scene.add( directionalLight );
+var pointLight = new THREE.PointLight( 0xffffff, 2, 800 );
+particleLight.add( pointLight );
 
 // Load STL model
 var loaderSTL = new THREE.STLLoader();
-loaderSTL.load('https://cdn.rawgit.com/FNNDSC/data/master/stl/adi_brain/WM.stl',
-  function(geometry) {
-    var material = new THREE.MeshPhongMaterial(
-      {color: 0xF44336, specular: 0x111111, shininess: 200});
-    var mesh = new THREE.Mesh(geometry, material);
-    // to LPS space
-    var RASToLPS = new THREE.Matrix4();
-    RASToLPS.set(-1, 0, 0, 0,
-                  0, -1, 0, 0,
-                  0, 0, 1, 0,
-                  0, 0, 0, 1);
-    mesh.applyMatrix(RASToLPS);
-    scene.add(mesh);
-});
+loaderSTL.load( 'https://cdn.rawgit.com/FNNDSC/data/master/stl/adi_brain/WM.stl', function ( geometry ) {
+  var material = new THREE.MeshPhongMaterial( { color: 0xF44336, specular: 0x111111, shininess: 200} );
+  var WMSTL = new THREE.Mesh( geometry, material );
+  // to LPS space
+  var RASToLPS = new THREE.Matrix4();
+  RASToLPS.set(-1, 0, 0, 0,
+                0, -1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1);
+  WMSTL.applyMatrix(RASToLPS);
+  scene.add( WMSTL );
+} );
 
 // Setup loader
 var loader = new LoadersVolume(container);
@@ -105,21 +98,49 @@ var t1 = [
     '36749698', '36749712', '36749726', '36749740', '36749754', '36749768',
     '36749782', '36749796', '36749810', '36749824', '36749838', '36749852',
     '36749866', '36749880', '36749894', '36749908', '36749922', '36749936',
-    '36749950', '36749964',
+    '36749950', '36749964'
 ];
-
 var files = t1.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
   });
 
+// load sequence for each file
+// 1- fetch
+// 2- parse
+// 3- add to array
+var seriesContainer = [];
+var loadSequence = [];
+files.forEach(function(url) {
+    loadSequence.push(
+      Promise.resolve()
+      // fetch the file
+      .then(function() {
+        return loader.fetch(url);
+      })
+      .then(function(data) {
+        return loader.parse(data);
+      })
+      .then(function(series) {
+        seriesContainer.push(series);
+      })
+      .catch(function(error) {
+        window.console.log('oops... something went wrong...');
+        window.console.log(error);
+      })
+    );
+  });
 
-loader.load(files)
-.then(function() {
-    // merge files into clean series/stack/frame structure
-    var series = loader.data[0].mergeSeries(loader.data);
+// once all files have been loaded (fetch + parse + add to array)
+// merge them into series / stacks / frames
+Promise
+.all(loadSequence)
+  .then(function() {
     loader.free();
     loader = null;
 
+    // merge files into clean series/stack/frame structure
+    var series = seriesContainer[0].mergeSeries(seriesContainer);
+    
     // be carefull that series and target stack exist!
     var stackHelper = new HelpersStack(series[0].stack[0]);
     stackHelper.border.color = 0xFFEB3B;
@@ -132,21 +153,20 @@ loader.load(files)
     camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
     camera.updateProjectionMatrix();
     controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
-})
-.catch(function(error) {
+  })
+  .catch(function(error) {
     window.console.log('oops... something went wrong...');
     window.console.log(error);
-});
+  });
 
-/**
- * Start animation loop
- */
+// Start animation loop
 function animate() {
+
     var timer = Date.now() * 0.00025;
 
-    particleLight.position.x = Math.sin(timer * 7) * 100;
-    particleLight.position.y = Math.cos(timer * 5) * 120;
-    particleLight.position.z = Math.cos(timer * 3) * 140;
+    particleLight.position.x = Math.sin( timer * 7 ) * 100;
+    particleLight.position.y = Math.cos( timer * 5 ) * 120;
+    particleLight.position.z = Math.cos( timer * 3 ) * 140;
 
     controls.update();
     renderer.render(scene, camera);

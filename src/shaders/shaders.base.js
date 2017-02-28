@@ -1,19 +1,25 @@
-export default class ShadersBase {
+export default class ShadersBase{
 
-  constructor() {
+  constructor(){
+
     this._name = 'shadersBase';
     this._base = {
       _functions: {},
-      _uniforms: {},
+      _uniforms: {}
     };
     this._definition = '';
+
   }
 
-  get name() {
+  get name(){
+
     return this._name;
+
   }
 
-  set name(name) {
+  set name( name ){
+
     this._name = name;
+
   }
 }

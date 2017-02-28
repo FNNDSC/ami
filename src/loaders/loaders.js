@@ -5,5 +5,5 @@ import Volume from './loaders.volume';
  */
 
 export default {
-  Volume,
+  Volume
 };

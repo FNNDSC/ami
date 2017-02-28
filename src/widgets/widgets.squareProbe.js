@@ -1,6 +1,6 @@
 'use strict';
 
-let VJS = VJS || {};
+var VJS = VJS || {};
 VJS.widgets = VJS.widgets || {};
 
 /**
@@ -26,18 +26,18 @@ VJS.widgets.squareProbe = function(helper, image, imageMeshes) {
 
     this.volumeCore = null;
 
-    this._worldCoordinate = null; // LPS
-    this._dataCoordinate = null; // IJK
+    this._worldCoordinate = null; //LPS
+    this._dataCoordinate = null; //IJK
     this._dataValue = null; //
     this._labelValue = null; //
 };
 
 VJS.widgets.squareProbe.prototype.select = function(raycaster) {
     // calculate image intersecting against itself (ideally N spheres)
-    let intersects = raycaster.intersectObjects(this.helper.children);
-    let worldCoordinates = null;
+    var intersects = raycaster.intersectObjects(this.helper.children);
+    var worldCoordinates = null;
     // Look for a handle
-    for (let intersect in intersects) {
+    for (var intersect in intersects) {
         worldCoordinates = new THREE.Vector3().copy(intersects[intersect].point);
 
         // if intersect a handle, select/un-select it!
@@ -56,7 +56,7 @@ VJS.widgets.squareProbe.prototype.select = function(raycaster) {
     // Look for intersection against image
     window.console.log(this);
     intersects = raycaster.intersectObjects(this.imageMeshes);
-    for (let intersect2 in intersects) {
+    for (var intersect2 in intersects) {
         worldCoordinates = new THREE.Vector3().copy(intersects[intersect2].point);
 
         // might be better to re-loop
@@ -67,14 +67,14 @@ VJS.widgets.squareProbe.prototype.select = function(raycaster) {
             window.console.log(intersects[intersect2]);
             if (this.handles.length < 2) {
                 // create the geometry for it!
-                let sphereGeometry = new THREE.SphereGeometry(1);
-                let material = new THREE.MeshBasicMaterial({
+                var sphereGeometry = new THREE.SphereGeometry(1);
+                var material = new THREE.MeshBasicMaterial({
                     // not selected: amber? #FFC107
                     // orange? #FF9800
                     // selected: deep orange? #FF5722
-                    color: 0xFF5722,
+                    color: 0xFF5722
                 });
-                let sphere = new THREE.Mesh(sphereGeometry, material);
+                var sphere = new THREE.Mesh(sphereGeometry, material);
                 sphere.applyMatrix(new THREE.Matrix4().makeTranslation(
                     worldCoordinates.x, worldCoordinates.y, worldCoordinates.z));
                 sphere.name = 'squareProbeHandle';
@@ -101,9 +101,9 @@ VJS.widgets.squareProbe.prototype.unselect = function() {
 VJS.widgets.squareProbe.prototype.computeValues = function() {
     // convert point to IJK
     if (this.image) {
-        let worldToData = this.image._stack[0]._lps2IJK;
+        var worldToData = this.image._stack[0]._lps2IJK;
 
-        let dataCoordinate = new THREE.Vector3().copy(this._worldCoordinate).applyMatrix4(worldToData);
+        var dataCoordinate = new THREE.Vector3().copy(this._worldCoordinate).applyMatrix4(worldToData);
 
         // same rounding in the shaders
         // window.console.log(dataCoordinate);
@@ -112,27 +112,27 @@ VJS.widgets.squareProbe.prototype.computeValues = function() {
         dataCoordinate.z = Math.floor(dataCoordinate.z + 0.5);
         this._dataCoordinate = dataCoordinate;
 
-        let textureSize = this.image._stack[0]._textureSize;
-        let rows = this.image._stack[0]._rows;
-        let columns = this.image._stack[0]._columns;
+        var textureSize = this.image._stack[0]._textureSize;
+        var rows = this.image._stack[0]._rows;
+        var columns = this.image._stack[0]._columns;
 
-        let index = this._dataCoordinate.x + columns * this._dataCoordinate.y + rows * columns * this._dataCoordinate.z;
+        var index = this._dataCoordinate.x + columns * this._dataCoordinate.y + rows * columns * this._dataCoordinate.z;
 
-        let textureIndex = Math.floor(index / (textureSize * textureSize));
-        let inTextureIndex = index % (textureSize * textureSize);
+        var textureIndex = Math.floor(index / (textureSize * textureSize));
+        var inTextureIndex = index % (textureSize * textureSize);
 
         this._dataValue = this.image._stack[0]._rawData[textureIndex][inTextureIndex];
     }
 };
 
 VJS.widgets.squareProbe.prototype.updateUI = function(mouse) {
-    let rasContent = this._worldCoordinate.x.toFixed(2) + ' : ' + this._worldCoordinate.y.toFixed(2) + ' : ' + this._worldCoordinate.z.toFixed(2);
+    var rasContent = this._worldCoordinate.x.toFixed(2) + ' : ' + this._worldCoordinate.y.toFixed(2) + ' : ' + this._worldCoordinate.z.toFixed(2);
     this.rasContainer.innerHTML = 'LPS: ' + rasContent;
 
-    let ijkContent = this._dataCoordinate.x + ' : ' + this._dataCoordinate.y + ' : ' + this._dataCoordinate.z;
+    var ijkContent = this._dataCoordinate.x + ' : ' + this._dataCoordinate.y + ' : ' + this._dataCoordinate.z;
     this.ijkContainer.innerHTML = 'IJK: ' + ijkContent;
 
-    let valueContent = this._dataValue;
+    var valueContent = this._dataValue;
     this.valueContainer.innerHTML = 'Value: ' + valueContent;
 
     // position of the div...
@@ -140,18 +140,20 @@ VJS.widgets.squareProbe.prototype.updateUI = function(mouse) {
     document.getElementById('VJSProbe').style.display = 'block';
     document.getElementById('VJSProbe').style.top = mouse.clientY + 20;
     document.getElementById('VJSProbe').style.left = mouse.clientX + 20;
+
 };
 
 VJS.widgets.squareProbe.prototype.update = function(raycaster, mouse) {
+
     if (!this.imageMeshes) {
         return;
     }
 
     // calculate image intersecting the picking ray
-    let intersects = raycaster.intersectObjects(this.imageMeshes);
+    var intersects = raycaster.intersectObjects(this.imageMeshes);
 
-    for (let intersect in intersects) {
-        let worldCoordinates = new THREE.Vector3().copy(intersects[intersect].point);
+    for (var intersect in intersects) {
+        var worldCoordinates = new THREE.Vector3().copy(intersects[intersect].point);
 
         // if we intersect an image with a ShaderMaterial
         // TODO: review that
@@ -172,9 +174,9 @@ VJS.widgets.squareProbe.prototype.hideUI = function() {
     document.getElementById('VJSProbe').style.display = 'none';
 };
 
-/** * Exports ***/
+/*** Exports ***/
 
-let moduleType = typeof module;
+var moduleType = typeof module;
 if ((moduleType !== 'undefined') && module.exports) {
     module.exports = VJS.widgets.squareProbe;
 }

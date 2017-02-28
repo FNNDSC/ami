@@ -1,12 +1,12 @@
 import GeometriesVoxel from '../../src/geometries/geometries.voxel';
-import ModelsStack from '../../src/models/models.stack';
-import ModelsVoxel from '../../src/models/models.voxel';
+import ModelsStack     from '../../src/models/models.stack';
+import ModelsVoxel     from '../../src/models/models.voxel';
 
 /**
  * @module helpers/voxel
  */
 
-export default class HelpersVoxel extends THREE.Object3D {
+export default class HelpersVoxel extends THREE.Object3D{
   constructor(worldCoordinates = null, stack = null) {
     super();
 
@@ -18,23 +18,23 @@ export default class HelpersVoxel extends THREE.Object3D {
     this._voxel.worldCoordinates = this._worldCoordinates;
 
     // if stack provided, compute IJK and value
-    if(this._stack && this._stack.prepared && this._worldCoordinates) {
+    if(this._stack && this._stack.prepared && this._worldCoordinates){
       this.updateVoxel(this._worldCoordinates);
     }
 
     // part of the helper...?
-    this._mesh = null;
+    this._mesh =  null;
     this._geometry = null;
     this._material = null;
     // 3 next purpose is just to change the color: at widget level
-    this._selected = false;
-    this._active = false;
-    this._hover = false;
+    this._selected =  false;
+    this._active =  false;
+    this._hover =  false;
     this._distance = null;
 
-    this._showVoxel = true;
-    this._showDomSVG = true;
-    this._showDomMeasurements = true;
+    this._showVoxel =  true;
+    this._showDomSVG =  true;
+    this._showDomMeasurements =  true;
     this._color = '#00B0FF';
     // just visualization
     // this._svgPointer = '<svg width="40" height="40" \
@@ -46,7 +46,7 @@ export default class HelpersVoxel extends THREE.Object3D {
     //                       130,70" />\
     //   \
     //   </svg>';
-    /* jshint multistr: true */
+    /*jshint multistr: true */
     this._svgPointer = '<svg width="40" height="40" \
                       viewBox="0 0 140 140" version="1.1" \
                       xmlns="http://www.w3.org/2000/svg"> \
@@ -56,8 +56,8 @@ export default class HelpersVoxel extends THREE.Object3D {
                                A10,10 0 1 1 10,10\
                                A10,10 0 1 1 30,30" />\
                       \
-                      </svg>';
-
+                      </svg>'                        ;
+                      
 
     this.createMesh();
   }
@@ -67,7 +67,7 @@ export default class HelpersVoxel extends THREE.Object3D {
     this._voxel.worldCoordinates = worldCoordinates;
 
     // update data coordinates
-    this._voxel.dataCoordinates = ModelsStack.worldToData(
+    this._voxel.dataCoordinates =  ModelsStack.worldToData(
                   this._stack,
                   this._voxel.worldCoordinates);
 
@@ -82,14 +82,15 @@ export default class HelpersVoxel extends THREE.Object3D {
       this._stack.rescaleIntercept);
   }
 
-  updateVoxelScreenCoordinates(camera, container) {
+  updateVoxelScreenCoordinates(camera, container){
     this._voxel.screenCoordinates = HelpersVoxel.worldToScreen(
       this._worldCoordinates,
       camera,
       container);
   }
-
+  
   createMesh() {
+
     let dataCoordinates = ModelsStack.worldToData(
       this._stack,
       this._worldCoordinates);
@@ -97,7 +98,7 @@ export default class HelpersVoxel extends THREE.Object3D {
     this._geometry = new GeometriesVoxel(dataCoordinates);
     this._material = new THREE.MeshBasicMaterial({
         wireframe: true,
-        wireframeLinewidth: 2,
+        wireframeLinewidth: 2
       });
     this._material.color.set(this._color);
     this._mesh = new THREE.Mesh(this._geometry, this._material);
@@ -134,6 +135,7 @@ export default class HelpersVoxel extends THREE.Object3D {
   }
 
   updateDom(container) {
+
     if (document.getElementById('VJSVoxelProbeWorld' + this.id) === null) {
       container.appendChild(this.createDom());
     }
@@ -230,7 +232,7 @@ export default class HelpersVoxel extends THREE.Object3D {
 
     return divContainer;
   }
-
+  
   set color(color) {
     this._color = color;
     if (this._material) {
@@ -239,13 +241,13 @@ export default class HelpersVoxel extends THREE.Object3D {
 
     // also update the dom
     let selectedElement = document.getElementById('VJSVoxelMeasurements' + this.id);
-    if(selectedElement) {
-      selectedElement.style.borderColor = this._color.replace('0x', '#');
+    if(selectedElement){
+      selectedElement.style.borderColor = this._color.replace( '0x','#' );
     }
-
+    
     selectedElement = document.querySelector('#VJSVoxelProbeSVG' + this.id + '> svg > path');
-    if(selectedElement) {
-      selectedElement.style.stroke = this._color.replace('0x', '#');
+    if(selectedElement){
+      selectedElement.style.stroke = this._color.replace( '0x','#' );
     }
   }
 
@@ -253,86 +255,86 @@ export default class HelpersVoxel extends THREE.Object3D {
     return this._color;
   }
 
-  set worldCoordinates(worldCoordinates) {
+  set worldCoordinates(worldCoordinates){
     this._worldCoordinates = worldCoordinates;
     this._voxel._worldCoordinates = worldCoordinates;
 
     // set data coordinates && value
     this.updateVoxel(this._worldCoordinates);
 
-    if(this._mesh && this._mesh.geometry) {
+    if(this._mesh && this._mesh.geometry){
       this._mesh.geometry.location = this._voxel.dataCoordinates;
     }
   }
 
-  get worldCoordinates() {
+  get worldCoordinates(){
     return this._worldCoordinates;
   }
 
-  get voxel() {
+  get voxel(){
     return this._voxel;
   }
 
-  set voxel(voxel) {
+  set voxel(voxel){
     this._voxel = voxel;
   }
 
-  set showVoxel(showVoxel) {
+  set showVoxel(showVoxel){
     this._showVoxel = showVoxel;
 
-    if(this._mesh) {
+    if(this._mesh){
       this._mesh.visible = this._showVoxel;
     }
   }
-  get showVoxel() {
+  get showVoxel(){
     return this._showVoxel;
   }
 
-  set showDomSVG(showDomSVG) {
+  set showDomSVG(showDomSVG){
     this._showDomSVG = showDomSVG;
     this.updateDomClass();
   }
-  get showDomSVG() {
+  get showDomSVG(){
     return this._showDomSVG;
   }
 
-  set showDomMeasurements(showDomMeasurements) {
+  set showDomMeasurements(showDomMeasurements){
     this._showDomMeasurements = showDomMeasurements;
     this.updateDomClass();
   }
-  get showDomMeasurements() {
+  get showDomMeasurements(){
     return this._showDomMeasurements;
   }
 
-  set distance(distance) {
+  set distance(distance){
     this._distance = distance;
   }
 
-  get distance() {
+  get distance(){
     return this._distance;
   }
 
-  set selected(selected) {
+  set selected(selected){
     this._selected = selected;
   }
 
-  get selected() {
+  get selected(){
     return this._selected;
   }
 
-  set hover(hover) {
+  set hover(hover){
     this._hover = hover;
   }
 
-  get hover() {
+  get hover(){
     return this._hover;
   }
 
-  set active(active) {
+  set active(active){
     this._active = active;
   }
 
-  get active() {
+  get active(){
     return this._active;
   }
 }

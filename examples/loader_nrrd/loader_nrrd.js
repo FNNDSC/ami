@@ -105,10 +105,46 @@ window.onload = function() {
   // instantiate the loader
   // it loads and parses the dicom image
   let loader = new LoadersVolume(threeD);
-  loader.load('https://cdn.rawgit.com/FNNDSC/data/master/nifti/marc_avf/avf_float_32.nii.gz')
+
+  var t2 = [
+    'avf_float_32.nii.gz'
+  ];
+
+  var files = t2.map(function(v) {
+    return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/marc_avf/' + v;
+  });
+
+  // load sequence for each file
+  let seriesContainer = [];
+  let loadSequence = [];
+  files.forEach(function(url) {
+    loadSequence.push(
+      Promise.resolve()
+      // fetch the file
+      .then(function() {
+        return loader.fetch(url);
+      })
+      .then(function(data) {
+        return loader.parse(data);
+      })
+      .then(function(series) {
+        seriesContainer.push(series);
+      })
+      .catch(function(error) {
+        window.console.log('oops... something went wrong...');
+        window.console.log(error);
+      })
+    );
+  });
+
+  // load sequence for all files
+  Promise
+  .all(loadSequence)
   .then(function() {
+    loader.free();
+    loader = null;
     // make a proper function for this guy...
-    let series = loader.data[0].mergeSeries(loader.data)[0];
+    let series = seriesContainer[0].mergeSeries(seriesContainer)[0];
     let stack = series.stack[0];
     stackHelper = new HelpersStack(stack);
     stackHelper.bbox.color = 0xF9F9F9;
@@ -123,9 +159,6 @@ window.onload = function() {
     camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
     camera.updateProjectionMatrix();
     controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
-
-    loader.free();
-    loader = null;
 
     function onWindowResize() {
 

@@ -13,9 +13,9 @@
  // 905       continue;
  // 906     }
 
-// http://brainder.org/2012/09/23/the-nifti-file-format/
+//http://brainder.org/2012/09/23/the-nifti-file-format/
 
-/** * Imports ***/
+/*** Imports ***/
 import ParsersVolume from './parsers.volume';
 
 let pako = require('pako');
@@ -25,8 +25,9 @@ let NrrdReader = require('nrrd-js');
  */
 export default class ParsersNifti extends ParsersVolume {
   constructor(data, id) {
-    super();
 
+    super();
+    
     /**
       * @member
       * @type {arraybuffer}
@@ -39,22 +40,29 @@ export default class ParsersNifti extends ParsersVolume {
 
     try{
       this._dataSet = NrrdReader.parse(this._arrayBuffer);
-    } catch(error) {
+    }
+    catch(error){
       window.console.log('ooops... :(');
     }
 
     window.console.log(this._dataSet);
   }
 
-  rightHanded() {
-    if(this._dataSet.space.match(/^right-anterior-superior/) ||
-        this._dataSet.space.match(/^left-posterior-superior/)) {
+  rightHanded(){
+
+    if( this._dataSet.space.match(/^right-anterior-superior/) ||
+        this._dataSet.space.match(/^left-posterior-superior/) ) {
+
      this._rightHanded = true;
+
     } else {
+
       this._rightHanded = false;
+
     }
 
     return this._rightHanded;
+
   }
 
   seriesInstanceUID() {
@@ -87,7 +95,7 @@ export default class ParsersNifti extends ParsersVolume {
     // 0 - int
     // 1 - float
     let pixelType = 0;
-    if(this._dataSet.type === 'float') {
+    if(this._dataSet.type === 'float'){
       pixelType = 1;
     }
     return pixelType;
@@ -98,15 +106,17 @@ export default class ParsersNifti extends ParsersVolume {
 
     if(this._dataSet.type === 'int8' ||
        this._dataSet.type === 'uint8' ||
-       this._dataSet.type === 'char') {
+       this._dataSet.type === 'char'){
       bitsAllocated = 8;
-    } else if(this._dataSet.type === 'int16' ||
+    }
+    else if(this._dataSet.type === 'int16' ||
       this._dataSet.type === 'uint16' ||
-      this._dataSet.type === 'short') {
+      this._dataSet.type === 'short'){
       bitsAllocated = 16;
-    } else if(this._dataSet.type === 'int32' ||
+    }
+    else if(this._dataSet.type === 'int32' ||
       this._dataSet.type === 'uint32' ||
-      this._dataSet.type === 'float') {
+      this._dataSet.type === 'float'){
       bitsAllocated = 32;
     }
 
@@ -134,10 +144,11 @@ export default class ParsersNifti extends ParsersVolume {
 
   sliceThickness() {
     // should be a string...
-    return null;// this._dataSet.pixDims[3].toString();
+    return null;//this._dataSet.pixDims[3].toString();
   }
 
   imageOrientation(frameIndex = 0) {
+
     let invertX = this._dataSet.space.match(/right/) ? -1 : 1;
     let invertY = this._dataSet.space.match(/anterior/) ? -1 : 1;
 
@@ -155,7 +166,7 @@ export default class ParsersNifti extends ParsersVolume {
 
     return [
       x.x, x.y, x.z,
-      y.x, y.y, y.z,
+      y.x, y.y, y.z
       ];
   }
 
@@ -163,7 +174,7 @@ export default class ParsersNifti extends ParsersVolume {
     return [
       this._dataSet.spaceOrigin[0],
       this._dataSet.spaceOrigin[1],
-      this._dataSet.spaceOrigin[2],
+      this._dataSet.spaceOrigin[2]
     ];
   }
 
@@ -186,11 +197,11 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   rescaleSlope(frameIndex = 0) {
-    return 1;// this._dataSet.scl_slope;
+    return 1;//this._dataSet.scl_slope;
   }
 
   rescaleIntercept(frameIndex = 0) {
-    return 0;// this._dataSet.scl_intercept;
+    return 0;//this._dataSet.scl_intercept;
   }
 
   minMaxPixelData(pixelData = []) {
@@ -213,8 +224,8 @@ export default class ParsersNifti extends ParsersVolume {
     let buffer = this._dataSet.buffer;
     let numberOfChannels = this.numberOfChannels();
     let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
-    if(!this.rightHanded()) {
-      frameIndex = this.numberOfFrames() - 1 - frameIndex;
+    if( !this.rightHanded() ){
+      frameIndex = this.numberOfFrames() - 1 - frameIndex; 
     }
     let frameOffset = frameIndex * numPixels;
 
@@ -224,33 +235,41 @@ export default class ParsersNifti extends ParsersVolume {
       let unpackedData = pako.inflate(this._dataSet.buffer);
       this._unpackedData = unpackedData.buffer;
       buffer = this._unpackedData;
-    } else if(this._dataSet.encoding === 'gzip') {
+    }
+    else if(this._dataSet.encoding === 'gzip'){
       buffer = this._unpackedData;
     }
 
     if(this._dataSet.type === 'int8' ||
-       this._dataSet.type === 'char') {
+       this._dataSet.type === 'char'){
       frameOffset = frameOffset;
       return new Int8Array(buffer, frameOffset, numPixels);
-    } else if(this._dataSet.type === 'uint8') {
+    }
+    else if(this._dataSet.type === 'uint8'){
       frameOffset = frameOffset;
       return new Uint8Array(buffer, frameOffset, numPixels);
-    } else if(this._dataSet.type === 'int16' ||
-       this._dataSet.type === 'short') {
+    }
+    else if(this._dataSet.type === 'int16' ||
+       this._dataSet.type === 'short'){
       frameOffset = frameOffset * 2;
       return new Int16Array(buffer, frameOffset, numPixels);
-    } else if(this._dataSet.type === 'uint16') {
+    }
+    else if(this._dataSet.type === 'uint16'){
       frameOffset = frameOffset * 2;
       return new Uint16Array(buffer, frameOffset, numPixels);
-    } else if(this._dataSet.type === 'int32') {
+    }
+    else if(this._dataSet.type === 'int32'){
       frameOffset = frameOffset * 4;
       return new Int32Array(buffer, frameOffset, numPixels);
-    } else if(this._dataSet.type === 'uint32') {
+    }
+    else if(this._dataSet.type === 'uint32' ){
       frameOffset = frameOffset * 4;
       return new Uint32Array(buffer, frameOffset, numPixels);
-    } else if(this._dataSet.type === 'float') {
+    }
+    else if(this._dataSet.type === 'float'){
       frameOffset = frameOffset * 4;
       return new Float32Array(buffer, frameOffset, numPixels);
     }
+
   }
 }

@@ -1,6 +1,6 @@
 import Dicom from './parsers.dicom';
 import Nifti from './parsers.nifti';
-import Nrrd from './parsers.nrrd';
+import Nrrd  from './parsers.nrrd';
 
 /**
  * @module parsers
@@ -9,5 +9,5 @@ import Nrrd from './parsers.nrrd';
 export default {
   Dicom,
   Nifti,
-  Nrrd,
+  Nrrd
 };

@@ -1,7 +1,7 @@
-/** * Imports ***/
-import ShadersUniform from '../../src/shaders/shaders.vr.uniform';
-import ShadersVertex from '../../src/shaders/shaders.vr.vertex';
-import ShadersFragment from '../../src/shaders/shaders.vr.fragment';
+/*** Imports ***/
+import ShadersUniform       from '../../src/shaders/shaders.vr.uniform';
+import ShadersVertex        from '../../src/shaders/shaders.vr.vertex';
+import ShadersFragment      from '../../src/shaders/shaders.vr.fragment';
 
 import HelpersMaterialMixin from '../../src/helpers/helpers.material.mixin';
 
@@ -10,8 +10,8 @@ import HelpersMaterialMixin from '../../src/helpers/helpers.material.mixin';
  * @module helpers/volumerendering
  */
 
-export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.Object3D) {
-  constructor(stack) {
+export default class HelpersVolumeRendering extends HelpersMaterialMixin( THREE.Object3D ){
+  constructor(stack){
     //
     super();
 
@@ -28,7 +28,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
     this._create();
   }
 
-  _create() {
+  _create(){
     this._prepareStack();
     this._prepareTexture();
     this._prepareMaterial();
@@ -38,23 +38,17 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
     this.add(this._mesh);
   }
 
-  _prepareStack() {
-    if(!this._stack.prepared) {
+  _prepareStack(){
+    if(!this._stack.prepared){
       this._stack.prepare();
     }
-
-    if(!this._stack.packed) {
+    
+    if(!this._stack.packed){
       this._stack.pack();
     }
   }
 
-  _prepareMaterial() {
-    // compensate for the offset to only pass > 0 values to shaders
-    // models > models.stack.js : _packTo8Bits
-    let offset = 0;
-    if(this._stack._minMax[0] < 0) {
-      offset = this._stack._minMax[0];
-    }
+  _prepareMaterial(){
 
     // uniforms
     this._uniforms = ShadersUniform.uniforms();
@@ -66,7 +60,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
     this._uniforms.uPixelType.value = this._stack.pixelType;
     this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
     this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
-    this._uniforms.uWindowCenterWidth.value = [offset + this._stack.windowCenter, this._stack.windowWidth * 0.8];
+    this._uniforms.uWindowCenterWidth.value = [this._stack.windowCenter, this._stack.windowWidth * 0.8];
     this._uniforms.uRescaleSlopeIntercept.value = [this._stack.rescaleSlope, this._stack.rescaleIntercept];
     this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x,
                                                 this._stack.dimensionsIJK.y,
@@ -75,35 +69,36 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
 
     this._createMaterial({
       side: THREE.FrontSide,
-      transparent: true,
+      transparent: true
     });
+
   }
 
-  _prepareGeometry() {
+  _prepareGeometry(){
     let worldBBox = this._stack.worldBoundingBox();
     let centerLPS = this._stack.worldCenter();
-
+    
     this._geometry = new THREE.BoxGeometry(
       worldBBox[1] - worldBBox[0],
       worldBBox[3] - worldBBox[2],
       worldBBox[5] - worldBBox[4]);
-    this._geometry.applyMatrix(new THREE.Matrix4().makeTranslation(
+    this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation(
       centerLPS.x, centerLPS.y, centerLPS.z));
   }
 
-  get uniforms() {
+  get uniforms(){
     return this._uniforms;
   }
 
-  set uniforms(uniforms) {
+  set uniforms(uniforms){
     this._uniforms = uniforms;
   }
 
-  get stack() {
+  get stack(){
     return this._stack;
   }
 
-  set stack(stack) {
+  set stack(stack){
     this._stack = stack;
   }
 

@@ -1,4 +1,4 @@
-/**
+/** 
  * Validate basic structures.
  *
  * @example
@@ -20,17 +20,19 @@ export default class Validators {
    * @return {boolean} True if valid Matrix4, false if NOT.
    */
   static matrix4(objectToTest) {
+
     if(!(objectToTest !== null &&
        typeof objectToTest !== 'undefined' &&
        objectToTest.hasOwnProperty('elements') &&
        objectToTest.elements.length === 16 &&
        typeof objectToTest.identity === 'function'&&
        typeof objectToTest.copy === 'function' &&
-       typeof objectToTest.determinant === 'function')) {
+       typeof objectToTest.determinant === 'function')){
       return false;
     }
 
     return true;
+
   }
 
   /**
@@ -39,12 +41,13 @@ export default class Validators {
   * @return {boolean} True if valid Vector3, false if NOT.
   */
   static vector3(objectToTest) {
+ 
     if(!(objectToTest !== null &&
        typeof objectToTest !== 'undefined' &&
        objectToTest.hasOwnProperty('x') &&
        objectToTest.hasOwnProperty('y') &&
        objectToTest.hasOwnProperty('z') &&
-       !objectToTest.hasOwnProperty('w'))) {
+       !objectToTest.hasOwnProperty('w'))){
       return false;
     }
 
@@ -53,7 +56,7 @@ export default class Validators {
 
  /**
   * Validates a box.
-  *
+  * 
   * @example
   * // a box is defined as
   * let box = {
@@ -65,6 +68,7 @@ export default class Validators {
   * @return {boolean} True if valid box, false if NOT.
   */
   static box(objectToTest) {
+ 
     if(!(objectToTest !== null &&
        typeof objectToTest !== 'undefined' &&
        objectToTest.hasOwnProperty('center') &&
@@ -73,7 +77,7 @@ export default class Validators {
        this.vector3(objectToTest.halfDimensions) &&
        objectToTest.halfDimensions.x >= 0 &&
        objectToTest.halfDimensions.y >= 0 &&
-       objectToTest.halfDimensions.z >= 0)) {
+       objectToTest.halfDimensions.z >= 0)){
       return false;
     }
 
@@ -82,7 +86,7 @@ export default class Validators {
 
  /**
   * Validates a ray.
-  *
+  * 
   * @example
   * // a ray is defined as
   * let ray = {
@@ -94,12 +98,13 @@ export default class Validators {
   * @return {boolean} True if valid ray, false if NOT.
   */
   static ray(objectToTest) {
+ 
     if(!(objectToTest !== null &&
        typeof objectToTest !== 'undefined' &&
        objectToTest.hasOwnProperty('position') &&
        this.vector3(objectToTest.position) &&
        objectToTest.hasOwnProperty('direction') &&
-       this.vector3(objectToTest.direction))) {
+       this.vector3(objectToTest.direction))){
       return false;
     }
 

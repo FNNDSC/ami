@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cloud.githubusercontent.com/assets/214063/23213764/78ade038-f90c-11e6-8208-4fcade5f3832.png" width="60%">
+  <img src="https://cloud.githubusercontent.com/assets/214063/19763517/a83873fc-9c3e-11e6-8390-229d7749246e.png" width="60%">
 </p>
 
 <p align="center">
@@ -212,9 +212,9 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 |--------------------	|-----------	|-----------------	|------------------------	|
 | ✅ 2D Visulization  	| ✅ Dicom   	| ✅ VTK (THREEJS) 	| 🔶 Handle (2D/3D)      	|
 | ✅ 3D Visualization 	| ✅ NRRD    	| ✅ STL (THREEJS) 	| 🔶 Probe (2D/3D)       	|
-| ✅ Volume Rendering 	| ✅ Nifti  	| 🔶 TRK          	| 🔶 Ruler (2D/3D)       	|
+| ✅ Volume Rendering 	| 🔶 Nifti  	| 🔶 TRK          	| 🔶 Ruler (2D/3D)       	|
 | ✅ Lookup Tables    	| ❌ MGH/MGZ 	| ❌ CURV          	| 🔶 Angle (2D/3D)       	|
-| 🔶 Label Maps        | ❌ JPEG    	| ❌ FSM           	| 🔶 Orientation (2D/3D) 	|
+| 🔶 Label Maps       	| ❌ JPEG    	| ❌ FSM           	| 🔶 Orientation (2D/3D) 	|
 
 ## Usage
 
@@ -247,7 +247,7 @@ Add AMI in your index.html **after** THREEJS.
 ```
 # index.html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ami.js/0.0.12/ami.min.js"></script>
+<script src="https://rawgit.com/FNNDSC/ami/master/dist/ami.js"></script>
 <script src="app.js"></script>
 
 #app.js
@@ -343,3 +343,5 @@ AMI would not exist without them:
 * GZ file decompression
 * Author(s): [nodeca](https://github.com/nodeca)
 
+##### [Clipart Panda](http://www.clipartpanda.com/)
+* [Baby blue dinosaur](http://www.clipartpanda.com/clipart_images/baby-blue-dinosaur-clip-art-37313455)

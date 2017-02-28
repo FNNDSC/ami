@@ -1,17 +1,12 @@
 /* globals Stats, dat, AMI*/
 
-var LoadersVolume = AMI.default.Loaders.Volume;
-var ControlsTrackball = AMI.default.Controls.Trackball;
-var HelpersLut = AMI.default.Helpers.Lut;
-var HelpersVR = AMI.default.Helpers.VolumeRendering;
+var LoadersVolume         = AMI.default.Loaders.Volume;
+var ControlsTrackball     = AMI.default.Controls.Trackball;
+var HelpersLut            = AMI.default.Helpers.Lut;
+var HelpersVR             = AMI.default.Helpers.VolumeRendering;
 
 // standard global letiables
-var controls;
-var threeD;
-var renderer;
-var stats;
-var camera;
-var scene;
+var controls, threeD, renderer, stats, camera, scene;
 var vrHelper;
 var lut;
 var ready = false;
@@ -21,22 +16,16 @@ var myStack = {
   opacity: 'random',
   steps: 256,
   alphaCorrection: 0.5,
-  interpolation: 1,
+  interpolation: 1
 };
 
-/**
- * Handle mouse down event
- */
 function onMouseDown() {
-  if (vrHelper && vrHelper.uniforms) {
+  if (vrHelper &&  vrHelper.uniforms) {
     vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
     vrHelper.interpolation = 0;
   }
 }
 
-/**
- * Handle mouse up event
- */
 function onMouseUp() {
   if (vrHelper && vrHelper.uniforms) {
     vrHelper.uniforms.uSteps.value = myStack.steps;
@@ -44,10 +33,7 @@ function onMouseUp() {
   }
 }
 
-/**
- * Handle window resize event
- */
-function onWindowResize() {
+function onWindowResize(){
   // update the camera
   camera.aspect = threeD.offsetWidth / threeD.offsetHeight;
   camera.updateProjectionMatrix();
@@ -56,19 +42,16 @@ function onWindowResize() {
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
 }
 
-/**
- * Build GUI
- */
 function buildGUI() {
-  var gui = new dat.GUI({
-      autoPlace: false,
+  let gui = new dat.GUI({
+      autoPlace: false
     });
 
-  var customContainer = document.getElementById('my-gui-container');
+  let customContainer = document.getElementById('my-gui-container');
   customContainer.appendChild(gui.domElement);
 
-  var stackFolder = gui.addFolder('Settings');
-  var lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
+  let stackFolder = gui.addFolder('Settings');
+  let lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
   lutUpdate.onChange(function(value) {
       lut.lut = value;
       vrHelper.uniforms.uTextureLUT.value.dispose();
@@ -79,41 +62,35 @@ function buildGUI() {
   vrHelper.uniforms.uTextureLUT.value.dispose();
   vrHelper.uniforms.uTextureLUT.value = lut.texture;
 
-  var opacityUpdate = stackFolder.add(
-    myStack, 'opacity', lut.lutsAvailable('opacity'));
+  let opacityUpdate = stackFolder.add(myStack, 'opacity', lut.lutsAvailable('opacity'));
   opacityUpdate.onChange(function(value) {
       lut.lutO = value;
       vrHelper.uniforms.uTextureLUT.value.dispose();
       vrHelper.uniforms.uTextureLUT.value = lut.texture;
     });
 
-  var stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
+  let stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
   stepsUpdate.onChange(function(value) {
       if (vrHelper.uniforms) {
         vrHelper.uniforms.uSteps.value = value;
       }
     });
 
-  var alphaCorrrectionUpdate = stackFolder.add(
-    myStack, 'alphaCorrection', 0, 1).step(0.01);
+  let alphaCorrrectionUpdate = stackFolder.add(myStack, 'alphaCorrection', 0, 1).step(0.01);
   alphaCorrrectionUpdate.onChange(function(value) {
       if (vrHelper.uniforms) {
         vrHelper.uniforms.uAlphaCorrection.value = value;
       }
     });
 
-  stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
+  let interpolation = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
 
   stackFolder.open();
 }
 
-/**
- * Init the scene
- */
 function init() {
-  /**
-   * Rendering loop
-   */
+
+  // this function is executed on each animation frame
   function animate() {
     // render
     controls.update();
@@ -133,7 +110,7 @@ function init() {
   // renderer
   threeD = document.getElementById('r3d');
   renderer = new THREE.WebGLRenderer({
-    alpha: true,
+    alpha: true
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
   threeD.appendChild(renderer.domElement);
@@ -146,8 +123,7 @@ function init() {
   scene = new THREE.Scene();
 
   // camera
-  camera = new THREE.PerspectiveCamera(
-    45, threeD.offsetWidth / threeD.offsetHeight, 0.1, 100000);
+  camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 0.1, 100000);
   camera.position.x = 150;
   camera.position.y = 400;
   camera.position.z = -350;
@@ -172,17 +148,38 @@ function init() {
 // init threeJS...
 init();
 
-var file =
-  'https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz';
+var files = ['https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz'];
 
 var loader = new LoadersVolume(threeD);
-loader.load(file)
-.then(function() {
-    var series = loader.data[0].mergeSeries(loader.data)[0];
+var seriesContainer = [];
+var loadSequence = [];
+files.forEach((url) => {
+loadSequence.push(
+    Promise.resolve()
+    // fetch the file
+    .then(() => loader.fetch(url))
+    .then((data) => loader.parse(data))
+    .then((series) => {
+    seriesContainer.push(series);
+    })
+    .catch(function(error) {
+    window.console.log('oops... something went wrong...');
+    window.console.log(error);
+    })
+  );
+});
+
+// load sequence for all files
+Promise
+.all(loadSequence)
+.then(() => {
+
     loader.free();
     loader = null;
+
+    let series = seriesContainer[0].mergeSeries(seriesContainer)[0];
     // get first stack from series
-    var stack = series.stack[0];
+    let stack = series.stack[0];
 
     vrHelper = new HelpersVR(stack);
     // scene
@@ -197,7 +194,7 @@ loader.load(file)
     vrHelper.uniforms.uLut.value = 1;
 
     // update camrea's and interactor's target
-    var centerLPS = stack.worldCenter();
+    let centerLPS = stack.worldCenter();
     camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
     camera.updateProjectionMatrix();
     controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
@@ -206,4 +203,5 @@ loader.load(file)
     buildGUI();
 
     ready = true;
+
 });

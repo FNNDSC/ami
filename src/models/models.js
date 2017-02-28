@@ -6,10 +6,10 @@ import Voxel from './models.voxel';
 /**
  * @module models
  */
-
+ 
 export default {
   Frame,
   Stack,
   Series,
-  Voxel,
+  Voxel
 };

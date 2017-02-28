@@ -3,7 +3,7 @@
  * @module shaders/data
  */
 export default class ShadersUniform {
-  static uniforms() {
+  static uniforms(){
     return {
     'uTextureBackTest0': {
         type: 't',
@@ -15,22 +15,22 @@ export default class ShadersUniform {
         value: [],
         typeGLSL: 'sampler2D',
       },
-      'uOpacity0': {
+      'uOpacity0':{
         type: 'f',
         value: 1.0,
         typeGLSL: 'float',
       },
-      'uOpacity1': {
+      'uOpacity1':{
         type: 'f',
         value: 1.0,
         typeGLSL: 'float',
       },
-      'uType0': {
+      'uType0':{
         type: 'i',
         value: 0,
         typeGLSL: 'int',
       },
-      'uType1': {
+      'uType1':{
         type: 'i',
         value: 1,
         typeGLSL: 'int',
@@ -40,11 +40,11 @@ export default class ShadersUniform {
         value: 0,
         typeGLSL: 'int',
       },
-      'uMouse': {
+      'uMouse':{
         type: 'v2',
         value: new THREE.Vector2(),
-        typeGLSL: 'vec2',
-      },
+        typeGLSL: 'vec2'
+      }
     };
   }
 }

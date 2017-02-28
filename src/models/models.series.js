@@ -1,4 +1,4 @@
-/** * Imports ***/
+/*** Imports ***/
 import ModelsBase from '../../src/models/models.base';
 
 /**
@@ -7,26 +7,26 @@ import ModelsBase from '../../src/models/models.base';
  * @module models/series
  */
 
-export default class ModelsSeries extends ModelsBase {
+export default class ModelsSeries extends ModelsBase{
   constructor() {
     super();
 
-    this._concatenationUID = -1;
-    this._seriesInstanceUID = -1;
-    this._seriesNumber = -1;
-    this._modality = 'Modality not set';
+    this._concatenationUID       = -1;
+    this._seriesInstanceUID      = -1;
+    this._seriesNumber           = -1;
+    this._modality               = 'Modality not set';
     this._dimensionIndexSequence = [];
     // it is used in the loader in case a dicom/nifti contains multiple frames
     // should be updated after merge or renamed
-    this._numberOfFrames = 0;
-    this._numberOfChannels = 1;
+    this._numberOfFrames         = 0;
+    this._numberOfChannels       = 1;
 
     // SEGMENTATION STUFF
-    this._segmentationType = null;
-    this._segmentationSegments = [];
+    this._segmentationType       = null;
+    this._segmentationSegments   = [];
 
     // STACK
-    this._stack = [];
+    this._stack                  = [];
   }
 
   /**
@@ -73,7 +73,7 @@ export default class ModelsSeries extends ModelsBase {
    * @override
    */
   merge(series) {
-    if(!this.validate(series)) {
+    if(!this.validate(series)){
       return false;
     }
 
@@ -94,8 +94,8 @@ export default class ModelsSeries extends ModelsBase {
    *
    * @returns {Array.<ModelsSeries>} Array of series properly merged.
    */
-  mergeSeries(target) {
-    let seriesContainer = [this];
+  mergeSeries(target){
+    var seriesContainer = [this];
     this.mergeModels(seriesContainer, target);
     return seriesContainer;
   }

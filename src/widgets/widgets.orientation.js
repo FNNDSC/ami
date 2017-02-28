@@ -1,6 +1,6 @@
 'use strict';
 
-let VJS = VJS || {};
+var VJS = VJS || {};
 VJS.widgets = VJS.widgets || {};
 
 VJS.widgets.orientation = function(parentID, targetCamera, targetControl) {
@@ -15,7 +15,7 @@ VJS.widgets.orientation = function(parentID, targetCamera, targetControl) {
 
     this._Style = {
         width: 200,
-        height: 200,
+        height: 200
     };
 
     this.createDomContainer();
@@ -23,6 +23,7 @@ VJS.widgets.orientation = function(parentID, targetCamera, targetControl) {
 };
 
 VJS.widgets.orientation.prototype.createDomContainer = function() {
+
     // create it
     this._DomElement = document.createElement('div');
     this._DomElement.setAttribute('id', 'VJSOrientation');
@@ -32,13 +33,13 @@ VJS.widgets.orientation.prototype.createDomContainer = function() {
     this._DomElement.style.height = this._Style.height + 'px';
 
     // attach it
-    let parent = document.getElementById(this._ParentId);
+    var parent = document.getElementById(this._ParentId);
     parent.appendChild(this._DomElement);
 };
 
 VJS.widgets.orientation.prototype.setupObject = function() {
     this._Renderer = new THREE.WebGLRenderer({
-        alpha: true,
+        alpha: true
     });
     this._Renderer.setClearColor(0x000000, 0);
     this._Renderer.setSize(this._Style.width, this._Style.height);
@@ -56,6 +57,7 @@ VJS.widgets.orientation.prototype.setupObject = function() {
 };
 
 
+
 VJS.widgets.orientation.prototype.update = function() {
     // call to render!
     this._Camera.position.copy(this._TargetCamera.position);
@@ -67,9 +69,9 @@ VJS.widgets.orientation.prototype.update = function() {
     this._Renderer.render(this._Scene, this._Camera);
 };
 
-/** * Exports ***/
+/*** Exports ***/
 
-let moduleType = typeof module;
+var moduleType = typeof module;
 if ((moduleType !== 'undefined') && module.exports) {
     module.exports = VJS.widgets.orientation;
 }

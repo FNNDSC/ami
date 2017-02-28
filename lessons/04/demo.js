@@ -1,56 +1,45 @@
 /* globals Stats, dat, AMI*/
 
-var LoadersVolume = AMI.default.Loaders.Volume;
-var CamerasOrthographic = AMI.default.Cameras.Orthographic;
-var ControlsOrthographic = AMI.default.Controls.TrackballOrtho;
-var HelpersLut = AMI.default.Helpers.Lut;
-var HelpersStack = AMI.default.Helpers.Stack;
+var LoadersVolume         = AMI.default.Loaders.Volume;
+var CamerasOrthographic   = AMI.default.Cameras.Orthographic;
+var ControlsOrthographic  = AMI.default.Controls.TrackballOrtho;
+var HelpersLut            = AMI.default.Helpers.Lut;
+var HelpersStack          = AMI.default.Helpers.Stack;
 
 // Shaders
 // Data
-var ShadersDataUniforms = AMI.default.Shaders.DataUniform;
-var ShadersDataFragment = AMI.default.Shaders.DataFragment;
-var ShadersDataVertex = AMI.default.Shaders.DataVertex;
+var ShadersDataUniforms   = AMI.default.Shaders.DataUniform;
+var ShadersDataFragment   = AMI.default.Shaders.DataFragment;
+var ShadersDataVertex     = AMI.default.Shaders.DataVertex;
 // Layer
-var ShadersLayerUniforms = AMI.default.Shaders.LayerUniform;
-var ShadersLayerFragment = AMI.default.Shaders.LayerFragment;
-var ShadersLayerVertex = AMI.default.Shaders.LayerVertex;
+var ShadersLayerUniforms  = AMI.default.Shaders.LayerUniform;
+var ShadersLayerFragment  = AMI.default.Shaders.LayerFragment;
+var ShadersLayerVertex    = AMI.default.Shaders.LayerVertex;
 
 // standard global variables
-var controls;
-var renderer;
-var camera;
-var statsyay;
-var threeD;
+var controls, renderer, camera, statsyay, threeD;
 //
-var sceneLayer0TextureTarget;
-var sceneLayer1TextureTarget;
+var sceneLayer0TextureTarget, sceneLayer1TextureTarget;
 //
-var sceneLayer0;
+var scene, sceneLayer0;
 //
 var lutLayer0;
-var sceneLayer1;
-var meshLayer1;
-var uniformsLayer1;
-var materialLayer1;
-var lutLayer1;
-var sceneLayerMix;
-var meshLayerMix;
-var uniformsLayerMix;
-var materialLayerMix;
+var sceneLayer1, meshLayer1, uniformsLayer1, materialLayer1, lutLayer1;
+var sceneLayerMix, meshLayerMix, uniformsLayerMix, materialLayerMix, lutLayerMix;
 
-var layerMix = {
-  opacity1: 1.0,
+var layer1 = {
+  interpolation: 1
 };
 
-/**
- * Init the scene
- */
+var layerMix = {
+  opacity1: 1.0
+};
+
+// FUNCTIONS
 function init() {
-  /**
-   * Animation loop
-   */
+  // this function is executed on each animation frame
   function animate() {
+
     // render
     controls.update();
     // render first layer offscreen
@@ -71,7 +60,7 @@ function init() {
   threeD = document.getElementById('container');
   renderer = new THREE.WebGLRenderer({
     antialias: true,
-    alpha: true,
+    alpha: true
   });
   renderer.setSize(threeD.clientWidth, threeD.clientHeight);
   renderer.setClearColor(0x607D8B, 1);
@@ -83,6 +72,7 @@ function init() {
   threeD.appendChild(statsyay.domElement);
 
   // scene
+  scene = new THREE.Scene();
   sceneLayer0 = new THREE.Scene();
   sceneLayer1 = new THREE.Scene();
   sceneLayerMix = new THREE.Scene();
@@ -93,7 +83,7 @@ function init() {
     threeD.clientHeight,
     {minFilter: THREE.LinearFilter,
      magFilter: THREE.NearestFilter,
-     format: THREE.RGBAFormat,
+     format: THREE.RGBAFormat
   });
 
   sceneLayer1TextureTarget = new THREE.WebGLRenderTarget(
@@ -101,20 +91,16 @@ function init() {
     threeD.clientHeight,
     {minFilter: THREE.LinearFilter,
      magFilter: THREE.NearestFilter,
-     format: THREE.RGBAFormat,
+     format: THREE.RGBAFormat
   });
 
   // camera
-  camera = new CamerasOrthographic(
-    threeD.clientWidth / -2, threeD.clientWidth / 2,
-    threeD.clientHeight / 2, threeD.clientHeight / -2,
-    0.1, 10000);
+  camera = new CamerasOrthographic(threeD.clientWidth / -2, threeD.clientWidth / 2, threeD.clientHeight / 2, threeD.clientHeight / -2, 0.1, 10000);
 
   // controls
   controls = new ControlsOrthographic(camera, threeD);
   controls.staticMoving = true;
   controls.noRotate = true;
-  camera.controls = controls;
 
   animate();
 }
@@ -129,22 +115,19 @@ function init() {
     '000090.dcm', '000042.dcm', '000029.dcm',
     '000239.dcm', '000226.dcm', '000008.dcm',
     '000128.dcm', '000089.dcm', '000254.dcm',
-    '000208.dcm', '000047.dcm', '000067.dcm',
+    '000208.dcm', '000047.dcm', '000067.dcm'
     ];
 
-  var rawgit =
-    'https://cdn.rawgit.com/FNNDSC/data/master/dicom/andrei_abdomen/';
-
   var dataFullPath = data.map(function(v) {
-    return rawgit + 'data/' + v;
+    return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/andrei_abdomen/data/' + v;
   });
 
   var labelmap = [
-    '000000.dcm',
+    '000000.dcm'
   ];
 
   var labelmapFullPath = labelmap.map(function(v) {
-    return rawgit + 'segmentation/' + v;
+    return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/andrei_abdomen/segmentation/' + v;
   });
 
  var files = dataFullPath.concat(labelmapFullPath);
@@ -153,30 +136,53 @@ function init() {
   // instantiate the loader
   // it loads and parses the dicom image
   var loader = new LoadersVolume(threeD);
+  var seriesContainer = [];
+  var loadSequence = [];
+  files.forEach((url) => {
+    loadSequence.push(
+      Promise.resolve()
+      // fetch the file
+      .then(() => loader.fetch(url))
+      .then((data) => loader.parse(data))
+      .then((series) => {
+        seriesContainer.push(series);
+      })
+      .catch(function(error) {
+        window.console.log('oops... something went wrong...');
+        window.console.log(error);
+      })
+    );
+  });
 
-/**
- * Build GUI
- */
 function buildGUI(stackHelper) {
-  /**
-   * Update Layer 1
-   */
-  function updateLayer1() {
+  function updateLayer1(){
     // update layer1 geometry...
     if (meshLayer1) {
+
         // dispose geometry first
         meshLayer1.geometry.dispose();
         meshLayer1.geometry = stackHelper.slice.geometry;
         meshLayer1.geometry.verticesNeedUpdate = true;
+
+      // sceneLayer1.remove(meshLayer1);
+      // meshLayer1.material.dispose();
+      // meshLayer1.material = null;
+      // meshLayer1.geometry.dispose();
+      // meshLayer1.geometry = null;
+
+      // // add mesh in this scene with right shaders...
+      // meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
+      // // go the LPS space
+      // meshLayer1.applyMatrix(stackHelper.stack._ijk2LPS);
+
+      // sceneLayer1.add(meshLayer1);
     }
   }
 
-  /**
-   * Update layer mix
-   */
-  function updateLayerMix() {
+  function updateLayerMix(){
     // update layer1 geometry...
     if (meshLayerMix) {
+
       sceneLayerMix.remove(meshLayerMix);
       meshLayerMix.material.dispose();
       meshLayerMix.material = null;
@@ -184,8 +190,7 @@ function buildGUI(stackHelper) {
       meshLayerMix.geometry = null;
 
       // add mesh in this scene with right shaders...
-      meshLayerMix = new THREE.Mesh(
-        stackHelper.slice.geometry, materialLayerMix);
+      meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
       // go the LPS space
       meshLayerMix.applyMatrix(stackHelper.stack._ijk2LPS);
 
@@ -196,7 +201,7 @@ function buildGUI(stackHelper) {
   var stack = stackHelper.stack;
 
   var gui = new dat.GUI({
-          autoPlace: false,
+          autoPlace: false
         });
 
   var customContainer = document.getElementById('my-gui-container');
@@ -205,30 +210,26 @@ function buildGUI(stackHelper) {
   var layer0Folder = gui.addFolder('CT');
   layer0Folder.add(stackHelper.slice, 'invert');
 
-  var lutUpdate = layer0Folder.add(
-    stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
+  var lutUpdate = layer0Folder.add(stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
   lutUpdate.onChange(function(value) {
     lutLayer0.lut = value;
     stackHelper.slice.lutTexture = lutLayer0.texture;
   });
 
-  var indexUpdate = layer0Folder.add(
-    stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
-  indexUpdate.onChange(function() {
+  var indexUpdate = layer0Folder.add(stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
+  indexUpdate.onChange(function(){
     updateLayer1();
     updateLayerMix();
   });
 
-  layer0Folder.add(
-    stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
+  layer0Folder.add(stackHelper.slice, 'interpolation', 0, 1 ).step( 1 ).listen();
 
   layer0Folder.open();
 
   // layer mix folder
   var layerMixFolder = gui.addFolder('Segmentation');
-  var opacityLayerMix1 = layerMixFolder.add(
-    layerMix, 'opacity1', 0, 1).step(0.01);
-  opacityLayerMix1.onChange(function(value) {
+  var opacityLayerMix1 = layerMixFolder.add(layerMix, 'opacity1', 0, 1).step(0.01);
+  opacityLayerMix1.onChange(function(value){
     uniformsLayerMix.uOpacity1.value = value;
   });
 
@@ -255,14 +256,11 @@ function buildGUI(stackHelper) {
   updateLayer1();
   updateLayerMix();
 
-  /**
-   * Handle window resize
-   */
   function onWindowResize() {
     var threeD = document.getElementById('container');
     camera.canvas = {
       width: threeD.clientWidth,
-      height: threeD.clientHeight,
+      height: threeD.clientHeight
     };
     camera.fitBox(2);
 
@@ -272,22 +270,21 @@ function buildGUI(stackHelper) {
   onWindowResize();
 }
 
-/**
- * Handle series
- */
 function handleSeries() {
+  loader.free();
+  loader = null;
   //
   //
   // first stack of first series
-  var mergedSeries = loader.data[0].mergeSeries(loader.data);
-  var stack = mergedSeries[0].stack[0];
+  var mergedSeries = seriesContainer[0].mergeSeries(seriesContainer);
+  var stack  = mergedSeries[0].stack[0];
   var stack2 = mergedSeries[1].stack[0];
-  loader.free();
-  loader = null;
 
-  if(stack.modality === 'SEG') {
-    stack = mergedSeries[0].stack[0];
+  if(stack.modality === 'SEG'){
+
+    stack  = mergedSeries[0].stack[0];
     stack2 = mergedSeries[1].stack[0];
+
   }
 
   var stackHelper = new HelpersStack(stack);
@@ -330,21 +327,19 @@ function handleSeries() {
   }
 
   // create material && mesh then add it to sceneLayer1
-  uniformsLayer1 = ShadersDataUniforms.uniforms();
-  uniformsLayer1.uTextureSize.value = stack2.textureSize;
-  uniformsLayer1.uTextureContainer.value = textures2;
-  uniformsLayer1.uWorldToData.value = stack2.lps2IJK;
-  uniformsLayer1.uNumberOfChannels.value = stack2.numberOfChannels;
-  uniformsLayer1.uPixelType.value = stack2.pixelType;
-  uniformsLayer1.uBitsAllocated.value = stack2.bitsAllocated;
-  uniformsLayer1.uWindowCenterWidth.value =
-    [stack2.windowCenter, stack2.windowWidth];
-  uniformsLayer1.uRescaleSlopeIntercept.value =
-    [stack2.rescaleSlope, stack2.rescaleIntercept];
-  uniformsLayer1.uDataDimensions.value = [stack2.dimensionsIJK.x,
-                                          stack2.dimensionsIJK.y,
-                                          stack2.dimensionsIJK.z];
-  uniformsLayer1.uInterpolation.value = 0;
+  uniformsLayer1                              = ShadersDataUniforms.uniforms();
+  uniformsLayer1.uTextureSize.value           = stack2.textureSize;
+  uniformsLayer1.uTextureContainer.value      = textures2;
+  uniformsLayer1.uWorldToData.value           = stack2.lps2IJK;
+  uniformsLayer1.uNumberOfChannels.value      = stack2.numberOfChannels;
+  uniformsLayer1.uPixelType.value             = stack2.pixelType;
+  uniformsLayer1.uBitsAllocated.value         = stack2.bitsAllocated;
+  uniformsLayer1.uWindowCenterWidth.value     = [stack2.windowCenter, stack2.windowWidth];
+  uniformsLayer1.uRescaleSlopeIntercept.value = [stack2.rescaleSlope, stack2.rescaleIntercept];
+  uniformsLayer1.uDataDimensions.value        = [stack2.dimensionsIJK.x,
+                                              stack2.dimensionsIJK.y,
+                                              stack2.dimensionsIJK.z];
+  uniformsLayer1.uInterpolation.value         = 0;
 
   // generate shaders on-demand!
   var fs = new ShadersDataFragment(uniformsLayer1);
@@ -353,7 +348,7 @@ function handleSeries() {
     {side: THREE.DoubleSide,
     uniforms: uniformsLayer1,
     vertexShader: vs.compute(),
-    fragmentShader: fs.compute(),
+    fragmentShader: fs.compute()
   });
 
   // add mesh in this scene with right shaders...
@@ -374,7 +369,7 @@ function handleSeries() {
     uniforms: uniformsLayerMix,
     vertexShader: vls.compute(),
     fragmentShader: fls.compute(),
-    transparent: true,
+    transparent: true
   });
 
   // add mesh in this scene with right shaders...
@@ -393,21 +388,17 @@ function handleSeries() {
   );
 
   // box: {halfDimensions, center}
-  var box = {
+  var bbox = {
     center: stack.worldCenter().clone(),
-    halfDimensions:
-      new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+    halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10)
   };
 
   // init and zoom
   var canvas = {
       width: threeD.clientWidth,
-      height: threeD.clientHeight,
+      height: threeD.clientHeight
     };
-  camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
-  camera.box = box;
-  camera.canvas = canvas;
-  camera.update();
+  camera.init(stack.xCosine, stack.yCosine, stack.zCosine, controls, bbox, canvas, stack.referenceSpace);
   camera.fitBox(2);
 
   // CREATE LUT
@@ -432,11 +423,12 @@ function handleSeries() {
   buildGUI(stackHelper);
 }
 
-loader.load(files)
-.then(function() {
+Promise
+  .all(loadSequence)
+  .then(function() {
     handleSeries();
-})
-.catch(function(error) {
+  })
+  .catch(function(error) {
     window.console.log('oops... something went wrong...');
     window.console.log(error);
-});
+  });
