@@ -56,7 +56,6 @@ export default class ModelsStack extends ModelsBase {
 
     // TRANSFORMATION MATRICES
     this._regMatrix = new THREE.Matrix4();
-	this._regMatrix.identity();
 	
     this._ijk2LPS = null;
     this._lps2IJK = null;
