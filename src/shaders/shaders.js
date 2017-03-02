@@ -10,12 +10,15 @@ import LayerUniform from './shaders.layer.uniform';
 import LayerFragment from './shaders.layer.fragment';
 import LayerVertex from './shaders.layer.vertex';
 
+import LocalizerUniform from './shaders.localizer.uniform';
+import LocalizerFragment from './shaders.localizer.fragment';
+import LocalizerVertex from './shaders.localizer.vertex';
+
 /**
  * @module shaders
  */
 
 export default {
-
   DataUniform,
   DataFragment,
   DataVertex,
@@ -28,4 +31,7 @@ export default {
   LayerFragment,
   LayerVertex,
 
+  LocalizerUniform,
+  LocalizerFragment,
+  LocalizerVertex,
 };

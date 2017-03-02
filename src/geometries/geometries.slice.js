@@ -179,7 +179,15 @@ export default class GeometriesSlice extends THREE.ShapeGeometry {
       return a.angle - b.angle;
     });
 
-    return orderedpoints;
+    let noDups = [orderedpoints[0]];
+    let epsilon = 0.0001;
+    for(let i=1; i<orderedpoints.length; i++) {
+      if(Math.abs(orderedpoints[i-1].angle - orderedpoints[i].angle) > epsilon) {
+        noDups.push(orderedpoints[i]);
+      }
+    }
+
+    return noDups;
   }
 
 }

@@ -303,9 +303,9 @@ window.onload = function() {
     // set camera
     let worldbb = stack.worldBoundingBox();
     let lpsDims = new THREE.Vector3(
-      worldbb[1] - worldbb[0],
-      worldbb[3] - worldbb[2],
-      worldbb[5] - worldbb[4]
+      (worldbb[1] - worldbb[0])/2,
+      (worldbb[3] - worldbb[2])/2,
+      (worldbb[5] - worldbb[4])/2
     );
 
     // box: {halfDimensions, center}
