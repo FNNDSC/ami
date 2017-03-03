@@ -1,5 +1,6 @@
 import Border from './helpers.border';
 import BoundingBox from './helpers.boundingbox';
+import Localizer from './helpers.localizer';
 import Lut from './helpers.lut';
 import ProgressBar from './helpers.progressbar';
 import Slice from './helpers.slice';
@@ -15,6 +16,7 @@ import X from './x/helpers.x';
 export default {
   Border,
   BoundingBox,
+  Localizer,
   Lut,
   ProgressBar,
   Slice,

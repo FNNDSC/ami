@@ -3,16 +3,11 @@
 import CamerasOrthographic from '../../src/cameras/cameras.orthographic';
 import ControlsOrthographic from '../../src/controls/controls.trackballortho';
 import ControlsTrackball from '../../src/controls/controls.trackball';
+import HelpersBoundingBox from '../../src/helpers/helpers.boundingbox';
+import HelpersLocalizer from '../../src/helpers/helpers.localizer';
 import HelpersStack from '../../src/helpers/helpers.stack';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 import ModelsStack from '../../src/models/models.stack';
-
-import ShadersLocalizerUniform from
-  '../../src/shaders/shaders.localizer.uniform';
-import ShadersLocalizerVertex from
-  '../../src/shaders/shaders.localizer.vertex';
-import ShadersLocalizerFragment from
-  '../../src/shaders/shaders.localizer.fragment';
 
 // standard global variables
 // CREATE RENDERER 0
@@ -38,6 +33,9 @@ let r1 = {
   controls: null,
   scene: null,
   light: null,
+  stackHelper: null,
+  localizerHelper: null,
+  localizerScene: null,
 };
 
 let r2 = {
@@ -50,6 +48,9 @@ let r2 = {
   controls: null,
   scene: null,
   light: null,
+  stackHelper: null,
+  localizerHelper: null,
+  localizerScene: null,
 };
 
 let r3 = {
@@ -62,28 +63,13 @@ let r3 = {
   controls: null,
   scene: null,
   light: null,
+  stackHelper: null,
+  localizerHelper: null,
+  localizerScene: null,
 };
 
 let stats;
 let ready = false;
-let stackHelper1;
-let stackHelper2;
-let stackHelper3;
-
-let localizer3Material;
-let localizer3Mesh;
-let localizer3Scene;
-let localizer3Uniforms;
-
-let localizer1Material;
-let localizer1Mesh;
-let localizer1Scene;
-let localizer1Uniforms;
-
-let localizer2Material;
-let localizer2Mesh;
-let localizer2Scene;
-let localizer2Uniforms;
 
 let dataInfo = [
     ['adi1', {
@@ -123,6 +109,7 @@ let clipPlane2 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
 let clipPlane3 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
 
 function initRenderer3D(renderObj) {
+  // renderer
   renderObj.domElement = document.getElementById(renderObj.domId);
   renderObj.renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -145,14 +132,6 @@ function initRenderer3D(renderObj) {
   renderObj.camera.position.y = 250;
   renderObj.camera.position.z = 250;
 
-  // scene 0
-  renderObj.scene = new THREE.Scene();
-
-  // light0
-  renderObj.light = new THREE.DirectionalLight(0xffffff, 1);
-  renderObj.light.position.copy(renderObj.camera.position);
-  renderObj.scene.add(renderObj.light);
-
   // controls
   renderObj.controls = new ControlsTrackball(
     renderObj.camera, renderObj.domElement);
@@ -161,12 +140,18 @@ function initRenderer3D(renderObj) {
   renderObj.controls.panSpeed = 0.8;
   renderObj.controls.staticMoving = true;
   renderObj.controls.dynamicDampingFactor = 0.3;
+
+  // scene
+  renderObj.scene = new THREE.Scene();
+
+  // light
+  renderObj.light = new THREE.DirectionalLight(0xffffff, 1);
+  renderObj.light.position.copy(renderObj.camera.position);
+  renderObj.scene.add(renderObj.light);
 }
 
 function initRenderer2D(rendererObj) {
-  //
-  // CREATE RENDERER 1
-  // RED
+  // renderer
   rendererObj.domElement = document.getElementById(rendererObj.domId);
   rendererObj.renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -178,6 +163,7 @@ function initRenderer2D(rendererObj) {
   rendererObj.renderer.setClearColor(0x121212, 1);
   rendererObj.renderer.domElement.id = rendererObj.targetID;
   rendererObj.domElement.appendChild(rendererObj.renderer.domElement);
+
   // camera
   rendererObj.camera = new CamerasOrthographic(
     rendererObj.domElement.clientWidth / -2,
@@ -185,14 +171,71 @@ function initRenderer2D(rendererObj) {
     rendererObj.domElement.clientHeight / 2,
     rendererObj.domElement.clientHeight / -2,
     1, 1000);
-  // scene 1
-  rendererObj.scene = new THREE.Scene();
+
   // controls
   rendererObj.controls = new ControlsOrthographic(
     rendererObj.camera, rendererObj.domElement);
   rendererObj.controls.staticMoving = true;
   rendererObj.controls.noRotate = true;
   rendererObj.camera.controls = rendererObj.controls;
+
+  // scene
+  rendererObj.scene = new THREE.Scene();
+}
+
+function initHelpersStack(rendererObj, stack, orientation, color, direction) {
+    rendererObj.stackHelper = new HelpersStack(stack);
+    rendererObj.stackHelper.orientation = orientation;
+    rendererObj.stackHelper.bbox.visible = false;
+    rendererObj.stackHelper.borderColor = color;
+    rendererObj.stackHelper.slice.canvasWidth =
+      rendererObj.domElement.clientWidth;
+    rendererObj.stackHelper.slice.canvasHeight =
+      rendererObj.domElement.clientHeight;
+
+    rendererObj.scene.add(rendererObj.stackHelper);
+
+    // set camera
+    let worldbb = stack.worldBoundingBox();
+    let lpsDims = new THREE.Vector3(
+      worldbb[1] - worldbb[0],
+      worldbb[3] - worldbb[2],
+      worldbb[5] - worldbb[4]
+    );
+    let bbox = {
+      center: stack.worldCenter().clone(),
+      halfDimensions:
+        new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+    };
+
+    // init and zoom
+    let canvas = {
+        width: rendererObj.domElement.clientWidth,
+        height: rendererObj.domElement.clientHeight,
+      };
+    rendererObj.camera.directions = direction;
+    rendererObj.camera.box = bbox;
+    rendererObj.camera.canvas = canvas;
+    rendererObj.camera.update();
+    rendererObj.camera.fitBox(2);
+}
+
+function initHelpersLocalizer(rendererObj, stack, referencePlane, localizers) {
+    rendererObj.localizerHelper = new HelpersLocalizer(
+      stack, rendererObj.stackHelper.slice.geometry, referencePlane);
+
+    for(let i = 0; i < localizers.length; i++) {
+      rendererObj.localizerHelper['plane' + (i + 1)] = localizers[i].plane;
+      rendererObj.localizerHelper['color' + (i + 1)] = localizers[i].color;
+    }
+
+    rendererObj.localizerHelper.canvasWidth =
+      rendererObj.domElement.clientWidth;
+    rendererObj.localizerHelper.canvasHeight =
+      rendererObj.domElement.clientHeight;
+
+    rendererObj.localizerScene = new THREE.Scene();
+    rendererObj.localizerScene.add(rendererObj.localizerHelper);
 }
 
 /**
@@ -225,7 +268,7 @@ function init() {
       r1.renderer.render(sceneClip, r1.camera);
       // localizer
       r1.renderer.clearDepth();
-      r1.renderer.render(localizer1Scene, r1.camera);
+      r1.renderer.render(r1.localizerScene, r1.camera);
 
       // r2
       r2.renderer.clear();
@@ -239,7 +282,7 @@ function init() {
       r2.renderer.render(sceneClip, r2.camera);
       // localizer
       r2.renderer.clearDepth();
-      r2.renderer.render(localizer2Scene, r2.camera);
+      r2.renderer.render(r2.localizerScene, r2.camera);
 
       // r3
       r3.renderer.clear();
@@ -253,7 +296,7 @@ function init() {
       r3.renderer.render(sceneClip, r3.camera);
       // localizer
       r3.renderer.clearDepth();
-      r3.renderer.render(localizer3Scene, r3.camera);
+      r3.renderer.render(r3.localizerScene, r3.camera);
     }
 
     stats.update();
@@ -309,38 +352,59 @@ window.onload = function() {
     let stack = series.stack[0];
     stack.prepare();
 
-    //
-    // CREATE THE BOUNDING BOX
-    //
-
-    // box geometry
-    let boxGeometry = new THREE.BoxGeometry(
-      stack.dimensionsIJK.x,
-      stack.dimensionsIJK.y,
-      stack.dimensionsIJK.z
-      );
-
-    // we use this offsect to center the first voxel on (0, 0, 0)
-    // in IJK space (is it correct?)
-    let offset = new THREE.Vector3(-0.5, -0.5, -0.5);
-
-    // box is centered on 0,0,0
-    // we want first voxel of the box to be centered on 0,0,0
-    // in IJK space
-    boxGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(
-      stack.halfDimensionsIJK.x + offset.x,
-      stack.halfDimensionsIJK.y + offset.y,
-      stack.halfDimensionsIJK.z + offset.z)
-    );
-
-    // scene
-    let boxMaterial = new THREE.MeshBasicMaterial({
-      color: 0xFFFFFF,
-    });
-    let boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-    boxMesh.applyMatrix(stack.ijk2LPS);
-    let boxHelper = new THREE.BoxHelper(boxMesh, 0xffffff);
+    // bouding box
+    let boxHelper = new HelpersBoundingBox(stack);
     r0.scene.add(boxHelper);
+
+    // red slice
+    initHelpersStack(
+      r1, stack, 2, 0xFF1744, [stack.zCosine, stack.xCosine, stack.yCosine]);
+    r0.scene.add(r1.scene);
+
+    // yellow slice
+    initHelpersStack(
+      r2, stack, 1, 0xFFEA00, [stack.zCosine, stack.yCosine, stack.xCosine]);
+    r0.scene.add(r2.scene);
+
+    // Fill renderer 4
+    initHelpersStack(
+      r3, stack, 0, 0x76FF03, [stack.xCosine, stack.yCosine, stack.zCosine]);
+    r0.scene.add(r3.scene);
+
+    // create new mesh with Localizer shaders
+    let plane1 = r1.stackHelper.slice.cartesianEquation();
+    let plane2 = r2.stackHelper.slice.cartesianEquation();
+    let plane3 = r3.stackHelper.slice.cartesianEquation();
+
+    // localizer 1
+    initHelpersLocalizer(r1, stack, plane1, [
+      {plane: plane2,
+       color: new THREE.Color(r2.stackHelper.borderColor),
+      },
+      {plane: plane3,
+       color: new THREE.Color(r3.stackHelper.borderColor),
+      },
+    ]);
+
+    // localizer 2
+    initHelpersLocalizer(r2, stack, plane2, [
+      {plane: plane1,
+       color: new THREE.Color(r1.stackHelper.borderColor),
+      },
+      {plane: plane3,
+       color: new THREE.Color(r3.stackHelper.borderColor),
+      },
+    ]);
+
+    // localizer 3
+    initHelpersLocalizer(r3, stack, plane3, [
+      {plane: plane1,
+       color: new THREE.Color(r1.stackHelper.borderColor),
+      },
+      {plane: plane2,
+       color: new THREE.Color(r2.stackHelper.borderColor),
+      },
+    ]);
 
     // update camrea's and interactor's target
     let centerLPS = stack.worldCenter();
@@ -348,185 +412,6 @@ window.onload = function() {
     r0.camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
     r0.camera.updateProjectionMatrix();
     r0.controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
-
-    // Fill renderer 2
-    // RED
-    stackHelper1 = new HelpersStack(stack);
-    stackHelper1.orientation = 2;
-    stackHelper1.bbox.visible = false;
-    stackHelper1.borderColor = 0xFF1744;
-    stackHelper1.slice.canvasWidth = r1.domElement.clientWidth;
-    stackHelper1.slice.canvasHeight = r1.domElement.clientHeight;
-    // scene
-    r1.scene.add(stackHelper1);
-    r0.scene.add(r1.scene);
-
-    // Fill renderer 3
-    stackHelper2 = new HelpersStack(stack);
-    stackHelper2.orientation = 1;
-    stackHelper2.bbox.visible = false;
-    stackHelper2.borderColor = 0xFFEA00;
-    stackHelper2.slice.canvasWidth = r2.domElement.clientWidth;
-    stackHelper2.slice.canvasHeight = r2.domElement.clientHeight;
-    // scene
-    r2.scene.add(stackHelper2);
-    r0.scene.add(r2.scene);
-
-    // Fill renderer 4
-    stackHelper3 = new HelpersStack(stack);
-    stackHelper3.orientation = 0;
-    stackHelper3.bbox.visible = false;
-    stackHelper3.borderColor = 0x76FF03;
-    stackHelper3.slice.canvasWidth = r3.domElement.clientWidth;
-    stackHelper3.slice.canvasHeight = r3.domElement.clientHeight;
-    // scene
-    r3.scene.add(stackHelper3);
-    r0.scene.add(r3.scene);
-
-    // create new mesh with Localizer shaders
-    let plane1 = stackHelper1.slice.cartesianEquation();
-    let plane2 = stackHelper2.slice.cartesianEquation();
-    let plane3 = stackHelper3.slice.cartesianEquation();
-
-    // localizer material
-    localizer1Uniforms = ShadersLocalizerUniform.uniforms();
-    // l2
-    localizer1Uniforms.uPlane2.value = plane2;
-    localizer1Uniforms.uPlaneColor2.value =
-      new THREE.Color(stackHelper2.borderColor);
-    // l3
-    localizer1Uniforms.uPlane3.value = plane3;
-    localizer1Uniforms.uPlaneColor3.value =
-      new THREE.Color(stackHelper3.borderColor);
-    // ref
-    localizer1Uniforms.uSlice.value = plane1;
-    // update info to draw borders properly
-    localizer1Uniforms.uCanvasWidth.value = r1.domElement.clientWidth;
-    localizer1Uniforms.uCanvasHeight.value = r1.domElement.clientHeight;
-    // generate shaders on-demand!
-    let fs1 = new ShadersLocalizerFragment(localizer1Uniforms);
-    let vs1 = new ShadersLocalizerVertex();
-    localizer1Material = new THREE.ShaderMaterial(
-      {side: THREE.DoubleSide,
-      uniforms: localizer1Uniforms,
-      vertexShader: vs1.compute(),
-      fragmentShader: fs1.compute(),
-    });
-    localizer1Material.transparent = true;
-    localizer1Mesh = new THREE.Mesh(
-      stackHelper1.slice.geometry, localizer1Material);
-    localizer1Mesh.applyMatrix(stackHelper1.stack._ijk2LPS);
-    localizer1Scene = new THREE.Scene();
-    localizer1Scene.add(localizer1Mesh);
-
-    // localizer material
-    localizer2Uniforms = ShadersLocalizerUniform.uniforms();
-    // l1
-    localizer2Uniforms.uPlane1.value = plane1;
-    localizer2Uniforms.uPlaneColor1.value =
-      new THREE.Color(stackHelper1.borderColor);
-    // l2
-    localizer2Uniforms.uPlane3.value = plane3;
-    localizer2Uniforms.uPlaneColor3.value =
-      new THREE.Color(stackHelper3.borderColor);
-    // ref
-    localizer2Uniforms.uSlice.value = plane1;
-    // update info to draw borders properly
-    localizer2Uniforms.uCanvasWidth.value = r2.domElement.clientWidth;
-    localizer2Uniforms.uCanvasHeight.value = r2.domElement.clientHeight;
-    // generate shaders on-demand!
-    let fs2 = new ShadersLocalizerFragment(localizer2Uniforms);
-    let vs2 = new ShadersLocalizerVertex();
-    localizer2Material = new THREE.ShaderMaterial(
-      {side: THREE.DoubleSide,
-      uniforms: localizer2Uniforms,
-      vertexShader: vs2.compute(),
-      fragmentShader: fs2.compute(),
-    });
-    localizer2Material.transparent = true;
-    localizer2Mesh = new THREE.Mesh(
-      stackHelper2.slice.geometry, localizer2Material);
-    localizer2Mesh.applyMatrix(stackHelper2.stack._ijk2LPS);
-    localizer2Scene = new THREE.Scene();
-    localizer2Scene.add(localizer2Mesh);
-
-    // localizer material
-    localizer3Uniforms = ShadersLocalizerUniform.uniforms();
-    // l1
-    localizer3Uniforms.uPlane1.value = plane1;
-    localizer3Uniforms.uPlaneColor1.value =
-      new THREE.Color(stackHelper1.borderColor);
-    // l2
-    localizer3Uniforms.uPlane2.value = plane2;
-    localizer3Uniforms.uPlaneColor2.value =
-      new THREE.Color(stackHelper2.borderColor);
-    // ref
-    localizer3Uniforms.uSlice.value = plane3;
-    // update info to draw borders properly
-    localizer3Uniforms.uCanvasWidth.value = r3.domElement.clientWidth;
-    localizer3Uniforms.uCanvasHeight.value = r3.domElement.clientHeight;
-    // generate shaders on-demand!
-    let fs3 = new ShadersLocalizerFragment(localizer3Uniforms);
-    let vs3 = new ShadersLocalizerVertex();
-    localizer3Material = new THREE.ShaderMaterial(
-      {side: THREE.DoubleSide,
-      uniforms: localizer3Uniforms,
-      vertexShader: vs3.compute(),
-      fragmentShader: fs3.compute(),
-    });
-    localizer3Material.transparent = true;
-    localizer3Mesh = new THREE.Mesh(
-      stackHelper3.slice.geometry, localizer3Material);
-    localizer3Mesh.applyMatrix(stackHelper3.stack._ijk2LPS);
-    localizer3Scene = new THREE.Scene();
-    localizer3Scene.add(localizer3Mesh);
-
-    //
-    // set camera
-    let worldbb = stack.worldBoundingBox();
-    let lpsDims = new THREE.Vector3(
-      worldbb[1] - worldbb[0],
-      worldbb[3] - worldbb[2],
-      worldbb[5] - worldbb[4]
-    );
-
-    // box: {halfDimensions, center}
-    let bbox = {
-      center: stack.worldCenter().clone(),
-      halfDimensions:
-        new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
-    };
-
-    // init and zoom
-    let canvas1 = {
-        width: r1.domElement.clientWidth,
-        height: r1.domElement.clientHeight,
-      };
-    r1.camera.directions = [stack.zCosine, stack.xCosine, stack.yCosine];
-    r1.camera.box = bbox;
-    r1.camera.canvas = canvas1;
-    r1.camera.update();
-    r1.camera.fitBox(2);
-
-    let canvas2 = {
-        width: r2.domElement.clientWidth,
-        height: r2.domElement.clientHeight,
-      };
-    r2.camera.directions = [stack.zCosine, stack.yCosine, stack.xCosine];
-    r2.camera.box = bbox;
-    r2.camera.canvas = canvas2;
-    r2.camera.update();
-    r2.camera.fitBox(2);
-
-    let canvas3 = {
-        width: r3.domElement.clientWidth,
-        height: r3.domElement.clientHeight,
-      };
-    r3.camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
-    r3.camera.box = bbox;
-    r3.camera.canvas = canvas3;
-    r3.camera.update();
-    r3.camera.fitBox(2);
 
     let gui = new dat.GUI({
             autoPlace: false,
@@ -536,29 +421,39 @@ window.onload = function() {
     customContainer.appendChild(gui.domElement);
     let stackFolder1 = gui.addFolder('Red');
     let redChanged = stackFolder1.add(
-      stackHelper1, 'index', 0, stack.dimensionsIJK.y - 1).step(1);
+      r1.stackHelper, 'index', 0, stack.dimensionsIJK.y - 1).step(1);
     let stackFolder2 = gui.addFolder('Yellow');
     let yellowChanged = stackFolder2.add(
-      stackHelper2, 'index', 0, stack.dimensionsIJK.x - 1).step(1);
+      r2.stackHelper, 'index', 0, stack.dimensionsIJK.x - 1).step(1);
     let stackFolder3 = gui.addFolder('Green');
     let greenChanged = stackFolder3.add(
-      stackHelper3, 'index', 0, stack.dimensionsIJK.z - 1).step(1);
+      r3.stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1);
 
 
     /**
      * Update Layer Mix
      */
-    function updateLocalizer(
-      refHelper, refLocalizerUniforms, index, targetLocalizersUniforms) {
+    function updateLocalizer(refObj, targetLocalizersHelpers) {
+      let refHelper = refObj.stackHelper;
+      let localizerHelper = refObj.localizerHelper;
       let plane = refHelper.slice.cartesianEquation();
-      refLocalizerUniforms.uSlice.value = plane;
+      localizerHelper.referencePlane = plane;
 
-      // update targets
-      for(let i = 0; i < targetLocalizersUniforms.length; i++) {
-        targetLocalizersUniforms[i]['uPlane' + index].value = plane;
+      // bit of a hack... works fine for this application
+      for(let i = 0; i < targetLocalizersHelpers.length; i++) {
+        for(let j = 0; j < 4; j++) {
+          let targetPlane = targetLocalizersHelpers[i]['plane' + (j + 1)];
+          if(targetPlane &&
+             plane.x === targetPlane.x &&
+             plane.y === targetPlane.y &&
+             plane.z === targetPlane.z) {
+            targetLocalizersHelpers[i]['plane' + (j + 1)] = plane;
+          }
+        }
       }
 
-      // mesh geometry should be updated too...
+      // update the geometry will create a new mesh
+      localizerHelper.geometry = refHelper.slice.geometry;
     }
 
     function updateClipPlane(stackH, clipPlane, camera) {
@@ -581,28 +476,22 @@ window.onload = function() {
     }
 
     function onYellowChanged() {
-      updateLocalizer(stackHelper2, localizer2Uniforms,
-      2,
-      [localizer1Uniforms, localizer3Uniforms]);
-      updateClipPlane(stackHelper2, clipPlane2, r2.camera);
+      updateLocalizer(r2, [r1.localizerHelper, r3.localizerHelper]);
+      updateClipPlane(r2.stackHelper, clipPlane2, r2.camera);
     }
 
     yellowChanged.onChange(onYellowChanged);
 
     function onRedChanged() {
-      updateLocalizer(stackHelper1, localizer1Uniforms,
-      1,
-      [localizer2Uniforms, localizer3Uniforms]);
-      updateClipPlane(stackHelper1, clipPlane1, r1.camera);
+      updateLocalizer(r1, [r2.localizerHelper, r3.localizerHelper]);
+      updateClipPlane(r1.stackHelper, clipPlane1, r1.camera);
     }
 
     redChanged.onChange(onRedChanged);
 
     function onGreenChanged() {
-      updateLocalizer(stackHelper3, localizer3Uniforms,
-      3,
-      [localizer1Uniforms, localizer2Uniforms]);
-      updateClipPlane(stackHelper3, clipPlane3, r3.camera);
+      updateLocalizer(r3, [r1.localizerHelper, r2.localizerHelper]);
+      updateClipPlane(r3.stackHelper, clipPlane3, r3.camera);
     }
 
     greenChanged.onChange(onGreenChanged);
@@ -621,22 +510,22 @@ window.onload = function() {
       switch(id) {
         case '0':
           camera = r0.camera;
-          stackHelper = stackHelper1;
+          stackHelper = r1.stackHelper;
           scene = r0.scene;
           break;
         case '1':
           camera = r1.camera;
-          stackHelper = stackHelper1;
+          stackHelper = r1.stackHelper;
           scene = r1.scene;
           break;
         case '2':
           camera = r2.camera;
-          stackHelper = stackHelper2;
+          stackHelper = r2.stackHelper;
           scene = r2.scene;
           break;
         case '3':
           camera = r3.camera;
-          stackHelper = stackHelper3;
+          stackHelper = r3.stackHelper;
           scene = r3.scene;
           break;
       }
@@ -648,9 +537,9 @@ window.onload = function() {
       if(intersects.length > 0) {
         let ijk =
           ModelsStack.worldToData(stackHelper.stack, intersects[0].point);
-        stackHelper1.index = ijk.y;
-        stackHelper2.index = ijk.x;
-        stackHelper3.index = ijk.z;
+        r1.stackHelper.index = ijk.y;
+        r2.stackHelper.index = ijk.x;
+        r3.stackHelper.index = ijk.z;
 
         onGreenChanged();
         onRedChanged();
@@ -668,7 +557,6 @@ window.onload = function() {
     function loadSTLObject(object) {
       const stlLoader = new THREE.STLLoader();
       stlLoader.load(object.location, function(geometry) {
-
           // 3D mesh
           object.material = new THREE.MeshLambertMaterial({
             opacity: object.opacity,
