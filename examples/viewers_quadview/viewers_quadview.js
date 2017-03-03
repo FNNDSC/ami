@@ -243,7 +243,7 @@ function initHelpersLocalizer(rendererObj, stack, referencePlane, localizers) {
     rendererObj.localizerHelper = new HelpersLocalizer(
       stack, rendererObj.stackHelper.slice.geometry, referencePlane);
 
-    for(let i = 0; i < localizers.length; i++) {
+    for (let i = 0; i < localizers.length; i++) {
       rendererObj.localizerHelper['plane' + (i + 1)] = localizers[i].plane;
       rendererObj.localizerHelper['color' + (i + 1)] = localizers[i].color;
     }
@@ -436,13 +436,16 @@ window.onload = function() {
     customContainer.appendChild(gui.domElement);
     let stackFolder1 = gui.addFolder('Axial (Red)');
     let redChanged = stackFolder1.add(
-      r1.stackHelper, 'index', 0, r1.stackHelper.orientationMaxIndex).step(1).listen();
+      r1.stackHelper,
+      'index', 0, r1.stackHelper.orientationMaxIndex).step(1).listen();
     let stackFolder2 = gui.addFolder('Sagittal (yellow)');
     let yellowChanged = stackFolder2.add(
-      r2.stackHelper, 'index', 0, r2.stackHelper.orientationMaxIndex).step(1).listen();
+      r2.stackHelper,
+      'index', 0, r2.stackHelper.orientationMaxIndex).step(1).listen();
     let stackFolder3 = gui.addFolder('Coronal (green)');
     let greenChanged = stackFolder3.add(
-      r3.stackHelper, 'index', 0, r3.stackHelper.orientationMaxIndex).step(1).listen();
+      r3.stackHelper,
+      'index', 0, r3.stackHelper.orientationMaxIndex).step(1).listen();
 
     /**
      * Update Layer Mix
@@ -454,10 +457,10 @@ window.onload = function() {
       localizerHelper.referencePlane = plane;
 
       // bit of a hack... works fine for this application
-      for(let i = 0; i < targetLocalizersHelpers.length; i++) {
-        for(let j = 0; j < 4; j++) {
+      for (let i = 0; i < targetLocalizersHelpers.length; i++) {
+        for (let j = 0; j < 4; j++) {
           let targetPlane = targetLocalizersHelpers[i]['plane' + (j + 1)];
-          if(targetPlane &&
+          if (targetPlane &&
              plane.x === targetPlane.x &&
              plane.y === targetPlane.y &&
              plane.z === targetPlane.z) {
@@ -486,7 +489,7 @@ window.onload = function() {
       let cameraDirection = new THREE.Vector3(1, 1, 1);
       cameraDirection.applyQuaternion(camera.quaternion);
 
-      if(cameraDirection.dot(clipPlane.normal) > 0) {
+      if (cameraDirection.dot(clipPlane.normal) > 0) {
         clipPlane.negate();
       }
     }
@@ -523,7 +526,7 @@ window.onload = function() {
       let camera = null;
       let stackHelper = null;
       let scene = null;
-      switch(id) {
+      switch (id) {
         case '0':
           camera = r0.camera;
           stackHelper = r1.stackHelper;
@@ -550,7 +553,7 @@ window.onload = function() {
       raycaster.setFromCamera(mouse, camera);
 
       const intersects = raycaster.intersectObjects(scene.children, true);
-      if(intersects.length > 0) {
+      if (intersects.length > 0) {
         let ijk =
           ModelsStack.worldToData(stackHelper.stack, intersects[0].point);
         r1.stackHelper.index =

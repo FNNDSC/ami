@@ -23,7 +23,7 @@ export default class HelpersBoundingBox extends THREE.Object3D {
   // getters/setters
   set visible(visible) {
     this._visible = visible;
-    if(this._mesh) {
+    if (this._mesh) {
       this._mesh.visible = this._visible;
     }
   }
@@ -34,7 +34,7 @@ export default class HelpersBoundingBox extends THREE.Object3D {
 
   set color(color) {
     this._color = color;
-    if(this._material) {
+    if (this._material) {
       this._material.color.set(this._color);
     }
   }
@@ -55,11 +55,14 @@ export default class HelpersBoundingBox extends THREE.Object3D {
       dimensions.x, dimensions.y, dimensions.z);
     // position bbox in image space
     this._geometry .applyMatrix(new THREE.Matrix4().makeTranslation(
-      halfDimensions.x + offset.x, halfDimensions.y + offset.y, halfDimensions.z + offset.z));
+      halfDimensions.x + offset.x,
+      halfDimensions.y + offset.y,
+      halfDimensions.z + offset.z));
 
 
     // Mesh
-    let boxMesh = new THREE.Mesh(this._geometry, new THREE.MeshBasicMaterial(0xff0000));
+    let boxMesh =
+      new THREE.Mesh(this._geometry, new THREE.MeshBasicMaterial(0xff0000));
     this._mesh = new THREE.BoxHelper(boxMesh, this._color);
 
     // Material
@@ -75,7 +78,7 @@ export default class HelpersBoundingBox extends THREE.Object3D {
 
   _update() {
     // update slice
-    if(this._mesh) {
+    if (this._mesh) {
       this.remove(this._mesh);
       this._mesh.geometry.dispose();
       this._mesh.geometry = null;

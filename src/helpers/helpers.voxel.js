@@ -18,7 +18,7 @@ export default class HelpersVoxel extends THREE.Object3D {
     this._voxel.worldCoordinates = this._worldCoordinates;
 
     // if stack provided, compute IJK and value
-    if(this._stack && this._stack.prepared && this._worldCoordinates) {
+    if (this._stack && this._stack.prepared && this._worldCoordinates) {
       this.updateVoxel(this._worldCoordinates);
     }
 
@@ -239,12 +239,12 @@ export default class HelpersVoxel extends THREE.Object3D {
 
     // also update the dom
     let selectedElement = document.getElementById('VJSVoxelMeasurements' + this.id);
-    if(selectedElement) {
+    if (selectedElement) {
       selectedElement.style.borderColor = this._color.replace('0x', '#');
     }
 
     selectedElement = document.querySelector('#VJSVoxelProbeSVG' + this.id + '> svg > path');
-    if(selectedElement) {
+    if (selectedElement) {
       selectedElement.style.stroke = this._color.replace('0x', '#');
     }
   }
@@ -260,7 +260,7 @@ export default class HelpersVoxel extends THREE.Object3D {
     // set data coordinates && value
     this.updateVoxel(this._worldCoordinates);
 
-    if(this._mesh && this._mesh.geometry) {
+    if (this._mesh && this._mesh.geometry) {
       this._mesh.geometry.location = this._voxel.dataCoordinates;
     }
   }
@@ -280,7 +280,7 @@ export default class HelpersVoxel extends THREE.Object3D {
   set showVoxel(showVoxel) {
     this._showVoxel = showVoxel;
 
-    if(this._mesh) {
+    if (this._mesh) {
       this._mesh.visible = this._showVoxel;
     }
   }

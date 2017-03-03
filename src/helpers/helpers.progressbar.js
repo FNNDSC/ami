@@ -28,7 +28,7 @@ export default class HelpersProgressBar {
 
   free() {
     let progressContainers = this._container.getElementsByClassName('progress container');
-    if(progressContainers.length > 0) {
+    if (progressContainers.length > 0) {
       progressContainers[0].parentNode.removeChild(progressContainers[0]);
     }
     progressContainers = null;
@@ -59,10 +59,10 @@ export default class HelpersProgressBar {
     this._value = value;
     // depending on CDN, total return to XHTTPRequest can be 0.
     // In this case, we generate a random number to animate the progressbar
-    if(total === 0) {
+    if (total === 0) {
       this._total = value;
       this._value = Math.random()*value;
-    } else{
+    } else {
       this._total = total;
     }
   }
@@ -83,7 +83,7 @@ export default class HelpersProgressBar {
     const color = this._modes[this._mode].color;
 
     let progressBar = this._container.getElementsByClassName('progress ' + this._modes[this._mode].name);
-    if(progressBar.length > 0) {
+    if (progressBar.length > 0) {
       progressBar[0].style.borderColor = color;
       progressBar[0].style.width = progress + '%';
     }

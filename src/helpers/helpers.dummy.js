@@ -28,7 +28,7 @@ export default class HelpersDummy extends THREE.Object3D {
 
   _update() {
     // update slice
-    if(this._mesh) {
+    if (this._mesh) {
       this._mesh.uuid = null;
       this.remove(this._mesh);
       this._mesh.geometry.dispose();

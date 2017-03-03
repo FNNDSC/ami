@@ -359,7 +359,7 @@ window.onload = function() {
     let stack = mergedSeries[0].stack[0];
     let stack2 = mergedSeries[1].stack[0];
 
-    if(stack.modality === 'SEG') {
+    if (stack.modality === 'SEG') {
       stack = mergedSeries[0].stack[0];
       stack2 = mergedSeries[1].stack[0];
     }

@@ -1,8 +1,8 @@
 /* globals Stats*/
 
 import ControlsTrackball from '../../src/controls/controls.trackball';
-import HelpersStack      from '../../src/helpers/helpers.stack';
-import LoadersVolume     from '../../src/loaders/loaders.volume';
+import HelpersStack from '../../src/helpers/helpers.stack';
+import LoadersVolume from '../../src/loaders/loaders.volume';
 
 let VJS = VJS || {};
 
@@ -13,10 +13,8 @@ VJS.widgets.orientation = require('../../src/widgets/widgets.orientation');
 let controls, renderer, stats, scene, camera, stackHelper, threeD, brain;
 
 function init() {
-
   // this function is executed on each animation frame
   function animate() {
-
     // if (stackHelper) {
     //   stackHelper.index += 1;
     //   if (stackHelper.outOfBounds === true) {
@@ -38,7 +36,7 @@ function init() {
   // renderer
   threeD = document.getElementById('r3d');
   renderer = new THREE.WebGLRenderer({
-    antialias: true
+    antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
   renderer.setClearColor(0x673AB7, 1);
@@ -66,10 +64,10 @@ function init() {
 //   let particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
 // scene.add( particleLight );
 
-scene.add( new THREE.AmbientLight( 0x353535 ) );
-let directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-directionalLight.position.set( 200, 200, 1000 ).normalize();
-scene.add( directionalLight );
+scene.add(new THREE.AmbientLight(0x353535));
+let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(200, 200, 1000).normalize();
+scene.add(directionalLight);
 
   // controls
   controls = new ControlsTrackball(camera, threeD);
@@ -81,37 +79,36 @@ scene.add( directionalLight );
 }
 
 window.onload = function() {
-
   // init threeJS...
   init();
 
   // load vtk file
-  var loader1 = new THREE.VTKLoader();
-  loader1.load( '../../blood1.vtk', function ( geometry ) {
+  let loader1 = new THREE.VTKLoader();
+  loader1.load('../../blood1.vtk', function(geometry) {
     geometry.computeVertexNormals();
-    console.log( geometry );
-    var material = new THREE.MeshLambertMaterial( {
+    console.log(geometry);
+    let material = new THREE.MeshLambertMaterial({
       color: 0x009688,
-      side: THREE.DoubleSide} );
-    brain = new THREE.Mesh( geometry, material );
-    var toLPS = new THREE.Matrix4();
-    toLPS.set( -1, 0, 0, 0,
+      side: THREE.DoubleSide});
+    brain = new THREE.Mesh(geometry, material);
+    let toLPS = new THREE.Matrix4();
+    toLPS.set(-1, 0, 0, 0,
                    0, -1, 0, 0,
                    0, 0, 1, 0,
                    0, 0, 0, 1);
     brain.applyMatrix(toLPS);
-    scene.add( brain );
+    scene.add(brain);
   });
 
   // instantiate the loader
   // it loads and parses the dicom image
   let loader = new LoadersVolume(threeD);
 
-  var t2 = [
-    'template_T2.nii.gz'
+  let t2 = [
+    'template_T2.nii.gz',
   ];
 
-  var files = t2.map(function(v) {
+  let files = t2.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/fetalatlas_brain/t2/' + v;
   });
   files = ['../../data/MRBrainTumor1_PIL.nii'];
@@ -151,14 +148,14 @@ window.onload = function() {
     stackHelper2.border.color = 0xFF1744;
     scene.add(stackHelper2);
 
-    /// 
-    var geometry = new THREE.SphereBufferGeometry( 5, 32, 32 );
-    var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-    var sphere = new THREE.Mesh( geometry, material );
+    // /
+    let geometry = new THREE.SphereBufferGeometry(5, 32, 32);
+    let material = new THREE.MeshBasicMaterial({color: 0xffff00});
+    let sphere = new THREE.Mesh(geometry, material);
 
     // this._origin = null;
-    console.log( stack._origin );
-    sphere.position.set( stack._origin.x, stack._origin.y, stack._origin.z );
+    console.log(stack._origin);
+    sphere.position.set(stack._origin.x, stack._origin.y, stack._origin.z);
     scene.add(sphere);
 
     // update camrea's and control's target
@@ -171,12 +168,10 @@ window.onload = function() {
     loader = null;
 
     function onWindowResize() {
-
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
 
       renderer.setSize(window.innerWidth, window.innerHeight);
-
     }
 
     window.addEventListener('resize', onWindowResize, false);

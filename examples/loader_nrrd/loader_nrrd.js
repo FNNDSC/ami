@@ -1,17 +1,15 @@
 /* globals Stats*/
 
 import ControlsTrackball from '../../src/controls/controls.trackball';
-import HelpersStack      from '../../src/helpers/helpers.stack';
-import LoadersVolume     from '../../src/loaders/loaders.volume';
+import HelpersStack from '../../src/helpers/helpers.stack';
+import LoadersVolume from '../../src/loaders/loaders.volume';
 
 // standard global variables
 let controls, renderer, stats, scene, camera, stackHelper, threeD;
 
 function init() {
-
   // this function is executed on each animation frame
   function animate() {
-
     // if (stackHelper) {
     //   stackHelper.index += 1;
     //   if (stackHelper.outOfBounds === true) {
@@ -33,7 +31,7 @@ function init() {
   // renderer
   threeD = document.getElementById('r3d');
   renderer = new THREE.WebGLRenderer({
-    antialias: true
+    antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
   renderer.setClearColor(0x673AB7, 1);
@@ -61,14 +59,14 @@ function init() {
   //   let particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
   // scene.add( particleLight );
 
-  scene.add( new THREE.AmbientLight( 0x353535 ) );
-  let directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-  directionalLight.position.set( 200, 200, 1000 ).normalize();
-  scene.add( directionalLight );
+  scene.add(new THREE.AmbientLight(0x353535));
+  let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  directionalLight.position.set(200, 200, 1000).normalize();
+  scene.add(directionalLight);
 
-  let directionalLight2 = new THREE.DirectionalLight( 0xffffff, 1 );
-  directionalLight2.position.set( -200, -200, -1000 ).normalize();
-  scene.add( directionalLight2 );
+  let directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
+  directionalLight2.position.set(-200, -200, -1000).normalize();
+  scene.add(directionalLight2);
 
   // controls
   controls = new ControlsTrackball(camera, threeD);
@@ -80,27 +78,26 @@ function init() {
 }
 
 window.onload = function() {
-
   // init threeJS...
   init();
 
   // load vtk file
-  var loader1 = new THREE.VTKLoader();
-  loader1.load( 'https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk', function ( geometry ) {
+  let loader1 = new THREE.VTKLoader();
+  loader1.load('https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk', function(geometry) {
     geometry.computeVertexNormals();
-    var material = new THREE.MeshLambertMaterial( {
+    let material = new THREE.MeshLambertMaterial({
       shading: THREE.SmoothShading,
       color: 0xE91E63,
-      side: THREE.DoubleSide} );
-    var mesh = new THREE.Mesh( geometry, material );
-    var RASToLPS = new THREE.Matrix4();
+      side: THREE.DoubleSide});
+    let mesh = new THREE.Mesh(geometry, material);
+    let RASToLPS = new THREE.Matrix4();
     RASToLPS.set(-1, 0, 0, 0,
                 0, -1, 0, 0,
                 0, 0, 1, 0,
                 0, 0, 0, 1);
     mesh.applyMatrix(RASToLPS);
-    scene.add( mesh );
-  } );
+    scene.add(mesh);
+  });
 
   // instantiate the loader
   // it loads and parses the dicom image

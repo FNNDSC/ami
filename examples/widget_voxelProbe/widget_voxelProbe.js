@@ -1,8 +1,8 @@
 /* globals Stats, dat*/
 
-import HelpersStack      from '../../src/helpers/helpers.stack';
-import HelpersVoxel      from '../../src/helpers/helpers.voxel';
-import LoadersVolume     from '../../src/loaders/loaders.volume';
+import HelpersStack from '../../src/helpers/helpers.stack';
+import HelpersVoxel from '../../src/helpers/helpers.voxel';
+import LoadersVolume from '../../src/loaders/loaders.volume';
 import WidgetsVoxelProbe from '../../src/widgets/widgets.voxelProbe';
 import ControlsTrackball from '../../src/controls/controls.trackball';
 
@@ -10,20 +10,20 @@ import ControlsTrackball from '../../src/controls/controls.trackball';
 let controls, renderer, threeD, stats, scene, camera, probe, helpersVoxel, directions, bbox;
 
 let voxelsSettings = {
-  color : '#00B0FF',
+  color: '#00B0FF',
   showMesh: true,
   showMeasurements: true,
-  showSVG: true
+  showSVG: true,
 };
 
 let widgetSettings = {
-  defaultColor : '#00B0FF',
-  activeColor : '#FFEB3B',
-  hoverColor : '#F50057',
-  selectedColor : '#76FF03',
+  defaultColor: '#00B0FF',
+  activeColor: '#FFEB3B',
+  hoverColor: '#F50057',
+  selectedColor: '#76FF03',
   showMesh: true,
   showMeasurements: true,
-  showSVG: true
+  showSVG: true,
 };
 
 // FUNCTIONS
@@ -31,7 +31,7 @@ function buildGUI() {
   // access probe here...
 
   let gui = new dat.GUI({
-            autoPlace: false
+            autoPlace: false,
           });
 
   let customContainer = document.getElementById('my-gui-container');
@@ -109,7 +109,6 @@ function buildGUI() {
 function init() {
   // this function is executed on each animation frame
   function animate() {
-
     // update helpersVoxel doms
     if (helpersVoxel) {
       for (let i = 0; i < 10; i++) {
@@ -156,7 +155,7 @@ function init() {
   // renderer
   threeD = document.getElementById('r3d');
   renderer = new THREE.WebGLRenderer({
-    antialias: true
+    antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
   renderer.setClearColor(0xFFFFFF, 1);
@@ -169,7 +168,7 @@ function init() {
 
   // scene
   scene = new THREE.Scene();
-  
+
   // camera
   camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
   camera.position.x = 150;
@@ -199,7 +198,7 @@ window.onload = function() {
     let stack = loader.data[0]._stack[0];
     loader.free();
     loader = null;
-    
+
     let stackHelper = new HelpersStack(stack);
     stackHelper.slice.interpolation = 0;
 
@@ -210,9 +209,9 @@ window.onload = function() {
                                   controls,
                                   camera,
                                   threeD);
-    probe._current._showVoxel =  true;
-    probe._current._showDomSVG =  true;
-    probe._current._showDomMeasurements =  true;
+    probe._current._showVoxel = true;
+    probe._current._showDomSVG = true;
+    probe._current._showDomMeasurements = true;
     scene.add(probe);
 
     //

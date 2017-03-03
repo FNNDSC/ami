@@ -86,7 +86,7 @@ window.onload = function() {
   init();
 
   function updateLabels(labels, modality) {
-    if(modality === 'CR' || modality === 'DX') return;
+    if (modality === 'CR' || modality === 'DX') return;
 
     let top = document.getElementById('top');
     top.innerHTML = labels[0];
@@ -202,13 +202,13 @@ window.onload = function() {
     let stack = stackHelper._stack;
     // hook up callbacks
     controls.addEventListener('OnScroll', function(e) {
-      if(e.delta > 0) {
-        if(stackHelper.index >= stackHelper.orientationMaxIndex - 1) {
+      if (e.delta > 0) {
+        if (stackHelper.index >= stackHelper.orientationMaxIndex - 1) {
           return false;
         }
         stackHelper.index += 1;
       } else {
-        if(stackHelper.index <= 0) {
+        if (stackHelper.index <= 0) {
           return false;
         }
         stackHelper.index -= 1;
@@ -241,7 +241,7 @@ window.onload = function() {
      */
     function onWindowKeyPressed(event) {
       ctrlDown = event.ctrlKey;
-      if(!ctrlDown) {
+      if (!ctrlDown) {
         drag.start.x = null;
         drag.start.y = null;
       }
@@ -253,7 +253,7 @@ window.onload = function() {
      * On mouse move callback
      */
     function onMouseMove(event) {
-      if(ctrlDown) {
+      if (ctrlDown) {
         if (drag.start.x === null) {
           drag.start.x = event.clientX;
           drag.start.y = event.clientY;
@@ -265,14 +265,14 @@ window.onload = function() {
         let dynamicRange = stack.minMax[1] - stack.minMax[0];
         dynamicRange /= threeD.clientWidth;
 
-        if(Math.abs(event.clientX - drag.start.x) > threshold) {
+        if (Math.abs(event.clientX - drag.start.x) > threshold) {
           // window width
           stackHelper.slice.windowWidth +=
             dynamicRange * (event.clientX - drag.start.x);
           drag.start.x = event.clientX;
         }
 
-        if(Math.abs(event.clientY - drag.start.y) > threshold) {
+        if (Math.abs(event.clientY - drag.start.y) > threshold) {
           // window center
           stackHelper.slice.windowCenter -=
             dynamicRange * (event.clientY - drag.start.y);

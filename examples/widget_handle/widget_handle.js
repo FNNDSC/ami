@@ -1,10 +1,10 @@
 /* globals Stats, dat*/
 
-import HelpersStack      from '../../src/helpers/helpers.stack';
-import HelpersVoxel      from '../../src/helpers/helpers.voxel';
-import LoadersVolume     from '../../src/loaders/loaders.volume';
-import WidgetsHandle     from '../../src/widgets/widgets.handle';
-import WidgetsRuler      from '../../src/widgets/widgets.ruler';
+import HelpersStack from '../../src/helpers/helpers.stack';
+import HelpersVoxel from '../../src/helpers/helpers.voxel';
+import LoadersVolume from '../../src/loaders/loaders.volume';
+import WidgetsHandle from '../../src/widgets/widgets.handle';
+import WidgetsRuler from '../../src/widgets/widgets.ruler';
 import ControlsTrackball from '../../src/controls/controls.trackball';
 
 // standard global variables
@@ -13,7 +13,6 @@ let widgets = [];
 function init() {
   // this function is executed on each animation frame
   function animate() {
-
     // render
     controls.update();
     renderer.render(scene, camera);
@@ -28,7 +27,7 @@ function init() {
   // renderer
   threeD = document.getElementById('r3d');
   renderer = new THREE.WebGLRenderer({
-    antialias: true
+    antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
   renderer.setClearColor(0xFFFFFF, 1);
@@ -41,7 +40,7 @@ function init() {
 
   // scene
   scene = new THREE.Scene();
-  
+
   // camera
   camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
   camera.position.x = 150;
@@ -68,7 +67,6 @@ window.onload = function() {
   // Start off with a promise that always resolves
   loader.load(file)
   .then(function() {
-
     let stack = loader.data[0]._stack[0];
     loader.free();
     loader = null;
@@ -76,47 +74,35 @@ window.onload = function() {
 
     scene.add(stackHelper);
 
-    threeD.addEventListener( 'mouseup', function( evt ){
-
+    threeD.addEventListener('mouseup', function(evt) {
       // if something hovered, exit
-      for( let widget of widgets ){
-
-        if( widget.active ){
-
-          widget.onEnd( evt );
+      for (let widget of widgets) {
+        if (widget.active) {
+          widget.onEnd(evt);
           return;
-
         }
-
       }
+    });
 
-    } );
-
-    threeD.addEventListener( 'mousemove', function( evt ){
-
+    threeD.addEventListener('mousemove', function(evt) {
       // if something hovered, exit
       let cursor = 'default';
 
-      for( let widget of widgets ){
-
-        widget.onMove( evt );
-        if( widget.hovered ){
-
+      for (let widget of widgets) {
+        widget.onMove(evt);
+        if (widget.hovered) {
           cursor = 'pointer';
-
         }
-
       }
 
       threeD.style.cursor = cursor;
-
-    } );
+    });
 
     // add on mouse down listener, to add handles/etc. if not hovering anything..
-    threeD.addEventListener('mousedown', function(evt){
+    threeD.addEventListener('mousedown', function(evt) {
       // if something hovered, exit
-      for(let widget of widgets){
-        if(widget.hovered){
+      for (let widget of widgets) {
+        if (widget.hovered) {
           widget.onStart(evt);
           return;
         }
@@ -127,7 +113,7 @@ window.onload = function() {
       // mouse position
       let mouse = {
         x: (evt.clientX / threeD.offsetWidth) * 2 - 1,
-        y: -(event.clientY / threeD.offsetHeight) * 2 + 1
+        y: -(event.clientY / threeD.offsetHeight) * 2 + 1,
       };
 
       // update the raycaster
@@ -135,22 +121,19 @@ window.onload = function() {
       raycaster.setFromCamera(mouse, camera);
       let intersects = raycaster.intersectObject(stackHelper.slice.mesh);
 
-      if(intersects.length <= 0){
+      if (intersects.length <= 0) {
         return;
       }
 
       let widgetType = widgets.length % 4;
-      if( widgetType === 0 ){
-
+      if (widgetType === 0) {
         // add ruler
-        let widget = new WidgetsRuler( stackHelper.slice.mesh, controls, camera, threeD );
+        let widget = new WidgetsRuler(stackHelper.slice.mesh, controls, camera, threeD);
         widget.worldPosition = intersects[0].point;
 
-        widgets.push( widget );
-        scene.add( widget );
-
-      }
-      else if(widgetType === 1){
+        widgets.push(widget);
+        scene.add(widget);
+      } else if (widgetType === 1) {
         // add handle
         let widget = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
         widget.worldPosition = intersects[0].point;
@@ -158,8 +141,7 @@ window.onload = function() {
 
         widgets.push(widget);
         scene.add(widget);
-      }
-      else if(widgetType === 2){
+      } else if (widgetType === 2) {
         // add  "FREE" ruler
         let widget = new WidgetsRuler(null, controls, camera, threeD);
         // OK for now but what if no intersection?
@@ -167,8 +149,7 @@ window.onload = function() {
 
         widgets.push(widget);
         scene.add(widget);
-      }
-      else{
+      } else {
         // add "FREE" handle
         let widget = new WidgetsHandle(null, controls, camera, threeD);
         // OK for now but what if no intersection?

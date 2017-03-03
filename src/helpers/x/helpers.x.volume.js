@@ -71,7 +71,7 @@ export default class extends THREE.Object3D {
       const loader = new LoadersVolume(this._progressbarContainer);
       return loader.load(this.file).then(() => {
         return new Promise((resolve, reject) => {
-          if(loader.data.length <= 0) {
+          if (loader.data.length <= 0) {
             return reject({message: `No data loaded: ${loader.data}.`});
           }
 
