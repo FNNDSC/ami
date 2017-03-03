@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: shaders/shaders.data.uniform.js</title>
+    <title>JSDoc: Source: shaders/shaders.localizer.uniform.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: shaders/shaders.data.uniform.js</h1>
+    <h1 class="page-title">Source: shaders/shaders.localizer.uniform.js</h1>
 
     
 
@@ -26,89 +26,16 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>
-/**
- * @module shaders/data
+            <pre class="prettyprint source linenums"><code>/**
+ * @module shaders/localizer/uniforms
  */
-export default class ShadersUniform {
+
+export default class {
   /**
    * Shaders data uniforms
    */
   static uniforms() {
     return {
-      'uTextureSize': {
-        type: 'i',
-        value: 0,
-        typeGLSL: 'int',
-      },
-      'uTextureContainer': {
-        type: 'tv',
-        value: [],
-        typeGLSL: 'sampler2D',
-        length: 7,
-      },
-      'uDataDimensions': {
-        type: 'iv',
-        value: [0, 0, 0],
-        typeGLSL: 'ivec3',
-      },
-      'uWorldToData': {
-        type: 'm4',
-        value: new THREE.Matrix4(),
-        typeGLSL: 'mat4',
-      },
-      'uWindowCenterWidth': {
-        type: 'fv1',
-        value: [0.0, 0.0],
-        typeGLSL: 'float',
-        length: 2,
-      },
-      'uRescaleSlopeIntercept': {
-        type: 'fv1',
-        value: [0.0, 0.0],
-        typeGLSL: 'float',
-        length: 2,
-      },
-      'uNumberOfChannels': {
-        type: 'i',
-        value: 1,
-        typeGLSL: 'int',
-      },
-      'uBitsAllocated': {
-        type: 'i',
-        value: 8,
-        typeGLSL: 'int',
-      },
-      'uInvert': {
-        type: 'i',
-        value: 0,
-        typeGLSL: 'int',
-      },
-      'uLut': {
-        type: 'i',
-        value: 0,
-        typeGLSL: 'int',
-      },
-      'uTextureLUT': {
-        type: 't',
-        value: [],
-        typeGLSL: 'sampler2D',
-      },
-      'uPixelType': {
-        type: 'i',
-        value: 0,
-        typeGLSL: 'int',
-      },
-      'uPackedPerPixel': {
-        type: 'i',
-        value: 1,
-        typeGLSL: 'int',
-      },
-      'uInterpolation': {
-        type: 'i',
-        value: 1,
-        typeGLSL: 'int',
-      },
       'uCanvasWidth': {
         type: 'f',
         value: 0.,
@@ -119,26 +46,42 @@ export default class ShadersUniform {
         value: 0.,
         typeGLSL: 'float',
       },
-      'uBorderColor': {
+      'uSlice': {
+        type: 'v4',
+        value: [0.0, 0.0, 0.0, 0.0],
+        typeGLSL: 'vec4',
+      },
+      'uPlane1': {
+        type: 'v4',
+        value: [0.0, 0.0, 0.0, 0.0],
+        typeGLSL: 'vec4',
+      },
+      'uPlaneColor1': {
         type: 'v3',
-        value: [1.0, 0.0, 0.5],
+        value: [1.0, 1.0, 0.0],
         typeGLSL: 'vec3',
       },
-      'uBorderWidth': {
-        type: 'f',
-        value: 2.,
-        typeGLSL: 'float',
+      'uPlane2': {
+        type: 'v4',
+        value: [0.0, 0.0, 0.0, 0.0],
+        typeGLSL: 'vec4',
       },
-      'uBorderMargin': {
-        type: 'f',
-        value: 2.,
-        typeGLSL: 'float',
+      'uPlaneColor2': {
+        type: 'v3',
+        value: [1.0, 1.0, 0.0],
+        typeGLSL: 'vec3',
       },
-      'uBorderDashLength': {
-        type: 'f',
-        value: 10.,
-        typeGLSL: 'float',
+      'uPlane3': {
+        type: 'v4',
+        value: [0.0, 0.0, 0.0, 0.0],
+        typeGLSL: 'vec4',
       },
+      'uPlaneColor3': {
+        type: 'v3',
+        value: [1.0, 1.0, 0.0],
+        typeGLSL: 'vec3',
+      },
+
     };
   }
 }

@@ -27,7 +27,8 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/** * Imports ***/
-let pako = require('pako');
+const PAKO = require('pako');
+const URL = require('url');
 
 import LoadersBase from './loaders.base';
 import ModelsSeries from '../../src/models/models.series';
@@ -66,8 +67,12 @@ import ParsersNrrd from '../../src/parsers/parsers.nrrd';
  */
 export default class LoadersVolumes extends LoadersBase {
 
+  /**
+   * Parse response
+   */
   parse(response) {
-    // give a chance to the UI to update because after the rendering will be blocked with intensive JS
+    // give a chance to the UI to update because
+    // after the rendering will be blocked with intensive JS
     if(this._progressBar) {
       this._progressBar.update(0, 100, 'parse');
     }
@@ -81,36 +86,52 @@ export default class LoadersVolumes extends LoadersBase {
                   data.gzcompressed = false;
                   data.filename = '';
                   data.extension = '';
+                  data.pathname = '';
+                  data.query = '';
 
-                  // uncompress?
-                  data.filename = response.url.split('/').pop();
+                  let parsedUrl = URL.parse(response.url);
+                  data.pathname = parsedUrl.pathname;
+                  data.query = parsedUrl.query;
+
+                  // get file name
+                  data.filename = data.pathname.split('/').pop();
                   data.gzcompressed = false;
 
                   // find extension
                   let splittedName = data.filename.split('.');
                   if(splittedName.length &lt;= 1) {
-                    data.extension = '';
+                    data.extension = 'dicom';
                   } else{
                     data.extension = data.filename.split('.').pop();
+                  }
+
+                  if(!isNaN(data.extension)) {
+                    data.extension = 'dicom';
+                  }
+
+                  if(data.query &amp;&amp;
+                     data.query.includes('contentType=application%2Fdicom')) {
+                    data.extension = 'dicom';
                   }
 
                   // unzip if extension is '.gz'
                   if (data.extension === 'gz') {
                     data.gzcompressed = true;
-                    data.extension = data.filename.split('.gz').shift().split('.').pop();
-                    let decompressedData = pako.inflate(data.buffer);
+                    data.extension =
+                      data.filename.split('.gz').shift().split('.').pop();
+                    let decompressedData = PAKO.inflate(data.buffer);
                     data.buffer = decompressedData.buffer;
                   }
 
-                  let parser = this._parser(data.extension);
-                  if (!parser) {
+                  let Parser = this._parser(data.extension);
+                  if (!Parser) {
                     reject(data.filename + ' can not be parsed.');
                   }
 
                   // check extension
                   let volumeParser = null;
                   try {
-                    volumeParser = new parser(data, 0);
+                    volumeParser = new Parser(data, 0);
                   } catch (e) {
                     window.console.log(e);
                     reject(e);
@@ -131,16 +152,19 @@ export default class LoadersVolumes extends LoadersBase {
                     // labels
                     // etc.
                     series.segmentationType = volumeParser.segmentationType();
-                    series.segmentationSegments = volumeParser.segmentationSegments();
+                    series.segmentationSegments =
+                      volumeParser.segmentationSegments();
                   }
 
                   // just create 1 dummy stack for now
                   let stack = new ModelsStack();
                   stack.numberOfChannels = volumeParser.numberOfChannels();
-                  stack.pixelRepresentation = volumeParser.pixelRepresentation();
+                  stack.pixelRepresentation =
+                    volumeParser.pixelRepresentation();
                   stack.pixelType = volumeParser.pixelType();
                   stack.invert = volumeParser.invert();
-                  stack.spacingBetweenSlices = volumeParser.spacingBetweenSlices();
+                  stack.spacingBetweenSlices =
+                    volumeParser.spacingBetweenSlices();
                   stack.modality = series.modality;
                   // if it is a segmentation, attach extra information
                   if(stack.modality === 'SEG') {
@@ -152,14 +176,21 @@ export default class LoadersVolumes extends LoadersBase {
                   }
                   series.stack.push(stack);
                   // recursive call for each frame
-                  // better than for loop to be able to update dom with "progress" callback
-                  setTimeout(this.parseFrame(series, stack, response.url, 0, volumeParser, resolve, reject), 0);
+                  // better than for loop to be able
+                  // to update dom with "progress" callback
+                  setTimeout(
+                    this.parseFrame(
+                      series, stack, response.url, 0,
+                      volumeParser, resolve, reject), 0);
                 }));
              }, 10);
            }
         );
   }
 
+  /**
+   * Parse frame
+   */
   parseFrame(series, stack, url, i, dataParser, resolve, reject) {
     let frame = new ModelsFrame();
     frame.sopInstanceUID = dataParser.sopInstanceUID(i);
@@ -211,32 +242,37 @@ export default class LoadersVolumes extends LoadersBase {
     if (this._parsed === this._totalParsed) {
       resolve(series);
     } else {
-      setTimeout(this.parseFrame(series, stack, url, this._parsed, dataParser, resolve, reject), 0);
+      setTimeout(
+        this.parseFrame(
+          series, stack, url, this._parsed, dataParser, resolve, reject), 0);
     }
   }
 
+  /**
+   * Return parser given an extension
+   */
   _parser(extension) {
-    let parser = null;
+    let Parser = null;
 
     switch (extension.toUpperCase()) {
       case 'NII':
       case 'NII_':
-        parser = ParsersNifti;
+        Parser = ParsersNifti;
         break;
       case 'DCM':
       case 'DICOM':
       case 'IMA':
       case '':
-        parser = ParsersDicom;
+        Parser = ParsersDicom;
         break;
       case 'NRRD':
-        parser = ParsersNrrd;
+        Parser = ParsersNrrd;
         break;
       default:
         window.console.log('unsupported extension: ' + extension);
         return false;
     }
-    return parser;
+    return Parser;
   }
 }
 </code></pre>
@@ -249,13 +285,13 @@ export default class LoadersVolumes extends LoadersBase {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#pako">pako</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#uniforms">uniforms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Wed Feb 01 2017 17:54:42 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Mar 03 2017 17:14:37 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>
