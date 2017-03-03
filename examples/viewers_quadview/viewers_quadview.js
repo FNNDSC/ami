@@ -265,6 +265,7 @@ function init() {
    * Called on each animation frame
    */
   function animate() {
+    // we are ready when both meshes have been loaded
     if (ready) {
       // render
       r0.controls.update();
