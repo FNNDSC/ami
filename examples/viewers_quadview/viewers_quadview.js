@@ -7,37 +7,68 @@ import HelpersStack from '../../src/helpers/helpers.stack';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 import ModelsStack from '../../src/models/models.stack';
 
-import ShadersLocalizerUniform from '../../src/shaders/shaders.localizer.uniform';
-import ShadersLocalizerVertex from '../../src/shaders/shaders.localizer.vertex';
-import ShadersLocalizerFragment from '../../src/shaders/shaders.localizer.fragment';
+import ShadersLocalizerUniform from
+  '../../src/shaders/shaders.localizer.uniform';
+import ShadersLocalizerVertex from
+  '../../src/shaders/shaders.localizer.vertex';
+import ShadersLocalizerFragment from
+  '../../src/shaders/shaders.localizer.fragment';
 
 // standard global variables
-let controls0;
-let controls1;
-let controls2;
-let controls3;
-let renderer0;
-let renderer1;
-let renderer2;
-let renderer3;
+// CREATE RENDERER 0
+let r0 = {
+  domId: 'r0',
+  domElement: null,
+  renderer: null,
+  color: 0x212121,
+  targetID: 0,
+  camera: null,
+  controls: null,
+  scene: null,
+  light: null,
+};
+
+let r1 = {
+  domId: 'r1',
+  domElement: null,
+  renderer: null,
+  color: 0x121212,
+  targetID: 1,
+  camera: null,
+  controls: null,
+  scene: null,
+  light: null,
+};
+
+let r2 = {
+  domId: 'r2',
+  domElement: null,
+  renderer: null,
+  color: 0x121212,
+  targetID: 2,
+  camera: null,
+  controls: null,
+  scene: null,
+  light: null,
+};
+
+let r3 = {
+  domId: 'r3',
+  domElement: null,
+  renderer: null,
+  color: 0x121212,
+  targetID: 3,
+  camera: null,
+  controls: null,
+  scene: null,
+  light: null,
+};
+
 let stats;
-let camera0;
-let camera1;
-let camera2;
-let camera3;
-let sceneScreen0;
-let sceneScreen1;
-let sceneScreen2;
-let sceneScreen3;
 let ready = false;
 let stackHelper1;
 let stackHelper2;
 let stackHelper3;
-let threeD0;
-let threeD1;
-let threeD2;
-let threeD3;
-let light0;
 
 let localizer3Material;
 let localizer3Mesh;
@@ -53,7 +84,6 @@ let localizer2Material;
 let localizer2Mesh;
 let localizer2Scene;
 let localizer2Uniforms;
-
 
 let dataInfo = [
     ['adi1', {
@@ -92,6 +122,79 @@ let clipPlane1 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
 let clipPlane2 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
 let clipPlane3 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
 
+function initRenderer3D(renderObj) {
+  renderObj.domElement = document.getElementById(renderObj.domId);
+  renderObj.renderer = new THREE.WebGLRenderer({
+    antialias: true,
+  });
+  renderObj.renderer.setSize(
+    renderObj.domElement.clientWidth, renderObj.domElement.clientHeight);
+  renderObj.renderer.setClearColor(renderObj.color, 1);
+  renderObj.renderer.domElement.id = renderObj.targetID;
+  renderObj.domElement.appendChild(renderObj.renderer.domElement);
+
+  // stats
+  stats = new Stats();
+  renderObj.domElement.appendChild(stats.domElement);
+
+  // camera
+  renderObj.camera = new THREE.PerspectiveCamera(
+    45, renderObj.domElement.clientWidth / renderObj.domElement.clientHeight,
+    0.1, 100000);
+  renderObj.camera.position.x = 250;
+  renderObj.camera.position.y = 250;
+  renderObj.camera.position.z = 250;
+
+  // scene 0
+  renderObj.scene = new THREE.Scene();
+
+  // light0
+  renderObj.light = new THREE.DirectionalLight(0xffffff, 1);
+  renderObj.light.position.copy(renderObj.camera.position);
+  renderObj.scene.add(renderObj.light);
+
+  // controls
+  renderObj.controls = new ControlsTrackball(
+    renderObj.camera, renderObj.domElement);
+  renderObj.controls.rotateSpeed = 5.5;
+  renderObj.controls.zoomSpeed = 1.2;
+  renderObj.controls.panSpeed = 0.8;
+  renderObj.controls.staticMoving = true;
+  renderObj.controls.dynamicDampingFactor = 0.3;
+}
+
+function initRenderer2D(rendererObj) {
+  //
+  // CREATE RENDERER 1
+  // RED
+  rendererObj.domElement = document.getElementById(rendererObj.domId);
+  rendererObj.renderer = new THREE.WebGLRenderer({
+    antialias: true,
+  });
+  rendererObj.renderer.autoClear = false;
+  rendererObj.renderer.localClippingEnabled = true;
+  rendererObj.renderer.setSize(
+    rendererObj.domElement.clientWidth, rendererObj.domElement.clientHeight);
+  rendererObj.renderer.setClearColor(0x121212, 1);
+  rendererObj.renderer.domElement.id = rendererObj.targetID;
+  rendererObj.domElement.appendChild(rendererObj.renderer.domElement);
+  // camera
+  rendererObj.camera = new CamerasOrthographic(
+    rendererObj.domElement.clientWidth / -2,
+    rendererObj.domElement.clientWidth / 2,
+    rendererObj.domElement.clientHeight / 2,
+    rendererObj.domElement.clientHeight / -2,
+    1, 1000);
+  // scene 1
+  rendererObj.scene = new THREE.Scene();
+  // controls
+  rendererObj.controls = new ControlsOrthographic(
+    rendererObj.camera, rendererObj.domElement);
+  rendererObj.controls.staticMoving = true;
+  rendererObj.controls.noRotate = true;
+  rendererObj.camera.controls = rendererObj.controls;
+}
+
 /**
  * Init the quadview
  */
@@ -100,57 +203,57 @@ function init() {
    * Called on each animation frame
    */
   function animate() {
-    // render
-    controls0.update();
-    controls1.update();
-    controls2.update();
-    controls3.update();
-
     if (ready) {
-      light0.position.copy(camera0.position);
-      renderer0.render(sceneScreen0, camera0);
+      // render
+      r0.controls.update();
+      r1.controls.update();
+      r2.controls.update();
+      r3.controls.update();
+
+      r0.light.position.copy(r0.camera.position);
+      r0.renderer.render(r0.scene, r0.camera);
 
       // r1
-      renderer1.clear();
-      renderer1.render(sceneScreen1, camera1);
+      r1.renderer.clear();
+      r1.renderer.render(r1.scene, r1.camera);
       // mesh
-      renderer1.clearDepth();
+      r1.renderer.clearDepth();
       data.forEach(function(object, key) {
         object.materialFront.clippingPlanes = [clipPlane1];
         object.materialBack.clippingPlanes = [clipPlane1];
       });
-      renderer1.render(sceneClip, camera1);
+      r1.renderer.render(sceneClip, r1.camera);
       // localizer
-      renderer1.clearDepth();
-      renderer1.render(localizer1Scene, camera1);
+      r1.renderer.clearDepth();
+      r1.renderer.render(localizer1Scene, r1.camera);
 
       // r2
-      renderer2.clear();
-      renderer2.render(sceneScreen2, camera2);
+      r2.renderer.clear();
+      r2.renderer.render(r2.scene, r2.camera);
       // mesh
-      renderer2.clearDepth();
+      r2.renderer.clearDepth();
       data.forEach(function(object, key) {
         object.materialFront.clippingPlanes = [clipPlane2];
         object.materialBack.clippingPlanes = [clipPlane2];
       });
-      renderer2.render(sceneClip, camera2);
+      r2.renderer.render(sceneClip, r2.camera);
       // localizer
-      renderer2.clearDepth();
-      renderer2.render(localizer2Scene, camera2);
+      r2.renderer.clearDepth();
+      r2.renderer.render(localizer2Scene, r2.camera);
 
       // r3
-      renderer3.clear();
-      renderer3.render(sceneScreen3, camera3);
+      r3.renderer.clear();
+      r3.renderer.render(r3.scene, r3.camera);
       // mesh
-      renderer3.clearDepth();
+      r3.renderer.clearDepth();
       data.forEach(function(object, key) {
         object.materialFront.clippingPlanes = [clipPlane3];
         object.materialBack.clippingPlanes = [clipPlane3];
       });
-      renderer3.render(sceneClip, camera3);
+      r3.renderer.render(sceneClip, r3.camera);
       // localizer
-      renderer3.clearDepth();
-      renderer3.render(localizer3Scene, camera3);
+      r3.renderer.clearDepth();
+      r3.renderer.render(localizer3Scene, r3.camera);
     }
 
     stats.update();
@@ -161,119 +264,11 @@ function init() {
     });
   }
 
-  // CREATE RENDERER 0
-
-  // renderer
-  threeD0 = document.getElementById('r0');
-  renderer0 = new THREE.WebGLRenderer({
-    antialias: true,
-  });
-  renderer0.setSize(threeD0.clientWidth, threeD0.clientHeight);
-  renderer0.setClearColor(0x212121, 1);
-  renderer0.domElement.id = 0;
-  threeD0.appendChild(renderer0.domElement);
-
-  // stats
-  stats = new Stats();
-  threeD0.appendChild(stats.domElement);
-
-  // camera
-  camera0 = new THREE.PerspectiveCamera(
-    45, threeD0.clientWidth / threeD0.clientHeight, 0.1, 100000);
-  camera0.position.x = 250;
-  camera0.position.y = 250;
-  camera0.position.z = 250;
-
-  // scene 0
-  sceneScreen0 = new THREE.Scene();
-
-  // light0
-  light0 = new THREE.DirectionalLight(0xffffff, 1);
-  light0.position.copy(camera0.position);
-  sceneScreen0.add(light0);
-
-  // controls
-  controls0 = new ControlsTrackball(camera0, threeD0);
-  controls0.rotateSpeed = 5.5;
-  controls0.zoomSpeed = 1.2;
-  controls0.panSpeed = 0.8;
-  controls0.staticMoving = true;
-  controls0.dynamicDampingFactor = 0.3;
-
-  // CREATE RENDERER 1
-  // RED
-  threeD1 = document.getElementById('r1');
-  renderer1 = new THREE.WebGLRenderer({
-    antialias: true,
-  });
-  renderer1.autoClear = false;
-  renderer1.localClippingEnabled = true;
-  renderer1.setSize(threeD1.clientWidth, threeD1.clientHeight);
-  renderer1.setClearColor(0x121212, 1);
-  renderer1.domElement.id = 1;
-  threeD1.appendChild(renderer1.domElement);
-  // camera
-  camera1 = new CamerasOrthographic(
-    threeD1.clientWidth / -2, threeD1.clientWidth / 2,
-    threeD1.clientHeight / 2, threeD1.clientHeight / -2,
-    1, 1000);
-  // scene 1
-  sceneScreen1 = new THREE.Scene();
-  // controls
-  controls1 = new ControlsOrthographic(camera1, threeD1);
-  controls1.staticMoving = true;
-  controls1.noRotate = true;
-  camera1.controls = controls1;
-
-  // CREATE RENDERER 2
-  // YELLOW
-  threeD2 = document.getElementById('r2');
-  renderer2 = new THREE.WebGLRenderer({
-    antialias: true,
-  });
-  renderer2.autoClear = false;
-  renderer2.localClippingEnabled = true;
-  renderer2.setSize(threeD2.clientWidth, threeD2.clientHeight);
-  renderer2.setClearColor(0x121212, 1);
-  renderer2.domElement.id = 2;
-  threeD2.appendChild(renderer2.domElement);
-  // camera
-  camera2 = new CamerasOrthographic(
-    threeD2.clientWidth / -2, threeD2.clientWidth / 2,
-    threeD2.clientHeight / 2, threeD2.clientHeight / -2,
-    1, 1000);
-  // scene 2
-  sceneScreen2 = new THREE.Scene();
-  // controls
-  controls2 = new ControlsOrthographic(camera2, threeD2);
-  controls2.staticMoving = true;
-  controls2.noRotate = true;
-  camera2.controls = controls2;
-
-  // CREATE RENDERER 3
-  // GREEN
-  threeD3 = document.getElementById('r3');
-  renderer3 = new THREE.WebGLRenderer({
-    antialias: true,
-  });
-  renderer3.autoClear = false;
-  renderer3.localClippingEnabled = true;
-  renderer3.setSize(threeD3.clientWidth, threeD3.clientHeight);
-  renderer3.setClearColor(0x121212, 1);
-  renderer3.domElement.id = 3;
-  threeD3.appendChild(renderer3.domElement);
-  // camera
-  camera3 = new CamerasOrthographic(
-    threeD3.clientWidth / -2, threeD3.clientWidth / 2,
-    threeD3.clientHeight / 2, threeD3.clientHeight / -2,
-    1, 1000);
-  // scene 3
-  sceneScreen3 = new THREE.Scene();
-  // controls
-  controls3 = new ControlsOrthographic(camera3, threeD3);
-  controls3.staticMoving = true;
-  controls3.noRotate = true;
-  camera3.controls = controls3;
+  // renderers
+  initRenderer3D(r0);
+  initRenderer2D(r1);
+  initRenderer2D(r2);
+  initRenderer2D(r3);
 
   // start rendering loop
   animate();
@@ -345,14 +340,14 @@ window.onload = function() {
     let boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
     boxMesh.applyMatrix(stack.ijk2LPS);
     let boxHelper = new THREE.BoxHelper(boxMesh, 0xffffff);
-    sceneScreen0.add(boxHelper);
+    r0.scene.add(boxHelper);
 
     // update camrea's and interactor's target
     let centerLPS = stack.worldCenter();
     // update camera's target
-    camera0.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
-    camera0.updateProjectionMatrix();
-    controls0.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
+    r0.camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
+    r0.camera.updateProjectionMatrix();
+    r0.controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
 
     // Fill renderer 2
     // RED
@@ -360,33 +355,33 @@ window.onload = function() {
     stackHelper1.orientation = 2;
     stackHelper1.bbox.visible = false;
     stackHelper1.borderColor = 0xFF1744;
-    stackHelper1.slice.canvasWidth = threeD1.clientWidth;
-    stackHelper1.slice.canvasHeight = threeD1.clientHeight;
+    stackHelper1.slice.canvasWidth = r1.domElement.clientWidth;
+    stackHelper1.slice.canvasHeight = r1.domElement.clientHeight;
     // scene
-    sceneScreen1.add(stackHelper1);
-    sceneScreen0.add(sceneScreen1);
+    r1.scene.add(stackHelper1);
+    r0.scene.add(r1.scene);
 
     // Fill renderer 3
     stackHelper2 = new HelpersStack(stack);
     stackHelper2.orientation = 1;
     stackHelper2.bbox.visible = false;
     stackHelper2.borderColor = 0xFFEA00;
-    stackHelper2.slice.canvasWidth = threeD2.clientWidth;
-    stackHelper2.slice.canvasHeight = threeD2.clientHeight;
+    stackHelper2.slice.canvasWidth = r2.domElement.clientWidth;
+    stackHelper2.slice.canvasHeight = r2.domElement.clientHeight;
     // scene
-    sceneScreen2.add(stackHelper2);
-    sceneScreen0.add(sceneScreen2);
+    r2.scene.add(stackHelper2);
+    r0.scene.add(r2.scene);
 
     // Fill renderer 4
     stackHelper3 = new HelpersStack(stack);
     stackHelper3.orientation = 0;
     stackHelper3.bbox.visible = false;
     stackHelper3.borderColor = 0x76FF03;
-    stackHelper3.slice.canvasWidth = threeD3.clientWidth;
-    stackHelper3.slice.canvasHeight = threeD3.clientHeight;
+    stackHelper3.slice.canvasWidth = r3.domElement.clientWidth;
+    stackHelper3.slice.canvasHeight = r3.domElement.clientHeight;
     // scene
-    sceneScreen3.add(stackHelper3);
-    sceneScreen0.add(sceneScreen3);
+    r3.scene.add(stackHelper3);
+    r0.scene.add(r3.scene);
 
     // create new mesh with Localizer shaders
     let plane1 = stackHelper1.slice.cartesianEquation();
@@ -406,8 +401,8 @@ window.onload = function() {
     // ref
     localizer1Uniforms.uSlice.value = plane1;
     // update info to draw borders properly
-    localizer1Uniforms.uCanvasWidth.value = threeD1.clientWidth;
-    localizer1Uniforms.uCanvasHeight.value = threeD1.clientHeight;
+    localizer1Uniforms.uCanvasWidth.value = r1.domElement.clientWidth;
+    localizer1Uniforms.uCanvasHeight.value = r1.domElement.clientHeight;
     // generate shaders on-demand!
     let fs1 = new ShadersLocalizerFragment(localizer1Uniforms);
     let vs1 = new ShadersLocalizerVertex();
@@ -437,8 +432,8 @@ window.onload = function() {
     // ref
     localizer2Uniforms.uSlice.value = plane1;
     // update info to draw borders properly
-    localizer2Uniforms.uCanvasWidth.value = threeD2.clientWidth;
-    localizer2Uniforms.uCanvasHeight.value = threeD2.clientHeight;
+    localizer2Uniforms.uCanvasWidth.value = r2.domElement.clientWidth;
+    localizer2Uniforms.uCanvasHeight.value = r2.domElement.clientHeight;
     // generate shaders on-demand!
     let fs2 = new ShadersLocalizerFragment(localizer2Uniforms);
     let vs2 = new ShadersLocalizerVertex();
@@ -468,8 +463,8 @@ window.onload = function() {
     // ref
     localizer3Uniforms.uSlice.value = plane3;
     // update info to draw borders properly
-    localizer3Uniforms.uCanvasWidth.value = threeD3.clientWidth;
-    localizer3Uniforms.uCanvasHeight.value = threeD3.clientHeight;
+    localizer3Uniforms.uCanvasWidth.value = r3.domElement.clientWidth;
+    localizer3Uniforms.uCanvasHeight.value = r3.domElement.clientHeight;
     // generate shaders on-demand!
     let fs3 = new ShadersLocalizerFragment(localizer3Uniforms);
     let vs3 = new ShadersLocalizerVertex();
@@ -504,34 +499,34 @@ window.onload = function() {
 
     // init and zoom
     let canvas1 = {
-        width: threeD1.clientWidth,
-        height: threeD1.clientHeight,
+        width: r1.domElement.clientWidth,
+        height: r1.domElement.clientHeight,
       };
-    camera1.directions = [stack.zCosine, stack.xCosine, stack.yCosine];
-    camera1.box = bbox;
-    camera1.canvas = canvas1;
-    camera1.update();
-    camera1.fitBox(2);
+    r1.camera.directions = [stack.zCosine, stack.xCosine, stack.yCosine];
+    r1.camera.box = bbox;
+    r1.camera.canvas = canvas1;
+    r1.camera.update();
+    r1.camera.fitBox(2);
 
     let canvas2 = {
-        width: threeD2.clientWidth,
-        height: threeD2.clientHeight,
+        width: r2.domElement.clientWidth,
+        height: r2.domElement.clientHeight,
       };
-    camera2.directions = [stack.zCosine, stack.yCosine, stack.xCosine];
-    camera2.box = bbox;
-    camera2.canvas = canvas2;
-    camera2.update();
-    camera2.fitBox(2);
+    r2.camera.directions = [stack.zCosine, stack.yCosine, stack.xCosine];
+    r2.camera.box = bbox;
+    r2.camera.canvas = canvas2;
+    r2.camera.update();
+    r2.camera.fitBox(2);
 
     let canvas3 = {
-        width: threeD3.clientWidth,
-        height: threeD3.clientHeight,
+        width: r3.domElement.clientWidth,
+        height: r3.domElement.clientHeight,
       };
-    camera3.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
-    camera3.box = bbox;
-    camera3.canvas = canvas3;
-    camera3.update();
-    camera3.fitBox(2);
+    r3.camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
+    r3.camera.box = bbox;
+    r3.camera.canvas = canvas3;
+    r3.camera.update();
+    r3.camera.fitBox(2);
 
     let gui = new dat.GUI({
             autoPlace: false,
@@ -589,7 +584,7 @@ window.onload = function() {
       updateLocalizer(stackHelper2, localizer2Uniforms,
       2,
       [localizer1Uniforms, localizer3Uniforms]);
-      updateClipPlane(stackHelper2, clipPlane2, camera2);
+      updateClipPlane(stackHelper2, clipPlane2, r2.camera);
     }
 
     yellowChanged.onChange(onYellowChanged);
@@ -598,7 +593,7 @@ window.onload = function() {
       updateLocalizer(stackHelper1, localizer1Uniforms,
       1,
       [localizer2Uniforms, localizer3Uniforms]);
-      updateClipPlane(stackHelper1, clipPlane1, camera1);
+      updateClipPlane(stackHelper1, clipPlane1, r1.camera);
     }
 
     redChanged.onChange(onRedChanged);
@@ -607,7 +602,7 @@ window.onload = function() {
       updateLocalizer(stackHelper3, localizer3Uniforms,
       3,
       [localizer1Uniforms, localizer2Uniforms]);
-      updateClipPlane(stackHelper3, clipPlane3, camera3);
+      updateClipPlane(stackHelper3, clipPlane3, r3.camera);
     }
 
     greenChanged.onChange(onGreenChanged);
@@ -625,24 +620,24 @@ window.onload = function() {
       let scene = null;
       switch(id) {
         case '0':
-          camera = camera0;
+          camera = r0.camera;
           stackHelper = stackHelper1;
-          scene = sceneScreen0;
+          scene = r0.scene;
           break;
         case '1':
-          camera = camera1;
+          camera = r1.camera;
           stackHelper = stackHelper1;
-          scene = sceneScreen1;
+          scene = r1.scene;
           break;
         case '2':
-          camera = camera2;
+          camera = r2.camera;
           stackHelper = stackHelper2;
-          scene = sceneScreen2;
+          scene = r2.scene;
           break;
         case '3':
-          camera = camera3;
+          camera = r3.camera;
           stackHelper = stackHelper3;
-          scene = sceneScreen3;
+          scene = r3.scene;
           break;
       }
 
@@ -664,10 +659,10 @@ window.onload = function() {
     }
 
     // event listeners
-    threeD0.addEventListener('dblclick', onDoubleClick);
-    threeD1.addEventListener('dblclick', onDoubleClick);
-    threeD2.addEventListener('dblclick', onDoubleClick);
-    threeD3.addEventListener('dblclick', onDoubleClick);
+    r0.domElement.addEventListener('dblclick', onDoubleClick);
+    r1.domElement.addEventListener('dblclick', onDoubleClick);
+    r2.domElement.addEventListener('dblclick', onDoubleClick);
+    r3.domElement.addEventListener('dblclick', onDoubleClick);
 
     let meshesLoaded = 0;
     function loadSTLObject(object) {
@@ -689,7 +684,7 @@ window.onload = function() {
                         0, 0, 1, 0,
                         0, 0, 0, 1);
           object.mesh.applyMatrix(RASToLPS);
-          sceneScreen0.add(object.mesh);
+          r0.scene.add(object.mesh);
 
           // front
           object.materialFront = new THREE.MeshBasicMaterial({
