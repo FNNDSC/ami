@@ -10,7 +10,10 @@ import LoadersVolume from '../../src/loaders/loaders.volume';
 import ModelsStack from '../../src/models/models.stack';
 
 // standard global variables
-// CREATE RENDERER 0
+let stats;
+let ready = false;
+
+// 3d renderer
 let r0 = {
   domId: 'r0',
   domElement: null,
@@ -23,11 +26,14 @@ let r0 = {
   light: null,
 };
 
+// 2d axial renderer
 let r1 = {
   domId: 'r1',
   domElement: null,
   renderer: null,
   color: 0x121212,
+  sliceOrientation: 'axial',
+  sliceColor: 0xFF1744,
   targetID: 1,
   camera: null,
   controls: null,
@@ -38,11 +44,14 @@ let r1 = {
   localizerScene: null,
 };
 
+// 2d sagittal renderer
 let r2 = {
   domId: 'r2',
   domElement: null,
   renderer: null,
   color: 0x121212,
+  sliceOrientation: 'sagittal',
+  sliceColor: 0xFFEA00,
   targetID: 2,
   camera: null,
   controls: null,
@@ -53,11 +62,15 @@ let r2 = {
   localizerScene: null,
 };
 
+
+// 2d coronal renderer
 let r3 = {
   domId: 'r3',
   domElement: null,
   renderer: null,
   color: 0x121212,
+  sliceOrientation: 'coronal',
+  sliceColor: 0x76FF03,
   targetID: 3,
   camera: null,
   controls: null,
@@ -68,9 +81,7 @@ let r3 = {
   localizerScene: null,
 };
 
-let stats;
-let ready = false;
-
+// data to be loaded
 let dataInfo = [
     ['adi1', {
         location:
@@ -103,6 +114,7 @@ let dataInfo = [
 ];
 let data = new Map(dataInfo);
 
+// extra variables to show mesh plane intersections in 2D renderers
 let sceneClip = new THREE.Scene();
 let clipPlane1 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
 let clipPlane2 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
@@ -119,10 +131,6 @@ function initRenderer3D(renderObj) {
   renderObj.renderer.setClearColor(renderObj.color, 1);
   renderObj.renderer.domElement.id = renderObj.targetID;
   renderObj.domElement.appendChild(renderObj.renderer.domElement);
-
-  // stats
-  stats = new Stats();
-  renderObj.domElement.appendChild(stats.domElement);
 
   // camera
   renderObj.camera = new THREE.PerspectiveCamera(
@@ -148,6 +156,10 @@ function initRenderer3D(renderObj) {
   renderObj.light = new THREE.DirectionalLight(0xffffff, 1);
   renderObj.light.position.copy(renderObj.camera.position);
   renderObj.scene.add(renderObj.light);
+
+  // stats
+  stats = new Stats();
+  renderObj.domElement.appendChild(stats.domElement);
 }
 
 function initRenderer2D(rendererObj) {
@@ -183,26 +195,25 @@ function initRenderer2D(rendererObj) {
   rendererObj.scene = new THREE.Scene();
 }
 
-function initHelpersStack(rendererObj, stack, orientation, color, direction) {
+function initHelpersStack(rendererObj, stack) {
     rendererObj.stackHelper = new HelpersStack(stack);
-    rendererObj.stackHelper.orientation = orientation;
     rendererObj.stackHelper.bbox.visible = false;
-    rendererObj.stackHelper.borderColor = color;
+    rendererObj.stackHelper.borderColor = rendererObj.sliceColor;
     rendererObj.stackHelper.slice.canvasWidth =
       rendererObj.domElement.clientWidth;
     rendererObj.stackHelper.slice.canvasHeight =
       rendererObj.domElement.clientHeight;
 
-    rendererObj.scene.add(rendererObj.stackHelper);
-
     // set camera
     let worldbb = stack.worldBoundingBox();
     let lpsDims = new THREE.Vector3(
-      worldbb[1] - worldbb[0],
-      worldbb[3] - worldbb[2],
-      worldbb[5] - worldbb[4]
+      (worldbb[1] - worldbb[0])/2,
+      (worldbb[3] - worldbb[2])/2,
+      (worldbb[5] - worldbb[4])/2
     );
-    let bbox = {
+
+    // box: {halfDimensions, center}
+    let box = {
       center: stack.worldCenter().clone(),
       halfDimensions:
         new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
@@ -213,11 +224,19 @@ function initHelpersStack(rendererObj, stack, orientation, color, direction) {
         width: rendererObj.domElement.clientWidth,
         height: rendererObj.domElement.clientHeight,
       };
-    rendererObj.camera.directions = direction;
-    rendererObj.camera.box = bbox;
+
+    rendererObj.camera.directions =
+      [stack.xCosine, stack.yCosine, stack.zCosine];
+    rendererObj.camera.box = box;
     rendererObj.camera.canvas = canvas;
+    rendererObj.camera.orientation = rendererObj.sliceOrientation;
     rendererObj.camera.update();
-    rendererObj.camera.fitBox(2);
+    rendererObj.camera.fitBox(2, 1);
+
+    rendererObj.stackHelper.orientation = rendererObj.camera.stackOrientation;
+    rendererObj.stackHelper.index =
+      Math.floor(rendererObj.stackHelper.orientationMaxIndex/2);
+    rendererObj.scene.add(rendererObj.stackHelper);
 }
 
 function initHelpersLocalizer(rendererObj, stack, referencePlane, localizers) {
@@ -352,23 +371,26 @@ window.onload = function() {
     let stack = series.stack[0];
     stack.prepare();
 
+    // center 3d camera/control on the stack
+    let centerLPS = stack.worldCenter();
+    r0.camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
+    r0.camera.updateProjectionMatrix();
+    r0.controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
+
     // bouding box
     let boxHelper = new HelpersBoundingBox(stack);
     r0.scene.add(boxHelper);
 
     // red slice
-    initHelpersStack(
-      r1, stack, 2, 0xFF1744, [stack.zCosine, stack.xCosine, stack.yCosine]);
+    initHelpersStack(r1, stack);
     r0.scene.add(r1.scene);
 
     // yellow slice
-    initHelpersStack(
-      r2, stack, 1, 0xFFEA00, [stack.zCosine, stack.yCosine, stack.xCosine]);
+    initHelpersStack(r2, stack);
     r0.scene.add(r2.scene);
 
-    // Fill renderer 4
-    initHelpersStack(
-      r3, stack, 0, 0x76FF03, [stack.xCosine, stack.yCosine, stack.zCosine]);
+    // green slice
+    initHelpersStack(r3, stack);
     r0.scene.add(r3.scene);
 
     // create new mesh with Localizer shaders
@@ -376,7 +398,7 @@ window.onload = function() {
     let plane2 = r2.stackHelper.slice.cartesianEquation();
     let plane3 = r3.stackHelper.slice.cartesianEquation();
 
-    // localizer 1
+    // localizer red slice
     initHelpersLocalizer(r1, stack, plane1, [
       {plane: plane2,
        color: new THREE.Color(r2.stackHelper.borderColor),
@@ -386,7 +408,7 @@ window.onload = function() {
       },
     ]);
 
-    // localizer 2
+    // localizer yellow slice
     initHelpersLocalizer(r2, stack, plane2, [
       {plane: plane1,
        color: new THREE.Color(r1.stackHelper.borderColor),
@@ -396,7 +418,7 @@ window.onload = function() {
       },
     ]);
 
-    // localizer 3
+    // localizer green slice
     initHelpersLocalizer(r3, stack, plane3, [
       {plane: plane1,
        color: new THREE.Color(r1.stackHelper.borderColor),
@@ -406,29 +428,21 @@ window.onload = function() {
       },
     ]);
 
-    // update camrea's and interactor's target
-    let centerLPS = stack.worldCenter();
-    // update camera's target
-    r0.camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
-    r0.camera.updateProjectionMatrix();
-    r0.controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
-
     let gui = new dat.GUI({
-            autoPlace: false,
-          });
+      autoPlace: false,
+    });
 
     let customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
-    let stackFolder1 = gui.addFolder('Red');
+    let stackFolder1 = gui.addFolder('Axial (Red)');
     let redChanged = stackFolder1.add(
-      r1.stackHelper, 'index', 0, stack.dimensionsIJK.y - 1).step(1);
-    let stackFolder2 = gui.addFolder('Yellow');
+      r1.stackHelper, 'index', 0, r1.stackHelper.orientationMaxIndex).step(1).listen();
+    let stackFolder2 = gui.addFolder('Sagittal (yellow)');
     let yellowChanged = stackFolder2.add(
-      r2.stackHelper, 'index', 0, stack.dimensionsIJK.x - 1).step(1);
-    let stackFolder3 = gui.addFolder('Green');
+      r2.stackHelper, 'index', 0, r2.stackHelper.orientationMaxIndex).step(1).listen();
+    let stackFolder3 = gui.addFolder('Coronal (green)');
     let greenChanged = stackFolder3.add(
-      r3.stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1);
-
+      r3.stackHelper, 'index', 0, r3.stackHelper.orientationMaxIndex).step(1).listen();
 
     /**
      * Update Layer Mix
@@ -456,14 +470,16 @@ window.onload = function() {
       localizerHelper.geometry = refHelper.slice.geometry;
     }
 
-    function updateClipPlane(stackH, clipPlane, camera) {
-      let vertices = stackH.slice.geometry.vertices;
+    function updateClipPlane(refObj, clipPlane) {
+      const stackHelper = refObj.stackHelper;
+      const camera = refObj.camera;
+      let vertices = stackHelper.slice.geometry.vertices;
       let p1 = new THREE.Vector3(vertices[0].x, vertices[0].y, vertices[0].z)
-        .applyMatrix4(stackH._stack.ijk2LPS);
+        .applyMatrix4(stackHelper._stack.ijk2LPS);
       let p2 = new THREE.Vector3(vertices[1].x, vertices[1].y, vertices[1].z)
-        .applyMatrix4(stackH._stack.ijk2LPS);
+        .applyMatrix4(stackHelper._stack.ijk2LPS);
       let p3 = new THREE.Vector3(vertices[2].x, vertices[2].y, vertices[2].z)
-        .applyMatrix4(stackH._stack.ijk2LPS);
+        .applyMatrix4(stackHelper._stack.ijk2LPS);
 
       clipPlane.setFromCoplanarPoints(p1, p2, p3);
 
@@ -477,21 +493,21 @@ window.onload = function() {
 
     function onYellowChanged() {
       updateLocalizer(r2, [r1.localizerHelper, r3.localizerHelper]);
-      updateClipPlane(r2.stackHelper, clipPlane2, r2.camera);
+      updateClipPlane(r2, clipPlane2);
     }
 
     yellowChanged.onChange(onYellowChanged);
 
     function onRedChanged() {
       updateLocalizer(r1, [r2.localizerHelper, r3.localizerHelper]);
-      updateClipPlane(r1.stackHelper, clipPlane1, r1.camera);
+      updateClipPlane(r1, clipPlane1);
     }
 
     redChanged.onChange(onRedChanged);
 
     function onGreenChanged() {
       updateLocalizer(r3, [r1.localizerHelper, r2.localizerHelper]);
-      updateClipPlane(r3.stackHelper, clipPlane3, r3.camera);
+      updateClipPlane(r3, clipPlane3);
     }
 
     greenChanged.onChange(onGreenChanged);
@@ -537,9 +553,12 @@ window.onload = function() {
       if(intersects.length > 0) {
         let ijk =
           ModelsStack.worldToData(stackHelper.stack, intersects[0].point);
-        r1.stackHelper.index = ijk.y;
-        r2.stackHelper.index = ijk.x;
-        r3.stackHelper.index = ijk.z;
+        r1.stackHelper.index =
+          ijk.getComponent((r1.stackHelper.orientation + 2) % 3);
+        r2.stackHelper.index =
+          ijk.getComponent((r2.stackHelper.orientation + 2) % 3);
+        r3.stackHelper.index =
+          ijk.getComponent((r3.stackHelper.orientation + 2) % 3);
 
         onGreenChanged();
         onRedChanged();
@@ -553,6 +572,80 @@ window.onload = function() {
     r2.domElement.addEventListener('dblclick', onDoubleClick);
     r3.domElement.addEventListener('dblclick', onDoubleClick);
 
+    function onScroll(event) {
+      const id = event.target.domElement.id;
+      let stackHelper = null;
+      switch (id) {
+        case 'r1':
+          stackHelper = r1.stackHelper;
+          break;
+        case 'r2':
+          stackHelper = r2.stackHelper;
+          break;
+        case 'r3':
+          stackHelper = r3.stackHelper;
+          break;
+      }
+
+      if (event.delta > 0) {
+        if (stackHelper.index >= stackHelper.orientationMaxIndex - 1) {
+          return false;
+        }
+        stackHelper.index += 1;
+      } else {
+        if (stackHelper.index <= 0) {
+          return false;
+        }
+        stackHelper.index -= 1;
+      }
+
+      onGreenChanged();
+      onRedChanged();
+      onYellowChanged();
+    }
+
+     // event listeners
+    r1.controls.addEventListener('OnScroll', onScroll);
+    r2.controls.addEventListener('OnScroll', onScroll);
+    r3.controls.addEventListener('OnScroll', onScroll);
+
+    function windowResize2D(rendererObj) {
+      rendererObj.camera.canvas = {
+        width: rendererObj.domElement.clientWidth,
+        height: rendererObj.domElement.clientHeight,
+      };
+      rendererObj.camera.fitBox(2, 1);
+      rendererObj.renderer.setSize(
+        rendererObj.domElement.clientWidth,
+        rendererObj.domElement.clientHeight);
+
+      // update info to draw borders properly
+      rendererObj.stackHelper.slice.canvasWidth =
+        rendererObj.domElement.clientWidth;
+      rendererObj.stackHelper.slice.canvasHeight =
+        rendererObj.domElement.clientHeight;
+      rendererObj.localizerHelper.canvasWidth =
+        rendererObj.domElement.clientWidth;
+      rendererObj.localizerHelper.canvasHeight =
+        rendererObj.domElement.clientHeight;
+    }
+
+    function onWindowResize() {
+      // update 3D
+      r0.camera.aspect = r0.domElement.clientWidth / r0.domElement.clientHeight;
+      r0.camera.updateProjectionMatrix();
+      r0.renderer.setSize(
+        r0.domElement.clientWidth, r0.domElement.clientHeight);
+
+      // update 2d
+      windowResize2D(r1);
+      windowResize2D(r2);
+      windowResize2D(r3);
+    }
+
+    window.addEventListener('resize', onWindowResize, false);
+
+    // load meshes on the stack is all set
     let meshesLoaded = 0;
     function loadSTLObject(object) {
       const stlLoader = new THREE.STLLoader();
