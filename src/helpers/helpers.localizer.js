@@ -1,10 +1,10 @@
 /** * Imports ***/
 import ShadersUniform from
-  '../../src/shaders/shaders.localizer.uniform';
+  '../shaders/shaders.localizer.uniform';
 import ShadersVertex from
-  '../../src/shaders/shaders.localizer.vertex';
+  '../shaders/shaders.localizer.vertex';
 import ShadersFragment from
-  '../../src/shaders/shaders.localizer.fragment';
+  '../shaders/shaders.localizer.fragment';
 
 /**
  * @module helpers/localizer

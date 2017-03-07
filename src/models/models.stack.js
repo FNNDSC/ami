@@ -1,7 +1,7 @@
 /** * Imports ***/
-import CoreColors from '../../src/core/core.colors';
-import CoreUtils from '../../src/core/core.utils';
-import ModelsBase from '../../src/models/models.base';
+import CoreColors from '../core/core.colors';
+import CoreUtils from '../core/core.utils';
+import ModelsBase from '../models/models.base';
 
 let binaryString = require('math-float32-to-binary-string');
 

@@ -1,7 +1,7 @@
 /** * Imports ***/
-import HelpersBorder from '../../src/helpers/helpers.border';
-import HelpersBoundingBox from '../../src/helpers/helpers.boundingbox';
-import HelpersSlice from '../../src/helpers/helpers.slice';
+import HelpersBorder from '../helpers/helpers.border';
+import HelpersBoundingBox from '../helpers/helpers.boundingbox';
+import HelpersSlice from '../helpers/helpers.slice';
 
 /**
  * Helper to easily display and interact with a stack.<br>

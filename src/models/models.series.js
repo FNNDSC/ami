@@ -1,5 +1,5 @@
 /** * Imports ***/
-import ModelsBase from '../../src/models/models.base';
+import ModelsBase from '../models/models.base';
 
 /**
  * Series object.
