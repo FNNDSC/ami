@@ -1,7 +1,7 @@
 {
   "name": "ami.js",
   "version": "0.0.16-dev",
-  "main": "src/ami.js",
+  "main": "lib/ami.js",
   "keywords": [
     "ami",
     "ami.js",
