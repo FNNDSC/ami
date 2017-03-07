@@ -12,7 +12,7 @@ let _mode = 'dist';
 let _destRootDir = 'dist';
 let _destFile = 'index.html';
 
-if(process.argv[2] === '--demo') {
+if (process.argv[2] === '--demo') {
   // inplace replace demo.thml
   _mode = 'demo';
   _destRootDir = '';
@@ -27,10 +27,10 @@ const mode = _mode;
 const LessonTemplate = require('./templates/lessons.js');
 
 //
-if(_destRootDir!=='') {
+if (_destRootDir!=='') {
   try {
     fs.statSync(destRootDir);
-  } catch(e) {
+  } catch (e) {
     fs.mkdirSync(destRootDir);
   }
 }
@@ -38,7 +38,7 @@ if(_destRootDir!=='') {
 // <dev> or <dist> or <> / lessons
 try {
   fs.statSync(destDir);
-} catch(e) {
+} catch (e) {
   fs.mkdirSync(destDir);
 }
 
@@ -60,12 +60,12 @@ fs.readdir(targetDir, function(e, files) {
     // <dev> or <dist> or <> / lessons / <lessonName>
     try {
       fs.statSync(lessonDestDir);
-    } catch(e) {
+    } catch (e) {
       fs.mkdirSync(lessonDestDir);
     }
 
     // if dev, generate proper index.html in proper location
-    if(mode !== 'demo') {
+    if (mode !== 'demo') {
       // copy static files to right location
       toCopy.forEach(function(file) {
         let targetFile = path.join(lessonTargetDir, file);

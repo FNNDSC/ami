@@ -1,5 +1,5 @@
 /** Imports **/
-import HelpersProgressBar from '../../src/helpers/helpers.progressbar';
+import HelpersProgressBar from '../helpers/helpers.progressbar';
 
 /**
  *

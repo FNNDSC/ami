@@ -1,5 +1,5 @@
 /** * Imports ***/
-import HelpersVoxel from '../../src/helpers/helpers.voxel';
+import HelpersVoxel from '../helpers/helpers.voxel';
 
 /**
  * @module widgets/voxelProbe

@@ -1,5 +1,5 @@
-import WidgetsBase from '../../src/widgets/widgets.base';
-import WidgetsHandle from '../../src/widgets/widgets.handle';
+import WidgetsBase from '../widgets/widgets.base';
+import WidgetsHandle from '../widgets/widgets.handle';
 
 /**
  * @module widgets/handle

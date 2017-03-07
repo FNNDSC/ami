@@ -1,5 +1,5 @@
 /** * Imports ***/
-import coreIntersections from '../../src/core/core.intersections';
+import coreIntersections from '../core/core.intersections';
 
 /**
  *

@@ -3,8 +3,11 @@
 .sass-cache
 .tmp
 .idea
+lib
 bower_components
 deprecated
 dist
 node_modules
 old_data
+.vscode
+.jsbeautifyrc

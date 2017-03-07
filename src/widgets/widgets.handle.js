@@ -1,5 +1,5 @@
-import WidgetsBase from '../../src/widgets/widgets.base';
-import CoreIntersections from '../../src/core/core.intersections';
+import WidgetsBase from '../widgets/widgets.base';
+import CoreIntersections from '../core/core.intersections';
 
 
 /**

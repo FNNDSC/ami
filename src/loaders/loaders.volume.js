@@ -3,12 +3,12 @@ const PAKO = require('pako');
 const URL = require('url');
 
 import LoadersBase from './loaders.base';
-import ModelsSeries from '../../src/models/models.series';
-import ModelsStack from '../../src/models/models.stack';
-import ModelsFrame from '../../src/models/models.frame';
-import ParsersDicom from '../../src/parsers/parsers.dicom';
-import ParsersNifti from '../../src/parsers/parsers.nifti';
-import ParsersNrrd from '../../src/parsers/parsers.nrrd';
+import ModelsSeries from '../models/models.series';
+import ModelsStack from '../models/models.stack';
+import ModelsFrame from '../models/models.frame';
+import ParsersDicom from '../parsers/parsers.dicom';
+import ParsersNifti from '../parsers/parsers.nifti';
+import ParsersNrrd from '../parsers/parsers.nrrd';
 
 
 /**

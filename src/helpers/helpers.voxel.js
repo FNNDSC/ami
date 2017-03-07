@@ -1,6 +1,6 @@
-import GeometriesVoxel from '../../src/geometries/geometries.voxel';
-import ModelsStack from '../../src/models/models.stack';
-import ModelsVoxel from '../../src/models/models.voxel';
+import GeometriesVoxel from '../geometries/geometries.voxel';
+import ModelsStack from '../models/models.stack';
+import ModelsVoxel from '../models/models.voxel';
 
 /**
  * @module helpers/voxel
