@@ -21,14 +21,14 @@ const ExampleTemplate = require('./templates/examples.js');
 //
 try {
   fs.statSync(destRootDir);
-} catch(e) {
+} catch (e) {
   fs.mkdirSync(destRootDir);
 }
 
 // <dev> or <dist> or <> / lessons
 try {
   fs.statSync(destDir);
-} catch(e) {
+} catch (e) {
   fs.mkdirSync(destDir);
 }
 
@@ -49,7 +49,7 @@ fs.readdir(targetDir, function(e, files) {
     // <dev> or <dist> or <> / lessons / <lessonName>
     try {
       fs.statSync(lessonDestDir);
-    } catch(e) {
+    } catch (e) {
       fs.mkdirSync(lessonDestDir);
     }
 
