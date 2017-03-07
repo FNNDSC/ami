@@ -1,4 +1,10 @@
 {
   "presets": ["es2015"],
-  "ignore": ["external/**/*"]
+  "ignore": ["external/**/*"],
+
+  "env": {
+    "cjs": {
+      "plugins": ["add-module-exports"]
+    }
+  }
 }

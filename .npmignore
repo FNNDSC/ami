@@ -1,2 +1,12 @@
-old_data
+.DS_STORE
+.publish
+.sass-cache
+.tmp
+.idea
+bower_components
+deprecated
+dist
 node_modules
+old_data
+.vscode
+.jsbeautifyrc
