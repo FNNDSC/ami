@@ -118,7 +118,7 @@ export default class LoadersBase {
    */
   parse(response) {
     return new Promise((resolve, reject) => {
-      resolve(null);
+      resolve(response);
     });
   }
 
@@ -134,6 +134,7 @@ export default class LoadersBase {
       })
       .then((data) => {
         this._data.push(data);
+        return data;
       })
       .catch(function(error) {
         window.console.log('oops... something went wrong...');
