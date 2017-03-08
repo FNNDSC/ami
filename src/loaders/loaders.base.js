@@ -1,6 +1,7 @@
 /** Imports **/
 import HelpersProgressBar from '../helpers/helpers.progressbar';
 
+
 /**
  *
  * It is typically used to load a DICOM image. Use loading manager for
@@ -29,9 +30,11 @@ import HelpersProgressBar from '../helpers/helpers.progressbar';
  */
 export default class LoadersBase {
   /**
-   * Some text
+   * Create a Loader.
+   * @param {dom} container - The dom container of loader.
+   * @param {object} ProgressBar - The progressbar of loader.
    */
-  constructor(container=null, ProgressBar=HelpersProgressBar) {
+  constructor(container = null, ProgressBar = HelpersProgressBar) {
     this._loaded = -1;
     this._totalLoaded = -1;
     this._parsed = -1;
@@ -41,24 +44,29 @@ export default class LoadersBase {
 
     this._container = container;
     this._progressBar = null;
-    if(this._container && ProgressBar) {
+    if (this._container && ProgressBar) {
       this._progressBar = new ProgressBar(this._container);
     }
   }
 
   /**
-   *
+   * free the reference.
    */
   free() {
     this._container = null;
     this._helpersProgressBar = null;
 
-    if(this._progressBar) {
+    if (this._progressBar) {
       this._progressBar.free();
       this._progressBar = null;
     }
   }
 
+  /**
+   * load the resource by url.
+   * @param {string} url - resource url.
+   * @return {promise} promise.
+   */
   fetch(url) {
     return new Promise((resolve, reject) => {
       let request = new XMLHttpRequest();
@@ -67,10 +75,10 @@ export default class LoadersBase {
       request.responseType = 'arraybuffer';
 
       request.onload = (event) => {
-        if(request.status === 200) {
+        if (request.status === 200) {
           this._loaded = event.loaded;
           this._totalLoaded = event.total;
-          if(this._progressBar) {
+          if (this._progressBar) {
             this._progressBar.update(this._loaded, this._totalLoaded, 'load');
           }
 
@@ -85,6 +93,7 @@ export default class LoadersBase {
           reject(request.statusText);
         }
       };
+
       request.onerror = () => {
         reject(request.statusText);
       };
@@ -92,7 +101,7 @@ export default class LoadersBase {
       request.onprogress = (event) => {
         this._loaded = event.loaded;
         this._totalLoaded = event.total;
-        if(this._progressBar) {
+        if (this._progressBar) {
           this._progressBar.update(this._loaded, this._totalLoaded, 'load');
         }
       };
@@ -101,13 +110,23 @@ export default class LoadersBase {
     });
   }
 
+  /**
+   * parse the data loaded
+   * SHOULD BE implementd by detail loader.
+   * @param {object} response - loaded data.
+   * @return {promise} promise.
+   */
   parse(response) {
     return new Promise((resolve, reject) => {
-      resolve(null);
+      resolve(response);
     });
   }
 
-  // default load sequence promise
+  /**
+   * default load sequence promise.
+   * @param {string} url - resource url.
+   * @return {promise} promise.
+   */
   loadSequence(url) {
     return this.fetch(url)
       .then((rawdata) => {
@@ -115,6 +134,7 @@ export default class LoadersBase {
       })
       .then((data) => {
         this._data.push(data);
+        return data;
       })
       .catch(function(error) {
         window.console.log('oops... something went wrong...');
@@ -122,29 +142,41 @@ export default class LoadersBase {
       });
   }
 
+  /**
+   * load the data by url(urls)
+   * @param {string|array} url - resource url.
+   * @return {promise} promise
+   */
   load(url) {
     // if we load a single file, convert it to an array
-    if(!Array.isArray(url)) {
+    if (!Array.isArray(url)) {
       url = [url];
     }
 
     let loadSequences = [];
     url.forEach((file) => {
-     loadSequences.push(
-       this.loadSequence(file)
+      loadSequences.push(
+        this.loadSequence(file)
       );
     });
 
     return Promise.all(loadSequences);
   }
 
+  /**
+   * Set data
+   * @param {array} data
+   */
   set data(data) {
     this._data = data;
   }
 
+  /**
+   * Get data
+   * @return {array} data loaded
+   */
   get data() {
     return this._data;
   }
-
 
 }
