@@ -1,6 +1,6 @@
 /** Imports **/
 import HelpersProgressBar from '../helpers/helpers.progressbar';
-
+import EventEmitter from 'events';
 
 /**
  *
@@ -10,7 +10,7 @@ import HelpersProgressBar from '../helpers/helpers.progressbar';
  * Demo: {@link https://fnndsc.github.io/vjs#loader_dicom}
  *
  * @module loaders/base
- *
+ * @extends EventEmitter
  * @example
  * var files = ['/data/dcm/fruit'];
  *
@@ -28,13 +28,14 @@ import HelpersProgressBar from '../helpers/helpers.progressbar';
  *   }
  * );
  */
-export default class LoadersBase {
+export default class LoadersBase extends EventEmitter {
   /**
    * Create a Loader.
    * @param {dom} container - The dom container of loader.
    * @param {object} ProgressBar - The progressbar of loader.
    */
   constructor(container = null, ProgressBar = HelpersProgressBar) {
+    super();
     this._loaded = -1;
     this._totalLoaded = -1;
     this._parsed = -1;
@@ -78,8 +79,11 @@ export default class LoadersBase {
         if (request.status === 200) {
           this._loaded = event.loaded;
           this._totalLoaded = event.total;
+
+          // will be removed after eventer set up
           if (this._progressBar) {
-            this._progressBar.update(this._loaded, this._totalLoaded, 'load');
+            this._progressBar.update(this._loaded, this._totalLoaded,
+              'load');
           }
 
           let buffer = request.response;
@@ -88,6 +92,13 @@ export default class LoadersBase {
             buffer,
           };
 
+          // emit 'fetch-success' event
+          this.emit('fetch-success', {
+            file: url,
+            curTime: new Date(),
+            totalLoaded: event.total,
+          });
+
           resolve(response);
         } else {
           reject(request.statusText);
@@ -95,16 +106,37 @@ export default class LoadersBase {
       };
 
       request.onerror = () => {
+        // emit 'fetch-error' event
+        this.emit('fetch-error', {
+          file: url,
+          curTime: new Date(),
+        });
+
         reject(request.statusText);
       };
 
       request.onprogress = (event) => {
         this._loaded = event.loaded;
         this._totalLoaded = event.total;
+        // emit 'fetching' event
+        this.emit('fetching', {
+          file: url,
+          total: event.total,
+          loaded: event.loaded,
+          curTime: new Date(),
+        });
+        // will be removed after eventer set up
         if (this._progressBar) {
-          this._progressBar.update(this._loaded, this._totalLoaded, 'load');
+          this._progressBar.update(this._loaded, this._totalLoaded,
+            'load');
         }
       };
+
+      // emit 'begin-fetch' event
+      this.emit('begin-fetch', {
+        file: url,
+        curTime: new Date(),
+      });
 
       request.send();
     });
@@ -153,13 +185,19 @@ export default class LoadersBase {
       url = [url];
     }
 
+    // emit 'before-loader' event
+    this.emit('begin-load', {
+      totalFiles: url.length,
+      files: url,
+      curTime: new Date(),
+    });
+
     let loadSequences = [];
     url.forEach((file) => {
       loadSequences.push(
         this.loadSequence(file)
       );
     });
-
     return Promise.all(loadSequences);
   }
 
