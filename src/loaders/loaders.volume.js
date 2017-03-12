@@ -96,8 +96,7 @@ export default class LoadersVolumes extends LoadersBase {
               }
 
               if (data.query &&
-                data.query.includes(
-                  'contentType=application%2Fdicom')) {
+                data.query.includes('contentType=application%2Fdicom')) {
                 data.extension = 'dicom';
               }
 

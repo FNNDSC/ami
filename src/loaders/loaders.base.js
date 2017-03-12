@@ -2,6 +2,7 @@
 import HelpersProgressBar from '../helpers/helpers.progressbar';
 import EventEmitter from 'events';
 
+
 /**
  *
  * It is typically used to load a DICOM image. Use loading manager for
