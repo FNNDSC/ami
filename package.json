@@ -36,11 +36,12 @@
   },
   "dependencies": {
     "dicom-parser": "1.7.3",
+    "events": "^1.1.1",
     "image-JPEG2000": "OHIF/image-JPEG2000#master",
     "jpeg-lossless-decoder-js": "1.2.3",
     "math-float32-to-binary-string": "^1.0.0",
-    "nrrd-js": "^0.2.1",
     "nifti-reader-js": "v0.5.3",
+    "nrrd-js": "^0.2.1",
     "pako": "1.0.1"
   },
   "scripts": {
