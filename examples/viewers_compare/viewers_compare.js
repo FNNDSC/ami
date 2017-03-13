@@ -274,6 +274,9 @@ window.onload = function() {
         height: threeD.clientHeight,
       };
       camera.fitBox(2);
+      
+      sceneLayer0TextureTarget.setSize(threeD.clientWidth, threeD.clientHeight);
+      sceneLayer1TextureTarget.setSize(threeD.clientWidth, threeD.clientHeight);
 
       renderer.setSize(threeD.clientWidth, threeD.clientHeight);
     }
