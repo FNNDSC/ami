@@ -36,7 +36,7 @@ export default class EventBasedProgressBar {
       self._domTotalFile.innerHTML = totalFiles;
     });
 
-    this._emitter.on('begin-fetch', function(event) {
+    this._emitter.on('fetch-start', function(event) {
       const fetchLi = document.createElement('li');
 
       const fileTag = document.createElement('div');
@@ -56,7 +56,7 @@ export default class EventBasedProgressBar {
       self._domProcessList.append(fetchLi);
     });
 
-    this._emitter.on('fetching', function(event) {
+    this._emitter.on('fetch-progress', function(event) {
       const id = 'file-fetch-' + event.file;
       const fileFetchDom = document.getElementById(id);
       fileFetchDom.style.width = (event.loaded / event.total) * 100 + '%';
@@ -74,6 +74,18 @@ export default class EventBasedProgressBar {
     });
 
     this._emitter.on('fetch-error', function(event) {
+      // console.log(event);
+    });
+
+    this._emitter.on('fetch-abort', function(event) {
+      // console.log(event);
+    });
+
+    this._emitter.on('fetch-end', function(event) {
+      // console.log(event);
+    });
+
+    this._emitter.on('fetch-timeout', function(event) {
       // console.log(event);
     });
 
