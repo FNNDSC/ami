@@ -96,7 +96,7 @@ export default class LoadersBase extends EventEmitter {
           // emit 'fetch-success' event
           this.emit('fetch-success', {
             file: url,
-            curTime: new Date(),
+            time: new Date(),
             totalLoaded: event.total,
           });
 
@@ -110,7 +110,7 @@ export default class LoadersBase extends EventEmitter {
         // emit 'fetch-error' event
         this.emit('fetch-error', {
           file: url,
-          curTime: new Date(),
+          time: new Date(),
         });
 
         reject(request.statusText);
@@ -124,7 +124,7 @@ export default class LoadersBase extends EventEmitter {
           file: url,
           total: event.total,
           loaded: event.loaded,
-          curTime: new Date(),
+          time: new Date(),
         });
         // will be removed after eventer set up
         if (this._progressBar) {
@@ -136,7 +136,7 @@ export default class LoadersBase extends EventEmitter {
       // emit 'begin-fetch' event
       this.emit('begin-fetch', {
         file: url,
-        curTime: new Date(),
+        time: new Date(),
       });
 
       request.send();
@@ -190,7 +190,7 @@ export default class LoadersBase extends EventEmitter {
     this.emit('begin-load', {
       totalFiles: url.length,
       files: url,
-      curTime: new Date(),
+      time: new Date(),
     });
 
     let loadSequences = [];
