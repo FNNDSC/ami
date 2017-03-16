@@ -238,7 +238,7 @@ export default class LoadersVolumes extends LoadersBase {
     }
 
     // emit 'parsing' event
-    this.emit('parseing', {
+    this.emit('parsing', {
       file: url,
       total: this._totalParsed,
       parsed: this._parsed,

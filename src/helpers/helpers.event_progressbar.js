@@ -65,7 +65,7 @@ export default class EventBasedProgressBar {
 
     this._emitter.on('fetch-success', function(event) {
       // show result
-      const liParent = document.getElementById('file-' + event.file)
+      const liParent = document.getElementById('file-' + event.file);
       const result = document.createElement('div');
       result.id = 'file-result-' + event.file;
       result.innerHTML = 'fetch-success';
@@ -85,7 +85,7 @@ export default class EventBasedProgressBar {
       liParent.append(parseprogress);
     });
 
-    this._emitter.on('parseing', function(event) {
+    this._emitter.on('parsing', function(event) {
       const id = 'file-parse-' + event.file;
       const fileParseDom = document.getElementById(id);
       fileParseDom.style.width = (event.parsed / event.total) * 100 + '%';
