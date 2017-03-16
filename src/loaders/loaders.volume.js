@@ -52,7 +52,7 @@ export default class LoadersVolumes extends LoadersBase {
     // emit 'begin-parse' event
     this.emit('begin-parse', {
       file: response.url,
-      curTime: new Date(),
+      time: new Date(),
     });
     // give a chance to the UI to update because
     // after the rendering will be blocked with intensive JS
@@ -238,11 +238,11 @@ export default class LoadersVolumes extends LoadersBase {
     }
 
     // emit 'parsing' event
-    this.emit('parseing', {
+    this.emit('parsing', {
       file: url,
       total: this._totalParsed,
       parsed: this._parsed,
-      curTime: new Date(),
+      time: new Date(),
     });
 
     if (this._parsed === this._totalParsed) {
@@ -251,7 +251,7 @@ export default class LoadersVolumes extends LoadersBase {
         file: url,
         total: this._totalParsed,
         parsed: this._parsed,
-        curTime: new Date(),
+        time: new Date(),
       });
 
       resolve(series);

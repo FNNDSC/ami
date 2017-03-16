@@ -56,7 +56,7 @@ export default class LoadersBase extends EventEmitter {
    */
   free() {
     this._container = null;
-    this._helpersProgressBar = null;
+    // this._helpersProgressBar = null;
 
     if (this._progressBar) {
       this._progressBar.free();
@@ -75,6 +75,14 @@ export default class LoadersBase extends EventEmitter {
       request.open('GET', url);
       request.crossOrigin = true;
       request.responseType = 'arraybuffer';
+
+      request.onloadstart = (event) => {
+        // emit 'fetch-start' event
+        this.emit('fetch-start', {
+          file: url,
+          time: new Date(),
+        });
+      };
 
       request.onload = (event) => {
         if (request.status === 200) {
@@ -96,7 +104,7 @@ export default class LoadersBase extends EventEmitter {
           // emit 'fetch-success' event
           this.emit('fetch-success', {
             file: url,
-            curTime: new Date(),
+            time: new Date(),
             totalLoaded: event.total,
           });
 
@@ -110,7 +118,27 @@ export default class LoadersBase extends EventEmitter {
         // emit 'fetch-error' event
         this.emit('fetch-error', {
           file: url,
-          curTime: new Date(),
+          time: new Date(),
+        });
+
+        reject(request.statusText);
+      };
+
+      request.onabort = (event) => {
+        // emit 'fetch-start' event
+        this.emit('fetch-abort', {
+          file: url,
+          time: new Date(),
+        });
+
+        reject(request.statusText);
+      };
+
+      request.ontimeout = () => {
+        // emit 'fetch-timeout' event
+        this.emit('fetch-timeout', {
+          file: url,
+          time: new Date(),
         });
 
         reject(request.statusText);
@@ -119,12 +147,12 @@ export default class LoadersBase extends EventEmitter {
       request.onprogress = (event) => {
         this._loaded = event.loaded;
         this._totalLoaded = event.total;
-        // emit 'fetching' event
-        this.emit('fetching', {
+        // emit 'fetch-progress' event
+        this.emit('fetch-progress', {
           file: url,
           total: event.total,
           loaded: event.loaded,
-          curTime: new Date(),
+          time: new Date(),
         });
         // will be removed after eventer set up
         if (this._progressBar) {
@@ -133,11 +161,14 @@ export default class LoadersBase extends EventEmitter {
         }
       };
 
-      // emit 'begin-fetch' event
-      this.emit('begin-fetch', {
-        file: url,
-        curTime: new Date(),
-      });
+      request.onloadend = (event) => {
+        // emit 'fetch-end' event
+        this.emit('fetch-end', {
+          file: url,
+          time: new Date(),
+        });
+        reject(request.statusText);
+      };
 
       request.send();
     });
@@ -190,7 +221,7 @@ export default class LoadersBase extends EventEmitter {
     this.emit('begin-load', {
       totalFiles: url.length,
       files: url,
-      curTime: new Date(),
+      time: new Date(),
     });
 
     let loadSequences = [];
