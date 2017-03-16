@@ -274,6 +274,9 @@ window.onload = function() {
         height: threeD.clientHeight,
       };
       camera.fitBox(2);
+      
+      sceneLayer0TextureTarget.setSize(threeD.clientWidth, threeD.clientHeight);
+      sceneLayer1TextureTarget.setSize(threeD.clientWidth, threeD.clientHeight);
 
       renderer.setSize(threeD.clientWidth, threeD.clientHeight);
     }
@@ -393,7 +396,7 @@ window.onload = function() {
     });
 
     // add mesh in this scene with right shaders...
-    meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
+    meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
     // go the LPS space
     meshLayerMix.applyMatrix(stack2._ijk2LPS);
     sceneLayerMix.add(meshLayerMix);
