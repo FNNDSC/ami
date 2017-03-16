@@ -5,19 +5,19 @@ import ParsersNifti from '../../src/parsers/parsers.nifti';
 
 let dicomDataset = {
     format: 'dicom',
-    url: '/base/data/dicom/adi_slice.dcm.tar',
+    url: '/base/data/dicom/adi_slice.dcm',
     parser: ParsersDicom
 };
 
 let niftiDataset = {
     format: 'nifti',
-    url: '/base/data/nifti/adi_slice.nii.tar',
+    url: '/base/data/nifti/adi_slice.nii',
     parser: ParsersNifti
 };
 
 // let nrrdDataset = {
 //     format: 'nrrd',
-//     url: '/base/data/nrrd/adi_slice.nrrd.tar',
+//     url: '/base/data/nrrd/adi_slice.nrrd',
 //     parser: ParsersNrrd
 // };
 
