@@ -30,24 +30,30 @@
 </p>
 
 ----------
+
 ```diff
+
 **AMI Alpha** is now available for developer preview.
 Please submit pull request, open issues or contact us for any question, feature request, etc.
 
 - <Important Note>
 -  Developer preview means that the API might change but you can already build cool apps with AMI.
+
 ```
+
 ----------
 
 ### Content
 
 1. [Hello AMI](#hello-ami)
-2. [Features](#features)
-3. [Usage](#npm)
-4. [Developer corner](#developer-corner)
-5. [Credits](#credits)
+- [Features](#features)
+- [Usage](#npm)
+- [Developer corner](#developer-corner)
+- [Credits](#credits)
+
 
 ## Hello AMI
+
 <table>
 <tr>
   <!-- Lesson 00 -->
@@ -132,7 +138,7 @@ Please submit pull request, open issues or contact us for any question, feature 
       Overlays on top of you data.
     </div>
   </td>
-  
+
   <!-- Lesson 05 -->
   <td valign="middle" width="100">
     <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run' target=_blank>-->
@@ -165,7 +171,7 @@ Please submit pull request, open issues or contact us for any question, feature 
       Volume Rendering.
     </div>
   </td>
-  
+
   <!-- Lesson 07 -->
   <td valign="middle" width="100">
     <!--<a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run' target=_blank>-->
@@ -206,37 +212,47 @@ Please submit pull request, open issues or contact us for any question, feature 
 Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced demos [there](https://fnndsc.github.io/ami)!
 
 ## Features
+
 > :white_check_mark: READY - :large_orange_diamond: IN PROGRESS OR LIMITED SUPPORT - :x: ON ROADMAP
 
-| Capabilities       	| Volumes   	| Meshes          	| Widgets                	|
-|--------------------	|-----------	|-----------------	|------------------------	|
-| ✅ 2D Visulization  	| ✅ Dicom   	| ✅ VTK (THREEJS) 	| 🔶 Handle (2D/3D)      	|
-| ✅ 3D Visualization 	| ✅ NRRD    	| ✅ STL (THREEJS) 	| 🔶 Probe (2D/3D)       	|
-| ✅ Volume Rendering 	| ✅ Nifti  	| 🔶 TRK          	| 🔶 Ruler (2D/3D)       	|
-| ✅ Lookup Tables    	| ❌ MGH/MGZ 	| ❌ CURV          	| 🔶 Angle (2D/3D)       	|
-| 🔶 Label Maps        | ❌ JPEG    	| ❌ FSM           	| 🔶 Orientation (2D/3D) 	|
+| 📊 Capabilities     | 📗 Volumes   | 📘 Meshes        | ✏️ Widgets              |
+|--------------------|--------------|------------------|------------------------|
+| ✅ 2D Visulization  | ✅ Dicom     | ✅ VTK (THREEJS) | 🔶 Handle (2D/3D)       |
+| ✅ 3D Visualization | ✅ NRRD      | ✅ STL (THREEJS) | 🔶 Probe (2D/3D)        |
+| ✅ Volume Rendering | ✅ Nifti     | 🔶 TRK           | 🔶 Ruler (2D/3D)        |
+| ✅ Lookup Tables    | 🔶 MHD/RAW   | ❌ FSM           | 🔶 Orientation (2D/3D)  |
+| 🔶 Label Maps       | ❌ MGH/MGZ   | ❌ CURV          | 🔶 Angle (2D/3D)        |
+|                    | ❌ JPEG      |                  | 🔶 Orientation (2D/3D)  |
 
 ## Usage
 
 ### Pre-requisites
 
-* ES2015 promises support. (consider using polyfills if needed)
-* Load THREEJS your index.html **BEFORE** AMI.
-```
+- ES2015 promises support. (consider using polyfills if needed)
+- Load THREEJS your index.html **BEFORE** AMI.
+
+```hmtl
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js"></script>
+
 ```
 
 ### NPM
-```
+
+```bash
+
 $> npm install ami.js
+
 ```
 
 *Note*: you might need to include [babel](https://github.com/babel/babel) transforms in you build process.
 
-```
-# app.js
+```javascript
+
+// app.js
 const AMI = require('ami.js');
 window.console.log('Ready to rock!!');
+
 ```
 
 ### ami.js
@@ -244,8 +260,10 @@ window.console.log('Ready to rock!!');
 Check-out the [lessons](#lessons) to get started quickly.
 
 Add AMI in your index.html **after** THREEJS.
-```
-# index.html
+
+```html
+
+<!-- index.html -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ami.js/0.0.12/ami.min.js"></script>
 <script src="app.js"></script>
@@ -253,55 +271,81 @@ Add AMI in your index.html **after** THREEJS.
 #app.js
 const AMI = AMI.default;
 window.console.log('Ready to rock!!');
+
 ```
 
 ## Developer corner
+
 Get the source code and related packages.
-```
+
+```bash
+
 $> git clone https://github.com/FNNDSC/ami.git
 $> cd ami
-$> npm install
+$> yarn install --ignore-optional
+
 ```
 
 Default task (lint, tests, demo and build)
-```
-$> npm run
+
+```bash
+
+$> yarn run
+
 ```
 
 To run examples (browserify/babelify/serve the example)
-```
-$> npm run example <examples name>
+
+```bash
+
+$> yarn run example <examples name>
 
 #run the geometries_slice example
-$> npm run example geometries_slice
+$> yarn run example geometries_slice
+
 ```
 
 To run lessons (browserify/babelify/serve the lesson)
-```
-$> npm run lesson <lesson number>
+
+```bash
+
+$> yarn run lesson <lesson number>
 
 # run lesson 00
-$> npm run lesson 00
+$> yarn run lesson 00
+
 ```
 
-Build standalone library to build/
-```
-$> npm run build:ami
+Build standalone library to `build/`
+
+```bash
+
+$> yarn run build:ami
+
 ```
 
 Tests
-```
-$> npm run test
+
+```bash
+
+$> yarn run test
+
 ```
 
 Documentation
-```
-$> npm run doc
+
+```bash
+
+$> yarn run doc
+
 ```
 
 Deploy dist/ to gh-pages
-```
-$> npm run deploy
+
+```bash
+
+$> yarn run deploy
+
 ```
 
 Find out more about the [API](https://fnndsc.github.io/ami/doc).
@@ -311,35 +355,43 @@ Find out more about the [API](https://fnndsc.github.io/ami/doc).
 AMI would not exist without them:
 
 ##### [THREEJS](https://github.com/mrdoob/three.js/)
-* Base components such as Vectors, Matrices and Objects3D.
-* HTML template for example page.
-* Author(s): [mrdoob](https://github.com/mrdoob)
+
+- Base components such as Vectors, Matrices and Objects3D.
+- HTML template for example page.
+- Author(s): [mrdoob](https://github.com/mrdoob)
 
 ##### [DicomParser](https://github.com/chafey/dicomParser)
-* DICOM parsing relies on it.
-* Author(s): [chafey](https://github.com/chafey)
+
+- DICOM parsing relies on it.
+- Author(s): [chafey](https://github.com/chafey)
 
 ##### [CornerstoneWADOImageLoader](https://github.com/chafey/cornerstoneWADOImageLoader)
-* Was used to figure out how to use the dicom parser properly.
-* Author(s): [chafey](https://github.com/chafey)
+
+- Was used to figure out how to use the dicom parser properly.
+- Author(s): [chafey](https://github.com/chafey)
 
 ##### [NIFTI-Reader-JS](https://github.com/rii-mango/NIFTI-Reader-JS)
-* Nifti parsing relies on it.
-* Author(s): [rii-mango](https://github.com/rii-mango)
+
+- Nifti parsing relies on it.
+- Author(s): [rii-mango](https://github.com/rii-mango)
 
 ##### [NRRD-JS](https://github.com/scijs/nrrd-js)
-* NRRD parsing relies on it.
-* Author(s): [jaspervdg](https://github.com/jaspervdg) 
+
+- NRRD parsing relies on it.
+- Author(s): [jaspervdg](https://github.com/jaspervdg) 
 
 ##### [JPEGLosslessDecoderJS](https://github.com/rii-mango/JPEGLosslessDecoderJS)
-* JPEG Lossless Decoder for DICOM images
-* Author(s): [rii-mango](https://github.com/rii-mango)
+
+- JPEG Lossless Decoder for DICOM images
+- Author(s): [rii-mango](https://github.com/rii-mango)
 
 ##### [Image-JPEG2000](https://github.com/OHIF/image-JPEG2000)
-* JPEG 2000 Decoder for DICOM images
-* Author(s): [jpambrun](https://github.com/jpambrun), [mozilla](https://github.com/mozilla/pdf.js/)
+
+- JPEG 2000 Decoder for DICOM images
+- Author(s): [jpambrun](https://github.com/jpambrun), [mozilla](https://github.com/mozilla/pdf.js/)
 
 ##### [Pako](https://github.com/nodeca/pako)
-* GZ file decompression
-* Author(s): [nodeca](https://github.com/nodeca)
+
+- GZ file decompression
+- Author(s): [nodeca](https://github.com/nodeca)
 
