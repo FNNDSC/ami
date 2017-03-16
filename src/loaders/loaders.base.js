@@ -56,7 +56,7 @@ export default class LoadersBase extends EventEmitter {
    */
   free() {
     this._container = null;
-    this._helpersProgressBar = null;
+    // this._helpersProgressBar = null;
 
     if (this._progressBar) {
       this._progressBar.free();
@@ -130,6 +130,8 @@ export default class LoadersBase extends EventEmitter {
           file: url,
           time: new Date(),
         });
+
+        reject(request.statusText);
       };
 
       request.ontimeout = () => {
@@ -165,6 +167,7 @@ export default class LoadersBase extends EventEmitter {
           file: url,
           time: new Date(),
         });
+        reject(request.statusText);
       };
 
       request.send();
