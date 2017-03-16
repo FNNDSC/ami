@@ -68,9 +68,9 @@ describe('Lorder.Base', function() {
 
   describe('fetch data by given url, and parse it', () => {
     it('the url is availble, fetch and parse data', (done) => {
-      baseLoader.fetch('/base/data/dicom/adi_slice.dcm.tar')
+      baseLoader.fetch('/base/data/dicom/adi_slice.dcm')
                 .then((data) => {
-                  expect(data.url).toEqual('/base/data/dicom/adi_slice.dcm.tar');
+                  expect(data.url).toEqual('/base/data/dicom/adi_slice.dcm');
                   expect(data.buffer instanceof Object).toEqual(true);
                   baseLoader.parse(data)
                             .then((parsedData) => {
@@ -81,11 +81,11 @@ describe('Lorder.Base', function() {
     });
 
     it('the url is availble, call loadSequence directly', (done) => {
-      baseLoader.loadSequence('/base/data/dicom/adi_slice.dcm.tar')
+      baseLoader.loadSequence('/base/data/dicom/adi_slice.dcm')
                 .then((data) => {
                   // because LoadersBase just have a empty parse
                   // test like above
-                  expect(data.url).toEqual('/base/data/dicom/adi_slice.dcm.tar');
+                  expect(data.url).toEqual('/base/data/dicom/adi_slice.dcm');
                   expect(data.buffer instanceof Object).toEqual(true);
                   done();
                 });
@@ -104,7 +104,7 @@ describe('Lorder.Base', function() {
 
   describe('load data by urls', () => {
     it('give a single url', (done) => {
-      baseLoader.load('/base/data/dicom/adi_slice.dcm.tar')
+      baseLoader.load('/base/data/dicom/adi_slice.dcm')
                 .then((data) => {
                   expect(Array.isArray(data)).toBe(true);
                   expect(data.length).toBe(1);
@@ -114,9 +114,9 @@ describe('Lorder.Base', function() {
 
     it('give urls with array', (done) => {
       const urls = [
-        '/base/data/dicom/adi_slice.dcm.tar',
-        '/base/data/dicom/dcm.seg.andrei.tar',
-        '/base/data/nifti/adi_slice.nii.tar',
+        '/base/data/dicom/adi_slice.dcm',
+        '/base/data/dicom/dcm.seg.andrei',
+        '/base/data/nifti/adi_slice.nii',
       ];
       baseLoader.load(urls)
                 .then((data) => {
