@@ -1,3 +1,4 @@
+import {isString, isElement} from './helper.utils';
 /**
  * Event Based progressbar
  * @module helpers/progressBar
@@ -10,13 +11,23 @@
  */
 
 export default class EventBasedProgressBar {
-  constructor(emitter, domContainer) {
+  constructor(emitter, domTarget) {
     if (!emitter || !this._isFunction(emitter.emit)) {
       console.error('please give the this._emitter instance');
       return;
     }
+
+    if (isString(domTarget)) {
+      this._dom = document.getElementById(domTarget);
+    } else {
+      this._dom = domTarget;
+    }
+
+    if (!isElement(this._dom)) {
+      console.error('please give the id of container dom or directly a dom instance');
+      return;
+    }
     this._emitter = emitter;
-    this._dom = domContainer;
     this.initContainerDom();
     this.initEventListenner();
     this.loaded = 0;
