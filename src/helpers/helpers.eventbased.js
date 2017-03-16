@@ -7,10 +7,10 @@ import {isString, isElement} from './helper.utils';
  *
  * let loader = new LoadersVolume();
  * const domContainer = document.getElementById('progressbar');
- * const pb = new EventBasedProgressBar(loader, domContainer);
+ * const pb = new HelpersProgressBarEventBased(loader, domContainer);
  */
 
-export default class EventBasedProgressBar {
+export default class HelpersProgressBarEventBased {
   constructor(emitter, domTarget) {
     if (!emitter || !this._isFunction(emitter.emit)) {
       console.error('please give the this._emitter instance');
