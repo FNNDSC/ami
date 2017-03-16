@@ -46,11 +46,10 @@ Please submit pull request, open issues or contact us for any question, feature 
 ### Content
 
 1. [Hello AMI](#hello-ami)
-- [Features](#features)
-- [Usage](#npm)
-- [Developer corner](#developer-corner)
-- [Credits](#credits)
-
+2. [Features](#features)
+3. [Usage](#npm)
+4. [Developer corner](#developer-corner)
+5. [Credits](#credits)
 
 ## Hello AMI
 
@@ -213,9 +212,11 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 
 ## Features
 
-> :white_check_mark: READY - :large_orange_diamond: IN PROGRESS OR LIMITED SUPPORT - :x: ON ROADMAP
+> ✅  READY
+> 🔶 IN PROGRESS OR LIMITED SUPPORT
+> ❌ ON ROADMAP
 
-| 📊 Capabilities     | 📗 Volumes   | 📘 Meshes        | ✏️ Widgets              |
+| Capabilities       | Volumes     | Meshes            | Widgets                |
 |--------------------|--------------|------------------|------------------------|
 | ✅ 2D Visulization  | ✅ Dicom     | ✅ VTK (THREEJS) | 🔶 Handle (2D/3D)       |
 | ✅ 3D Visualization | ✅ NRRD      | ✅ STL (THREEJS) | 🔶 Probe (2D/3D)        |
