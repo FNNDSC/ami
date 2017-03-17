@@ -1,10 +1,12 @@
 language: node_js
 node_js:
   - "6.9"
+sudo: required
 cache:
+  yarn: true
   directories:
     - node_modules
 script:
-  - npm run ami
+  - yarn run ami
 notifications:
   slack: fnndsc:UohaXDsjFDVqZj5IfdC88XRa

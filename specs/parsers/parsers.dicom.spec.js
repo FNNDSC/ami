@@ -90,7 +90,7 @@ function testObjectTemplate(
 let data1 = testObjectTemplate(
   'MR - 16!',
   'http://www.insight-journal.org/midas/collection/view/194',
-  '/base/data/dicom/fruit.dcm.tar',
+  '/base/data/dicom/fruit.dcm',
 
   // Series specific
   'MR',
@@ -132,7 +132,7 @@ let data1 = testObjectTemplate(
 let data2 = testObjectTemplate(
   'Osirix test',
   'OSIRIX',
-  '/base/data/dicom/MELANIX.dcm.tar',
+  '/base/data/dicom/MELANIX.dcm',
 
   // Series specific
   'CT',
@@ -177,7 +177,7 @@ datasets.push(data2);
 let data3 = testObjectTemplate(
   'US - RGB',
   'http://www.barre.nom.fr/medical/samples/',
-  '/base/data/dicom/US-RGB-8-esopecho.dcm.tar',
+  '/base/data/dicom/US-RGB-8-esopecho.dcm',
 
   // Series specific
   'US',
@@ -222,7 +222,7 @@ datasets.push(data3);
 let data4 = testObjectTemplate(
   'MR - Multiframe',
   'http://www.barre.nom.fr/medical/samples/',
-  '/base/data/dicom/MR-MONO2-8-16x-heart.dcm.tar',
+  '/base/data/dicom/MR-MONO2-8-16x-heart.dcm',
 
   // Series specific
   'MR',
@@ -267,7 +267,7 @@ datasets.push(data4);
 let data5 = testObjectTemplate(
   'SEG - Multiframe',
   'http://www.barre.nom.fr/medical/samples/',
-  '/base/data/dicom/dcm.seg.andrei.tar',
+  '/base/data/dicom/dcm.seg.andrei',
 
   // Series specific
   'SEG',
@@ -312,7 +312,7 @@ datasets.push(data5);
 let data6 = testObjectTemplate(
   'MR - JPEG Lossless',
   'http://www.barre.nom.fr/medical/samples/',
-  '/base/data/dicom/mi2b2.dcm.tar',
+  '/base/data/dicom/mi2b2.dcm',
 
   // Series specific
   'MR',
@@ -357,7 +357,7 @@ datasets.push(data6);
 let data7 = testObjectTemplate(
   'CT - 16 signed - Explicit VR Big Endian',
   '@tommy.qichang',
-  '/base/data/dicom/ser002img00001-16-signed.dcm.tar',
+  '/base/data/dicom/ser002img00001-16-signed.dcm',
 
   // Series specific
   'CT',

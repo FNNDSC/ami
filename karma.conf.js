@@ -15,7 +15,7 @@ module.exports = function(karma) {
 ,
       //'src/core/*.spec.js',
       'specs/**/*.spec.js',
-      {pattern: 'data/**/*.tar', included: false, watched: false, served: true}
+      {pattern: 'data/**/*', included: false, watched: false, served: true}
     ],
 
     reporters: ['spec'],
