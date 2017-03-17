@@ -26,13 +26,12 @@ describe('Volume Loader', function() {
     it('give urls with array', (done) => {
       const urls = [
         '/base/data/dicom/adi_slice.dcm',
-        '/base/data/dicom/dcm.seg.andrei',
         '/base/data/nifti/adi_slice.nii',
       ];
       loader.load(urls)
                 .then((data) => {
                   expect(Array.isArray(data)).toBe(true);
-                  expect(data.length).toBe(3);
+                  expect(data.length).toBe(2);
                   done();
                 });
     });
