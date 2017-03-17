@@ -41,7 +41,7 @@ export default class HelpersProgressBarEventBased {
   initEventListenner() {
     const self = this;
 
-    this._emitter.on('begin-load', function(event) {
+    this._emitter.on('load-start', function(event) {
       const totalFiles = event.totalFiles;
       self.totalFile = totalFiles;
       self._domTotalFile.innerHTML = totalFiles;
@@ -100,7 +100,7 @@ export default class HelpersProgressBarEventBased {
       // console.log(event);
     });
 
-    this._emitter.on('begin-parse', function(event) {
+    this._emitter.on('parse-start', function(event) {
       const liParent = document.getElementById('file-' + event.file)
       const parseprogress = document.createElement('div');
       parseprogress.id = 'file-parse-' + event.file;

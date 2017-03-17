@@ -3,11 +3,35 @@
 import LoadersBase from '../../src/loaders/loaders.base';
 import ProgressBar from '../../src/helpers/helpers.progressbar';
 
+/**
+ * events test here only cover two function case: loadSequence and load.
+ * because this two case cover all the events.
+ */
+
 describe('Lorder.Base', function() {
   let baseLoader;
+  const eventsHandleSpy = {};
+  const sourceUrl = '/base/data/dicom/adi_slice.dcm';
+  const baseSinonMatch = new sinon.match({file: sourceUrl}).and(new sinon.match.hasOwn('time'));
 
   beforeEach(() => {
     baseLoader = new LoadersBase();
+    // setup event handle spy
+    ['load-start',
+      'fetch-start',
+      'fetch-success',
+      'fetch-error',
+      'fetch-abort',
+      'fetch-timeout',
+      'fetch-progress',
+      'fetch-end',
+      'parse-start',
+      'parsing',
+      'parse-success',
+      'parse-error'].map((evtName) => {
+        eventsHandleSpy[evtName] = new sinon.spy();
+        baseLoader.on(evtName, eventsHandleSpy[evtName]);
+      });
   });
 
   afterEach(() => {
@@ -68,9 +92,9 @@ describe('Lorder.Base', function() {
 
   describe('fetch data by given url, and parse it', () => {
     it('the url is availble, fetch and parse data', (done) => {
-      baseLoader.fetch('/base/data/dicom/adi_slice.dcm')
+      baseLoader.fetch(sourceUrl)
                 .then((data) => {
-                  expect(data.url).toEqual('/base/data/dicom/adi_slice.dcm');
+                  expect(data.url).toEqual(sourceUrl);
                   expect(data.buffer instanceof Object).toEqual(true);
                   baseLoader.parse(data)
                             .then((parsedData) => {
@@ -79,16 +103,24 @@ describe('Lorder.Base', function() {
                             });
                 });
     });
-
     it('the url is availble, call loadSequence directly', (done) => {
-      baseLoader.loadSequence('/base/data/dicom/adi_slice.dcm')
-                .then((data) => {
-                  // because LoadersBase just have a empty parse
-                  // test like above
-                  expect(data.url).toEqual('/base/data/dicom/adi_slice.dcm');
-                  expect(data.buffer instanceof Object).toEqual(true);
-                  done();
-                });
+      baseLoader
+        .loadSequence(sourceUrl)
+        .then((data) => {
+          // because LoadersBase just have a empty parse
+          // test like above
+          expect(data.url).toEqual(sourceUrl);
+          expect(data.buffer instanceof Object).toEqual(true);
+          // event tests
+          sinon.assert.calledWith(eventsHandleSpy['fetch-start'], baseSinonMatch);
+          sinon.assert.calledWith(eventsHandleSpy['fetch-success'], baseSinonMatch.and(new sinon.match.hasOwn('totalLoaded')));
+          sinon.assert.calledWith(eventsHandleSpy['fetch-progress'], baseSinonMatch
+                                                                       .and(new sinon.match.hasOwn('total'))
+                                                                       .and(new sinon.match.hasOwn('loaded'))
+                                                                       );
+          // sinon.assert.calledWith(eventsHandleSpy['fetch-end'], baseSinonMatch);
+          done();
+        });
     });
 
     xit('the url is unavailbl', (done) => {
@@ -104,10 +136,12 @@ describe('Lorder.Base', function() {
 
   describe('load data by urls', () => {
     it('give a single url', (done) => {
-      baseLoader.load('/base/data/dicom/adi_slice.dcm')
+      baseLoader.load(sourceUrl)
                 .then((data) => {
                   expect(Array.isArray(data)).toBe(true);
                   expect(data.length).toBe(1);
+                  expect(eventsHandleSpy['load-start'].calledOnce).toBe(true);
+                  sinon.assert.calledWith(eventsHandleSpy['load-start'], new sinon.match({files: [sourceUrl]}).and(new sinon.match.hasOwn('time')));
                   done();
                 });
     });
