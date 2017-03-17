@@ -167,7 +167,8 @@ export default class LoadersBase extends EventEmitter {
           file: url,
           time: new Date(),
         });
-        reject(request.statusText);
+        // just use onload when success and onerror when failure, etc onabort
+        // reject(request.statusText);
       };
 
       request.send();
@@ -217,9 +218,8 @@ export default class LoadersBase extends EventEmitter {
       url = [url];
     }
 
-    // emit 'before-loader' event
-    this.emit('begin-load', {
-      totalFiles: url.length,
+    // emit 'load-start' event
+    this.emit('load-start', {
       files: url,
       time: new Date(),
     });

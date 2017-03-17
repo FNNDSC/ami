@@ -49,8 +49,8 @@ export default class LoadersVolumes extends LoadersBase {
    * @return {promise} promise
    */
   parse(response) {
-    // emit 'begin-parse' event
-    this.emit('begin-parse', {
+    // emit 'parse-start' event
+    this.emit('parse-start', {
       file: response.url,
       time: new Date(),
     });
@@ -114,6 +114,12 @@ export default class LoadersVolumes extends LoadersBase {
 
               let Parser = this._parser(data.extension);
               if (!Parser) {
+                // emit 'parse-error' event
+                this.emit('parse-error', {
+                  file: response.url,
+                  time: new Date(),
+                  error: data.filename + 'can not be parsed.',
+                });
                 reject(data.filename + ' can not be parsed.');
               }
 
@@ -123,6 +129,12 @@ export default class LoadersVolumes extends LoadersBase {
                 volumeParser = new Parser(data, 0);
               } catch (e) {
                 window.console.log(e);
+                // emit 'parse-error' event
+                this.emit('parse-error', {
+                  file: response.url,
+                  time: new Date(),
+                  error: e,
+                });
                 reject(e);
               }
 
