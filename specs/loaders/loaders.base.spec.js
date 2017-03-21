@@ -12,7 +12,8 @@ describe('Lorder.Base', function() {
   let baseLoader;
   const eventsHandleSpy = {};
   const sourceUrl = '/base/data/dicom/adi_slice.dcm';
-  const baseSinonMatch = new sinon.match({file: sourceUrl}).and(new sinon.match.hasOwn('time'));
+  const baseSinonMatch =
+    new sinon.match({file: sourceUrl}).and(new sinon.match.hasOwn('time'));
 
   beforeEach(() => {
     baseLoader = new LoadersBase();

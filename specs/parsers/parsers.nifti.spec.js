@@ -6,13 +6,13 @@ import ParsersNifti from '../../src/parsers/parsers.nifti';
 let dicomDataset = {
     format: 'dicom',
     url: '/base/data/dicom/adi_slice.dcm',
-    parser: ParsersDicom
+    parser: ParsersDicom,
 };
 
 let niftiDataset = {
     format: 'nifti',
     url: '/base/data/nifti/adi_slice.nii',
-    parser: ParsersNifti
+    parser: ParsersNifti,
 };
 
 // let nrrdDataset = {
