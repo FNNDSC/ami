@@ -3,6 +3,7 @@ import BoundingBox from './helpers.boundingbox';
 import Localizer from './helpers.localizer';
 import Lut from './helpers.lut';
 import ProgressBar from './helpers.progressbar';
+import EventBasedProgressBar from './helpers.progressbar.eventbased';
 import Slice from './helpers.slice';
 import Stack from './helpers.stack';
 import VolumeRendering from './helpers.volumerendering';
@@ -24,4 +25,5 @@ export default {
   VolumeRendering,
   Voxel,
   X,
+  EventBasedProgressBar,
 };

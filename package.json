@@ -39,8 +39,8 @@
     "image-JPEG2000": "OHIF/image-JPEG2000#master",
     "jpeg-lossless-decoder-js": "1.2.3",
     "math-float32-to-binary-string": "^1.0.0",
-    "nrrd-js": "^0.2.1",
     "nifti-reader-js": "v0.5.3",
+    "nrrd-js": "^0.2.1",
     "pako": "1.0.1"
   },
   "scripts": {
@@ -80,11 +80,13 @@
     "karma-browserify": "latest",
     "karma-jasmine": "latest",
     "karma-phantomjs-launcher": "1.0.4",
+    "karma-sinon": "^1.0.5",
     "karma-spec-reporter": "latest",
     "live-server": "^1.1.0",
     "phantomjs-prebuilt": "2.1.14",
     "rimraf": "^2.6.1",
     "shelljs": "latest",
+    "sinon": "^2.0.0",
     "uglify-js": "^2.7.3",
     "watchify": "3.7.0"
   },

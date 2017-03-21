@@ -1,5 +1,6 @@
 /** Imports **/
 import HelpersProgressBar from '../helpers/helpers.progressbar';
+import EventEmitter from 'events';
 
 
 /**
@@ -10,7 +11,7 @@ import HelpersProgressBar from '../helpers/helpers.progressbar';
  * Demo: {@link https://fnndsc.github.io/vjs#loader_dicom}
  *
  * @module loaders/base
- *
+ * @extends EventEmitter
  * @example
  * var files = ['/data/dcm/fruit'];
  *
@@ -28,13 +29,14 @@ import HelpersProgressBar from '../helpers/helpers.progressbar';
  *   }
  * );
  */
-export default class LoadersBase {
+export default class LoadersBase extends EventEmitter {
   /**
    * Create a Loader.
    * @param {dom} container - The dom container of loader.
    * @param {object} ProgressBar - The progressbar of loader.
    */
   constructor(container = null, ProgressBar = HelpersProgressBar) {
+    super();
     this._loaded = -1;
     this._totalLoaded = -1;
     this._parsed = -1;
@@ -54,7 +56,7 @@ export default class LoadersBase {
    */
   free() {
     this._container = null;
-    this._helpersProgressBar = null;
+    // this._helpersProgressBar = null;
 
     if (this._progressBar) {
       this._progressBar.free();
@@ -74,12 +76,23 @@ export default class LoadersBase {
       request.crossOrigin = true;
       request.responseType = 'arraybuffer';
 
+      request.onloadstart = (event) => {
+        // emit 'fetch-start' event
+        this.emit('fetch-start', {
+          file: url,
+          time: new Date(),
+        });
+      };
+
       request.onload = (event) => {
         if (request.status === 200) {
           this._loaded = event.loaded;
           this._totalLoaded = event.total;
+
+          // will be removed after eventer set up
           if (this._progressBar) {
-            this._progressBar.update(this._loaded, this._totalLoaded, 'load');
+            this._progressBar.update(this._loaded, this._totalLoaded,
+              'load');
           }
 
           let buffer = request.response;
@@ -88,6 +101,13 @@ export default class LoadersBase {
             buffer,
           };
 
+          // emit 'fetch-success' event
+          this.emit('fetch-success', {
+            file: url,
+            time: new Date(),
+            totalLoaded: event.total,
+          });
+
           resolve(response);
         } else {
           reject(request.statusText);
@@ -95,15 +115,60 @@ export default class LoadersBase {
       };
 
       request.onerror = () => {
+        // emit 'fetch-error' event
+        this.emit('fetch-error', {
+          file: url,
+          time: new Date(),
+        });
+
+        reject(request.statusText);
+      };
+
+      request.onabort = (event) => {
+        // emit 'fetch-start' event
+        this.emit('fetch-abort', {
+          file: url,
+          time: new Date(),
+        });
+
+        reject(request.statusText);
+      };
+
+      request.ontimeout = () => {
+        // emit 'fetch-timeout' event
+        this.emit('fetch-timeout', {
+          file: url,
+          time: new Date(),
+        });
+
         reject(request.statusText);
       };
 
       request.onprogress = (event) => {
         this._loaded = event.loaded;
         this._totalLoaded = event.total;
+        // emit 'fetch-progress' event
+        this.emit('fetch-progress', {
+          file: url,
+          total: event.total,
+          loaded: event.loaded,
+          time: new Date(),
+        });
+        // will be removed after eventer set up
         if (this._progressBar) {
-          this._progressBar.update(this._loaded, this._totalLoaded, 'load');
+          this._progressBar.update(this._loaded, this._totalLoaded,
+            'load');
         }
+      };
+
+      request.onloadend = (event) => {
+        // emit 'fetch-end' event
+        this.emit('fetch-end', {
+          file: url,
+          time: new Date(),
+        });
+        // just use onload when success and onerror when failure, etc onabort
+        // reject(request.statusText);
       };
 
       request.send();
@@ -153,13 +218,18 @@ export default class LoadersBase {
       url = [url];
     }
 
+    // emit 'load-start' event
+    this.emit('load-start', {
+      files: url,
+      time: new Date(),
+    });
+
     let loadSequences = [];
     url.forEach((file) => {
       loadSequences.push(
         this.loadSequence(file)
       );
     });
-
     return Promise.all(loadSequences);
   }
 

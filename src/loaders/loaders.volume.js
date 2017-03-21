@@ -10,7 +10,6 @@ import ParsersDicom from '../parsers/parsers.dicom';
 import ParsersNifti from '../parsers/parsers.nifti';
 import ParsersNrrd from '../parsers/parsers.nrrd';
 
-
 /**
  *
  * It is typically used to load a DICOM image. Use loading manager for
@@ -50,8 +49,14 @@ export default class LoadersVolumes extends LoadersBase {
    * @return {promise} promise
    */
   parse(response) {
+    // emit 'parse-start' event
+    this.emit('parse-start', {
+      file: response.url,
+      time: new Date(),
+    });
     // give a chance to the UI to update because
     // after the rendering will be blocked with intensive JS
+    // will be removed after eventer set up
     if (this._progressBar) {
       this._progressBar.update(0, 100, 'parse');
     }
@@ -73,7 +78,8 @@ export default class LoadersVolumes extends LoadersBase {
               data.query = parsedUrl.query;
 
               // get file name
-              data.filename = data.pathname.split('/').pop();
+              data.filename = data.pathname.split('/')
+                .pop();
               data.gzcompressed = false;
 
               // find extension
@@ -81,7 +87,8 @@ export default class LoadersVolumes extends LoadersBase {
               if (splittedName.length <= 1) {
                 data.extension = 'dicom';
               } else {
-                data.extension = data.filename.split('.').pop();
+                data.extension = data.filename.split('.')
+                  .pop();
               }
 
               if (!isNaN(data.extension)) {
@@ -97,13 +104,22 @@ export default class LoadersVolumes extends LoadersBase {
               if (data.extension === 'gz') {
                 data.gzcompressed = true;
                 data.extension =
-                  data.filename.split('.gz').shift().split('.').pop();
+                  data.filename.split('.gz')
+                  .shift()
+                  .split('.')
+                  .pop();
                 let decompressedData = PAKO.inflate(data.buffer);
                 data.buffer = decompressedData.buffer;
               }
 
               let Parser = this._parser(data.extension);
               if (!Parser) {
+                // emit 'parse-error' event
+                this.emit('parse-error', {
+                  file: response.url,
+                  time: new Date(),
+                  error: data.filename + 'can not be parsed.',
+                });
                 reject(data.filename + ' can not be parsed.');
               }
 
@@ -113,6 +129,12 @@ export default class LoadersVolumes extends LoadersBase {
                 volumeParser = new Parser(data, 0);
               } catch (e) {
                 window.console.log(e);
+                // emit 'parse-error' event
+                this.emit('parse-error', {
+                  file: response.url,
+                  time: new Date(),
+                  error: e,
+                });
                 reject(e);
               }
 
@@ -221,16 +243,35 @@ export default class LoadersVolumes extends LoadersBase {
     // update status
     this._parsed = i + 1;
     this._totalParsed = series.numberOfFrames;
+
+    // will be removed after eventer set up
     if (this._progressBar) {
       this._progressBar.update(this._parsed, this._totalParsed, 'parse');
     }
 
+    // emit 'parsing' event
+    this.emit('parsing', {
+      file: url,
+      total: this._totalParsed,
+      parsed: this._parsed,
+      time: new Date(),
+    });
+
     if (this._parsed === this._totalParsed) {
+      // emit 'parse-success' event
+      this.emit('parse-success', {
+        file: url,
+        total: this._totalParsed,
+        parsed: this._parsed,
+        time: new Date(),
+      });
+
       resolve(series);
     } else {
       setTimeout(
         this.parseFrame(
-          series, stack, url, this._parsed, dataParser, resolve, reject), 0);
+          series, stack, url, this._parsed, dataParser, resolve, reject), 0
+      );
     }
   }
 

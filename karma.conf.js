@@ -6,7 +6,7 @@ module.exports = function(karma) {
   karma.set({
 
     // frameworks to use
-    frameworks: ['jasmine', 'browserify'],
+    frameworks: ['jasmine', 'browserify', 'sinon'],
 
     // list of files / patterns to load in the browser
     files: [
