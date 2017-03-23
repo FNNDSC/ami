@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: parsers/parsers.nrrd.js</title>
+    <title>JSDoc: Source: parsers/parsers.mhd.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: parsers/parsers.nrrd.js</h1>
+    <h1 class="page-title">Source: parsers/parsers.mhd.js</h1>
 
     
 
@@ -26,32 +26,13 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>// use nifti-js and just parse header.???
-
-// Slicer way to handle images
-// should follow it...
- // 897   if ( (this->IndexSeriesInstanceUIDs[k] != idxSeriesInstanceUID &amp;&amp; this->IndexSeriesInstanceUIDs[k] >= 0 &amp;&amp; idxSeriesInstanceUID >= 0) ||
- // 898        (this->IndexContentTime[k] != idxContentTime &amp;&amp; this->IndexContentTime[k] >= 0 &amp;&amp; idxContentTime >= 0) ||
- // 899        (this->IndexTriggerTime[k] != idxTriggerTime &amp;&amp; this->IndexTriggerTime[k] >= 0 &amp;&amp; idxTriggerTime >= 0) ||
- // 900        (this->IndexEchoNumbers[k] != idxEchoNumbers &amp;&amp; this->IndexEchoNumbers[k] >= 0 &amp;&amp; idxEchoNumbers >= 0) ||
- // 901        (this->IndexDiffusionGradientOrientation[k] != idxDiffusionGradientOrientation  &amp;&amp; this->IndexDiffusionGradientOrientation[k] >= 0 &amp;&amp; idxDiffusionGradientOrientation >= 0) ||
- // 902        (this->IndexSliceLocation[k] != idxSliceLocation &amp;&amp; this->IndexSliceLocation[k] >= 0 &amp;&amp; idxSliceLocation >= 0) ||
- // 903        (this->IndexImageOrientationPatient[k] != idxImageOrientationPatient &amp;&amp; this->IndexImageOrientationPatient[k] >= 0 &amp;&amp; idxImageOrientationPatient >= 0) )
- // 904     {
- // 905       continue;
- // 906     }
-
-// http://brainder.org/2012/09/23/the-nifti-file-format/
-
-/** * Imports ***/
+            <pre class="prettyprint source linenums"><code>/** * Imports ***/
 import ParsersVolume from './parsers.volume';
 
-let pako = require('pako');
-let NrrdReader = require('nrrd-js');
 /**
- * @module parsers/nifti
+ * @module parsers/mhd
  */
-export default class ParsersNifti extends ParsersVolume {
+export default class ParsersMHD extends ParsersVolume {
   constructor(data, id) {
     super();
 
@@ -60,24 +41,38 @@ export default class ParsersNifti extends ParsersVolume {
       * @type {arraybuffer}
     */
     this._id = id;
-    this._arrayBuffer = data.buffer;
     this._url = data.url;
-    this._dataSet = null;
-    this._unpackedData = null;
+    this._header = {};
+    this._buffer = null;
 
-    try{
-      this._dataSet = NrrdReader.parse(this._arrayBuffer);
-    } catch(error) {
+    try {
+      // parse header (mhd) data
+      let lines = new TextDecoder().decode(data.mhdBuffer).split('\n');
+      lines.forEach((line) => {
+          let keyvalue = line.split('=');
+          if (keyvalue.length === 2) {
+            this._header[keyvalue[0].trim()] = keyvalue[1].trim();
+          }
+      });
+
+      this._header.DimSize = this._header.DimSize.split(' ');
+      this._header.ElementSpacing = this._header.ElementSpacing.split(' ');
+      this._header.TransformMatrix = this._header.TransformMatrix.split(' ');
+      this._header.Offset = this._header.Offset.split(' ');
+      //
+      this._buffer = data.rawBuffer;
+    } catch (error) {
       window.console.log('ooops... :(');
     }
-
-    window.console.log(this._dataSet);
   }
 
   rightHanded() {
-    if(this._dataSet.space.match(/^right-anterior-superior/) ||
-        this._dataSet.space.match(/^left-posterior-superior/)) {
-     this._rightHanded = true;
+    let anatomicalOrientation = this._header.AnatomicalOrientation;
+    if (anatomicalOrientation === 'RAS' ||
+        anatomicalOrientation === 'RPI' ||
+        anatomicalOrientation === 'LPS' ||
+        anatomicalOrientation === 'LAI') {
+      this._rightHanded = true;
     } else {
       this._rightHanded = false;
     }
@@ -91,12 +86,7 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   numberOfFrames() {
-    return this._dataSet.sizes[2];
-  }
-
-  numberOfChannels() {
-    let numberOfChannels = 1;
-    return numberOfChannels;
+    return parseInt(this._header.DimSize[2], 10);
   }
 
   sopInstanceUID(frameIndex = 0) {
@@ -104,37 +94,32 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   rows(frameIndex = 0) {
-    return this._dataSet.sizes[1];
+    return parseInt(this._header.DimSize[1], 10);
   }
 
   columns(frameIndex = 0) {
-    return this._dataSet.sizes[0];
+    return parseInt(this._header.DimSize[0], 10);
   }
 
   pixelType(frameIndex = 0) {
     // 0 - int
     // 1 - float
-    let pixelType = 0;
-    if(this._dataSet.type === 'float') {
-      pixelType = 1;
-    }
-    return pixelType;
+    return 0;
   }
 
   bitsAllocated(frameIndex = 0) {
     let bitsAllocated = 1;
 
-    if(this._dataSet.type === 'int8' ||
-       this._dataSet.type === 'uint8' ||
-       this._dataSet.type === 'char') {
+    if (this._header.ElementType === 'MET_UCHAR' ||
+        this._header.ElementType === 'MET_CHAR') {
       bitsAllocated = 8;
-    } else if(this._dataSet.type === 'int16' ||
-      this._dataSet.type === 'uint16' ||
-      this._dataSet.type === 'short') {
+    } else if (
+        this._header.ElementType === 'MET_USHORT' ||
+        this._header.ElementType === 'MET_SHORT') {
       bitsAllocated = 16;
-    } else if(this._dataSet.type === 'int32' ||
-      this._dataSet.type === 'uint32' ||
-      this._dataSet.type === 'float') {
+    } else if (
+        this._header.ElementType === 'MET_UFLOAT' ||
+        this._header.ElementType === 'MET_FLOAT') {
       bitsAllocated = 32;
     }
 
@@ -142,43 +127,26 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   pixelSpacing(frameIndex = 0) {
-    let x = new THREE.Vector3(
-      this._dataSet.spaceDirections[0][0],
-      this._dataSet.spaceDirections[0][1],
-      this._dataSet.spaceDirections[0][2]);
-
-    let y = new THREE.Vector3(
-      this._dataSet.spaceDirections[1][0],
-      this._dataSet.spaceDirections[1][1],
-      this._dataSet.spaceDirections[1][2]);
-
-    let z = new THREE.Vector3(
-      this._dataSet.spaceDirections[2][0],
-      this._dataSet.spaceDirections[2][1],
-      this._dataSet.spaceDirections[2][2]);
-
-    return [x.length(), y.length(), z.length()];
-  }
-
-  sliceThickness() {
-    // should be a string...
-    return null;// this._dataSet.pixDims[3].toString();
+    let x = parseFloat(this._header.ElementSpacing[0], 10);
+    let y = parseFloat(this._header.ElementSpacing[1], 10);
+    let z = parseFloat(this._header.ElementSpacing[2], 10);
+    return [x, y, z];
   }
 
   imageOrientation(frameIndex = 0) {
-    let invertX = this._dataSet.space.match(/right/) ? -1 : 1;
-    let invertY = this._dataSet.space.match(/anterior/) ? -1 : 1;
+    let invertX = this._header.AnatomicalOrientation.match(/L/) ? -1 : 1;
+    let invertY = this._header.AnatomicalOrientation.match(/P/) ? -1 : 1;
 
     let x = new THREE.Vector3(
-      this._dataSet.spaceDirections[0][0] * invertX,
-      this._dataSet.spaceDirections[0][1] * invertY,
-      this._dataSet.spaceDirections[0][2]);
+      parseFloat(this._header.TransformMatrix[0]) * invertX,
+      parseFloat(this._header.TransformMatrix[1]) * invertY,
+      parseFloat(this._header.TransformMatrix[2]));
     x.normalize();
 
     let y = new THREE.Vector3(
-      this._dataSet.spaceDirections[1][0] * invertX,
-      this._dataSet.spaceDirections[1][1] * invertY,
-      this._dataSet.spaceDirections[1][2]);
+      parseFloat(this._header.TransformMatrix[3]) * invertX,
+      parseFloat(this._header.TransformMatrix[4]) * invertY,
+      parseFloat(this._header.TransformMatrix[5]));
     y.normalize();
 
     return [
@@ -189,36 +157,10 @@ export default class ParsersNifti extends ParsersVolume {
 
   imagePosition(frameIndex = 0) {
     return [
-      this._dataSet.spaceOrigin[0],
-      this._dataSet.spaceOrigin[1],
-      this._dataSet.spaceOrigin[2],
+      parseFloat(this._header.Offset[0]),
+      parseFloat(this._header.Offset[1]),
+      parseFloat(this._header.Offset[2]),
     ];
-  }
-
-  dimensionIndexValues(frameIndex = 0) {
-    return null;
-  }
-
-  instanceNumber(frameIndex = 0) {
-    return frameIndex;
-  }
-
-  windowCenter(frameIndex = 0) {
-    // calc min and calc max
-    return null;
-  }
-
-  windowWidth(frameIndex = 0) {
-    // calc min and calc max
-    return null;
-  }
-
-  rescaleSlope(frameIndex = 0) {
-    return 1;// this._dataSet.scl_slope;
-  }
-
-  rescaleIntercept(frameIndex = 0) {
-    return 0;// this._dataSet.scl_intercept;
   }
 
   minMaxPixelData(pixelData = []) {
@@ -238,45 +180,28 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   _decompressUncompressed(frameIndex = 0) {
-    let buffer = this._dataSet.buffer;
+    let buffer = this._buffer;
     let numberOfChannels = this.numberOfChannels();
-    let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    let numPixels =
+      this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
     if (!this.rightHanded()) {
       frameIndex = this.numberOfFrames() - 1 - frameIndex;
     }
     let frameOffset = frameIndex * numPixels;
 
-    // unpack data if needed
-    if (this._unpackedData === null &amp;&amp;
-      this._dataSet.encoding === 'gzip') {
-      let unpackedData = pako.inflate(this._dataSet.buffer);
-      this._unpackedData = unpackedData.buffer;
-      buffer = this._unpackedData;
-    } else if(this._dataSet.encoding === 'gzip') {
-      buffer = this._unpackedData;
-    }
-
-    if(this._dataSet.type === 'int8' ||
-       this._dataSet.type === 'char') {
+    if (this._header.ElementType === 'MET_CHAR') {
       frameOffset = frameOffset;
       return new Int8Array(buffer, frameOffset, numPixels);
-    } else if(this._dataSet.type === 'uint8') {
+    } else if (this._header.ElementType === 'MET_UCHAR') {
       frameOffset = frameOffset;
       return new Uint8Array(buffer, frameOffset, numPixels);
-    } else if(this._dataSet.type === 'int16' ||
-       this._dataSet.type === 'short') {
+    } else if (this._header.ElementType === 'MET_SHORT') {
       frameOffset = frameOffset * 2;
       return new Int16Array(buffer, frameOffset, numPixels);
-    } else if(this._dataSet.type === 'uint16') {
+    } else if (this._header.ElementType === 'MET_USHORT') {
       frameOffset = frameOffset * 2;
       return new Uint16Array(buffer, frameOffset, numPixels);
-    } else if(this._dataSet.type === 'int32') {
-      frameOffset = frameOffset * 4;
-      return new Int32Array(buffer, frameOffset, numPixels);
-    } else if(this._dataSet.type === 'uint32') {
-      frameOffset = frameOffset * 4;
-      return new Uint32Array(buffer, frameOffset, numPixels);
-    } else if(this._dataSet.type === 'float') {
+    } else if (this._header.ElementType === 'MET_FLOAT') {
       frameOffset = frameOffset * 4;
       return new Float32Array(buffer, frameOffset, numPixels);
     }

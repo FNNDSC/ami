@@ -87,7 +87,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_core.utils.js.html">core/core.utils.js</a>, <a href="core_core.utils.js.html#line3">line 3</a>
+        <a href="core_core.utils.js.html">core/core.utils.js</a>, <a href="core_core.utils.js.html#line4">line 4</a>
     </li></ul></dd>
     
 
@@ -260,7 +260,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_core.utils.js.html">core/core.utils.js</a>, <a href="core_core.utils.js.html#line39">line 39</a>
+        <a href="core_core.utils.js.html">core/core.utils.js</a>, <a href="core_core.utils.js.html#line31">line 31</a>
     </li></ul></dd>
     
 
@@ -335,10 +335,607 @@ max bounds.
 //{ min: { x : 0, y : 0,  z : 0 },
 //  max: { x : 2, y : 4,  z : 6 }
 //}
-VJS.Core.Utils.bbox( new THREE.Vector3(1, 2, 3), new THREE.Vector3(1, 2, 3));
+VJS.Core.Utils.bbox(
+  new THREE.Vector3(1, 2, 3), new THREE.Vector3(1, 2, 3));
 
 //Returns false
 VJS.Core.Utils.bbox(new THREE.Vector3(), new THREE.Matrix4());</code></pre>
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".isElement"><span class="type-signature">(static) </span>isElement<span class="signature">(obj)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Check HTMLElement
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>obj</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">HTMLElement</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_core.utils.js.html">core/core.utils.js</a>, <a href="core_core.utils.js.html#line81">line 81</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".isString"><span class="type-signature">(static) </span>isString<span class="signature">(str)</span><span class="type-signature"> &rarr; {Boolean}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Check string
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>str</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_core.utils.js.html">core/core.utils.js</a>, <a href="core_core.utils.js.html#line100">line 100</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".minMax"><span class="type-signature">(static) </span>minMax<span class="signature">(data)</span><span class="type-signature"> &rarr; {Array}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Find min/max values in an array
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_core.utils.js.html">core/core.utils.js</a>, <a href="core_core.utils.js.html#line63">line 63</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".parseUrl"><span class="type-signature">(static) </span>parseUrl<span class="signature">(url)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Parse url
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>url</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_core.utils.js.html">core/core.utils.js</a>, <a href="core_core.utils.js.html#line109">line 109</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -358,13 +955,13 @@ VJS.Core.Utils.bbox(new THREE.Vector3(), new THREE.Matrix4());</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#uniforms">uniforms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_mhd.html">parsers/mhd</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#uniforms">uniforms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Mar 03 2017 17:14:37 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Thu Mar 23 2017 10:42:13 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

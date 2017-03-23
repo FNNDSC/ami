@@ -27,9 +27,9 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/** * Imports ***/
-import CoreColors from '../../src/core/core.colors';
-import CoreUtils from '../../src/core/core.utils';
-import ModelsBase from '../../src/models/models.base';
+import CoreColors from '../core/core.colors';
+import CoreUtils from '../core/core.utils';
+import ModelsBase from '../models/models.base';
 
 let binaryString = require('math-float32-to-binary-string');
 
@@ -83,7 +83,8 @@ export default class ModelsStack extends ModelsBase {
     this._minMax = [65535, -32768];
 
     // TRANSFORMATION MATRICES
-
+    this._regMatrix = new THREE.Matrix4();
+	
     this._ijk2LPS = null;
     this._lps2IJK = null;
 
@@ -135,32 +136,32 @@ export default class ModelsStack extends ModelsBase {
 
     // merge frames
     let prevIndex = -1;
-    for(let i = 0; i&lt;this._frame.length; i++) {
-      if(!mergedFrames[prevIndex] || mergedFrames[prevIndex]._dist != this._frame[i]._dist) {
+    for (let i = 0; i&lt;this._frame.length; i++) {
+      if (!mergedFrames[prevIndex] || mergedFrames[prevIndex]._dist != this._frame[i]._dist) {
         mergedFrames.push(this._frame[i]);
         prevIndex++;
 
         // scale it..
-        for(let k=0; k&lt;mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
+        for (let k=0; k&lt;mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
           mergedFrames[prevIndex]._pixelData[k] *= this._frame[i]._referencedSegmentNumber;
         }
-      } else{
-        for(let k=0; k&lt;mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
+      } else {
+        for (let k=0; k&lt;mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
           mergedFrames[prevIndex]._pixelData[k] += this._frame[i].pixelData[k] * this._frame[i]._referencedSegmentNumber;
         }
       }
 
-      mergedFrames[prevIndex].minMax = CoreUtils.minMaxPixelData(mergedFrames[prevIndex]._pixelData);
+      mergedFrames[prevIndex].minMax = CoreUtils.minMax(mergedFrames[prevIndex]._pixelData);
     }
 
     // get information about segments
     let dict = {};
     let max = 0;
-    for(let i = 0; i&lt;this._segmentationSegments.length; i++) {
+    for (let i = 0; i&lt;this._segmentationSegments.length; i++) {
       max = Math.max(max, parseInt(this._segmentationSegments[i].segmentNumber, 10));
 
       let color = this._segmentationSegments[i].recommendedDisplayCIELab;
-      if(color === null) {
+      if (color === null) {
         dict[this._segmentationSegments[i].segmentNumber] = this._segmentationDefaultColor;
       } else {
         dict[this._segmentationSegments[i].segmentNumber] = CoreColors.cielab2RGB(...color);
@@ -174,7 +175,7 @@ export default class ModelsStack extends ModelsBase {
       let index = i / max;
       let opacity = i ? 1 : 0;
       let rgb = [0, 0, 0];
-      if(dict.hasOwnProperty(i.toString())) {
+      if (dict.hasOwnProperty(i.toString())) {
         rgb = dict[i.toString()];
       }
 
@@ -278,10 +279,10 @@ export default class ModelsStack extends ModelsBase {
     // 4 echo times...
     let echos = 4;
     let packedEcho = [];
-    for(let i=0; i&lt; this._frame.length; i+=echos) {
+    for (let i=0; i&lt; this._frame.length; i+=echos) {
       let frame = this._frame[i];
-      for(let k=0; k&lt;this._rows * this._columns; k++) {
-        for(let j=1; j&lt;echos; j++) {
+      for (let k=0; k&lt;this._rows * this._columns; k++) {
+        for (let j=1; j&lt;echos; j++) {
           frame.pixelData[k] += this._frame[i+j].pixelData[k];
         }
         frame.pixelData[k] /= echos;
@@ -416,7 +417,7 @@ export default class ModelsStack extends ModelsBase {
       this._xCosine.y * this._spacing.x, this._yCosine.y * this._spacing.y, this._zCosine.y * this._spacing.z, this._origin.y,
       this._xCosine.z * this._spacing.x, this._yCosine.z * this._spacing.y, this._zCosine.z * this._spacing.z, this._origin.z,
       0, 0, 0, 1);
-
+    this._ijk2LPS.premultiply(this._regMatrix);
     this._lps2IJK = new THREE.Matrix4();
     this._lps2IJK.getInverse(this._ijk2LPS);
   }
@@ -442,18 +443,23 @@ export default class ModelsStack extends ModelsBase {
     }
   }
 
+  /**
+   * Pack current stack pixel data into 8 bits array buffers
+   */
   pack() {
     // Get total number of voxels
-    let nbVoxels = this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
+    let nbVoxels =
+      this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
 
     // Packing style
-    if(this._bitsAllocated === 16 &amp;&amp; this._numberOfChannels === 1) {
+    if (this._bitsAllocated === 16 &amp;&amp; this._numberOfChannels === 1) {
       this._packedPerPixel = 2;
     }
 
     // Loop through all the textures we need
     let textureDimension = this._textureSize * this._textureSize;
-    let requiredTextures = Math.ceil(nbVoxels / (textureDimension * this._packedPerPixel));
+    let requiredTextures =
+      Math.ceil(nbVoxels / (textureDimension * this._packedPerPixel));
     let voxelIndexStart = 0;
     let voxelIndexStop = this._packedPerPixel * textureDimension;
     if (voxelIndexStop > nbVoxels) {
@@ -461,10 +467,15 @@ export default class ModelsStack extends ModelsBase {
     }
 
     for (let ii = 0; ii &lt; requiredTextures; ii++) {
-      // console.log( voxelIndexStart );
-      // console.log( voxelIndexStop );
-
-      let packed = this._packTo8Bits(this._bitsAllocated, this._pixelType, this._numberOfChannels, this._frame, this._textureSize, voxelIndexStart, voxelIndexStop);
+      let packed =
+        this._packTo8Bits(
+          this._bitsAllocated,
+          this._pixelType,
+          this._numberOfChannels,
+          this._frame,
+          this._textureSize,
+          voxelIndexStart,
+          voxelIndexStop);
       this._textureType = packed.textureType;
       this._rawData.push(packed.data);
 
@@ -791,6 +802,14 @@ return a.sopInstanceUID - b.sopInstanceUID;
   get halfDimensionsIJK() {
     return this._halfDimensionsIJK;
   }
+  
+  set regMatrix(regMatrix) {
+	  this._regMatrix = regMatrix;
+  }
+  
+  get regMatrix() {
+	  return this._regMatrix;
+  }
 
   set ijk2LPS(ijk2LPS) {
     this._ijk2LPS = ijk2LPS;
@@ -1010,13 +1029,13 @@ return a.sopInstanceUID - b.sopInstanceUID;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#uniforms">uniforms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_mhd.html">parsers/mhd</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#uniforms">uniforms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Mar 03 2017 17:14:37 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Thu Mar 23 2017 10:42:13 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

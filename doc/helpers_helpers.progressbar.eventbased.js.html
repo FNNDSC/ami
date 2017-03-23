@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: helpers/helpers.progressbar.eventbased.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: helpers/helpers.progressbar.eventbased.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import CoreUtils from '../core/core.utils';
+/**
+ * Event Based progressbar
+ * @module helpers/progressBar
+ *
+ * @example
+ *
+ * let loader = new LoadersVolume();
+ * const domContainer = document.getElementById('progressbar');
+ * const pb = new HelpersProgressBarEventBased(loader, domContainer);
+ */
+
+export default class HelpersProgressBarEventBased {
+  constructor(emitter, domTarget) {
+    if (!emitter || !this._isFunction(emitter.emit)) {
+      console.error('please give the this._emitter instance');
+      return;
+    }
+
+    if (CoreUtils.isString(domTarget)) {
+      this._dom = document.getElementById(domTarget);
+    } else {
+      this._dom = domTarget;
+    }
+
+    if (!CoreUtils.isElement(this._dom)) {
+      console.error('please give the id of container dom or directly a dom instance');
+      return;
+    }
+    this._emitter = emitter;
+    this.initContainerDom();
+    this.initEventListenner();
+    this.loaded = 0;
+    this.totalFile = 0;
+  }
+
+  _isFunction(fn) {
+    return Object.prototype.toString.call(fn) === '[object Function]';
+  }
+
+  initEventListenner() {
+    const self = this;
+
+    this._emitter.on('load-start', function(event) {
+      const totalFiles = event.totalFiles;
+      self.totalFile = totalFiles;
+      self._domTotalFile.innerHTML = totalFiles;
+    });
+
+    this._emitter.on('fetch-start', function(event) {
+      const fetchLi = document.createElement('li');
+
+      const fileTag = document.createElement('div');
+      fileTag.innerHTML = 'file: ' + event.file;
+      fileTag.style.color = '#ffffff';
+      fetchLi.append(fileTag);
+
+      fetchLi.className = 'fetch-file';
+      fetchLi.id = 'file-' + event.file;
+      fetchLi.style.marginBottom = '7px';
+      fetchLi.style.border = '1px solid #ffffff;';
+      fetchLi.style.width = '60%';
+      const fetchprogress = document.createElement('div');
+      fetchprogress.id = 'file-fetch-' + event.file;
+      fetchprogress.style.width = '0%';
+      fetchLi.append(fetchprogress);
+      self._domProcessList.append(fetchLi);
+    });
+
+    this._emitter.on('fetch-progress', function(event) {
+      const id = 'file-fetch-' + event.file;
+      const fileFetchDom = document.getElementById(id);
+      fileFetchDom.style.width = (event.loaded / event.total) * 100 + '%';
+      fileFetchDom.style.border = '1px solid red';
+    });
+
+    this._emitter.on('fetch-success', function(event) {
+      // show result
+      const liParent = document.getElementById('file-' + event.file);
+      const result = document.createElement('div');
+      result.id = 'file-result-' + event.file;
+      result.innerHTML = 'fetch-success';
+      result.style.color = '#ffffff';
+      liParent.append(result);
+    });
+
+    this._emitter.on('fetch-error', function(event) {
+      // console.log(event);
+    });
+
+    this._emitter.on('fetch-abort', function(event) {
+      // console.log(event);
+    });
+
+    this._emitter.on('fetch-end', function(event) {
+      // console.log(event);
+    });
+
+    this._emitter.on('fetch-timeout', function(event) {
+      // console.log(event);
+    });
+
+    this._emitter.on('parse-start', function(event) {
+      const liParent = document.getElementById('file-' + event.file)
+      const parseprogress = document.createElement('div');
+      parseprogress.id = 'file-parse-' + event.file;
+      parseprogress.style.width = '0%';
+      liParent.append(parseprogress);
+    });
+
+    this._emitter.on('parsing', function(event) {
+      const id = 'file-parse-' + event.file;
+      const fileParseDom = document.getElementById(id);
+      fileParseDom.style.width = (event.parsed / event.total) * 100 + '%';
+      fileParseDom.style.border = '1px solid yellow';
+    });
+
+    this._emitter.on('parse-success', function(event) {
+      self.loaded += 1;
+      self._domCurrentFile.innerHTML = self.loaded;
+      self._domCurrentProgress.style.width = (self.loaded / self.totalFile) *
+        100 + '%';
+      // show result
+      const liParent = document.getElementById('file-' + event.file)
+      const result = document.createElement('div');
+      result.id = 'file-result-' + event.file;
+      result.innerHTML = 'parse-success';
+      result.style.color = '#ffffff';
+      liParent.append(result);
+    });
+  }
+
+  initContainerDom() {
+    const containerDom =
+      "&lt;div id='ami-progress-bar-container' style='background-color: rgb(33, 33, 33); color: #ffffff;'>" +
+      "&lt;div>" +
+      "&lt;label for='progress-bar' id='progress-label' style='width: 60%; border: 1px solid #ffffff; text-align: center;'>" +
+      "&lt;span id='current-file-index'>0&lt;/span>" +
+      "/" +
+      "&lt;span id='total-file'>0&lt;/span>" +
+      "&lt;/label>" +
+      "&lt;div id='progress-bar' style='width: 60%; border: 1px solid #ffffff; text-align: center;'>" +
+      "&lt;div id='current-progress' style='border: 1px solid red; width: 0%;'>&lt;/div>" +
+      "&lt;/div>" +
+      "&lt;/div>" +
+      "&lt;ul id='process-list' style='list-style-type: none; padding: 0; overflow-y: auto;'>" +
+      // "&lt;li class='fetch-file'>" +
+      // "&lt;div id='file-fetch-xxxxxid'>&lt;/div>" +
+      // "&lt;div id='file-parse-xxxxxid'>&lt;/div>" +
+      // "&lt;/li>" +
+      "&lt;/ul>" +
+      "&lt;/div>";
+    const wrap = document.createElement('div');
+    wrap.innerHTML = containerDom;
+    this._dom.append(wrap);
+    // dom interface
+    this._domCurrentFile = document.getElementById('current-file-index');
+    this._domTotalFile = document.getElementById('total-file');
+    this._domProcessList = document.getElementById('process-list');
+    this._domCurrentProgress = document.getElementById('current-progress');
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_mhd.html">parsers/mhd</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#uniforms">uniforms</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Thu Mar 23 2017 10:42:13 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

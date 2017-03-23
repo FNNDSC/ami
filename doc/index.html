@@ -44,7 +44,7 @@
 
     <section>
         <article><p align="center">
-  <img src="https://cloud.githubusercontent.com/assets/214063/19763517/a83873fc-9c3e-11e6-8390-229d7749246e.png" width="60%">
+  <img src="https://cloud.githubusercontent.com/assets/214063/23213764/78ade038-f90c-11e6-8208-4fcade5f3832.png" width="60%">
 </p>
 
 <p align="center">
@@ -75,7 +75,8 @@
 </p>
 
 <hr>
-<pre class="prettyprint source lang-diff"><code>**AMI Alpha** is now available for developer preview.
+<pre class="prettyprint source lang-diff"><code>
+**AMI Alpha** is now available for developer preview.
 Please submit pull request, open issues or contact us for any question, feature request, etc.
 
 - &lt;Important Note>
@@ -242,7 +243,9 @@ Please submit pull request, open issues or contact us for any question, feature 
 
 <h3>(more) Advanced demos</h3><p>Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced demos <a href="https://fnndsc.github.io/ami">there</a>!</p>
 <h2>Features</h2><blockquote>
-<p>:white_check_mark: READY - :large_orange_diamond: IN PROGRESS OR LIMITED SUPPORT - :x: ON ROADMAP</p>
+<p>✅  READY
+🔶 IN PROGRESS OR LIMITED SUPPORT
+❌ ON ROADMAP</p>
 </blockquote>
 <table>
 <thead>
@@ -274,28 +277,38 @@ Please submit pull request, open issues or contact us for any question, feature 
 </tr>
 <tr>
 <td>✅ Lookup Tables</td>
+<td>🔶 MHD/RAW</td>
+<td>❌ FSM</td>
+<td>🔶 Orientation (2D/3D)</td>
+</tr>
+<tr>
+<td>🔶 Label Maps</td>
 <td>❌ MGH/MGZ</td>
 <td>❌ CURV</td>
 <td>🔶 Angle (2D/3D)</td>
 </tr>
 <tr>
-<td>🔶 Label Maps</td>
+<td></td>
 <td>❌ JPEG</td>
-<td>❌ FSM</td>
+<td></td>
 <td>🔶 Orientation (2D/3D)</td>
 </tr>
 </tbody>
 </table>
 <h2>Usage</h2><h3>Pre-requisites</h3><ul>
 <li>ES2015 promises support. (consider using polyfills if needed)</li>
-<li>Load THREEJS your index.html <strong>BEFORE</strong> AMI.<pre class="prettyprint source"><code>&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js&quot;>&lt;/script></code></pre></li>
+<li>Load THREEJS your index.html <strong>BEFORE</strong> AMI.</li>
 </ul>
-<h3>NPM</h3><pre class="prettyprint source"><code>$> npm install ami.js</code></pre><p><em>Note</em>: you might need to include <a href="https://github.com/babel/babel">babel</a> transforms in you build process.</p>
-<pre class="prettyprint source"><code># app.js
+<pre class="prettyprint source lang-hmtl"><code>
+&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js&quot;>&lt;/script></code></pre><h3>NPM</h3><pre class="prettyprint source lang-bash"><code>
+$> npm install ami.js</code></pre><p><em>Note</em>: you might need to include <a href="https://github.com/babel/babel">babel</a> transforms in you build process.</p>
+<pre class="prettyprint source lang-javascript"><code>
+// app.js
 const AMI = require('ami.js');
 window.console.log('Ready to rock!!');</code></pre><h3>ami.js</h3><p>Check-out the <a href="#lessons">lessons</a> to get started quickly.</p>
 <p>Add AMI in your index.html <strong>after</strong> THREEJS.</p>
-<pre class="prettyprint source"><code># index.html
+<pre class="prettyprint source lang-html"><code>
+&lt;!-- index.html -->
 &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.js&quot;>&lt;/script>
 &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/ami.js/0.0.12/ami.min.js&quot;>&lt;/script>
 &lt;script src=&quot;app.js&quot;>&lt;/script>
@@ -303,22 +316,30 @@ window.console.log('Ready to rock!!');</code></pre><h3>ami.js</h3><p>Check-out t
 #app.js
 const AMI = AMI.default;
 window.console.log('Ready to rock!!');</code></pre><h2>Developer corner</h2><p>Get the source code and related packages.</p>
-<pre class="prettyprint source"><code>$> git clone https://github.com/FNNDSC/ami.git
+<pre class="prettyprint source lang-bash"><code>
+$> git clone https://github.com/FNNDSC/ami.git
 $> cd ami
-$> npm install</code></pre><p>Default task (lint, tests, demo and build)</p>
-<pre class="prettyprint source"><code>$> npm run</code></pre><p>To run examples (browserify/babelify/serve the example)</p>
-<pre class="prettyprint source"><code>$> npm run example &lt;examples name>
+$> yarn install --ignore-optional</code></pre><p>Default task (lint, tests, demo and build)</p>
+<pre class="prettyprint source lang-bash"><code>
+$> yarn run</code></pre><p>To run examples (browserify/babelify/serve the example)</p>
+<pre class="prettyprint source lang-bash"><code>
+$> yarn run example &lt;examples name>
 
 #run the geometries_slice example
-$> npm run example geometries_slice</code></pre><p>To run lessons (browserify/babelify/serve the lesson)</p>
-<pre class="prettyprint source"><code>$> npm run lesson &lt;lesson number>
+$> yarn run example geometries_slice</code></pre><p>To run lessons (browserify/babelify/serve the lesson)</p>
+<pre class="prettyprint source lang-bash"><code>
+$> yarn run lesson &lt;lesson number>
 
 # run lesson 00
-$> npm run lesson 00</code></pre><p>Build standalone library to build/</p>
-<pre class="prettyprint source"><code>$> npm run build:ami</code></pre><p>Tests</p>
-<pre class="prettyprint source"><code>$> npm run test</code></pre><p>Documentation</p>
-<pre class="prettyprint source"><code>$> npm run doc</code></pre><p>Deploy dist/ to gh-pages</p>
-<pre class="prettyprint source"><code>$> npm run deploy</code></pre><p>Find out more about the <a href="https://fnndsc.github.io/ami/doc">API</a>.</p>
+$> yarn run lesson 00</code></pre><p>Build standalone library to <code>build/</code></p>
+<pre class="prettyprint source lang-bash"><code>
+$> yarn run build:ami</code></pre><p>Tests</p>
+<pre class="prettyprint source lang-bash"><code>
+$> yarn run test</code></pre><p>Documentation</p>
+<pre class="prettyprint source lang-bash"><code>
+$> yarn run doc</code></pre><p>Deploy dist/ to gh-pages</p>
+<pre class="prettyprint source lang-bash"><code>
+$> yarn run deploy</code></pre><p>Find out more about the <a href="https://fnndsc.github.io/ami/doc">API</a>.</p>
 <h1>Credits</h1><p>AMI would not exist without them:</p>
 <h5><a href="https://github.com/mrdoob/three.js/">THREEJS</a></h5><ul>
 <li>Base components such as Vectors, Matrices and Objects3D.</li>
@@ -352,9 +373,6 @@ $> npm run lesson 00</code></pre><p>Build standalone library to build/</p>
 <h5><a href="https://github.com/nodeca/pako">Pako</a></h5><ul>
 <li>GZ file decompression</li>
 <li>Author(s): <a href="https://github.com/nodeca">nodeca</a></li>
-</ul>
-<h5><a href="http://www.clipartpanda.com/">Clipart Panda</a></h5><ul>
-<li><a href="http://www.clipartpanda.com/clipart_images/baby-blue-dinosaur-clip-art-37313455">Baby blue dinosaur</a></li>
 </ul></article>
     </section>
 
@@ -366,13 +384,13 @@ $> npm run lesson 00</code></pre><p>Build standalone library to build/</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#uniforms">uniforms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_voxel.html">helpers/voxel</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_mhd.html">parsers/mhd</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_squareProbe.html">widgets/squareProbe</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#moduleType">moduleType</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#uniforms">uniforms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Fri Mar 03 2017 17:14:37 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Thu Mar 23 2017 10:42:13 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>
