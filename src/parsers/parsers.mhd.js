@@ -13,12 +13,9 @@ export default class ParsersMHD extends ParsersVolume {
       * @type {arraybuffer}
     */
     this._id = id;
-    this._arrayBuffer = data.buffer;
     this._url = data.url;
     this._header = {};
     this._buffer = null;
-    this._dataSet = null;
-    this._unpackedData = null;
 
     try {
       // parse header (mhd) data
