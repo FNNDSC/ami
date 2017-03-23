@@ -1,3 +1,4 @@
+const URL = require('url');
 import Validators from './core.validators';
 
 /**
@@ -5,17 +6,7 @@ import Validators from './core.validators';
  *
  * @module core/utils
  */
-
-// Missing all good stuff
-// critical for testing
-// transform ( IJK <-> RAS)
-// bounding box (IJK, RAS, Axed Aligned)
-// minBound
-// maxBound
-// half dimensions, etc.
-//
-
-export default class Utils {
+export default class CoreUtils {
 
   /**
    * Generate a bouding box object.
@@ -30,7 +21,8 @@ export default class Utils {
    * //{ min: { x : 0, y : 0,  z : 0 },
    * //  max: { x : 2, y : 4,  z : 6 }
    * //}
-   * VJS.Core.Utils.bbox( new THREE.Vector3(1, 2, 3), new THREE.Vector3(1, 2, 3));
+   * VJS.Core.Utils.bbox(
+   *   new THREE.Vector3(1, 2, 3), new THREE.Vector3(1, 2, 3));
    *
    * //Returns false
    * VJS.Core.Utils.bbox(new THREE.Vector3(), new THREE.Matrix4());
@@ -38,14 +30,14 @@ export default class Utils {
    */
   static bbox(center, halfDimensions) {
     // make sure we have valid inputs
-    if(!(Validators.vector3(center) &&
+    if (!(Validators.vector3(center) &&
       Validators.vector3(halfDimensions))) {
       window.console.log('Invalid center or plane halfDimensions.');
       return false;
     }
 
     // make sure half dimensions are >= 0
-    if(!(halfDimensions.x >= 0 &&
+    if (!(halfDimensions.x >= 0 &&
       halfDimensions.y >= 0 &&
       halfDimensions.z >= 0)) {
       window.console.log('halfDimensions must be >= 0.');
@@ -63,16 +55,90 @@ export default class Utils {
     };
   }
 
-  static minMaxPixelData(pixelData = []) {
+  /**
+   * Find min/max values in an array
+   * @param {Array} data
+   * @return {Array}
+   */
+  static minMax(data = []) {
     let minMax = [65535, -32768];
-    let numPixels = pixelData.length;
+    let numPixels = data.length;
 
     for (let index = 0; index < numPixels; index++) {
-      let spv = pixelData[index];
+      let spv = data[index];
       minMax[0] = Math.min(minMax[0], spv);
       minMax[1] = Math.max(minMax[1], spv);
     }
 
     return minMax;
   }
+
+  /**
+   * Check HTMLElement
+   * @param {HTMLElement} obj
+   * @return {boolean}
+   */
+  static isElement(obj) {
+    try {
+      // Using W3 DOM2 (works for FF, Opera and Chrom)
+      return obj instanceof HTMLElement;
+    } catch (e) {
+      // Browsers not supporting W3 DOM2 don't have HTMLElement and
+      // an exception is thrown and we end up here. Testing some
+      // properties that all elements have. (works on IE7)
+      return (typeof obj === 'object') &&
+        (obj.nodeType === 1) && (typeof obj.style === 'object') &&
+        (typeof obj.ownerDocument === 'object');
+    }
+  }
+
+  /**
+   * Check string
+   * @param {String} str
+   * @return {Boolean}
+   */
+  static isString(str) {
+    return typeof str === 'string' || str instanceof String;
+  }
+
+  /**
+   * Parse url
+   * @param {*} url
+   * @return {Object}
+   */
+  static parseUrl(url) {
+    //
+    const data = {};
+    data.filename = '';
+    data.extension = '';
+    data.pathname = '';
+    data.query = '';
+
+    let parsedUrl = URL.parse(url);
+    data.pathname = parsedUrl.pathname;
+    data.query = parsedUrl.query;
+
+    // get file name
+    data.filename = data.pathname.split('/').pop();
+
+    // find extension
+    let splittedName = data.filename.split('.');
+    if (splittedName.length <= 1) {
+      data.extension = 'dicom';
+    } else {
+      data.extension = data.filename.split('.').pop();
+    }
+
+    if (!isNaN(data.extension)) {
+      data.extension = 'dicom';
+    }
+
+    if (data.query &&
+      data.query.includes('contentType=application%2Fdicom')) {
+      data.extension = 'dicom';
+    }
+
+    return data;
+  }
+
 }

@@ -1,12 +1,13 @@
 /** * Imports ***/
 const PAKO = require('pako');
-const URL = require('url');
 
 import LoadersBase from './loaders.base';
+import CoreUtils from '../core/core.utils';
 import ModelsSeries from '../models/models.series';
 import ModelsStack from '../models/models.stack';
 import ModelsFrame from '../models/models.frame';
 import ParsersDicom from '../parsers/parsers.dicom';
+import ParsersMhd from '../parsers/parsers.mhd';
 import ParsersNifti from '../parsers/parsers.nifti';
 import ParsersNrrd from '../parsers/parsers.nrrd';
 
@@ -67,49 +68,31 @@ export default class LoadersVolumes extends LoadersBase {
           () => {
             resolve(new Promise((resolve, reject) => {
               let data = response;
-              data.gzcompressed = false;
-              data.filename = '';
-              data.extension = '';
-              data.pathname = '';
-              data.query = '';
 
-              let parsedUrl = URL.parse(response.url);
-              data.pathname = parsedUrl.pathname;
-              data.query = parsedUrl.query;
+              if (!Array.isArray(data)) {
+                data = [data];
+              }
 
-              // get file name
-              data.filename = data.pathname.split('/')
-                .pop();
-              data.gzcompressed = false;
+              data.forEach((dataset) => {
+                this._preprocess(dataset);
+              });
 
-              // find extension
-              let splittedName = data.filename.split('.');
-              if (splittedName.length <= 1) {
-                data.extension = 'dicom';
+              if (data.length === 1) {
+                data = data[0];
               } else {
-                data.extension = data.filename.split('.')
-                  .pop();
-              }
-
-              if (!isNaN(data.extension)) {
-                data.extension = 'dicom';
-              }
-
-              if (data.query &&
-                data.query.includes('contentType=application%2Fdicom')) {
-                data.extension = 'dicom';
-              }
-
-              // unzip if extension is '.gz'
-              if (data.extension === 'gz') {
-                data.gzcompressed = true;
-                data.extension =
-                  data.filename.split('.gz')
-                  .shift()
-                  .split('.')
-                  .pop();
-                let decompressedData = PAKO.inflate(data.buffer);
-                data.buffer = decompressedData.buffer;
+                // if raw/mhd pair
+                let mhdFile =
+                  data.filter(this._filterByExtension.bind(null, 'MHD'));
+                let rawFile =
+                  data.filter(this._filterByExtension.bind(null, 'RAW'));
+                if (data.length === 2 &&
+                    mhdFile.length === 1 &&
+                    rawFile.length === 1) {
+                  data.url = mhdFile[0].url;
+                  data.extension = mhdFile[0].extension;
+                  data.mhdBuffer = mhdFile[0].buffer;
+                  data.rawBuffer = rawFile[0].buffer;
+                }
               }
 
               let Parser = this._parser(data.extension);
@@ -294,6 +277,9 @@ export default class LoadersVolumes extends LoadersBase {
       case '':
         Parser = ParsersDicom;
         break;
+      case 'MHD':
+        Parser = ParsersMhd;
+        break;
       case 'NRRD':
         Parser = ParsersNrrd;
         break;
@@ -302,5 +288,43 @@ export default class LoadersVolumes extends LoadersBase {
         return false;
     }
     return Parser;
+  }
+
+
+  /**
+   * Pre-process data to be parsed (find data type and de-compress)
+   * @param {*} data
+   */
+  _preprocess(data) {
+    const parsedUrl = CoreUtils.parseUrl(data.url);
+    // update data
+    data.filename = parsedUrl.filename;
+    data.extension = parsedUrl.extension;
+    data.pathname = parsedUrl.pathname;
+    data.query = parsedUrl.query;
+
+    // unzip if extension is '.gz'
+    if (data.extension === 'gz') {
+      data.gzcompressed = true;
+      data.extension =
+        data.filename.split('.gz').shift().split('.').pop();
+      let decompressedData = PAKO.inflate(data.buffer);
+      data.buffer = decompressedData.buffer;
+    } else {
+      data.gzcompressed = false;
+    }
+  }
+
+  /**
+   * Filter data by extension
+   * @param {*} extension
+   * @param {*} item
+   * @returns Boolean
+   */
+  _filterByExtension(extension, item) {
+    if (item.extension.toUpperCase() === extension.toUpperCase()) {
+      return true;
+    }
+    return false;
   }
 }

@@ -1,4 +1,4 @@
-import {isString, isElement} from './helper.utils';
+import CoreUtils from '../core/core.utils';
 /**
  * Event Based progressbar
  * @module helpers/progressBar
@@ -17,13 +17,13 @@ export default class HelpersProgressBarEventBased {
       return;
     }
 
-    if (isString(domTarget)) {
+    if (CoreUtils.isString(domTarget)) {
       this._dom = document.getElementById(domTarget);
     } else {
       this._dom = domTarget;
     }
 
-    if (!isElement(this._dom)) {
+    if (!CoreUtils.isElement(this._dom)) {
       console.error('please give the id of container dom or directly a dom instance');
       return;
     }

@@ -71,7 +71,7 @@ export default class LoadersBase extends EventEmitter {
    */
   fetch(url) {
     return new Promise((resolve, reject) => {
-      let request = new XMLHttpRequest();
+      const request = new XMLHttpRequest();
       request.open('GET', url);
       request.crossOrigin = true;
       request.responseType = 'arraybuffer';
@@ -188,6 +188,34 @@ export default class LoadersBase extends EventEmitter {
   }
 
   /**
+   * default load sequence group promise.
+   * @param {array} url - resource url.
+   * @return {promise} promise.
+   */
+  loadSequenceGroup(url) {
+    const fetchSequence = [];
+
+    url.forEach((file) => {
+      fetchSequence.push(
+        this.fetch(file)
+      );
+    });
+
+    return Promise.all(fetchSequence)
+      .then((rawdata) => {
+        return this.parse(rawdata);
+      })
+      .then((data) => {
+        this._data.push(data);
+        return data;
+      })
+      .catch(function(error) {
+        window.console.log('oops... something went wrong...');
+        window.console.log(error);
+      });
+  }
+
+  /**
    * default load sequence promise.
    * @param {string} url - resource url.
    * @return {promise} promise.
@@ -224,11 +252,17 @@ export default class LoadersBase extends EventEmitter {
       time: new Date(),
     });
 
-    let loadSequences = [];
+    const loadSequences = [];
     url.forEach((file) => {
-      loadSequences.push(
-        this.loadSequence(file)
-      );
+      if (!Array.isArray(file)) {
+        loadSequences.push(
+          this.loadSequence(file)
+        );
+      } else {
+        loadSequences.push(
+          this.loadSequenceGroup(file)
+        );
+      }
     });
     return Promise.all(loadSequences);
   }

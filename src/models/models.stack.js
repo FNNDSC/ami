@@ -108,32 +108,32 @@ export default class ModelsStack extends ModelsBase {
 
     // merge frames
     let prevIndex = -1;
-    for(let i = 0; i<this._frame.length; i++) {
-      if(!mergedFrames[prevIndex] || mergedFrames[prevIndex]._dist != this._frame[i]._dist) {
+    for (let i = 0; i<this._frame.length; i++) {
+      if (!mergedFrames[prevIndex] || mergedFrames[prevIndex]._dist != this._frame[i]._dist) {
         mergedFrames.push(this._frame[i]);
         prevIndex++;
 
         // scale it..
-        for(let k=0; k<mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
+        for (let k=0; k<mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
           mergedFrames[prevIndex]._pixelData[k] *= this._frame[i]._referencedSegmentNumber;
         }
-      } else{
-        for(let k=0; k<mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
+      } else {
+        for (let k=0; k<mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
           mergedFrames[prevIndex]._pixelData[k] += this._frame[i].pixelData[k] * this._frame[i]._referencedSegmentNumber;
         }
       }
 
-      mergedFrames[prevIndex].minMax = CoreUtils.minMaxPixelData(mergedFrames[prevIndex]._pixelData);
+      mergedFrames[prevIndex].minMax = CoreUtils.minMax(mergedFrames[prevIndex]._pixelData);
     }
 
     // get information about segments
     let dict = {};
     let max = 0;
-    for(let i = 0; i<this._segmentationSegments.length; i++) {
+    for (let i = 0; i<this._segmentationSegments.length; i++) {
       max = Math.max(max, parseInt(this._segmentationSegments[i].segmentNumber, 10));
 
       let color = this._segmentationSegments[i].recommendedDisplayCIELab;
-      if(color === null) {
+      if (color === null) {
         dict[this._segmentationSegments[i].segmentNumber] = this._segmentationDefaultColor;
       } else {
         dict[this._segmentationSegments[i].segmentNumber] = CoreColors.cielab2RGB(...color);
@@ -147,7 +147,7 @@ export default class ModelsStack extends ModelsBase {
       let index = i / max;
       let opacity = i ? 1 : 0;
       let rgb = [0, 0, 0];
-      if(dict.hasOwnProperty(i.toString())) {
+      if (dict.hasOwnProperty(i.toString())) {
         rgb = dict[i.toString()];
       }
 
@@ -251,10 +251,10 @@ export default class ModelsStack extends ModelsBase {
     // 4 echo times...
     let echos = 4;
     let packedEcho = [];
-    for(let i=0; i< this._frame.length; i+=echos) {
+    for (let i=0; i< this._frame.length; i+=echos) {
       let frame = this._frame[i];
-      for(let k=0; k<this._rows * this._columns; k++) {
-        for(let j=1; j<echos; j++) {
+      for (let k=0; k<this._rows * this._columns; k++) {
+        for (let j=1; j<echos; j++) {
           frame.pixelData[k] += this._frame[i+j].pixelData[k];
         }
         frame.pixelData[k] /= echos;
@@ -415,18 +415,23 @@ export default class ModelsStack extends ModelsBase {
     }
   }
 
+  /**
+   * Pack current stack pixel data into 8 bits array buffers
+   */
   pack() {
     // Get total number of voxels
-    let nbVoxels = this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
+    let nbVoxels =
+      this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
 
     // Packing style
-    if(this._bitsAllocated === 16 && this._numberOfChannels === 1) {
+    if (this._bitsAllocated === 16 && this._numberOfChannels === 1) {
       this._packedPerPixel = 2;
     }
 
     // Loop through all the textures we need
     let textureDimension = this._textureSize * this._textureSize;
-    let requiredTextures = Math.ceil(nbVoxels / (textureDimension * this._packedPerPixel));
+    let requiredTextures =
+      Math.ceil(nbVoxels / (textureDimension * this._packedPerPixel));
     let voxelIndexStart = 0;
     let voxelIndexStop = this._packedPerPixel * textureDimension;
     if (voxelIndexStop > nbVoxels) {
@@ -434,10 +439,15 @@ export default class ModelsStack extends ModelsBase {
     }
 
     for (let ii = 0; ii < requiredTextures; ii++) {
-      // console.log( voxelIndexStart );
-      // console.log( voxelIndexStop );
-
-      let packed = this._packTo8Bits(this._bitsAllocated, this._pixelType, this._numberOfChannels, this._frame, this._textureSize, voxelIndexStart, voxelIndexStop);
+      let packed =
+        this._packTo8Bits(
+          this._bitsAllocated,
+          this._pixelType,
+          this._numberOfChannels,
+          this._frame,
+          this._textureSize,
+          voxelIndexStart,
+          voxelIndexStop);
       this._textureType = packed.textureType;
       this._rawData.push(packed.data);
 

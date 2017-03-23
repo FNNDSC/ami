@@ -70,7 +70,7 @@ function init() {
     // render second layer offscreen
     renderer.render(sceneLayer1, camera, sceneLayer1TextureTarget, true);
     // mix the layers and render it ON screen!
-    renderer.render(sceneLayerMix, camera);
+    renderer.render(sceneLayer0, camera);
     statsyay.update();
 
     // request new frame
@@ -134,12 +134,13 @@ window.onload = function() {
   init();
 
   let data = [
-    'patient1/7001_t1_average_BRAINSABC.nii.gz',
-    'patient2/7002_t1_average_BRAINSABC.nii.gz',
+    // ['http://127.0.0.1:8080/data/mhd/PA5_Mask.mhd',
+    // 'http://127.0.0.1:8080/data/mhd/PA5_Mask.raw'],
+    'http://127.0.0.1:8080/data/mhd/PA5_Mask.dcm',
   ];
 
   let files = data.map(function(v) {
-    return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/' + v;
+    return 'http://127.0.0.1:8080/data/mhd/' + v;
   });
 
   function buildGUI(stackHelper) {
@@ -274,7 +275,7 @@ window.onload = function() {
         height: threeD.clientHeight,
       };
       camera.fitBox(2);
-      
+
       sceneLayer0TextureTarget.setSize(threeD.clientWidth, threeD.clientHeight);
       sceneLayer1TextureTarget.setSize(threeD.clientWidth, threeD.clientHeight);
 
@@ -298,16 +299,21 @@ window.onload = function() {
     let stack = null;
     let stack2 = null;
 
-    if (mergedSeries[0].seriesInstanceUID !== 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/patient1/7001_t1_average_BRAINSABC.nii.gz') {
-      stack = mergedSeries[1].stack[0];
-      stack2 = mergedSeries[0].stack[0];
-    } else {
-      stack = mergedSeries[0].stack[0];
-      stack2 = mergedSeries[1].stack[0];
-    }
+    // if (mergedSeries[0].seriesInstanceUID !== 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/patient1/7001_t1_average_BRAINSABC.nii.gz') {
+    //   stack = mergedSeries[1].stack[0];
+    //   stack2 = mergedSeries[0].stack[0];
+    // } else {
+    //   stack = mergedSeries[0].stack[0];
+    //   stack2 = mergedSeries[1].stack[0];
+    // }
 
     stack = mergedSeries[0].stack[0];
-    stack2 = mergedSeries[1].stack[0];
+    stack2 = stack;
+    console.log(stack);
+    console.log(stack2);
+
+    // stack = mergedSeries[0].stack[0];
+    // stack2 = mergedSeries[1].stack[0];
 
     let stackHelper = new HelpersStack(stack);
     stackHelper.bbox.visible = false;
@@ -323,9 +329,9 @@ window.onload = function() {
     // * Z spacing
     // * etc.
     //
-    stack2.prepare();
+    //stack2.prepare();
     // pixels packing for the fragment shaders now happens there
-    stack2.pack();
+    //stack2.pack();
 
     let textures2 = [];
     for (let m = 0; m < stack2._rawData.length; m++) {
@@ -449,7 +455,7 @@ window.onload = function() {
   }
 
   // load sequence for each file
-  loader.load(files)
+  loader.load(data)
   .then(function() {
     handleSeries();
   })

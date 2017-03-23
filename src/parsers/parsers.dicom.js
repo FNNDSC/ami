@@ -75,16 +75,23 @@ export default class ParsersDicom extends ParsersVolume {
     let segmentationSegments = [];
     let segmentSequence = this._dataSet.elements.x00620002;
 
-    for(let i = 0; i< segmentSequence.items.length; i++) {
-      let recommendedDisplayCIELab = this._recommendedDisplayCIELab(segmentSequence.items[i]);
+    if (!segmentSequence) {
+      return segmentationSegments;
+    }
+
+    for (let i = 0; i< segmentSequence.items.length; i++) {
+      let recommendedDisplayCIELab =
+        this._recommendedDisplayCIELab(segmentSequence.items[i]);
       let segmentationCode = this._segmentationCode(segmentSequence.items[i]);
       let segmentNumber = segmentSequence.items[i].dataSet.uint16('x00620004');
       let segmentLabel = segmentSequence.items[i].dataSet.string('x00620005');
-      let segmentAlgorithmType = segmentSequence.items[i].dataSet.string('x00620008');
+      let segmentAlgorithmType =
+        segmentSequence.items[i].dataSet.string('x00620008');
 
       segmentationSegments.push({
         recommendedDisplayCIELab,
-        segmentationCodeDesignator: segmentationCode['segmentationCodeDesignator'],
+        segmentationCodeDesignator:
+          segmentationCode['segmentationCodeDesignator'],
         segmentationCodeValue: segmentationCode['segmentationCodeValue'],
         segmentationCodeMeaning: segmentationCode['segmentationCodeMeaning'],
         segmentNumber,
@@ -102,7 +109,7 @@ export default class ParsersDicom extends ParsersVolume {
     let segmentationCodeMeaning = 'unknown';
     let element = segment.dataSet.elements.x00082218;
 
-    if(element && element.items && element.items.length > 0) {
+    if (element && element.items && element.items.length > 0) {
       segmentationCodeDesignator = element.items[0].dataSet.string('x00080102');
       segmentationCodeValue = element.items[0].dataSet.string('x00080100');
       segmentationCodeMeaning = element.items[0].dataSet.string('x00080104');
@@ -116,7 +123,7 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   _recommendedDisplayCIELab(segment) {
-    if(!segment.dataSet.elements.x0062000d) {
+    if (!segment.dataSet.elements.x0062000d) {
       return null;
     }
 
@@ -126,7 +133,7 @@ export default class ParsersDicom extends ParsersVolume {
 
     // https://www.dabsoft.ch/dicom/3/C.10.7.1.1/
     let CIELabScaled = new Uint16Array(length/2);
-    for(let i = 0; i<length/2; i++) {
+    for (let i = 0; i<length/2; i++) {
       CIELabScaled[i] = (byteArray[2*i + 1] << 8) + byteArray[2*i];
     }
 

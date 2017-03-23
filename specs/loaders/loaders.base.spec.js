@@ -1,4 +1,4 @@
-/* globals describe, fdescribe, it, fit, expect, beforeEach*/
+/* globals describe, sinon, it, expect, beforeEach*/
 
 import LoadersBase from '../../src/loaders/loaders.base';
 import ProgressBar from '../../src/helpers/helpers.progressbar';
@@ -57,7 +57,7 @@ describe('Lorder.Base', function() {
       expect(loader._progressBar).toEqual(null);
     });
 
-    it('should return success only with ProgressBar but have no progressbar', () => {
+    it('should return success only with ProgressBar', () => {
       const loader = new LoadersBase(null, ProgressBar);
       expect(loader instanceof LoadersBase).toEqual(true);
       expect(loader._progressBar).toEqual(null);
@@ -113,20 +113,22 @@ describe('Lorder.Base', function() {
           expect(data.url).toEqual(sourceUrl);
           expect(data.buffer instanceof Object).toEqual(true);
           // event tests
-          sinon.assert.calledWith(eventsHandleSpy['fetch-start'], baseSinonMatch);
-          sinon.assert.calledWith(eventsHandleSpy['fetch-success'], baseSinonMatch.and(new sinon.match.hasOwn('totalLoaded')));
-          sinon.assert.calledWith(eventsHandleSpy['fetch-progress'], baseSinonMatch
-                                                                       .and(new sinon.match.hasOwn('total'))
-                                                                       .and(new sinon.match.hasOwn('loaded'))
-                                                                       );
-          // sinon.assert.calledWith(eventsHandleSpy['fetch-end'], baseSinonMatch);
+          sinon.assert.calledWith(
+            eventsHandleSpy['fetch-start'], baseSinonMatch);
+          sinon.assert.calledWith(
+            eventsHandleSpy['fetch-success'], baseSinonMatch
+                      .and(new sinon.match.hasOwn('totalLoaded')));
+          sinon.assert.calledWith(
+            eventsHandleSpy['fetch-progress'], baseSinonMatch
+                      .and(new sinon.match.hasOwn('total'))
+                      .and(new sinon.match.hasOwn('loaded')));
           done();
         });
     });
 
-    xit('the url is unavailbl', (done) => {
+    it('the url is unavailble', (done) => {
       // some helper on how to handle this case
-      expact(
+      expect(
         baseLoader.fetch('/base/data/dicom/xxx.tar')
                 .then((errorMsg) => {
                   done();
@@ -142,7 +144,10 @@ describe('Lorder.Base', function() {
                   expect(Array.isArray(data)).toBe(true);
                   expect(data.length).toBe(1);
                   expect(eventsHandleSpy['load-start'].calledOnce).toBe(true);
-                  sinon.assert.calledWith(eventsHandleSpy['load-start'], new sinon.match({files: [sourceUrl]}).and(new sinon.match.hasOwn('time')));
+                  sinon.assert.calledWith(
+                    eventsHandleSpy['load-start'],
+                    new sinon.match({files: [sourceUrl]})
+                              .and(new sinon.match.hasOwn('time')));
                   done();
                 });
     });

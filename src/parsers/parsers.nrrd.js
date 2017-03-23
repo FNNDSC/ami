@@ -213,7 +213,7 @@ export default class ParsersNifti extends ParsersVolume {
     let buffer = this._dataSet.buffer;
     let numberOfChannels = this.numberOfChannels();
     let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
-    if(!this.rightHanded()) {
+    if (!this.rightHanded()) {
       frameIndex = this.numberOfFrames() - 1 - frameIndex;
     }
     let frameOffset = frameIndex * numPixels;

@@ -35,6 +35,39 @@ export default class ParsersVolume {
     return null;
   }
 
+  numberOfChannels() {
+    return 1;
+  }
+
+  sliceThickness() {
+    return null;
+  }
+
+
+  dimensionIndexValues(frameIndex = 0) {
+    return null;
+  }
+
+  instanceNumber(frameIndex = 0) {
+    return frameIndex;
+  }
+
+  windowCenter(frameIndex = 0) {
+    return null;
+  }
+
+  windowWidth(frameIndex = 0) {
+    return null;
+  }
+
+  rescaleSlope(frameIndex = 0) {
+    return 1;
+  }
+
+  rescaleIntercept(frameIndex = 0) {
+    return 0;
+  }
+
   _decompressUncompressed() {
 
   }
