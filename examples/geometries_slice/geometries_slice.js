@@ -118,19 +118,29 @@ window.onload = function() {
   let loader = new LoadersVolume(threeD);
 
   let t2 = [
-    'PA5_Mask.mhd', 'PA5_Mask.raw',
+    '36444280', '36444294', '36444308', '36444322', '36444336',
+    '36444350', '36444364', '36444378', '36444392', '36444406',
+    '36444420', '36444434', '36444448', '36444462', '36444476',
+    '36444490', '36444504', '36444518', '36444532', '36746856',
+    '36746870', '36746884', '36746898', '36746912', '36746926',
+    '36746940', '36746954', '36746968', '36746982', '36746996',
+    '36747010', '36747024', '36748200', '36748214', '36748228',
+    '36748270', '36748284', '36748298', '36748312', '36748326',
+    '36748340', '36748354', '36748368', '36748382', '36748396',
+    '36748410', '36748424', '36748438', '36748452', '36748466',
+    '36748480', '36748494', '36748508', '36748522', '36748242',
+    '36748256',
   ];
 
   let files = t2.map(function(v) {
-    return 'http://127.0.0.1:8080/data/mhd/' + v;
+    return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
   });
 
-  loader.load([files])
+  loader.load(files)
   .then(function() {
     let series = loader.data[0].mergeSeries(loader.data)[0];
     let stack = series.stack[0];
     stackHelper = new HelpersStack(stack);
-    console.log(stack);
     let centerLPS = stackHelper.stack.worldCenter();
     stackHelper.slice.aabbSpace = 'LPS';
     stackHelper.slice.planePosition.x = centerLPS.x;
