@@ -8,7 +8,7 @@ import ProgressBar from '../../src/helpers/helpers.progressbar';
  * because this two case cover all the events.
  */
 
-describe('Lorder.Base', function() {
+describe('Loader.Base', function() {
   let baseLoader;
   const eventsHandleSpy = {};
   const sourceUrl = '/base/data/dicom/adi_slice.dcm';
@@ -128,12 +128,11 @@ describe('Lorder.Base', function() {
 
     it('the url is unavailble', (done) => {
       // some helper on how to handle this case
-      expect(
-        baseLoader.fetch('/base/data/dicom/xxx.tar')
-                .then((errorMsg) => {
-                  done();
-                })
-        ).toThrowError('Not Found');
+      baseLoader.fetch('/base/data/dicom/xxx.tar')
+        .catch((error) => {
+          expect(error).toEqual('Not Found');
+          done();
+        });
     });
   });
 
