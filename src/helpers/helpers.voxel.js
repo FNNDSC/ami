@@ -157,8 +157,8 @@ export default class HelpersVoxel extends THREE.Object3D {
 
     // update div position
     let selectedElement = document.getElementById('VJSWidgetVoxelProbe' + this.id);
-    selectedElement.style.top = this._voxel.screenCoordinates.y;
-    selectedElement.style.left = this._voxel.screenCoordinates.x;
+    selectedElement.style.top = this._voxel.screenCoordinates.y + 'px';
+    selectedElement.style.left = this._voxel.screenCoordinates.x + 'px';
     // window.console.log(this._voxel);
     // selectedElement.style['transform-origin'] = 'top left';
     // selectedElement.style['transform'] = 'translate(' + this._voxel.screenCoordinates.x + 'px, ' + this._voxel.screenCoordinates.y + 'px)';
