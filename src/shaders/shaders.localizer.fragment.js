@@ -56,48 +56,18 @@ export default class {
   main() {
     // need to pre-call main to fill up the functions list
     this._main = `
-void intersectionPointBetweenPlanes(
-  in vec4 plane,
-  in vec4 slice,
-  out vec3 intersectionPoint){
-
-      float a1 = plane.x;
-      float b1 = plane.y;
-      float c1 = plane.z;
-      float d1 = plane.w;
-
-      float a2 = slice.x;
-      float b2 = slice.y;
-      float c2 = slice.z;
-      float d2 = slice.w;
-      
-      // http://www.ambrsoft.com/TrigoCalc/Plan3D/Plane3D_.htm
-
-      float z = 0.;
-      // float y = ( d2 - (a2*d1/a1) ) / ( -b2 + (b2*d1)/a1);
-      // float x = - (d1 + b1 * y) / a1;
-      float x = (b1*d2 - b2*d1) / (a1*b2 - a2*b1);
-      float y = (a2*d1 - a1*d2) / (a1*b2 - a2*b1);
-      intersectionPoint = vec3(x, y, z);
-}
-
 void intersectionProjection(
   in vec4 plane,
   in vec4 slice,
   out vec3 intersectionProjection){
 
-      //
       vec3 intersectionDirection = normalize(cross(plane.xyz, slice.xyz));
-      vec3 intersectionNormal = normalize(cross(intersectionDirection, slice.xyz));
-      vec3 intersectionPoint = vec3(0.);
-      intersectionPointBetweenPlanes(
-        plane,
-        slice,
-        intersectionPoint
-      );
+      vec3 intersectionPoint = 
+        cross(intersectionDirection,slice.xyz) * plane.w +
+        cross(plane.xyz, intersectionDirection) * slice.w;
 
-  intersectionProjection = intersectionPoint.xyz + dot(vPos.xyz - intersectionPoint, intersectionDirection) * intersectionDirection;
-      
+      intersectionProjection = intersectionPoint.xyz + dot(vPos.xyz - intersectionPoint, intersectionDirection) * intersectionDirection;
+
 }
 
 void main(void) {
