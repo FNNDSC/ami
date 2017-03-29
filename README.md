@@ -222,7 +222,7 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 | ✅ 2D Visulization  | ✅ Dicom     | ✅ VTK (THREEJS) | 🔶 Handle (2D/3D)       |
 | ✅ 3D Visualization | ✅ NRRD      | ✅ STL (THREEJS) | 🔶 Probe (2D/3D)        |
 | ✅ Volume Rendering | ✅ Nifti     | 🔶 TRK           | 🔶 Ruler (2D/3D)        |
-| ✅ Lookup Tables    | 🔶 MHD/RAW   | ❌ FSM           | 🔶 Orientation (2D/3D)  |
+| ✅ Lookup Tables    | ✅  MHD/RAW   | ❌ FSM           | 🔶 Orientation (2D/3D)  |
 | 🔶 Label Maps       | ❌ MGH/MGZ   | ❌ CURV          | 🔶 Angle (2D/3D)        |
 |                    | ❌ JPEG      |                  | 🔶 Orientation (2D/3D)  |
 
