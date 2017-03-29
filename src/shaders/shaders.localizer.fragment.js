@@ -66,7 +66,10 @@ void intersectionProjection(
         cross(intersectionDirection,slice.xyz) * plane.w +
         cross(plane.xyz, intersectionDirection) * slice.w;
 
-      intersectionProjection = intersectionPoint.xyz + dot(vPos.xyz - intersectionPoint, intersectionDirection) * intersectionDirection;
+      intersectionProjection =
+        intersectionPoint.xyz +
+        (dot(vPos.xyz - intersectionPoint, intersectionDirection)
+          * intersectionDirection);
 
 }
 
