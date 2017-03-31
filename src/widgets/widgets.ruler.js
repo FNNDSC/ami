@@ -9,12 +9,11 @@ import WidgetsHandle from '../widgets/widgets.handle';
 export default class WidgetsRuler extends WidgetsBase {
 
   constructor(targetMesh, controls, camera, container) {
-    super();
+    super(container);
 
     this._targetMesh = targetMesh;
     this._controls = controls;
     this._camera = camera;
-    this._container = container;
 
     this._active = true;
 
@@ -56,6 +55,8 @@ export default class WidgetsRuler extends WidgetsBase {
     // Create ruler
     this.create();
 
+    this.initOffsets();
+
     this.onMove = this.onMove.bind(this);
     this.addEventListeners();
   }
@@ -89,7 +90,7 @@ export default class WidgetsRuler extends WidgetsBase {
     // First Handle
     this._handles[0].onEnd(evt);
 
-    window.console.log(this);
+    // window.console.log(this);
 
     // Second Handle
     if(this._dragged || !this._handles[1].tracking) {
@@ -215,6 +216,36 @@ export default class WidgetsRuler extends WidgetsBase {
   updateDOMColor() {
     this._line.style.backgroundColor = `${this._color}`;
     this._distance.style.borderColor = `${this._color}`;
+  }
+
+  offsetChanged() {
+
+	//Trick to allow recalc screenPosition and update the handles
+	//I guess there's a better way of doing this...
+    this._handles[0].worldPosition = this._handles[0].worldPosition;
+    this._handles[1].worldPosition = this._handles[1].worldPosition;
+
+    this.initOffsets();
+    this.update();
+  }
+
+  free() {
+
+    this._container.removeEventListener('mousewheel', this.onMove);
+    this._container.removeEventListener('DOMMouseScroll', this.onMove);
+
+    this._handles.forEach((h) => {
+      h.free();
+    });
+
+    this._handles = [];
+
+    this._container.removeChild(this._line);
+    this._container.removeChild(this._distance);
+
+    this.remove(this._mesh);
+
+    super.free();
   }
 
   get worldPosition() {

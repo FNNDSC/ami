@@ -10,12 +10,11 @@ import CoreIntersections from '../core/core.intersections';
 export default class WidgetsHandle extends WidgetsBase {
 
   constructor(targetMesh, controls, camera, container) {
-    super();
+    super(container);
 
     this._targetMesh = targetMesh;
     this._controls = controls;
     this._camera = camera;
-    this._container = container;
 
     // if no target mesh, use plane for FREE dragging.
     this._plane = {
@@ -59,6 +58,8 @@ export default class WidgetsHandle extends WidgetsBase {
     // create handle
     this.create();
 
+    this.initOffsets();
+
     // event listeners
     this.onMove = this.onMove.bind(this);
     this.onHover = this.onHover.bind(this);
@@ -88,6 +89,10 @@ export default class WidgetsHandle extends WidgetsBase {
 
   onStart(evt) {
     evt.preventDefault();
+
+    var offsets = this.getMouseOffsets(evt, this._container);
+
+    this._mouse.set(offsets.x, offsets.y);
 
     // update raycaster
     this._raycaster.setFromCamera(this._mouse, this._camera);
@@ -142,8 +147,8 @@ export default class WidgetsHandle extends WidgetsBase {
   onMove(evt) {
     evt.preventDefault();
 
-    this._mouse.set((event.clientX / this._container.offsetWidth) * 2 - 1,
-                    -(event.clientY / this._container.offsetHeight) * 2 + 1);
+    var offsets = this.getMouseOffsets(evt, this._container);
+    this._mouse.set(offsets.x, offsets.y);
 
     // update screen position of handle
     this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
@@ -311,9 +316,11 @@ export default class WidgetsHandle extends WidgetsBase {
     // threejs stuff
 
     // dom
-
+    this._container.removeChild(this._dom);
     // event
     this.removeEventListeners();
+
+	super.free();
   }
 
   set worldPosition(worldPosition) {

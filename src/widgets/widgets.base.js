@@ -3,7 +3,7 @@
  */
 export default class WidgetsBase extends THREE.Object3D {
 
-  constructor() {
+  constructor(container) {
     // init THREE Object 3D
     super();
 
@@ -26,11 +26,51 @@ export default class WidgetsBase extends THREE.Object3D {
     this._dragged = false;
     // can not call it visible because it conflicts with THREE.Object3D
     this._displayed = true;
+
+    this._container = container;
+
+  }
+
+  initOffsets() {
+    var box = this._container.getBoundingClientRect();
+
+    var body = document.body;
+    var docEl = document.documentElement;
+
+    var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
+    var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
+
+    var clientTop = docEl.clientTop || body.clientTop || 0;
+    var clientLeft = docEl.clientLeft || body.clientLeft || 0;
+
+    var top  = box.top +  scrollTop - clientTop;
+    var left = box.left + scrollLeft - clientLeft;
+
+    this._offsets = { top: Math.round(top), left: Math.round(left) };
+  }
+
+  offsetChanged() {
+    this.initOffsets();
+    this.update();
+  }
+
+  getMouseOffsets(event, container) {
+
+    return {
+      x: (event.clientX - this._offsets.left) / container.offsetWidth * 2 - 1,
+      y: -((event.clientY - this._offsets.top) / container.offsetHeight) * 2 + 1,
+      screenX: event.clientX - this._offsets.left,
+      screenY: event.clientY - this._offsets.top
+    };
   }
 
   update() {
     // to be overloaded
   	window.console.log('update() should be overloaded!');
+  }
+
+  free() {
+    this._container = null;
   }
 
   updateColor() {

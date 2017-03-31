@@ -1,54 +1,53 @@
 /** * Imports ***/
+import WidgetsBase from '../widgets/widgets.base';
 import HelpersVoxel from '../helpers/helpers.voxel';
 
 /**
  * @module widgets/voxelProbe
  */
 
-export default class WidgetsVoxelProbe extends THREE.Object3D {
+export default class WidgetsVoxelProbe extends WidgetsBase {
   constructor(stack, targetMesh, controls, camera, container) {
-    super();
+    super(container);
 
     this._enabled = true;
 
     this._targetMesh = targetMesh;
     this._stack = stack;
-    this._container = container;
+    // this._container = container;
     this._controls = controls;
     this._camera = camera;
+
     this._mouse = {
       x: 0,
       y: 0,
       screenX: 0,
       screenY: 0,
     };
+
     // show only voxels that interesect the mesh
     this._showFrame = -1;
 
     this._raycaster = new THREE.Raycaster();
-    this._draggingMouse = false;
-    this._active = -1;
-    this._hover = -1;
-    this._closest = null;
-    this._selected = [];
 
-    this._voxels = [];
-    this._current = new HelpersVoxel(stack.worldCenter(), stack);
-    this._current._showVoxel = true;
-    this._current._showDomSVG = true;
-    this._current._showDomMeasurements = true;
+    this._active = true;
 
-    this.add(this._current);
+    this._hover = false;
+    this._selected = false;
 
     // event listeners
-    this._container.addEventListener('mousedown', this.onMouseDown.bind(this), false);
-    this._container.addEventListener('mouseup', this.onMouseUp.bind(this), false);
-    this._container.addEventListener('mousemove', this.onMouseMove.bind(this), false);
 
-    this._container.addEventListener('mousewheel', this.onMouseMove.bind(this), false);
-    this._container.addEventListener('DOMMouseScroll', this.onMouseMove.bind(this), false); // firefox
+    //Store the event handlers so that we can remove them in the destroy method.
+    //If we don't do like that, since bind creates a new function, the function we would pass to addEventListener
+    //would not be the same the we would pass to removeEventListener
+    this.onMouseMoveHandler = this.onMouseMove.bind(this);
+    this.onMouseUpHandler = this.onMouseUp.bind(this);
 
-    window.addEventListener('keypress', this.onKeyPress.bind(this), false);
+    this._container.addEventListener('mouseup', this.onMouseUpHandler, false);
+    this._container.addEventListener('mousemove', this.onMouseMoveHandler, false);
+
+    this._container.addEventListener('mousewheel', this.onMouseMoveHandler, false);
+    this._container.addEventListener('DOMMouseScroll', this.onMouseMoveHandler, false); // firefox
 
     this._defaultColor = '#00B0FF';
     this._activeColor = '#FFEB3B';
@@ -58,44 +57,22 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
     this._showVoxel = true;
     this._showDomSVG = true;
     this._showDomMeasurements = true;
+
+    this.createVoxel();
+    this.initOffsets();
   }
 
   isEnabled() {
 
   }
 
-  onKeyPress(event) {
+  onMouseMove(event) {
     if (this._enabled === false) {
       return;
     }
 
-    if (event.keyCode === 100) {
-      this.deleteAllSelected();
-    }
-  }
-
-  onMouseMove() {
-    if (this._enabled === false) {
-      return;
-    }
-
-    this.updateRaycaster(this._raycaster, event, this._container);
-
-    this._draggingMouse = true;
-
-    this.update();
-  }
-
-  onMouseDown(event) {
-    if (this._enabled === false) {
-      return;
-    }
-
-    this.updateRaycaster(this._raycaster, event, this._container);
-
-    this._draggingMouse = false;
-
-    this.activateVoxel();
+    this._mouse = this.getMouseOffsets(event, this._container);
+    this.updateRaycaster();
   }
 
   onMouseUp(event) {
@@ -103,111 +80,77 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
       return;
     }
 
-    this.updateRaycaster(this._raycaster, event, this._container);
-
-    if (this._draggingMouse === false) {
-      if (this._active === -1) {
-        // create voxel
-        this.createVoxel();
-      } else {
-        // select / unselect voxel
-        this.selectVoxel();
-        // disactivate voxel
-        this.activateVoxel();
-      }
-    } else {
-      if (this._active >= 0) {
+    if (!this._active) {
+      if (this._hover) {
         this.activateVoxel();
       }
     }
+    else {
+      this.deactivateVoxel();
+    }
+
   }
 
-  updateRaycaster(raycaster, event, container) {
-    // calculate mouse position in normalized device coordinates
-    // (-1 to +1) for both components
-    this._mouse = {
-      x: (event.clientX / container.offsetWidth) * 2 - 1,
-      y: -(event.clientY / container.offsetHeight) * 2 + 1,
-      screenX: event.clientX,
-      screenY: event.clientY,
-    };
+  updateRaycaster() {
     // update the raycaster
-    raycaster.setFromCamera(this._mouse, this._camera);
-  }
-
-  updateColor(voxel) {
-    if (voxel._active) {
-      voxel.color = this._activeColor;
-    } else if (voxel.hover) {
-      voxel.color = this._hoverColor;
-    } else if (voxel.selected) {
-      voxel.color = this._selectedColor;
-    } else {
-      voxel.color = this._defaultColor;
-    }
-  }
-
-  deleteAllSelected() {
-    let i = this._voxels.length;
-    while (i--) {
-      let match = this._selected.indexOf(i);
-      if (match >= 0) {
-        // selected && active
-        if (this._active === i) {
-          this._active = -1;
-        }
-
-        this.remove(this._voxels[i]);
-        this._voxels[i].removeTest();
-        this._voxels.splice(i, 1);
-      }
+    if (this._active) {
+      this._raycaster.setFromCamera(this._mouse, this._camera);
     }
 
-    this._selected = [];
-    this._closest = null;
+    this.update();
   }
 
-  selectVoxel() {
-    // select/unselect the active voxel
-    let selIndex = this._selected.indexOf(this._active);
-    if (selIndex === -1) {
-      this._selected.push(this._active);
-      this._voxels[this._active].selected = true;
-      this.updateColor(this._voxels[this._active]);
+  updateColor() {
+    if (this._active) {
+      this._voxel.color = this._activeColor;
+    } else if (this._hover) {
+      this._voxel.color = this._hoverColor;
+    } else if (this._selected) {
+      this._voxel.color = this._selectedColor;
     } else {
-      this._selected.splice(selIndex, 1);
-      this._voxels[this._active].selected = false;
+      this._voxel.color = this._defaultColor;
     }
   }
 
   activateVoxel() {
-    if (this._active === -1) {
+    if (!this._active && this._hover) {
       // Look for intersection against target mesh
       let intersects = this._raycaster.intersectObject(this._targetMesh);
 
       if (intersects.length > 0) {
-        if (this._hover >= 0 ||
-           (this._closest !== null && this._voxels[this._closest].distance < 10)) {
-          let index = Math.max(this._hover, this._closest);
-          // Active voxel
-          this._voxels[index]._active = true;
-          this.updateColor(this._voxels[index]);
-          this._active = index;
-          // Disable controls
-          this._controls.enabled = false;
-        }
+        // Active voxel
+        this._active = true;
+        this.updateColor();
+        // Disable controls
+        this._controls.enabled = false;
       }
-    } else {
+    }
+  }
+
+  deactivateVoxel() {
+    if(this._active) {
       // change color + select it and nothing else selected
-      this._voxels[this._active].active = false;
-      this._active = -1;
+      this._active = false;
       // Enable controls
       this._controls.enabled = true;
+
+      this.updateColor();
     }
   }
 
   createVoxel() {
-    if (this._hover >= 0) {
+    this._voxel = new HelpersVoxel(this._stack.worldCenter(), this._stack);
+    this._voxel._showVoxel = true;
+    this._voxel._showDomSVG = true;
+    this._voxel._showDomMeasurements = true;
+
+    this.add(this._voxel);
+  }
+
+  update() {
+
+    // good to go
+    if (!this._targetMesh) {
       return;
     }
 
@@ -215,119 +158,58 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
     let intersects = this._raycaster.intersectObject(this._targetMesh);
 
     if (intersects.length > 0) {
-      // create voxel helper
-      let helpersVoxel = new HelpersVoxel(intersects[0].point, this._stack);
-      this.add(helpersVoxel);
 
-      // push it
-      this._voxels.push(helpersVoxel);
+      // modify world position with getter/setter
+      this._voxel.worldCoordinates = intersects[0].point;
+
+      // create voxel helper
+      this._voxel.updateVoxel(intersects[0].point);
 
       // add hover colors
-      helpersVoxel.updateVoxelScreenCoordinates(this._camera, this._container);
-      this.hoverVoxel(helpersVoxel,
-          this._mouse,
-          this._current.voxel.dataCoordinates);
-      this.updateColor(helpersVoxel);
-      helpersVoxel.updateDom(this._container);
-
-      // show/hide mesh
-      helpersVoxel.showVoxel = this._showVoxel;
-      // show/hide dom stuff
-      helpersVoxel.showDomSVG = this._showDomSVG;
-      helpersVoxel.showDomMeasurements = this._showDomMeasurements;
-    }
-  }
-
-  update() {
-    // good to go
-    if (!this._targetMesh) {
-      return;
-    }
-
-    let intersects = this._raycaster.intersectObject(this._targetMesh);
-
-    if (intersects.length > 0) {
-      // modify world position with getter/setter
-      this._current.worldCoordinates = intersects[0].point;
-      this._current.updateVoxelScreenCoordinates(this._camera, this._container);
-      this.updateColor(this._current);
-      this._current.updateDom(this._container);
-      // show/hide mesh
-      this._current.showVoxel = this._showVoxel;
-      // show/hide dom stuff
-      this._current.showDomSVG = this._showDomSVG;
-      this._current.showDomMeasurements = this._showDomMeasurements;
-
-      //  if dragging a voxel
-      if (this._active >= 0) {
-        this._voxels[this._active].worldCoordinates = intersects[0].point;
-      }
-    }
-
-    // no geometry related updates
-    // just colors for hover, etc.
-    // and DOM
-    this.updateVoxels();
-  }
-
-  updateVoxels() {
-    let hover = -1;
-    let closest = null;
-
-    for (let i = 0; i < this._voxels.length; i++) {
-      // update voxel content
-      this._voxels[i].updateVoxelScreenCoordinates(this._camera, this._container);
-      // update hover status
-      this.hoverVoxel(this._voxels[i],
-          this._mouse,
-          this._current.voxel.dataCoordinates);
-      this.updateColor(this._voxels[i]);
+      this._voxel.updateVoxelScreenCoordinates(this._camera, this._container);
+      this.hoverVoxel(this._mouse, this._voxel.dataCoordinates);
+      this.updateColor();
 
       // only works if slice is a frame...
       // should test intersection of voxel with target mesh (i.e. plane, box, sphere, etc...)
       // maybe use the raycasting somehow....
-      this.showOfIntersectsFrame(this._voxels[i], this._showFrame);
-      this._voxels[i].updateDom(this._container);
+      this.showOfIntersectsFrame(this._voxel, this._showFrame);
 
-      // hovering?
-      if (this._voxels[i].hover) {
-        hover = i;
-      }
+      this._voxel.updateDom(this._container);
 
-      // closest pixel to the mouse?
-      if (closest === null ||
-        this._voxels[i].distance < this._voxels[closest].distance) {
-        closest = i;
-      }
-
-      // show hide mesh
-      this._voxels[i].showVoxel = this._showVoxel;
+      // show/hide mesh
+      this._voxel.showVoxel = this._showVoxel;
       // show/hide dom stuff
-      this._voxels[i].showDomSVG = this._showDomSVG;
-      this._voxels[i].showDomMeasurements = this._showDomMeasurements;
-    }
+      this._voxel.showDomSVG = this._showDomSVG;
+      this._voxel.showDomMeasurements = this._showDomMeasurements;
 
-    this._hover = hover;
-    this._closest = closest;
+    }
   }
 
-  hoverVoxel(helpersVoxel, mouseScreenCoordinates, currentDataCoordinates) {
-    // update hover voxel
-    if (helpersVoxel.voxel.dataCoordinates.x === currentDataCoordinates.x &&
-        helpersVoxel.voxel.dataCoordinates.y === currentDataCoordinates.y &&
-        helpersVoxel.voxel.dataCoordinates.z === currentDataCoordinates.z) {
-      helpersVoxel.hover = true;
+  free() {
+    this._container.removeEventListener('mouseup', this.onMouseUpHandler, false);
+    this._container.removeEventListener('mousemove', this.onMouseMoveHandler, false);
+
+    this._container.removeEventListener('mousewheel', this.onMouseMoveHandler, false);
+    this._container.removeEventListener('DOMMouseScroll', this.onMouseMoveHandler, false); // firefox
+
+    this._voxel.removeTest();
+    this.remove(this._voxel);
+    this._voxel = null;
+
+    super.free();
+  }
+
+  hoverVoxel(mouseScreenCoordinates, currentDataCoordinates) {
+    // update distance mouse/this._voxel
+    let dx = mouseScreenCoordinates.screenX - this._voxel.voxel.screenCoordinates.x;
+    let dy = mouseScreenCoordinates.screenY - this._voxel.voxel.screenCoordinates.y;
+    let distance = Math.sqrt(dx * dx + dy * dy);
+    this._voxel.distance = distance;
+    if (distance >= 0 && distance < 10) {
+      this._hover = true;
     } else {
-      // update distance mouse/this._voxel
-      let dx = mouseScreenCoordinates.screenX - helpersVoxel.voxel.screenCoordinates.x;
-      let dy = mouseScreenCoordinates.screenY - helpersVoxel.voxel.screenCoordinates.y;
-      let distance = Math.sqrt(dx * dx + dy * dy);
-      helpersVoxel.distance = distance;
-      if (distance >= 0 && distance < 10) {
-        helpersVoxel.hover = true;
-      } else {
-        helpersVoxel.hover = false;
-      }
+      this._hover = false;
     }
   }
 
