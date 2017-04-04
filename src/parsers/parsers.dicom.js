@@ -389,7 +389,7 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   dimensionIndexValues(frameIndex = 0) {
-    let dimensionIndexValues = [];
+    let dimensionIndexValues = null;
 
     // try to get it from enhanced MR images
     // per-frame functionnal group sequence
@@ -397,18 +397,24 @@ export default class ParsersDicom extends ParsersVolume {
 
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
       // NOT A PHILIPS TRICK!
-      let philipsPrivateSequence = perFrameFunctionnalGroupSequence
-          .items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
-      let element = philipsPrivateSequence.elements.x00209157;
-      // /4 because UL
-      let nbValues = element.length / 4;
+      let frameContentSequence = perFrameFunctionnalGroupSequence
+          .items[frameIndex].dataSet.elements.x00209111;
+      if (frameContentSequence !== undefined ||
+          frameContentSequence !== null) {
+        frameContentSequence = frameContentSequence.items[0].dataSet;
+        let dimensionIndexValuesElt = frameContentSequence.elements.x00209157;
+        if (dimensionIndexValuesElt !== undefined ||
+            dimensionIndexValuesElt !== null) {
+          // /4 because UL
+          let nbValues = dimensionIndexValuesElt.length / 4;
+          dimensionIndexValues = [];
 
-      for (let i = 0; i < nbValues; i++) {
-        dimensionIndexValues.push(
-          philipsPrivateSequence.uint32('x00209157', i));
+          for (let i = 0; i < nbValues; i++) {
+            dimensionIndexValues.push(
+              frameContentSequence.uint32('x00209157', i));
+          }
+        }
       }
-    } else {
-      dimensionIndexValues = null;
     }
 
     return dimensionIndexValues;
