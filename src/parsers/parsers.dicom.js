@@ -398,11 +398,11 @@ export default class ParsersDicom extends ParsersVolume {
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
       let frameContentSequence = perFrameFunctionnalGroupSequence
           .items[frameIndex].dataSet.elements.x00209111;
-      if (typeof frameContentSequence !== 'undefined' ||
+      if (frameContentSequence !== undefined &&
           frameContentSequence !== null) {
         frameContentSequence = frameContentSequence.items[0].dataSet;
         let dimensionIndexValuesElt = frameContentSequence.elements.x00209157;
-        if (typeof dimensionIndexValuesElt !== 'undefined' ||
+        if (dimensionIndexValuesElt !== undefined &&
             dimensionIndexValuesElt !== null) {
           // /4 because UL
           let nbValues = dimensionIndexValuesElt.length / 4;
