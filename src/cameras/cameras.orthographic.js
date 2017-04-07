@@ -54,10 +54,12 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
    */
   init(xCosine, yCosine, zCosine, controls, box, canvas) {
     // DEPRECATED
-    console.warn('cameras.orthographic.init(...) is deprecated. Use .cosines, .controls, .box and .canvas instead.');
+    console.warn(
+      `cameras.orthographic.init(...) is deprecated.
+      Use .cosines, .controls, .box and .canvas instead.`);
 
     //
-    if(!(Validators.vector3(xCosine) &&
+    if (!(Validators.vector3(xCosine) &&
       Validators.vector3(yCosine) &&
       Validators.vector3(zCosine) &&
       Validators.box(box) &&
@@ -79,7 +81,10 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
       direction: this._direction,
     };
 
-    let intersections = this._orderIntersections(Intersections.rayBox(ray, this._box), this._direction);
+    let intersections =
+      this._orderIntersections(
+        Intersections.rayBox(ray, this._box),
+        this._direction);
     this._front = intersections[0];
     this._back = intersections[1];
 
@@ -96,8 +101,8 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
     // do magics depending on orientation and convention
     // also needs a default mode
 
-    if(this._orientation === 'default') {
-      switch(this._getMaxIndex(this._directions[2])) {
+    if (this._orientation === 'default') {
+      switch (this._getMaxIndex(this._directions[2])) {
 
         case 0:
           this._orientation = 'sagittal';
@@ -117,7 +122,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
       }
     }
 
-    if(this._orientation === 'free') {
+    if (this._orientation === 'free') {
       this._right = this._directions[0];
       this._up = this._directions[1];
       this._direction = this._directions[2];
@@ -129,17 +134,17 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
       let superiorIndex = this.superiorDirection();
       let superiorDirection = this._directions[superiorIndex];
 
-      if(this._convention === 'radio') {
-          switch(this._orientation) {
+      if (this._convention === 'radio') {
+          switch (this._orientation) {
 
             case 'axial':
               // up vector is 'anterior'
-              if(posteriorDirection.y > 0) {
+              if (posteriorDirection.y > 0) {
                 posteriorDirection.negate();
               }
 
               // looking towards superior
-              if(superiorDirection.z < 0) {
+              if (superiorDirection.z < 0) {
                 superiorDirection.negate();
               }
 
@@ -151,12 +156,12 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
 
             case 'coronal':
               // up vector is 'superior'
-              if(superiorDirection.z < 0) {
+              if (superiorDirection.z < 0) {
                 superiorDirection.negate();
               }
 
               // looking towards posterior
-              if(posteriorDirection.y < 0) {
+              if (posteriorDirection.y < 0) {
                 posteriorDirection.negate();
               }
 
@@ -168,12 +173,12 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
 
             case 'sagittal':
               // up vector is 'superior'
-              if(superiorDirection.z < 0) {
+              if (superiorDirection.z < 0) {
                 superiorDirection.negate();
               }
 
               // looking towards right
-              if(leftDirection.x > 0) {
+              if (leftDirection.x > 0) {
                 leftDirection.negate();
               }
 
@@ -185,21 +190,23 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
               break;
 
             default:
-              console.warn(`"${this._orientation}" orientation is not valid. (choices: axial, coronal, sagittal)`);
+              console.warn(
+                `"${this._orientation}" orientation is not valid.
+                (choices: axial, coronal, sagittal)`);
               break;
 
           }
       } else if (this._convention === 'neuro') {
-          switch(this._orientation) {
+          switch (this._orientation) {
 
             case 'axial':
               // up vector is 'anterior'
-              if(posteriorDirection.y > 0) {
+              if (posteriorDirection.y > 0) {
                 posteriorDirection.negate();
               }
 
               // looking towards inferior
-              if(superiorDirection.z > 0) {
+              if (superiorDirection.z > 0) {
                 superiorDirection.negate();
               }
 
@@ -211,12 +218,12 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
 
             case 'coronal':
               // up vector is 'superior'
-              if(superiorDirection.z < 0) {
+              if (superiorDirection.z < 0) {
                 superiorDirection.negate();
               }
 
               // looking towards anterior
-              if(posteriorDirection.y > 0) {
+              if (posteriorDirection.y > 0) {
                 posteriorDirection.negate();
               }
 
@@ -228,12 +235,12 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
 
             case 'sagittal':
               // up vector is 'superior'
-              if(superiorDirection.z < 0) {
+              if (superiorDirection.z < 0) {
                 superiorDirection.negate();
               }
 
               // looking towards right
-              if(leftDirection.x > 0) {
+              if (leftDirection.x > 0) {
                 leftDirection.negate();
               }
 
@@ -245,11 +252,14 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
               break;
 
             default:
-              console.warn(`"${this._orientation}" orientation is not valid. (choices: axial, coronal, sagittal)`);
+              console.warn(
+                `"${this._orientation}" orientation is not valid.
+                (choices: axial, coronal, sagittal)`);
               break;
           }
-      } else{
-        console.warn(`${this._convention} is not valid (choices: radio, neuro)`);
+      } else {
+        console.warn(
+          `${this._convention} is not valid (choices: radio, neuro)`);
       }
     }
 
@@ -259,7 +269,10 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
       direction: this._direction,
     };
 
-    let intersections = this._orderIntersections(Intersections.rayBox(ray, this._box), this._direction);
+    let intersections =
+      this._orderIntersections(
+        Intersections.rayBox(ray, this._box),
+        this._direction);
     this._front = intersections[0];
     this._back = intersections[1];
 
@@ -314,11 +327,6 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
     this._updateMatrices();
     this._fromFront = !this._fromFront;
 
-    let clockwise = 1;
-    if(!this._fromFront) {
-      clockwise = -1;
-    }
-
     this._angle %= 360;
     this._angle = 360 - this._angle;
 
@@ -351,14 +359,14 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
     let computedAngle = 90;
 
     let clockwise = 1;
-    if(!this._fromFront) {
+    if (!this._fromFront) {
       clockwise = -1;
     }
 
-    if(angle === null) {
+    if (angle === null) {
       computedAngle *= -clockwise;
       this._angle += 90;
-    } else{
+    } else {
       computedAngle = 360 - clockwise * (angle - this._angle);
       this._angle = angle;
     }
@@ -409,7 +417,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
         break;
     }
 
-    if(!zoom) {
+    if (!zoom) {
       return false;
     }
 
@@ -419,8 +427,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
   }
 
   _adjustTopDirection(horizontalDirection, verticalDirection) {
-    let hMaxIndex = this._getMaxIndex(horizontalDirection);
-    let vMaxIndex = this._getMaxIndex(verticalDirection);
+    const vMaxIndex = this._getMaxIndex(verticalDirection);
 
     // should handle vMax index === 0
     if ((vMaxIndex === 2 && verticalDirection.getComponent(vMaxIndex) < 0) ||
@@ -453,8 +460,8 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
     // get index of the most superior direction
     let maxIndices = this._getMaxIndices(directions);
 
-    for(let i = 0; i < maxIndices.length; i++) {
-      if(maxIndices[i] === target) {
+    for (let i = 0; i < maxIndices.length; i++) {
+      if (maxIndices[i] === target) {
         return i;
       }
     }
@@ -470,9 +477,10 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
   }
 
   _orderIntersections(intersections, direction) {
-    let ordered = intersections[0].dot(direction) < intersections[1].dot(direction);
+    const ordered =
+      intersections[0].dot(direction) < intersections[1].dot(direction);
 
-    if(!ordered) {
+    if (!ordered) {
         return [intersections[1], intersections[0]];
     }
 
@@ -506,7 +514,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
   }
 
   _computeZoom(dimension, direction) {
-    if(!(dimension && dimension > 0)) {
+    if (!(dimension && dimension > 0)) {
       window.console.log('Invalid dimension provided.');
       window.console.log(dimension);
       return false;
@@ -557,34 +565,35 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
   }
 
   _vector2Label(direction) {
-    let index = this._getMaxIndex(direction);
+    const index = this._getMaxIndex(direction);
     // set vector max value to 1
-    let scaledDirection = direction.clone().divideScalar(Math.abs(direction.getComponent(index)));
-    let delta = 0.2;
+    const scaledDirection =
+      direction.clone().divideScalar(Math.abs(direction.getComponent(index)));
+    const delta = 0.2;
     let label = '';
 
     // loop through components of the vector
-    for(let i = 0; i<3; i++) {
-      if(i === 0) {
-        if(scaledDirection.getComponent(i) + delta >= 1) {
+    for (let i = 0; i<3; i++) {
+      if (i === 0) {
+        if (scaledDirection.getComponent(i) + delta >= 1) {
           label += 'L';
-        } else if(scaledDirection.getComponent(i) - delta <= -1) {
+        } else if (scaledDirection.getComponent(i) - delta <= -1) {
           label += 'R';
         }
       }
 
-      if(i === 1) {
-        if(scaledDirection.getComponent(i) + delta >= 1) {
+      if (i === 1) {
+        if (scaledDirection.getComponent(i) + delta >= 1) {
           label += 'P';
-        } else if(scaledDirection.getComponent(i) - delta <= -1) {
+        } else if (scaledDirection.getComponent(i) - delta <= -1) {
           label += 'A';
         }
       }
 
-      if(i === 2) {
-        if(scaledDirection.getComponent(i) + delta >= 1) {
+      if (i === 2) {
+        if (scaledDirection.getComponent(i) + delta >= 1) {
           label += 'S';
-        } else if(scaledDirection.getComponent(i) - delta <= -1) {
+        } else if (scaledDirection.getComponent(i) - delta <= -1) {
           label += 'I';
         }
       }
@@ -601,7 +610,6 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
     let pLocal = new THREE.Vector3(0, 0, -1);
     let pWorld = pLocal.applyMatrix4(this.matrixWorld);
     this._direction = pWorld.sub(this.position).normalize();
-    console.log(this._direction);
 
     // right
     this._right = new THREE.Vector3().crossVectors(this._direction, this.up);
@@ -678,16 +686,18 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
   set stackOrientation(stackOrientation) {
     this._stackOrientation = stackOrientation;
 
-    if(this._stackOrientation === 0) {
+    if (this._stackOrientation === 0) {
       this._orientation = 'default';
     } else {
-      let maxIndex = this._getMaxIndex(this._directions[(this._stackOrientation + 2) % 3]);
+      const maxIndex =
+        this._getMaxIndex(
+          this._directions[(this._stackOrientation + 2) % 3]);
 
-      if(maxIndex === 0) {
+      if (maxIndex === 0) {
         this._orientation = 'sagittal';
-      } else if(maxIndex === 1) {
+      } else if (maxIndex === 1) {
         this._orientation = 'coronal';
-      } else if(maxIndex === 2) {
+      } else if (maxIndex === 2) {
         this._orientation = 'axial';
       }
     }
@@ -695,16 +705,16 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
 
   get stackOrientation() {
     //
-    if(this._orientation === 'default') {
+    if (this._orientation === 'default') {
       this._stackOrientation = 0;
     } else {
       let maxIndex = this._getMaxIndex(this._direction);
 
-      if(maxIndex === this._getMaxIndex(this._directions[2])) {
+      if (maxIndex === this._getMaxIndex(this._directions[2])) {
         this._stackOrientation = 0;
-      } else if(maxIndex === this._getMaxIndex(this._directions[0])) {
+      } else if (maxIndex === this._getMaxIndex(this._directions[0])) {
         this._stackOrientation = 1;
-      } else if(maxIndex === this._getMaxIndex(this._directions[1])) {
+      } else if (maxIndex === this._getMaxIndex(this._directions[1])) {
         this._stackOrientation = 2;
       }
     }
