@@ -423,7 +423,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
     let vMaxIndex = this._getMaxIndex(verticalDirection);
 
     // should handle vMax index === 0
-    if((vMaxIndex === 2 && verticalDirection.getComponent(vMaxIndex) < 0) ||
+    if ((vMaxIndex === 2 && verticalDirection.getComponent(vMaxIndex) < 0) ||
         (vMaxIndex === 1 && verticalDirection.getComponent(vMaxIndex) > 0) ||
         (vMaxIndex === 0 && verticalDirection.getComponent(vMaxIndex) > 0)) {
       verticalDirection.negate();
@@ -433,14 +433,20 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
   }
 
   _getMaxIndex(vector) {
-    // only one can be equal to 1 as it is normalized
-    if(Math.abs(Math.round(vector.x)) === 1) {
-      return 0;
-    } else if(Math.abs(Math.round(vector.y)) === 1) {
-      return 1;
-    } else if(Math.abs(Math.round(vector.z)) === 1) {
-      return 2;
+    // init with X value
+    let maxValue = Math.abs(vector.x);
+    let index = 0;
+
+    if (Math.abs(vector.y) > maxValue) {
+      maxValue = Math.abs(vector.y);
+      index = 1;
     }
+
+    if (Math.abs(vector.z) > maxValue) {
+      index = 2;
+    }
+
+    return index;
   }
 
   _findMaxIndex(directions, target) {
@@ -595,6 +601,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
     let pLocal = new THREE.Vector3(0, 0, -1);
     let pWorld = pLocal.applyMatrix4(this.matrixWorld);
     this._direction = pWorld.sub(this.position).normalize();
+    console.log(this._direction);
 
     // right
     this._right = new THREE.Vector3().crossVectors(this._direction, this.up);
