@@ -1,6 +1,6 @@
 /** * Imports ***/
 import HelpersVoxel from '../helpers/helpers.voxel';
-
+import coreIntersections from '../../src/core/core.intersections';
 /**
  * @module widgets/voxelProbe
  */
@@ -10,7 +10,7 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
     super();
 
     this._enabled = true;
-
+    this._stackHeler = null;
     this._targetMesh = targetMesh;
     this._stack = stack;
     this._container = container;
@@ -34,11 +34,11 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
 
     this._voxels = [];
     this._current = new HelpersVoxel(stack.worldCenter(), stack);
-    this._current._showVoxel = true;
-    this._current._showDomSVG = true;
-    this._current._showDomMeasurements = true;
+    this._current._showVoxel = false;
+    this._current._showDomSVG = false;
+    this._current._showDomMeasurements = false;
 
-    this.add(this._current);
+    // this.add(this._current);
 
     // event listeners
     this._container.addEventListener('mousedown', this.onMouseDown.bind(this), false);
@@ -187,7 +187,7 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
 
       if (intersects.length > 0) {
         if (this._hover >= 0 ||
-           (this._closest !== null && this._voxels[this._closest].distance < 10)) {
+          (this._closest !== null && this._voxels[this._closest].distance < 10)) {
           let index = Math.max(this._hover, this._closest);
           // Active voxel
           this._voxels[index]._active = true;
@@ -225,8 +225,8 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
       // add hover colors
       helpersVoxel.updateVoxelScreenCoordinates(this._camera, this._container);
       this.hoverVoxel(helpersVoxel,
-          this._mouse,
-          this._current.voxel.dataCoordinates);
+        this._mouse,
+        this._current.voxel.dataCoordinates);
       this.updateColor(helpersVoxel);
       helpersVoxel.updateDom(this._container);
 
@@ -279,8 +279,8 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
       this._voxels[i].updateVoxelScreenCoordinates(this._camera, this._container);
       // update hover status
       this.hoverVoxel(this._voxels[i],
-          this._mouse,
-          this._current.voxel.dataCoordinates);
+        this._mouse,
+        this._current.voxel.dataCoordinates);
       this.updateColor(this._voxels[i]);
 
       // only works if slice is a frame...
@@ -300,11 +300,7 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
         closest = i;
       }
 
-      // show hide mesh
-      this._voxels[i].showVoxel = this._showVoxel;
-      // show/hide dom stuff
-      this._voxels[i].showDomSVG = this._showDomSVG;
-      this._voxels[i].showDomMeasurements = this._showDomMeasurements;
+      this.showVoxels();
     }
 
     this._hover = hover;
@@ -314,8 +310,8 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
   hoverVoxel(helpersVoxel, mouseScreenCoordinates, currentDataCoordinates) {
     // update hover voxel
     if (helpersVoxel.voxel.dataCoordinates.x === currentDataCoordinates.x &&
-        helpersVoxel.voxel.dataCoordinates.y === currentDataCoordinates.y &&
-        helpersVoxel.voxel.dataCoordinates.z === currentDataCoordinates.z) {
+      helpersVoxel.voxel.dataCoordinates.y === currentDataCoordinates.y &&
+      helpersVoxel.voxel.dataCoordinates.z === currentDataCoordinates.z) {
       helpersVoxel.hover = true;
     } else {
       // update distance mouse/this._voxel
@@ -331,9 +327,45 @@ export default class WidgetsVoxelProbe extends THREE.Object3D {
     }
   }
 
+  showVoxels() {
+    let slice = this._stackHelper.slice;
+    let position = slice.planePosition;
+    let direction = slice.planeDirection;
+    let toAABB = new THREE.Matrix4();
+    let halfDimensions = new THREE.Vector3(0.5, 0.5, 0.5);
+    let show = false;
+
+    // loop through all the voxels
+    for (let i = 0; i < this._voxels.length; i++) {
+      let center = this._voxels[i]._voxel.dataCoordinates;
+      let aabb = {
+        halfDimensions,
+        center,
+        toAABB,
+      };
+
+      let plane = {
+        position,
+        direction,
+      };
+
+      // BOOM!
+      let intersections = coreIntersections.aabbPlane(aabb, plane);
+
+      // true if >= 3 intersection
+      // false if less
+      show = (intersections.length >= 3);
+
+      this._voxels[i].showVoxel = show;
+      this._voxels[i].showDomSVG = show;
+      this._voxels[i].showDomMeasurements = show;
+    }
+  }
+
   showOfIntersectsFrame(voxelHelper, frameIndex) {
     if (frameIndex === voxelHelper.voxel.dataCoordinates.z ||
       frameIndex === -1) {
+      console.log(this._current);
       voxelHelper._showDomSVG = true;
       voxelHelper._showDomMeasurements = true;
     } else {

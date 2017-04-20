@@ -1,18 +1,24 @@
 /* globals dat*/
 import CoreUtils from '../../src/core/core.utils';
 import LoadersVolume from '../../src/loaders/loaders.volume';
+import HelpersVoxel from '../../src/helpers/helpers.voxel';
 import HelpersStack from '../../src/helpers/helpers.stack';
 import HelpersLut from '../../src/helpers/helpers.lut';
+import WidgetsVoxelProbe from '../../src/widgets/widgets.voxelProbe';
 import CamerasOrthographic from '../../src/cameras/cameras.orthographic';
 import ControlsOrthographic from '../../src/controls/controls.trackballortho';
 
 // standard global variables
-let controls;
-let renderer;
-let scene;
-let camera;
-let threeD;
-let lut;
+let controls,
+  renderer,
+  scene,
+  camera,
+  threeD,
+  lut,
+  helpersVoxel,
+  probe,
+  directions,
+  bbox;
 
 let ctrlDown = false;
 let drag = {
@@ -31,6 +37,25 @@ let camUtils = {
   convention: 'radio',
 };
 
+//voxels
+let voxelsSettings = {
+  color: '#00B0FF',
+  showMesh: true,
+  showMeasurements: true,
+  showSVG: true,
+};
+
+let widgetSettings = {
+  defaultColor: '#00B0FF',
+  activeColor: '#FFEB3B',
+  hoverColor: '#F50057',
+  selectedColor: '#76FF03',
+  showMesh: true,
+  showMeasurements: true,
+  showSVG: true,
+};
+
+
 /**
  * Init the scene
  */
@@ -39,12 +64,44 @@ function init() {
    * Animation loop
    */
   function animate() {
+
+    if (helpersVoxel) {
+      for (let i = 0; i < 10; i++) {
+        // update world coordinates
+        if (helpersVoxel[i].voxel.dataCoordinates.x >= bbox.x) {
+          directions[i].x = -1;
+        } else if (helpersVoxel[i].voxel.dataCoordinates.x <= 0) {
+          directions[i].x = 1;
+        }
+
+        if (helpersVoxel[i].voxel.dataCoordinates.y >= bbox.y) {
+          directions[i].y = -1;
+        } else if (helpersVoxel[i].voxel.dataCoordinates.y <= 0) {
+          directions[i].y = 1;
+        }
+
+        // update world coordinates coordinates
+        let nextWorldCoordinate = new THREE.Vector3(
+          helpersVoxel[i].voxel.dataCoordinates.x + directions[i].x,
+          helpersVoxel[i].voxel.dataCoordinates.y + directions[i].y,
+          helpersVoxel[i].voxel.dataCoordinates.z
+        );
+        nextWorldCoordinate.applyMatrix4(helpersVoxel[i]._stack.ijk2LPS);
+
+        helpersVoxel[i].worldCoordinates = nextWorldCoordinate;
+
+        // then screen stuff
+        helpersVoxel[i].updateVoxelScreenCoordinates(camera, threeD);
+        helpersVoxel[i].updateDom(threeD);
+      }
+    }
+
     // render
     controls.update();
     renderer.render(scene, camera);
 
     // request new frame
-    requestAnimationFrame(function() {
+    requestAnimationFrame(function () {
       animate();
     });
   }
@@ -76,9 +133,9 @@ function init() {
   animate();
 }
 
-window.onload = function() {
+window.onload = function () {
   // hookup load button
-  document.getElementById('buttoninput').onclick = function() {
+  document.getElementById('buttoninput').onclick = function () {
     document.getElementById('filesinput').click();
   };
 
@@ -105,18 +162,18 @@ window.onload = function() {
     let stack = stackHelper._stack;
 
     let gui = new dat.GUI({
-            autoPlace: false,
-          });
+      autoPlace: false,
+    });
 
     let customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
 
     let stackFolder = gui.addFolder('Stack');
     stackFolder.add(
-      stackHelper.slice, 'windowWidth', 1, stack.minMax[1] - stack.minMax[0])
+        stackHelper.slice, 'windowWidth', 1, stack.minMax[1] - stack.minMax[0])
       .step(1).listen();
     stackFolder.add(
-      stackHelper.slice, 'windowCenter', stack.minMax[0], stack.minMax[1])
+        stackHelper.slice, 'windowCenter', stack.minMax[0], stack.minMax[1])
       .step(1).listen();
     stackFolder.add(stackHelper.slice, 'intensityAuto').listen();
     stackFolder.add(stackHelper.slice, 'invert');
@@ -126,55 +183,59 @@ window.onload = function() {
     lut = new HelpersLut(
       'my-lut-canvases',
       'default',
-      'linear',
-      [[0, 0, 0, 0], [1, 1, 1, 1]],
-      [[0, 1], [1, 1]]);
+      'linear', [[0, 0, 0, 0], [1, 1, 1, 1]], [[0, 1], [1, 1]]);
     lut.luts = HelpersLut.presetLuts();
 
     let lutUpdate = stackFolder.add(
       stackHelper.slice, 'lut', lut.lutsAvailable());
-    lutUpdate.onChange(function(value) {
+    lutUpdate.onChange(function (value) {
       lut.lut = value;
       stackHelper.slice.lutTexture = lut.texture;
     });
     let lutDiscrete = stackFolder.add(lut, 'discrete', false);
-    lutDiscrete.onChange(function(value) {
+    lutDiscrete.onChange(function (value) {
       lut.discrete = value;
       stackHelper.slice.lutTexture = lut.texture;
     });
 
     let index = stackFolder.add(
       stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
+
+    index.onChange(function (value) {
+      probe._targetMesh = stackHelper.slice.mesh;
+      changeVoxelSlice(stackHelper);
+      probe.update();
+    });
     stackFolder.open();
 
     // camera
     let cameraFolder = gui.addFolder('Camera');
     let invertRows = cameraFolder.add(camUtils, 'invertRows');
-    invertRows.onChange(function() {
+    invertRows.onChange(function () {
       camera.invertRows();
       updateLabels(camera.directionsLabel, stack.modality);
     });
 
     let invertColumns = cameraFolder.add(camUtils, 'invertColumns');
-    invertColumns.onChange(function() {
+    invertColumns.onChange(function () {
       camera.invertColumns();
       updateLabels(camera.directionsLabel, stack.modality);
     });
 
     let angle = cameraFolder.add(camera, 'angle', 0, 360).step(1).listen();
-    angle.onChange(function() {
+    angle.onChange(function () {
       updateLabels(camera.directionsLabel, stack.modality);
     });
 
     let rotate = cameraFolder.add(camUtils, 'rotate');
-    rotate.onChange(function() {
+    rotate.onChange(function () {
       camera.rotate();
       updateLabels(camera.directionsLabel, stack.modality);
     });
 
     let orientationUpdate = cameraFolder.add(
       camUtils, 'orientation', ['default', 'axial', 'coronal', 'sagittal']);
-    orientationUpdate.onChange(function(value) {
+    orientationUpdate.onChange(function (value) {
       camera.orientation = value;
       camera.update();
       camera.fitBox(2);
@@ -182,17 +243,89 @@ window.onload = function() {
       updateLabels(camera.directionsLabel, stack.modality);
 
       index.__max = stackHelper.orientationMaxIndex;
-      stackHelper.index = Math.floor(index.__max/2);
+      stackHelper.index = Math.floor(index.__max / 2);
     });
 
     let conventionUpdate = cameraFolder.add(
       camUtils, 'convention', ['radio', 'neuro']);
-    conventionUpdate.onChange(function(value) {
+    conventionUpdate.onChange(function (value) {
       camera.convention = value;
       camera.update();
       camera.fitBox(2);
       updateLabels(camera.directionsLabel, stack.modality);
     });
+
+    let voxelFolder = gui.addFolder('Voxels');
+    let color = voxelFolder.addColor(voxelsSettings, 'color');
+    color.onChange(function (value) {
+      // update all colors...
+      for (let i = 0; i < 10; i++) {
+        helpersVoxel[i].color = value;
+      }
+    });
+    let showMesh = voxelFolder.add(voxelsSettings, 'showMesh');
+    showMesh.onChange(function (value) {
+      // update all colors...
+      for (let i = 0; i < 10; i++) {
+        helpersVoxel[i].showVoxel = value;
+      }
+    });
+
+    let showMeasurements = voxelFolder.add(voxelsSettings, 'showMeasurements');
+    showMeasurements.onChange(function (value) {
+      // update all colors...
+      for (let i = 0; i < 10; i++) {
+        helpersVoxel[i].showDomMeasurements = value;
+      }
+    });
+
+    let showSVG = voxelFolder.add(voxelsSettings, 'showSVG');
+    showSVG.onChange(function (value) {
+      // update all colors...
+      for (let i = 0; i < 10; i++) {
+        helpersVoxel[i].showDomSVG = value;
+      }
+    });
+
+    let widgetFolder = gui.addFolder('Widget');
+    let dColorW = widgetFolder.addColor(widgetSettings, 'defaultColor');
+    dColorW.onChange(function (value) {
+      probe.defaultColor = value;
+    });
+    let aColorW = widgetFolder.addColor(widgetSettings, 'activeColor');
+    aColorW.onChange(function (value) {
+      probe.activeColor = value;
+    });
+    let hColorW = widgetFolder.addColor(widgetSettings, 'hoverColor');
+    hColorW.onChange(function (value) {
+      probe.hoverColor = value;
+    });
+    let sColorW = widgetFolder.addColor(widgetSettings, 'selectedColor');
+    sColorW.onChange(function (value) {
+      probe.selectedColor = value;
+    });
+
+    let showMeshW = widgetFolder.add(widgetSettings, 'showMesh');
+    showMeshW.onChange(function (value) {
+      probe._voxels[0].showVoxel = value;
+    });
+
+    let showMeasurementsW = widgetFolder.add(widgetSettings, 'showMeasurements');
+    showMeasurementsW.onChange(function (value) {
+      probe._voxels[0].showDomMeasurements = value;
+    });
+
+    let showSVGW = widgetFolder.add(widgetSettings, 'showSVG');
+    showSVGW.onChange(function (value) {
+      probe._voxels[0].showDomSVG = value;
+    });
+  }
+
+  function changeVoxelSlice(stackHelper) {
+    for (let i = 0; i < 10; i++) {
+      // update world coordinates
+      helpersVoxel[i].voxel.dataCoordinates.z = stackHelper.index;
+    }
   }
 
   /**
@@ -201,17 +334,21 @@ window.onload = function() {
   function hookCallbacks(stackHelper) {
     let stack = stackHelper._stack;
     // hook up callbacks
-    controls.addEventListener('OnScroll', function(e) {
+    controls.addEventListener('OnScroll', function (e) {
       if (e.delta > 0) {
-        if (stackHelper.index >= stackHelper.orientationMaxIndex - 1) {
+        if (stackHelper.index > stackHelper.orientationMaxIndex - 1) {
           return false;
         }
         stackHelper.index += 1;
+        probe._targetMesh = stackHelper.slice.mesh;
+        changeVoxelSlice(stackHelper);
       } else {
         if (stackHelper.index <= 0) {
           return false;
         }
         stackHelper.index -= 1;
+        probe._targetMesh = stackHelper.slice.mesh;
+        changeVoxelSlice(stackHelper);
       }
     });
 
@@ -300,26 +437,57 @@ window.onload = function() {
     stackHelper.border.visible = false;
     scene.add(stackHelper);
 
+    probe = new WidgetsVoxelProbe(stack,
+      stackHelper.slice.mesh,
+      controls,
+      camera,
+      threeD);
+    probe._stackHelper = stackHelper;
+    probe._current._showVoxel = true;
+    probe._current._showDomSVG = true;
+    probe._current._showDomMeasurements = true;
+    scene.add(probe);
+
+    let centerLPS = stack.worldCenter();
+    // voxelHelpers
+    helpersVoxel = [];
+    directions = [];
+    for (let i = 0; i < 10; i++) {
+      let voxel = new HelpersVoxel(centerLPS, stackHelper.stack);
+      voxel.color = voxelsSettings.color;
+      voxel.updateVoxelScreenCoordinates(camera, threeD);
+      voxel.updateDom(threeD);
+      helpersVoxel.push(voxel);
+
+      // voxel direction
+      let direction = new THREE.Vector3(
+        Math.random() < 0.33 ? -1 : (Math.random() < 0.5 ? 0 : 1),
+        Math.random() < 0.33 ? -1 : (Math.random() < 0.5 ? 0 : 1),
+        0);
+      directions.push(direction);
+
+      // add voxles to the scene
+      scene.add(helpersVoxel[i]);
+    }
+
+    bbox = stack.dimensionsIJK;
     // set camera
     let worldbb = stack.worldBoundingBox();
     let lpsDims = new THREE.Vector3(
-      (worldbb[1] - worldbb[0])/2,
-      (worldbb[3] - worldbb[2])/2,
-      (worldbb[5] - worldbb[4])/2
+      (worldbb[1] - worldbb[0]) / 2, (worldbb[3] - worldbb[2]) / 2, (worldbb[5] - worldbb[4]) / 2
     );
 
     // box: {halfDimensions, center}
     let box = {
       center: stack.worldCenter().clone(),
-      halfDimensions:
-        new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+      halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
     };
 
     // init and zoom
     let canvas = {
-        width: threeD.clientWidth,
-        height: threeD.clientHeight,
-      };
+      width: threeD.clientWidth,
+      height: threeD.clientHeight,
+    };
 
     camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
     camera.box = box;
@@ -363,23 +531,26 @@ window.onload = function() {
     function loadSequence(index, files) {
       return Promise.resolve()
         // load the file
-        .then(function() {
-          return new Promise(function(resolve, reject) {
+        .then(function () {
+          return new Promise(function (resolve, reject) {
             let myReader = new FileReader();
             // should handle errors too...
-            myReader.addEventListener('load', function(e) {
+            myReader.addEventListener('load', function (e) {
               resolve(e.target.result);
             });
             myReader.readAsArrayBuffer(files[index]);
           });
         })
-        .then(function(buffer) {
-          return loader.parse({url: files[index].name, buffer});
+        .then(function (buffer) {
+          return loader.parse({
+            url: files[index].name,
+            buffer
+          });
         })
-        .then(function(series) {
+        .then(function (series) {
           seriesContainer.push(series);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           window.console.log('oops... something went wrong...');
           window.console.log(error);
         });
@@ -396,13 +567,16 @@ window.onload = function() {
           new Promise((resolve, reject) => {
             const myReader = new FileReader();
             // should handle errors too...
-            myReader.addEventListener('load', function(e) {
+            myReader.addEventListener('load', function (e) {
               resolve(e.target.result);
             });
             myReader.readAsArrayBuffer(files[i].file);
           })
-          .then(function(buffer) {
-            return {url: files[i].file.name, buffer};
+          .then(function (buffer) {
+            return {
+              url: files[i].file.name,
+              buffer
+            };
           })
         );
       }
@@ -411,10 +585,10 @@ window.onload = function() {
         .then((rawdata) => {
           return loader.parse(rawdata);
         })
-        .then(function(series) {
+        .then(function (series) {
           seriesContainer.push(series);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           window.console.log('oops... something went wrong...');
           window.console.log(error);
         });
@@ -428,12 +602,11 @@ window.onload = function() {
     for (let i = 0; i < evt.target.files.length; i++) {
       let dataUrl = CoreUtils.parseUrl(evt.target.files[i].name);
       if (dataUrl.extension.toUpperCase() === 'MHD' ||
-          dataUrl.extension.toUpperCase() === 'RAW') {
-        dataGroups.push(
-          {
-            file: evt.target.files[i],
-            extension: dataUrl.extension.toUpperCase(),
-          });
+        dataUrl.extension.toUpperCase() === 'RAW') {
+        dataGroups.push({
+          file: evt.target.files[i],
+          extension: dataUrl.extension.toUpperCase(),
+        });
       } else {
         data.push(evt.target.files[i]);
       }
@@ -445,10 +618,10 @@ window.onload = function() {
       const mhdFile = dataGroups.filter(_filterByExtension.bind(null, 'MHD'));
       const rawFile = dataGroups.filter(_filterByExtension.bind(null, 'RAW'));
       if (mhdFile.length === 1 &&
-          rawFile.length === 1) {
-      loadSequenceContainer.push(
-        loadSequenceGroup(dataGroups)
-      );
+        rawFile.length === 1) {
+        loadSequenceContainer.push(
+          loadSequenceGroup(dataGroups)
+        );
       }
     }
 
@@ -462,14 +635,14 @@ window.onload = function() {
     // run the load sequence
     // load sequence for all files
     Promise
-    .all(loadSequenceContainer)
-    .then(function() {
-      handleSeries(seriesContainer);
-    })
-    .catch(function(error) {
-      window.console.log('oops... something went wrong...');
-      window.console.log(error);
-    });
+      .all(loadSequenceContainer)
+      .then(function () {
+        handleSeries(seriesContainer);
+      })
+      .catch(function (error) {
+        window.console.log('oops... something went wrong...');
+        window.console.log(error);
+      });
   }
   // hook up file input listener
   document.getElementById('filesinput')

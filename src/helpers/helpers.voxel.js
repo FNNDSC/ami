@@ -68,8 +68,8 @@ export default class HelpersVoxel extends THREE.Object3D {
 
     // update data coordinates
     this._voxel.dataCoordinates = ModelsStack.worldToData(
-                  this._stack,
-                  this._voxel.worldCoordinates);
+      this._stack,
+      this._voxel.worldCoordinates);
 
     // update value
     let value = ModelsStack.value(
@@ -96,9 +96,9 @@ export default class HelpersVoxel extends THREE.Object3D {
 
     this._geometry = new GeometriesVoxel(dataCoordinates);
     this._material = new THREE.MeshBasicMaterial({
-        wireframe: true,
-        wireframeLinewidth: 2,
-      });
+      wireframe: true,
+      wireframeLinewidth: 2,
+    });
     this._material.color.set(this._color);
     this._mesh = new THREE.Mesh(this._geometry, this._material);
     this._mesh.applyMatrix(this._stack.ijk2LPS);
@@ -141,14 +141,14 @@ export default class HelpersVoxel extends THREE.Object3D {
     // update content
     let rasContainer = document.getElementById('VJSVoxelProbeWorld' + this.id);
     let rasContent = this._voxel.worldCoordinates.x.toFixed(2) + ' : ' +
-                     this._voxel.worldCoordinates.y.toFixed(2) + ' : ' +
-                     this._voxel.worldCoordinates.z.toFixed(2);
+      this._voxel.worldCoordinates.y.toFixed(2) + ' : ' +
+      this._voxel.worldCoordinates.z.toFixed(2);
     rasContainer.innerHTML = 'LPS: ' + rasContent;
 
     let ijkContainer = document.getElementById('VJSVoxelProbeData' + this.id);
     let ijkContent = this._voxel.dataCoordinates.x + ' : ' +
-                     this._voxel.dataCoordinates.y + ' : ' +
-                     this._voxel.dataCoordinates.z;
+      this._voxel.dataCoordinates.y + ' : ' +
+      this._voxel.dataCoordinates.z;
     ijkContainer.innerHTML = 'IJK: ' + ijkContent;
 
     let valueContainer = document.getElementById('VJSVoxelProbeValue' + this.id);
