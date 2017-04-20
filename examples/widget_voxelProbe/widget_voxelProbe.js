@@ -31,22 +31,22 @@ function buildGUI() {
   // access probe here...
 
   let gui = new dat.GUI({
-            autoPlace: false,
-          });
+    autoPlace: false,
+  });
 
   let customContainer = document.getElementById('my-gui-container');
   customContainer.appendChild(gui.domElement);
 
   let voxelFolder = gui.addFolder('Voxels');
   let color = voxelFolder.addColor(voxelsSettings, 'color');
-  color.onChange(function(value) {
+  color.onChange(function (value) {
     // update all colors...
     for (let i = 0; i < 10; i++) {
       helpersVoxel[i].color = value;
     }
   });
   let showMesh = voxelFolder.add(voxelsSettings, 'showMesh');
-  showMesh.onChange(function(value) {
+  showMesh.onChange(function (value) {
     // update all colors...
     for (let i = 0; i < 10; i++) {
       helpersVoxel[i].showVoxel = value;
@@ -54,7 +54,7 @@ function buildGUI() {
   });
 
   let showMeasurements = voxelFolder.add(voxelsSettings, 'showMeasurements');
-  showMeasurements.onChange(function(value) {
+  showMeasurements.onChange(function (value) {
     // update all colors...
     for (let i = 0; i < 10; i++) {
       helpersVoxel[i].showDomMeasurements = value;
@@ -62,7 +62,7 @@ function buildGUI() {
   });
 
   let showSVG = voxelFolder.add(voxelsSettings, 'showSVG');
-  showSVG.onChange(function(value) {
+  showSVG.onChange(function (value) {
     // update all colors...
     for (let i = 0; i < 10; i++) {
       helpersVoxel[i].showDomSVG = value;
@@ -74,35 +74,35 @@ function buildGUI() {
 
   let widgetFolder = gui.addFolder('Widget');
   let dColorW = widgetFolder.addColor(widgetSettings, 'defaultColor');
-  dColorW.onChange(function(value) {
+  dColorW.onChange(function (value) {
     probe.defaultColor = value;
   });
   let aColorW = widgetFolder.addColor(widgetSettings, 'activeColor');
-  aColorW.onChange(function(value) {
+  aColorW.onChange(function (value) {
     probe.activeColor = value;
   });
   let hColorW = widgetFolder.addColor(widgetSettings, 'hoverColor');
-  hColorW.onChange(function(value) {
+  hColorW.onChange(function (value) {
     probe.hoverColor = value;
   });
   let sColorW = widgetFolder.addColor(widgetSettings, 'selectedColor');
-  sColorW.onChange(function(value) {
+  sColorW.onChange(function (value) {
     probe.selectedColor = value;
   });
 
   let showMeshW = widgetFolder.add(widgetSettings, 'showMesh');
-  showMeshW.onChange(function(value) {
-    probe.showVoxel = value;
+  showMeshW.onChange(function (value) {
+    probe._voxels[0].showVoxel = value;
   });
 
   let showMeasurementsW = widgetFolder.add(widgetSettings, 'showMeasurements');
-  showMeasurementsW.onChange(function(value) {
-    probe.showDomMeasurements = value;
+  showMeasurementsW.onChange(function (value) {
+    probe._voxels[0].showDomMeasurements = value;
   });
 
   let showSVGW = widgetFolder.add(widgetSettings, 'showSVG');
-  showSVGW.onChange(function(value) {
-    probe.showDomSVG = value;
+  showSVGW.onChange(function (value) {
+    probe._voxels[0].showDomSVG = value;
   });
 }
 
@@ -147,7 +147,7 @@ function init() {
     stats.update();
 
     // request new frame
-    requestAnimationFrame(function() {
+    requestAnimationFrame(function () {
       animate();
     });
   }
@@ -185,7 +185,7 @@ function init() {
   animate();
 }
 
-window.onload = function() {
+window.onload = function () {
   // init threeJS...
   init();
 
@@ -194,59 +194,59 @@ window.onload = function() {
   let loader = new LoadersVolume(threeD);
   // Start off with a promise that always resolves
   loader.load(file)
-  .then(function() {
-    let stack = loader.data[0]._stack[0];
-    loader.free();
-    loader = null;
+    .then(function () {
+      let stack = loader.data[0]._stack[0];
+      loader.free();
+      loader = null;
 
-    let stackHelper = new HelpersStack(stack);
-    stackHelper.slice.interpolation = 0;
+      let stackHelper = new HelpersStack(stack);
+      stackHelper.slice.interpolation = 0;
 
-    scene.add(stackHelper);
+      scene.add(stackHelper);
 
-    probe = new WidgetsVoxelProbe(stack,
-                                  stackHelper.slice.mesh,
-                                  controls,
-                                  camera,
-                                  threeD);
-    probe._current._showVoxel = true;
-    probe._current._showDomSVG = true;
-    probe._current._showDomMeasurements = true;
-    scene.add(probe);
+      probe = new WidgetsVoxelProbe(stack,
+        stackHelper.slice.mesh,
+        controls,
+        camera,
+        threeD);
+      probe._current._showVoxel = true;
+      probe._current._showDomSVG = true;
+      probe._current._showDomMeasurements = true;
+      scene.add(probe);
 
-    //
-    let centerLPS = stack.worldCenter();
+      //
+      let centerLPS = stack.worldCenter();
 
-    // voxelHelpers
-    helpersVoxel = [];
-    directions = [];
-    for (let i = 0; i < 10; i++) {
-      let voxel = new HelpersVoxel(centerLPS, stackHelper.stack);
-      voxel.color = voxelsSettings.color;
-      voxel.updateVoxelScreenCoordinates(camera, threeD);
-      voxel.updateDom(threeD);
-      helpersVoxel.push(voxel);
+      // voxelHelpers
+      helpersVoxel = [];
+      directions = [];
+      for (let i = 0; i < 10; i++) {
+        let voxel = new HelpersVoxel(centerLPS, stackHelper.stack);
+        voxel.color = voxelsSettings.color;
+        voxel.updateVoxelScreenCoordinates(camera, threeD);
+        voxel.updateDom(threeD);
+        helpersVoxel.push(voxel);
 
-      // voxel direction
-      let direction = new THREE.Vector3(
-        Math.random() < 0.33 ? -1 : (Math.random() < 0.5 ? 0 : 1),
-        Math.random() < 0.33 ? -1 : (Math.random() < 0.5 ? 0 : 1),
-        0);
-      directions.push(direction);
+        // voxel direction
+        let direction = new THREE.Vector3(
+          Math.random() < 0.33 ? -1 : (Math.random() < 0.5 ? 0 : 1),
+          Math.random() < 0.33 ? -1 : (Math.random() < 0.5 ? 0 : 1),
+          0);
+        directions.push(direction);
 
-      // add voxles to the scene
-      scene.add(helpersVoxel[i]);
-    }
+        // add voxles to the scene
+        scene.add(helpersVoxel[i]);
+      }
 
-    bbox = stack.dimensionsIJK;
+      bbox = stack.dimensionsIJK;
 
-    // update camrea's and interactor's target
-    // update camera's target
-    camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
-    controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
-    camera.updateProjectionMatrix();
+      // update camrea's and interactor's target
+      // update camera's target
+      camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
+      controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
+      camera.updateProjectionMatrix();
 
-    // create a GUI to showcase features from the widget
-    buildGUI();
-  });
+      // create a GUI to showcase features from the widget
+      buildGUI();
+    });
 };
