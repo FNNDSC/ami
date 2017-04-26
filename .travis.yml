@@ -6,8 +6,9 @@ cache:
   yarn: true
   directories:
     - node_modules
+before_script:
+  - node node_modules/phantomjs-prebuilt/install.js
 script:
-  - npm rebuild phantom-prebuilt
   - yarn run ami
 notifications:
   slack: fnndsc:UohaXDsjFDVqZj5IfdC88XRa
