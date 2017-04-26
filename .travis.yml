@@ -7,6 +7,7 @@ cache:
   directories:
     - node_modules
 script:
+  - npm rebuild phantom-prebuilt
   - yarn run ami
 notifications:
   slack: fnndsc:UohaXDsjFDVqZj5IfdC88XRa
