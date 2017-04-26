@@ -5,7 +5,13 @@ import HelpersStack from '../../src/helpers/helpers.stack';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 
 // standard global variables
-let controls, renderer, stats, scene, camera, stackHelper, threeD;
+let controls;
+let renderer;
+let stats;
+let scene;
+let camera;
+let stackHelper;
+let threeD;
 
 function init() {
   // this function is executed on each animation frame
@@ -46,18 +52,11 @@ function init() {
   scene = new THREE.Scene();
 
   // camera
-  camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
+  camera =
+    new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
   camera.position.x = 250;
   camera.position.y = 250;
   camera.position.z = 250;
-
-  // light
-  // var dirLight = new THREE.DirectionalLight( 0xffffff );
-  // dirLight.position.set( 200, 200, 1000 ).normalize();
-  // camera.add( dirLight );
-  // camera.add( dirLight.target );
-  //   let particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
-  // scene.add( particleLight );
 
   scene.add(new THREE.AmbientLight(0x353535));
   let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -83,26 +82,29 @@ window.onload = function() {
 
   // load vtk file
   let loader1 = new THREE.VTKLoader();
-  loader1.load('https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk', function(geometry) {
-    geometry.computeVertexNormals();
-    let material = new THREE.MeshLambertMaterial({
-      shading: THREE.SmoothShading,
-      color: 0xE91E63,
-      side: THREE.DoubleSide});
-    let mesh = new THREE.Mesh(geometry, material);
-    let RASToLPS = new THREE.Matrix4();
-    RASToLPS.set(-1, 0, 0, 0,
-                0, -1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1);
-    mesh.applyMatrix(RASToLPS);
-    scene.add(mesh);
+  loader1.
+    load('https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk',
+      function(geometry) {
+        geometry.computeVertexNormals();
+        let material = new THREE.MeshLambertMaterial({
+          shading: THREE.SmoothShading,
+          color: 0xE91E63,
+          side: THREE.DoubleSide});
+        let mesh = new THREE.Mesh(geometry, material);
+        let RASToLPS = new THREE.Matrix4();
+        RASToLPS.set(-1, 0, 0, 0,
+                    0, -1, 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1);
+        mesh.applyMatrix(RASToLPS);
+        scene.add(mesh);
   });
 
   // instantiate the loader
   // it loads and parses the dicom image
   let loader = new LoadersVolume(threeD);
-  loader.load('https://cdn.rawgit.com/FNNDSC/data/master/nifti/marc_avf/avf_float_32.nii.gz')
+  loader.
+    load('https://cdn.rawgit.com/FNNDSC/data/master/nifti/marc_avf/avf_float_32.nii.gz')
   .then(function() {
     // make a proper function for this guy...
     let series = loader.data[0].mergeSeries(loader.data)[0];

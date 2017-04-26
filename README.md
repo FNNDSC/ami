@@ -224,7 +224,7 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 | ✅ Volume Rendering | ✅ Nifti     | 🔶 TRK           | 🔶 Ruler (2D/3D)        |
 | ✅ Lookup Tables    | ✅  MHD/RAW   | ❌ FSM           | 🔶 Orientation (2D/3D)  |
 | 🔶 Label Maps       | ❌ MGH/MGZ   | ❌ CURV          | 🔶 Angle (2D/3D)        |
-|                    | ❌ JPEG      |                  | 🔶 Orientation (2D/3D)  |
+|                    | ❌ JPEG      |                  |                         |
 
 ## Usage
 
