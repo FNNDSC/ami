@@ -6,6 +6,8 @@ cache:
   yarn: true
   directories:
     - node_modules
+before_script:
+  - node node_modules/phantomjs-prebuilt/install.js
 script:
   - yarn run ami
 notifications:

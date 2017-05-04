@@ -7,7 +7,6 @@ import ProgressBarEventBased from './helpers.progressbar.eventbased';
 import Slice from './helpers.slice';
 import Stack from './helpers.stack';
 import VolumeRendering from './helpers.volumerendering';
-import Voxel from './helpers.voxel';
 import X from './x/helpers.x';
 
 /**
@@ -24,6 +23,5 @@ export default {
   Slice,
   Stack,
   VolumeRendering,
-  Voxel,
   X,
 };

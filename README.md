@@ -224,7 +224,7 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 | ✅ Volume Rendering | ✅ Nifti     | 🔶 TRK           | 🔶 Ruler (2D/3D)        |
 | ✅ Lookup Tables    | ✅  MHD/RAW   | ❌ FSM           | 🔶 Orientation (2D/3D)  |
 | 🔶 Label Maps       | ❌ MGH/MGZ   | ❌ CURV          | 🔶 Angle (2D/3D)        |
-|                    | ❌ JPEG      |                  | 🔶 Orientation (2D/3D)  |
+|                    | ❌ JPEG      |                  |                         |
 
 ## Usage
 
@@ -399,6 +399,7 @@ AMI would not exist without them:
 
 # Citations
 ### 2017
+- [Reusable Client-Side JavaScript Modules for Immersive Web-Based Real-Time Collaborative Neuroimage Visualization - Bernal-Rusiel et al. - Frontiers in Neuroinformatics 2017 (article)](http://journal.frontiersin.org/article/10.3389/fninf.2017.00032/full)
 ### 2016
-- [LNICST 2016 - article - Volume Visualization Tools for Medical Applications in Ubiquitous Platforms - Arbelaiz et al.](https://link.springer.com/chapter/10.1007/978-3-319-49655-9_54)
-- [RSNA 2016 - poster - Interoperable communication of quantitative image analysis results using DICOM standard (DICOM4QI) - Fedorov et al.](https://docs.google.com/presentation/d/16mZbPiXqU7tKTRAcB7bnP1RGybBLqF-O0319raUWYHo/edit#slide=id.p)
+- [Volume Visualization Tools for Medical Applications in Ubiquitous Platforms - Arbelaiz et al. - LNICST 2016 (article)](https://link.springer.com/chapter/10.1007/978-3-319-49655-9_54)
+- [Interoperable communication of quantitative image analysis results using DICOM standard (DICOM4QI) - Fedorov et al. - RSNA 2016 (poster)](https://docs.google.com/presentation/d/16mZbPiXqU7tKTRAcB7bnP1RGybBLqF-O0319raUWYHo/edit#slide=id.p)
