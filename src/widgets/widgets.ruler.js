@@ -109,6 +109,24 @@ export default class WidgetsRuler extends WidgetsBase {
     this.createDOM();
   }
 
+  show() {
+    this._line.style.display = '';
+    this._distance.style.display = '';
+    this._handles[0]._dom.style.display = '';
+    this._handles[1]._dom.style.display = '';
+    this.add(this._handles[0]);
+    this.add(this._handles[1]);
+  }
+
+  hide() {
+    this._line.style.display = 'none';
+    this._distance.style.display = 'none';
+    this._handles[0]._dom.style.display = 'none';
+    this._handles[1]._dom.style.display = 'none';
+    this.remove(this._handles[0]);
+    this.remove(this._handles[1]);
+  }
+
   update() {
     this.updateColor();
 
@@ -185,8 +203,16 @@ export default class WidgetsRuler extends WidgetsBase {
     let x2 = this._handles[1].screenPosition.x;
     let y2 = this._handles[1].screenPosition.y;
 
-    let x0 = x1 + (x2 - x1)/2;
-    let y0 = y1 + (y2 - y1)/2;
+    //let x0 = x1 + (x2 - x1)/2;
+    //let y0 = y1 + (y2 - y1)/2;
+    let x0 = x2;
+    let y0 = y2;
+
+    if (y1 >= y2) {
+      y0 = y2 - 30;
+    } else {
+      y0 = y2 + 30;
+    }
 
     let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
     let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;

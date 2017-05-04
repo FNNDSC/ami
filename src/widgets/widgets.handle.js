@@ -142,8 +142,8 @@ export default class WidgetsHandle extends WidgetsBase {
   onMove(evt) {
     evt.preventDefault();
 
-    this._mouse.set((event.clientX / this._container.offsetWidth) * 2 - 1,
-                    -(event.clientY / this._container.offsetHeight) * 2 + 1);
+    this._mouse.set((event.offsetX / this._container.offsetWidth) * 2 - 1,
+                    -(event.offsetY / this._container.offsetHeight) * 2 + 1);
 
     // update screen position of handle
     this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
