@@ -399,6 +399,7 @@ AMI would not exist without them:
 
 # Citations
 ### 2017
+- [Frontiers in Neuroinformatics 2017 - article - Reusable Client-Side JavaScript Modules for Immersive Web-Based Real-Time Collaborative Neuroimage Visualization](http://journal.frontiersin.org/article/10.3389/fninf.2017.00032/full)
 ### 2016
 - [LNICST 2016 - article - Volume Visualization Tools for Medical Applications in Ubiquitous Platforms - Arbelaiz et al.](https://link.springer.com/chapter/10.1007/978-3-319-49655-9_54)
 - [RSNA 2016 - poster - Interoperable communication of quantitative image analysis results using DICOM standard (DICOM4QI) - Fedorov et al.](https://docs.google.com/presentation/d/16mZbPiXqU7tKTRAcB7bnP1RGybBLqF-O0319raUWYHo/edit#slide=id.p)
