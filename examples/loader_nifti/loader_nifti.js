@@ -4,13 +4,15 @@ import ControlsTrackball from '../../src/controls/controls.trackball';
 import HelpersStack from '../../src/helpers/helpers.stack';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 
-let VJS = VJS || {};
-
-VJS.widgets = VJS.widgets || {};
-VJS.widgets.orientation = require('../../src/widgets/widgets.orientation');
-
 // standard global variables
-let controls, renderer, stats, scene, camera, stackHelper, threeD, brain;
+let controls;
+let renderer;
+let stats;
+let scene;
+let camera;
+let stackHelper;
+let threeD;
+let brain;
 
 function init() {
   // this function is executed on each animation frame
