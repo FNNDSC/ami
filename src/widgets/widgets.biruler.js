@@ -131,34 +131,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this.update();
     }
 
-    onEnd(evt, orientation, slice) {
-        this._orientation = orientation;
-        this._slice = slice;
-        // First Handle
-        this._handles[0].onEnd(evt);
-        this._handles[2].onEnd(evt);
-        this._handles[3].onEnd(evt);
-
-        window.console.log(this);
-
-        // Second Handle
-        if(this._dragged || !this._handles[1].tracking) {
-            this._handles[1].tracking = false;
-            this._handles[1].onEnd(evt);
-        } else{
-            this._handles[1].tracking = false;
-        }
-
-        // State of ruler widget
-        this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active;
-
-        if (!this._initOrtho) {
-            this.initOrtho();
-        }
-
-        this.update();
-    }
-
     create() {
         this.createMesh();
         this.createDOM();
