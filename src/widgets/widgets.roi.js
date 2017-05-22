@@ -139,8 +139,6 @@ export default class WidgetsRoi extends WidgetsBase {
             active = active || this._handles[index].active
         }
 
-        window.console.log(this);
-
         // Second Handle
         if(this._dragged || !this._handles[this._handles.length-1].tracking) {
             this._handles[this._handles.length-1].tracking = false;
@@ -176,6 +174,7 @@ export default class WidgetsRoi extends WidgetsBase {
 
     show() {
         for (let index in this._handles) {
+            this._handles[index].visible = true;
             this._handles[index]._dom.style.display = '';
         }
 
@@ -186,6 +185,7 @@ export default class WidgetsRoi extends WidgetsBase {
 
     hide() {
         for (let index in this._handles) {
+            this._handles[index].visible = false;
             this._handles[index]._dom.style.display = 'none';
         }
 
@@ -329,13 +329,13 @@ export default class WidgetsRoi extends WidgetsBase {
             y0 = y2 + 30;
         }
 
-        let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+        let length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
         let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
 
         let posY = y1 - this._container.offsetHeight;
 
         // update line
-        let transform = `translate3D(${x1}px,${posY}px, 0)`;
+        let transform = `translate3D(${x1}px, ${posY}px, 0)`;
         transform += ` rotate(${angle}deg)`;
 
         //this._lines[lineIndex].style.display = '';

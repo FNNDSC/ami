@@ -142,6 +142,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._handles[1]._dom.style.display = '';
     this.add(this._handles[0]);
     this.add(this._handles[1]);
+    this.add(this._mesh);
   }
 
   hide() {
@@ -149,6 +150,8 @@ export default class WidgetsRuler extends WidgetsBase {
     this._distance.style.display = 'none';
     this._handles[0]._dom.style.display = 'none';
     this._handles[1]._dom.style.display = 'none';
+
+    this.remove(this._mesh);
     this.remove(this._handles[0]);
     this.remove(this._handles[1]);
   }

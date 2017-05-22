@@ -150,6 +150,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this.add(this._handles[1]);
         this.add(this._handles[2]);
         this.add(this._handles[3]);
+        this.add(this._mesh);
+        this.add(this._mesh2);
     }
 
     hide() {
@@ -162,6 +164,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._handles[2]._dom.style.display = 'none';
         this._handles[3]._dom.style.display = 'none';
         this._dashline.style.display = 'none';
+        this.remove(this._mesh);
+        this.remove(this._mesh2);
         this.remove(this._handles[0]);
         this.remove(this._handles[1]);
         this.remove(this._handles[2]);
