@@ -89,6 +89,15 @@ export default class HelpersStack extends THREE.Object3D {
   }
 
   /**
+   * Set stack.
+   *
+   * @type {ModelsStack}
+   */
+  set stack(stack) {
+    this._stack = stack;
+  }
+
+  /**
    * Get bounding box helper.
    *
    * @type {HelpersBoundingBox}
