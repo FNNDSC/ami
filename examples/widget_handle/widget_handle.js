@@ -5,6 +5,7 @@ import LoadersVolume from '../../src/loaders/loaders.volume';
 import WidgetsHandle from '../../src/widgets/widgets.handle';
 import WidgetsRuler from '../../src/widgets/widgets.ruler';
 import WidgetsVoxelProbe from '../../src/widgets/widgets.voxelProbe';
+import WidgetsAnnotation from '../../src/widgets/widgets.annotation';
 import ControlsTrackball from '../../src/controls/controls.trackball';
 
 // standard global variables
@@ -20,8 +21,9 @@ const widgetsAvailable = [
   'Handle',
   'Ruler',
   'VoxelProbe',
+  'Annotation',
 ];
-const guiObjects = {
+const guiObjects = { //Handle by default
   type: 'Handle',
 };
 
@@ -158,6 +160,11 @@ window.onload = function() {
           widget =
             new WidgetsVoxelProbe(
               stack, stackHelper.slice.mesh, controls, camera, threeD);
+          widget.worldPosition = intersects[0].point;
+          break;
+        case 'Annotation':
+          widget =
+            new WidgetsAnnotation(stackHelper.slice.mesh, controls, camera, threeD);
           widget.worldPosition = intersects[0].point;
           break;
         default:
