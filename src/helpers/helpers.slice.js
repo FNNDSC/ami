@@ -413,6 +413,39 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this._create();
   }
 
+  dispose() {
+    // Release memory
+    for(var j =0; j< this._textures.length; j++) {
+      this._textures[j].dispose();
+      this._textures[j] = null;
+      delete this._textures[j];
+    }
+    this._textures = null;
+    this._shadersFragment = null;
+    this._shadersVertex = null;
+
+    this._uniforms = null;
+
+    // material, geometry and mesh
+    this.remove(this._mesh);
+    this._mesh.geometry.dispose();
+    this._mesh.geometry = null;
+    this._mesh.material.dispose();
+    this._mesh.material = null;
+
+    this._geometry.dispose();
+    this._geometry = null;
+
+    this._material.vertexShader = null;
+    this._material.fragmentShader = null;
+    this._material.uniforms = null;
+    this._material.dispose();
+    this._material = null
+    this._mesh = null;
+    delete this._mesh;
+    this._stack = null;
+  }
+
   cartesianEquation() {
     // Make sure we have a geometry
     if (!this._geometry ||

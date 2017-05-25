@@ -52,7 +52,7 @@ export default class WidgetsBase extends THREE.Object3D {
       left: Math.round(left),
     };
 
-    console.log(this._offsets);
+    //console.log(this._offsets);
   }
 
   offsetChanged() {

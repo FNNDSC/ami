@@ -136,40 +136,58 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this.createDOM();
     }
 
-    show() {
+    hideDOM() {
+        this._line.style.display = 'none';
+        this._distance.style.display = 'none';
+        this._line2.style.display = 'none';
+        this._distance2.style.display = 'none';
+
+        for (let index in this._handles) {
+            this._handles[index].hideDOM();
+        }
+
+        this._dashline.style.display = 'none';
+    }
+
+    showDOM() {
         this._line.style.display = '';
         this._distance.style.display = '';
-        this._handles[0]._dom.style.display = '';
-        this._handles[1]._dom.style.display = '';
         this._line2.style.display = '';
         this._distance2.style.display = '';
-        this._handles[2]._dom.style.display = '';
-        this._handles[3]._dom.style.display = '';
+
+        for (let index in this._handles) {
+            this._handles[index].showDOM();
+        }
+
         this._dashline.style.display = '';
-        this.add(this._handles[0]);
-        this.add(this._handles[1]);
-        this.add(this._handles[2]);
-        this.add(this._handles[3]);
-        this.add(this._mesh);
-        this.add(this._mesh2);
+    }
+
+    hideMesh(){
+        this._mesh.visible = false;
+        this._mesh2.visible = false;
+        this._handles[0].visible = false;
+        this._handles[1].visible = false;
+        this._handles[2].visible = false;
+        this._handles[3].visible = false;
+    }
+
+    showMesh() {
+        this._mesh.visible = true;
+        this._mesh2.visible = true;
+        this._handles[0].visible = true;
+        this._handles[1].visible = true;
+        this._handles[2].visible = true;
+        this._handles[3].visible = true;
+    }
+
+    show() {
+        this.showDOM();
+        this.showMesh();
     }
 
     hide() {
-        this._line.style.display = 'none';
-        this._distance.style.display = 'none';
-        this._handles[0]._dom.style.display = 'none';
-        this._handles[1]._dom.style.display = 'none';
-        this._line2.style.display = 'none';
-        this._distance2.style.display = 'none';
-        this._handles[2]._dom.style.display = 'none';
-        this._handles[3]._dom.style.display = 'none';
-        this._dashline.style.display = 'none';
-        this.remove(this._mesh);
-        this.remove(this._mesh2);
-        this.remove(this._handles[0]);
-        this.remove(this._handles[1]);
-        this.remove(this._handles[2]);
-        this.remove(this._handles[3]);
+        this.hideDOM();
+        this.hideMesh();
     }
 
     update() {
