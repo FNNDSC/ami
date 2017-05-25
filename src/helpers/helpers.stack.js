@@ -453,28 +453,13 @@ export default class HelpersStack extends THREE.Object3D {
    * @public
    */
   dispose() {
-    this._slice.dispose();
     this.remove(this._slice);
+    this._slice.dispose();
     this._slice = null;
-    delete this._slice;
-
-    this._bBox._material.dispose();
-    this._bBox._material = null;
-    this._bBox._geometry.dispose();
-    this._bBox._geometry = null;
-    this._bBox._mesh.material.dispose();
-    this._bBox._mesh.material = null;
+    this._bBox.dispose();
     this._bBox =  null;
-    delete this._bBox;
-
-    this._border._material.dispose();
-    this._border._material = null;
-    this._border._geometry.dispose();
-    this._border._geometry = null;
-    this._border._mesh.material.dispose();
-    this._border._mesh.material = null;
+    this._border.dispose();
     this._border =  null;
-    delete this._border;
   }
 
 }
