@@ -447,4 +447,19 @@ export default class HelpersStack extends THREE.Object3D {
     return direction;
   }
 
+  /**
+   * Release the stack helper memory including the slice memory.
+   *
+   * @public
+   */
+  dispose() {
+    this.remove(this._slice);
+    this._slice.dispose();
+    this._slice = null;
+    this._bBox.dispose();
+    this._bBox =  null;
+    this._border.dispose();
+    this._border =  null;
+  }
+
 }
