@@ -392,11 +392,9 @@ export default class WidgetsAnnotation extends WidgetsBase {
     x2 = this._labelpositionx;
     y2 = this._labelpositiony + this._container.offsetHeight; //revert the operation in 'mousey' to get the previous eventY
 
-    var elem = document.getElementById(this._label.id); //get the label element to check the size, so we can point the dashed line to the center of the label
-    var labelheight = window.getComputedStyle(elem, null).getPropertyValue("block-size"); //get the label height from the computed style
-    var labelwidth = window.getComputedStyle(elem, null).getPropertyValue("inline-size"); //get the label weight from the computed style
-    labelwidth = parseInt(labelwidth, 10); //extract the number and remove "px" (pixel) got when getting CSS style
-    labelheight = parseInt(labelheight, 10); //extract the number and remove "px" (pixel) got when getting CSS style
+    //get the size of the label so we can place the dashed line in the center of it
+    var labelheight = this._label.offsetHeight;
+    var labelwidth = this._label.offsetWidth;
 
     var centerlabelx = 0;
     var centerlabely = 0;
