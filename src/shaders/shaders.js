@@ -1,3 +1,7 @@
+import ContourUniform from './shaders.contour.uniform';
+import ContourFragment from './shaders.contour.fragment';
+import ContourVertex from './shaders.contour.vertex';
+
 import DataUniform from './shaders.data.uniform';
 import DataFragment from './shaders.data.fragment';
 import DataVertex from './shaders.data.vertex';
