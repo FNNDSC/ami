@@ -23,6 +23,10 @@ import LocalizerVertex from './shaders.localizer.vertex';
  */
 
 export default {
+  ContourUniform,
+  ContourFragment,
+  ContourVertex,
+
   DataUniform,
   DataFragment,
   DataVertex,
