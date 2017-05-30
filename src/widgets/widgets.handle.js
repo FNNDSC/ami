@@ -276,7 +276,7 @@ export default class WidgetsHandle extends WidgetsBase {
 
   createMesh() {
     // geometry
-    this._geometry = new THREE.SphereGeometry(2, 32, 32);
+    this._geometry = new THREE.SphereGeometry(1, 16, 16);
 
     // material
     this._material = new THREE.MeshBasicMaterial({
@@ -383,5 +383,31 @@ export default class WidgetsHandle extends WidgetsBase {
   set tracking(tracking) {
     this._tracking = tracking;
     this.update();
+  }
+
+  hideDOM() {
+    this._dom.style.display = 'none';
+  }
+
+  showDOM() {
+    this._dom.style.display = '';
+  }
+
+  hideMesh() {
+    this.visible = false;
+  }
+
+  showMesh() {
+    this.visible = true;
+  }
+
+  show() {
+    this.showDOM();
+    this.showMesh();
+  }
+
+  hide() {
+    this.hideDOM();
+    this.hideMesh();
   }
 }

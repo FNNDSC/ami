@@ -91,17 +91,6 @@ export default class WidgetsRoi extends WidgetsBase {
             this._container.appendChild(newLine);
         }
 
-        /*let newLine = document.createElement('div');
-        newLine.setAttribute('class', 'widgets handle line');
-        newLine.style.position = 'absolute';
-        newLine.style.transformOrigin = '0 100%';
-        newLine.style.marginTop = '-1px';
-        newLine.style.height = '2px';
-        newLine.style.width = '3px';*/
-
-        //this._lines.push(newLine);
-        //this._container.appendChild(newLine);
-
         var hovered = false;
 
         for (let index in this._handles) {
@@ -114,6 +103,7 @@ export default class WidgetsRoi extends WidgetsBase {
         if (this.active && numHandles > 2) {
             this.pushPopHandle();
         }
+
         this.update();
     }
 
@@ -172,10 +162,19 @@ export default class WidgetsRoi extends WidgetsBase {
         this.createDOM();
     }
 
-    show() {
+    hideDOM() {
         for (let index in this._handles) {
-            this._handles[index].visible = true;
-            this._handles[index]._dom.style.display = '';
+            this._handles[index].hideDOM();
+        }
+
+        for (let index in this._lines) {
+            this._lines[index].style.display = 'none';
+        }
+    }
+
+    showDOM() {
+        for (let index in this._handles) {
+            this._handles[index].showDOM();
         }
 
         for (let index in this._lines) {
@@ -183,15 +182,22 @@ export default class WidgetsRoi extends WidgetsBase {
         }
     }
 
-    hide() {
-        for (let index in this._handles) {
-            this._handles[index].visible = false;
-            this._handles[index]._dom.style.display = 'none';
-        }
+    hideMesh(){
+        this.visible = false;
+    }
 
-        for (let index in this._lines) {
-            this._lines[index].style.display = 'none';
-        }
+    showMesh() {
+        this.visible = true;
+    }
+
+    show() {
+        this.showDOM();
+        this.showMesh();
+    }
+
+    hide() {
+        this.hideDOM();
+        this.hideMesh();
     }
 
     update() {
@@ -291,21 +297,6 @@ export default class WidgetsRoi extends WidgetsBase {
             let tempLine = this._lines.pop();
             tempLine.style.display = 'none';
             this._container.removeChild(tempLine);
-
-            //var removeLine = this._lines.pop();
-
-            /*let newLine = document.createElement('div');
-            newLine.setAttribute('class', 'widgets handle line');
-            newLine.style.position = 'absolute';
-            newLine.style.transformOrigin = '0 100%';
-            newLine.style.marginTop = '-1px';
-            newLine.style.height = '2px';
-            newLine.style.width = '3px';*/
-
-            //this._lines.push(newLine);
-
-            //this._container.removeChild(removeLine);
-            //this._container.appendChild(newLine);
         }
 
         return isOnLine;
@@ -318,8 +309,6 @@ export default class WidgetsRoi extends WidgetsBase {
         let x2 = this._handles[handle1Index].screenPosition.x;
         let y2 = this._handles[handle1Index].screenPosition.y;
 
-        //let x0 = x1 + (x2 - x1)/2;
-        //let y0 = y1 + (y2 - y1)/2;
         let x0 = x2;
         let y0 = y2;
 
@@ -345,7 +334,7 @@ export default class WidgetsRoi extends WidgetsBase {
 
     updateDOMPosition() {
         if (this._handles.length >= 2) {
-            for (let index in this._handles) {
+            for (let index in this._lines) {
                 this.updateLineDOM(index, index, parseInt(index) + 1 == this._handles.length ? 0 : parseInt(index) + 1)
             }
         }

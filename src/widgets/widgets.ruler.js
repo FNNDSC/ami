@@ -135,25 +135,38 @@ export default class WidgetsRuler extends WidgetsBase {
     this.createDOM();
   }
 
-  show() {
+  hideDOM() {
+    this._line.style.display = 'none';
+    this._distance.style.display = 'none';
+    for (let index in this._handles) {
+      this._handles[index].hideDOM();
+    }
+  }
+
+  showDOM() {
     this._line.style.display = '';
     this._distance.style.display = '';
-    this._handles[0]._dom.style.display = '';
-    this._handles[1]._dom.style.display = '';
-    this.add(this._handles[0]);
-    this.add(this._handles[1]);
-    this.add(this._mesh);
+    for (let index in this._handles) {
+      this._handles[index].showDOM();
+    }
+  }
+
+  hideMesh() {
+    this.visible = false;
+  }
+
+  showMesh() {
+    this.visible = true;
+  }
+
+  show() {
+    this.showDOM();
+    this.showMesh();
   }
 
   hide() {
-    this._line.style.display = 'none';
-    this._distance.style.display = 'none';
-    this._handles[0]._dom.style.display = 'none';
-    this._handles[1]._dom.style.display = 'none';
-
-    this.remove(this._mesh);
-    this.remove(this._handles[0]);
-    this.remove(this._handles[1]);
+    this.hideDOM();
+    this.hideMesh();
   }
 
   update() {
