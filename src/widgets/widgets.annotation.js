@@ -107,8 +107,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
         //calculate differencemousecenterlabel (difference between ref position of the label (top-left corner) and mouse position in the label)
         this._differencemousecenterlabelx = Math.abs(Math.abs(mousex) - Math.abs(this._labelpositionx));
         this._differencemousecenterlabely = Math.abs(Math.abs(mousey) - Math.abs(this._labelpositiony));
-        //this._differencemousecenterlabelx = 0;
-        //this._differencemousecenterlabely = 0;
     }
   }
 
