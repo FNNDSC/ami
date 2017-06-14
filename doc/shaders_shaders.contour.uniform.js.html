@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: core/core.validators.js</title>
+    <title>JSDoc: Source: shaders/shaders.contour.uniform.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: core/core.validators.js</h1>
+    <h1 class="page-title">Source: shaders/shaders.contour.uniform.js</h1>
 
     
 
@@ -26,112 +26,34 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Validate basic structures.
- *
- * @example
- * //Returns true
- * VJS.Core.Validators.matrix4(new THREE.Matrix4());
- *
- * //Returns false
- * VJS.Core.Validators.matrix4(new THREE.Vector3());
- *
- * @module core/validators
+            <pre class="prettyprint source linenums"><code>
+/**
+ * @module shaders/data
  */
-
-export default class Validators {
-
-  /**
-   * Validates a matrix as a THREEJS.Matrix4
-   * link
-   * @param {Object} objectToTest - The object to be tested.
-   * @return {boolean} True if valid Matrix4, false if NOT.
-   */
-  static matrix4(objectToTest) {
-    if(!(objectToTest !== null &amp;&amp;
-       typeof objectToTest !== 'undefined' &amp;&amp;
-       objectToTest.hasOwnProperty('elements') &amp;&amp;
-       objectToTest.elements.length === 16 &amp;&amp;
-       typeof objectToTest.identity === 'function'&amp;&amp;
-       typeof objectToTest.copy === 'function' &amp;&amp;
-       typeof objectToTest.determinant === 'function')) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-  * Validates a vector as a THREEJS.Vector3
-  * @param {Object} objectToTest - The object to be tested.
-  * @return {boolean} True if valid Vector3, false if NOT.
-  */
-  static vector3(objectToTest) {
-    if(!(objectToTest !== null &amp;&amp;
-       typeof objectToTest !== 'undefined' &amp;&amp;
-       objectToTest.hasOwnProperty('x') &amp;&amp;
-       objectToTest.hasOwnProperty('y') &amp;&amp;
-       objectToTest.hasOwnProperty('z') &amp;&amp;
-       !objectToTest.hasOwnProperty('w'))) {
-      return false;
-    }
-
-    return true;
-  }
-
- /**
-  * Validates a box.
-  *
-  * @example
-  * // a box is defined as
-  * let box = {
-  *   center: THREE.Vector3,
-  *   halfDimensions: THREE.Vector3
-  * }
-  *
-  * @param {Object} objectToTest - The object to be tested.
-  * @return {boolean} True if valid box, false if NOT.
-  */
-  static box(objectToTest) {
-    if(!(objectToTest !== null &amp;&amp;
-       typeof objectToTest !== 'undefined' &amp;&amp;
-       objectToTest.hasOwnProperty('center') &amp;&amp;
-       this.vector3(objectToTest.center) &amp;&amp;
-       objectToTest.hasOwnProperty('halfDimensions') &amp;&amp;
-       this.vector3(objectToTest.halfDimensions) &amp;&amp;
-       objectToTest.halfDimensions.x >= 0 &amp;&amp;
-       objectToTest.halfDimensions.y >= 0 &amp;&amp;
-       objectToTest.halfDimensions.z >= 0)) {
-      return false;
-    }
-
-    return true;
-  }
-
- /**
-  * Validates a ray.
-  *
-  * @example
-  * // a ray is defined as
-  * let ray = {
-  *   postion: THREE.Vector3,
-  *   direction: THREE.Vector3
-  * }
-  *
-  * @param {Object} objectToTest - The object to be tested.
-  * @return {boolean} True if valid ray, false if NOT.
-  */
-  static ray(objectToTest) {
-    if(!(objectToTest !== null &amp;&amp;
-       typeof objectToTest !== 'undefined' &amp;&amp;
-       objectToTest.hasOwnProperty('position') &amp;&amp;
-       this.vector3(objectToTest.position) &amp;&amp;
-       objectToTest.hasOwnProperty('direction') &amp;&amp;
-       this.vector3(objectToTest.direction))) {
-      return false;
-    }
-
-    return true;
+export default class ShadersUniform {
+  static uniforms() {
+    return {
+      'uCanvasWidth': {
+        type: 'f',
+        value: 0.,
+        typeGLSL: 'float',
+      },
+      'uCanvasHeight': {
+        type: 'f',
+        value: 0.,
+        typeGLSL: 'float',
+      },
+      'uWidth': {
+        type: 'f',
+        value: 1.,
+        typeGLSL: 'float',
+      },
+      'uTextureFilled': {
+        type: 't',
+        value: [],
+        typeGLSL: 'sampler2D',
+      },
+    };
   }
 }
 </code></pre>
