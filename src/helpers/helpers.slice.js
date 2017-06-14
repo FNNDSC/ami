@@ -371,8 +371,10 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     }
 
     // set slice window center and width
-    this._uniforms.uRescaleSlopeIntercept.value = [this._rescaleSlope, this._rescaleIntercept];
-    this._uniforms.uWindowCenterWidth.value = [offset + this._windowCenter, this._windowWidth];
+    this._uniforms.uRescaleSlopeIntercept.value =
+      [this._rescaleSlope, this._rescaleIntercept];
+    this._uniforms.uWindowCenterWidth.value =
+      [offset + this._windowCenter, this._windowWidth];
 
     // invert
     this._uniforms.uInvert.value = this._invert === true ? 1 : 0;

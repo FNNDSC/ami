@@ -38,8 +38,8 @@ class Unpack extends ShadersBase {
   computeDefinition() {
     // fun stuff
     let content = '';
-    if(this._base._uniforms.uNumberOfChannels.value === 1) {
-      switch(this._base._uniforms.uBitsAllocated.value) {
+    if (this._base._uniforms.uNumberOfChannels.value === 1) {
+      switch (this._base._uniforms.uBitsAllocated.value) {
 
         case 1:
         case 8:
@@ -59,7 +59,7 @@ class Unpack extends ShadersBase {
           break;
 
       }
-    } else{
+    } else {
       content = this.upackIdentity();
     }
 
@@ -94,7 +94,7 @@ uInt16(
   }
 
   upack32() {
-    if(this._base._uniforms.uPixelType.value === 0) {
+    if (this._base._uniforms.uPixelType.value === 0) {
       this._base._functions['uInt32'] = this.uInt32();
 
       return `
@@ -105,7 +105,7 @@ uInt32(
   packedData.a,
   unpackedData.x);
       `;
-    } else{
+    } else {
       this._base._functions['uFloat32'] = this.uFloat32();
 
       return `
@@ -146,7 +146,7 @@ void uInt16(in float r, in float a, out float value){
   uInt32() {
     return `
 void uInt32(in float r, in float g, in float b, in float a, out float value){
-  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;
+  value = r * 256. + g * 65536. + b * 16777216.; // + a * 4294967296.;
 }
     `;
   }

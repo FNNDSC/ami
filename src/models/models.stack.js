@@ -461,7 +461,8 @@ export default class ModelsStack extends ModelsBase {
     this._packed = true;
   }
 
-  _packTo8Bits(bits, pixelType, channels, frame, textureSize, startVoxel, stopVoxel) {
+  _packTo8Bits(
+    bits, pixelType, channels, frame, textureSize, startVoxel, stopVoxel) {
     let packed = {
       textureType: null,
       data: null,
@@ -469,7 +470,7 @@ export default class ModelsStack extends ModelsBase {
 
     // transform signed to unsigned for convenience
     let offset = 0;
-    if(this._minMax[0] < 0) {
+    if (this._minMax[0] < 0) {
       offset -= this._minMax[0];
     }
 
@@ -528,8 +529,8 @@ export default class ModelsStack extends ModelsBase {
         let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
         data[4 * packIndex] = raw & 0x000000FF;
         data[4 * packIndex + 1] = (raw >>> 8) & 0x000000FF;
-        data[4 * packIndex + 2] = (raw >>> 8) & 0x000000FF;
-        data[4 * packIndex + 3] = (raw >>> 8) & 0x000000FF;
+        data[4 * packIndex + 2] = (raw >>> 16) & 0x000000FF;
+        data[4 * packIndex + 3] = (raw >>> 24) & 0x000000FF;
 
         packIndex++;
       }
@@ -649,7 +650,7 @@ export default class ModelsStack extends ModelsBase {
   }
 
   static value(stack, ijkCoordinate) {
-    if(ijkCoordinate.z >= 0 && ijkCoordinate.z < stack._frame.length) {
+    if (ijkCoordinate.z >= 0 && ijkCoordinate.z < stack._frame.length) {
       return stack._frame[ijkCoordinate.z].value(
         ijkCoordinate.x,
         ijkCoordinate.y);
