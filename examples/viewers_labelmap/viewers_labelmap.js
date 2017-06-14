@@ -25,9 +25,7 @@ let threeD;
 let sceneLayer0TextureTarget;
 let sceneLayer1TextureTarget;
 //
-let scene;
 let sceneLayer0;
-//
 let lutLayer0;
 let sceneLayer1;
 let meshLayer1;
@@ -84,7 +82,6 @@ function init() {
   threeD.appendChild(statsyay.domElement);
 
   // scene
-  scene = new THREE.Scene();
   sceneLayer0 = new THREE.Scene();
   sceneLayer1 = new THREE.Scene();
   sceneLayerMix = new THREE.Scene();
@@ -210,8 +207,7 @@ window.onload = function() {
     '000297.dcm', '000298.dcm',
   ];
 
-  let files = filenames;
-  filenames.map(function(v) {
+  let files = filenames.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/rsna_2/PET/' + v;
   });
 
