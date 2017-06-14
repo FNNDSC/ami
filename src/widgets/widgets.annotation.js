@@ -107,8 +107,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
         //calculate differencemousecenterlabel (difference between ref position of the label (top-left corner) and mouse position in the label)
         this._differencemousecenterlabelx = Math.abs(Math.abs(mousex) - Math.abs(this._labelpositionx));
         this._differencemousecenterlabely = Math.abs(Math.abs(mousey) - Math.abs(this._labelpositiony));
-        //this._differencemousecenterlabelx = 0;
-        //this._differencemousecenterlabely = 0;
     }
   }
 
@@ -250,8 +248,8 @@ export default class WidgetsAnnotation extends WidgetsBase {
 
     //create cone and add it
     this._conegeometry = new THREE.CylinderGeometry( 0, 2, 10 );
-    this._conegeometry.vertices.push(this._handles[1].worldPosition);
     this._conegeometry.translate( 0, -5, 0 );
+    this._conegeometry.rotateX( - Math.PI / 2 );
     this._cone = new THREE.Mesh( this._conegeometry, this._material );
     this._cone.visible = true;
     this.add(this._cone);
@@ -334,7 +332,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     transform += ` rotate(${angle}deg)`;
 
     this._line.style.transform = transform;
-    this._line.style.width = length;
+    this._line.style.width = length + 'px';
 
 
     // update label position
@@ -370,19 +368,9 @@ export default class WidgetsAnnotation extends WidgetsBase {
     let w0 = this._handles[0].worldPosition;
     let w1 = this._handles[1].worldPosition;
 
-    let roty = null;
-
-    let rotx = Math.atan2( w1.y-w0.y, w1.z-w0.z );
-
-    if ((w1.z-w0.z) >= 0) {
-      roty = -Math.atan2( (w1.x-w0.x) * Math.cos(rotx), (w1.z-w0.z) );
-    }else{
-      roty = Math.atan2( (w1.x-w0.x) * Math.cos(rotx), (w1.z-w0.z) ); 
-    }
-
+    //position and rotation of cone
     this._cone.position.set(w1.x,w1.y,w1.z);
-    this._cone.rotation.x = -rotx + Math.PI/2;
-    this._cone.rotation.y = -roty;
+    this._cone.lookAt(w0);
 
     // update dash line
 
@@ -448,7 +436,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     transformdashline += ` rotate(${angledashline}deg)`;
 
     this._dashline.style.transform = transformdashline;
-    this._dashline.style.width = lengthdashline;
+    this._dashline.style.width = lengthdashline + 'px';
   }
 
   updateDOMColor() {
