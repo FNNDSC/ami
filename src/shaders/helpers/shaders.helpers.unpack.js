@@ -146,7 +146,7 @@ void uInt16(in float r, in float a, out float value){
   uInt32() {
     return `
 void uInt32(in float r, in float g, in float b, in float a, out float value){
-  value = r * 256. + g * 65536. + b * 16777216.; // + a * 4294967296.;
+  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;
 }
     `;
   }
