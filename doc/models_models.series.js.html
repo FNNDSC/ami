@@ -34,20 +34,32 @@ import ModelsBase from '../models/models.base';
  *
  * @module models/series
  */
-
 export default class ModelsSeries extends ModelsBase {
+  /**
+   * Models series constructor
+   */
   constructor() {
     super();
 
     this._concatenationUID = -1;
     this._seriesInstanceUID = -1;
+    this._transferSyntaxUID = '';
     this._seriesNumber = -1;
+    this._seriesDescription = '';
+    this._studyDescription = '';
     this._modality = 'Modality not set';
     this._dimensionIndexSequence = [];
     // it is used in the loader in case a dicom/nifti contains multiple frames
     // should be updated after merge or renamed
     this._numberOfFrames = 0;
     this._numberOfChannels = 1;
+
+    // patient information
+    this._patientID = '';
+    this._patientName = '';
+    this._patientAge = '';
+    this._patientBirthdate = '';
+    this._patientSex = '';
 
     // SEGMENTATION STUFF
     this._segmentationType = null;
@@ -69,7 +81,7 @@ export default class ModelsSeries extends ModelsBase {
    *
    * @param {ModelsSeries} model - Model to be validated as series.
    *
-   * @returns {boolean} True if series is valid. False if not.
+   * @return {boolean} True if series is valid. False if not.
    *
    * @override
    */
@@ -96,12 +108,12 @@ export default class ModelsSeries extends ModelsBase {
    *
    * @param {ModelsSeries} series - Series to be merged against current series.
    *
-   * @returns {boolean} True if series could be merge. False if not.
+   * @return {boolean} True if series could be merge. False if not.
    *
    * @override
    */
   merge(series) {
-    if(!this.validate(series)) {
+    if (!this.validate(series)) {
       return false;
     }
 
@@ -120,7 +132,7 @@ export default class ModelsSeries extends ModelsBase {
    *
    * @param {Array.&lt;ModelsSeries>} target - Series to be merged against current series.
    *
-   * @returns {Array.&lt;ModelsSeries>} Array of series properly merged.
+   * @return {Array.&lt;ModelsSeries>} Array of series properly merged.
    */
   mergeSeries(target) {
     let seriesContainer = [this];
@@ -129,29 +141,229 @@ export default class ModelsSeries extends ModelsBase {
   }
 
   /**
-   * Setters/Getters
+   * Series instance UID setter
+   *
+   * @param {*} seriesInstanceUID
    */
-
   set seriesInstanceUID(seriesInstanceUID) {
     this._seriesInstanceUID = seriesInstanceUID;
   }
 
+  /**
+   * Series instace UID getter
+   *
+   * @return {*}
+   */
   get seriesInstanceUID() {
     return this._seriesInstanceUID;
   }
 
+  /**
+   * Transfer syntax UID setter
+   *
+   * @param {*} transferSyntaxUID
+   */
+  set transferSyntaxUID(transferSyntaxUID) {
+    this._transferSyntaxUID = transferSyntaxUID;
+  }
+
+  /**
+   * Transfer syntax UID getter
+   *
+   * @return {*}
+   */
+  get transferSyntaxUID() {
+    return this._transferSyntaxUID;
+  }
+
+  /**
+   * Transfer syntax UID getter
+   *
+   * @return {*}
+   */
+  get transferSyntaxUIDLabel() {
+    switch (this._transferSyntaxUID) {
+      case '1.2.840.10008.1.2.4.90':
+        return 'JPEG 2000 Lossless';
+      case '1.2.840.10008.1.2.4.91':
+        return 'JPEG 2000 Lossy';
+      case '1.2.840.10008.1.2.4.57':
+        return 'JPEG Lossless, Nonhierarchical (Processes 14)';
+      case '1.2.840.10008.1.2.4.70':
+        return 'JPEG Lossless, Nonhierarchical (Processes 14 [Selection 1])';
+      case '1.2.840.10008.1.2.4.50':
+        return 'JPEG Baseline lossy process 1 (8 bit)';
+      case '1.2.840.10008.1.2.4.51':
+        return 'JPEG Baseline lossy process 2 &amp; 4 (12 bit)';
+      case '1.2.840.10008.1.2':
+        return 'Implicit VR Little Endian';
+      case '1.2.840.10008.1.2.1':
+        return 'Explicit VR Little Endian';
+      case '1.2.840.10008.1.2.2':
+        return 'Explicit VR Big Endian';
+      default:
+        return `Unknown transfersyntax: ${this._transferSyntaxUID}`;
+    }
+  }
+
+  /**
+   * Study descripition setter
+   *
+   * @param {*} studyDescription
+   */
+  set studyDescription(studyDescription) {
+    this._studyDescription = studyDescription;
+  }
+
+  /**
+   * Study description getter
+   *
+   * @return {*}
+   */
+  get studyDescription() {
+    return this._studyDescription;
+  }
+
+  /**
+   * Series descripition setter
+   *
+   * @param {*} seriesDescription
+   */
+  set seriesDescription(seriesDescription) {
+    this._seriesDescription = seriesDescription;
+  }
+
+  /**
+   * Series description getter
+   *
+   * @return {*}
+   */
+  get seriesDescription() {
+    return this._seriesDescription;
+  }
+
+  /**
+   * Patient ID setter
+   *
+   * @param {*} patientID
+   */
+  set patientID(patientID) {
+    this._patientID = patientID;
+  }
+
+  /**
+   * Patient ID getter
+   *
+   * @return {*}
+   */
+  get patientID() {
+    return this._patientID;
+  }
+
+  /**
+   * Patient name setter
+   *
+   * @param {*} patientName
+   */
+  set patientName(patientName) {
+    this._patientName = patientName;
+  }
+
+  /**
+   * Patient name getter
+   *
+   * @return {*}
+   */
+  get patientName() {
+    return this._patientName;
+  }
+
+  /**
+   * Patient age setter
+   *
+   * @param {*} patientAge
+   */
+  set patientAge(patientAge) {
+    this._patientAge = patientAge;
+  }
+
+  /**
+   * Patient age getter
+   *
+   * @return {*}
+   */
+  get patientAge() {
+    return this._patientAge;
+  }
+
+  /**
+   * Patient birthdate setter
+   *
+   * @param {*} patientBirthdate
+   */
+  set patientBirthdate(patientBirthdate) {
+    this._patientBirthdate = patientBirthdate;
+  }
+
+  /**
+   * Patient birthdate getter
+   *
+   * @return {*}
+   */
+  get patientBirthdate() {
+    return this._patientBirthdate;
+  }
+
+  /**
+   * Patient sex setter
+   *
+   * @param {*} patientSex
+   */
+  set patientSex(patientSex) {
+    this._patientSex = patientSex;
+  }
+
+  /**
+   * Patient sex getter
+   *
+   * @return {*}
+   */
+  get patientSex() {
+    return this._patientSex;
+  }
+
+  /**
+   * Number of frames setter
+   *
+   * @param {*} numberOfFrames
+   */
   set numberOfFrames(numberOfFrames) {
     this._numberOfFrames = numberOfFrames;
   }
 
+  /**
+   * Number of frames getter
+   *
+   * @return {*}
+   */
   get numberOfFrames() {
     return this._numberOfFrames;
   }
 
+  /**
+   * Number of channels setter
+   *
+   * @param {*} numberOfChannels
+   */
   set numberOfChannels(numberOfChannels) {
     this._numberOfChannels = numberOfChannels;
   }
 
+  /**
+   * Number of channels getter
+   *
+   * @return {*}
+   */
   get numberOfChannels() {
     return this._numberOfChannels;
   }
@@ -198,13 +410,13 @@ export default class ModelsSeries extends ModelsBase {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_mhd.html">parsers/mhd</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#uniforms">uniforms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras.html">cameras</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core.html">core</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries.html">geometries</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers.html">helpers</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders.html">loaders</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models.html">models</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers.html">parsers</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_mhd.html">parsers/mhd</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-shaders.html">shaders</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets.html">widgets</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-models_series.html">models/series</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#uniforms">uniforms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Wed Jun 14 2017 13:05:56 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Thu Jun 22 2017 10:14:34 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
