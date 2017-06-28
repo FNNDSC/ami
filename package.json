@@ -29,7 +29,7 @@
     "url": "https://fnndsc.github.io/ami"
   },
   "config": {
-    "threeVersion": "r83",
+    "threeVersion": "86",
     "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js/",
     "gaKey": "UA-39303022-3",
     "transforms": "-t [babelify --presets [ es2015 ] ]"

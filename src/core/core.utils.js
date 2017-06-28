@@ -171,10 +171,13 @@ export default class CoreUtils {
   /**
    * Compute AABB to LPS transform.
    * AABB: Axe Aligned Bounding Box.
+   *
    * @param {*} xCos
    * @param {*} yCos
    * @param {*} zCos
    * @param {*} origin
+   *
+   * @return {*}
    */
   static aabb2LPS(
     xCos, yCos, zCos,
@@ -185,6 +188,8 @@ export default class CoreUtils {
         xCos.y, yCos.y, zCos.y, origin.y,
         xCos.z, yCos.z, zCos.z, origin.z,
         0, 0, 0, 1);
+
+    return aabb2LPS;
   }
 
   /**
