@@ -1,30 +1,24 @@
 /* globals Stats, dat*/
 
 import ControlsTrackball from '../../src/controls/controls.trackball';
-import HelpersStack      from '../../src/helpers/helpers.stack';
-import LoadersVolume     from '../../src/loaders/loaders.volume';
+import HelpersStack from '../../src/helpers/helpers.stack';
+import LoadersVolume from '../../src/loaders/loaders.volume';
 
 // standard global letiables
 let controls, renderer, stats, scene, camera, stackHelper, particleLight, line, threeD;
 
-function componentToHex( c ) {
-
-  var hex = c.toString( 16 );
+function componentToHex(c) {
+  let hex = c.toString(16);
   return hex.length === 1 ? '0' + hex : hex;
-
 }
 
-function rgbToHex( r, g, b ) {
-
-  return '#' + componentToHex( r ) + componentToHex( g ) + componentToHex( b );
-
+function rgbToHex(r, g, b) {
+  return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
 
 function updateGeometries() {
-
-  if ( stackHelper ) {
-
+  if (stackHelper) {
     // move the "light"
     // update light position
     let timer = Date.now() * 0.00025;
@@ -52,62 +46,56 @@ function updateGeometries() {
 
     // update colors based on planeDirection
     let color = rgbToHex(
-      Math.round( Math.abs( 255*dirLPS.x ) ),
-      Math.round( Math.abs( 255*dirLPS.y ) ),
-      Math.round( Math.abs( 255*dirLPS.z) ) );
+      Math.round(Math.abs(255*dirLPS.x)),
+      Math.round(Math.abs(255*dirLPS.y)),
+      Math.round(Math.abs(255*dirLPS.z)));
     stackHelper.bbox.color = color;
     stackHelper.border.color = color;
-    particleLight.material.color.set( color );
-    line.material.color.set( color );
-
+    particleLight.material.color.set(color);
+    line.material.color.set(color);
   }
-
 }
 
 function init() {
-
   // this function is executed on each animation frame
   function animate() {
-
     updateGeometries();
 
     controls.update();
-    renderer.render( scene, camera );
+    renderer.render(scene, camera);
     stats.update();
 
     // request new frame
-    requestAnimationFrame( function() {
-
+    requestAnimationFrame(function() {
       animate();
-
-    } );
+    });
   }
 
   // renderer
-  threeD = document.getElementById( 'r3d' );
-  renderer = new THREE.WebGLRenderer( {
-    antialias: true
-  } );
-  renderer.setSize( threeD.offsetWidth, threeD.offsetHeight );
-  renderer.setClearColor( 0x353535, 1 );
-  renderer.setPixelRatio( window.devicePixelRatio );
-  threeD.appendChild( renderer.domElement );
+  threeD = document.getElementById('r3d');
+  renderer = new THREE.WebGLRenderer({
+    antialias: true,
+  });
+  renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+  renderer.setClearColor(0x353535, 1);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  threeD.appendChild(renderer.domElement);
 
   // stats
   stats = new Stats();
-  threeD.appendChild( stats.domElement );
+  threeD.appendChild(stats.domElement);
 
   // scene
   scene = new THREE.Scene();
 
   // camera
-  camera = new THREE.PerspectiveCamera( 45, threeD.offsetWidth / threeD.offsetHeight, 0.01, 10000000 );
+  camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 0.01, 10000000);
   camera.position.x = 150;
   camera.position.y = 150;
   camera.position.z = 100;
 
   // controls
-  controls = new ControlsTrackball( camera, threeD );
+  controls = new ControlsTrackball(camera, threeD);
   controls.rotateSpeed = 1.4;
   controls.zoomSpeed = 1.2;
   controls.panSpeed = 0.8;
@@ -122,15 +110,14 @@ function init() {
 }
 
 window.onload = function() {
-
   // init threeJS...
   init();
 
   // instantiate the loader
   // it loads and parses the dicom image
-  let loader = new LoadersVolume( threeD );
+  let loader = new LoadersVolume(threeD);
 
-  var t2 = [
+  let t2 = [
     '36444280', '36444294', '36444308', '36444322', '36444336',
     '36444350', '36444364', '36444378', '36444392', '36444406',
     '36444420', '36444434', '36444448', '36444462', '36444476',
@@ -142,85 +129,80 @@ window.onload = function() {
     '36748340', '36748354', '36748368', '36748382', '36748396',
     '36748410', '36748424', '36748438', '36748452', '36748466',
     '36748480', '36748494', '36748508', '36748522', '36748242',
-    '36748256'
+    '36748256',
   ];
 
-  var files = t2.map( function( v ) {
-
+  let files = t2.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
-
   });
 
   loader.load(files)
-  .then( function() {
-
-    let series = loader.data[0].mergeSeries( loader.data )[0];
+  .then(function() {
+    let series = loader.data[0].mergeSeries(loader.data)[0];
     let stack = series.stack[0];
-    stackHelper = new HelpersStack( stack );
+    stackHelper = new HelpersStack(stack);
     let centerLPS = stackHelper.stack.worldCenter();
     stackHelper.slice.aabbSpace = 'LPS';
     stackHelper.slice.planePosition.x = centerLPS.x;
     stackHelper.slice.planePosition.y = centerLPS.y;
     stackHelper.slice.planePosition.z = centerLPS.z;
-    scene.add( stackHelper );
+    scene.add(stackHelper);
 
     // LINE STUFF
-    var materialLine = new THREE.LineBasicMaterial();
-    var geometryLine = new THREE.Geometry();
+    let materialLine = new THREE.LineBasicMaterial();
+    let geometryLine = new THREE.Geometry();
     stackHelper.slice.updateMatrixWorld();
-    geometryLine.vertices.push( stackHelper.slice.position );
-    geometryLine.vertices.push( particleLight.position );
+    geometryLine.vertices.push(stackHelper.slice.position);
+    geometryLine.vertices.push(particleLight.position);
     geometryLine.verticesNeedUpdate = true;
-    line = new THREE.Line( geometryLine, materialLine );
-    scene.add( line );
+    line = new THREE.Line(geometryLine, materialLine);
+    scene.add(line);
 
     // update camrea's and control's target
-    camera.lookAt( centerLPS.x, centerLPS.y, centerLPS.z );
+    camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
     camera.updateProjectionMatrix();
-    controls.target.set( centerLPS.x, centerLPS.y, centerLPS.z );
+    controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
 
     // create GUI
     let gui = new dat.GUI({
-      autoPlace: false
+      autoPlace: false,
     });
 
-    let customContainer = document.getElementById( 'my-gui-container' );
-    customContainer.appendChild( gui.domElement );
+    let customContainer = document.getElementById('my-gui-container');
+    customContainer.appendChild(gui.domElement);
     customContainer = null;
 
-    let positionFolder = gui.addFolder( 'Plane position' );
+    let positionFolder = gui.addFolder('Plane position');
     let worldBBox = stackHelper.stack.worldBoundingBox();
-    let frameIndexControllerOriginI = positionFolder.add( stackHelper.slice.planePosition, 'x',
-      worldBBox[0], worldBBox[1] ).step( 0.01 ).listen();
-    let frameIndexControllerOriginJ = positionFolder.add( stackHelper.slice.planePosition, 'y',
-      worldBBox[2], worldBBox[3] ).step( 0.01 ).listen();
-    let frameIndexControllerOriginK = positionFolder.add( stackHelper.slice.planePosition, 'z',
-      worldBBox[4], worldBBox[5] ).step( 0.01 ).listen();
-    let interpolation = positionFolder.add( stackHelper.slice, 'interpolation',
-      0, 1 ).step( 1 ).listen();
+    let frameIndexControllerOriginI = positionFolder.add(stackHelper.slice.planePosition, 'x',
+      worldBBox[0], worldBBox[1]).step(0.01).listen();
+    let frameIndexControllerOriginJ = positionFolder.add(stackHelper.slice.planePosition, 'y',
+      worldBBox[2], worldBBox[3]).step(0.01).listen();
+    let frameIndexControllerOriginK = positionFolder.add(stackHelper.slice.planePosition, 'z',
+      worldBBox[4], worldBBox[5]).step(0.01).listen();
+    let interpolation = positionFolder.add(stackHelper.slice, 'interpolation',
+      0, 1).step(1).listen();
     positionFolder.open();
 
-    frameIndexControllerOriginI.onChange( updateGeometries );
-    frameIndexControllerOriginJ.onChange( updateGeometries );
-    frameIndexControllerOriginK.onChange( updateGeometries );
+    frameIndexControllerOriginI.onChange(updateGeometries);
+    frameIndexControllerOriginJ.onChange(updateGeometries);
+    frameIndexControllerOriginK.onChange(updateGeometries);
 
     loader.free();
     loader = null;
 
     function onWindowResize() {
-
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
 
-      renderer.setSize( window.innerWidth, window.innerHeight );
-
+      renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    window.addEventListener( 'resize', onWindowResize, false );
+    window.addEventListener('resize', onWindowResize, false);
   })
   .catch(function(error) {
-    window.console.log( 'oops... something went wrong...' );
-    window.console.log( error );
+    window.console.log('oops... something went wrong...');
+    window.console.log(error);
   });
 };
 

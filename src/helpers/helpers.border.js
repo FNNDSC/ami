@@ -30,7 +30,7 @@ export default class HelpersBorder extends THREE.Object3D {
 
   set visible(visible) {
     this._visible = visible;
-    if(this._mesh) {
+    if (this._mesh) {
       this._mesh.visible = this._visible;
     }
   }
@@ -41,7 +41,7 @@ export default class HelpersBorder extends THREE.Object3D {
 
   set color(color) {
     this._color = color;
-    if(this._material) {
+    if (this._material) {
       this._material.color.set(this._color);
     }
   }
@@ -51,7 +51,7 @@ export default class HelpersBorder extends THREE.Object3D {
   }
 
   _create() {
-    if(!this._material) {
+    if (!this._material) {
       this._material = new THREE.LineBasicMaterial({
         color: this._color,
         linewidth: 1,
@@ -59,7 +59,7 @@ export default class HelpersBorder extends THREE.Object3D {
     }
 
     //
-    if(!this._helpersSlice.geometry.vertices) {
+    if (!this._helpersSlice.geometry.vertices) {
       return;
     }
 
@@ -70,7 +70,7 @@ export default class HelpersBorder extends THREE.Object3D {
     this._geometry.vertices.push(this._helpersSlice.geometry.vertices[0]);
 
     this._mesh = new THREE.Line(this._geometry, this._material);
-    if(this._helpersSlice.aabbSpace === 'IJK') {
+    if (this._helpersSlice.aabbSpace === 'IJK') {
       this._mesh.applyMatrix(this._helpersSlice.stack.ijk2LPS);
     }
     this._mesh.visible = this._visible;
@@ -81,12 +81,21 @@ export default class HelpersBorder extends THREE.Object3D {
 
   _update() {
     // update slice
-    if(this._mesh) {
+    if (this._mesh) {
       this.remove(this._mesh);
       this._mesh.geometry.dispose();
       this._mesh = null;
     }
 
     this._create();
+  }
+
+  dispose() {
+    this._mesh.material.dispose();
+    this._mesh.material = null;
+    this._geometry.dispose();
+    this._geometry = null;
+    this._material.dispose();
+    this._material = null;
   }
 }

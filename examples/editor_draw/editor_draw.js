@@ -65,7 +65,7 @@ let editorStats = {
 
 // FUNCTIONS
 /**
- * 
+ *
  */
 function setupEditor() {
   /**
@@ -90,7 +90,7 @@ function setupEditor() {
     let textureSize = 4096;
     let textureDimension = textureSize * textureSize;
 
-    for(let i =0; i<nbVoxels; i++) {
+    for (let i =0; i<nbVoxels; i++) {
       let rawDataIndex = ~~(i / textureDimension);
       let inRawDataIndex = i % textureDimension;
       let value = stack2.rawData[rawDataIndex][inRawDataIndex];
@@ -104,7 +104,7 @@ function setupEditor() {
    *
    */
   function updateEditorStatsDom() {
-    for(let i = 0; i<3; i++) {
+    for (let i = 0; i<3; i++) {
       document.getElementById(`editorSegment${i}Label`).innerHTML =
         segmentsList[i];
       document.getElementById(`editorSegment${i}Value`).innerHTML =
@@ -116,9 +116,9 @@ function setupEditor() {
    *  Loop through IJK BBox and see if voxel can be mapped to screen
    */
   function mapCanvasToData() {
-    for(let i = ijkBBox[0]; i < ijkBBox[1] + 1; i++) {
-      for(let j = ijkBBox[2]; j < ijkBBox[3] + 1; j++) {
-        for(let k = ijkBBox[4]; k < ijkBBox[5] + 1; k++) {
+    for (let i = ijkBBox[0]; i < ijkBBox[1] + 1; i++) {
+      for (let j = ijkBBox[2]; j < ijkBBox[3] + 1; j++) {
+        for (let k = ijkBBox[4]; k < ijkBBox[5] + 1; k++) {
           // ijk to world
           // center of voxel
           let worldCoordinate = new THREE.Vector3(i, j, k).applyMatrix4(stack2._ijk2LPS);
@@ -131,7 +131,7 @@ function setupEditor() {
           screenCoordinates.z = 0;
 
           let pixel = context.getImageData(screenCoordinates.x, screenCoordinates.y, 1, 1).data;
-          if(pixel[3] > 0 && i >= 0 && j >= 0 && k >= 0) {
+          if (pixel[3] > 0 && i >= 0 && j >= 0 && k >= 0) {
             // find index and texture
             let voxelIndex = i
                             + j * stack2._columns
@@ -147,7 +147,7 @@ function setupEditor() {
             let oldValue = stack2.rawData[rawDataIndex][inRawDataIndex];
             let newValue = cursor.value;
 
-            if(oldValue != newValue) {
+            if (oldValue != newValue) {
               // update raw data
               stack2.rawData[rawDataIndex][inRawDataIndex] = newValue;
 
@@ -191,7 +191,7 @@ function setupEditor() {
      *
      */
     function onMouseDown(e) {
-      if(!isEditing) return;
+      if (!isEditing) return;
 
       isDrawing = true;
       lastPoint = {
@@ -204,7 +204,7 @@ function setupEditor() {
      *
      */
     function onMouseMove(e) {
-      if(!isEditing) return;
+      if (!isEditing) return;
 
       currentPoint = {
         x: e.pageX - canvasDiv.offsetLeft,
@@ -216,7 +216,7 @@ function setupEditor() {
       context.globalAlpha = 0.5;
       context.fillStyle = cursor.color;
 
-      if(isDrawing) {
+      if (isDrawing) {
         let dist = distanceBetween(lastPoint, currentPoint);
         let angle = angleBetween(lastPoint, currentPoint);
 
@@ -242,7 +242,7 @@ function setupEditor() {
      *
      */
     function onMouseUp(e) {
-      if(!isEditing) return;
+      if (!isEditing) return;
 
       isDrawing = false;
       mapCanvasToData();
@@ -257,7 +257,7 @@ function setupEditor() {
      */
     function updateDOM() {
       // lets events go through or not for scrolling, padding, zooming, etc.
-      if(isEditing) {
+      if (isEditing) {
         canvasDiv.className = 'editing';
         document.getElementById('help').style.display = 'none';
       } else {
@@ -270,7 +270,7 @@ function setupEditor() {
      *
      */
     function onKeyDown(e) {
-      if(e.keyCode === 17) {
+      if (e.keyCode === 17) {
         isEditing = true;
         isDrawing = false;
         updateDOM();
@@ -281,7 +281,7 @@ function setupEditor() {
      *
      */
     function onKeyUp(e) {
-      if(e.keyCode === 17) {
+      if (e.keyCode === 17) {
         isEditing = false;
         isDrawing = false;
         clearCanvas();
@@ -434,33 +434,33 @@ window.onload = function() {
     let slice = stackHelper._slice;
     let vertices = slice._geometry.vertices;
     // to LPS
-    for(let i = 0; i<vertices.length; i++) {
+    for (let i = 0; i<vertices.length; i++) {
       let wc = new THREE.Vector3(vertices[i].x, vertices[i].y, vertices[i].z).applyMatrix4(stackHelper.stack._ijk2LPS);
       let dc = wc.applyMatrix4(stack2._lps2IJK);
       dc.x = Math.round(dc.x * 10) / 10;
       dc.y = Math.round(dc.y * 10) / 10;
       dc.z = Math.round(dc.z * 10) / 10;
 
-      if(dc.x < ijkBBox[0]) {
+      if (dc.x < ijkBBox[0]) {
         ijkBBox[0] = dc.x;
       }
-      if(dc.x > ijkBBox[1]) {
+      if (dc.x > ijkBBox[1]) {
         ijkBBox[1] = dc.x;
       }
 
       // Y
-      if(dc.y < ijkBBox[2]) {
+      if (dc.y < ijkBBox[2]) {
         ijkBBox[2] = dc.y;
       }
-      if(dc.y > ijkBBox[3]) {
+      if (dc.y > ijkBBox[3]) {
         ijkBBox[3] = dc.y;
       }
 
       // Z
-      if(dc.z < ijkBBox[4]) {
+      if (dc.z < ijkBBox[4]) {
         ijkBBox[4] = dc.z;
       }
-      if(dc.z > ijkBBox[5]) {
+      if (dc.z > ijkBBox[5]) {
         ijkBBox[5] = dc.z;
       }
     }
@@ -499,9 +499,9 @@ window.onload = function() {
 
     let updateInterpolation = layer0Folder.add(stackHelper.slice, 'interpolation');
     updateInterpolation.onChange(function(value) {
-      if(value) {
+      if (value) {
         stackHelper.slice.interpolation = 1;
-      } else{
+      } else {
         stackHelper.slice.interpolation = 0;
       }
     });
@@ -591,7 +591,7 @@ window.onload = function() {
     let stack = mergedSeries[0].stack[0];
     stack2 = mergedSeries[1].stack[0];
 
-    if(stack.modality === 'SEG') {
+    if (stack.modality === 'SEG') {
       stack = mergedSeries[0].stack[0];
       stack2 = mergedSeries[1].stack[0];
     }
@@ -629,7 +629,7 @@ window.onload = function() {
     };
 
     // add labels
-    for(let i = 0; i < stack2._segmentationSegments.length; i++) {
+    for (let i = 0; i < stack2._segmentationSegments.length; i++) {
       let label = stack2._segmentationSegments[i].segmentLabel;
       let number = stack2._segmentationSegments[i].segmentNumber;
       segmentsList.push(label);

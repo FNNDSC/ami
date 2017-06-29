@@ -1,9 +1,9 @@
 /** * Imports ***/
-import ShadersUniform from '../../src/shaders/shaders.vr.uniform';
-import ShadersVertex from '../../src/shaders/shaders.vr.vertex';
-import ShadersFragment from '../../src/shaders/shaders.vr.fragment';
+import ShadersUniform from '../shaders/shaders.vr.uniform';
+import ShadersVertex from '../shaders/shaders.vr.vertex';
+import ShadersFragment from '../shaders/shaders.vr.fragment';
 
-import HelpersMaterialMixin from '../../src/helpers/helpers.material.mixin';
+import HelpersMaterialMixin from '../helpers/helpers.material.mixin';
 
 
 /**
@@ -39,11 +39,11 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
   }
 
   _prepareStack() {
-    if(!this._stack.prepared) {
+    if (!this._stack.prepared) {
       this._stack.prepare();
     }
 
-    if(!this._stack.packed) {
+    if (!this._stack.packed) {
       this._stack.pack();
     }
   }
@@ -52,7 +52,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
     // compensate for the offset to only pass > 0 values to shaders
     // models > models.stack.js : _packTo8Bits
     let offset = 0;
-    if(this._stack._minMax[0] < 0) {
+    if (this._stack._minMax[0] < 0) {
       offset = this._stack._minMax[0];
     }
 

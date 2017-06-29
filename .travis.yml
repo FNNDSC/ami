@@ -1,10 +1,14 @@
 language: node_js
 node_js:
   - "6.9"
+sudo: required
 cache:
+  yarn: true
   directories:
     - node_modules
+before_script:
+  - node node_modules/phantomjs-prebuilt/install.js
 script:
-  - npm run ami
+  - yarn run ami
 notifications:
   slack: fnndsc:UohaXDsjFDVqZj5IfdC88XRa

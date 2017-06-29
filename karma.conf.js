@@ -6,7 +6,7 @@ module.exports = function(karma) {
   karma.set({
 
     // frameworks to use
-    frameworks: ['jasmine', 'browserify'],
+    frameworks: ['jasmine', 'browserify', 'sinon'],
 
     // list of files / patterns to load in the browser
     files: [
@@ -15,7 +15,7 @@ module.exports = function(karma) {
 ,
       //'src/core/*.spec.js',
       'specs/**/*.spec.js',
-      {pattern: 'data/**/*.tar', included: false, watched: false, served: true}
+      {pattern: 'data/**/*', included: false, watched: false, served: true}
     ],
 
     reporters: ['spec'],

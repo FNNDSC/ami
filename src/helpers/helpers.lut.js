@@ -61,7 +61,7 @@ export default class HelpersLut {
     ctx.globalCompositeOperation = 'source-over';
 
     // apply color
-    if(!this._discrete) {
+    if (!this._discrete) {
       let color = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
       for (let i = 0; i < this._color.length; i++) {
         color.addColorStop(this._color[i][0], `rgba( ${Math.round(this._color[i][1] * 255)}, ${Math.round(this._color[i][2] * 255)}, ${Math.round(this._color[i][3] * 255)}, 1)`);
@@ -69,17 +69,17 @@ export default class HelpersLut {
 
       ctx.fillStyle = color;
       ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
-    } else{
+    } else {
       ctx.lineWidth=2*this._canvas.height;
 
-      for(let i=0; i<this._color.length; i++) {
+      for (let i=0; i<this._color.length; i++) {
         let currentPos = this._color[i][0];
         let nextPos = 1;
-        if(i < this._color.length - 1) {
+        if (i < this._color.length - 1) {
           nextPos = this._color[i+1][0];
         }
         let previousPos = 0;
-        if(i > 0) {
+        if (i > 0) {
           previousPos = this._color[i-1][0];
         }
 
@@ -97,7 +97,7 @@ export default class HelpersLut {
       }
     }
 
-    if(!this._discrete) {
+    if (!this._discrete) {
       // if discrete, we already took care of the opacity.
       // setup context
       ctx.globalCompositeOperation = 'destination-in';
@@ -174,7 +174,7 @@ export default class HelpersLut {
     let available = [];
     let luts = this._luts;
 
-    if(type !== 'color') {
+    if (type !== 'color') {
       luts = this._lutsO;
     }
 

@@ -1,28 +1,27 @@
 /* globals Stats, dat*/
 
-import CamerasOrthographic  from '../../src/cameras/cameras.orthographic';
+import CamerasOrthographic from '../../src/cameras/cameras.orthographic';
 import ControlsOrthographic from '../../src/controls/controls.trackballortho';
-import HelpersLut           from '../../src/helpers/helpers.lut';
-import HelpersStack         from '../../src/helpers/helpers.stack';
-import LoadersVolume        from '../../src/loaders/loaders.volume';
+import HelpersLut from '../../src/helpers/helpers.lut';
+import HelpersStack from '../../src/helpers/helpers.stack';
+import LoadersVolume from '../../src/loaders/loaders.volume';
 
-import ShadersLayerUniform  from '../../src/shaders/shaders.layer.uniform';
-import ShadersLayerVertex   from '../../src/shaders/shaders.layer.vertex';
+import ShadersLayerUniform from '../../src/shaders/shaders.layer.uniform';
+import ShadersLayerVertex from '../../src/shaders/shaders.layer.vertex';
 import ShadersLayerFragment from '../../src/shaders/shaders.layer.fragment';
-import ShadersUniform       from '../../src/shaders/shaders.data.uniform';
-import ShadersVertex        from '../../src/shaders/shaders.data.vertex';
-import ShadersFragment      from '../../src/shaders/shaders.data.fragment';
+import ShadersUniform from '../../src/shaders/shaders.data.uniform';
+import ShadersVertex from '../../src/shaders/shaders.data.vertex';
+import ShadersFragment from '../../src/shaders/shaders.data.fragment';
 
 // standard global letiables
 let controls, renderer, camera, statsyay, threeD;
 //
 let mouse = {
   x: 0,
-  y: 0
+  y: 0,
 };
 
 function onMouseMove(event) {
-
   // calculate mouse position in normalized device coordinates
   // (-1 to +1) for both components
 
@@ -34,22 +33,26 @@ function onMouseMove(event) {
 }
 
 //
-let sceneLayer0TextureTarget, sceneLayer1TextureTarget;
+let sceneLayer0TextureTarget;
+let sceneLayer1TextureTarget;
 //
-let scene, sceneLayer0;
+let sceneLayer0;
 //
 let lutLayer0;
-let sceneLayer1, meshLayer1, uniformsLayer1, materialLayer1, lutLayer1;
-let sceneLayerMix, meshLayerMix, uniformsLayerMix, materialLayerMix, lutLayerMix;
-
-//probe
-// stack for zcosine access for camera...
-let stack;
+let sceneLayer1;
+let meshLayer1;
+let uniformsLayer1;
+let materialLayer1;
+let lutLayer1;
+let sceneLayerMix;
+let meshLayerMix;
+let uniformsLayerMix;
+let materialLayerMix;
 
 let layer1 = {
   opacity: 1.0,
   lut: null,
-  interpolation: 1
+  interpolation: 1,
 };
 
 let layerMix = {
@@ -57,7 +60,7 @@ let layerMix = {
   opacity1: 1.0,
   type0: 0,
   type1: 1,
-  trackMouse: true
+  trackMouse: true,
 };
 
 // FUNCTIONS
@@ -84,11 +87,11 @@ function init() {
   threeD = document.getElementById('r3d');
   renderer = new THREE.WebGLRenderer({
     antialias: true,
-    alpha: true
+    alpha: true,
   });
   renderer.setSize(threeD.clientWidth, threeD.clientHeight);
   renderer.setClearColor(0x3F51B5, 1);
-  
+
   threeD.appendChild(renderer.domElement);
 
   // stats
@@ -96,7 +99,6 @@ function init() {
   threeD.appendChild(statsyay.domElement);
 
   // scene
-  scene = new THREE.Scene();
   sceneLayer0 = new THREE.Scene();
   sceneLayer1 = new THREE.Scene();
   sceneLayerMix = new THREE.Scene();
@@ -107,7 +109,7 @@ function init() {
     threeD.clientHeight,
     {minFilter: THREE.LinearFilter,
       magFilter: THREE.NearestFilter,
-      format: THREE.RGBAFormat
+      format: THREE.RGBAFormat,
   });
 
   sceneLayer1TextureTarget = new THREE.WebGLRenderTarget(
@@ -115,11 +117,14 @@ function init() {
     threeD.clientHeight,
     {minFilter: THREE.LinearFilter,
      magFilter: THREE.NearestFilter,
-     format: THREE.RGBAFormat
+     format: THREE.RGBAFormat,
   });
 
   // camera
-  camera = new CamerasOrthographic(threeD.clientWidth / -2, threeD.clientWidth / 2, threeD.clientHeight / 2, threeD.clientHeight / -2, 0.1, 10000);
+  camera = new CamerasOrthographic(
+    threeD.clientWidth / -2, threeD.clientWidth / 2,
+    threeD.clientHeight / 2, threeD.clientHeight / -2,
+    0.1, 10000);
 
   // controls
   controls = new ControlsOrthographic(camera, threeD);
@@ -131,13 +136,12 @@ function init() {
 }
 
 window.onload = function() {
-
   // init threeJS...
   init();
 
   let data = [
     'patient1/7001_t1_average_BRAINSABC.nii.gz',
-    'patient2/7002_t1_average_BRAINSABC.nii.gz'
+    'patient2/7002_t1_average_BRAINSABC.nii.gz',
   ];
 
   let files = data.map(function(v) {
@@ -145,25 +149,18 @@ window.onload = function() {
   });
 
   function buildGUI(stackHelper) {
-
-    function updateLayer1(){
-
+    function updateLayer1() {
       // update layer1 geometry...
       if (meshLayer1) {
-
         meshLayer1.geometry.dispose();
         meshLayer1.geometry = stackHelper.slice.geometry;
         meshLayer1.geometry.verticesNeedUpdate = true;
-
       }
-
     }
 
-    function updateLayerMix(){
-
+    function updateLayerMix() {
       // update layer1 geometry...
       if (meshLayerMix) {
-
         sceneLayerMix.remove(meshLayerMix);
         meshLayerMix.material.dispose();
         // meshLayerMix.material = null;
@@ -171,19 +168,19 @@ window.onload = function() {
         // meshLayerMix.geometry = null;
 
         // add mesh in this scene with right shaders...
-        meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
+        meshLayerMix =
+          new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
         // go the LPS space
         meshLayerMix.applyMatrix(stackHelper.stack._ijk2LPS);
 
         sceneLayerMix.add(meshLayerMix);
       }
-
     }
 
     let stack = stackHelper._stack;
 
     let gui = new dat.GUI({
-            autoPlace: false
+            autoPlace: false,
           });
 
     let customContainer = document.getElementById('my-gui-container');
@@ -193,24 +190,29 @@ window.onload = function() {
     // layer 0 folder
     //
     let layer0Folder = gui.addFolder('Layer 0 (Base)');
-    layer0Folder.add(stackHelper.slice, 'windowWidth', 1, stack.minMax[1]).step(1).listen();
-    layer0Folder.add(stackHelper.slice, 'windowCenter', stack.minMax[0], stack.minMax[1]).step(1).listen();
+    layer0Folder.add(
+      stackHelper.slice, 'windowWidth', 1, stack.minMax[1]).step(1).listen();
+    layer0Folder.add(
+      stackHelper.slice, 'windowCenter',
+      stack.minMax[0], stack.minMax[1]).step(1).listen();
     layer0Folder.add(stackHelper.slice, 'intensityAuto');
     layer0Folder.add(stackHelper.slice, 'invert');
 
-    let lutUpdate = layer0Folder.add(stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
+    let lutUpdate = layer0Folder.add(
+      stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
     lutUpdate.onChange(function(value) {
       lutLayer0.lut = value;
       stackHelper.slice.lutTexture = lutLayer0.texture;
     });
 
-    let indexUpdate = layer0Folder.add(stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
+    let indexUpdate = layer0Folder.add(
+      stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
     indexUpdate.onChange(function() {
       updateLayer1();
       updateLayerMix();
     });
 
-    layer0Folder.add(stackHelper.slice, 'interpolation', 0, 1 ).step( 1 ).listen();
+    layer0Folder.add(stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
 
     layer0Folder.open();
 
@@ -218,17 +220,17 @@ window.onload = function() {
     // layer 1 folder
     //
     let layer1Folder = gui.addFolder('Layer 1');
-    let interpolationLayer1 = layer1Folder.add(layer1, 'interpolation', 0, 1 ).step( 1 ).listen();
-    interpolationLayer1.onChange(function(value){
-
+    let interpolationLayer1 =
+      layer1Folder.add(layer1, 'interpolation', 0, 1).step(1).listen();
+    interpolationLayer1.onChange(function(value) {
       uniformsLayer1.uInterpolation.value = value;
       // re-compute shaders
       let fs = new ShadersFragment(uniformsLayer1);
       materialLayer1.fragmentShader = fs.compute();
       materialLayer1.needsUpdate = true;
-    
     });
-    let layer1LutUpdate = layer1Folder.add(layer1, 'lut', lutLayer1.lutsAvailable());
+    let layer1LutUpdate =
+      layer1Folder.add(layer1, 'lut', lutLayer1.lutsAvailable());
     layer1LutUpdate.onChange(function(value) {
       lutLayer1.lut = value;
       // propagate to shaders
@@ -283,9 +285,12 @@ window.onload = function() {
       let threeD = document.getElementById('r3d');
       camera.canvas = {
         width: threeD.clientWidth,
-        height: threeD.clientHeight
+        height: threeD.clientHeight,
       };
       camera.fitBox(2);
+
+      sceneLayer0TextureTarget.setSize(threeD.clientWidth, threeD.clientHeight);
+      sceneLayer1TextureTarget.setSize(threeD.clientWidth, threeD.clientHeight);
 
       renderer.setSize(threeD.clientWidth, threeD.clientHeight);
     }
@@ -298,7 +303,6 @@ window.onload = function() {
 
   let loader = new LoadersVolume(threeD);
   function handleSeries() {
-
     //
     // first stack of first series
     let mergedSeries = loader.data[0].mergeSeries(loader.data);
@@ -309,15 +313,11 @@ window.onload = function() {
     let stack2 = null;
 
     if (mergedSeries[0].seriesInstanceUID !== 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/patient1/7001_t1_average_BRAINSABC.nii.gz') {
-
-      stack  = mergedSeries[1].stack[0];
+      stack = mergedSeries[1].stack[0];
       stack2 = mergedSeries[0].stack[0];
-
     } else {
-
-      stack  = mergedSeries[0].stack[0];
+      stack = mergedSeries[0].stack[0];
       stack2 = mergedSeries[1].stack[0];
-
     }
 
     stack = mergedSeries[0].stack[0];
@@ -381,7 +381,7 @@ window.onload = function() {
       {side: THREE.DoubleSide,
       uniforms: uniformsLayer1,
       vertexShader: vs.compute(),
-      fragmentShader: fs.compute()
+      fragmentShader: fs.compute(),
     });
 
     // add mesh in this scene with right shaders...
@@ -406,11 +406,11 @@ window.onload = function() {
       uniforms: uniformsLayerMix,
       vertexShader: vls.compute(),
       fragmentShader: fls.compute(),
-      transparent: true
+      transparent: true,
     });
 
     // add mesh in this scene with right shaders...
-    meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
+    meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
     // go the LPS space
     meshLayerMix.applyMatrix(stack2._ijk2LPS);
     sceneLayerMix.add(meshLayerMix);
@@ -426,13 +426,14 @@ window.onload = function() {
     // box: {halfDimensions, center}
     let box = {
       center: stack.worldCenter().clone(),
-      halfDimensions: new THREE.Vector3(lpsDims.x + 50, lpsDims.y + 50, lpsDims.z + 50)
+      halfDimensions:
+        new THREE.Vector3(lpsDims.x + 50, lpsDims.y + 50, lpsDims.z + 50),
     };
 
     // init and zoom
     let canvas = {
         width: threeD.clientWidth,
-        height: threeD.clientHeight
+        height: threeD.clientHeight,
       };
 
     camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];

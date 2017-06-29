@@ -44,7 +44,8 @@ export default class ParsersNifti extends ParsersVolume {
 
     if (NiftiReader.isNIFTI(this._arrayBuffer)) {
       this._dataSet = NiftiReader.readHeader(this._arrayBuffer);
-      this._niftiImage = NiftiReader.readImage(this._dataSet, this._arrayBuffer);
+      this._niftiImage =
+        NiftiReader.readImage(this._dataSet, this._arrayBuffer);
     } else {
       throw 'parsers.nifti could not parse the file';
     }
@@ -108,7 +109,7 @@ export default class ParsersNifti extends ParsersVolume {
     // 0 integer, 1 float
 
     let pixelType = 0;
-    if(this._dataSet.datatypeCode === 16 ||
+    if (this._dataSet.datatypeCode === 16 ||
       this._dataSet.datatypeCode === 64 ||
       this._dataSet.datatypeCode === 1536) {
       pixelType = 1;
@@ -137,12 +138,15 @@ export default class ParsersNifti extends ParsersVolume {
     // window.console.log(this._dataSet);
     // http://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1.h
     // http://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1_io.c
-    if(this._dataSet.qform_code > 0) {
+    if (this._dataSet.qform_code > 0) {
       // https://github.com/Kitware/ITK/blob/master/Modules/IO/NIFTI/src/itkNiftiImageIO.cxx
-      let a = 0.0, b = this._dataSet.quatern_b, c = this._dataSet.quatern_c, d = this._dataSet.quatern_d;
+      let a = 0.0;
+      let b = this._dataSet.quatern_b;
+      let c = this._dataSet.quatern_c;
+      let d = this._dataSet.quatern_d;
       // compute a
       a = 1.0 - (b*b + c*c + d*d);
-      if(a < 0.0000001) {
+      if (a < 0.0000001) {
                    /* special case */
 
         a = 1.0 / Math.sqrt(b*b+c*c+d*d);
@@ -152,7 +156,7 @@ export default class ParsersNifti extends ParsersVolume {
         a = Math.sqrt(a);                     /* angle = 2*arccos(a) */
       }
 
-      if(this._dataSet.pixDims[0] < 0.0) {
+      if (this._dataSet.pixDims[0] < 0.0) {
         this._rightHanded = false;
       }
 
@@ -164,16 +168,18 @@ export default class ParsersNifti extends ParsersVolume {
           -(a*a+c*c-b*b-d*d),
           2*(c*d+a*b),
         ];
-    }else if(this._dataSet.sform_code > 0) {
+    } else if (this._dataSet.sform_code > 0) {
       console.log('sform > 0');
 
-      let sx = this._dataSet.srow_x, sy = this._dataSet.srow_y, sz = this._dataSet.srow_z;
+      let sx = this._dataSet.srow_x;
+      let sy = this._dataSet.srow_y;
+      let sz = this._dataSet.srow_z;
       // fill IJKToRAS
       // goog.vec.Mat4.setRowValues(IJKToRAS, 0, sx[0], sx[1], sx[2], sx[3]);
       // goog.vec.Mat4.setRowValues(IJKToRAS, 1, sy[0], sy[1], sy[2], sy[3]);
       // goog.vec.Mat4.setRowValues(IJKToRAS, 2, sz[0], sz[1], sz[2], sz[3]);
-    } else if(this._dataSet.qform_code === 0) {
-            console.log('qform === 0');
+    } else if (this._dataSet.qform_code === 0) {
+      console.log('qform === 0');
 
 
       // fill IJKToRAS
@@ -276,7 +282,8 @@ export default class ParsersNifti extends ParsersVolume {
     // papaya.volume.nifti.NIFTI_TYPE_COMPLEX256   = 2048;
 
     let numberOfChannels = this.numberOfChannels();
-    let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    let numPixels =
+      this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
     // if( !this.rightHanded() ){
     //   frameIndex = this.numberOfFrames() - 1 - frameIndex;
     // }
@@ -293,23 +300,30 @@ export default class ParsersNifti extends ParsersVolume {
       // just a slice...
       return this._orderedData.slice(frameOffset, frameOffset + numPixels);
     } else if (this._dataSet.datatypeCode === 2) {
-      // unsigned 8 bit
+      // unsigned int 8 bit
       return new Uint8Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.datatypeCode === 256) {
-      // signed 8 bit
+      // signed int 8 bit
       return new Int8Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.datatypeCode === 512) {
-      // unsigned 16 bit
+      // unsigned int 16 bit
       frameOffset = frameOffset * 2;
       return new Uint16Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.datatypeCode === 4) {
-      // signed 16 bit
+      // signed int 16 bit
       frameOffset = frameOffset * 2;
       return new Int16Array(buffer, frameOffset, numPixels);
+    } else if (this._dataSet.datatypeCode === 8) {
+      // signed int 32 bit
+      frameOffset = frameOffset * 4;
+      return new Int32Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.datatypeCode === 16) {
-      // float 32 bit
+      // signed float 32 bit
       frameOffset = frameOffset * 4;
       return new Float32Array(buffer, frameOffset, numPixels);
+    } else {
+      console.log(
+        `Unknown data type: datatypeCode : ${this._dataSet.datatypeCode}`);
     }
   }
 

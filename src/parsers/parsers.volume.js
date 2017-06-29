@@ -12,7 +12,7 @@ export default class ParsersVolume {
   }
 
   modality() {
-    return 'unkown';
+    return 'unknown';
   }
 
   segmentationType() {
@@ -35,6 +35,39 @@ export default class ParsersVolume {
     return null;
   }
 
+  numberOfChannels() {
+    return 1;
+  }
+
+  sliceThickness() {
+    return null;
+  }
+
+
+  dimensionIndexValues(frameIndex = 0) {
+    return null;
+  }
+
+  instanceNumber(frameIndex = 0) {
+    return frameIndex;
+  }
+
+  windowCenter(frameIndex = 0) {
+    return null;
+  }
+
+  windowWidth(frameIndex = 0) {
+    return null;
+  }
+
+  rescaleSlope(frameIndex = 0) {
+    return 1;
+  }
+
+  rescaleIntercept(frameIndex = 0) {
+    return 0;
+  }
+
   _decompressUncompressed() {
 
   }
@@ -54,5 +87,69 @@ export default class ParsersVolume {
 
   invert() {
     return false;
+  }
+
+  /**
+   * Get the transfer syntax UID.
+   * @return {*}
+   */
+  transferSyntaxUID() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the study desciption.
+   * @return {*}
+   */
+  studyDescription() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the series desciption.
+   * @return {*}
+   */
+  seriesDescription() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient ID.
+   * @return {*}
+   */
+  patientID() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient name.
+   * @return {*}
+   */
+  patientName() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient age.
+   * @return {*}
+   */
+  patientAge() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient birthdate.
+   * @return {*}
+   */
+  patientBirthdate() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient sex.
+   * @return {*}
+   */
+  patientSex() {
+    return 'no value provided';
   }
 }

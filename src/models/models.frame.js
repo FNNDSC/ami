@@ -1,13 +1,16 @@
 /** * Imports ***/
-import ModelsBase from '../../src/models/models.base';
+import ModelsBase from '../models/models.base';
 
 /**
  * Frame object.
  *
  * @module models/frame
  */
-
 export default class ModelsFrame extends ModelsBase {
+
+  /**
+   * Constructor
+   */
   constructor() {
     super();
 
@@ -44,6 +47,13 @@ export default class ModelsFrame extends ModelsBase {
     this._referencedSegmentNumber = -1;
   }
 
+  /**
+   * Validate the frame.
+   *
+   * @param {*} model
+   *
+   * @return {*}
+   */
   validate(model) {
     if (!(super.validate(model) &&
       typeof model.cosines === 'function' &&
@@ -68,16 +78,21 @@ export default class ModelsFrame extends ModelsBase {
    *  - instanceNumber
    *  - sopInstanceUID
    *
-   * @returns {boolean} True if frames could be merge. False if not.
+   * @param {*} frame
+   *
+   * @return {boolean} True if frames could be merge. False if not.
    */
   merge(frame) {
-    if(!this.validate(frame)) {
+    if (!this.validate(frame)) {
       return false;
     }
 
-    if (this._compareArrays(this._dimensionIndexValues, frame.dimensionIndexValues) &&
-        this._compareArrays(this._imageOrientation, frame.imageOrientation) &&
-        this._compareArrays(this._imagePosition, frame.imagePosition) &&
+    if (this._compareArrays(
+          this._dimensionIndexValues, frame.dimensionIndexValues) &&
+        this._compareArrays(
+          this._imageOrientation, frame.imageOrientation) &&
+        this._compareArrays(
+          this._imagePosition, frame.imagePosition) &&
         this._instanceNumber === frame.instanceNumber &&
         this._sopInstanceUID === frame.sopInstanceUID) {
       return true;
@@ -99,27 +114,43 @@ export default class ModelsFrame extends ModelsBase {
 
      if (this._imageOrientation &&
       this._imageOrientation.length === 6) {
-      let xCos = new THREE.Vector3(this._imageOrientation[0], this._imageOrientation[1], this._imageOrientation[2]);
-      let yCos = new THREE.Vector3(this._imageOrientation[3], this._imageOrientation[4], this._imageOrientation[5]);
+      let xCos =
+        new THREE.Vector3(
+          this._imageOrientation[0],
+          this._imageOrientation[1],
+          this._imageOrientation[2]);
+      let yCos =
+        new THREE.Vector3(
+          this._imageOrientation[3],
+          this._imageOrientation[4],
+          this._imageOrientation[5]);
 
-      if(xCos.length() > 0 && yCos.length() > 0) {
+      if (xCos.length() > 0 && yCos.length() > 0) {
         cosines[0] = xCos;
         cosines[1] = yCos;
-        cosines[2] = new THREE.Vector3(0, 0, 0).crossVectors(cosines[0], cosines[1]).normalize();
+        cosines[2] =
+          new THREE.Vector3(0, 0, 0).
+          crossVectors(cosines[0], cosines[1]).
+          normalize();
       }
-    } else{
+    } else {
       window.console.log('No valid image orientation for frame');
       window.console.log(this);
       window.console.log('Returning default orientation.');
     }
 
-    if(!this._rightHanded) {
+    if (!this._rightHanded) {
       cosines[2].negate();
     }
 
     return cosines;
   }
 
+  /**
+   * Get x/y spacing of a frame.
+   *
+   * @return {*}
+   */
   spacingXY() {
     let spacingXY = [1.0, 1.0];
 
@@ -135,6 +166,14 @@ export default class ModelsFrame extends ModelsBase {
     return spacingXY;
   }
 
+  /**
+   * Get data value
+   *
+   * @param {*} column
+   * @param {*} row
+   *
+   * @return {*}
+   */
   value(column, row) {
     return this.pixelData[column + this._columns * row];
   }
@@ -145,7 +184,10 @@ export default class ModelsFrame extends ModelsBase {
    * 2 null arrays return true.
    * Do no perform strict type checking.
    *
-   * @returns {boolean} True if arrays are identicals. False if not.
+   * @param {*} reference
+   * @param {*} target
+   *
+   * @return {boolean} True if arrays are identicals. False if not.
    */
   _compareArrays(reference, target) {
     // could both be null

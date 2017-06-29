@@ -1,7 +1,7 @@
 /** * Imports ***/
-import HelpersBorder from '../../src/helpers/helpers.border';
-import HelpersBoundingBox from '../../src/helpers/helpers.boundingbox';
-import HelpersSlice from '../../src/helpers/helpers.slice';
+import HelpersBorder from '../helpers/helpers.border';
+import HelpersBoundingBox from '../helpers/helpers.boundingbox';
+import HelpersSlice from '../helpers/helpers.slice';
 
 /**
  * Helper to easily display and interact with a stack.<br>
@@ -86,6 +86,15 @@ export default class HelpersStack extends THREE.Object3D {
    */
   get stack() {
     return this._stack;
+  }
+
+  /**
+   * Set stack.
+   *
+   * @type {ModelsStack}
+   */
+  set stack(stack) {
+    this._stack = stack;
   }
 
   /**
@@ -252,7 +261,7 @@ export default class HelpersStack extends THREE.Object3D {
   _computeOrientationMaxIndex() {
     let dimensionsIJK = this._stack.dimensionsIJK;
     this._orientationMaxIndex = 0;
-    switch(this._orientation) {
+    switch (this._orientation) {
       case 0:
         this._orientationMaxIndex = dimensionsIJK.z - 1;
         break;
@@ -275,9 +284,9 @@ export default class HelpersStack extends THREE.Object3D {
    */
   _isIndexOutOfBounds() {
     this._computeOrientationMaxIndex();
-    if(this._index >= this._orientationMaxIndex || this._index < 0) {
+    if (this._index >= this._orientationMaxIndex || this._index < 0) {
       this._outOfBounds = true;
-    } else{
+    } else {
       this._outOfBounds = false;
     }
   }
@@ -291,12 +300,12 @@ export default class HelpersStack extends THREE.Object3D {
   _prepareStack() {
     // make sure there is something, if not throw an error
     // compute image to workd transform, order frames, etc.
-    if(!this._stack.prepared) {
+    if (!this._stack.prepared) {
       this._stack.prepare();
     }
     // pack data into 8 bits rgba texture for the shader
     // this one can be slow...
-    if(!this._stack.packed) {
+    if (!this._stack.packed) {
       this._stack.pack();
     }
   }
@@ -353,7 +362,7 @@ export default class HelpersStack extends THREE.Object3D {
    */
   _prepareSliceIndex(indices) {
     let index = 0;
-    switch(this._orientation) {
+    switch (this._orientation) {
       case 0:
         index = Math.floor(indices.z);
         break;
@@ -383,7 +392,7 @@ export default class HelpersStack extends THREE.Object3D {
    */
   _prepareSlicePosition(rPosition, index) {
     let position = new THREE.Vector3(0, 0, 0);
-    switch(this._orientation) {
+    switch (this._orientation) {
       case 0:
         position = new THREE.Vector3(
           Math.floor(rPosition.x),
@@ -420,7 +429,7 @@ export default class HelpersStack extends THREE.Object3D {
    */
   _prepareDirection(orientation) {
     let direction = new THREE.Vector3(0, 0, 1);
-    switch(orientation) {
+    switch (orientation) {
       case 0:
         direction = new THREE.Vector3(0, 0, 1);
         break;
@@ -436,6 +445,21 @@ export default class HelpersStack extends THREE.Object3D {
     }
 
     return direction;
+  }
+
+  /**
+   * Release the stack helper memory including the slice memory.
+   *
+   * @public
+   */
+  dispose() {
+    this.remove(this._slice);
+    this._slice.dispose();
+    this._slice = null;
+    this._bBox.dispose();
+    this._bBox =  null;
+    this._border.dispose();
+    this._border =  null;
   }
 
 }

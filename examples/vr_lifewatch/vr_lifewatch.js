@@ -1,9 +1,9 @@
 /* globals Stats, dat*/
 
 import ControlsTrackball from '../../src/controls/controls.trackball';
-import HelpersLut        from '../../src/helpers/helpers.lut';
-import HelpersVR         from '../../src/helpers/helpers.volumerendering';
-import LoadersVolume     from '../../src/loaders/loaders.volume';
+import HelpersLut from '../../src/helpers/helpers.lut';
+import HelpersVR from '../../src/helpers/helpers.volumerendering';
+import LoadersVolume from '../../src/loaders/loaders.volume';
 
 // standard global letiables
 let controls, threeD, renderer, stats, camera, scene;
@@ -19,11 +19,11 @@ let myStack = {
   alphaCorrection: 0.5,
   frequence: 0,
   amplitude: 0,
-  interpolation: 1
+  interpolation: 1,
 };
 
 function onMouseDown() {
-  if (vrHelper &&  vrHelper.uniforms) {
+  if (vrHelper && vrHelper.uniforms) {
     vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
     // save interpolation state
     interpolationState = myStack.interpolation;
@@ -38,7 +38,7 @@ function onMouseUp() {
   }
 }
 
-function onWindowResize(){
+function onWindowResize() {
   // update the camera
   camera.aspect = threeD.offsetWidth / threeD.offsetHeight;
   camera.updateProjectionMatrix();
@@ -49,7 +49,7 @@ function onWindowResize(){
 
 function buildGUI() {
   let gui = new dat.GUI({
-      autoPlace: false
+      autoPlace: false,
     });
 
   let customContainer = document.getElementById('my-gui-container');
@@ -108,7 +108,6 @@ function buildGUI() {
 }
 
 function init() {
-
   // this function is executed on each animation frame
   function animate() {
     // render
@@ -129,7 +128,7 @@ function init() {
   // renderer
   threeD = document.getElementById('r3d');
   renderer = new THREE.WebGLRenderer({
-    alpha: true
+    alpha: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
   threeD.appendChild(renderer.domElement);
@@ -162,12 +161,11 @@ function init() {
 }
 
 window.onload = function() {
-
   // init threeJS
   init();
 
   let data = [
-   'scan-00109_rec-01a.nii_.gz'
+   'scan-00109_rec-01a.nii_.gz',
   ];
 
   let files = data.map(function(v) {
@@ -259,5 +257,4 @@ window.onload = function() {
     ready = true;
   })
   .catch((error) => window.console.log(error));
-
 };

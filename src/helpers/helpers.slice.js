@@ -1,10 +1,10 @@
 /** * Imports ***/
-import GeometriesSlice from '../../src/geometries/geometries.slice';
-import ShadersUniform from '../../src/shaders/shaders.data.uniform';
-import ShadersVertex from '../../src/shaders/shaders.data.vertex';
-import ShadersFragment from '../../src/shaders/shaders.data.fragment';
+import GeometriesSlice from '../geometries/geometries.slice';
+import ShadersUniform from '../shaders/shaders.data.uniform';
+import ShadersVertex from '../shaders/shaders.data.vertex';
+import ShadersFragment from '../shaders/shaders.data.fragment';
 
-import HelpersMaterialMixin from '../../src/helpers/helpers.material.mixin';
+import HelpersMaterialMixin from '../helpers/helpers.material.mixin';
 
 /**
  * @module helpers/slice
@@ -366,13 +366,15 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     // compensate for the offset to only pass > 0 values to shaders
     // models > models.stack.js : _packTo8Bits
     let offset = 0;
-    if(this._stack._minMax[0] < 0) {
+    if (this._stack._minMax[0] < 0) {
       offset -= this._stack._minMax[0];
     }
 
     // set slice window center and width
-    this._uniforms.uRescaleSlopeIntercept.value = [this._rescaleSlope, this._rescaleIntercept];
-    this._uniforms.uWindowCenterWidth.value = [offset + this._windowCenter, this._windowWidth];
+    this._uniforms.uRescaleSlopeIntercept.value =
+      [this._rescaleSlope, this._rescaleIntercept];
+    this._uniforms.uWindowCenterWidth.value =
+      [offset + this._windowCenter, this._windowWidth];
 
     // invert
     this._uniforms.uInvert.value = this._invert === true ? 1 : 0;
@@ -411,5 +413,67 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     }
 
     this._create();
+  }
+
+  dispose() {
+    // Release memory
+    for(var j =0; j< this._textures.length; j++) {
+      this._textures[j].dispose();
+      this._textures[j] = null;
+    }
+    this._textures = null;
+    this._shadersFragment = null;
+    this._shadersVertex = null;
+
+    this._uniforms = null;
+
+    // material, geometry and mesh
+    this.remove(this._mesh);
+    this._mesh.geometry.dispose();
+    this._mesh.geometry = null;
+    this._mesh.material.dispose();
+    this._mesh.material = null;
+    this._mesh = null;
+
+    this._geometry.dispose();
+    this._geometry = null;
+    this._material.vertexShader = null;
+    this._material.fragmentShader = null;
+    this._material.uniforms = null;
+    this._material.dispose();
+    this._material = null;
+
+    this._stack = null;
+  }
+
+  cartesianEquation() {
+    // Make sure we have a geometry
+    if (!this._geometry ||
+       !this._geometry.vertices ||
+       this._geometry.vertices.length < 3) {
+      return new THREE.Vector4();
+    }
+
+    let vertices = this._geometry.vertices;
+    let dataToWorld = this._stack.ijk2LPS;
+    let p1 = new THREE.Vector3(vertices[0].x, vertices[0].y, vertices[0].z)
+      .applyMatrix4(dataToWorld);
+    let p2 = new THREE.Vector3(vertices[1].x, vertices[1].y, vertices[1].z)
+      .applyMatrix4(dataToWorld);
+    let p3 = new THREE.Vector3(vertices[2].x, vertices[2].y, vertices[2].z)
+      .applyMatrix4(dataToWorld);
+    let v1 = new THREE.Vector3();
+		let v2 = new THREE.Vector3();
+    let normal = v1
+      .subVectors(p3, p2)
+      .cross(v2.subVectors(p1, p2))
+      .normalize();
+
+    return new THREE.Vector4(
+      normal.x,
+      normal.y,
+      normal.z,
+      - normal.dot(p1)
+    );
   }
 }

@@ -1,22 +1,21 @@
 /* globals Stats*/
 
 import ControlsTrackball from '../../src/controls/controls.trackball';
-import HelpersStack      from '../../src/helpers/helpers.stack';
-import LoadersVolume     from '../../src/loaders/loaders.volume';
-
-let VJS = VJS || {};
-
-VJS.widgets = VJS.widgets || {};
-VJS.widgets.orientation = require('../../src/widgets/widgets.orientation');
+import HelpersStack from '../../src/helpers/helpers.stack';
+import LoadersVolume from '../../src/loaders/loaders.volume';
 
 // standard global variables
-let controls, renderer, stats, scene, camera, stackHelper, threeD;
+let controls;
+let renderer;
+let stats;
+let scene;
+let camera;
+let stackHelper;
+let threeD;
 
 function init() {
-
   // this function is executed on each animation frame
   function animate() {
-
     if (stackHelper) {
       stackHelper.index += 1;
       if (stackHelper.outOfBounds === true) {
@@ -38,7 +37,7 @@ function init() {
   // renderer
   threeD = document.getElementById('r3d');
   renderer = new THREE.WebGLRenderer({
-    antialias: true
+    antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
   renderer.setClearColor(0x673AB7, 1);
@@ -68,7 +67,6 @@ function init() {
 }
 
 window.onload = function() {
-
   // init threeJS...
   init();
 
@@ -76,7 +74,7 @@ window.onload = function() {
   // it loads and parses the dicom image
   let loader = new LoadersVolume(threeD);
 
-  var t2 = [
+  let t2 = [
     '36444280', '36444294', '36444308', '36444322', '36444336',
     '36444350', '36444364', '36444378', '36444392', '36444406',
     '36748256', '36444434', '36444448', '36444462', '36444476',
@@ -87,10 +85,10 @@ window.onload = function() {
     '36748270', '36748284', '36748298', '36748312', '36748326',
     '36748340', '36748354', '36748368', '36748382', '36748396',
     '36748410', '36748424', '36748438', '36748452', '36748466',
-    '36748480', '36748494', '36748508', '36748522', '36748242'
+    '36748480', '36748494', '36748508', '36748522', '36748242',
   ];
 
-  var files = t2.map(function(v) {
+  let files = t2.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
   });
 
@@ -115,12 +113,10 @@ window.onload = function() {
     loader = null;
 
     function onWindowResize() {
-
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
 
       renderer.setSize(window.innerWidth, window.innerHeight);
-
     }
 
     window.addEventListener('resize', onWindowResize, false);

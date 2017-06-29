@@ -10,7 +10,7 @@ export default class ShadersFragment {
   }
 
   functions() {
-    if(this._main === '') {
+    if (this._main === '') {
       // if main is empty, functions can not have been computed
       this.main();
     }
@@ -29,7 +29,7 @@ export default class ShadersFragment {
       let uniform = this._uniforms[property];
       content += `uniform ${uniform.typeGLSL} ${property}`;
 
-      if(uniform && uniform.length) {
+      if (uniform && uniform.length) {
         content += `[${uniform.length}]`;
       }
 
