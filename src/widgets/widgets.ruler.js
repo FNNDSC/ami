@@ -243,26 +243,18 @@ export default class WidgetsRuler extends WidgetsBase {
     this.updateDOMColor();
   }
 
-  updateDOMPosition() {
+  updateDOMPosition(){
     // update rulers lines and text!
     let x1 = this._handles[0].screenPosition.x;
     let y1 = this._handles[0].screenPosition.y;
     let x2 = this._handles[1].screenPosition.x;
     let y2 = this._handles[1].screenPosition.y;
 
-    //let x0 = x1 + (x2 - x1)/2;
-    //let y0 = y1 + (y2 - y1)/2;
-    let x0 = x2;
-    let y0 = y2;
-
-    if (y1 >= y2) {
-      y0 = y2 - 30;
-    } else {
-      y0 = y2 + 30;
-    }
+    let x0 = x1 + (x2 - x1)/2;
+    let y0 = y1 + (y2 - y1)/2;
 
     let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-    let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+    let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI; //result in deg
 
     let posY = y1 - this._container.offsetHeight;
 
