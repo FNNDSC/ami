@@ -343,8 +343,11 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     updateDOMColor() {
-        this._line.style.backgroundColor = `${this._color}`;
-        this._distance.style.borderColor = `${this._color}`;
+        if (this._handles.length >= 2) {
+            for (let index in this._lines) {
+                this._lines[index].style.backgroundColor = `${this._color}`;
+            }
+        }
     }
 
     getPointInBetweenByPerc(pointA, pointB, percentage) {
