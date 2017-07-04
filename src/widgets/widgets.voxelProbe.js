@@ -477,4 +477,30 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   get showDomMeasurements() {
     return this._showDomMeasurements;
   }
+
+  hideDOM() {
+    this._dom.style.display = 'none';
+  }
+
+  showDOM() {
+    this._dom.style.display = '';
+  }
+
+  hideMesh() {
+    this.visible = false;
+  }
+
+  showMesh() {
+    this.visible = true;
+  }
+
+  show() {
+    this.showDOM();
+    this.showMesh();
+  }
+
+  hide() {
+    this.hideDOM();
+    this.hideMesh();
+  }
 }

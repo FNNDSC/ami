@@ -457,4 +457,34 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this.update();
   }
 
+  hideDOM() {
+    this._line.style.display = 'none';
+    this._dashline.style.display = 'none';
+    this._label.style.display = 'none';
+  }
+
+  showDOM() {
+    this._line.style.display = '';
+    this._dashline.style.display = '';
+    this._label.style.display = '';
+  }
+
+  hideMesh() {
+    this.visible = false;
+  }
+
+  showMesh() {
+    this.visible = true;
+  }
+
+  show() {
+    this.showDOM();
+    this.showMesh();
+  }
+
+  hide() {
+    this.hideDOM();
+    this.hideMesh();
+  }
+
 }
