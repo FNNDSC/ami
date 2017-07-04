@@ -146,17 +146,96 @@ export default class ParsersDicom extends ParsersVolume {
     return CIELabNormalized;
   }
 
+  /**
+   * SOP Instance UID
+   *
+   * @param {*} frameIndex
+   *
+   * @return {*}
+   */
   sopInstanceUID(frameIndex = 0) {
-    // 2005140f only works for siemens
-    // which is the real one?
-    let sopInstanceUID = this._findStringEverywhere('x2005140f', 'x00080018', frameIndex);
+    let sopInstanceUID =
+      this._findStringEverywhere('x2005140f', 'x00080018', frameIndex);
     return sopInstanceUID;
   }
 
+  /**
+   * Transfer syntax UID
+   *
+   * @return {*}
+   */
   transferSyntaxUID() {
     return this._dataSet.string('x00020010');
   }
 
+  /**
+   * Study description
+   *
+   * @return {*}
+   */
+  studyDescription() {
+    return this._dataSet.string('x00081030');
+  }
+
+  /**
+   * Series description
+   *
+   * @return {*}
+   */
+  seriesDescription() {
+    return this._dataSet.string('x0008103e');
+  }
+
+  /**
+   * Patient name
+   *
+   * @return {*}
+   */
+  patientName() {
+    return this._dataSet.string('x00100010');
+  }
+
+  /**
+   * Patient ID
+   *
+   * @return {*}
+   */
+  patientID() {
+    return this._dataSet.string('x00100020');
+  }
+
+  /**
+   * Patient birthdate
+   *
+   * @return {*}
+   */
+  patientBirthdate() {
+    return this._dataSet.string('x00100030');
+  }
+
+  /**
+   * Patient sex
+   *
+   * @return {*}
+   */
+  patientSex() {
+    return this._dataSet.string('x00100040');
+  }
+
+  /**
+   * Patient age
+   *
+   * @return {*}
+   */
+  patientAge() {
+    return this._dataSet.string('x00101010');
+  }
+
+  /**
+   * Photometric interpretation
+   *
+   * @return {*}
+   */
   photometricInterpretation() {
     return this._dataSet.string('x00280004');
   }
@@ -228,7 +307,7 @@ export default class ParsersDicom extends ParsersVolume {
     let referencedSegmentNumber = -1;
     let referencedSegmentNumberElement = this._findInGroupSequence('x52009230', 'x0062000a', frameIndex);
 
-    if(referencedSegmentNumberElement !== null) {
+    if (referencedSegmentNumberElement !== null) {
       referencedSegmentNumber = referencedSegmentNumberElement.uint16('x0062000b');
     }
 
@@ -561,39 +640,40 @@ export default class ParsersDicom extends ParsersVolume {
     let transferSyntaxUID = this.transferSyntaxUID();
 
     // find compression scheme
-    if (transferSyntaxUID === '1.2.840.10008.1.2.4.90' || // JPEG 2000 Lossless
-        transferSyntaxUID === '1.2.840.10008.1.2.4.91') {
- // JPEG 2000 Lossy
-
-      // JPEG 2000
+    if (
+      transferSyntaxUID === '1.2.840.10008.1.2.4.90' ||
+      // JPEG 2000 Lossless
+      transferSyntaxUID === '1.2.840.10008.1.2.4.91') {
+      // JPEG 2000 Lossy
       return this._decodeJ2K(frameIndex);
-    } else if (transferSyntaxUID === '1.2.840.10008.1.2.4.57' || // JPEG Lossless, Nonhierarchical (Processes 14)
-        transferSyntaxUID === '1.2.840.10008.1.2.4.70') {
-       // JPEG Lossless, Nonhierarchical (Processes 14 [Selection 1])
-
-      // JPEG LOSSLESS
+    } else if (
+      transferSyntaxUID === '1.2.840.10008.1.2.4.57' ||
+      // JPEG Lossless, Nonhierarchical (Processes 14)
+      transferSyntaxUID === '1.2.840.10008.1.2.4.70') {
+      // JPEG Lossless, Nonhierarchical (Processes 14 [Selection 1])
       return this._decodeJPEGLossless(frameIndex);
-    } else if (transferSyntaxUID === '1.2.840.10008.1.2.4.50' || // JPEG Baseline lossy process 1 (8 bit)
-        transferSyntaxUID === '1.2.840.10008.1.2.4.51') {
-        // JPEG Baseline lossy process 2 & 4 (12 bit)
-
-      // JPEG Baseline
+    } else if (
+      transferSyntaxUID === '1.2.840.10008.1.2.4.50' ||
+      // JPEG Baseline lossy process 1 (8 bit)
+      transferSyntaxUID === '1.2.840.10008.1.2.4.51') {
+      // JPEG Baseline lossy process 2 & 4 (12 bit)
       return this._decodeJPEGBaseline(frameIndex);
-    } else if (transferSyntaxUID === '1.2.840.10008.1.2' || // Implicit VR Little Endian
-        transferSyntaxUID === '1.2.840.10008.1.2.1') {
+    } else if (
+      transferSyntaxUID === '1.2.840.10008.1.2' ||
+      // Implicit VR Little Endian
+      transferSyntaxUID === '1.2.840.10008.1.2.1') {
       // Explicit VR Little Endian
-
-      // get data
       return this._decodeUncompressed(frameIndex);
-    } else if (transferSyntaxUID === '1.2.840.10008.1.2.2') {
-  // Explicit VR Big Endian
-
-      // get data
+    } else if (
+      transferSyntaxUID === '1.2.840.10008.1.2.2') {
+      // Explicit VR Big Endian
       let frame = this._decodeUncompressed(frameIndex);
       // and sawp it!
       return this._swapFrame(frame);
     } else {
-      throw `no decoder for transfer syntax ${transferSyntaxUID}`;
+      throw {
+        error: `no decoder for transfer syntax ${transferSyntaxUID}`,
+      };
     }
   }
 

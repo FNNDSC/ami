@@ -1,33 +1,35 @@
 const packageJSON = require('../../package.json');
 
-class LessonTemplate{
+/**
+ * Template for lessons
+ */
+class LessonTemplate {
   constructor(options={}) {
     this.threeVersion = packageJSON.config.threeVersion;
-    this.version      = packageJSON.version;
-    this.amiCDN       = packageJSON.config.amiCDN;
-    this.name         = '';
-    this.mode         = 'dist';
-    this.content      = '';
-    this.gaKey        = packageJSON.config.gaKey;
+    this.version = packageJSON.version;
+    this.amiCDN = packageJSON.config.amiCDN;
+    this.name = '';
+    this.mode = 'dist';
+    this.content = '';
+    this.gaKey = packageJSON.config.gaKey;
   }
 
-  scriptsAMI(){
-    if(this.mode === 'dist'){
-        return(`
+  scriptsAMI() {
+    if (this.mode === 'dist') {
+        return (`
 <!-- AMI BUILD -->
 <script type="text/javascript" src="../../build/ami.js"></script>
         `);
-      }
-      else {
-        return(`
+      } else {
+        return (`
 <!-- AMI CDN -->
 <script type="text/javascript" src="${this.amiCDN}/${this.version}/ami.min.js"></script>
-        `); 
+        `);
       }
   }
 
-  scripts(){
-      return(`
+  scripts() {
+      return (`
 <!-- Tools -->
 <script src="https://use.edgefonts.net/source-code-pro.js"></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/dataarts/dat.gui/master/build/dat.gui.min.js"></script>
@@ -42,7 +44,7 @@ ${this.scriptsAMI()}
   }
 
   head() {
-      return(`
+      return (`
 <head>
 <title>AMI - Lesson ${this.name}</title>
 
@@ -52,8 +54,8 @@ ${this.scripts()}
       `);
   }
 
-  body(){
-      return(`
+  body() {
+      return (`
 <body>
 
 ${this.content}
@@ -64,8 +66,8 @@ ${this.content}
   }
 
 
- analytics(){
-      return(`
+ analytics() {
+      return (`
 <!-- ANALYTICS -->
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -81,8 +83,8 @@ ${this.content}
       `);
   }
 
-  demoHTML(){
-      return(`
+  demoHTML() {
+      return (`
 ${this.content}
 
 ${this.scripts()}
@@ -92,21 +94,19 @@ ${this.analytics()}
 
 
   html() {
-    if(this.mode !== 'demo'){
-      return(`
+    if (this.mode !== 'demo') {
+      return (`
 <html>
 ${this.head()}
 ${this.body()}
 </html>
       `);
-    } else{
-      return(`
+    } else {
+      return (`
 ${this.demoHTML()}
       `);
     }
-
   }
-
 }
 
 module.exports.LessonTemplate = LessonTemplate;

@@ -122,61 +122,6 @@ let dataInfo = [
     }],
 ];
 
-dataInfo = [];
-for (let i=11; i<18; i++) {
-    dataInfo.push([i.toString(), {
-        location:
-          'http://promaton.nl/data/frank/stlteeth/' + i + '.stl',
-        label: i.toString(),
-        loaded: false,
-        material: null,
-        materialFront: null,
-        materialBack: null,
-        mesh: null,
-        meshFront: null,
-        meshBack: null,
-        color: 0xccfafa,
-        opacity: 1,
-        scene: null,
-        selected: false,
-    }]);
-}
-
-for (let i=21; i<29; i++) {
-    dataInfo.push([i.toString(), {
-        location:
-          'http://promaton.nl/data/frank/stlteeth/' + i + '.stl',
-        label: i.toString(),
-        loaded: false,
-        material: null,
-        materialFront: null,
-        materialBack: null,
-        mesh: null,
-        meshFront: null,
-        meshBack: null,
-        color: 0xfafacc,
-        opacity: 1,
-        scene: null,
-        selected: false,
-    }]);
-}
-
-    dataInfo.push(['frank_maxilla', {
-        location:
-          'http://promaton.nl/data/frank/stljaw/frank_maxilla.stl',
-        label: 'frank_maxilla',
-        loaded: false,
-        material: null,
-        materialFront: null,
-        materialBack: null,
-        mesh: null,
-        meshFront: null,
-        meshBack: null,
-        color: 0xfaccfa,
-        opacity: 1,
-        selected: false,
-    }]);
-
 let data = new Map(dataInfo);
 
 // extra variables to show mesh plane intersections in 2D renderers
@@ -428,17 +373,6 @@ window.onload = function() {
   let files = t2.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
   });
-
-  t2 = [];
-  for (let i = 0; i < 400; i++) {
-    t2.push(i.toString().padStart(7, 'DCT0000'));
-  }
-
-  files = t2.map(function(v) {
-    return 'http://promaton.nl/data/frank/dicom/' + v + '.dcm';
-  });
-
-  console.log(t2);
 
   // load sequence for each file
   // instantiate the loader

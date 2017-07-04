@@ -88,4 +88,68 @@ export default class ParsersVolume {
   invert() {
     return false;
   }
+
+  /**
+   * Get the transfer syntax UID.
+   * @return {*}
+   */
+  transferSyntaxUID() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the study desciption.
+   * @return {*}
+   */
+  studyDescription() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the series desciption.
+   * @return {*}
+   */
+  seriesDescription() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient ID.
+   * @return {*}
+   */
+  patientID() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient name.
+   * @return {*}
+   */
+  patientName() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient age.
+   * @return {*}
+   */
+  patientAge() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient birthdate.
+   * @return {*}
+   */
+  patientBirthdate() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient sex.
+   * @return {*}
+   */
+  patientSex() {
+    return 'no value provided';
+  }
 }
