@@ -156,11 +156,11 @@ export default class WidgetsRoi extends WidgetsBase {
         }
 
         this._init = true;
+        this.updateMesh();
         this.update();
     }
 
     create() {
-        this.createMesh();
         this.createDOM();
     }
 
@@ -218,7 +218,7 @@ export default class WidgetsRoi extends WidgetsBase {
         this.updateDOMColor();
     }
 
-    createMesh() {
+    updateMesh() {
         // geometry
         this._geometry = new THREE.Geometry();
         for (let index in this._handles) {
@@ -259,19 +259,6 @@ export default class WidgetsRoi extends WidgetsBase {
         this._line.style.height = '2px';
         this._line.style.width = '3px';
         this._container.appendChild(this._line);
-
-        // add distance!
-        this._distance = document.createElement('div');
-        this._distance.setAttribute('class', 'widgets handle distance');
-        this._distance.style.border = '2px solid';
-        this._distance.style.backgroundColor = '#F9F9F9';
-        // this._distance.style.opacity = '0.5';
-        this._distance.style.color = '#353535';
-        this._distance.style.padding = '4px';
-        this._distance.style.position = 'absolute';
-        this._distance.style.transformOrigin = '0 100%';
-        this._distance.innerHTML = 'Hello, world!';
-        this._container.appendChild(this._distance);
 
         this.updateDOMColor();
     }
@@ -331,7 +318,7 @@ export default class WidgetsRoi extends WidgetsBase {
 
         //this._lines[lineIndex].style.display = '';
         this._lines[lineIndex].style.transform = transform;
-        this._lines[lineIndex].style.width = length;
+        this._lines[lineIndex].style.width = length + 'px';
     }
 
     updateDOMPosition() {

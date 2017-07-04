@@ -271,7 +271,7 @@ export default class WidgetsRuler extends WidgetsBase {
     transform += ` rotate(${angle}deg)`;
 
     this._line.style.transform = transform;
-    this._line.style.width = length;
+    this._line.style.width = length + 'px';
 
     // update distance
     let w0 = this._handles[0].worldPosition;
