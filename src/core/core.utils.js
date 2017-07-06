@@ -107,6 +107,7 @@ export default class CoreUtils {
    * @return {Object}
    */
   static parseUrl(url) {
+
     //
     const data = {};
     data.filename = '';
@@ -115,11 +116,23 @@ export default class CoreUtils {
     data.query = '';
 
     let parsedUrl = URL.parse(url);
+
     data.pathname = parsedUrl.pathname;
     data.query = parsedUrl.query;
 
+    //Find "filename" parameter value, if present
+    data.filename = data.query.split('&').reduce((acc, fieldval) => {
+      let fvPair = fieldval.split('=');
+      if(fvPair.length > 0) {
+        if(fvPair[0] == 'filename')
+          acc = fvPair[1];
+      }
+      return acc;
+    });
+
     // get file name
-    data.filename = data.pathname.split('/').pop();
+    if(!data.filename)
+      data.filename = data.pathname.split('/').pop();
 
     // find extension
     let splittedName = data.filename.split('.');
