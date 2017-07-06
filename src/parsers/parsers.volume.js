@@ -98,10 +98,26 @@ export default class ParsersVolume {
   }
 
   /**
+   * Get the study date.
+   * @return {*}
+   */
+  studyDate() {
+    return 'no value provided';
+  }
+
+  /**
    * Get the study desciption.
    * @return {*}
    */
   studyDescription() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the series date.
+   * @return {*}
+   */
+  seriesDate() {
     return 'no value provided';
   }
 

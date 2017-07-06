@@ -46,12 +46,12 @@ export default class ModelsBase {
    */
   merge(model) {
     // make sure model is valid
-    if(!(this.validate(model))) {
+    if (!(this.validate(model))) {
       return false;
     }
 
     // they can be merged if they match
-    if(this._id === model._id) {
+    if (this._id === model._id) {
       return true;
     }
     return false;

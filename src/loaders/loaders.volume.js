@@ -126,7 +126,9 @@ export default class LoadersVolumes extends LoadersBase {
               // global information
               series.seriesInstanceUID = volumeParser.seriesInstanceUID();
               series.transferSyntaxUID = volumeParser.transferSyntaxUID();
+              series.seriesDate = volumeParser.seriesDate();
               series.seriesDescription = volumeParser.seriesDescription();
+              series.studyDate = volumeParser.studyDate();
               series.studyDescription = volumeParser.studyDescription();
               series.numberOfFrames = volumeParser.numberOfFrames();
               if (!series.numberOfFrames) {
