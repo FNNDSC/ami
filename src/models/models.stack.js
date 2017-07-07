@@ -642,9 +642,9 @@ export default class ModelsStack extends ModelsBase {
    */
   worldBoundingBox() {
     let bbox = [
-      Number.MAX_VALUE, Number.MIN_VALUE,
-      Number.MAX_VALUE, Number.MIN_VALUE,
-      Number.MAX_VALUE, Number.MIN_VALUE,
+      Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY,
+      Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY,
+      Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY,
     ];
 
     const dims = this._dimensionsIJK;
