@@ -59,7 +59,7 @@
     "build-cjs": "rimraf lib && cross-env BABEL_ENV=cjs babel ./src -d lib",
     "clean": "rimraf -rf dist/*",
     "test": "karma start",
-    "doc": "jsdoc -p -r -R README.md -c jsdoc.conf -d dist/doc src",
+    "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src",
     "ami": "npm run lint && npm run demo && npm run build:ami && npm run test",
     "deploy": "npm run build && gh-pages -d dist"
   },
