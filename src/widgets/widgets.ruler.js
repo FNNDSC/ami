@@ -14,6 +14,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._targetMesh = targetMesh;
     this._controls = controls;
     this._camera = camera;
+    this._container = container;
 
     this._active = true;
     this._lastEvent = null;
@@ -172,10 +173,6 @@ export default class WidgetsRuler extends WidgetsBase {
   update() {
     this.updateColor();
 
-    // update handles
-    this._handles[0].update();
-    this._handles[1].update();
-
     // mesh stuff
     this.updateMeshColor();
     this.updateMeshPosition();
@@ -219,7 +216,7 @@ export default class WidgetsRuler extends WidgetsBase {
     // add line!
     this._line = document.createElement('div');
     this._line.setAttribute('id', this.uuid);
-    this._line.setAttribute('class', 'AMI Widget Ruler');
+    this._line.setAttribute('class', 'widgets handle line');
     this._line.style.position = 'absolute';
     this._line.style.transformOrigin = '0 100%';
     this._line.style.marginTop = '-1px';
@@ -243,7 +240,8 @@ export default class WidgetsRuler extends WidgetsBase {
     this.updateDOMColor();
   }
 
-  updateDOMPosition(){
+  updateDOMPosition() {
+
     // update rulers lines and text!
     let x1 = this._handles[0].screenPosition.x;
     let y1 = this._handles[0].screenPosition.y;
