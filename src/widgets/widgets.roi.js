@@ -220,19 +220,83 @@ export default class WidgetsRoi extends WidgetsBase {
 
     updateMesh() {
         // geometry
-        this._geometry = new THREE.Geometry();
+
+        var points = [];
         for (let index in this._handles) {
-            this._geometry.vertices.push(this._handles[index].worldPosition);
+            //this._geometry.vertices.push(this._handles[index].worldPosition);
+            //var dataCoordinates = AMI.default.Models.Stack.worldToData(
+            //    this._stackHelper.stack,
+            //   this._handles[index].worldPosition);
+            points.push( this._handles[index].worldPosition );
         }
 
+        var center = AMI.default.Geometries.Slice.centerOfMass(points);
+        var side1 = new THREE.Vector3( 0, 0, 0 );
+        var side2 = new THREE.Vector3( 0, 0, 0 );
+        side1.subVectors(points[0], center);
+        side2.subVectors (points[1], center);
+        var direction = new THREE.Vector3( 0, 0, 0 );
+        direction.crossVectors(side1, side2);
+        //for( var i = 0; i < roiPts.length; i ++ ) roiPts[ i ].multiplyScalar( 0.75 );
+
+        let reference = center;
+        // direction from first point to reference
+        let referenceDirection = new THREE.Vector3(
+            points[0].x - reference.x,
+            points[0].y - reference.y,
+            points[0].z - reference.z
+        ).normalize();
+
+        let base = new THREE.Vector3(0, 0, 0)
+            .crossVectors(referenceDirection, direction)
+            .normalize();
+
+        let orderedpoints = [];
+
+        // other lines // if inter, return location + angle
+        for (let j = 0; j < points.length; j++) {
+            let point = new THREE.Vector3(
+                points[j].x,
+                points[j].y,
+                points[j].z);
+            point.direction = new THREE.Vector3(
+                points[j].x - reference.x,
+                points[j].y - reference.y,
+                points[j].z - reference.z).normalize();
+
+            let x = referenceDirection.dot(point.direction);
+            let y = base.dot(point.direction);
+            point.xy = {x, y};
+
+            let theta = Math.atan2(y, x) * (180 / Math.PI);
+            point.angle = theta;
+
+            orderedpoints.push(point);
+        }
+        //let orderedIntersections = AMI.default.Geometries.Slice.orderIntersections(roiPts, direction);
+        let sliceShape = AMI.default.Geometries.Slice.shape(orderedpoints);
+
+        var shape  = new THREE.Shape( orderedpoints );
         // material
-        this._material = new THREE.LineBasicMaterial();
-        this.updateMeshColor();
-
+        //this._material = new THREE.LineBasicMaterial();
         // mesh
-        this._mesh = new THREE.Line(this._geometry, this._material);
-        this._mesh.visible = true;
+        //this._mesh = new THREE.Line(this._geometry, this._material);
 
+        this._geometry = new THREE.ShapeGeometry( sliceShape );
+
+        this._geometry.vertices = orderedpoints;
+        this._geometry.verticesNeedUpdate = true;
+        this._geometry.elementsNeedUpdate = true;
+
+        this._mesh = new THREE.Mesh( this._geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00 } ) );
+        //var position = new THREE.Vector3( 0, 0, this._slice );
+        //position.applyMatrix4(this._stackHelper.stack._ijk2LPS);
+        //this._mesh.position.set(position.x, position.y, position.z);
+        //this._mesh.rotation.set( 0, 0, 0 );
+        //this._mesh.scale.set( 1, 1, 1 );
+
+        //this.updateMeshColor();
+        this._mesh.visible = true;
         // add it!
         this.add(this._mesh);
     }
