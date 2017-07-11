@@ -5,18 +5,44 @@ import HelpersStack from '../../src/helpers/helpers.stack';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 
 // standard global letiables
-let controls, renderer, stats, scene, camera, stackHelper, particleLight, line, threeD;
+let controls;
+let renderer;
+let stats;
+let scene;
+let camera;
+let stackHelper;
+let particleLight;
+let line;
+let threeD;
 
+/**
+ * Convert number to hex
+ *
+ * @param {Number} c
+ *
+ * @return {*}
+ */
 function componentToHex(c) {
   let hex = c.toString(16);
   return hex.length === 1 ? '0' + hex : hex;
 }
 
+/**
+ * Convert RGB to HEX
+ * @param {*} r
+ * @param {*} g
+ * @param {*} b
+ *
+ * @return {*}
+ */
 function rgbToHex(r, g, b) {
   return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
 
+/**
+ * Update geometries
+ */
 function updateGeometries() {
   if (stackHelper) {
     // move the "light"
@@ -56,8 +82,13 @@ function updateGeometries() {
   }
 }
 
+/**
+ * Initialize the scene
+ */
 function init() {
-  // this function is executed on each animation frame
+  /**
+   * Animation loop
+   */
   function animate() {
     updateGeometries();
 
@@ -89,7 +120,9 @@ function init() {
   scene = new THREE.Scene();
 
   // camera
-  camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 0.01, 10000000);
+  camera = new THREE.PerspectiveCamera(
+    45, threeD.offsetWidth / threeD.offsetHeight,
+    0.01, 10000000);
   camera.position.x = 150;
   camera.position.y = 150;
   camera.position.z = 100;
@@ -103,7 +136,9 @@ function init() {
   controls.noPan = false;
   controls.dynamicDampingFactor = 0.3;
 
-  particleLight = new THREE.Mesh(new THREE.SphereGeometry(2, 8, 8), new THREE.MeshBasicMaterial({color: 0xFFF336}));
+  particleLight = new THREE.Mesh(
+    new THREE.SphereGeometry(2, 8, 8),
+    new THREE.MeshBasicMaterial({color: 0xFFF336}));
   scene.add(particleLight);
 
   animate();
@@ -120,7 +155,7 @@ window.onload = function() {
   let t2 = [
     '36444280', '36444294', '36444308', '36444322', '36444336',
     '36444350', '36444364', '36444378', '36444392', '36444406',
-    '36444420', '36444434', '36444448', '36444462', '36444476',
+    '36748256', '36444434', '36444448', '36444462', '36444476',
     '36444490', '36444504', '36444518', '36444532', '36746856',
     '36746870', '36746884', '36746898', '36746912', '36746926',
     '36746940', '36746954', '36746968', '36746982', '36746996',
@@ -129,7 +164,6 @@ window.onload = function() {
     '36748340', '36748354', '36748368', '36748382', '36748396',
     '36748410', '36748424', '36748438', '36748452', '36748466',
     '36748480', '36748494', '36748508', '36748522', '36748242',
-    '36748256',
   ];
 
   let files = t2.map(function(v) {
@@ -174,13 +208,16 @@ window.onload = function() {
 
     let positionFolder = gui.addFolder('Plane position');
     let worldBBox = stackHelper.stack.worldBoundingBox();
-    let frameIndexControllerOriginI = positionFolder.add(stackHelper.slice.planePosition, 'x',
+    let frameIndexControllerOriginI = positionFolder.add(
+      stackHelper.slice.planePosition, 'x',
       worldBBox[0], worldBBox[1]).step(0.01).listen();
-    let frameIndexControllerOriginJ = positionFolder.add(stackHelper.slice.planePosition, 'y',
+    let frameIndexControllerOriginJ = positionFolder.add(
+      stackHelper.slice.planePosition, 'y',
       worldBBox[2], worldBBox[3]).step(0.01).listen();
-    let frameIndexControllerOriginK = positionFolder.add(stackHelper.slice.planePosition, 'z',
+    let frameIndexControllerOriginK = positionFolder.add(
+      stackHelper.slice.planePosition, 'z',
       worldBBox[4], worldBBox[5]).step(0.01).listen();
-    let interpolation = positionFolder.add(stackHelper.slice, 'interpolation',
+    positionFolder.add(stackHelper.slice, 'interpolation',
       0, 1).step(1).listen();
     positionFolder.open();
 
@@ -191,6 +228,9 @@ window.onload = function() {
     loader.free();
     loader = null;
 
+    /**
+     * onWindowResize callback
+     */
     function onWindowResize() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();

@@ -20,7 +20,7 @@ export default class Validators {
    * @return {boolean} True if valid Matrix4, false if NOT.
    */
   static matrix4(objectToTest) {
-    if(!(objectToTest !== null &&
+    if (!(objectToTest !== null &&
        typeof objectToTest !== 'undefined' &&
        objectToTest.hasOwnProperty('elements') &&
        objectToTest.elements.length === 16 &&
@@ -39,7 +39,7 @@ export default class Validators {
   * @return {boolean} True if valid Vector3, false if NOT.
   */
   static vector3(objectToTest) {
-    if(!(objectToTest !== null &&
+    if (!(objectToTest !== null &&
        typeof objectToTest !== 'undefined' &&
        objectToTest.hasOwnProperty('x') &&
        objectToTest.hasOwnProperty('y') &&
@@ -65,7 +65,7 @@ export default class Validators {
   * @return {boolean} True if valid box, false if NOT.
   */
   static box(objectToTest) {
-    if(!(objectToTest !== null &&
+    if (!(objectToTest !== null &&
        typeof objectToTest !== 'undefined' &&
        objectToTest.hasOwnProperty('center') &&
        this.vector3(objectToTest.center) &&
@@ -94,7 +94,7 @@ export default class Validators {
   * @return {boolean} True if valid ray, false if NOT.
   */
   static ray(objectToTest) {
-    if(!(objectToTest !== null &&
+    if (!(objectToTest !== null &&
        typeof objectToTest !== 'undefined' &&
        objectToTest.hasOwnProperty('position') &&
        this.vector3(objectToTest.position) &&

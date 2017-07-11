@@ -1,6 +1,6 @@
 {
   "name": "ami.js",
-  "version": "0.0.16-dev",
+  "version": "0.0.17-dev",
   "main": "lib/ami.js",
   "keywords": [
     "ami",
@@ -29,7 +29,7 @@
     "url": "https://fnndsc.github.io/ami"
   },
   "config": {
-    "threeVersion": "r83",
+    "threeVersion": "86",
     "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js/",
     "gaKey": "UA-39303022-3",
     "transforms": "-t [babelify --presets [ es2015 ] ]"
@@ -41,7 +41,8 @@
     "math-float32-to-binary-string": "^1.0.0",
     "nifti-reader-js": "v0.5.3",
     "nrrd-js": "^0.2.1",
-    "pako": "1.0.1"
+    "pako": "1.0.1",
+    "three": "0.86.0"
   },
   "scripts": {
     "dist:prepare": "node ./scripts/$npm_package_config_mode.js --dist",
@@ -56,9 +57,9 @@
     "build:ami": "browserify src/ami.js -d -v $npm_package_config_transforms --standalone AMI > build/ami.js && uglifyjs build/ami.js -o build/ami.min.js",
     "build": "npm run clean && cp index.html dist/index.html && npm run build:examples && npm run doc",
     "build-cjs": "rimraf lib && cross-env BABEL_ENV=cjs babel ./src -d lib",
-    "clean": "rm -rf dist/*",
+    "clean": "rimraf -rf dist/*",
     "test": "karma start",
-    "doc": "jsdoc -p -r -R README.md -c jsdoc.conf -d dist/doc src",
+    "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src",
     "ami": "npm run lint && npm run demo && npm run build:ami && npm run test",
     "deploy": "npm run build && gh-pages -d dist"
   },

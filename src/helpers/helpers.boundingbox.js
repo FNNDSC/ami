@@ -89,4 +89,13 @@ export default class HelpersBoundingBox extends THREE.Object3D {
 
     this._create();
   }
+
+  dispose() {
+    this._mesh.material.dispose();
+    this._mesh.material = null;
+    this._geometry.dispose();
+    this._geometry = null;
+    this._material.dispose();
+    this._material = null;
+  }
 }

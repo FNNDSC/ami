@@ -14,6 +14,7 @@ export default class WidgetsBase extends THREE.Object3D {
     this._selected = false;
     this._hovered = false;
     this._active = false;
+    // thos._state = 'SELECTED';
 
     this._colors = {
       default: '#00B0FF',
@@ -28,25 +29,28 @@ export default class WidgetsBase extends THREE.Object3D {
     this._displayed = true;
 
     this._container = container;
-
   }
 
   initOffsets() {
-    var box = this._container.getBoundingClientRect();
+    const box = this._container.getBoundingClientRect();
 
-    var body = document.body;
-    var docEl = document.documentElement;
+    const body = document.body;
+    const docEl = document.documentElement;
 
-    var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
-    var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
+    const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
+    const scrollLeft =
+      window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
 
-    var clientTop = docEl.clientTop || body.clientTop || 0;
-    var clientLeft = docEl.clientLeft || body.clientLeft || 0;
+    const clientTop = docEl.clientTop || body.clientTop || 0;
+    const clientLeft = docEl.clientLeft || body.clientLeft || 0;
 
-    var top  = box.top +  scrollTop - clientTop;
-    var left = box.left + scrollLeft - clientLeft;
+    const top = box.top + scrollTop - clientTop;
+    const left = box.left + scrollLeft - clientLeft;
 
-    this._offsets = { top: Math.round(top), left: Math.round(left) };
+    this._offsets = {
+      top: Math.round(top),
+      left: Math.round(left),
+    };
   }
 
   offsetChanged() {
@@ -55,18 +59,18 @@ export default class WidgetsBase extends THREE.Object3D {
   }
 
   getMouseOffsets(event, container) {
-
     return {
       x: (event.clientX - this._offsets.left) / container.offsetWidth * 2 - 1,
-      y: -((event.clientY - this._offsets.top) / container.offsetHeight) * 2 + 1,
+      y: -((event.clientY - this._offsets.top) / container.offsetHeight)
+        * 2 + 1,
       screenX: event.clientX - this._offsets.left,
-      screenY: event.clientY - this._offsets.top
+      screenY: event.clientY - this._offsets.top,
     };
   }
 
   update() {
     // to be overloaded
-  	window.console.log('update() should be overloaded!');
+    window.console.log('update() should be overloaded!');
   }
 
   free() {
@@ -74,13 +78,13 @@ export default class WidgetsBase extends THREE.Object3D {
   }
 
   updateColor() {
-    if(this._active) {
+    if (this._active) {
       this._color = this._colors.active;
-    } else if(this._hovered) {
+    } else if (this._hovered) {
       this._color = this._colors.hover;
-    } else if(this._selected) {
+    } else if (this._selected) {
       this._color = this._colors.select;
-    } else{
+    } else {
       this._color = this._colors.default;
     }
   }

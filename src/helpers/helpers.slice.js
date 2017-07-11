@@ -371,8 +371,10 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     }
 
     // set slice window center and width
-    this._uniforms.uRescaleSlopeIntercept.value = [this._rescaleSlope, this._rescaleIntercept];
-    this._uniforms.uWindowCenterWidth.value = [offset + this._windowCenter, this._windowWidth];
+    this._uniforms.uRescaleSlopeIntercept.value =
+      [this._rescaleSlope, this._rescaleIntercept];
+    this._uniforms.uWindowCenterWidth.value =
+      [offset + this._windowCenter, this._windowWidth];
 
     // invert
     this._uniforms.uInvert.value = this._invert === true ? 1 : 0;
@@ -411,6 +413,37 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     }
 
     this._create();
+  }
+
+  dispose() {
+    // Release memory
+    for(var j =0; j< this._textures.length; j++) {
+      this._textures[j].dispose();
+      this._textures[j] = null;
+    }
+    this._textures = null;
+    this._shadersFragment = null;
+    this._shadersVertex = null;
+
+    this._uniforms = null;
+
+    // material, geometry and mesh
+    this.remove(this._mesh);
+    this._mesh.geometry.dispose();
+    this._mesh.geometry = null;
+    this._mesh.material.dispose();
+    this._mesh.material = null;
+    this._mesh = null;
+
+    this._geometry.dispose();
+    this._geometry = null;
+    this._material.vertexShader = null;
+    this._material.fragmentShader = null;
+    this._material.uniforms = null;
+    this._material.dispose();
+    this._material = null;
+
+    this._stack = null;
   }
 
   cartesianEquation() {

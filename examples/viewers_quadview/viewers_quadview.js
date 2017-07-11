@@ -9,12 +9,21 @@ import HelpersStack from '../../src/helpers/helpers.stack';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 import ModelsStack from '../../src/models/models.stack';
 
+import ShadersContourUniform from '../../src/shaders/shaders.contour.uniform';
+import ShadersContourVertex from '../../src/shaders/shaders.contour.vertex';
+import ShadersContourFragment from '../../src/shaders/shaders.contour.fragment';
+
 // standard global variables
 let stats;
 let ready = false;
 
+let redTextureTarget = null;
+let redContourMesh = null;
+let redCountourScene = null;
+let redContourMaterial = null;
+
 // 3d renderer
-let r0 = {
+const r0 = {
   domId: 'r0',
   domElement: null,
   renderer: null,
@@ -27,7 +36,7 @@ let r0 = {
 };
 
 // 2d axial renderer
-let r1 = {
+const r1 = {
   domId: 'r1',
   domElement: null,
   renderer: null,
@@ -45,7 +54,7 @@ let r1 = {
 };
 
 // 2d sagittal renderer
-let r2 = {
+const r2 = {
   domId: 'r2',
   domElement: null,
   renderer: null,
@@ -64,7 +73,7 @@ let r2 = {
 
 
 // 2d coronal renderer
-let r3 = {
+const r3 = {
   domId: 'r3',
   domElement: null,
   renderer: null,
@@ -112,6 +121,7 @@ let dataInfo = [
         opacity: 1,
     }],
 ];
+
 let data = new Map(dataInfo);
 
 // extra variables to show mesh plane intersections in 2D renderers
@@ -284,8 +294,13 @@ function init() {
       data.forEach(function(object, key) {
         object.materialFront.clippingPlanes = [clipPlane1];
         object.materialBack.clippingPlanes = [clipPlane1];
+        r1.renderer.render(object.scene, r1.camera, redTextureTarget, true);
+        r1.renderer.clearDepth();
+        redContourMaterial.uniforms.uWidth.value = object.selected ? 5 : 1;
+        r1.renderer.render(redCountourScene, r1.camera);
+        r1.renderer.clearDepth();
       });
-      r1.renderer.render(sceneClip, r1.camera);
+
       // localizer
       r1.renderer.clearDepth();
       r1.renderer.render(r1.localizerScene, r1.camera);
@@ -386,6 +401,39 @@ window.onload = function() {
     initHelpersStack(r1, stack);
     r0.scene.add(r1.scene);
 
+    redTextureTarget = new THREE.WebGLRenderTarget(
+      r1.domElement.clientWidth,
+      r1.domElement.clientHeight,
+      {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.NearestFilter,
+        format: THREE.RGBAFormat,
+      }
+    );
+
+    // need 1 per tooth...
+    let uniformsLayerMix = ShadersContourUniform.uniforms();
+    uniformsLayerMix.uTextureFilled.value = redTextureTarget.texture;
+    uniformsLayerMix.uWidth.value = 1.0;
+    uniformsLayerMix.uCanvasWidth.value = redTextureTarget.width;
+    uniformsLayerMix.uCanvasHeight.value = redTextureTarget.height;
+
+    let fls = new ShadersContourFragment(uniformsLayerMix);
+    let vls = new ShadersContourVertex();
+    redContourMaterial = new THREE.ShaderMaterial(
+      {side: THREE.DoubleSide,
+      uniforms: uniformsLayerMix,
+      vertexShader: vls.compute(),
+      fragmentShader: fls.compute(),
+      transparent: true,
+      extensions: {
+        derivatives: true,
+      },
+    });
+    redContourMesh = new THREE.Mesh(
+          r1.stackHelper.slice.geometry, redContourMaterial);
+    redCountourScene = new THREE.Scene(redContourMesh);
+
     // yellow slice
     initHelpersStack(r2, stack);
     r0.scene.add(r2.scene);
@@ -435,18 +483,27 @@ window.onload = function() {
 
     let customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
+
+    // Red
     let stackFolder1 = gui.addFolder('Axial (Red)');
     let redChanged = stackFolder1.add(
       r1.stackHelper,
       'index', 0, r1.stackHelper.orientationMaxIndex).step(1).listen();
+    stackFolder1.add(r1.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
+
+    // Yellow
     let stackFolder2 = gui.addFolder('Sagittal (yellow)');
     let yellowChanged = stackFolder2.add(
       r2.stackHelper,
       'index', 0, r2.stackHelper.orientationMaxIndex).step(1).listen();
+    stackFolder2.add(r2.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
+
+    // Green
     let stackFolder3 = gui.addFolder('Coronal (green)');
     let greenChanged = stackFolder3.add(
       r3.stackHelper,
       'index', 0, r3.stackHelper.orientationMaxIndex).step(1).listen();
+    stackFolder3.add(r3.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
 
     /**
      * Update Layer Mix
@@ -505,6 +562,21 @@ window.onload = function() {
     function onRedChanged() {
       updateLocalizer(r1, [r2.localizerHelper, r3.localizerHelper]);
       updateClipPlane(r1, clipPlane1);
+
+      if (redContourMesh) {
+        redCountourScene.remove(redContourMesh);
+        redContourMesh.material.dispose();
+        redContourMesh.material = null;
+        redContourMesh.geometry.dispose();
+        redContourMesh.geometry = null;
+
+        redContourMesh = new THREE.Mesh(
+          r1.stackHelper.slice.geometry, redContourMaterial);
+        // go to LPS space
+        redContourMesh.applyMatrix(r1.stackHelper.stack._ijk2LPS);
+
+        redCountourScene.add(redContourMesh);
+      }
     }
 
     redChanged.onChange(onRedChanged);
@@ -575,6 +647,63 @@ window.onload = function() {
     r1.domElement.addEventListener('dblclick', onDoubleClick);
     r2.domElement.addEventListener('dblclick', onDoubleClick);
     r3.domElement.addEventListener('dblclick', onDoubleClick);
+
+    function onClick(event) {
+      const canvas = event.srcElement.parentElement;
+      const id = event.target.id;
+      const mouse = {
+        x: ((event.clientX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1,
+        y: - ((event.clientY - canvas.offsetTop) / canvas.clientHeight) * 2 + 1,
+      };
+      //
+      let camera = null;
+      let stackHelper = null;
+      let scene = null;
+      switch (id) {
+        case '0':
+          camera = r0.camera;
+          stackHelper = r1.stackHelper;
+          scene = r0.scene;
+          break;
+        case '1':
+          camera = r1.camera;
+          stackHelper = r1.stackHelper;
+          scene = r1.scene;
+          break;
+        case '2':
+          camera = r2.camera;
+          stackHelper = r2.stackHelper;
+          scene = r2.scene;
+          break;
+        case '3':
+          camera = r3.camera;
+          stackHelper = r3.stackHelper;
+          scene = r3.scene;
+          break;
+      }
+
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObjects(scene.children, true);
+      if (intersects.length > 0) {
+        if (intersects[0].object && intersects[0].object.objRef) {
+          const refObject = intersects[0].object.objRef;
+          refObject.selected = !refObject.selected;
+
+          let color = refObject.color;
+          if (refObject.selected) {
+            color = 0xCCFF00;
+          }
+
+          // update materials colors
+          refObject.material.color.setHex(color);
+          refObject.materialFront.color.setHex(color);
+          refObject.materialBack.color.setHex(color);
+        }
+      }
+    }
+    r0.domElement.addEventListener('click', onClick);
 
     function onScroll(event) {
       const id = event.target.domElement.id;
@@ -659,17 +788,19 @@ window.onload = function() {
             opacity: object.opacity,
             color: object.color,
             clippingPlanes: [],
-            side: THREE.DoubleSide,
             transparent: true,
           });
           object.mesh = new THREE.Mesh(geometry, object.material);
+          object.mesh.objRef = object;
           const RASToLPS = new THREE.Matrix4();
           RASToLPS.set(-1, 0, 0, 0,
                         0, -1, 0, 0,
                         0, 0, 1, 0,
                         0, 0, 0, 1);
-          object.mesh.applyMatrix(RASToLPS);
+          // object.mesh.applyMatrix(RASToLPS);
           r0.scene.add(object.mesh);
+
+          object.scene = new THREE.Scene();
 
           // front
           object.materialFront = new THREE.MeshBasicMaterial({
@@ -682,8 +813,8 @@ window.onload = function() {
           });
 
           object.meshFront = new THREE.Mesh(geometry, object.materialFront);
-          object.meshFront.applyMatrix(RASToLPS);
-          sceneClip.add(object.meshFront);
+          // object.meshFront.applyMatrix(RASToLPS);
+          object.scene.add(object.meshFront);
 
           // back
           object.materialBack = new THREE.MeshBasicMaterial({
@@ -696,8 +827,9 @@ window.onload = function() {
           });
 
           object.meshBack = new THREE.Mesh(geometry, object.materialBack);
-          object.meshBack.applyMatrix(RASToLPS);
-          sceneClip.add(object.meshBack);
+          // object.meshBack.applyMatrix(RASToLPS);
+          object.scene.add(object.meshBack);
+          sceneClip.add(object.scene);
 
           meshesLoaded++;
 

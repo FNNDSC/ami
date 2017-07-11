@@ -50,6 +50,7 @@ Please submit pull request, open issues or contact us for any question, feature 
 3. [Usage](#npm)
 4. [Developer corner](#developer-corner)
 5. [Credits](#credits)
+6. [Citations](#citations)
 
 ## Hello AMI
 
@@ -221,9 +222,9 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 | ✅ 2D Visulization  | ✅ Dicom     | ✅ VTK (THREEJS) | 🔶 Handle (2D/3D)       |
 | ✅ 3D Visualization | ✅ NRRD      | ✅ STL (THREEJS) | 🔶 Probe (2D/3D)        |
 | ✅ Volume Rendering | ✅ Nifti     | 🔶 TRK           | 🔶 Ruler (2D/3D)        |
-| ✅ Lookup Tables    | 🔶 MHD/RAW   | ❌ FSM           | 🔶 Orientation (2D/3D)  |
+| ✅ Lookup Tables    | ✅  MHD/RAW   | ❌ FSM           | 🔶 Orientation (2D/3D)  |
 | 🔶 Label Maps       | ❌ MGH/MGZ   | ❌ CURV          | 🔶 Angle (2D/3D)        |
-|                    | ❌ JPEG      |                  | 🔶 Orientation (2D/3D)  |
+|                    | ❌ JPEG      |                  |                         |
 
 ## Usage
 
@@ -396,3 +397,9 @@ AMI would not exist without them:
 - GZ file decompression
 - Author(s): [nodeca](https://github.com/nodeca)
 
+# Citations
+### 2017
+- [Reusable Client-Side JavaScript Modules for Immersive Web-Based Real-Time Collaborative Neuroimage Visualization - Bernal-Rusiel et al. - Frontiers in Neuroinformatics 2017 (article)](http://journal.frontiersin.org/article/10.3389/fninf.2017.00032/full)
+### 2016
+- [Volume Visualization Tools for Medical Applications in Ubiquitous Platforms - Arbelaiz et al. - LNICST 2016 (article)](https://link.springer.com/chapter/10.1007/978-3-319-49655-9_54)
+- [Interoperable communication of quantitative image analysis results using DICOM standard (DICOM4QI) - Fedorov et al. - RSNA 2016 (poster)](https://docs.google.com/presentation/d/16mZbPiXqU7tKTRAcB7bnP1RGybBLqF-O0319raUWYHo/edit#slide=id.p)

@@ -1,15 +1,23 @@
 const packageJSON = require('../../package.json');
 
-class ExampleTemplate{
+/**
+ * Template for all examples
+ */
+class ExampleTemplate {
+  /**
+   * Constructor
+   *
+   * @param {*} options
+   */
   constructor(options={}) {
     this.threeVersion = packageJSON.config.threeVersion;
-    this.name         = '';
-    this.gaKey        = '';
-    this.content      = packageJSON.config.gaKey;
+    this.name = '';
+    this.gaKey = '';
+    this.content = packageJSON.config.gaKey;
   }
 
-  scripts(){
-      return(`
+  scripts() {
+      return (`
 <!-- Tools -->
 <script type="text/javascript" src="https://use.edgefonts.net/source-code-pro.js"></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/dataarts/dat.gui/master/build/dat.gui.min.js"></script>
@@ -22,7 +30,7 @@ class ExampleTemplate{
   }
 
   head() {
-      return(`
+      return (`
 <head>
 <title>AMI - Example ${this.name}</title>
 
@@ -32,8 +40,8 @@ ${this.scripts()}
       `);
   }
 
-  body(){
-      return(`
+  body() {
+      return (`
 <body>
 
 ${this.content}
@@ -46,8 +54,8 @@ ${this.content}
   }
 
 
- analytics(){
-      return(`
+ analytics() {
+      return (`
 <!-- ANALYTICS -->
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -64,15 +72,13 @@ ${this.content}
   }
 
   html() {
-      return(`
+      return (`
 <html>
 ${this.head()}
 ${this.body()}
 </html>
       `);
-
   }
-
 }
 
 module.exports.ExampleTemplate = ExampleTemplate;

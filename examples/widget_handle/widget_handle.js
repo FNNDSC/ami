@@ -1,15 +1,32 @@
 /* globals Stats, dat*/
 
 import HelpersStack from '../../src/helpers/helpers.stack';
-import HelpersVoxel from '../../src/helpers/helpers.voxel';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 import WidgetsHandle from '../../src/widgets/widgets.handle';
 import WidgetsRuler from '../../src/widgets/widgets.ruler';
+import WidgetsVoxelProbe from '../../src/widgets/widgets.voxelProbe';
+import WidgetsAnnotation from '../../src/widgets/widgets.annotation';
 import ControlsTrackball from '../../src/controls/controls.trackball';
 
 // standard global variables
-let controls, renderer, threeD, stats, scene, camera, handle0, handle1, helpersVoxel, directions, bbox, line, lineDOM, distanceDOM, handles;
+let controls;
+let renderer;
+let threeD;
+let stats;
+let scene;
+let camera;
+let offsets;
 let widgets = [];
+const widgetsAvailable = [
+  'Handle',
+  'Ruler',
+  'VoxelProbe',
+  'Annotation',
+];
+const guiObjects = {
+  type: 'Handle',
+};
+
 function init() {
   // this function is executed on each animation frame
   function animate() {
@@ -42,7 +59,10 @@ function init() {
   scene = new THREE.Scene();
 
   // camera
-  camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
+  camera =
+    new THREE.PerspectiveCamera(
+      45, threeD.offsetWidth / threeD.offsetHeight,
+      1, 10000000);
   camera.position.x = 150;
   camera.position.y = 50;
   camera.position.z = 50;
@@ -61,15 +81,15 @@ window.onload = function() {
   // init threeJS...
   init();
 
-  let file = 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/36749894';
+  const file =
+    'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/36749894';
 
-  let loader = new LoadersVolume(threeD);
+  const loader = new LoadersVolume(threeD);
   // Start off with a promise that always resolves
   loader.load(file)
-  .then(function() {
-    let stack = loader.data[0]._stack[0];
+  .then((series) => {
+    const stack = series[0]._stack[0];
     loader.free();
-    loader = null;
     let stackHelper = new HelpersStack(stack);
 
     scene.add(stackHelper);
@@ -87,7 +107,6 @@ window.onload = function() {
     threeD.addEventListener('mousemove', function(evt) {
       // if something hovered, exit
       let cursor = 'default';
-
       for (let widget of widgets) {
         widget.onMove(evt);
         if (widget.hovered) {
@@ -98,7 +117,6 @@ window.onload = function() {
       threeD.style.cursor = cursor;
     });
 
-    // add on mouse down listener, to add handles/etc. if not hovering anything..
     threeD.addEventListener('mousedown', function(evt) {
       // if something hovered, exit
       for (let widget of widgets) {
@@ -112,8 +130,9 @@ window.onload = function() {
 
       // mouse position
       let mouse = {
-        x: (evt.clientX / threeD.offsetWidth) * 2 - 1,
-        y: -(event.clientY / threeD.offsetHeight) * 2 + 1,
+        x: (event.clientX - offsets.left) / threeD.offsetWidth * 2 - 1,
+        y: -((event.clientY - offsets.top) / threeD.offsetHeight)
+          * 2 + 1,
       };
 
       // update the raycaster
@@ -125,50 +144,90 @@ window.onload = function() {
         return;
       }
 
-      let widgetType = widgets.length % 4;
-      if (widgetType === 0) {
-        // add ruler
-        let widget = new WidgetsRuler(stackHelper.slice.mesh, controls, camera, threeD);
-        widget.worldPosition = intersects[0].point;
-
-        widgets.push(widget);
-        scene.add(widget);
-      } else if (widgetType === 1) {
-        // add handle
-        let widget = new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
-        widget.worldPosition = intersects[0].point;
-        widget.hovered = true;
-
-        widgets.push(widget);
-        scene.add(widget);
-      } else if (widgetType === 2) {
-        // add  "FREE" ruler
-        let widget = new WidgetsRuler(null, controls, camera, threeD);
-        // OK for now but what if no intersection?
-        widget.worldPosition = intersects[0].point;
-
-        widgets.push(widget);
-        scene.add(widget);
-      } else {
-        // add "FREE" handle
-        let widget = new WidgetsHandle(null, controls, camera, threeD);
-        // OK for now but what if no intersection?
-        widget.worldPosition = intersects[0].point;
-
-        widgets.push(widget);
-        scene.add(widget);
+      let widget = null;
+      switch (guiObjects.type) {
+        case 'Handle':
+          widget =
+            new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
+          widget.worldPosition = intersects[0].point;
+          break;
+        case 'Ruler':
+          widget =
+            new WidgetsRuler(stackHelper.slice.mesh, controls, camera, threeD);
+          widget.worldPosition = intersects[0].point;
+          break;
+        case 'VoxelProbe':
+          widget =
+            new WidgetsVoxelProbe(
+              stack, stackHelper.slice.mesh, controls, camera, threeD);
+          widget.worldPosition = intersects[0].point;
+          break;
+        case 'Annotation':
+          widget =
+            new WidgetsAnnotation(stackHelper.slice.mesh, controls, camera, threeD);
+          widget.worldPosition = intersects[0].point;
+          break;
+        default:
+          widget =
+            new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
+          widget.worldPosition = intersects[0].point;
+          break;
       }
+
+      widgets.push(widget);
+      scene.add(widget);
     });
 
+    function onWindowResize() {
+      camera.aspect = threeD.clientWidth / threeD.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(threeD.clientWidth, threeD.clientHeight);
+
+      // update offset
+      const box = threeD.getBoundingClientRect();
+
+      const body = document.body;
+      const docEl = document.documentElement;
+
+      const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
+      const scrollLeft =
+        window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
+
+      const clientTop = docEl.clientTop || body.clientTop || 0;
+      const clientLeft = docEl.clientLeft || body.clientLeft || 0;
+
+      const top = box.top + scrollTop - clientTop;
+      const left = box.left + scrollLeft - clientLeft;
+
+      offsets = {
+        top: Math.round(top),
+        left: Math.round(left),
+      };
+
+      // repaint all widgets
+      for (let widget of widgets) {
+        widget.update();
+      }
+    }
+
+    window.addEventListener('resize', onWindowResize, false);
+    onWindowResize();
+
     //
-    let centerLPS = stack.worldCenter();
-
-    bbox = stack.dimensionsIJK;
-
-    // update camrea's and interactor's target
-    // update camera's target
+    const centerLPS = stack.worldCenter();
     camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
     controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
     camera.updateProjectionMatrix();
+
+    const gui = new dat.GUI({
+      autoPlace: false,
+    });
+
+    const widgetFolder = gui.addFolder('Widget');
+    widgetFolder.add(guiObjects, 'type', widgetsAvailable);
+    widgetFolder.open();
+
+    const customContainer = document.getElementById('my-gui-container');
+    customContainer.appendChild(gui.domElement);
   });
 };

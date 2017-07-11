@@ -33,17 +33,21 @@ function onMouseMove(event) {
 }
 
 //
-let sceneLayer0TextureTarget, sceneLayer1TextureTarget;
+let sceneLayer0TextureTarget;
+let sceneLayer1TextureTarget;
 //
-let scene, sceneLayer0;
+let sceneLayer0;
 //
 let lutLayer0;
-let sceneLayer1, meshLayer1, uniformsLayer1, materialLayer1, lutLayer1;
-let sceneLayerMix, meshLayerMix, uniformsLayerMix, materialLayerMix, lutLayerMix;
-
-// probe
-// stack for zcosine access for camera...
-let stack;
+let sceneLayer1;
+let meshLayer1;
+let uniformsLayer1;
+let materialLayer1;
+let lutLayer1;
+let sceneLayerMix;
+let meshLayerMix;
+let uniformsLayerMix;
+let materialLayerMix;
 
 let layer1 = {
   opacity: 1.0,
@@ -95,7 +99,6 @@ function init() {
   threeD.appendChild(statsyay.domElement);
 
   // scene
-  scene = new THREE.Scene();
   sceneLayer0 = new THREE.Scene();
   sceneLayer1 = new THREE.Scene();
   sceneLayerMix = new THREE.Scene();
@@ -118,7 +121,10 @@ function init() {
   });
 
   // camera
-  camera = new CamerasOrthographic(threeD.clientWidth / -2, threeD.clientWidth / 2, threeD.clientHeight / 2, threeD.clientHeight / -2, 0.1, 10000);
+  camera = new CamerasOrthographic(
+    threeD.clientWidth / -2, threeD.clientWidth / 2,
+    threeD.clientHeight / 2, threeD.clientHeight / -2,
+    0.1, 10000);
 
   // controls
   controls = new ControlsOrthographic(camera, threeD);
@@ -162,7 +168,8 @@ window.onload = function() {
         // meshLayerMix.geometry = null;
 
         // add mesh in this scene with right shaders...
-        meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
+        meshLayerMix =
+          new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
         // go the LPS space
         meshLayerMix.applyMatrix(stackHelper.stack._ijk2LPS);
 
@@ -183,18 +190,23 @@ window.onload = function() {
     // layer 0 folder
     //
     let layer0Folder = gui.addFolder('Layer 0 (Base)');
-    layer0Folder.add(stackHelper.slice, 'windowWidth', 1, stack.minMax[1]).step(1).listen();
-    layer0Folder.add(stackHelper.slice, 'windowCenter', stack.minMax[0], stack.minMax[1]).step(1).listen();
+    layer0Folder.add(
+      stackHelper.slice, 'windowWidth', 1, stack.minMax[1]).step(1).listen();
+    layer0Folder.add(
+      stackHelper.slice, 'windowCenter',
+      stack.minMax[0], stack.minMax[1]).step(1).listen();
     layer0Folder.add(stackHelper.slice, 'intensityAuto');
     layer0Folder.add(stackHelper.slice, 'invert');
 
-    let lutUpdate = layer0Folder.add(stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
+    let lutUpdate = layer0Folder.add(
+      stackHelper.slice, 'lut', lutLayer0.lutsAvailable());
     lutUpdate.onChange(function(value) {
       lutLayer0.lut = value;
       stackHelper.slice.lutTexture = lutLayer0.texture;
     });
 
-    let indexUpdate = layer0Folder.add(stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
+    let indexUpdate = layer0Folder.add(
+      stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
     indexUpdate.onChange(function() {
       updateLayer1();
       updateLayerMix();
@@ -208,7 +220,8 @@ window.onload = function() {
     // layer 1 folder
     //
     let layer1Folder = gui.addFolder('Layer 1');
-    let interpolationLayer1 = layer1Folder.add(layer1, 'interpolation', 0, 1).step(1).listen();
+    let interpolationLayer1 =
+      layer1Folder.add(layer1, 'interpolation', 0, 1).step(1).listen();
     interpolationLayer1.onChange(function(value) {
       uniformsLayer1.uInterpolation.value = value;
       // re-compute shaders
@@ -216,7 +229,8 @@ window.onload = function() {
       materialLayer1.fragmentShader = fs.compute();
       materialLayer1.needsUpdate = true;
     });
-    let layer1LutUpdate = layer1Folder.add(layer1, 'lut', lutLayer1.lutsAvailable());
+    let layer1LutUpdate =
+      layer1Folder.add(layer1, 'lut', lutLayer1.lutsAvailable());
     layer1LutUpdate.onChange(function(value) {
       lutLayer1.lut = value;
       // propagate to shaders
@@ -274,7 +288,7 @@ window.onload = function() {
         height: threeD.clientHeight,
       };
       camera.fitBox(2);
-      
+
       sceneLayer0TextureTarget.setSize(threeD.clientWidth, threeD.clientHeight);
       sceneLayer1TextureTarget.setSize(threeD.clientWidth, threeD.clientHeight);
 
@@ -412,7 +426,8 @@ window.onload = function() {
     // box: {halfDimensions, center}
     let box = {
       center: stack.worldCenter().clone(),
-      halfDimensions: new THREE.Vector3(lpsDims.x + 50, lpsDims.y + 50, lpsDims.z + 50),
+      halfDimensions:
+        new THREE.Vector3(lpsDims.x + 50, lpsDims.y + 50, lpsDims.z + 50),
     };
 
     // init and zoom
