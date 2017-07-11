@@ -102,13 +102,21 @@ export default class CoreUtils {
   }
 
   /**
-   * Parse url
-   * @param {*} url
+   * Parse url and find out the extension of the exam file.
+   *
+   * @param {*} url - The url to be parsed.
+   * The query string can contain some "special" parameters that can be used to ease the parsing process
+   * when the url doesn't match the exam file name on the filesystem:
+   * - filename: the name of the exam file
+   * - contentType: the mime type of the exam file. Currently only "application/dicom" is recognized, nifti files don't have a standard mime type.
+   * For  example:
+   * http://<hostname>/getExam?id=100&filename=myexam%2Enii%2Egz
+   * http://<hostname>/getExam?id=100&contentType=application%2Fdicom
+   *
    * @return {Object}
    */
   static parseUrl(url) {
 
-    //
     const data = {};
     data.filename = '';
     data.extension = '';
@@ -120,15 +128,16 @@ export default class CoreUtils {
     data.pathname = parsedUrl.pathname;
     data.query = parsedUrl.query;
 
-    //Find "filename" parameter value, if present
-    data.filename = data.query.split('&').reduce((acc, fieldval) => {
-      let fvPair = fieldval.split('=');
-      if(fvPair.length > 0) {
-        if(fvPair[0] == 'filename')
-          acc = fvPair[1];
-      }
-      return acc;
-    });
+    if(data.query) {
+      //Find "filename" parameter value, if present
+      data.filename = data.query.split('&').reduce((acc, fieldval) => {
+        let fvPair = fieldval.split('=');
+        if(fvPair.length > 0 && fvPair[0] == 'filename') {
+            acc = fvPair[1];
+        }
+        return acc;
+      });
+    }
 
     // get file name
     if(!data.filename)
