@@ -7,13 +7,17 @@
 body {
   margin: 0;
   overflow:hidden;
-  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
 .visualizer {
   width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
   background-color: #353535;
 }
 
@@ -21,7 +25,8 @@ body {
   background-color: #000;
   width: 50%;
   height: 50%;
-  box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+          box-sizing:border-box;
   border: 1px solid rgba(0, 0, 0, .2);
   border-bottom: none;
   position: relative;

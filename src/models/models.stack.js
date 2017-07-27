@@ -1,4 +1,8 @@
 /** * Imports ***/
+import {
+  Vector3,
+  Matrix4,
+  LuminanceFormat, RGBAFormat, RGBFormat} from 'three';
 import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
 import ModelsBase from '../models/models.base';
@@ -43,7 +47,7 @@ export default class ModelsStack extends ModelsBase {
     this._minMax = [65535, -32768];
 
     // TRANSFORMATION MATRICES
-    this._regMatrix = new THREE.Matrix4();
+    this._regMatrix = new Matrix4();
 
     this._ijk2LPS = null;
     this._lps2IJK = null;
@@ -55,14 +59,14 @@ export default class ModelsStack extends ModelsBase {
     // IJK dimensions
     this._dimensionsIJK = null;
     this._halfDimensionsIJK = null;
-    this._spacing = new THREE.Vector3(1, 1, 1);
+    this._spacing = new Vector3(1, 1, 1);
     this._spacingBetweenSlices = 0;
     this._sliceThickness = 0;
     this._origin = null;
     this._rightHanded = true;
-    this._xCosine = new THREE.Vector3(1, 0, 0);
-    this._yCosine = new THREE.Vector3(0, 1, 0);
-    this._zCosine = new THREE.Vector3(0, 0, 1);
+    this._xCosine = new Vector3(1, 0, 0);
+    this._yCosine = new Vector3(0, 1, 0);
+    this._zCosine = new Vector3(0, 0, 1);
 
     // convenience vars
     this._prepared = false;
@@ -211,8 +215,8 @@ export default class ModelsStack extends ModelsBase {
     this._rows = this._frame[0].rows;
     this._columns = this._frame[0].columns;
     this._dimensionsIJK =
-      new THREE.Vector3(this._columns, this._rows, this._numberOfFrames);
-    this._halfDimensionsIJK = new THREE.Vector3(
+      new Vector3(this._columns, this._rows, this._numberOfFrames);
+    this._halfDimensionsIJK = new Vector3(
       this._dimensionsIJK.x / 2,
       this._dimensionsIJK.y / 2,
       this._dimensionsIJK.z / 2
@@ -251,11 +255,11 @@ export default class ModelsStack extends ModelsBase {
 
     // rescale/slope min max
     this.computeMinMaxIntensities();
-    this._minMax[0] = ModelsStack.valueRescaleSlopeIntercept(
+    this._minMax[0] = CoreUtils.rescaleSlopeIntercept(
       this._minMax[0],
       this._rescaleSlope,
       this._rescaleIntercept);
-    this._minMax[1] = ModelsStack.valueRescaleSlopeIntercept(
+    this._minMax[1] = CoreUtils.rescaleSlopeIntercept(
       this._minMax[1],
       this._rescaleSlope,
       this._rescaleIntercept);
@@ -287,8 +291,8 @@ export default class ModelsStack extends ModelsBase {
     this._frame = packedEcho;
     this._numberOfFrames = this._frame.length;
     this._dimensionsIJK =
-      new THREE.Vector3(this._columns, this._rows, this._numberOfFrames);
-    this._halfDimensionsIJK = new THREE.Vector3(
+      new Vector3(this._columns, this._rows, this._numberOfFrames);
+    this._halfDimensionsIJK = new Vector3(
       this._dimensionsIJK.x / 2,
       this._dimensionsIJK.y / 2,
       this._dimensionsIJK.z / 2
@@ -423,7 +427,7 @@ export default class ModelsStack extends ModelsBase {
     );
 
     // lps 2 ijk
-    this._lps2IJK = new THREE.Matrix4();
+    this._lps2IJK = new Matrix4();
     this._lps2IJK.getInverse(this._ijk2LPS);
   }
 
@@ -436,7 +440,7 @@ export default class ModelsStack extends ModelsBase {
       this._origin
     );
 
-    this._lps2AABB = new THREE.Matrix4();
+    this._lps2AABB = new Matrix4();
     this._lps2AABB.getInverse(this._aabb2LPS);
   }
 
@@ -538,7 +542,7 @@ export default class ModelsStack extends ModelsBase {
         data[packIndex] = offset + frame[frameIndex].pixelData[inFrameIndex];
         packIndex++;
       }
-      packed.textureType = THREE.LuminanceFormat;
+      packed.textureType = LuminanceFormat;
       packed.data = data;
     } else if (bitsAllocated === 16 && channels === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -559,7 +563,7 @@ export default class ModelsStack extends ModelsBase {
         channelOffset = packIndex % 2;
       }
 
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 0) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -575,7 +579,7 @@ export default class ModelsStack extends ModelsBase {
 
         packIndex++;
       }
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -596,7 +600,7 @@ export default class ModelsStack extends ModelsBase {
         packIndex++;
       }
 
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 8 && channels === 3) {
       let data = new Uint8Array(textureSize * textureSize * 3);
@@ -614,7 +618,7 @@ export default class ModelsStack extends ModelsBase {
         packIndex++;
       }
 
-      packed.textureType = THREE.RGBFormat;
+      packed.textureType = RGBFormat;
       packed.data = data;
     }
 
@@ -638,9 +642,9 @@ export default class ModelsStack extends ModelsBase {
    */
   worldBoundingBox() {
     let bbox = [
-      Number.MAX_VALUE, Number.MIN_VALUE,
-      Number.MAX_VALUE, Number.MIN_VALUE,
-      Number.MAX_VALUE, Number.MIN_VALUE,
+      Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY,
+      Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY,
+      Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY,
     ];
 
     const dims = this._dimensionsIJK;
@@ -648,7 +652,7 @@ export default class ModelsStack extends ModelsBase {
     for (let i = 0; i <= dims.x; i += dims.x) {
       for (let j = 0; j <= dims.y; j += dims.y) {
         for (let k = 0; k <= dims.z; k += dims.z) {
-          let world = new THREE.Vector3(i, j, k).applyMatrix4(this._ijk2LPS);
+          let world = new Vector3(i, j, k).applyMatrix4(this._ijk2LPS);
           bbox = [
             Math.min(bbox[0], world.x), Math.max(bbox[1], world.x), // x min/max
             Math.min(bbox[2], world.y), Math.max(bbox[3], world.y),
@@ -667,7 +671,7 @@ export default class ModelsStack extends ModelsBase {
    * @return {*}
    */
   AABBox() {
-    let world0 = new THREE.Vector3().addScalar(-0.5)
+    let world0 = new Vector3().addScalar(-0.5)
       .applyMatrix4(this._ijk2LPS)
       .applyMatrix4(this._lps2AABB);
 
@@ -675,7 +679,7 @@ export default class ModelsStack extends ModelsBase {
       .applyMatrix4(this._ijk2LPS)
       .applyMatrix4(this._lps2AABB);
 
-    let minBBox = new THREE.Vector3(
+    let minBBox = new Vector3(
       Math.abs(world0.x - world7.x),
       Math.abs(world0.y - world7.y),
       Math.abs(world0.z - world7.z)
@@ -707,7 +711,7 @@ export default class ModelsStack extends ModelsBase {
   }
 
   _arrayToVector3(array, index) {
-    return new THREE.Vector3(
+    return new Vector3(
       array[index],
       array[index + 1],
       array[index + 2]

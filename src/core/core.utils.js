@@ -159,9 +159,9 @@ export default class CoreUtils {
     registrationMatrix = new THREE.Matrix4()) {
     const ijk2LPS = new THREE.Matrix4();
     ijk2LPS.set(
-      xCos.x * spacing.x, yCos.x * spacing.y, zCos.x * spacing.z, origin.x,
-      xCos.y * spacing.x, yCos.y * spacing.y, zCos.y * spacing.z, origin.y,
-      xCos.z * spacing.x, yCos.z * spacing.y, zCos.z * spacing.z, origin.z,
+      xCos.x * spacing.y, yCos.x * spacing.x, zCos.x * spacing.z, origin.x,
+      xCos.y * spacing.y, yCos.y * spacing.x, zCos.y * spacing.z, origin.y,
+      xCos.z * spacing.y, yCos.z * spacing.x, zCos.z * spacing.z, origin.z,
       0, 0, 0, 1);
     ijk2LPS.premultiply(registrationMatrix);
 

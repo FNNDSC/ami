@@ -23,7 +23,7 @@ let redCountourScene = null;
 let redContourMaterial = null;
 
 // 3d renderer
-let r0 = {
+const r0 = {
   domId: 'r0',
   domElement: null,
   renderer: null,
@@ -36,7 +36,7 @@ let r0 = {
 };
 
 // 2d axial renderer
-let r1 = {
+const r1 = {
   domId: 'r1',
   domElement: null,
   renderer: null,
@@ -54,7 +54,7 @@ let r1 = {
 };
 
 // 2d sagittal renderer
-let r2 = {
+const r2 = {
   domId: 'r2',
   domElement: null,
   renderer: null,
@@ -73,7 +73,7 @@ let r2 = {
 
 
 // 2d coronal renderer
-let r3 = {
+const r3 = {
   domId: 'r3',
   domElement: null,
   renderer: null,
@@ -483,18 +483,27 @@ window.onload = function() {
 
     let customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
+
+    // Red
     let stackFolder1 = gui.addFolder('Axial (Red)');
     let redChanged = stackFolder1.add(
       r1.stackHelper,
       'index', 0, r1.stackHelper.orientationMaxIndex).step(1).listen();
+    stackFolder1.add(r1.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
+
+    // Yellow
     let stackFolder2 = gui.addFolder('Sagittal (yellow)');
     let yellowChanged = stackFolder2.add(
       r2.stackHelper,
       'index', 0, r2.stackHelper.orientationMaxIndex).step(1).listen();
+    stackFolder2.add(r2.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
+
+    // Green
     let stackFolder3 = gui.addFolder('Coronal (green)');
     let greenChanged = stackFolder3.add(
       r3.stackHelper,
       'index', 0, r3.stackHelper.orientationMaxIndex).step(1).listen();
+    stackFolder3.add(r3.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
 
     /**
      * Update Layer Mix

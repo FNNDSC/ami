@@ -54,23 +54,53 @@ export default class ParsersDicom extends ParsersVolume {
     }
   }
 
-  // image/frame specific
+  /**
+   * Series instance UID (0020,000e)
+   *
+   * @return {String}
+   */
   seriesInstanceUID() {
     return this._dataSet.string('x0020000e');
   }
 
+  /**
+   * Study instance UID (0020,000d)
+   *
+   * @return {String}
+   */
   studyInstanceUID() {
     return this._dataSet.string('x0020000d');
   }
 
+  /**
+   * Get modality (0008,0060)
+   *
+   * @return {String}
+   */
   modality() {
     return this._dataSet.string('x00080060');
   }
 
+  /**
+   * Segmentation type (0062,0001)
+   *
+   * @return {String}
+   */
   segmentationType() {
     return this._dataSet.string('x00620001');
   }
 
+  /**
+   * Segmentation segments
+   * -> Sequence of segments (0062,0002)
+   *   -> Recommended Display CIELab
+   *   -> Segmentation Code
+   *   -> Segment Number (0062,0004)
+   *   -> Segment Label (0062,0005)
+   *   -> Algorithm Type (0062,0008)
+   *
+   * @return {*}
+   */
   segmentationSegments() {
     let segmentationSegments = [];
     let segmentSequence = this._dataSet.elements.x00620002;
@@ -103,6 +133,16 @@ export default class ParsersDicom extends ParsersVolume {
     return segmentationSegments;
   }
 
+  /**
+   * Segmentation code
+   * -> Code designator (0008,0102)
+   * -> Code value (0008,0200)
+   * -> Code Meaning Type (0008,0104)
+   *
+   * @param {*} segment
+   *
+   * @return {*}
+   */
   _segmentationCode(segment) {
     let segmentationCodeDesignator = 'unknown';
     let segmentationCodeValue = 'unknown';
@@ -122,6 +162,13 @@ export default class ParsersDicom extends ParsersVolume {
     };
   }
 
+  /**
+   * Recommended display CIELab
+   *
+   * @param {*} segment
+   *
+   * @return {*}
+   */
   _recommendedDisplayCIELab(segment) {
     if (!segment.dataSet.elements.x0062000d) {
       return null;
@@ -169,12 +216,30 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   /**
+   * Study date
+   *
+   * @return {*}
+   */
+  studyDate() {
+    return this._dataSet.string('x00080020');
+  }
+
+  /**
    * Study description
    *
    * @return {*}
    */
   studyDescription() {
     return this._dataSet.string('x00081030');
+  }
+
+  /**
+   * Series date
+   *
+   * @return {*}
+   */
+  seriesDate() {
+    return this._dataSet.string('x00080021');
   }
 
   /**
@@ -549,19 +614,6 @@ export default class ParsersDicom extends ParsersVolume {
     } else {
       return decompressedData;
     }
-  }
-
-  minMaxPixelData(pixelData = []) {
-    let minMax = [65535, -32768];
-    let numPixels = pixelData.length;
-
-    for (let index = 0; index < numPixels; index++) {
-      let spv = pixelData[index];
-      minMax[0] = Math.min(minMax[0], spv);
-      minMax[1] = Math.max(minMax[1], spv);
-    }
-
-    return minMax;
   }
 
   //
