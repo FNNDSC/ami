@@ -23,7 +23,7 @@ let redCountourScene = null;
 let redContourMaterial = null;
 
 // 3d renderer
-let r0 = {
+const r0 = {
   domId: 'r0',
   domElement: null,
   renderer: null,
@@ -36,7 +36,7 @@ let r0 = {
 };
 
 // 2d axial renderer
-let r1 = {
+const r1 = {
   domId: 'r1',
   domElement: null,
   renderer: null,
@@ -54,7 +54,7 @@ let r1 = {
 };
 
 // 2d sagittal renderer
-let r2 = {
+const r2 = {
   domId: 'r2',
   domElement: null,
   renderer: null,
@@ -73,7 +73,7 @@ let r2 = {
 
 
 // 2d coronal renderer
-let r3 = {
+const r3 = {
   domId: 'r3',
   domElement: null,
   renderer: null,
@@ -121,61 +121,6 @@ let dataInfo = [
         opacity: 1,
     }],
 ];
-
-dataInfo = [];
-for (let i=11; i<18; i++) {
-    dataInfo.push([i.toString(), {
-        location:
-          'http://promaton.nl/data/frank/stlteeth/' + i + '.stl',
-        label: i.toString(),
-        loaded: false,
-        material: null,
-        materialFront: null,
-        materialBack: null,
-        mesh: null,
-        meshFront: null,
-        meshBack: null,
-        color: 0xccfafa,
-        opacity: 1,
-        scene: null,
-        selected: false,
-    }]);
-}
-
-for (let i=21; i<29; i++) {
-    dataInfo.push([i.toString(), {
-        location:
-          'http://promaton.nl/data/frank/stlteeth/' + i + '.stl',
-        label: i.toString(),
-        loaded: false,
-        material: null,
-        materialFront: null,
-        materialBack: null,
-        mesh: null,
-        meshFront: null,
-        meshBack: null,
-        color: 0xfafacc,
-        opacity: 1,
-        scene: null,
-        selected: false,
-    }]);
-}
-
-    dataInfo.push(['frank_maxilla', {
-        location:
-          'http://promaton.nl/data/frank/stljaw/frank_maxilla.stl',
-        label: 'frank_maxilla',
-        loaded: false,
-        material: null,
-        materialFront: null,
-        materialBack: null,
-        mesh: null,
-        meshFront: null,
-        meshBack: null,
-        color: 0xfaccfa,
-        opacity: 1,
-        selected: false,
-    }]);
 
 let data = new Map(dataInfo);
 
@@ -429,17 +374,6 @@ window.onload = function() {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
   });
 
-  t2 = [];
-  for (let i = 0; i < 400; i++) {
-    t2.push(i.toString().padStart(7, 'DCT0000'));
-  }
-
-  files = t2.map(function(v) {
-    return 'http://promaton.nl/data/frank/dicom/' + v + '.dcm';
-  });
-
-  console.log(t2);
-
   // load sequence for each file
   // instantiate the loader
   // it loads and parses the dicom image
@@ -549,18 +483,27 @@ window.onload = function() {
 
     let customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
+
+    // Red
     let stackFolder1 = gui.addFolder('Axial (Red)');
     let redChanged = stackFolder1.add(
       r1.stackHelper,
       'index', 0, r1.stackHelper.orientationMaxIndex).step(1).listen();
+    stackFolder1.add(r1.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
+
+    // Yellow
     let stackFolder2 = gui.addFolder('Sagittal (yellow)');
     let yellowChanged = stackFolder2.add(
       r2.stackHelper,
       'index', 0, r2.stackHelper.orientationMaxIndex).step(1).listen();
+    stackFolder2.add(r2.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
+
+    // Green
     let stackFolder3 = gui.addFolder('Coronal (green)');
     let greenChanged = stackFolder3.add(
       r3.stackHelper,
       'index', 0, r3.stackHelper.orientationMaxIndex).step(1).listen();
+    stackFolder3.add(r3.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
 
     /**
      * Update Layer Mix

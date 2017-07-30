@@ -123,7 +123,13 @@ export default class LoadersVolumes extends LoadersBase {
 
               // create a series
               let series = new ModelsSeries();
+              // global information
               series.seriesInstanceUID = volumeParser.seriesInstanceUID();
+              series.transferSyntaxUID = volumeParser.transferSyntaxUID();
+              series.seriesDate = volumeParser.seriesDate();
+              series.seriesDescription = volumeParser.seriesDescription();
+              series.studyDate = volumeParser.studyDate();
+              series.studyDescription = volumeParser.studyDescription();
               series.numberOfFrames = volumeParser.numberOfFrames();
               if (!series.numberOfFrames) {
                 series.numberOfFrames = 1;
@@ -139,6 +145,12 @@ export default class LoadersVolumes extends LoadersBase {
                 series.segmentationSegments =
                   volumeParser.segmentationSegments();
               }
+              // patient information
+              series.patientID = volumeParser.patientID();
+              series.patientName = volumeParser.patientName();
+              series.patientAge = volumeParser.patientAge();
+              series.patientBirthdate = volumeParser.patientBirthdate();
+              series.patientSex = volumeParser.patientSex();
 
               // just create 1 dummy stack for now
               let stack = new ModelsStack();

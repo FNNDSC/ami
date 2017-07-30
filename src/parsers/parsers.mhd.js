@@ -135,18 +135,6 @@ export default class ParsersMHD extends ParsersVolume {
     ];
   }
 
-  minMaxPixelData(pixelData = []) {
-    let minMax = [65535, -32768];
-    let numPixels = pixelData.length;
-    for (let index = 0; index < numPixels; index++) {
-      let spv = pixelData[index];
-      minMax[0] = Math.min(minMax[0], spv);
-      minMax[1] = Math.max(minMax[1], spv);
-    }
-
-    return minMax;
-  }
-
   extractPixelData(frameIndex = 0) {
     return this._decompressUncompressed(frameIndex);
   }

@@ -88,4 +88,103 @@ export default class ParsersVolume {
   invert() {
     return false;
   }
+
+  /**
+   * Get the transfer syntax UID.
+   * @return {*}
+   */
+  transferSyntaxUID() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the study date.
+   * @return {*}
+   */
+  studyDate() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the study desciption.
+   * @return {*}
+   */
+  studyDescription() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the series date.
+   * @return {*}
+   */
+  seriesDate() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the series desciption.
+   * @return {*}
+   */
+  seriesDescription() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient ID.
+   * @return {*}
+   */
+  patientID() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient name.
+   * @return {*}
+   */
+  patientName() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient age.
+   * @return {*}
+   */
+  patientAge() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient birthdate.
+   * @return {*}
+   */
+  patientBirthdate() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get the patient sex.
+   * @return {*}
+   */
+  patientSex() {
+    return 'no value provided';
+  }
+
+  /**
+   * Get min/max values in array
+   *
+   * @param {*} pixelData
+   *
+   * @return {*}
+   */
+  minMaxPixelData(pixelData = []) {
+    let minMax = [65535, -32768];
+    let numPixels = pixelData.length;
+    for (let index = 0; index < numPixels; index++) {
+      let spv = pixelData[index];
+      minMax[0] = Math.min(minMax[0], spv);
+      minMax[1] = Math.max(minMax[1], spv);
+    }
+
+    return minMax;
+  }
 }

@@ -141,17 +141,19 @@ export default class WidgetsRoi extends WidgetsBase {
         // State of ruler widget
         this._active = active;
 
-        let newLine = document.createElement('div');
-        newLine.setAttribute('class', 'widgets handle line');
-        newLine.style.position = 'absolute';
-        newLine.style.transformOrigin = '0 100%';
-        newLine.style.marginTop = '-1px';
-        newLine.style.height = '2px';
-        newLine.style.width = '3px';
-        newLine.style.backgroundColor = '#F9F9F9';
+        if (this._lines.length < this._handles.length) {
+            let newLine = document.createElement('div');
+            newLine.setAttribute('class', 'widgets handle line');
+            newLine.style.position = 'absolute';
+            newLine.style.transformOrigin = '0 100%';
+            newLine.style.marginTop = '-1px';
+            newLine.style.height = '2px';
+            newLine.style.width = '3px';
+            newLine.style.backgroundColor = '#F9F9F9';
 
-        this._lines.push(newLine);
-        this._container.appendChild(newLine);
+            this._lines.push(newLine);
+            this._container.appendChild(newLine);
+        }
 
         this._init = true;
         this.update();

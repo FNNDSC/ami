@@ -1,20 +1,3 @@
-// use nifti-js and just parse header.???
-
-// Slicer way to handle images
-// should follow it...
- // 897   if ( (this->IndexSeriesInstanceUIDs[k] != idxSeriesInstanceUID && this->IndexSeriesInstanceUIDs[k] >= 0 && idxSeriesInstanceUID >= 0) ||
- // 898        (this->IndexContentTime[k] != idxContentTime && this->IndexContentTime[k] >= 0 && idxContentTime >= 0) ||
- // 899        (this->IndexTriggerTime[k] != idxTriggerTime && this->IndexTriggerTime[k] >= 0 && idxTriggerTime >= 0) ||
- // 900        (this->IndexEchoNumbers[k] != idxEchoNumbers && this->IndexEchoNumbers[k] >= 0 && idxEchoNumbers >= 0) ||
- // 901        (this->IndexDiffusionGradientOrientation[k] != idxDiffusionGradientOrientation  && this->IndexDiffusionGradientOrientation[k] >= 0 && idxDiffusionGradientOrientation >= 0) ||
- // 902        (this->IndexSliceLocation[k] != idxSliceLocation && this->IndexSliceLocation[k] >= 0 && idxSliceLocation >= 0) ||
- // 903        (this->IndexImageOrientationPatient[k] != idxImageOrientationPatient && this->IndexImageOrientationPatient[k] >= 0 && idxImageOrientationPatient >= 0) )
- // 904     {
- // 905       continue;
- // 906     }
-
-// http://brainder.org/2012/09/23/the-nifti-file-format/
-
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
 
@@ -44,7 +27,8 @@ export default class ParsersNifti extends ParsersVolume {
 
     if (NiftiReader.isNIFTI(this._arrayBuffer)) {
       this._dataSet = NiftiReader.readHeader(this._arrayBuffer);
-      this._niftiImage = NiftiReader.readImage(this._dataSet, this._arrayBuffer);
+      this._niftiImage =
+        NiftiReader.readImage(this._dataSet, this._arrayBuffer);
     } else {
       throw 'parsers.nifti could not parse the file';
     }
@@ -108,7 +92,7 @@ export default class ParsersNifti extends ParsersVolume {
     // 0 integer, 1 float
 
     let pixelType = 0;
-    if(this._dataSet.datatypeCode === 16 ||
+    if (this._dataSet.datatypeCode === 16 ||
       this._dataSet.datatypeCode === 64 ||
       this._dataSet.datatypeCode === 1536) {
       pixelType = 1;
@@ -137,12 +121,15 @@ export default class ParsersNifti extends ParsersVolume {
     // window.console.log(this._dataSet);
     // http://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1.h
     // http://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1_io.c
-    if(this._dataSet.qform_code > 0) {
+    if (this._dataSet.qform_code > 0) {
       // https://github.com/Kitware/ITK/blob/master/Modules/IO/NIFTI/src/itkNiftiImageIO.cxx
-      let a = 0.0, b = this._dataSet.quatern_b, c = this._dataSet.quatern_c, d = this._dataSet.quatern_d;
+      let a = 0.0;
+      let b = this._dataSet.quatern_b;
+      let c = this._dataSet.quatern_c;
+      let d = this._dataSet.quatern_d;
       // compute a
       a = 1.0 - (b*b + c*c + d*d);
-      if(a < 0.0000001) {
+      if (a < 0.0000001) {
                    /* special case */
 
         a = 1.0 / Math.sqrt(b*b+c*c+d*d);
@@ -152,7 +139,7 @@ export default class ParsersNifti extends ParsersVolume {
         a = Math.sqrt(a);                     /* angle = 2*arccos(a) */
       }
 
-      if(this._dataSet.pixDims[0] < 0.0) {
+      if (this._dataSet.pixDims[0] < 0.0) {
         this._rightHanded = false;
       }
 
@@ -164,16 +151,18 @@ export default class ParsersNifti extends ParsersVolume {
           -(a*a+c*c-b*b-d*d),
           2*(c*d+a*b),
         ];
-    }else if(this._dataSet.sform_code > 0) {
+    } else if (this._dataSet.sform_code > 0) {
       console.log('sform > 0');
 
-      let sx = this._dataSet.srow_x, sy = this._dataSet.srow_y, sz = this._dataSet.srow_z;
+      let sx = this._dataSet.srow_x;
+      let sy = this._dataSet.srow_y;
+      let sz = this._dataSet.srow_z;
       // fill IJKToRAS
       // goog.vec.Mat4.setRowValues(IJKToRAS, 0, sx[0], sx[1], sx[2], sx[3]);
       // goog.vec.Mat4.setRowValues(IJKToRAS, 1, sy[0], sy[1], sy[2], sy[3]);
       // goog.vec.Mat4.setRowValues(IJKToRAS, 2, sz[0], sz[1], sz[2], sz[3]);
-    } else if(this._dataSet.qform_code === 0) {
-            console.log('qform === 0');
+    } else if (this._dataSet.qform_code === 0) {
+      console.log('qform === 0');
 
 
       // fill IJKToRAS
@@ -219,43 +208,8 @@ export default class ParsersNifti extends ParsersVolume {
     return this._dataSet.scl_intercept;
   }
 
-  minMaxPixelData(pixelData = []) {
-    let minMax = [65535, -32768];
-    let numPixels = pixelData.length;
-    for (let index = 0; index < numPixels; index++) {
-      let spv = pixelData[index];
-      minMax[0] = Math.min(minMax[0], spv);
-      minMax[1] = Math.max(minMax[1], spv);
-    }
-
-    return minMax;
-  }
-
   extractPixelData(frameIndex = 0) {
     return this._decompressUncompressed(frameIndex);
-    // let buffer = this._dataSet.imageData;
-    // if (this._dataSet.compressed) {
-    // let buffer = this._dataSet.rawData[0];
-    // try {
-    //   let data = pako.inflate(new Uint8Array(buffer));
-    //   buffer = data.buffer;
-    // } catch (err) {
-    //   console.log(err);
-    // }
-
-    // window.console.log(buffer);
-    // }
-
-    // is it compressed?
-    // yes/no
-
-    //     try {
-    //   var result = pako.inflate(compressed);
-    // } catch (err) {
-    //   console.log(err);
-    // }
-
-    // window.console.log(this);
   }
 
   _decompressUncompressed(frameIndex = 0) {
@@ -276,7 +230,8 @@ export default class ParsersNifti extends ParsersVolume {
     // papaya.volume.nifti.NIFTI_TYPE_COMPLEX256   = 2048;
 
     let numberOfChannels = this.numberOfChannels();
-    let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    let numPixels =
+      this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
     // if( !this.rightHanded() ){
     //   frameIndex = this.numberOfFrames() - 1 - frameIndex;
     // }

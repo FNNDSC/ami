@@ -23,7 +23,7 @@ const widgetsAvailable = [
   'VoxelProbe',
   'Annotation',
 ];
-const guiObjects = { //Handle by default
+const guiObjects = {
   type: 'Handle',
 };
 
@@ -87,8 +87,8 @@ window.onload = function() {
   const loader = new LoadersVolume(threeD);
   // Start off with a promise that always resolves
   loader.load(file)
-  .then(function() {
-    const stack = loader.data[0]._stack[0];
+  .then((series) => {
+    const stack = series[0]._stack[0];
     loader.free();
     let stackHelper = new HelpersStack(stack);
 

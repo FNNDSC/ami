@@ -141,4 +141,105 @@ export default class CoreUtils {
     return data;
   }
 
+  /**
+   * Compute IJK to LPS tranform.
+   *
+   * @param {*} xCos
+   * @param {*} yCos
+   * @param {*} zCos
+   * @param {*} spacing
+   * @param {*} origin
+   * @param {*} registrationMatrix
+   *
+   * @return {*}
+   */
+  static ijk2LPS(
+    xCos, yCos, zCos,
+    spacing, origin,
+    registrationMatrix = new THREE.Matrix4()) {
+    const ijk2LPS = new THREE.Matrix4();
+    ijk2LPS.set(
+      xCos.x * spacing.y, yCos.x * spacing.x, zCos.x * spacing.z, origin.x,
+      xCos.y * spacing.y, yCos.y * spacing.x, zCos.y * spacing.z, origin.y,
+      xCos.z * spacing.y, yCos.z * spacing.x, zCos.z * spacing.z, origin.z,
+      0, 0, 0, 1);
+    ijk2LPS.premultiply(registrationMatrix);
+
+    return ijk2LPS;
+  }
+
+  /**
+   * Compute AABB to LPS transform.
+   * AABB: Axe Aligned Bounding Box.
+   *
+   * @param {*} xCos
+   * @param {*} yCos
+   * @param {*} zCos
+   * @param {*} origin
+   *
+   * @return {*}
+   */
+  static aabb2LPS(
+    xCos, yCos, zCos,
+    origin) {
+    const aabb2LPS = new THREE.Matrix4();
+    aabb2LPS.set(
+        xCos.x, yCos.x, zCos.x, origin.x,
+        xCos.y, yCos.y, zCos.y, origin.y,
+        xCos.z, yCos.z, zCos.z, origin.z,
+        0, 0, 0, 1);
+
+    return aabb2LPS;
+  }
+
+  /**
+   * Transform coordinates from world coordinate to data
+   *
+   * @param {*} lps2IJK
+   * @param {*} worldCoordinates
+   *
+   * @return {*}
+   */
+    static worldToData(lps2IJK, worldCoordinates) {
+    let dataCoordinate = new THREE.Vector3()
+      .copy(worldCoordinates)
+      .applyMatrix4(lps2IJK);
+
+    // same rounding in the shaders
+    dataCoordinate.addScalar(0.5).floor();
+
+    return dataCoordinate;
+  }
+
+  /**
+   * Get voxel value
+   *
+   * @param {*} stack
+   * @param {*} coordinate
+   *
+   * @return {*}
+   */
+  static value(stack, coordinate) {
+    if (coordinate.z >= 0 &&
+        coordinate.z < stack._frame.length) {
+      return stack._frame[coordinate.z].
+        value(coordinate.x, coordinate.y);
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Apply slope/intercept to a value
+   *
+   * @param {*} value
+   * @param {*} slope
+   * @param {*} intercept
+   *
+   * @return {*}
+   */
+  static rescaleSlopeIntercept(value, slope, intercept) {
+    return value * slope + intercept;
+  }
+
 }
