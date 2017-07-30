@@ -42,7 +42,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._labelhovered = false;
     this._domHovered = false;
     this._hovered = true;
-    this._manuallabeldisplay = false;
+    this._manuallabeldisplay = false; //Make true to force the label to be displayed
 
     //var
     this._labelpositionx = null; //position of label (top left corner)
