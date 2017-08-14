@@ -3,11 +3,11 @@
 import CamerasOrthographic from '../../src/cameras/cameras.orthographic';
 import ControlsOrthographic from '../../src/controls/controls.trackballortho';
 import ControlsTrackball from '../../src/controls/controls.trackball';
+import CoreUtils from '../../src/core/core.utils';
 import HelpersBoundingBox from '../../src/helpers/helpers.boundingbox';
 import HelpersLocalizer from '../../src/helpers/helpers.localizer';
 import HelpersStack from '../../src/helpers/helpers.stack';
 import LoadersVolume from '../../src/loaders/loaders.volume';
-import ModelsStack from '../../src/models/models.stack';
 
 import ShadersContourUniform from '../../src/shaders/shaders.contour.uniform';
 import ShadersContourVertex from '../../src/shaders/shaders.contour.vertex';
@@ -296,7 +296,7 @@ function init() {
         object.materialBack.clippingPlanes = [clipPlane1];
         r1.renderer.render(object.scene, r1.camera, redTextureTarget, true);
         r1.renderer.clearDepth();
-        redContourMaterial.uniforms.uWidth.value = object.selected ? 5 : 1;
+        redContourMaterial.uniforms.uWidth.value = object.selected ? 2 : 1;
         r1.renderer.render(redCountourScene, r1.camera);
         r1.renderer.clearDepth();
       });
@@ -489,21 +489,24 @@ window.onload = function() {
     let redChanged = stackFolder1.add(
       r1.stackHelper,
       'index', 0, r1.stackHelper.orientationMaxIndex).step(1).listen();
-    stackFolder1.add(r1.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
+    stackFolder1.add(
+      r1.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
 
     // Yellow
     let stackFolder2 = gui.addFolder('Sagittal (yellow)');
     let yellowChanged = stackFolder2.add(
       r2.stackHelper,
       'index', 0, r2.stackHelper.orientationMaxIndex).step(1).listen();
-    stackFolder2.add(r2.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
+    stackFolder2.add(
+      r2.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
 
     // Green
     let stackFolder3 = gui.addFolder('Coronal (green)');
     let greenChanged = stackFolder3.add(
       r3.stackHelper,
       'index', 0, r3.stackHelper.orientationMaxIndex).step(1).listen();
-    stackFolder3.add(r3.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
+    stackFolder3.add(
+      r3.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
 
     /**
      * Update Layer Mix
@@ -516,12 +519,12 @@ window.onload = function() {
 
       // bit of a hack... works fine for this application
       for (let i = 0; i < targetLocalizersHelpers.length; i++) {
-        for (let j = 0; j < 4; j++) {
+        for (let j = 0; j < 3; j++) {
           let targetPlane = targetLocalizersHelpers[i]['plane' + (j + 1)];
           if (targetPlane &&
-             plane.x === targetPlane.x &&
-             plane.y === targetPlane.y &&
-             plane.z === targetPlane.z) {
+             plane.x.toFixed(6) === targetPlane.x.toFixed(6) &&
+             plane.y.toFixed(6) === targetPlane.y.toFixed(6) &&
+             plane.z.toFixed(6) === targetPlane.z.toFixed(6)) {
             targetLocalizersHelpers[i]['plane' + (j + 1)] = plane;
           }
         }
@@ -589,7 +592,7 @@ window.onload = function() {
     greenChanged.onChange(onGreenChanged);
 
     function onDoubleClick(event) {
-      const canvas = event.srcElement.parentElement;
+      const canvas = event.target.parentElement;
       const id = event.target.id;
       const mouse = {
         x: ((event.clientX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1,
@@ -628,7 +631,8 @@ window.onload = function() {
       const intersects = raycaster.intersectObjects(scene.children, true);
       if (intersects.length > 0) {
         let ijk =
-          ModelsStack.worldToData(stackHelper.stack, intersects[0].point);
+          CoreUtils.worldToData(stackHelper.stack.lps2IJK, intersects[0].point);
+
         r1.stackHelper.index =
           ijk.getComponent((r1.stackHelper.orientation + 2) % 3);
         r2.stackHelper.index =

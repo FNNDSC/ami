@@ -241,5 +241,4 @@ export default class CoreUtils {
   static rescaleSlopeIntercept(value, slope, intercept) {
     return value * slope + intercept;
   }
-
 }
