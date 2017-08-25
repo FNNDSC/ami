@@ -3,11 +3,12 @@
  */
 
 export default class HelpersSegmentationLut {
-  constructor(containerID, lut = 'Freesurfer', color = [[1, 140, 120, 80], [2, 120, 60, 170]], dict = ["Air","Bone"]) {
+  constructor(containerID, lut = 'Freesurfer', color = [[1, 140, 120, 80], [2, 120, 60, 170]], opacity = [[0, 0], [1, 1]], dict = ["Air","Bone"]) {
 
     this._containerID = containerID;
     this._dict = dict; //Dictionary that maps labels to strings
     this._color = color;
+    this._opacity = opacity;
     this._lut = lut;
     this._luts = {[lut]: color};
 
@@ -53,10 +54,10 @@ export default class HelpersSegmentationLut {
         let labelPos = this._color[i][0];
         let xCoord = labelPos % this._canvas.width;
         let yCoord =  Math.floor(labelPos/this._canvas.width);
-        let colorData = new Uint8ClampedArray([this._color[i][1],this._color[i][2],this._color[i][3],1.0]);     
-  
+        let opacity = this._opacity[i] ? this._opacity[i][1] : 1;
+
         ctx.beginPath();
-        ctx.strokeStyle =  `rgba( ${Math.round(this._color[i][1])}, ${Math.round(this._color[i][2])}, ${Math.round(this._color[i][3])}, 1.0)`;
+        ctx.strokeStyle =  `rgba( ${Math.round(this._color[i][1])}, ${Math.round(this._color[i][2])}, ${Math.round(this._color[i][3])}, ${opacity})`;
         ctx.moveTo(xCoord, yCoord);
         ctx.lineTo(xCoord+1, yCoord+1); //One pixel step
         ctx.stroke();
