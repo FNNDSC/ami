@@ -56,7 +56,7 @@ export default class HelpersSegmentationLut {
     ctx.globalCompositeOperation = 'source-over';
     ctx.lineWidth = 1;
 
-   for(i in this._segObj){  //i is the label number and specifies the coordinates inside the canvas
+   for(let i in this._segObj){  //i is the label number and specifies the coordinates inside the canvas
 
       let xCoord = i % this._canvas.width;
       let yCoord = Math.floor(i / this._canvas.width);
@@ -64,7 +64,7 @@ export default class HelpersSegmentationLut {
       let color = this._segObj[i]["color"];
 
       ctx.beginPath();
-      ctx.strokeStyle = `rgba( ${Math.round(color[1])}, ${Math.round(color[2])}, ${Math.round(color[3])}, ${opacity})`;
+      ctx.strokeStyle = `rgba( ${Math.round(color[0])}, ${Math.round(color[1])}, ${Math.round(color[2])}, ${opacity})`;
       ctx.moveTo(xCoord, yCoord);
       ctx.lineTo(xCoord + 1, yCoord + 1); //One pixel step
       ctx.stroke();
