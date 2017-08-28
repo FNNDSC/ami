@@ -42,6 +42,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._labelhovered = false;
     this._domHovered = false;
     this._hovered = true;
+    this._manuallabeldisplay = false; //Make true to force the label to be displayed
 
     //var
     this._labelpositionx = null; //position of label (top left corner)
@@ -187,6 +188,16 @@ export default class WidgetsAnnotation extends WidgetsBase {
         }
     }
   }
+
+  displaylabel() {
+    if (typeof this._labeltext == 'string'){ //avoid error
+        this._label.innerHTML = this._labeltext;
+        this._label.style.display = ''; //in css an empty string is used to revert display=none. Show the label
+        this._dashline.style.display = ''; //in css an empty string is used to revert display=none. Show the label
+        this._label.style.transform = `translate3D(${this._labelpositionx}px,${this._labelpositiony}px, 0)`; 
+    }
+  }
+
 
   onEnd(evt) {
     // First Handle
@@ -364,6 +375,13 @@ export default class WidgetsAnnotation extends WidgetsBase {
         this._labelpositiony = mousey - this._differencemousecenterlabely;
     }
 
+    //create the label without the interaction of the user. Useful when we need to create the label manually.
+    if (this._manuallabeldisplay) { 
+        this.displaylabel();
+    }
+
+
+
     //update cone
     let w0 = this._handles[0].worldPosition;
     let w1 = this._handles[1].worldPosition;
@@ -486,5 +504,5 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this.hideDOM();
     this.hideMesh();
   }
-
+  
 }
