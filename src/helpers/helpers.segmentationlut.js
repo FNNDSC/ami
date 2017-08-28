@@ -44,7 +44,7 @@ export default class HelpersSegmentationLut {
 
   createCanvas() {
     let canvas = document.createElement('canvas');
-    canvas.height = 16;
+    canvas.height = 128;
     canvas.width = 256;
     return canvas;
   }
