@@ -57,12 +57,8 @@ export default class HelpersSegmentationLut {
       let opacity = this._segmentation[i]['opacity'] ? this._segmentation[i]['opacity'] : 1;
       let color = this._segmentation[i]['color'];
 
-      ctx.beginPath();
-      ctx.strokeStyle = `rgba( ${Math.round(color[0])}, ${Math.round(color[1])}, ${Math.round(color[2])}, ${opacity})`;
-      ctx.moveTo(xCoord, yCoord);
-      ctx.lineTo(xCoord + 1, yCoord + 1); //One pixel step
-      ctx.stroke();
-      ctx.closePath();
+      ctx.fillStyle = `rgba( ${Math.round(color[0])}, ${Math.round(color[1])}, ${Math.round(color[2])}, ${opacity})`;
+      ctx.fillRect(xCoord, yCoord, 1, 1);
     }
   }
 
