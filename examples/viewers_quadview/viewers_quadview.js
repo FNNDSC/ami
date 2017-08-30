@@ -653,7 +653,7 @@ window.onload = function() {
     r3.domElement.addEventListener('dblclick', onDoubleClick);
 
     function onClick(event) {
-      const canvas = event.srcElement.parentElement;
+      const canvas = event.target.parentElement;
       const id = event.target.id;
       const mouse = {
         x: ((event.clientX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1,
