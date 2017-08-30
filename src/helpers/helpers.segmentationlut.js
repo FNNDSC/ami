@@ -1,7 +1,10 @@
-import PresetsSegmentation from '../presets/presets.segmentation.js'
+let defaultSegmentation = {
+  0: {color: [0, 0, 0],opacity: 0,label: 'background'},
+  1: {color: [255, 0, 0],opacity: 1,label: 'white matter'},
+};
 
 export default class HelpersSegmentationLut {
-  constructor(containerID, segID = 'Freesurfer', segmentation = new PresetsSegmentation('Freesurfer').preset){
+  constructor(containerID, segID = 'Freesurfer', segmentation = defaultSegmentation){
 
     this._containerID = containerID;
     this._segmentation = segmentation;
