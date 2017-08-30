@@ -62,7 +62,6 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
 }
     `;
   }
-
 }
 
 export default new Texture3d();

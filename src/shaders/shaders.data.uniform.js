@@ -66,6 +66,16 @@ export default class ShadersUniform {
         value: [],
         typeGLSL: 'sampler2D',
       },
+      'uLutSegmentation': {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int',
+      },
+      'uTextureLUTSegmentation': {
+        type: 't',
+        value: [],
+        typeGLSL: 'sampler2D',
+      },
       'uPixelType': {
         type: 'i',
         value: 0,
