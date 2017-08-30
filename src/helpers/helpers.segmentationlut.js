@@ -1,8 +1,10 @@
+import PresetsSegmentation from '../presets/presets.segmentation.js'
+
 export default class HelpersSegmentationLut {
-  constructor(containerID, segID = 'Freesurfer', segObj){
+  constructor(containerID, segID = 'Freesurfer', segmentation = new PresetsSegmentation('Freesurfer').preset){
 
     this._containerID = containerID;
-    this._segObj = segObj;
+    this._segmentation = segmentation;
 
     /*The segmentation object contains the color,opacity, label and structures associated:  
     e.g
@@ -11,7 +13,6 @@ export default class HelpersSegmentationLut {
     1: {color: [255, 0, 0],opacity: 1,label: 'white matter'},
     }
     */
-
     this.initCanvas();
     this.paintCanvas();
   }
@@ -49,12 +50,12 @@ export default class HelpersSegmentationLut {
     ctx.globalCompositeOperation = 'source-over';
     ctx.lineWidth = 1;
 
-   for(let i in this._segObj){  //i is the label number and specifies the coordinates inside the canvas
+   for(let i in this._segmentation){  //i is the label number and specifies the coordinates inside the canvas
 
       let xCoord = i % this._canvas.width;
       let yCoord = Math.floor(i / this._canvas.width);
-      let opacity = this._segObj[i]['opacity'] ? this._segObj[i]['opacity'] : 1;
-      let color = this._segObj[i]['color'];
+      let opacity = this._segmentation[i]['opacity'] ? this._segmentation[i]['opacity'] : 1;
+      let color = this._segmentation[i]['color'];
 
       ctx.beginPath();
       ctx.strokeStyle = `rgba( ${Math.round(color[0])}, ${Math.round(color[1])}, ${Math.round(color[2])}, ${opacity})`;
@@ -77,13 +78,13 @@ export default class HelpersSegmentationLut {
   }
 
   //Set and get the segmentation object (you can create it or get it from the presets file)
-  set segmentation(segObj) {
-    this._segObj = segObj;
+  set segmentation(segmentation) {
+    this._segmentation = segmentation;
     this.paintCanvas();
   }
 
   get segmentation() {
-    return this._segObj;
+    return this._segmentation;
   }
 
 }
