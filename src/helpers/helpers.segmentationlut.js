@@ -57,7 +57,7 @@ export default class HelpersSegmentationLut {
 
       let xCoord = i % this._canvas.width;
       let yCoord = Math.floor(i / this._canvas.width);
-      let opacity = this._segmentation[i]['opacity'] ? this._segmentation[i]['opacity'] : 1;
+      let opacity = (typeof this._segmentation[i]['opacity'] != "undefined") ? this._segmentation[i]['opacity'] : 1;
       let color = this._segmentation[i]['color'];
 
       ctx.fillStyle = `rgba( ${Math.round(color[0])}, ${Math.round(color[1])}, ${Math.round(color[2])}, ${opacity})`;
