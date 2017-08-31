@@ -1,13 +1,14 @@
 import WidgetsBase from '../widgets/widgets.base';
 import WidgetsHandle from '../widgets/widgets.handle';
 
+import {Geometry, Line, LineBasicMaterial, Vector3} from 'three';
+
 /**
  * @module widgets/handle
  *
  */
 
 export default class WidgetsRoi extends WidgetsBase {
-
     constructor(targetMesh, controls, camera, container) {
         super();
 
@@ -19,8 +20,8 @@ export default class WidgetsRoi extends WidgetsBase {
         this._active = true;
         this._init = false;
 
-        this._worldPosition = new THREE.Vector3();
-        if(this._targetMesh !== null) {
+        this._worldPosition = new Vector3();
+        if (this._targetMesh !== null) {
             this._worldPosition = this._targetMesh.position;
         }
 
@@ -61,7 +62,7 @@ export default class WidgetsRoi extends WidgetsBase {
 
     onMove(evt) {
         this._dragged = true;
-        let numHandles =  this._handles.length;
+        let numHandles = this._handles.length;
 
         if (this.active && !this._init) {
             let lastHandle = this._handles[numHandles-1];
@@ -95,7 +96,7 @@ export default class WidgetsRoi extends WidgetsBase {
 
         for (let index in this._handles) {
             this._handles[index].onMove(evt);
-            hovered = hovered || this._handles[index].hovered
+            hovered = hovered || this._handles[index].hovered;
         }
 
         this._hovered = hovered;
@@ -114,7 +115,7 @@ export default class WidgetsRoi extends WidgetsBase {
 
         for (let index in this._handles) {
             this._handles[index].onStart(evt);
-            active = active || this._handles[index].active
+            active = active || this._handles[index].active;
         }
 
         this._active = active;
@@ -126,18 +127,18 @@ export default class WidgetsRoi extends WidgetsBase {
         var active = false;
         for (let index in this._handles.slice(0, this._handles.length-2)) {
             this._handles[index].onEnd(evt);
-            active = active || this._handles[index].active
+            active = active || this._handles[index].active;
         }
 
         // Second Handle
-        if(this._dragged || !this._handles[this._handles.length-1].tracking) {
+        if (this._dragged || !this._handles[this._handles.length-1].tracking) {
             this._handles[this._handles.length-1].tracking = false;
             this._handles[this._handles.length-1].onEnd(evt);
-        } else{
+        } else {
             this._handles[this._handles.length-1].tracking = false;
         }
 
-        active = active || this._handles[this._handles.length-1].active
+        active = active || this._handles[this._handles.length-1].active;
         // State of ruler widget
         this._active = active;
 
@@ -184,7 +185,7 @@ export default class WidgetsRoi extends WidgetsBase {
         }
     }
 
-    hideMesh(){
+    hideMesh() {
         this.visible = false;
     }
 
@@ -220,17 +221,17 @@ export default class WidgetsRoi extends WidgetsBase {
 
     createMesh() {
         // geometry
-        this._geometry = new THREE.Geometry();
+        this._geometry = new Geometry();
         for (let index in this._handles) {
             this._geometry.vertices.push(this._handles[index].worldPosition);
         }
 
         // material
-        this._material = new THREE.LineBasicMaterial();
+        this._material = new LineBasicMaterial();
         this.updateMeshColor();
 
         // mesh
-        this._mesh = new THREE.Line(this._geometry, this._material);
+        this._mesh = new Line(this._geometry, this._material);
         this._mesh.visible = true;
 
         // add it!
@@ -238,13 +239,13 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     updateMeshColor() {
-        if(this._material) {
+        if (this._material) {
             this._material.color.set(this._color);
         }
     }
 
     updateMeshPosition() {
-        if(this._geometry) {
+        if (this._geometry) {
             this._geometry.verticesNeedUpdate = true;
         }
     }
@@ -276,13 +277,13 @@ export default class WidgetsRoi extends WidgetsBase {
         this.updateDOMColor();
     }
 
-    isPointOnLine (pointA, pointB, pointToCheck) {
-        var c = new THREE.Vector3();
+    isPointOnLine(pointA, pointB, pointToCheck) {
+        var c = new Vector3();
         c.crossVectors(pointA.clone().sub(pointToCheck), pointB.clone().sub(pointToCheck));
         return !c.length();
     }
 
-    pushPopHandle () {
+    pushPopHandle() {
         let handle0 = this._handles[this._handles.length-3];
         let handle1 = this._handles[this._handles.length-2];
         let newhandle = this._handles[this._handles.length-1];
@@ -304,7 +305,7 @@ export default class WidgetsRoi extends WidgetsBase {
         return isOnLine;
     }
 
-    updateLineDOM (lineIndex, handle0Index, handle1Index) {
+    updateLineDOM(lineIndex, handle0Index, handle1Index) {
         // update rulers lines and text!
         let x1 = this._handles[handle0Index].screenPosition.x;
         let y1 = this._handles[handle0Index].screenPosition.y;
@@ -329,7 +330,6 @@ export default class WidgetsRoi extends WidgetsBase {
         let transform = `translate3D(${x1}px, ${posY}px, 0)`;
         transform += ` rotate(${angle}deg)`;
 
-        //this._lines[lineIndex].style.display = '';
         this._lines[lineIndex].style.transform = transform;
         this._lines[lineIndex].style.width = length;
     }
@@ -348,12 +348,10 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     getPointInBetweenByPerc(pointA, pointB, percentage) {
-
         var dir = pointB.clone().sub(pointA);
         var len = dir.length();
         dir = dir.normalize().multiplyScalar(len*percentage);
         return pointA.clone().add(dir);
-
     }
 
     get worldPosition() {

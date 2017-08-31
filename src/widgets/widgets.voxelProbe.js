@@ -5,6 +5,8 @@ import ModelsStack from '../models/models.stack';
 import ModelsVoxel from '../models/models.voxel';
 import CoreIntersections from '../core/core.intersections';
 
+import {Mesh, MeshBasicMaterial, Raycaster, Vector2, Vector3} from 'three';
+
 /**
  * @module widgets/voxelProbe
  */
@@ -21,23 +23,23 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
     // if no target mesh, use plane for FREE dragging.
     this._plane = {
-        position: new THREE.Vector3(),
-        direction: new THREE.Vector3(),
+        position: new Vector3(),
+        direction: new Vector3(),
     };
 
-    this._offset = new THREE.Vector3();
-    this._raycaster = new THREE.Raycaster();
+    this._offset = new Vector3();
+    this._raycaster = new Raycaster();
 
     this._tracking = false;
 
-    this._mouse = new THREE.Vector2();
+    this._mouse = new Vector2();
     this._lastEvent = null;
 
     // world (LPS) position of the center
-    this._worldPosition = new THREE.Vector3();
+    this._worldPosition = new Vector3();
 
     // screen position of the center
-    this._screenPosition = new THREE.Vector2();
+    this._screenPosition = new Vector2();
 
     // mesh stuff
     this._material = null;
@@ -253,11 +255,11 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       this._worldPosition);
 
     this._geometry = new GeometriesVoxel(dataCoordinates);
-    this._material = new THREE.MeshBasicMaterial({
+    this._material = new MeshBasicMaterial({
         wireframe: true,
         wireframeLinewidth: 1,
       });
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
+    this._mesh = new Mesh(this._geometry, this._material);
     this._mesh.applyMatrix(this._stack.ijk2LPS);
     this._mesh.visible = true;
 
