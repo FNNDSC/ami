@@ -101,7 +101,7 @@ export default class HelpersProgressBarEventBased {
     });
 
     this._emitter.on('parse-start', function(event) {
-      const liParent = document.getElementById('file-' + event.file)
+      const liParent = document.getElementById('file-' + event.file);
       const parseprogress = document.createElement('div');
       parseprogress.id = 'file-parse-' + event.file;
       parseprogress.style.width = '0%';
@@ -121,7 +121,7 @@ export default class HelpersProgressBarEventBased {
       self._domCurrentProgress.style.width = (self.loaded / self.totalFile) *
         100 + '%';
       // show result
-      const liParent = document.getElementById('file-' + event.file)
+      const liParent = document.getElementById('file-' + event.file);
       const result = document.createElement('div');
       result.id = 'file-result-' + event.file;
       result.innerHTML = 'parse-success';

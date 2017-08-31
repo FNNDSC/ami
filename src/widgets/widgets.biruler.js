@@ -427,7 +427,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     getPointInBetweenByPerc(pointA, pointB, percentage) {
-
         var dir = pointB.clone().sub(pointA);
         var len = dir.length();
         dir = dir.normalize().multiplyScalar(len*percentage);

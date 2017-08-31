@@ -35,6 +35,7 @@
     "no-multi-str": "warn",
     "no-mixed-spaces-and-tabs": "warn",
     "no-empty": "warn",
-    "no-undef": "warn"
+    "no-undef": "warn",
+    "switch-colon-spacing": 0
   }
 }

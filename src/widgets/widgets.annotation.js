@@ -355,7 +355,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     var x;
     var y;
 
-    if (!this._labelmoved) { //if the user hasnt moved the label, the position is defined by the position of the arrow
+    if (!this._labelmoved) { // if the user hasnt moved the label, the position is defined by the position of the arrow
         let transform2 = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
         this._label.style.transform = transform2;
         this._labelpositionx = Math.round(x0);
@@ -366,7 +366,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     if (this._movinglabel) { // if the user has moved the label, the position is defined by the mouse
         mousex = event.clientX;
         mousey = -(-event.clientY + this._container.offsetHeight);
-        this._label.style.transform = `translate3D(${mousex - this._differencemousecenterlabelx}px,${mousey - this._differencemousecenterlabely}px, 0)`; 
+        this._label.style.transform = `translate3D(${mousex - this._differencemousecenterlabelx}px,${mousey - this._differencemousecenterlabely}px, 0)`;
         // we use differencemousecenterlabel to check the difference between the position of the mouse in the label and the reference position of the label (top-left corner)
         this._labelpositionx = mousex - this._differencemousecenterlabelx;
         this._labelpositiony = mousey - this._differencemousecenterlabely;

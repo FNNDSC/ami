@@ -1290,6 +1290,7 @@ const segmentationFs = {
   14172: {color: [101, 60, 60], opacity: 1, label: 'wm_rh_S_subparietal'},
   14173: {color: [21, 180, 180], opacity: 1, label: 'wm_rh_S_temporal_inf'},
   14174: {color: [223, 220, 60], opacity: 1, label: 'wm_rh_S_temporal_sup'},
-  14175: {color: [221, 60, 60], opacity: 1, label: 'wm_rh_S_temporal_transverse'},};
+  14175: {color: [221, 60, 60], opacity: 1, label: 'wm_rh_S_temporal_transverse'},
+};
 
 export default segmentationFs;

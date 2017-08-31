@@ -139,8 +139,10 @@ export default class CoreUtils {
     }
 
     // get file name
-    if (!data.filename)
+    if (!data.filename) {
       data.filename = data.pathname.split('/').pop();
+    }
+
 
     // find extension
     let splittedName = data.filename.split('.');

@@ -337,7 +337,7 @@ export default class WidgetsRoi extends WidgetsBase {
     updateDOMPosition() {
         if (this._handles.length >= 2) {
             for (let index in this._lines) {
-                this.updateLineDOM(index, index, parseInt(index) + 1 == this._handles.length ? 0 : parseInt(index) + 1)
+                this.updateLineDOM(index, index, parseInt(index) + 1 == this._handles.length ? 0 : parseInt(index) + 1);
             }
         }
     }

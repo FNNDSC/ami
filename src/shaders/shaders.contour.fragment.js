@@ -41,7 +41,7 @@ export default class ShadersFragment {
     this._main = `
 
 float luma (vec3 rgb) {
-	return (rgb.r + rgb.g + rgb.b)/3.0;
+  return (rgb.r + rgb.g + rgb.b)/3.0;
 }
 
 const float T = 0.04;

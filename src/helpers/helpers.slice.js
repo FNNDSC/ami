@@ -465,7 +465,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(Object3D) {
     let p3 = new Vector3(vertices[2].x, vertices[2].y, vertices[2].z)
       .applyMatrix4(dataToWorld);
     let v1 = new Vector3();
-		let v2 = new Vector3();
+    let v2 = new Vector3();
     let normal = v1
       .subVectors(p3, p2)
       .cross(v2.subVectors(p1, p2))

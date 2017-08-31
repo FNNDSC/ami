@@ -10,7 +10,7 @@ export default class HelpersSegmentationLut {
     this._containerID = containerID;
     this._segmentation = segmentation;
 
-    /* The segmentation object contains the color, opacity, label and structures associated:  
+    /* The segmentation object contains the color, opacity, label and structures associated:
       e.g
       const freesurferSegmentation = {
       0: {color: [0, 0, 0],opacity: 0,label: 'background'},
@@ -58,7 +58,7 @@ export default class HelpersSegmentationLut {
       // i is the label number and specifies the coordinates inside the canvas
       let xCoord = i % this._canvas.width;
       let yCoord = Math.floor(i / this._canvas.width);
-      let opacity = (typeof this._segmentation[i]['opacity'] != "undefined") ? this._segmentation[i]['opacity'] : 1;
+      let opacity = (typeof this._segmentation[i]['opacity'] != 'undefined') ? this._segmentation[i]['opacity'] : 1;
       let color = this._segmentation[i]['color'];
 
       ctx.fillStyle = `rgba( ${Math.round(color[0])}, ${Math.round(color[1])}, ${Math.round(color[2])}, ${opacity})`;
@@ -80,7 +80,7 @@ export default class HelpersSegmentationLut {
   /**
    * Set and get the segmentation object
    * (you can create it or get it from the presets file)
-   * 
+   *
    * @param {*} segmentation
    */
   set segmentation(segmentation) {

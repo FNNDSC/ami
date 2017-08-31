@@ -3,7 +3,7 @@
  */
 export default class {
   /**
-   * 
+   *
    */
   constructor(uniforms) {
     this._uniforms = uniforms;
@@ -12,7 +12,7 @@ export default class {
   }
 
   /**
-   * 
+   *
    */
   functions() {
     if (this._main === '') {
@@ -29,7 +29,7 @@ export default class {
   }
 
   /**
-   * 
+   *
    */
   uniforms() {
     let content = '';
@@ -48,7 +48,7 @@ export default class {
   }
 
   /**
-   * 
+   *
    */
   main() {
     // need to pre-call main to fill up the functions list
@@ -144,7 +144,7 @@ void main(void) {
   }
 
   /**
-   * 
+   *
    */
   compute() {
     return `

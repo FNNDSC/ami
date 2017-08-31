@@ -182,13 +182,12 @@ export default class GeometriesSlice extends ShapeGeometry {
 
     let noDups = [orderedpoints[0]];
     let epsilon = 0.0001;
-    for(let i=1; i<orderedpoints.length; i++) {
-      if(Math.abs(orderedpoints[i-1].angle - orderedpoints[i].angle) > epsilon) {
+    for (let i=1; i<orderedpoints.length; i++) {
+      if (Math.abs(orderedpoints[i-1].angle - orderedpoints[i].angle) > epsilon) {
         noDups.push(orderedpoints[i]);
       }
     }
 
     return noDups;
   }
-
 }

@@ -11,8 +11,8 @@ export default class ParsersNifti extends ParsersVolume {
   /**
    * Constructor
    *
-   * @param {*} data 
-   * @param {*} id 
+   * @param {*} data
+   * @param {*} id
    */
   constructor(data, id) {
     super();
