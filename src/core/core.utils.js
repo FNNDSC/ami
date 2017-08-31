@@ -1,5 +1,6 @@
 const URL = require('url');
 import Validators from './core.validators';
+import {Matrix4, Vector3} from 'three';
 
 /**
  * General purpose functions.
@@ -7,13 +8,12 @@ import Validators from './core.validators';
  * @module core/utils
  */
 export default class CoreUtils {
-
   /**
    * Generate a bouding box object.
-   * @param {THREE.Vector3} center - Center of the box.
-   * @param {THREE.Vector3} halfDimensions - Half Dimensions of the box.
-   * @return {Object} The bounding box object. {Object.min} is a {THREE.Vector3}
-   * containing the min bounds. {Object.max} is a {THREE.Vector3} containing the
+   * @param {Vector3} center - Center of the box.
+   * @param {Vector3} halfDimensions - Half Dimensions of the box.
+   * @return {Object} The bounding box object. {Object.min} is a {Vector3}
+   * containing the min bounds. {Object.max} is a {Vector3} containing the
    * max bounds.
    * @return {boolean} False input NOT valid.
    * @example
@@ -22,10 +22,10 @@ export default class CoreUtils {
    * //  max: { x : 2, y : 4,  z : 6 }
    * //}
    * VJS.Core.Utils.bbox(
-   *   new THREE.Vector3(1, 2, 3), new THREE.Vector3(1, 2, 3));
+   *   new Vector3(1, 2, 3), new Vector3(1, 2, 3));
    *
    * //Returns false
-   * VJS.Core.Utils.bbox(new THREE.Vector3(), new THREE.Matrix4());
+   * VJS.Core.Utils.bbox(new Vector3(), new Matrix4());
    *
    */
   static bbox(center, halfDimensions) {
@@ -116,7 +116,6 @@ export default class CoreUtils {
    * @return {Object}
    */
   static parseUrl(url) {
-
     const data = {};
     data.filename = '';
     data.extension = '';
@@ -128,11 +127,11 @@ export default class CoreUtils {
     data.pathname = parsedUrl.pathname;
     data.query = parsedUrl.query;
 
-    if(data.query) {
-      //Find "filename" parameter value, if present
+    if (data.query) {
+      // Find "filename" parameter value, if present
       data.filename = data.query.split('&').reduce((acc, fieldval) => {
         let fvPair = fieldval.split('=');
-        if(fvPair.length > 0 && fvPair[0] == 'filename') {
+        if (fvPair.length > 0 && fvPair[0] == 'filename') {
             acc = fvPair[1];
         }
         return acc;
@@ -140,7 +139,7 @@ export default class CoreUtils {
     }
 
     // get file name
-    if(!data.filename)
+    if (!data.filename)
       data.filename = data.pathname.split('/').pop();
 
     // find extension
@@ -178,8 +177,8 @@ export default class CoreUtils {
   static ijk2LPS(
     xCos, yCos, zCos,
     spacing, origin,
-    registrationMatrix = new THREE.Matrix4()) {
-    const ijk2LPS = new THREE.Matrix4();
+    registrationMatrix = new Matrix4()) {
+    const ijk2LPS = new Matrix4();
     ijk2LPS.set(
       xCos.x * spacing.y, yCos.x * spacing.x, zCos.x * spacing.z, origin.x,
       xCos.y * spacing.y, yCos.y * spacing.x, zCos.y * spacing.z, origin.y,
@@ -204,7 +203,7 @@ export default class CoreUtils {
   static aabb2LPS(
     xCos, yCos, zCos,
     origin) {
-    const aabb2LPS = new THREE.Matrix4();
+    const aabb2LPS = new Matrix4();
     aabb2LPS.set(
         xCos.x, yCos.x, zCos.x, origin.x,
         xCos.y, yCos.y, zCos.y, origin.y,
@@ -223,7 +222,7 @@ export default class CoreUtils {
    * @return {*}
    */
     static worldToData(lps2IJK, worldCoordinates) {
-    let dataCoordinate = new THREE.Vector3()
+    let dataCoordinate = new Vector3()
       .copy(worldCoordinates)
       .applyMatrix4(lps2IJK);
 
