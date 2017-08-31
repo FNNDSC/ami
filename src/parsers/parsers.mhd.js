@@ -1,5 +1,6 @@
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
+import {Vector3} from 'three';
 
 /**
  * @module parsers/mhd
@@ -109,13 +110,13 @@ export default class ParsersMHD extends ParsersVolume {
     let invertX = this._header.AnatomicalOrientation.match(/L/) ? -1 : 1;
     let invertY = this._header.AnatomicalOrientation.match(/P/) ? -1 : 1;
 
-    let x = new THREE.Vector3(
+    let x = new Vector3(
       parseFloat(this._header.TransformMatrix[0]) * invertX,
       parseFloat(this._header.TransformMatrix[1]) * invertY,
       parseFloat(this._header.TransformMatrix[2]));
     x.normalize();
 
-    let y = new THREE.Vector3(
+    let y = new Vector3(
       parseFloat(this._header.TransformMatrix[3]) * invertX,
       parseFloat(this._header.TransformMatrix[4]) * invertY,
       parseFloat(this._header.TransformMatrix[5]));

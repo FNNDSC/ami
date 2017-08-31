@@ -133,10 +133,10 @@ export default class ParsersNifti extends ParsersVolume {
                    /* special case */
 
         a = 1.0 / Math.sqrt(b*b+c*c+d*d);
-        b *= a; c *= a; d *= a;        /* normalize (b,c,d) vector */
-        a = 0.0;                       /* a = 0 ==> 180 degree rotation */
+        b *= a; c *= a; d *= a; /* normalize (b,c,d) vector */
+        a = 0.0; /* a = 0 ==> 180 degree rotation */
       } else {
-        a = Math.sqrt(a);                     /* angle = 2*arccos(a) */
+        a = Math.sqrt(a); /* angle = 2*arccos(a) */
       }
 
       if (this._dataSet.pixDims[0] < 0.0) {
