@@ -29,7 +29,7 @@
     "url": "https://fnndsc.github.io/ami"
   },
   "config": {
-    "threeVersion": "86",
+    "threeVersion": "87",
     "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js/",
     "gaKey": "UA-39303022-3",
     "transforms": "-t [babelify --presets [ es2015 ] ]"
@@ -42,7 +42,7 @@
     "nifti-reader-js": "v0.5.3",
     "nrrd-js": "^0.2.1",
     "pako": "1.0.1",
-    "three": "0.86.0"
+    "three": "0.87.0"
   },
   "scripts": {
     "dist:prepare": "node ./scripts/$npm_package_config_mode.js --dist",
