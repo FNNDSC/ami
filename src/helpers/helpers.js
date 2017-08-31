@@ -8,7 +8,7 @@ import ProgressBarEventBased from './helpers.progressbar.eventbased';
 import Slice from './helpers.slice';
 import Stack from './helpers.stack';
 import VolumeRendering from './helpers.volumerendering';
-import X from './x/helpers.x';
+// import X from './x/helpers.x';
 
 /**
  * @module helpers
@@ -25,5 +25,5 @@ export default {
   Slice,
   Stack,
   VolumeRendering,
-  X,
+  // X,
 };

@@ -1,4 +1,8 @@
-import {DataTexture, ShaderMaterial} from 'three';
+import {
+  ClampToEdgeWrapping,
+  DataTexture,
+  NearestFilter,
+  ShaderMaterial, UnsignedByteType, UVMapping} from 'three';
 
 /**
  * Helpers material mixin.
@@ -43,12 +47,12 @@ let HerlpersMaterialMixin = (superclass) => class extends superclass {
         this._stack.textureSize,
         this._stack.textureSize,
         this._stack.textureType,
-        THREE.UnsignedByteType,
-        THREE.UVMapping,
-        THREE.ClampToEdgeWrapping,
-        THREE.ClampToEdgeWrapping,
-        THREE.NearestFilter,
-        THREE.NearestFilter);
+        UnsignedByteType,
+        UVMapping,
+        ClampToEdgeWrapping,
+        ClampToEdgeWrapping,
+        NearestFilter,
+        NearestFilter);
       tex.needsUpdate = true;
       tex.flipY = true;
       this._textures.push(tex);

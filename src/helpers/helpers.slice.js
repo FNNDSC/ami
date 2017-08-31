@@ -6,7 +6,7 @@ import ShadersFragment from '../shaders/shaders.data.fragment';
 
 import HelpersMaterialMixin from '../helpers/helpers.material.mixin';
 
-import {Color, Matrix4, Object3D, Vector3} from 'three';
+import {Color, DoubleSide, Matrix4, Mesh, Object3D, Vector3, Vector4} from 'three';
 
 /**
  * @module helpers/slice
@@ -318,7 +318,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(Object3D) {
       this._uniforms.uTextureContainer.value = this._textures;
 
       this._createMaterial({
-        side: THREE.DoubleSide,
+        side: DoubleSide,
       });
     }
 
@@ -327,7 +327,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(Object3D) {
     this.updateIntensitySettingsUniforms();
 
     // create the mesh!
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
+    this._mesh = new Mesh(this._geometry, this._material);
     if (this._aaBBspace === 'IJK') {
       this._mesh.applyMatrix(this._stack.ijk2LPS);
     }
@@ -453,7 +453,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(Object3D) {
     if (!this._geometry ||
        !this._geometry.vertices ||
        this._geometry.vertices.length < 3) {
-      return new THREE.Vector4();
+      return new Vector4();
     }
 
     let vertices = this._geometry.vertices;
@@ -471,7 +471,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(Object3D) {
       .cross(v2.subVectors(p1, p2))
       .normalize();
 
-    return new THREE.Vector4(
+    return new Vector4(
       normal.x,
       normal.y,
       normal.z,
