@@ -1,5 +1,3 @@
-import shadersInterpolation from './interpolation/shaders.interpolation';
-
 /**
  * Localizer fragment shader
  */
@@ -149,10 +147,6 @@ void main(void) {
    * 
    */
   compute() {
-    let shaderInterpolation = '';
-    // shaderInterpolation.inline(args) //true/false
-    // shaderInterpolation.functions(args)
-
     return `
 // uniforms
 ${this.uniforms()}

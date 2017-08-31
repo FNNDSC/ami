@@ -1,6 +1,6 @@
 export default class ShadersVertex {
-    compute() {
-        return `
+  compute() {
+    return `
 varying vec4 vProjectedCoords;
 
 //

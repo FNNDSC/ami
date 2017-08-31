@@ -1,7 +1,6 @@
 import ShadersBase from '../shaders.base';
 
 class Texture3d extends ShadersBase {
-
   constructor() {
     super();
     this.name = 'texture3d';
