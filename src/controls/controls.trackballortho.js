@@ -5,7 +5,9 @@
  * @author Max Smolens / https://github.com/msmolens
  */
 
-export default class Trackballortho extends THREE.EventDispatcher {
+import {EventDispatcher, Vector2, Vector3} from 'three';
+
+export default class Trackballortho extends EventDispatcher {
   constructor(object, domElement, state = {NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5}) {
     super();
 
@@ -35,7 +37,7 @@ export default class Trackballortho extends THREE.EventDispatcher {
 
     // internals
 
-    this.target = new THREE.Vector3();
+    this.target = new Vector3();
 
     let EPS = 0.000001;
 
@@ -44,16 +46,16 @@ export default class Trackballortho extends THREE.EventDispatcher {
     let _state = STATE.NONE,
     _prevState = STATE.NONE,
 
-    _eye = new THREE.Vector3(),
+    _eye = new Vector3(),
 
-    _zoomStart = new THREE.Vector2(),
-    _zoomEnd = new THREE.Vector2(),
+    _zoomStart = new Vector2(),
+    _zoomEnd = new Vector2(),
 
     _touchZoomDistanceStart = 0,
     _touchZoomDistanceEnd = 0,
 
-    _panStart = new THREE.Vector2(),
-    _panEnd = new THREE.Vector2();
+    _panStart = new Vector2(),
+    _panEnd = new Vector2();
 
     // window level fire after...
 
@@ -107,7 +109,7 @@ export default class Trackballortho extends THREE.EventDispatcher {
     };
 
     let getMouseOnScreen = (function() {
-      let vector = new THREE.Vector2();
+      let vector = new Vector2();
 
       return function getMouseOnScreen(pageX, pageY) {
         vector.set(
@@ -145,9 +147,9 @@ export default class Trackballortho extends THREE.EventDispatcher {
     };
 
     this.panCamera = (function() {
-      let mouseChange = new THREE.Vector2(),
-        objectUp = new THREE.Vector3(),
-        pan = new THREE.Vector3();
+      let mouseChange = new Vector2(),
+        objectUp = new Vector3(),
+        pan = new Vector3();
 
       return function panCamera() {
         mouseChange.copy(_panEnd).sub(_panStart);
