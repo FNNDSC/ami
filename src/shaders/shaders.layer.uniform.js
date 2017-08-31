@@ -1,3 +1,4 @@
+import {Vector2} from 'three';
 
 /**
  * @module shaders/data
@@ -42,7 +43,7 @@ export default class ShadersUniform {
       },
       'uMouse': {
         type: 'v2',
-        value: new THREE.Vector2(),
+        value: new Vector2(),
         typeGLSL: 'vec2',
       },
     };
