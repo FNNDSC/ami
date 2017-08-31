@@ -3,6 +3,8 @@ import HelpersBorder from '../helpers/helpers.border';
 import HelpersBoundingBox from '../helpers/helpers.boundingbox';
 import HelpersSlice from '../helpers/helpers.slice';
 
+import {Object3D, Vector3} from 'three';
+
 /**
  * Helper to easily display and interact with a stack.<br>
  *<br>
@@ -28,15 +30,13 @@ import HelpersSlice from '../helpers/helpers.slice';
  * let scene = new THREE.Scene();
  * scene.add(stackHelper);
  *
- * @extends THREE.Object3D
- *
  * @see module:helpers/border
  * @see module:helpers/boundingbox
  * @see module:helpers/slice
  *
  * @module helpers/stack
  */
-export default class HelpersStack extends THREE.Object3D {
+export default class HelpersStack extends Object3D {
   constructor(stack) {
     //
     super();
@@ -59,25 +59,8 @@ export default class HelpersStack extends THREE.Object3D {
     this._canvasHeight = 0;
     this._borderColor = null;
 
-
-    // this._arrow = {
-    //   visible: true,
-    //   color: 0xFFF336,
-    //   length: 20,
-    //   material: null,
-    //   geometry: null,
-    //   mesh: null
-    // };
     this._create();
   }
-
-  //
-  // PUBLIC METHODS
-  //
-
-  //
-  // SETTERS/GETTERS
-  //
 
   /**
    * Get stack.
@@ -354,7 +337,7 @@ export default class HelpersStack extends THREE.Object3D {
   /**
    * Compute slice index depending on orientation.
    *
-   * @param {THREE.Vector3} indices - Indices in each direction.
+   * @param {Vector3} indices - Indices in each direction.
    *
    * @returns {number} Slice index according to current orientation.
    *
@@ -383,7 +366,7 @@ export default class HelpersStack extends THREE.Object3D {
    * Compute slice position depending on orientation.
    * Sets index in proper location of reference position.
    *
-   * @param {THREE.Vector3} rPosition - Reference position.
+   * @param {Vector3} rPosition - Reference position.
    * @param {number} index - Current index.
    *
    * @returns {number} Slice index according to current orientation.
@@ -391,22 +374,22 @@ export default class HelpersStack extends THREE.Object3D {
    * @private
    */
   _prepareSlicePosition(rPosition, index) {
-    let position = new THREE.Vector3(0, 0, 0);
+    let position = new Vector3(0, 0, 0);
     switch (this._orientation) {
       case 0:
-        position = new THREE.Vector3(
+        position = new Vector3(
           Math.floor(rPosition.x),
           Math.floor(rPosition.y),
           index);
         break;
       case 1:
-        position = new THREE.Vector3(
+        position = new Vector3(
           index,
           Math.floor(rPosition.y),
           Math.floor(rPosition.z));
         break;
       case 2:
-        position = new THREE.Vector3(
+        position = new Vector3(
           Math.floor(rPosition.x),
           index,
           Math.floor(rPosition.z));
@@ -423,21 +406,21 @@ export default class HelpersStack extends THREE.Object3D {
    *
    * @param {number} orientation - Slice orientation.
    *
-   * @returns {THREE.Vector3} Slice direction
+   * @returns {Vector3} Slice direction
    *
    * @private
    */
   _prepareDirection(orientation) {
-    let direction = new THREE.Vector3(0, 0, 1);
+    let direction = new Vector3(0, 0, 1);
     switch (orientation) {
       case 0:
-        direction = new THREE.Vector3(0, 0, 1);
+        direction = new Vector3(0, 0, 1);
         break;
       case 1:
-        direction = new THREE.Vector3(1, 0, 0);
+        direction = new Vector3(1, 0, 0);
         break;
       case 2:
-        direction = new THREE.Vector3(0, 1, 0);
+        direction = new Vector3(0, 1, 0);
         break;
       default:
         // do nothing!
@@ -457,9 +440,8 @@ export default class HelpersStack extends THREE.Object3D {
     this._slice.dispose();
     this._slice = null;
     this._bBox.dispose();
-    this._bBox =  null;
+    this._bBox = null;
     this._border.dispose();
-    this._border =  null;
+    this._border = null;
   }
-
 }

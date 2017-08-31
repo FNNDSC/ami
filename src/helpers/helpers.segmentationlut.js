@@ -1,20 +1,21 @@
+import {ClampToEdgeWrapping, NearestFilter, Texture, UVMapping} from 'three';
+
 let defaultSegmentation = {
-  0: {color: [0, 0, 0],opacity: 0,label: 'background'},
-  1: {color: [255, 0, 0],opacity: 1,label: 'white matter'},
+  0: {color: [0, 0, 0], opacity: 0, label: 'background'},
+  1: {color: [255, 0, 0], opacity: 1, label: 'white matter'},
 };
 
 export default class HelpersSegmentationLut {
-  constructor(containerID, segID = 'Freesurfer', segmentation = defaultSegmentation){
-
+  constructor(containerID, segID = 'Freesurfer', segmentation = defaultSegmentation) {
     this._containerID = containerID;
     this._segmentation = segmentation;
 
-    /*The segmentation object contains the color,opacity, label and structures associated:  
-    e.g
-    const freesurferSegmentation = {
-    0: {color: [0, 0, 0],opacity: 0,label: 'background'},
-    1: {color: [255, 0, 0],opacity: 1,label: 'white matter'},
-    }
+    /* The segmentation object contains the color, opacity, label and structures associated:  
+      e.g
+      const freesurferSegmentation = {
+      0: {color: [0, 0, 0],opacity: 0,label: 'background'},
+      1: {color: [255, 0, 0],opacity: 1,label: 'white matter'},
+      }
     */
     this.initCanvas();
     this.paintCanvas();
@@ -53,8 +54,8 @@ export default class HelpersSegmentationLut {
     ctx.globalCompositeOperation = 'source-over';
     ctx.lineWidth = 1;
 
-   for(let i in this._segmentation){  //i is the label number and specifies the coordinates inside the canvas
-
+    for (let i in this._segmentation) {
+      // i is the label number and specifies the coordinates inside the canvas
       let xCoord = i % this._canvas.width;
       let yCoord = Math.floor(i / this._canvas.width);
       let opacity = (typeof this._segmentation[i]['opacity'] != "undefined") ? this._segmentation[i]['opacity'] : 1;
@@ -66,17 +67,22 @@ export default class HelpersSegmentationLut {
   }
 
   get texture() {
-    let texture = new THREE.Texture(this._canvas);
-    texture.mapping = THREE.UVMapping;
-    texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
-    texture.magFilter = texture.minFilter = THREE.NearestFilter;
+    let texture = new Texture(this._canvas);
+    texture.mapping = UVMapping;
+    texture.wrapS = texture.wrapT = ClampToEdgeWrapping;
+    texture.magFilter = texture.minFilter = NearestFilter;
     texture.premultiplyAlpha = true;
     texture.needsUpdate = true;
 
     return texture;
   }
 
-  //Set and get the segmentation object (you can create it or get it from the presets file)
+  /**
+   * Set and get the segmentation object
+   * (you can create it or get it from the presets file)
+   * 
+   * @param {*} segmentation
+   */
   set segmentation(segmentation) {
     this._segmentation = segmentation;
     this.paintCanvas();
@@ -85,5 +91,4 @@ export default class HelpersSegmentationLut {
   get segmentation() {
     return this._segmentation;
   }
-
 }

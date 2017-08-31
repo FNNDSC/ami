@@ -6,15 +6,17 @@ import ShadersFragment from '../shaders/shaders.data.fragment';
 
 import HelpersMaterialMixin from '../helpers/helpers.material.mixin';
 
+import {Color, Matrix4, Object3D, Vector3} from 'three';
+
 /**
  * @module helpers/slice
  */
 
-export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
+export default class HelpersSlice extends HelpersMaterialMixin(Object3D) {
   constructor(stack,
               index = 0,
-              position = new THREE.Vector3(0, 0, 0),
-              direction = new THREE.Vector3(0, 0, 1),
+              position = new Vector3(0, 0, 0),
+              direction = new Vector3(0, 0, 1),
               aabbSpace = 'IJK') {
     //
     super();
@@ -248,7 +250,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
 
   set borderColor(borderColor) {
     this._borderColor = borderColor;
-    this._uniforms.uBorderColor.value = new THREE.Color(borderColor);
+    this._uniforms.uBorderColor.value = new Color(borderColor);
   }
 
   get borderColor() {
@@ -262,11 +264,11 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
 
     if (this._aaBBspace === 'IJK') {
       this._halfDimensions = this._stack.halfDimensionsIJK;
-      this._center = new THREE.Vector3(
+      this._center = new Vector3(
         this._stack.halfDimensionsIJK.x - 0.5,
         this._stack.halfDimensionsIJK.y - 0.5,
         this._stack.halfDimensionsIJK.z - 0.5);
-      this._toAABB = new THREE.Matrix4();
+      this._toAABB = new Matrix4();
     } else {
       // LPS
       let aaBBox = this._stack.AABBox();
@@ -417,7 +419,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
 
   dispose() {
     // Release memory
-    for(var j =0; j< this._textures.length; j++) {
+    for (let j =0; j< this._textures.length; j++) {
       this._textures[j].dispose();
       this._textures[j] = null;
     }
@@ -456,14 +458,14 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
 
     let vertices = this._geometry.vertices;
     let dataToWorld = this._stack.ijk2LPS;
-    let p1 = new THREE.Vector3(vertices[0].x, vertices[0].y, vertices[0].z)
+    let p1 = new Vector3(vertices[0].x, vertices[0].y, vertices[0].z)
       .applyMatrix4(dataToWorld);
-    let p2 = new THREE.Vector3(vertices[1].x, vertices[1].y, vertices[1].z)
+    let p2 = new Vector3(vertices[1].x, vertices[1].y, vertices[1].z)
       .applyMatrix4(dataToWorld);
-    let p3 = new THREE.Vector3(vertices[2].x, vertices[2].y, vertices[2].z)
+    let p3 = new Vector3(vertices[2].x, vertices[2].y, vertices[2].z)
       .applyMatrix4(dataToWorld);
-    let v1 = new THREE.Vector3();
-		let v2 = new THREE.Vector3();
+    let v1 = new Vector3();
+		let v2 = new Vector3();
     let normal = v1
       .subVectors(p3, p2)
       .cross(v2.subVectors(p1, p2))

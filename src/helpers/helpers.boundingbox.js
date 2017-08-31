@@ -1,9 +1,14 @@
+import {
+  BoxHelper, BoxGeometry,
+  Matrix4,
+  Mesh, MeshBasicMaterial,
+  Object3D, Vector3} from 'three';
 
 /**
  * @module helpers/boundingbox
  */
 
-export default class HelpersBoundingBox extends THREE.Object3D {
+export default class HelpersBoundingBox extends Object3D {
   constructor(stack) {
     //
     super();
@@ -48,13 +53,13 @@ export default class HelpersBoundingBox extends THREE.Object3D {
     // Convenience vars
     let dimensions = this._stack.dimensionsIJK;
     let halfDimensions = this._stack.halfDimensionsIJK;
-    let offset = new THREE.Vector3(-0.5, -0.5, -0.5);
+    let offset = new Vector3(-0.5, -0.5, -0.5);
 
     // Geometry
-    this._geometry = new THREE.BoxGeometry(
+    this._geometry = new BoxGeometry(
       dimensions.x, dimensions.y, dimensions.z);
     // position bbox in image space
-    this._geometry .applyMatrix(new THREE.Matrix4().makeTranslation(
+    this._geometry .applyMatrix(new Matrix4().makeTranslation(
       halfDimensions.x + offset.x,
       halfDimensions.y + offset.y,
       halfDimensions.z + offset.z));
@@ -62,8 +67,8 @@ export default class HelpersBoundingBox extends THREE.Object3D {
 
     // Mesh
     let boxMesh =
-      new THREE.Mesh(this._geometry, new THREE.MeshBasicMaterial(0xff0000));
-    this._mesh = new THREE.BoxHelper(boxMesh, this._color);
+      new Mesh(this._geometry, new MeshBasicMaterial(0xff0000));
+    this._mesh = new BoxHelper(boxMesh, this._color);
 
     // Material
     this._material = this._mesh.material;

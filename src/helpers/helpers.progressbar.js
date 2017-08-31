@@ -129,5 +129,4 @@ export default class HelpersProgressBar {
 
     return bar;
   }
-
 }
