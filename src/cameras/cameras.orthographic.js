@@ -105,7 +105,6 @@ export default class CamerasOrthographic extends OrthographicCamera {
 
     if (this._orientation === 'default') {
       switch (this._getMaxIndex(this._directions[2])) {
-
         case 0:
           this._orientation = 'sagittal';
           break;
@@ -138,7 +137,6 @@ export default class CamerasOrthographic extends OrthographicCamera {
 
       if (this._convention === 'radio') {
           switch (this._orientation) {
-
             case 'axial':
               // up vector is 'anterior'
               if (posteriorDirection.y > 0) {
@@ -196,11 +194,9 @@ export default class CamerasOrthographic extends OrthographicCamera {
                 `"${this._orientation}" orientation is not valid.
                 (choices: axial, coronal, sagittal)`);
               break;
-
           }
       } else if (this._convention === 'neuro') {
           switch (this._orientation) {
-
             case 'axial':
               // up vector is 'anterior'
               if (posteriorDirection.y > 0) {
@@ -723,5 +719,4 @@ export default class CamerasOrthographic extends OrthographicCamera {
 
     return this._stackOrientation;
   }
-
 }

@@ -515,5 +515,4 @@ export default class Intersections {
 
     return true;
   }
-
 }

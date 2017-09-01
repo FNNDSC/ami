@@ -342,7 +342,6 @@ export default class Trackballortho extends EventDispatcher {
       if (_this.enabled === false) return;
 
       switch (event.touches.length) {
-
         case 1:
           _state = STATE.TOUCH_ROTATE;
 
@@ -362,7 +361,6 @@ export default class Trackballortho extends EventDispatcher {
 
         default:
           _state = STATE.NONE;
-
       }
       _this.dispatchEvent(startEvent);
     }
@@ -374,7 +372,6 @@ export default class Trackballortho extends EventDispatcher {
       event.stopPropagation();
 
       switch (event.touches.length) {
-
         case 1:
 
           break;
@@ -391,7 +388,6 @@ export default class Trackballortho extends EventDispatcher {
 
         default:
           _state = STATE.NONE;
-
       }
     }
 
@@ -399,7 +395,6 @@ export default class Trackballortho extends EventDispatcher {
       if (_this.enabled === false) return;
 
       switch (event.touches.length) {
-
         case 1:
 
           break;
@@ -412,7 +407,6 @@ export default class Trackballortho extends EventDispatcher {
           _panEnd.copy(getMouseOnScreen(x, y));
           _panStart.copy(_panEnd);
           break;
-
       }
 
       _state = STATE.NONE;

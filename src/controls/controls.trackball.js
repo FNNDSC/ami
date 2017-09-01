@@ -427,7 +427,6 @@ import {EventDispatcher, Quaternion, Vector2, Vector3} from 'three';
 
       if (_this.forceState === -1) {
         switch (event.touches.length) {
-
           case 1:
             _state = STATE.TOUCH_ROTATE;
             _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
@@ -448,12 +447,10 @@ import {EventDispatcher, Quaternion, Vector2, Vector3} from 'three';
 
           default:
             _state = STATE.NONE;
-
         }
       } else {
         // { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4, CUSTOM: 99 };
         switch (_state) {
-
           case 0:
             // 1 or 2 fingers, smae behavior
             _state = STATE.TOUCH_ROTATE;
@@ -500,7 +497,6 @@ import {EventDispatcher, Quaternion, Vector2, Vector3} from 'three';
 
           default:
             _state = STATE.NONE;
-
         }
       }
 
@@ -515,7 +511,6 @@ import {EventDispatcher, Quaternion, Vector2, Vector3} from 'three';
 
       if (_this.forceState === -1) {
         switch (event.touches.length) {
-
           case 1:
             _movePrev.copy(_moveCurr);
             _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
@@ -537,7 +532,6 @@ import {EventDispatcher, Quaternion, Vector2, Vector3} from 'three';
       } else {
         // { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4, CUSTOM: 99 };
         switch (_state) {
-
           case 0:
             _movePrev.copy(_moveCurr);
             _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
@@ -575,7 +569,6 @@ import {EventDispatcher, Quaternion, Vector2, Vector3} from 'three';
 
           default:
             _state = STATE.NONE;
-
         }
       }
     }
@@ -585,7 +578,6 @@ import {EventDispatcher, Quaternion, Vector2, Vector3} from 'three';
 
       if (_this.forceState === -1) {
         switch (event.touches.length) {
-
           case 1:
             _movePrev.copy(_moveCurr);
             _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
@@ -599,13 +591,11 @@ import {EventDispatcher, Quaternion, Vector2, Vector3} from 'three';
             _panEnd.copy(getMouseOnScreen(x, y));
             _panStart.copy(_panEnd);
             break;
-
         }
 
         _state = STATE.NONE;
       } else {
         switch (_state) {
-
           case 0:
             _movePrev.copy(_moveCurr);
             _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
@@ -641,7 +631,6 @@ import {EventDispatcher, Quaternion, Vector2, Vector3} from 'three';
 
           default:
             _state = STATE.NONE;
-
         }
       }
 

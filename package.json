@@ -52,7 +52,7 @@
     "example": "npm run clean && node ./scripts/router.js examples ",
     "lesson": "npm run clean && mkdir dist/build && touch dist/build/ami.js && node ./scripts/router.js lessons ",
     "demo": "node ./scripts/lessons.js --demo",
-    "lint": "eslint src/**/*.js --quiet",
+    "lint": "eslint src/**/*.js",
     "build:examples": "npm run dist:prepare --ami.js:mode=examples && find examples -name '*.js' -print0 | xargs -0 -n1 -I{} bash -c \"echo Building {}; browserify {} -d -v $npm_package_config_transforms > dist/{} \"",
     "build:ami": "browserify src/ami.js -d -v $npm_package_config_transforms --standalone AMI > build/ami.js && uglifyjs build/ami.js -o build/ami.min.js",
     "build": "npm run clean && cp index.html dist/index.html && npm run build:examples && npm run doc",

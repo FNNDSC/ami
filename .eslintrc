@@ -19,9 +19,9 @@
     "space-in-parens": ["error", "never"],
     "keyword-spacing": "error",
     // tmporary for build to pass
-    "max-len": ["warn", 80],
-    "require-jsdoc": "warn",
-    "valid-jsdoc": "warn",
+    "max-len": ["off", 80],
+    "require-jsdoc": "off",
+    "valid-jsdoc": "off",
     "guard-for-in": "warn",
     "no-unused-vars": "warn",
     "one-var": "warn",
