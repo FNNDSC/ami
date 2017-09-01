@@ -3,7 +3,6 @@
 import ModelsBase from '../../src/models/models.base';
 
 describe('Models.Base', function() {
-
   let validBase;
   let invalidBase;
 
