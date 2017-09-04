@@ -8,6 +8,8 @@ import WidgetsVoxelProbe from '../../src/widgets/widgets.voxelProbe';
 import WidgetsAnnotation from '../../src/widgets/widgets.annotation';
 import ControlsTrackball from '../../src/controls/controls.trackball';
 
+import {PerspectiveCamera, Raycaster, Scene, WebGLRenderer} from 'three';
+
 // standard global variables
 let controls;
 let renderer;
@@ -43,7 +45,7 @@ function init() {
 
   // renderer
   threeD = document.getElementById('r3d');
-  renderer = new THREE.WebGLRenderer({
+  renderer = new WebGLRenderer({
     antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
@@ -56,11 +58,11 @@ function init() {
   threeD.appendChild(stats.domElement);
 
   // scene
-  scene = new THREE.Scene();
+  scene = new Scene();
 
   // camera
   camera =
-    new THREE.PerspectiveCamera(
+    new PerspectiveCamera(
       45, threeD.offsetWidth / threeD.offsetHeight,
       1, 10000000);
   camera.position.x = 150;
@@ -136,7 +138,7 @@ window.onload = function() {
       };
 
       // update the raycaster
-      let raycaster = new THREE.Raycaster();
+      let raycaster = new Raycaster();
       raycaster.setFromCamera(mouse, camera);
       let intersects = raycaster.intersectObject(stackHelper.slice.mesh);
 

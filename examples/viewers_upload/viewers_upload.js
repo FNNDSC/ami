@@ -6,6 +6,8 @@ import HelpersLut from '../../src/helpers/helpers.lut';
 import CamerasOrthographic from '../../src/cameras/cameras.orthographic';
 import ControlsOrthographic from '../../src/controls/controls.trackballortho';
 
+import {Scene, Vector3, WebGLRenderer} from 'three';
+
 // standard global variables
 let controls;
 let renderer;
@@ -51,7 +53,7 @@ function init() {
 
   // renderer
   threeD = document.getElementById('r3d');
-  renderer = new THREE.WebGLRenderer({
+  renderer = new WebGLRenderer({
     antialias: true,
   });
   renderer.setSize(threeD.clientWidth, threeD.clientHeight);
@@ -60,7 +62,7 @@ function init() {
   threeD.appendChild(renderer.domElement);
 
   // scene
-  scene = new THREE.Scene();
+  scene = new Scene();
   // camera
   camera = new CamerasOrthographic(
     threeD.clientWidth / -2, threeD.clientWidth / 2,
@@ -302,7 +304,7 @@ window.onload = function() {
 
     // set camera
     let worldbb = stack.worldBoundingBox();
-    let lpsDims = new THREE.Vector3(
+    let lpsDims = new Vector3(
       (worldbb[1] - worldbb[0])/2,
       (worldbb[3] - worldbb[2])/2,
       (worldbb[5] - worldbb[4])/2
@@ -312,7 +314,7 @@ window.onload = function() {
     let box = {
       center: stack.worldCenter().clone(),
       halfDimensions:
-        new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+        new Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
     };
 
     // init and zoom

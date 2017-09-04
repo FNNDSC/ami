@@ -13,6 +13,16 @@ import ShadersContourUniform from '../../src/shaders/shaders.contour.uniform';
 import ShadersContourVertex from '../../src/shaders/shaders.contour.vertex';
 import ShadersContourFragment from '../../src/shaders/shaders.contour.fragment';
 
+import {
+  BackSide, Color,
+  DirectionalLight, DoubleSide,
+  FrontSide,
+  LinearFilter, NearestFilter,
+  Matrix4, Mesh, MeshBasicMaterial, MeshLambertMaterial, PerspectiveCamera, Plane,
+  Raycaster, RGBAFormat, Scene, ShaderMaterial,
+  Vector3,
+  WebGLRenderer, WebGLRenderTarget} from 'three';
+
 // standard global variables
 let stats;
 let ready = false;
@@ -125,15 +135,15 @@ let dataInfo = [
 let data = new Map(dataInfo);
 
 // extra variables to show mesh plane intersections in 2D renderers
-let sceneClip = new THREE.Scene();
-let clipPlane1 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
-let clipPlane2 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
-let clipPlane3 = new THREE.Plane(new THREE.Vector3(0, 0, 0), 0);
+let sceneClip = new Scene();
+let clipPlane1 = new Plane(new Vector3(0, 0, 0), 0);
+let clipPlane2 = new Plane(new Vector3(0, 0, 0), 0);
+let clipPlane3 = new Plane(new Vector3(0, 0, 0), 0);
 
 function initRenderer3D(renderObj) {
   // renderer
   renderObj.domElement = document.getElementById(renderObj.domId);
-  renderObj.renderer = new THREE.WebGLRenderer({
+  renderObj.renderer = new WebGLRenderer({
     antialias: true,
   });
   renderObj.renderer.setSize(
@@ -143,7 +153,7 @@ function initRenderer3D(renderObj) {
   renderObj.domElement.appendChild(renderObj.renderer.domElement);
 
   // camera
-  renderObj.camera = new THREE.PerspectiveCamera(
+  renderObj.camera = new PerspectiveCamera(
     45, renderObj.domElement.clientWidth / renderObj.domElement.clientHeight,
     0.1, 100000);
   renderObj.camera.position.x = 250;
@@ -160,10 +170,10 @@ function initRenderer3D(renderObj) {
   renderObj.controls.dynamicDampingFactor = 0.3;
 
   // scene
-  renderObj.scene = new THREE.Scene();
+  renderObj.scene = new Scene();
 
   // light
-  renderObj.light = new THREE.DirectionalLight(0xffffff, 1);
+  renderObj.light = new DirectionalLight(0xffffff, 1);
   renderObj.light.position.copy(renderObj.camera.position);
   renderObj.scene.add(renderObj.light);
 
@@ -175,7 +185,7 @@ function initRenderer3D(renderObj) {
 function initRenderer2D(rendererObj) {
   // renderer
   rendererObj.domElement = document.getElementById(rendererObj.domId);
-  rendererObj.renderer = new THREE.WebGLRenderer({
+  rendererObj.renderer = new WebGLRenderer({
     antialias: true,
   });
   rendererObj.renderer.autoClear = false;
@@ -202,7 +212,7 @@ function initRenderer2D(rendererObj) {
   rendererObj.camera.controls = rendererObj.controls;
 
   // scene
-  rendererObj.scene = new THREE.Scene();
+  rendererObj.scene = new Scene();
 }
 
 function initHelpersStack(rendererObj, stack) {
@@ -216,7 +226,7 @@ function initHelpersStack(rendererObj, stack) {
 
     // set camera
     let worldbb = stack.worldBoundingBox();
-    let lpsDims = new THREE.Vector3(
+    let lpsDims = new Vector3(
       (worldbb[1] - worldbb[0])/2,
       (worldbb[3] - worldbb[2])/2,
       (worldbb[5] - worldbb[4])/2
@@ -226,7 +236,7 @@ function initHelpersStack(rendererObj, stack) {
     let box = {
       center: stack.worldCenter().clone(),
       halfDimensions:
-        new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+        new Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
     };
 
     // init and zoom
@@ -263,7 +273,7 @@ function initHelpersLocalizer(rendererObj, stack, referencePlane, localizers) {
     rendererObj.localizerHelper.canvasHeight =
       rendererObj.domElement.clientHeight;
 
-    rendererObj.localizerScene = new THREE.Scene();
+    rendererObj.localizerScene = new Scene();
     rendererObj.localizerScene.add(rendererObj.localizerHelper);
 }
 
@@ -401,13 +411,13 @@ window.onload = function() {
     initHelpersStack(r1, stack);
     r0.scene.add(r1.scene);
 
-    redTextureTarget = new THREE.WebGLRenderTarget(
+    redTextureTarget = new WebGLRenderTarget(
       r1.domElement.clientWidth,
       r1.domElement.clientHeight,
       {
-        minFilter: THREE.LinearFilter,
-        magFilter: THREE.NearestFilter,
-        format: THREE.RGBAFormat,
+        minFilter: LinearFilter,
+        magFilter: NearestFilter,
+        format: RGBAFormat,
       }
     );
 
@@ -420,8 +430,8 @@ window.onload = function() {
 
     let fls = new ShadersContourFragment(uniformsLayerMix);
     let vls = new ShadersContourVertex();
-    redContourMaterial = new THREE.ShaderMaterial(
-      {side: THREE.DoubleSide,
+    redContourMaterial = new ShaderMaterial(
+      {side: DoubleSide,
       uniforms: uniformsLayerMix,
       vertexShader: vls.compute(),
       fragmentShader: fls.compute(),
@@ -430,9 +440,9 @@ window.onload = function() {
         derivatives: true,
       },
     });
-    redContourMesh = new THREE.Mesh(
+    redContourMesh = new Mesh(
           r1.stackHelper.slice.geometry, redContourMaterial);
-    redCountourScene = new THREE.Scene(redContourMesh);
+    redCountourScene = new Scene(redContourMesh);
 
     // yellow slice
     initHelpersStack(r2, stack);
@@ -450,30 +460,30 @@ window.onload = function() {
     // localizer red slice
     initHelpersLocalizer(r1, stack, plane1, [
       {plane: plane2,
-       color: new THREE.Color(r2.stackHelper.borderColor),
+       color: new Color(r2.stackHelper.borderColor),
       },
       {plane: plane3,
-       color: new THREE.Color(r3.stackHelper.borderColor),
+       color: new Color(r3.stackHelper.borderColor),
       },
     ]);
 
     // localizer yellow slice
     initHelpersLocalizer(r2, stack, plane2, [
       {plane: plane1,
-       color: new THREE.Color(r1.stackHelper.borderColor),
+       color: new Color(r1.stackHelper.borderColor),
       },
       {plane: plane3,
-       color: new THREE.Color(r3.stackHelper.borderColor),
+       color: new Color(r3.stackHelper.borderColor),
       },
     ]);
 
     // localizer green slice
     initHelpersLocalizer(r3, stack, plane3, [
       {plane: plane1,
-       color: new THREE.Color(r1.stackHelper.borderColor),
+       color: new Color(r1.stackHelper.borderColor),
       },
       {plane: plane2,
-       color: new THREE.Color(r2.stackHelper.borderColor),
+       color: new Color(r2.stackHelper.borderColor),
       },
     ]);
 
@@ -538,16 +548,16 @@ window.onload = function() {
       const stackHelper = refObj.stackHelper;
       const camera = refObj.camera;
       let vertices = stackHelper.slice.geometry.vertices;
-      let p1 = new THREE.Vector3(vertices[0].x, vertices[0].y, vertices[0].z)
+      let p1 = new Vector3(vertices[0].x, vertices[0].y, vertices[0].z)
         .applyMatrix4(stackHelper._stack.ijk2LPS);
-      let p2 = new THREE.Vector3(vertices[1].x, vertices[1].y, vertices[1].z)
+      let p2 = new Vector3(vertices[1].x, vertices[1].y, vertices[1].z)
         .applyMatrix4(stackHelper._stack.ijk2LPS);
-      let p3 = new THREE.Vector3(vertices[2].x, vertices[2].y, vertices[2].z)
+      let p3 = new Vector3(vertices[2].x, vertices[2].y, vertices[2].z)
         .applyMatrix4(stackHelper._stack.ijk2LPS);
 
       clipPlane.setFromCoplanarPoints(p1, p2, p3);
 
-      let cameraDirection = new THREE.Vector3(1, 1, 1);
+      let cameraDirection = new Vector3(1, 1, 1);
       cameraDirection.applyQuaternion(camera.quaternion);
 
       if (cameraDirection.dot(clipPlane.normal) > 0) {
@@ -573,7 +583,7 @@ window.onload = function() {
         redContourMesh.geometry.dispose();
         redContourMesh.geometry = null;
 
-        redContourMesh = new THREE.Mesh(
+        redContourMesh = new Mesh(
           r1.stackHelper.slice.geometry, redContourMaterial);
         // go to LPS space
         redContourMesh.applyMatrix(r1.stackHelper.stack._ijk2LPS);
@@ -625,7 +635,7 @@ window.onload = function() {
           break;
       }
 
-      const raycaster = new THREE.Raycaster();
+      const raycaster = new Raycaster();
       raycaster.setFromCamera(mouse, camera);
 
       const intersects = raycaster.intersectObjects(scene.children, true);
@@ -686,7 +696,7 @@ window.onload = function() {
           break;
       }
 
-      const raycaster = new THREE.Raycaster();
+      const raycaster = new Raycaster();
       raycaster.setFromCamera(mouse, camera);
 
       const intersects = raycaster.intersectObjects(scene.children, true);
@@ -788,15 +798,15 @@ window.onload = function() {
       const stlLoader = new THREE.STLLoader();
       stlLoader.load(object.location, function(geometry) {
           // 3D mesh
-          object.material = new THREE.MeshLambertMaterial({
+          object.material = new MeshLambertMaterial({
             opacity: object.opacity,
             color: object.color,
             clippingPlanes: [],
             transparent: true,
           });
-          object.mesh = new THREE.Mesh(geometry, object.material);
+          object.mesh = new Mesh(geometry, object.material);
           object.mesh.objRef = object;
-          const RASToLPS = new THREE.Matrix4();
+          const RASToLPS = new Matrix4();
           RASToLPS.set(-1, 0, 0, 0,
                         0, -1, 0, 0,
                         0, 0, 1, 0,
@@ -804,33 +814,33 @@ window.onload = function() {
           // object.mesh.applyMatrix(RASToLPS);
           r0.scene.add(object.mesh);
 
-          object.scene = new THREE.Scene();
+          object.scene = new Scene();
 
           // front
-          object.materialFront = new THREE.MeshBasicMaterial({
+          object.materialFront = new MeshBasicMaterial({
                   color: object.color,
-                  side: THREE.FrontSide,
+                  side: FrontSide,
                   depthWrite: true,
                   opacity: 0,
                   transparent: true,
                   clippingPlanes: [],
           });
 
-          object.meshFront = new THREE.Mesh(geometry, object.materialFront);
+          object.meshFront = new Mesh(geometry, object.materialFront);
           // object.meshFront.applyMatrix(RASToLPS);
           object.scene.add(object.meshFront);
 
           // back
-          object.materialBack = new THREE.MeshBasicMaterial({
+          object.materialBack = new MeshBasicMaterial({
                   color: object.color,
-                  side: THREE.BackSide,
+                  side: BackSide,
                   depthWrite: true,
                   opacity: object.opacity,
                   transparent: true,
                   clippingPlanes: [],
           });
 
-          object.meshBack = new THREE.Mesh(geometry, object.materialBack);
+          object.meshBack = new Mesh(geometry, object.materialBack);
           // object.meshBack.applyMatrix(RASToLPS);
           object.scene.add(object.meshBack);
           sceneClip.add(object.scene);

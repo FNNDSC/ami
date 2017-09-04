@@ -20,6 +20,7 @@ export default class HelpersBoundingBox extends Object3D {
     this._material = null;
     this._geometry = null;
     this._mesh = null;
+    this._meshStack = null;
 
     // create object
     this._create();
@@ -56,14 +57,6 @@ export default class HelpersBoundingBox extends Object3D {
     const offset = new Vector3(-0.5, -0.5, -0.5);
 
     // Geometry
-    this._geometry = new BoxGeometry(
-      dimensions.x, dimensions.y, dimensions.z);
-
-    // Material
-    this._material = new MeshBasicMaterial({
-      wireframe: true,
-    });
-
     const geometry = new BoxGeometry(dimensions.x, dimensions.y, dimensions.z);
     geometry.applyMatrix(new Matrix4().makeTranslation(
       halfDimensions.x + offset.x,
@@ -71,10 +64,18 @@ export default class HelpersBoundingBox extends Object3D {
       halfDimensions.z + offset.z));
     this._geometry = geometry;
 
-    const mesh = new Mesh(this._geometry, this._material);
+    // Material
+    this._material = new MeshBasicMaterial({
+      wireframe: true,
+    });
+
+    const mesh = new Mesh(this._geometry, null);
     mesh.applyMatrix(this._stack.ijk2LPS);
     mesh.visible = this._visible;
-    this._mesh = mesh;
+    this._meshStack = mesh;
+
+    this._mesh = new BoxHelper(this._meshStack, this._color);
+    this._material = this._mesh.material;
 
     this.add(this._mesh);
   }

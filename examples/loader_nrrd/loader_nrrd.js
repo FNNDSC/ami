@@ -4,6 +4,14 @@ import ControlsTrackball from '../../src/controls/controls.trackball';
 import HelpersStack from '../../src/helpers/helpers.stack';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 
+import {
+  AmbientLight, DirectionalLight,
+  DoubleSide,
+  Matrix4,
+  Mesh, MeshLambertMaterial,
+  PerspectiveCamera, Scene,
+  SmoothShading, WebGLRenderer} from 'three';
+
 // standard global variables
 let controls;
 let renderer;
@@ -36,7 +44,7 @@ function init() {
 
   // renderer
   threeD = document.getElementById('r3d');
-  renderer = new THREE.WebGLRenderer({
+  renderer = new WebGLRenderer({
     antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
@@ -49,21 +57,21 @@ function init() {
   threeD.appendChild(stats.domElement);
 
   // scene
-  scene = new THREE.Scene();
+  scene = new Scene();
 
   // camera
   camera =
-    new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
+    new PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
   camera.position.x = 250;
   camera.position.y = 250;
   camera.position.z = 250;
 
-  scene.add(new THREE.AmbientLight(0x353535));
-  let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  scene.add(new AmbientLight(0x353535));
+  let directionalLight = new DirectionalLight(0xffffff, 1);
   directionalLight.position.set(200, 200, 1000).normalize();
   scene.add(directionalLight);
 
-  let directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
+  let directionalLight2 = new DirectionalLight(0xffffff, 1);
   directionalLight2.position.set(-200, -200, -1000).normalize();
   scene.add(directionalLight2);
 
@@ -86,12 +94,12 @@ window.onload = function() {
     load('https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk',
       function(geometry) {
         geometry.computeVertexNormals();
-        let material = new THREE.MeshLambertMaterial({
-          shading: THREE.SmoothShading,
+        let material = new MeshLambertMaterial({
+          shading: SmoothShading,
           color: 0xE91E63,
-          side: THREE.DoubleSide});
-        let mesh = new THREE.Mesh(geometry, material);
-        let RASToLPS = new THREE.Matrix4();
+          side: DoubleSide});
+        let mesh = new Mesh(geometry, material);
+        let RASToLPS = new Matrix4();
         RASToLPS.set(-1, 0, 0, 0,
                     0, -1, 0, 0,
                     0, 0, 1, 0,

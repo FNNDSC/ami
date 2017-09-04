@@ -4,6 +4,8 @@ import ControlsTrackball from '../../src/controls/controls.trackball';
 import HelpersStack from '../../src/helpers/helpers.stack';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 
+import {PerspectiveCamera, Scene, WebGLRenderer} from 'three';
+
 // standard global variables
 let controls;
 let renderer;
@@ -36,7 +38,7 @@ function init() {
 
   // renderer
   threeD = document.getElementById('r3d');
-  renderer = new THREE.WebGLRenderer({
+  renderer = new WebGLRenderer({
     antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
@@ -49,10 +51,10 @@ function init() {
   threeD.appendChild(stats.domElement);
 
   // scene
-  scene = new THREE.Scene();
+  scene = new Scene();
 
   // camera
-  camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
+  camera = new PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
   camera.position.x = 250;
   camera.position.y = 250;
   camera.position.z = 250;
