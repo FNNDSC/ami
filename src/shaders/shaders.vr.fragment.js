@@ -2,7 +2,6 @@ import shadersInterpolation from './interpolation/shaders.interpolation';
 import shadersIntersectBox from './helpers/shaders.helpers.intersectBox';
 
 export default class ShadersFragment {
-
   // pass uniforms object
   constructor(uniforms) {
     this._uniforms = uniforms;
@@ -11,7 +10,7 @@ export default class ShadersFragment {
   }
 
   functions() {
-    if(this._main === '') {
+    if (this._main === '') {
       // if main is empty, functions can not have been computed
       this.main();
     }
@@ -30,7 +29,7 @@ export default class ShadersFragment {
       let uniform = this._uniforms[property];
       content += `uniform ${uniform.typeGLSL} ${property}`;
 
-      if(uniform && uniform.length) {
+      if (uniform && uniform.length) {
         content += `[${uniform.length}]`;
       }
 
@@ -142,5 +141,4 @@ ${this.functions()}
 ${this._main}
       `;
     }
-
 }

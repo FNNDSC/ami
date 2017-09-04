@@ -2,7 +2,6 @@
  * @module parsers/volume
  */
 export default class ParsersVolume {
-
   constructor() {
     this._rightHanded = true;
   }

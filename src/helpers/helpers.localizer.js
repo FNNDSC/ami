@@ -6,11 +6,13 @@ import ShadersVertex from
 import ShadersFragment from
   '../shaders/shaders.localizer.fragment';
 
+import {DoubleSide, Mesh, ShaderMaterial, Object3D} from 'three';
+
 /**
  * @module helpers/localizer
  */
 
-export default class HelpersLocalizer extends THREE.Object3D {
+export default class HelpersLocalizer extends Object3D {
   constructor(stack, geometry, referencePlane) {
     //
     super();
@@ -36,7 +38,7 @@ export default class HelpersLocalizer extends THREE.Object3D {
 
   _create() {
     this._prepareMaterial();
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
+    this._mesh = new Mesh(this._geometry, this._material);
     this._mesh.applyMatrix(this._stack._ijk2LPS);
     this.add(this._mesh);
   }
@@ -69,8 +71,8 @@ export default class HelpersLocalizer extends THREE.Object3D {
       // generate material
       let fs = new ShadersFragment(this._uniforms);
       let vs = new ShadersVertex();
-      this._material = new THREE.ShaderMaterial(
-        {side: THREE.DoubleSide,
+      this._material = new ShaderMaterial(
+        {side: DoubleSide,
          uniforms: this._uniforms,
          vertexShader: vs.compute(),
          fragmentShader: fs.compute(),

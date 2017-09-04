@@ -1,13 +1,14 @@
 /** * Imports ***/
 import ModelsBase from '../models/models.base';
 
+import {Vector3} from 'three';
+
 /**
  * Frame object.
  *
  * @module models/frame
  */
 export default class ModelsFrame extends ModelsBase {
-
   /**
    * Constructor
    */
@@ -108,19 +109,19 @@ export default class ModelsFrame extends ModelsBase {
    * @returns {array} Array[3] containing cosinesX, Y and Z.
    */
   cosines() {
-    let cosines = [new THREE.Vector3(1, 0, 0),
-      new THREE.Vector3(0, 1, 0),
-      new THREE.Vector3(0, 0, 1)];
+    let cosines = [new Vector3(1, 0, 0),
+      new Vector3(0, 1, 0),
+      new Vector3(0, 0, 1)];
 
      if (this._imageOrientation &&
       this._imageOrientation.length === 6) {
       let xCos =
-        new THREE.Vector3(
+        new Vector3(
           this._imageOrientation[0],
           this._imageOrientation[1],
           this._imageOrientation[2]);
       let yCos =
-        new THREE.Vector3(
+        new Vector3(
           this._imageOrientation[3],
           this._imageOrientation[4],
           this._imageOrientation[5]);
@@ -129,7 +130,7 @@ export default class ModelsFrame extends ModelsBase {
         cosines[0] = xCos;
         cosines[1] = yCos;
         cosines[2] =
-          new THREE.Vector3(0, 0, 0).
+          new Vector3(0, 0, 0).
           crossVectors(cosines[0], cosines[1]).
           normalize();
       }

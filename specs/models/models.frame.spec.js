@@ -2,8 +2,9 @@
 
 import ModelsFrame from '../../src/models/models.frame';
 
-describe('Models.frame', function() {
+import {Vector3} from 'three';
 
+describe('Models.frame', function() {
   let validFrame;
   let validFrame2;
   let invalidFrame;
@@ -22,7 +23,6 @@ describe('Models.frame', function() {
   });
 
   describe('merge', function() {
-
     it('should return false if merge was not successful', function() {
       //
       expect(validFrame.merge()).toEqual(false);
@@ -34,16 +34,15 @@ describe('Models.frame', function() {
       //
       expect(validFrame.merge(validFrame)).toEqual(true);
     });
-
   });
 
   describe('cosines', function() {
     it('should return default orientation if orientation is not valid', function() {
       //
       let defaultCosines = [
-        new THREE.Vector3(1, 0, 0),
-        new THREE.Vector3(0, 1, 0),
-        new THREE.Vector3(0, 0, 1)
+        new Vector3(1, 0, 0),
+        new Vector3(0, 1, 0),
+        new Vector3(0, 0, 1),
       ];
 
       expect(validFrame.cosines()).toEqual(defaultCosines);
@@ -60,9 +59,9 @@ describe('Models.frame', function() {
     it('should return good orientation if orientation is valid', function() {
       //
       let defaultCosines = [
-        new THREE.Vector3(0, 1, 0),
-        new THREE.Vector3(0, 0, 1),
-        new THREE.Vector3(1, 0, 0)
+        new Vector3(0, 1, 0),
+        new Vector3(0, 0, 1),
+        new Vector3(1, 0, 0),
       ];
 
       validFrame._imageOrientation = [0, 1, 0, 0, 0, 1];
@@ -99,27 +98,25 @@ describe('Models.frame', function() {
   describe('_compareArrays', function() {
     it('should return false if arrays are different', function() {
       // array of int
-      expect(validFrame._compareArrays( [1], [2] )).toEqual(false);
-      expect(validFrame._compareArrays( [1], [1, 2] )).toEqual(false);
+      expect(validFrame._compareArrays([1], [2])).toEqual(false);
+      expect(validFrame._compareArrays([1], [1, 2])).toEqual(false);
     });
 
     it('should return true if arrays are identical', function() {
       // array of int
-      expect(validFrame._compareArrays( [1, 2, 3], [1, 2, 3] )).toEqual(true);
+      expect(validFrame._compareArrays([1, 2, 3], [1, 2, 3])).toEqual(true);
 
       // array of int and strings
-      expect(validFrame._compareArrays( [1, 2, 3], [1, '2', 3] )).toEqual(true);
+      expect(validFrame._compareArrays([1, 2, 3], [1, '2', 3])).toEqual(true);
 
       // array of string
-      expect(validFrame._compareArrays( ['1', '2', '3'], ['1', '2', '3'] )).toEqual(true);
+      expect(validFrame._compareArrays(['1', '2', '3'], ['1', '2', '3'])).toEqual(true);
 
       // array of arrays
-      expect(validFrame._compareArrays( [[1], [2], [3]], [[1], [2], [3]] )).toEqual(true);
+      expect(validFrame._compareArrays([[1], [2], [3]], [[1], [2], [3]])).toEqual(true);
 
       // mixed arrays
-      expect(validFrame._compareArrays( [1, '2', [3]], [1, '2', [3]] )).toEqual(true);
+      expect(validFrame._compareArrays([1, '2', [3]], [1, '2', [3]])).toEqual(true);
     });
-
   });
-
 });

@@ -1,3 +1,4 @@
+import {ClampToEdgeWrapping, NearestFilter, Texture, UVMapping} from 'three';
 
 /**
  * @module helpers/lut
@@ -113,10 +114,10 @@ export default class HelpersLut {
   }
 
   get texture() {
-    let texture = new THREE.Texture(this._canvas);
-    texture.mapping = THREE.UVMapping;
-    texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
-    texture.magFilter = texture.minFilter = THREE.NearestFilter;
+    let texture = new Texture(this._canvas);
+    texture.mapping = UVMapping;
+    texture.wrapS = texture.wrapT = ClampToEdgeWrapping;
+    texture.magFilter = texture.minFilter = NearestFilter;
     texture.premultiplyAlpha = true;
     texture.needsUpdate = true;
     return texture;
@@ -210,5 +211,4 @@ export default class HelpersLut {
       'random': [[0, 0.], [0.38, 0.], [0.55, 1.], [0.72, 1.], [1, 0.05]],
     };
   }
-
 }

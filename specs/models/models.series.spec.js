@@ -3,7 +3,6 @@
 import ModelsSeries from '../../src/models/models.series';
 
 describe('Models.series', function() {
-
   let validSeries;
   let validSeries2;
   let invalidSeries;

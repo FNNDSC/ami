@@ -1,13 +1,14 @@
 import WidgetsBase from '../widgets/widgets.base';
 import WidgetsHandle from '../widgets/widgets.handle';
 
+import {Geometry, Line, LineBasicMaterial, Vector3} from 'three';
+
 /**
  * @module widgets/handle
  *
  */
 
 export default class WidgetsRuler extends WidgetsBase {
-
   constructor(targetMesh, controls, camera, container) {
     super(container);
 
@@ -18,7 +19,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._active = true;
     this._lastEvent = null;
 
-    this._worldPosition = new THREE.Vector3();
+    this._worldPosition = new Vector3();
     if (this._targetMesh !== null) {
       this._worldPosition = this._targetMesh.position;
     }
@@ -187,16 +188,16 @@ export default class WidgetsRuler extends WidgetsBase {
 
   createMesh() {
     // geometry
-    this._geometry = new THREE.Geometry();
+    this._geometry = new Geometry();
     this._geometry.vertices.push(this._handles[0].worldPosition);
     this._geometry.vertices.push(this._handles[1].worldPosition);
 
     // material
-    this._material = new THREE.LineBasicMaterial();
+    this._material = new LineBasicMaterial();
     this.updateMeshColor();
 
     // mesh
-    this._mesh = new THREE.Line(this._geometry, this._material);
+    this._mesh = new Line(this._geometry, this._material);
     this._mesh.visible = true;
 
     // add it!
@@ -250,8 +251,6 @@ export default class WidgetsRuler extends WidgetsBase {
     let x2 = this._handles[1].screenPosition.x;
     let y2 = this._handles[1].screenPosition.y;
 
-    //let x0 = x1 + (x2 - x1)/2;
-    //let y0 = y1 + (y2 - y1)/2;
     let x0 = x2;
     let y0 = y2;
 
@@ -327,5 +326,4 @@ export default class WidgetsRuler extends WidgetsBase {
 
     this.update();
   }
-
 }

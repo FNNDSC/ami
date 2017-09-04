@@ -1,3 +1,9 @@
+import {
+  ClampToEdgeWrapping,
+  DataTexture,
+  NearestFilter,
+  ShaderMaterial, UnsignedByteType, UVMapping} from 'three';
+
 /**
  * Helpers material mixin.
  *
@@ -5,7 +11,6 @@
  */
 
 let HerlpersMaterialMixin = (superclass) => class extends superclass {
-
   _createMaterial(extraOptions) {
     // generate shaders on-demand!
     let fs = new this._shadersFragment(this._uniforms);
@@ -19,7 +24,7 @@ let HerlpersMaterialMixin = (superclass) => class extends superclass {
     };
 
     let options = Object.assign(extraOptions, globalOptions);
-    this._material = new THREE.ShaderMaterial(options);
+    this._material = new ShaderMaterial(options);
     this._material.needsUpdate = true;
   }
 
@@ -37,23 +42,22 @@ let HerlpersMaterialMixin = (superclass) => class extends superclass {
   _prepareTexture() {
     this._textures = [];
     for (let m = 0; m < this._stack._rawData.length; m++) {
-      let tex = new THREE.DataTexture(
+      let tex = new DataTexture(
         this._stack.rawData[m],
         this._stack.textureSize,
         this._stack.textureSize,
         this._stack.textureType,
-        THREE.UnsignedByteType,
-        THREE.UVMapping,
-        THREE.ClampToEdgeWrapping,
-        THREE.ClampToEdgeWrapping,
-        THREE.NearestFilter,
-        THREE.NearestFilter);
+        UnsignedByteType,
+        UVMapping,
+        ClampToEdgeWrapping,
+        ClampToEdgeWrapping,
+        NearestFilter,
+        NearestFilter);
       tex.needsUpdate = true;
       tex.flipY = true;
       this._textures.push(tex);
     }
   }
-
 };
 
 export default HerlpersMaterialMixin;

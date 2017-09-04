@@ -1,13 +1,14 @@
 import WidgetsBase from '../widgets/widgets.base';
 import WidgetsHandle from '../widgets/widgets.handle';
 
+import {Geometry, Line, LineBasicMaterial, Vector3} from 'three';
+
 /**
  * @module widgets/handle
  *
  */
 
 export default class WidgetsBiRuler extends WidgetsBase {
-
     constructor(targetMesh, controls, camera, container) {
         super();
 
@@ -19,8 +20,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._active = true;
         this._initOrtho = false;
 
-        this._worldPosition = new THREE.Vector3();
-        if(this._targetMesh !== null) {
+        this._worldPosition = new Vector3();
+        if (this._targetMesh !== null) {
             this._worldPosition = this._targetMesh.position;
         }
 
@@ -119,10 +120,10 @@ export default class WidgetsBiRuler extends WidgetsBase {
         window.console.log(this);
 
         // Second Handle
-        if(this._dragged || !this._handles[1].tracking) {
+        if (this._dragged || !this._handles[1].tracking) {
             this._handles[1].tracking = false;
             this._handles[1].onEnd(evt);
-        } else{
+        } else {
             this._handles[1].tracking = false;
         }
 
@@ -162,7 +163,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._dashline.style.display = '';
     }
 
-    hideMesh(){
+    hideMesh() {
         this._mesh.visible = false;
         this._mesh2.visible = false;
         this._handles[0].visible = false;
@@ -204,24 +205,24 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
     createMesh() {
         // geometry
-        this._geometry = new THREE.Geometry();
+        this._geometry = new Geometry();
         this._geometry.vertices.push(this._handles[0].worldPosition);
         this._geometry.vertices.push(this._handles[1].worldPosition);
 
         // geometry
-        this._geometry2 = new THREE.Geometry();
+        this._geometry2 = new Geometry();
         this._geometry2.vertices.push(this._handles[2].worldPosition);
         this._geometry2.vertices.push(this._handles[3].worldPosition);
 
         // material
-        this._material = new THREE.LineBasicMaterial();
-        this._material2 = new THREE.LineBasicMaterial();
+        this._material = new LineBasicMaterial();
+        this._material2 = new LineBasicMaterial();
         this.updateMeshColor();
 
         // mesh
-        this._mesh = new THREE.Line(this._geometry, this._material);
+        this._mesh = new Line(this._geometry, this._material);
         this._mesh.visible = true;
-        this._mesh2 = new THREE.Line(this._geometry2, this._material2);
+        this._mesh2 = new Line(this._geometry2, this._material2);
         this._mesh2.visible = true;
 
         // add it!
@@ -230,19 +231,19 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     updateMeshColor() {
-        if(this._material) {
+        if (this._material) {
             this._material.color.set(this._color);
         }
-        if(this._material2) {
+        if (this._material2) {
             this._material2.color.set(this._color);
         }
     }
 
     updateMeshPosition() {
-        if(this._geometry) {
+        if (this._geometry) {
             this._geometry.verticesNeedUpdate = true;
         }
-        if(this._geometry2) {
+        if (this._geometry2) {
             this._geometry2.verticesNeedUpdate = true;
         }
     }
@@ -315,8 +316,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let x2 = this._handles[1].screenPosition.x;
         let y2 = this._handles[1].screenPosition.y;
 
-        //let x0 = x1 + (x2 - x1)/2;
-        //let y0 = y1 + (y2 - y1)/2;
+        // let x0 = x1 + (x2 - x1)/2;
+        // let y0 = y1 + (y2 - y1)/2;
         let x0 = x2;
         let y0 = y2;
 
@@ -356,8 +357,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let x4 = this._handles[3].screenPosition.x;
         let y4 = this._handles[3].screenPosition.y;
 
-        //let x0 = x1 + (x2 - x1)/2;
-        //let y0 = y1 + (y2 - y1)/2;
+        // let x0 = x1 + (x2 - x1)/2;
+        // let y0 = y1 + (y2 - y1)/2;
         let x02 = x4;
         let y02 = y4;
 
@@ -426,15 +427,13 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     getPointInBetweenByPerc(pointA, pointB, percentage) {
-
         var dir = pointB.clone().sub(pointA);
         var len = dir.length();
         dir = dir.normalize().multiplyScalar(len*percentage);
         return pointA.clone().add(dir);
-
     }
 
-    initOrtho () {
+    initOrtho() {
         this._initOrtho = true;
 
         let pcenter = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.5);
@@ -469,5 +468,4 @@ export default class WidgetsBiRuler extends WidgetsBase {
     get longestDistance() {
         return ((this._distanceValue > this._distance2Value) ? this._distanceValue : this._distance2Value);
     }
-
 }

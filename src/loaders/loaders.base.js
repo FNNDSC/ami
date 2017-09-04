@@ -282,5 +282,4 @@ export default class LoadersBase extends EventEmitter {
   get data() {
     return this._data;
   }
-
 }

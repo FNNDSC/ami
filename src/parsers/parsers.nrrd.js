@@ -1,5 +1,6 @@
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
+import {Vector3} from 'three';
 
 let pako = require('pako');
 let NrrdReader = require('nrrd-js');
@@ -10,8 +11,8 @@ export default class ParsersNifti extends ParsersVolume {
   /**
    * Constructor
    *
-   * @param {*} data 
-   * @param {*} id 
+   * @param {*} data
+   * @param {*} id
    */
   constructor(data, id) {
     super();
@@ -164,17 +165,17 @@ export default class ParsersNifti extends ParsersVolume {
    * @return {*}
    */
   pixelSpacing(frameIndex = 0) {
-    const x = new THREE.Vector3(
+    const x = new Vector3(
       this._dataSet.spaceDirections[1][0],
       this._dataSet.spaceDirections[1][1],
       this._dataSet.spaceDirections[1][2]);
 
-    const y = new THREE.Vector3(
+    const y = new Vector3(
       this._dataSet.spaceDirections[2][0],
       this._dataSet.spaceDirections[2][1],
       this._dataSet.spaceDirections[2][2]);
 
-    const z = new THREE.Vector3(
+    const z = new Vector3(
       this._dataSet.spaceDirections[2][0],
       this._dataSet.spaceDirections[2][1],
       this._dataSet.spaceDirections[2][2]);
@@ -193,13 +194,13 @@ export default class ParsersNifti extends ParsersVolume {
     let invertX = this._dataSet.space.match(/right/) ? -1 : 1;
     let invertY = this._dataSet.space.match(/anterior/) ? -1 : 1;
 
-    let x = new THREE.Vector3(
+    let x = new Vector3(
       this._dataSet.spaceDirections[0][0] * invertX,
       this._dataSet.spaceDirections[0][1] * invertY,
       this._dataSet.spaceDirections[0][2]);
     x.normalize();
 
-    let y = new THREE.Vector3(
+    let y = new Vector3(
       this._dataSet.spaceDirections[1][0] * invertX,
       this._dataSet.spaceDirections[1][1] * invertY,
       this._dataSet.spaceDirections[1][2]);

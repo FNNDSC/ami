@@ -1,7 +1,7 @@
 {
   "name": "ami.js",
-  "version": "0.0.17",
-  "main": "lib/ami.js",
+  "version": "0.0.18",
+  "main": "build/ami.js",
   "keywords": [
     "ami",
     "ami.js",
@@ -29,7 +29,7 @@
     "url": "https://fnndsc.github.io/ami"
   },
   "config": {
-    "threeVersion": "86",
+    "threeVersion": "87",
     "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js/",
     "gaKey": "UA-39303022-3",
     "transforms": "-t [babelify --presets [ es2015 ] ]"
@@ -42,7 +42,7 @@
     "nifti-reader-js": "v0.5.3",
     "nrrd-js": "^0.2.1",
     "pako": "1.0.1",
-    "three": "0.86.0"
+    "three": "0.87.0"
   },
   "scripts": {
     "dist:prepare": "node ./scripts/$npm_package_config_mode.js --dist",
@@ -52,7 +52,7 @@
     "example": "npm run clean && node ./scripts/router.js examples ",
     "lesson": "npm run clean && mkdir dist/build && touch dist/build/ami.js && node ./scripts/router.js lessons ",
     "demo": "node ./scripts/lessons.js --demo",
-    "lint": "eslint **/*.js --quiet",
+    "lint": "eslint src/**/*.js",
     "build:examples": "npm run dist:prepare --ami.js:mode=examples && find examples -name '*.js' -print0 | xargs -0 -n1 -I{} bash -c \"echo Building {}; browserify {} -d -v $npm_package_config_transforms > dist/{} \"",
     "build:ami": "browserify src/ami.js -d -v $npm_package_config_transforms --standalone AMI > build/ami.js && uglifyjs build/ami.js -o build/ami.min.js",
     "build": "npm run clean && cp index.html dist/index.html && npm run build:examples && npm run doc",

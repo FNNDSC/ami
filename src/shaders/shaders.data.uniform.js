@@ -1,3 +1,5 @@
+import {Matrix4} from 'three';
+
 
 /**
  * @module shaders/data
@@ -26,7 +28,7 @@ export default class ShadersUniform {
       },
       'uWorldToData': {
         type: 'm4',
-        value: new THREE.Matrix4(),
+        value: new Matrix4(),
         typeGLSL: 'mat4',
       },
       'uWindowCenterWidth': {
@@ -62,6 +64,16 @@ export default class ShadersUniform {
         typeGLSL: 'int',
       },
       'uTextureLUT': {
+        type: 't',
+        value: [],
+        typeGLSL: 'sampler2D',
+      },
+      'uLutSegmentation': {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int',
+      },
+      'uTextureLUTSegmentation': {
         type: 't',
         value: [],
         typeGLSL: 'sampler2D',
