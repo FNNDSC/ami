@@ -5,8 +5,15 @@ import HelpersLut from '../../src/helpers/helpers.lut';
 import HelpersVR from '../../src/helpers/helpers.volumerendering';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 
+import {PerspectiveCamera, Scene, WebGLRenderer} from 'three';
+
 // standard global letiables
-let controls, threeD, renderer, stats, camera, scene;
+let controls;
+let threeD;
+let renderer;
+let stats;
+let camera;
+let scene;
 let vrHelper;
 let lut;
 let ready = false;
@@ -124,21 +131,21 @@ function init() {
 
   // renderer
   threeD = document.getElementById('r3d');
-  renderer = new THREE.WebGLRenderer({
+  renderer = new WebGLRenderer({
     alpha: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
   threeD.appendChild(renderer.domElement);
 
   // scene
-  scene = new THREE.Scene();
+  scene = new Scene();
 
   // stats
   stats = new Stats();
   threeD.appendChild(stats.domElement);
 
   // camera
-  camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 0.1, 100000);
+  camera = new PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 0.1, 100000);
   camera.position.x = 166;
   camera.position.y = -471;
   camera.position.z = 153;

@@ -23,9 +23,6 @@ class ExampleTemplate {
 <script type="text/javascript" src="https://cdn.rawgit.com/dataarts/dat.gui/master/build/dat.gui.min.js"></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/mrdoob/stats.js/master/build/stats.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js"></script>
-
-<!-- THREEJS -->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/${this.threeVersion}/three.min.js"></script>
       `);
   }
 

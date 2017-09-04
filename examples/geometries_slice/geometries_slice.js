@@ -4,6 +4,16 @@ import ControlsTrackball from '../../src/controls/controls.trackball';
 import HelpersStack from '../../src/helpers/helpers.stack';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 
+import {
+  Geometry,
+  Line, LineBasicMaterial,
+  Mesh, MeshBasicMaterial,
+  PerspectiveCamera,
+  Scene,
+  SphereGeometry,
+  Vector3,
+  WebGLRenderer} from 'three';
+
 // standard global letiables
 let controls;
 let renderer;
@@ -58,7 +68,7 @@ function updateGeometries() {
     line.geometry.verticesNeedUpdate = true;
 
     // update plane direction...
-    let dirLPS = new THREE.Vector3(
+    let dirLPS = new Vector3(
       particleLight.position.x - stackHelper.slice.planePosition.x,
       particleLight.position.y - stackHelper.slice.planePosition.y,
       particleLight.position.z - stackHelper.slice.planePosition.z
@@ -104,7 +114,7 @@ function init() {
 
   // renderer
   threeD = document.getElementById('r3d');
-  renderer = new THREE.WebGLRenderer({
+  renderer = new WebGLRenderer({
     antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
@@ -117,10 +127,10 @@ function init() {
   threeD.appendChild(stats.domElement);
 
   // scene
-  scene = new THREE.Scene();
+  scene = new Scene();
 
   // camera
-  camera = new THREE.PerspectiveCamera(
+  camera = new PerspectiveCamera(
     45, threeD.offsetWidth / threeD.offsetHeight,
     0.01, 10000000);
   camera.position.x = 150;
@@ -136,9 +146,9 @@ function init() {
   controls.noPan = false;
   controls.dynamicDampingFactor = 0.3;
 
-  particleLight = new THREE.Mesh(
-    new THREE.SphereGeometry(2, 8, 8),
-    new THREE.MeshBasicMaterial({color: 0xFFF336}));
+  particleLight = new Mesh(
+    new SphereGeometry(2, 8, 8),
+    new MeshBasicMaterial({color: 0xFFF336}));
   scene.add(particleLight);
 
   animate();
@@ -183,13 +193,13 @@ window.onload = function() {
     scene.add(stackHelper);
 
     // LINE STUFF
-    let materialLine = new THREE.LineBasicMaterial();
-    let geometryLine = new THREE.Geometry();
+    let materialLine = new LineBasicMaterial();
+    let geometryLine = new Geometry();
     stackHelper.slice.updateMatrixWorld();
     geometryLine.vertices.push(stackHelper.slice.position);
     geometryLine.vertices.push(particleLight.position);
     geometryLine.verticesNeedUpdate = true;
-    line = new THREE.Line(geometryLine, materialLine);
+    line = new Line(geometryLine, materialLine);
     scene.add(line);
 
     // update camrea's and control's target

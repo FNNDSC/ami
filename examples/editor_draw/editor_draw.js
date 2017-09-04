@@ -14,6 +14,10 @@ import ShadersDataUniform from '../../src/shaders/shaders.data.uniform';
 import ShadersDataVertex from '../../src/shaders/shaders.data.vertex';
 import ShadersDataFragment from '../../src/shaders/shaders.data.fragment';
 
+import {
+  ClampToEdgeWrapping, DataTexture, DoubleSide, LinearFilter, Mesh,
+  NearestFilter, RGBAFormat, Scene, ShaderMaterial, UnsignedByteType,
+  UVMapping, Vector3, WebGLRenderer, WebGLRenderTarget} from 'three';
 
 // standard global variables
 let controls;
@@ -121,7 +125,7 @@ function setupEditor() {
         for (let k = ijkBBox[4]; k < ijkBBox[5] + 1; k++) {
           // ijk to world
           // center of voxel
-          let worldCoordinate = new THREE.Vector3(i, j, k).applyMatrix4(stack2._ijk2LPS);
+          let worldCoordinate = new Vector3(i, j, k).applyMatrix4(stack2._ijk2LPS);
           // world to screen coordinate
           let screenCoordinates = worldCoordinate.clone();
           screenCoordinates.project(camera);
@@ -336,7 +340,7 @@ function init() {
 
   // renderer
   threeD = document.getElementById('r3d');
-  renderer = new THREE.WebGLRenderer({
+  renderer = new WebGLRenderer({
     antialias: true,
     alpha: true,
   });
@@ -355,25 +359,25 @@ function init() {
   context = canvas.getContext('2d');
 
   // scene
-  sceneLayer0 = new THREE.Scene();
-  sceneLayer1 = new THREE.Scene();
-  sceneLayerMix = new THREE.Scene();
+  sceneLayer0 = new Scene();
+  sceneLayer1 = new Scene();
+  sceneLayerMix = new Scene();
 
   // render to texture!!!!
-  sceneLayer0TextureTarget = new THREE.WebGLRenderTarget(
+  sceneLayer0TextureTarget = new WebGLRenderTarget(
     threeD.clientWidth,
     threeD.clientHeight,
-    {minFilter: THREE.LinearFilter,
-     magFilter: THREE.NearestFilter,
-     format: THREE.RGBAFormat,
+    {minFilter: LinearFilter,
+     magFilter: NearestFilter,
+     format: RGBAFormat,
   });
 
-  sceneLayer1TextureTarget = new THREE.WebGLRenderTarget(
+  sceneLayer1TextureTarget = new WebGLRenderTarget(
     threeD.clientWidth,
     threeD.clientHeight,
-    {minFilter: THREE.LinearFilter,
-     magFilter: THREE.NearestFilter,
-     format: THREE.RGBAFormat,
+    {minFilter: LinearFilter,
+     magFilter: NearestFilter,
+     format: RGBAFormat,
   });
 
   // camera
@@ -416,7 +420,7 @@ window.onload = function() {
       meshLayerMix.geometry = null;
 
       // add mesh in this scene with right shaders...
-      meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
+      meshLayerMix = new Mesh(stackHelper.slice.geometry, materialLayerMix);
       // go the LPS space
       meshLayerMix.applyMatrix(stackHelper.stack._ijk2LPS);
 
@@ -435,7 +439,7 @@ window.onload = function() {
     let vertices = slice._geometry.vertices;
     // to LPS
     for (let i = 0; i<vertices.length; i++) {
-      let wc = new THREE.Vector3(vertices[i].x, vertices[i].y, vertices[i].z).applyMatrix4(stackHelper.stack._ijk2LPS);
+      let wc = new Vector3(vertices[i].x, vertices[i].y, vertices[i].z).applyMatrix4(stackHelper.stack._ijk2LPS);
       let dc = wc.applyMatrix4(stack2._lps2IJK);
       dc.x = Math.round(dc.x * 10) / 10;
       dc.y = Math.round(dc.y * 10) / 10;
@@ -645,17 +649,17 @@ window.onload = function() {
 
     textures2 = [];
     for (let m = 0; m < stack2._rawData.length; m++) {
-      let tex = new THREE.DataTexture(
+      let tex = new DataTexture(
             stack2.rawData[m],
             stack2.textureSize,
             stack2.textureSize,
             stack2.textureType,
-            THREE.UnsignedByteType,
-            THREE.UVMapping,
-            THREE.ClampToEdgeWrapping,
-            THREE.ClampToEdgeWrapping,
-            THREE.NearestFilter,
-            THREE.NearestFilter);
+            UnsignedByteType,
+            UVMapping,
+            ClampToEdgeWrapping,
+            ClampToEdgeWrapping,
+            NearestFilter,
+            NearestFilter);
       tex.needsUpdate = true;
       tex.flipY = true;
       textures2.push(tex);
@@ -679,15 +683,15 @@ window.onload = function() {
     // generate shaders on-demand!
     let fs = new ShadersDataFragment(uniformsLayer1);
     let vs = new ShadersDataVertex();
-    materialLayer1 = new THREE.ShaderMaterial(
-      {side: THREE.DoubleSide,
+    materialLayer1 = new ShaderMaterial(
+      {side: DoubleSide,
       uniforms: uniformsLayer1,
       vertexShader: vs.compute(),
       fragmentShader: fs.compute(),
     });
 
     // add mesh in this scene with right shaders...
-    meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
+    meshLayer1 = new Mesh(stackHelper.slice.geometry, materialLayer1);
     // go the LPS space
     meshLayer1.applyMatrix(stack._ijk2LPS);
     sceneLayer1.add(meshLayer1);
@@ -699,8 +703,8 @@ window.onload = function() {
 
     let fls = new ShadersLayerFragment(uniformsLayerMix);
     let vls = new ShadersLayerVertex();
-    materialLayerMix = new THREE.ShaderMaterial(
-      {side: THREE.DoubleSide,
+    materialLayerMix = new ShaderMaterial(
+      {side: DoubleSide,
       uniforms: uniformsLayerMix,
       vertexShader: vls.compute(),
       fragmentShader: fls.compute(),
@@ -708,7 +712,7 @@ window.onload = function() {
     });
 
     // add mesh in this scene with right shaders...
-    meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
+    meshLayerMix = new Mesh(stackHelper.slice.geometry, materialLayerMix);
     // go the LPS space
     meshLayerMix.applyMatrix(stack._ijk2LPS);
     sceneLayerMix.add(meshLayerMix);
@@ -716,7 +720,7 @@ window.onload = function() {
     //
     // set camera
     let worldbb = stack.worldBoundingBox();
-    let lpsDims = new THREE.Vector3(
+    let lpsDims = new Vector3(
       worldbb[1] - worldbb[0],
       worldbb[3] - worldbb[2],
       worldbb[5] - worldbb[4]
@@ -725,7 +729,7 @@ window.onload = function() {
     // box: {halfDimensions, center}
     let box = {
       center: stack.worldCenter().clone(),
-      halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+      halfDimensions: new Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
     };
 
     // init and zoom
