@@ -1,7 +1,7 @@
 import Intersections from '../core/core.intersections';
 import Validators from '../core/core.validators';
 
-import {OrthographicCamera, Matrix4, Vector3} from 'three';
+import {Matrix4, Vector3} from 'three';
 
 /**
  * Orthographic camera from THREE.JS with some extra convenience
@@ -13,7 +13,7 @@ import {OrthographicCamera, Matrix4, Vector3} from 'three';
  *
  * @module cameras/orthographic
  */
-export default class CamerasOrthographic extends OrthographicCamera {
+export default class CamerasOrthographic extends THREE.OrthographicCamera {
   constructor(left, right, top, bottom, near, far) {
     super(left, right, top, bottom, near, far);
 

@@ -1,11 +1,11 @@
-import {BoxGeometry, Matrix4} from 'three';
+import {Matrix4} from 'three';
 
 /**
  *
  * @module geometries/voxel
  */
 
-export default class GeometriesVoxel extends BoxGeometry {
+export default class GeometriesVoxel extends THREE.BoxGeometry {
   constructor(dataPosition) {
     super(1, 1, 1);
 

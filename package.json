@@ -1,6 +1,6 @@
 {
   "name": "ami.js",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "main": "build/ami.js",
   "keywords": [
     "ami",
@@ -86,6 +86,7 @@
     "live-server": "^1.1.0",
     "phantomjs-prebuilt": "2.1.14",
     "rimraf": "^2.6.1",
+    "rollup-plugin-node-builtins": "^2.1.2",
     "shelljs": "latest",
     "sinon": "^2.0.0",
     "uglify-js": "^2.7.3",

@@ -1,9 +1,7 @@
-import {Object3D} from 'three';
-
 /**
  *
  */
-export default class WidgetsBase extends Object3D {
+export default class WidgetsBase extends THREE.Object3D {
   constructor(container) {
     // init THREE Object 3D
     super();

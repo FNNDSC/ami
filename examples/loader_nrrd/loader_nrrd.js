@@ -4,14 +4,6 @@ import ControlsTrackball from '../../src/controls/controls.trackball';
 import HelpersStack from '../../src/helpers/helpers.stack';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 
-import {
-  AmbientLight, DirectionalLight,
-  DoubleSide,
-  Matrix4,
-  Mesh, MeshLambertMaterial,
-  PerspectiveCamera, Scene,
-  SmoothShading, WebGLRenderer} from 'three';
-
 // standard global variables
 let controls;
 let renderer;
@@ -24,14 +16,6 @@ let threeD;
 function init() {
   // this function is executed on each animation frame
   function animate() {
-    // if (stackHelper) {
-    //   stackHelper.index += 1;
-    //   if (stackHelper.outOfBounds === true) {
-    //     stackHelper.orientation = (stackHelper.orientation + 1) % 3;
-    //     stackHelper.index = 0;
-    //   }
-    // }
-
     controls.update();
     renderer.render(scene, camera);
     stats.update();
@@ -44,7 +28,7 @@ function init() {
 
   // renderer
   threeD = document.getElementById('r3d');
-  renderer = new WebGLRenderer({
+  renderer = new THREE.WebGLRenderer({
     antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
@@ -57,21 +41,21 @@ function init() {
   threeD.appendChild(stats.domElement);
 
   // scene
-  scene = new Scene();
+  scene = new THREE.Scene();
 
   // camera
   camera =
-    new PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
+    new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
   camera.position.x = 250;
   camera.position.y = 250;
   camera.position.z = 250;
 
-  scene.add(new AmbientLight(0x353535));
-  let directionalLight = new DirectionalLight(0xffffff, 1);
+  scene.add(new THREE.AmbientLight(0x353535));
+  let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
   directionalLight.position.set(200, 200, 1000).normalize();
   scene.add(directionalLight);
 
-  let directionalLight2 = new DirectionalLight(0xffffff, 1);
+  let directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
   directionalLight2.position.set(-200, -200, -1000).normalize();
   scene.add(directionalLight2);
 
@@ -94,12 +78,12 @@ window.onload = function() {
     load('https://cdn.rawgit.com/FNNDSC/data/master/vtk/marc_avf/avf.vtk',
       function(geometry) {
         geometry.computeVertexNormals();
-        let material = new MeshLambertMaterial({
-          shading: SmoothShading,
+        let material = new THREE.MeshLambertMaterial({
+          shading: THREE.SmoothShading,
           color: 0xE91E63,
-          side: DoubleSide});
-        let mesh = new Mesh(geometry, material);
-        let RASToLPS = new Matrix4();
+          side: THREE.DoubleSide});
+        let mesh = new THREE.Mesh(geometry, material);
+        let RASToLPS = new THREE.Matrix4();
         RASToLPS.set(-1, 0, 0, 0,
                     0, -1, 0, 0,
                     0, 0, 1, 0,
@@ -121,9 +105,6 @@ window.onload = function() {
     stackHelper.bbox.color = 0xF9F9F9;
     stackHelper.border.color = 0xF9F9F9;
     scene.add(stackHelper);
-
-    window.console.log(stackHelper.stack.minMax);
-    window.console.log(stackHelper);
 
     // update camrea's and control's target
     let centerLPS = stackHelper.stack.worldCenter();

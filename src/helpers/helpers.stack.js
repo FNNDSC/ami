@@ -3,7 +3,7 @@ import HelpersBorder from '../helpers/helpers.border';
 import HelpersBoundingBox from '../helpers/helpers.boundingbox';
 import HelpersSlice from '../helpers/helpers.slice';
 
-import {Object3D, Vector3} from 'three';
+import {Vector3} from 'three';
 
 /**
  * Helper to easily display and interact with a stack.<br>
@@ -36,7 +36,7 @@ import {Object3D, Vector3} from 'three';
  *
  * @module helpers/stack
  */
-export default class HelpersStack extends Object3D {
+export default class HelpersStack extends THREE.Object3D {
   constructor(stack) {
     //
     super();

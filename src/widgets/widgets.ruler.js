@@ -1,7 +1,7 @@
-import WidgetsBase from '../widgets/widgets.base';
-import WidgetsHandle from '../widgets/widgets.handle';
+import WidgetsBase from './widgets.base';
+import WidgetsHandle from './widgets.handle';
 
-import {Geometry, Line, LineBasicMaterial, Vector3} from 'three';
+import {Vector3} from 'three';
 
 /**
  * @module widgets/handle
@@ -188,16 +188,16 @@ export default class WidgetsRuler extends WidgetsBase {
 
   createMesh() {
     // geometry
-    this._geometry = new Geometry();
+    this._geometry = new THREE.Geometry();
     this._geometry.vertices.push(this._handles[0].worldPosition);
     this._geometry.vertices.push(this._handles[1].worldPosition);
 
     // material
-    this._material = new LineBasicMaterial();
+    this._material = new THREE.LineBasicMaterial();
     this.updateMeshColor();
 
     // mesh
-    this._mesh = new Line(this._geometry, this._material);
+    this._mesh = new THREE.Line(this._geometry, this._material);
     this._mesh.visible = true;
 
     // add it!

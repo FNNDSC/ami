@@ -6,13 +6,13 @@ import ShadersFragment from '../shaders/shaders.data.fragment';
 
 import HelpersMaterialMixin from '../helpers/helpers.material.mixin';
 
-import {Color, DoubleSide, Matrix4, Mesh, Object3D, Vector3, Vector4} from 'three';
+import {Color, Matrix4, Vector3, Vector4} from 'three';
 
 /**
  * @module helpers/slice
  */
 
-export default class HelpersSlice extends HelpersMaterialMixin(Object3D) {
+export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
   constructor(stack,
               index = 0,
               position = new Vector3(0, 0, 0),
@@ -318,7 +318,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(Object3D) {
       this._uniforms.uTextureContainer.value = this._textures;
 
       this._createMaterial({
-        side: DoubleSide,
+        side: THREE.DoubleSide,
       });
     }
 
@@ -327,7 +327,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(Object3D) {
     this.updateIntensitySettingsUniforms();
 
     // create the mesh!
-    this._mesh = new Mesh(this._geometry, this._material);
+    this._mesh = new THREE.Mesh(this._geometry, this._material);
     if (this._aaBBspace === 'IJK') {
       this._mesh.applyMatrix(this._stack.ijk2LPS);
     }

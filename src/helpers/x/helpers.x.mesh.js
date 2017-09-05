@@ -1,4 +1,4 @@
-import {DoubleSide, Matrix4, Mesh, MeshLambertMaterial, SmoothShading} from 'three';
+import {Matrix4} from 'three';
 
 /**
  * @module helpers/x/mesh
@@ -12,11 +12,11 @@ export default class {
     this._mesh = null;
     this._materialColor = 0xE91E63;
     this._RAStoLPS = null;
-    this._material = new MeshLambertMaterial({
-                                  shading: SmoothShading,
-                                  color: this._materialColor,
-                                  side: DoubleSide}
-                                );
+    this._material = new THREE.MeshLambertMaterial({
+      shading: THREE.SmoothShading,
+      color: this._materialColor,
+      side: THREE.DoubleSide,
+    });
   }
 
   // accessor properties
@@ -43,7 +43,7 @@ export default class {
         this._3jsVTK_loader.load(this.file,
           (geometry) => {
               geometry.computeVertexNormals();
-              this._mesh = new Mesh(geometry, this._material);
+              this._mesh = new THREE.Mesh(geometry, this._material);
               this._RAStoLPS = new Matrix4();
               this._RAStoLPS.set(-1, 0, 0, 0,
                                   0, -1, 0, 0,

@@ -1,7 +1,7 @@
 /** * Imports ***/
 import coreIntersections from '../core/core.intersections';
 
-import {Matrix4, Shape, ShapeGeometry, Vector3} from 'three';
+import {Matrix4, Vector3} from 'three';
 /**
  *
  * It is typically used for creating an irregular 3D planar shape given a box and the cut-plane.
@@ -42,7 +42,7 @@ import {Matrix4, Shape, ShapeGeometry, Vector3} from 'three';
  *  scene.add(slice);
  */
 
-export default class GeometriesSlice extends ShapeGeometry {
+export default class GeometriesSlice extends THREE.ShapeGeometry {
     constructor(halfDimensions, center, position, direction, toAABB = new Matrix4()) {
       //
       // prepare data for the shape!
@@ -92,7 +92,7 @@ export default class GeometriesSlice extends ShapeGeometry {
       //
       // Create Shape
       //
-      let shape = new Shape();
+      let shape = new THREE.Shape();
       // move to first point!
       shape.moveTo(points[0].xy.x, points[0].xy.y);
 

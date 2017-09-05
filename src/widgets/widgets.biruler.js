@@ -1,7 +1,7 @@
-import WidgetsBase from '../widgets/widgets.base';
-import WidgetsHandle from '../widgets/widgets.handle';
+import WidgetsBase from './widgets.base';
+import WidgetsHandle from './widgets.handle';
 
-import {Geometry, Line, LineBasicMaterial, Vector3} from 'three';
+import {Vector3} from 'three';
 
 /**
  * @module widgets/handle
@@ -144,7 +144,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._distance2.style.display = 'none';
 
         for (let index in this._handles) {
-            this._handles[index].hideDOM();
+          this._handles[index].hideDOM();
         }
 
         this._dashline.style.display = 'none';
@@ -157,7 +157,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._distance2.style.display = '';
 
         for (let index in this._handles) {
-            this._handles[index].showDOM();
+          this._handles[index].showDOM();
         }
 
         this._dashline.style.display = '';
@@ -205,24 +205,24 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
     createMesh() {
         // geometry
-        this._geometry = new Geometry();
+        this._geometry = new THREE.Geometry();
         this._geometry.vertices.push(this._handles[0].worldPosition);
         this._geometry.vertices.push(this._handles[1].worldPosition);
 
         // geometry
-        this._geometry2 = new Geometry();
+        this._geometry2 = new THREE.Geometry();
         this._geometry2.vertices.push(this._handles[2].worldPosition);
         this._geometry2.vertices.push(this._handles[3].worldPosition);
 
         // material
-        this._material = new LineBasicMaterial();
-        this._material2 = new LineBasicMaterial();
+        this._material = new THREE.LineBasicMaterial();
+        this._material2 = new THREE.LineBasicMaterial();
         this.updateMeshColor();
 
         // mesh
-        this._mesh = new Line(this._geometry, this._material);
+        this._mesh = new THREE.Line(this._geometry, this._material);
         this._mesh.visible = true;
-        this._mesh2 = new Line(this._geometry2, this._material2);
+        this._mesh2 = new THREE.Line(this._geometry2, this._material2);
         this._mesh2.visible = true;
 
         // add it!
@@ -427,8 +427,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     getPointInBetweenByPerc(pointA, pointB, percentage) {
-        var dir = pointB.clone().sub(pointA);
-        var len = dir.length();
+        let dir = pointB.clone().sub(pointA);
+        let len = dir.length();
         dir = dir.normalize().multiplyScalar(len*percentage);
         return pointA.clone().add(dir);
     }
