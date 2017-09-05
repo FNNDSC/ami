@@ -1,7 +1,7 @@
-import WidgetsBase from '../widgets/widgets.base';
-import WidgetsHandle from '../widgets/widgets.handle';
+import WidgetsBase from './widgets.base';
+import WidgetsHandle from './widgets.handle';
 
-import {Geometry, Line, LineBasicMaterial, Vector3} from 'three';
+import {Vector3} from 'three';
 
 /**
  * @module widgets/handle
@@ -111,7 +111,7 @@ export default class WidgetsRoi extends WidgetsBase {
     onStart(evt) {
         this._dragged = false;
 
-        var active = false;
+        let active = false;
 
         for (let index in this._handles) {
             this._handles[index].onStart(evt);
@@ -124,7 +124,7 @@ export default class WidgetsRoi extends WidgetsBase {
 
     onEnd(evt) {
         // First Handle
-        var active = false;
+        let active = false;
         for (let index in this._handles.slice(0, this._handles.length-2)) {
             this._handles[index].onEnd(evt);
             active = active || this._handles[index].active;
@@ -221,17 +221,17 @@ export default class WidgetsRoi extends WidgetsBase {
 
     createMesh() {
         // geometry
-        this._geometry = new Geometry();
+        this._geometry = new THREE.Geometry();
         for (let index in this._handles) {
             this._geometry.vertices.push(this._handles[index].worldPosition);
         }
 
         // material
-        this._material = new LineBasicMaterial();
+        this._material = new THREE.LineBasicMaterial();
         this.updateMeshColor();
 
         // mesh
-        this._mesh = new Line(this._geometry, this._material);
+        this._mesh = new THREE.Line(this._geometry, this._material);
         this._mesh.visible = true;
 
         // add it!
@@ -278,7 +278,7 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     isPointOnLine(pointA, pointB, pointToCheck) {
-        var c = new Vector3();
+        let c = new Vector3();
         c.crossVectors(pointA.clone().sub(pointToCheck), pointB.clone().sub(pointToCheck));
         return !c.length();
     }
@@ -288,7 +288,7 @@ export default class WidgetsRoi extends WidgetsBase {
         let handle1 = this._handles[this._handles.length-2];
         let newhandle = this._handles[this._handles.length-1];
 
-        var isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
+        let isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
 
         if (isOnLine) {
             handle1._dom.style.display = 'none';
@@ -348,8 +348,8 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     getPointInBetweenByPerc(pointA, pointB, percentage) {
-        var dir = pointB.clone().sub(pointA);
-        var len = dir.length();
+        let dir = pointB.clone().sub(pointA);
+        let len = dir.length();
         dir = dir.normalize().multiplyScalar(len*percentage);
         return pointA.clone().add(dir);
     }

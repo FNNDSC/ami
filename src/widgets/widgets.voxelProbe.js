@@ -1,11 +1,11 @@
 
-import WidgetsBase from '../widgets/widgets.base';
+import WidgetsBase from './widgets.base';
 import GeometriesVoxel from '../geometries/geometries.voxel';
 import ModelsStack from '../models/models.stack';
 import ModelsVoxel from '../models/models.voxel';
 import CoreIntersections from '../core/core.intersections';
 
-import {Mesh, MeshBasicMaterial, Raycaster, Vector2, Vector3} from 'three';
+import {Vector2, Vector3} from 'three';
 
 /**
  * @module widgets/voxelProbe
@@ -28,7 +28,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     };
 
     this._offset = new Vector3();
-    this._raycaster = new Raycaster();
+    this._raycaster = new THREE.Raycaster();
 
     this._tracking = false;
 
@@ -255,11 +255,11 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       this._worldPosition);
 
     this._geometry = new GeometriesVoxel(dataCoordinates);
-    this._material = new MeshBasicMaterial({
+    this._material = new THREE.MeshBasicMaterial({
         wireframe: true,
         wireframeLinewidth: 1,
       });
-    this._mesh = new Mesh(this._geometry, this._material);
+    this._mesh = new THREE.Mesh(this._geometry, this._material);
     this._mesh.applyMatrix(this._stack.ijk2LPS);
     this._mesh.visible = true;
 

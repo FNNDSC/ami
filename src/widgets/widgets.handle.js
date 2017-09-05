@@ -1,10 +1,7 @@
-import WidgetsBase from '../widgets/widgets.base';
+import WidgetsBase from './widgets.base';
 import CoreIntersections from '../core/core.intersections';
 
-import {
-  Mesh, MeshBasicMaterial,
-  Raycaster, SphereGeometry,
-  Vector2, Vector3} from 'three';
+import {Vector2, Vector3} from 'three';
 
 /**
  * @module widgets/handle
@@ -25,7 +22,7 @@ export default class WidgetsHandle extends WidgetsBase {
         direction: new Vector3(),
     };
     this._offset = new Vector3();
-    this._raycaster = new Raycaster();
+    this._raycaster = new THREE.Raycaster();
 
     this._tracking = false;
 
@@ -96,13 +93,11 @@ export default class WidgetsHandle extends WidgetsBase {
   }
 
   onStart(evt) {
-    console.log(evt);
     this._lastEvent = evt;
     evt.preventDefault();
 
     const offsets = this.getMouseOffsets(evt, this._container);
     this._mouse.set(offsets.x, offsets.y);
-    console.log(this._mouse);
 
     // update raycaster
     this._raycaster.setFromCamera(this._mouse, this._camera);
@@ -279,16 +274,16 @@ export default class WidgetsHandle extends WidgetsBase {
 
   createMesh() {
     // geometry
-    this._geometry = new SphereGeometry(1, 16, 16);
+    this._geometry = new THREE.SphereGeometry(1, 16, 16);
 
     // material
-    this._material = new MeshBasicMaterial({
+    this._material = new THREE.MeshBasicMaterial({
         wireframe: true,
         wireframeLinewidth: 2,
       });
 
     // mesh
-    this._mesh = new Mesh(this._geometry, this._material);
+    this._mesh = new THREE.Mesh(this._geometry, this._material);
     this._mesh.position.x = this._worldPosition.x;
     this._mesh.position.y = this._worldPosition.y;
     this._mesh.position.z = this._worldPosition.z;

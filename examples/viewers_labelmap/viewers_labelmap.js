@@ -14,15 +14,6 @@ import ShadersDataUniform from '../../src/shaders/shaders.data.uniform';
 import ShadersDataVertex from '../../src/shaders/shaders.data.vertex';
 import ShadersDataFragment from '../../src/shaders/shaders.data.fragment';
 
-import {
-  ClampToEdgeWrapping,
-  DataTexture, DoubleSide,
-  LinearFilter, NearestFilter,
-  Mesh, RGBAFormat, Scene, ShaderMaterial,
-  UnsignedByteType, UVMapping,
-  Vector3,
-  WebGLRenderer, WebGLRenderTarget} from 'three';
-
 // standard global letiables
 let controls;
 let renderer;
@@ -76,7 +67,7 @@ function init() {
 
   // renderer
   threeD = document.getElementById('r3d');
-  renderer = new WebGLRenderer({
+  renderer = new THREE.WebGLRenderer({
     antialias: true,
     alpha: true,
   });
@@ -90,25 +81,25 @@ function init() {
   threeD.appendChild(statsyay.domElement);
 
   // scene
-  sceneLayer0 = new Scene();
-  sceneLayer1 = new Scene();
-  sceneLayerMix = new Scene();
+  sceneLayer0 = new THREE.Scene();
+  sceneLayer1 = new THREE.Scene();
+  sceneLayerMix = new THREE.Scene();
 
   // render to texture!!!!
-  sceneLayer0TextureTarget = new WebGLRenderTarget(
+  sceneLayer0TextureTarget = new THREE.WebGLRenderTarget(
     threeD.clientWidth,
     threeD.clientHeight,
-    {minFilter: LinearFilter,
-     magFilter: NearestFilter,
-     format: RGBAFormat,
+    {minFilter: THREE.LinearFilter,
+     magFilter: THREE.NearestFilter,
+     format: THREE.RGBAFormat,
   });
 
-  sceneLayer1TextureTarget = new WebGLRenderTarget(
+  sceneLayer1TextureTarget = new THREE.WebGLRenderTarget(
     threeD.clientWidth,
     threeD.clientHeight,
-    {minFilter: LinearFilter,
-     magFilter: NearestFilter,
-     format: RGBAFormat,
+    {minFilter: THREE.LinearFilter,
+     magFilter: THREE.NearestFilter,
+     format: THREE.RGBAFormat,
   });
 
   // camera
@@ -255,7 +246,7 @@ window.onload = function() {
         meshLayerMix.geometry = null;
 
         // add mesh in this scene with right shaders...
-        meshLayerMix = new Mesh(
+        meshLayerMix = new THREE.Mesh(
           stackHelper.slice.geometry, materialLayerMix);
         // go the LPS space
         meshLayerMix.applyMatrix(stackHelper.stack._ijk2LPS);
@@ -391,17 +382,17 @@ window.onload = function() {
 
     let textures2 = [];
     for (let m = 0; m < stack2._rawData.length; m++) {
-      let tex = new DataTexture(
+      let tex = new THREE.DataTexture(
             stack2.rawData[m],
             stack2.textureSize,
             stack2.textureSize,
             stack2.textureType,
-            UnsignedByteType,
-            UVMapping,
-            ClampToEdgeWrapping,
-            ClampToEdgeWrapping,
-            NearestFilter,
-            NearestFilter);
+            THREE.UnsignedByteType,
+            THREE.UVMapping,
+            THREE.ClampToEdgeWrapping,
+            THREE.ClampToEdgeWrapping,
+            THREE.NearestFilter,
+            THREE.NearestFilter);
       tex.needsUpdate = true;
       tex.flipY = true;
       textures2.push(tex);
@@ -427,15 +418,15 @@ window.onload = function() {
     // generate shaders on-demand!
     let fs = new ShadersDataFragment(uniformsLayer1);
     let vs = new ShadersDataVertex();
-    materialLayer1 = new ShaderMaterial(
-      {side: DoubleSide,
+    materialLayer1 = new THREE.ShaderMaterial(
+      {side: THREE.DoubleSide,
       uniforms: uniformsLayer1,
       vertexShader: vs.compute(),
       fragmentShader: fs.compute(),
     });
 
     // add mesh in this scene with right shaders...
-    meshLayer1 = new Mesh(stackHelper.slice.geometry, materialLayer1);
+    meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
     // go the LPS space
     meshLayer1.applyMatrix(stack._ijk2LPS);
     sceneLayer1.add(meshLayer1);
@@ -447,8 +438,8 @@ window.onload = function() {
 
     let fls = new ShadersLayerFragment(uniformsLayerMix);
     let vls = new ShadersLayerVertex();
-    materialLayerMix = new ShaderMaterial(
-      {side: DoubleSide,
+    materialLayerMix = new THREE.ShaderMaterial({
+      side: THREE.DoubleSide,
       uniforms: uniformsLayerMix,
       vertexShader: vls.compute(),
       fragmentShader: fls.compute(),
@@ -456,7 +447,7 @@ window.onload = function() {
     });
 
     // add mesh in this scene with right shaders...
-    meshLayerMix = new Mesh(stackHelper.slice.geometry, materialLayerMix);
+    meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
     // go the LPS space
     meshLayerMix.applyMatrix(stack._ijk2LPS);
     sceneLayerMix.add(meshLayerMix);
@@ -464,7 +455,7 @@ window.onload = function() {
     //
     // set camera
     let worldbb = stack.worldBoundingBox();
-    let lpsDims = new Vector3(
+    let lpsDims = new THREE.Vector3(
       worldbb[1] - worldbb[0],
       worldbb[3] - worldbb[2],
       worldbb[5] - worldbb[4]
@@ -474,7 +465,7 @@ window.onload = function() {
     let box = {
       center: stack.worldCenter().clone(),
       halfDimensions:
-      new Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+      new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
     };
 
     // init and zoom

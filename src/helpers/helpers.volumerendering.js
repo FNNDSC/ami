@@ -5,13 +5,13 @@ import ShadersFragment from '../shaders/shaders.vr.fragment';
 
 import HelpersMaterialMixin from '../helpers/helpers.material.mixin';
 
-import {BoxGeometry, FrontSide, Matrix4, Mesh, Object3D} from 'three';
+import {Matrix4} from 'three';
 
 /**
  * @module helpers/volumerendering
  */
 
-export default class HelpersVolumeRendering extends HelpersMaterialMixin(Object3D) {
+export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.Object3D) {
   constructor(stack) {
     //
     super();
@@ -35,7 +35,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(Object3
     this._prepareMaterial();
     this._prepareGeometry();
 
-    this._mesh = new Mesh(this._geometry, this._material);
+    this._mesh = new THREE.Mesh(this._geometry, this._material);
     this.add(this._mesh);
   }
 
@@ -75,7 +75,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(Object3
     this._uniforms.uInterpolation.value = this._interpolation;
 
     this._createMaterial({
-      side: FrontSide,
+      side: THREE.FrontSide,
       transparent: true,
     });
   }
@@ -84,7 +84,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(Object3
     let worldBBox = this._stack.worldBoundingBox();
     let centerLPS = this._stack.worldCenter();
 
-    this._geometry = new BoxGeometry(
+    this._geometry = new THREE.BoxGeometry(
       worldBBox[1] - worldBBox[0],
       worldBBox[3] - worldBBox[2],
       worldBBox[5] - worldBBox[4]);

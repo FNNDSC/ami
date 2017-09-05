@@ -1,11 +1,7 @@
-/** * Imports ***/
-
-import {Geometry, Line, LineBasicMaterial, Object3D} from 'three';
-
 /**
  * @module helpers/border
  */
-export default class HelpersBorder extends Object3D {
+export default class HelpersBorder extends THREE.Object3D {
   constructor(helpersSlice) {
     //
     super();
@@ -54,7 +50,7 @@ export default class HelpersBorder extends Object3D {
 
   _create() {
     if (!this._material) {
-      this._material = new LineBasicMaterial({
+      this._material = new THREE.LineBasicMaterial({
         color: this._color,
         linewidth: 1,
       });
@@ -65,13 +61,13 @@ export default class HelpersBorder extends Object3D {
       return;
     }
 
-    this._geometry = new Geometry();
+    this._geometry = new THREE.Geometry();
     for (let i = 0; i < this._helpersSlice.geometry.vertices.length; i++) {
       this._geometry.vertices.push(this._helpersSlice.geometry.vertices[i]);
     }
     this._geometry.vertices.push(this._helpersSlice.geometry.vertices[0]);
 
-    this._mesh = new Line(this._geometry, this._material);
+    this._mesh = new THREE.Line(this._geometry, this._material);
     if (this._helpersSlice.aabbSpace === 'IJK') {
       this._mesh.applyMatrix(this._helpersSlice.stack.ijk2LPS);
     }

@@ -4,14 +4,6 @@ import ControlsTrackball from '../../src/controls/controls.trackball';
 import HelpersStack from '../../src/helpers/helpers.stack';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 
-import {
-  AmbientLight, DirectionalLight,
-  DoubleSide,
-  Matrix4,
-  Mesh, MeshBasicMaterial, MeshLambertMaterial,
-  PerspectiveCamera, Scene,
-  SphereBufferGeometry, WebGLRenderer} from 'three';
-
 // standard global variables
 let controls;
 let renderer;
@@ -45,7 +37,7 @@ function init() {
 
   // renderer
   threeD = document.getElementById('r3d');
-  renderer = new WebGLRenderer({
+  renderer = new THREE.WebGLRenderer({
     antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
@@ -58,16 +50,16 @@ function init() {
   threeD.appendChild(stats.domElement);
 
   // scene
-  scene = new Scene();
+  scene = new THREE.Scene();
 
   // camera
-  camera = new PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
+  camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
   camera.position.x = 250;
   camera.position.y = 250;
   camera.position.z = 250;
 
-  scene.add(new AmbientLight(0x353535));
-  let directionalLight = new DirectionalLight(0xffffff, 1);
+  scene.add(new THREE.AmbientLight(0x353535));
+  let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
   directionalLight.position.set(200, 200, 1000).normalize();
   scene.add(directionalLight);
 
@@ -88,11 +80,11 @@ window.onload = function() {
   let loader1 = new THREE.VTKLoader();
   loader1.load('https://cdn.rawgit.com/FNNDSC/data/master/vtk/fetalatlas_brain/cortex.vtk', function(geometry) {
     geometry.computeVertexNormals();
-    let material = new MeshLambertMaterial({
+    let material = new THREE.MeshLambertMaterial({
       color: 0x009688,
-      side: DoubleSide});
-    brain = new Mesh(geometry, material);
-    let toLPS = new Matrix4();
+      side: THREE.DoubleSide});
+    brain = new THREE.Mesh(geometry, material);
+    let toLPS = new THREE.Matrix4();
     toLPS.set(
       -1, 0, 0, 0,
       0, -1, 0, 0,
@@ -149,9 +141,9 @@ window.onload = function() {
     scene.add(stackHelper2);
 
     // /
-    let geometry = new SphereBufferGeometry(5, 32, 32);
-    let material = new MeshBasicMaterial({color: 0xffff00});
-    let sphere = new Mesh(geometry, material);
+    let geometry = new THREE.SphereBufferGeometry(5, 32, 32);
+    let material = new THREE.MeshBasicMaterial({color: 0xffff00});
+    let sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(stack._origin.x, stack._origin.y, stack._origin.z);
     scene.add(sphere);
 

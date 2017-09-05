@@ -1,10 +1,7 @@
-import WidgetsBase from '../widgets/widgets.base';
-import WidgetsHandle from '../widgets/widgets.handle';
+import WidgetsBase from './widgets.base';
+import WidgetsHandle from './widgets.handle';
 
-import {
-  CylinderGeometry, Geometry,
-  Line, LineBasicMaterial,
-  Mesh, Vector3} from 'three';
+import {Vector3} from 'three';
 
 /**
  * @module widgets/handle
@@ -242,26 +239,26 @@ export default class WidgetsAnnotation extends WidgetsBase {
 
   createMesh() {
     // geometry
-    this._geometry = new Geometry();
+    this._geometry = new THREE.Geometry();
     this._geometry.vertices.push(this._handles[0].worldPosition);
     this._geometry.vertices.push(this._handles[1].worldPosition);
 
     // material
-    this._material = new LineBasicMaterial();
+    this._material = new THREE.LineBasicMaterial();
     this.updateMeshColor();
 
     // mesh
-    this._meshline = new Line(this._geometry, this._material);
+    this._meshline = new THREE.Line(this._geometry, this._material);
     this._meshline.visible = true;
 
     // add it!
     this.add(this._meshline);
 
     // create cone and add it
-    this._conegeometry = new CylinderGeometry(0, 2, 10);
+    this._conegeometry = new THREE.CylinderGeometry(0, 2, 10);
     this._conegeometry.translate(0, -5, 0);
     this._conegeometry.rotateX(- Math.PI / 2);
-    this._cone = new Mesh(this._conegeometry, this._material);
+    this._cone = new THREE.Mesh(this._conegeometry, this._material);
     this._cone.visible = true;
     this.add(this._cone);
   }
@@ -344,16 +341,16 @@ export default class WidgetsAnnotation extends WidgetsBase {
 
 
     // update label position
-    var mousex = 0;
-    var mousey = 0;
+    let mousex = 0;
+    let mousey = 0;
 
     let posY0;
 
     posY0 = y0 - this._container.offsetHeight - this._label.offsetHeight/2;
     x0 -= this._label.offsetWidth/2;
 
-    var x;
-    var y;
+    let x;
+    let y;
 
     if (!this._labelmoved) { // if the user hasnt moved the label, the position is defined by the position of the arrow
         let transform2 = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
@@ -394,11 +391,11 @@ export default class WidgetsAnnotation extends WidgetsBase {
     y2 = this._labelpositiony + this._container.offsetHeight; // revert the operation in 'mousey' to get the previous eventY
 
     // get the size of the label so we can place the dashed line in the center of it
-    var labelheight = this._label.offsetHeight;
-    var labelwidth = this._label.offsetWidth;
+    let labelheight = this._label.offsetHeight;
+    let labelwidth = this._label.offsetWidth;
 
-    var centerlabelx = 0;
-    var centerlabely = 0;
+    let centerlabelx = 0;
+    let centerlabely = 0;
 
     if (isFinite(labelwidth) && isFinite(labelheight)) { // if the extraction has been succesfull, we calculate the center of the label with total size
       centerlabelx = labelwidth/2;
@@ -409,21 +406,21 @@ export default class WidgetsAnnotation extends WidgetsBase {
     y2 += centerlabely;
 
     // calculate the place in the arrow: closest part of the line to place the dashed line
-    var x1_tail = this._handles[0].screenPosition.x; // first position: tail of arrow
-    var y1_tail = this._handles[0].screenPosition.y;
-    var x1_body = (this._handles[0].screenPosition.x + this._handles[1].screenPosition.x)/2; // second position: center of arrow
-    var y1_body = (this._handles[0].screenPosition.y + this._handles[1].screenPosition.y)/2;
-    var x1_nose = this._handles[1].screenPosition.x; // third position: peak of arrow
-    var y1_nose = this._handles[1].screenPosition.y;
+    let x1_tail = this._handles[0].screenPosition.x; // first position: tail of arrow
+    let y1_tail = this._handles[0].screenPosition.y;
+    let x1_body = (this._handles[0].screenPosition.x + this._handles[1].screenPosition.x)/2; // second position: center of arrow
+    let y1_body = (this._handles[0].screenPosition.y + this._handles[1].screenPosition.y)/2;
+    let x1_nose = this._handles[1].screenPosition.x; // third position: peak of arrow
+    let y1_nose = this._handles[1].screenPosition.y;
 
     // calculate all the lengths to the label, so we can choose the min
-    var lengthtaillabel = Math.sqrt((x1_tail-x2)*(x1_tail-x2) + (y1_tail-y2)*(y1_tail-y2));
-    var lengthbodylabel = Math.sqrt((x1_body-x2)*(x1_body-x2) + (y1_body-y2)*(y1_body-y2));
-    var lengthnoselabel = Math.sqrt((x1_nose-x2)*(x1_nose-x2) + (y1_nose-y2)*(y1_nose-y2));
+    let lengthtaillabel = Math.sqrt((x1_tail-x2)*(x1_tail-x2) + (y1_tail-y2)*(y1_tail-y2));
+    let lengthbodylabel = Math.sqrt((x1_body-x2)*(x1_body-x2) + (y1_body-y2)*(y1_body-y2));
+    let lengthnoselabel = Math.sqrt((x1_nose-x2)*(x1_nose-x2) + (y1_nose-y2)*(y1_nose-y2));
 
-    var lengths = [lengthtaillabel, lengthbodylabel, lengthnoselabel];
-    var minlength = Math.min(lengthtaillabel, lengthbodylabel, lengthnoselabel);
-    var minlengthindex = lengths.indexOf(minlength);
+    let lengths = [lengthtaillabel, lengthbodylabel, lengthnoselabel];
+    let minlength = Math.min(lengthtaillabel, lengthbodylabel, lengthnoselabel);
+    let minlengthindex = lengths.indexOf(minlength);
 
     if (minlengthindex == 0) {
       x1 = x1_tail;
