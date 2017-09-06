@@ -1,3 +1,5 @@
+'use strict';
+
 THREE.TRKLoader = function() {};
 
 Object.assign( THREE.TRKLoader.prototype, THREE.EventDispatcher.prototype, {
