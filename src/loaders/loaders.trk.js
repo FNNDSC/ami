@@ -1,8 +1,6 @@
 THREE.TRKLoader = function() {};
 
-THREE.TRKLoader.prototype = {
-
-    constructor: THREE.TRKLoader.loaders,
+Object.assign( THREE.TRKLoader.prototype, THREE.EventDispatcher.prototype, {
 
     load: function(url, onLoad, onProgress, onError) {
         window.console.log(url, onLoad, onProgress, onError);
@@ -410,5 +408,3 @@ THREE.TRKLoader.prototype = {
     },
 
 };
-
-THREE.EventDispatcher.apply(THREE.TRKLoader.prototype);
