@@ -1,13 +1,8 @@
-'use strict';
+THREE.TRKLoader = function() {};
 
-let VJS = VJS || {};
-VJS.trk = VJS.trk || {};
+THREE.TRKLoader.prototype = {
 
-VJS.trk.loaders = function() {};
-
-VJS.trk.loaders.prototype = {
-
-    constructor: VJS.trk.loaders,
+    constructor: THREE.TRKLoader.loaders,
 
     load: function(url, onLoad, onProgress, onError) {
         window.console.log(url, onLoad, onProgress, onError);
@@ -416,4 +411,4 @@ VJS.trk.loaders.prototype = {
 
 };
 
-THREE.EventDispatcher.prototype.apply(VJS.trk.loaders.prototype);
+THREE.EventDispatcher.prototype.apply(THREE.TRKLoader.prototype);
