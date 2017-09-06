@@ -408,4 +408,4 @@ THREE.TRKLoader.prototype = {
 
         return tracks;
     }
-} );
+};
