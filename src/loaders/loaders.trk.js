@@ -405,6 +405,5 @@ Object.assign( THREE.TRKLoader.prototype, THREE.EventDispatcher.prototype, {
 
 
         return tracks;
-    },
-
+    }
 };
