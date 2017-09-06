@@ -1,8 +1,6 @@
-THREE.TRKLoader = function() {
-  Object.assign( this.prototype, THREE.EventDispatcher.prototype );
-};
+THREE.TRKLoader = function() {};
 
-THREE.TRKLoader.prototype = {
+Object.assign( THREE.TRKLoader.prototype, THREE.EventDispatcher.prototype, {
 
     constructor: THREE.TRKLoader,
 
@@ -410,4 +408,4 @@ THREE.TRKLoader.prototype = {
 
         return tracks;
     }
-};
+} );
