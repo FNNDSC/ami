@@ -1,5 +1,5 @@
 THREE.TRKLoader = function() {
-  Object.assign( this.prototype, EventDispatcher.prototype );
+  Object.assign( this.prototype, THREE.EventDispatcher.prototype );
 };
 
 THREE.TRKLoader.prototype = {
