@@ -1,8 +1,10 @@
-THREE.TRKLoader = function() {};
+THREE.TRKLoader = function() {
+  Object.assign( this.prototype, EventDispatcher.prototype );
+};
 
 THREE.TRKLoader.prototype = {
 
-	constructor: THREE.EventDispatcher,
+    constructor: THREE.TRKLoader,
 
     load: function(url, onLoad, onProgress, onError) {
         window.console.log(url, onLoad, onProgress, onError);
