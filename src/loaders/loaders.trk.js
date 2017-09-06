@@ -411,4 +411,4 @@ THREE.TRKLoader.prototype = {
 
 };
 
-THREE.EventDispatcher.prototype.apply(THREE.TRKLoader.prototype);
+THREE.EventDispatcher.apply(THREE.TRKLoader.prototype);
