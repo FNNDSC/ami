@@ -2,7 +2,7 @@
 
 THREE.TRKLoader = function() {};
 
-Object.assign( THREE.TRKLoader.prototype, THREE.EventDispatcher.prototype, {
+Object.assign(THREE.TRKLoader.prototype, THREE.EventDispatcher.prototype, {
 
     constructor: THREE.TRKLoader,
 
@@ -409,5 +409,5 @@ Object.assign( THREE.TRKLoader.prototype, THREE.EventDispatcher.prototype, {
 
 
         return tracks;
-    }
-} );
+    },
+});
