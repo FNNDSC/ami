@@ -21,14 +21,11 @@ let niftiDataset = {
 //     parser: ParsersNrrd
 // };
 
-function crop( value, decimals ){
-
-    return (Math.floor( Math.pow(10, decimals) * value) / Math.pow(10, decimals));
-
+function crop(value, decimals) {
+  return (Math.floor(Math.pow(10, decimals) * value) / Math.pow(10, decimals));
 }
 
-function test( dataset, datasetDicom ) {
-
+function test(dataset, datasetDicom) {
     let parserDicom = null;
 
     beforeEach((done) => {
@@ -36,7 +33,7 @@ function test( dataset, datasetDicom ) {
         let oReqDicom = new XMLHttpRequest();
         oReqDicom.open('GET', datasetDicom.url, true);
         oReqDicom.responseType = 'arraybuffer';
-        
+
         oReqDicom.onload = () => {
         let buffer = oReqDicom.response;
         if (buffer) {
@@ -48,21 +45,18 @@ function test( dataset, datasetDicom ) {
         }
         };
         oReqDicom.send();
-
     });
 
   // test extraction of tags of interest
   describe(dataset.format, function() {
-
     let parser = null;
 
     beforeEach((done) => {
-
       // fetch other data
       let oReqData = new XMLHttpRequest();
       oReqData.open('GET', dataset.url, true);
       oReqData.responseType = 'arraybuffer';
-      
+
       oReqData.onload = () => {
         let buffer = oReqData.response;
         if (buffer) {
@@ -81,9 +75,9 @@ function test( dataset, datasetDicom ) {
         let dicomImagePosition = parserDicom.imagePosition(frameIndex);
         let imagePosition = parser.imagePosition(frameIndex);
 
-        expect( crop(imagePosition[0], 5 ) ).toBe( crop( dicomImagePosition[0], 5 ) );
-        expect( crop(imagePosition[1], 5 ) ).toBe( crop( dicomImagePosition[1], 5 ) );
-        expect( crop(imagePosition[2], 5 ) ).toBe( crop( dicomImagePosition[2], 5 ) );
+        expect(crop(imagePosition[0], 5)).toBe(crop(dicomImagePosition[0], 5));
+        expect(crop(imagePosition[1], 5)).toBe(crop(dicomImagePosition[1], 5));
+        expect(crop(imagePosition[2], 5)).toBe(crop(dicomImagePosition[2], 5));
     });
 
     it('pixel spacing', function() {
@@ -91,8 +85,8 @@ function test( dataset, datasetDicom ) {
         let dicomPixelSpacing = parserDicom.pixelSpacing(frameIndex);
         let pixelSpacing = parser.pixelSpacing(frameIndex);
         // check typeof and length...
-        expect( crop(pixelSpacing[0], 5) ).toBe( crop(dicomPixelSpacing[0], 5) );
-        expect( crop(pixelSpacing[1], 5) ).toBe( crop(dicomPixelSpacing[1], 5) );
+        expect(crop(pixelSpacing[0], 5)).toBe(crop(dicomPixelSpacing[0], 5));
+        expect(crop(pixelSpacing[1], 5)).toBe(crop(dicomPixelSpacing[1], 5));
     });
 
     it('image orientation', function() {
@@ -100,13 +94,12 @@ function test( dataset, datasetDicom ) {
         let dicomOrientation = parserDicom.imageOrientation(frameIndex);
         let dataOrientation = parser.imageOrientation(frameIndex);
 
-        expect( crop(dataOrientation[0], 5 ) ).toBe(crop( dicomOrientation[0], 5 ) );
-        expect( crop(dataOrientation[1], 5 ) ).toBe(crop( dicomOrientation[1], 5 ) );
-        expect( crop(dataOrientation[2], 5 ) ).toBe(crop( dicomOrientation[2], 5 ) );
-        expect( crop(dataOrientation[3], 5 ) ).toBe(crop( dicomOrientation[3], 5 ) );
-        expect( crop(dataOrientation[4], 5 ) ).toBe(crop( dicomOrientation[4], 5 ) );
-        expect( crop(dataOrientation[5], 5 ) ).toBe(crop( dicomOrientation[5], 5 ) );
-
+        expect(crop(dataOrientation[0], 5)).toBe(crop(dicomOrientation[0], 5));
+        expect(crop(dataOrientation[1], 5)).toBe(crop(dicomOrientation[1], 5));
+        expect(crop(dataOrientation[2], 5)).toBe(crop(dicomOrientation[2], 5));
+        expect(crop(dataOrientation[3], 5)).toBe(crop(dicomOrientation[3], 5));
+        expect(crop(dataOrientation[4], 5)).toBe(crop(dicomOrientation[4], 5));
+        expect(crop(dataOrientation[5], 5)).toBe(crop(dicomOrientation[5], 5));
       });
 
     it('pixel data', function() {
@@ -116,14 +109,13 @@ function test( dataset, datasetDicom ) {
         let dicomPixelData = parserDicom.extractPixelData(frameIndex);
         let pixelData = parser.extractPixelData(frameIndex);
 
-        expect( pixelData.join() ).toEqual( dicomPixelData.join() );
+        expect(pixelData.join()).toEqual(dicomPixelData.join());
       });
-
   });
 }
 
 describe('Orientation', function() {
-  test( niftiDataset, dicomDataset );
+  test(niftiDataset, dicomDataset);
 //   test( nrrdDataset );
 });
 

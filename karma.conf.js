@@ -11,11 +11,11 @@ module.exports = function(karma) {
     // list of files / patterns to load in the browser
     files: [
       'https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js',
-      `https://cdnjs.cloudflare.com/ajax/libs/three.js/${packageJSON.config.threeVersion}/three.js`
-,
-      //'src/core/*.spec.js',
+      `https://cdnjs.cloudflare.com/ajax/libs/three.js/${packageJSON.config.threeVersion}/three.js`,
+// ,
+      // 'src/core/*.spec.js',
       'specs/**/*.spec.js',
-      {pattern: 'data/**/*', included: false, watched: false, served: true}
+      {pattern: 'data/**/*', included: false, watched: false, served: true},
     ],
 
     reporters: ['spec'],
@@ -23,8 +23,8 @@ module.exports = function(karma) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'specs/**/*.spec.js': ['browserify']
-      //'src/core/*.spec.js': ['browserify']
+      'specs/**/*.spec.js': ['browserify'],
+      // 'src/core/*.spec.js': ['browserify']
     },
 
     browsers: ['PhantomJS'],
@@ -40,7 +40,7 @@ module.exports = function(karma) {
 
     browserify: {
       debug: true,
-      transform: [ ['babelify', {'presets': ['es2015']}] ]
-    }
+      transform: [['babelify', {'presets': ['es2015']}]],
+    },
   });
 };

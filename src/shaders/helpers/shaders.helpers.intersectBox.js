@@ -1,7 +1,6 @@
 import ShadersBase from '../shaders.base';
 
 class IntersectBox extends ShadersBase {
-
   constructor() {
     super();
     this.name = 'intersectBox';
@@ -31,7 +30,6 @@ class IntersectBox extends ShadersBase {
     return `${this._name}(${rayOrigin}, ${rayDirection}, ${aabbMin}, ${aabbMax}, ${tNear}, ${tFar}, ${intersect});`;
   }
 
-
   computeDefinition() {
     this._definition = `
 void ${this._name}(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, out float tNear, out float tFar, out bool intersect){
@@ -52,7 +50,6 @@ void ${this._name}(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, 
 
     `;
   }
-
 }
 
 export default new IntersectBox();

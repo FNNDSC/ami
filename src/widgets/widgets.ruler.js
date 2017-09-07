@@ -1,5 +1,7 @@
-import WidgetsBase from '../widgets/widgets.base';
-import WidgetsHandle from '../widgets/widgets.handle';
+import WidgetsBase from './widgets.base';
+import WidgetsHandle from './widgets.handle';
+
+import {Vector3} from 'three';
 
 /**
  * @module widgets/handle
@@ -7,7 +9,6 @@ import WidgetsHandle from '../widgets/widgets.handle';
  */
 
 export default class WidgetsRuler extends WidgetsBase {
-
   constructor(targetMesh, controls, camera, container) {
     super(container);
 
@@ -18,7 +19,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._active = true;
     this._lastEvent = null;
 
-    this._worldPosition = new THREE.Vector3();
+    this._worldPosition = new Vector3();
     if (this._targetMesh !== null) {
       this._worldPosition = this._targetMesh.position;
     }
@@ -250,8 +251,6 @@ export default class WidgetsRuler extends WidgetsBase {
     let x2 = this._handles[1].screenPosition.x;
     let y2 = this._handles[1].screenPosition.y;
 
-    //let x0 = x1 + (x2 - x1)/2;
-    //let y0 = y1 + (y2 - y1)/2;
     let x0 = x2;
     let y0 = y2;
 
@@ -327,5 +326,4 @@ export default class WidgetsRuler extends WidgetsBase {
 
     this.update();
   }
-
 }

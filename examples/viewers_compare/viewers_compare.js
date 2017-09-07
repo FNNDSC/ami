@@ -14,7 +14,11 @@ import ShadersVertex from '../../src/shaders/shaders.data.vertex';
 import ShadersFragment from '../../src/shaders/shaders.data.fragment';
 
 // standard global letiables
-let controls, renderer, camera, statsyay, threeD;
+let controls;
+let renderer;
+let camera;
+let statsyay;
+let threeD;
 //
 let mouse = {
   x: 0,

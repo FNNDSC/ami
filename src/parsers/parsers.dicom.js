@@ -1,18 +1,3 @@
-// ftp://medical.nema.org/MEDICAL/Dicom/2014c/output/chtml/part05/sect_6.2.html/
-
-// Slicer way to handle images
-// should follow it...
-// 897   if ( (this->IndexSeriesInstanceUIDs[k] != idxSeriesInstanceUID && this->IndexSeriesInstanceUIDs[k] >= 0 && idxSeriesInstanceUID >= 0) ||
-// 898        (this->IndexContentTime[k] != idxContentTime && this->IndexContentTime[k] >= 0 && idxContentTime >= 0) ||
-// 899        (this->IndexTriggerTime[k] != idxTriggerTime && this->IndexTriggerTime[k] >= 0 && idxTriggerTime >= 0) ||
-// 900        (this->IndexEchoNumbers[k] != idxEchoNumbers && this->IndexEchoNumbers[k] >= 0 && idxEchoNumbers >= 0) ||
-// 901        (this->IndexDiffusionGradientOrientation[k] != idxDiffusionGradientOrientation  && this->IndexDiffusionGradientOrientation[k] >= 0 && idxDiffusionGradientOrientation >= 0) ||
-// 902        (this->IndexSliceLocation[k] != idxSliceLocation && this->IndexSliceLocation[k] >= 0 && idxSliceLocation >= 0) ||
-// 903        (this->IndexImageOrientationPatient[k] != idxImageOrientationPatient && this->IndexImageOrientationPatient[k] >= 0 && idxImageOrientationPatient >= 0) )
-// 904     {
-// 905       continue;
-// 906     }
-
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
 
@@ -32,7 +17,6 @@ let Jpx = require('../../external/scripts/jpx');
  * VJS.parsers.dicom can pull the data from.
  */
 export default class ParsersDicom extends ParsersVolume {
-
   constructor(data, id) {
     super();
 
@@ -616,19 +600,6 @@ export default class ParsersDicom extends ParsersVolume {
     }
   }
 
-  minMaxPixelData(pixelData = []) {
-    let minMax = [65535, -32768];
-    let numPixels = pixelData.length;
-
-    for (let index = 0; index < numPixels; index++) {
-      let spv = pixelData[index];
-      minMax[0] = Math.min(minMax[0], spv);
-      minMax[1] = Math.max(minMax[1], spv);
-    }
-
-    return minMax;
-  }
-
   //
   // private methods
   //
@@ -980,23 +951,4 @@ export default class ParsersDicom extends ParsersVolume {
 
     return frame;
   }
-
 }
-
-// VJS.parsers.dicom.prototype.frameOfReferenceUID = function(imageJqueryDom) {
-//   // try to access frame of reference UID through its DICOM tag
-//   let seriesNumber = imageJqueryDom.find('[tag="00200052"] Value').text();
-
-//   // if not available, assume we only have 1 frame
-//   if (seriesNumber === '') {
-//     seriesNumber = 1;
-//   }
-//   return seriesNumber;
-// };
-
-//
-// ENDIAN NESS NOT TAKEN CARE OF
-// http://stackoverflow.com/questions/5320439/how-do-i-swap-endian-ness-byte-order-of-a-letiable-in-javascript
-// http://www.barre.nom.fr/medical/samples/
-//
-//

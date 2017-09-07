@@ -1,9 +1,11 @@
 
-import WidgetsBase from '../widgets/widgets.base';
+import WidgetsBase from './widgets.base';
 import GeometriesVoxel from '../geometries/geometries.voxel';
 import ModelsStack from '../models/models.stack';
 import ModelsVoxel from '../models/models.voxel';
 import CoreIntersections from '../core/core.intersections';
+
+import {Vector2, Vector3} from 'three';
 
 /**
  * @module widgets/voxelProbe
@@ -21,23 +23,23 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
     // if no target mesh, use plane for FREE dragging.
     this._plane = {
-        position: new THREE.Vector3(),
-        direction: new THREE.Vector3(),
+        position: new Vector3(),
+        direction: new Vector3(),
     };
 
-    this._offset = new THREE.Vector3();
+    this._offset = new Vector3();
     this._raycaster = new THREE.Raycaster();
 
     this._tracking = false;
 
-    this._mouse = new THREE.Vector2();
+    this._mouse = new Vector2();
     this._lastEvent = null;
 
     // world (LPS) position of the center
-    this._worldPosition = new THREE.Vector3();
+    this._worldPosition = new Vector3();
 
     // screen position of the center
-    this._screenPosition = new THREE.Vector2();
+    this._screenPosition = new Vector2();
 
     // mesh stuff
     this._material = null;

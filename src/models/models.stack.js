@@ -1,8 +1,5 @@
 /** * Imports ***/
-import {
-  Vector3,
-  Matrix4,
-  LuminanceFormat, RGBAFormat, RGBFormat} from 'three';
+import {Vector3, Matrix4} from 'three';
 import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
 import ModelsBase from '../models/models.base';
@@ -542,7 +539,7 @@ export default class ModelsStack extends ModelsBase {
         data[packIndex] = offset + frame[frameIndex].pixelData[inFrameIndex];
         packIndex++;
       }
-      packed.textureType = LuminanceFormat;
+      packed.textureType = THREE.LuminanceFormat;
       packed.data = data;
     } else if (bitsAllocated === 16 && channels === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -563,7 +560,7 @@ export default class ModelsStack extends ModelsBase {
         channelOffset = packIndex % 2;
       }
 
-      packed.textureType = RGBAFormat;
+      packed.textureType = THREE.RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 0) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -579,7 +576,7 @@ export default class ModelsStack extends ModelsBase {
 
         packIndex++;
       }
-      packed.textureType = RGBAFormat;
+      packed.textureType = THREE.RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -600,7 +597,7 @@ export default class ModelsStack extends ModelsBase {
         packIndex++;
       }
 
-      packed.textureType = RGBAFormat;
+      packed.textureType = THREE.RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 8 && channels === 3) {
       let data = new Uint8Array(textureSize * textureSize * 3);
@@ -618,7 +615,7 @@ export default class ModelsStack extends ModelsBase {
         packIndex++;
       }
 
-      packed.textureType = RGBFormat;
+      packed.textureType = THREE.RGBFormat;
       packed.data = data;
     }
 
@@ -1082,16 +1079,3 @@ export default class ModelsStack extends ModelsBase {
     return CoreUtils.worldToData(stack._lps2IJK, worldCoordinates);
   }
 }
-
-// Slicer way to handle images
-// should follow it...
- // 897   if ( (this->IndexSeriesInstanceUIDs[k] != idxSeriesInstanceUID && this->IndexSeriesInstanceUIDs[k] >= 0 && idxSeriesInstanceUID >= 0) ||
- // 898        (this->IndexContentTime[k] != idxContentTime && this->IndexContentTime[k] >= 0 && idxContentTime >= 0) ||
- // 899        (this->IndexTriggerTime[k] != idxTriggerTime && this->IndexTriggerTime[k] >= 0 && idxTriggerTime >= 0) ||
- // 900        (this->IndexEchoNumbers[k] != idxEchoNumbers && this->IndexEchoNumbers[k] >= 0 && idxEchoNumbers >= 0) ||
- // 901        (this->IndexDiffusionGradientOrientation[k] != idxDiffusionGradientOrientation  && this->IndexDiffusionGradientOrientation[k] >= 0 && idxDiffusionGradientOrientation >= 0) ||
- // 902        (this->IndexSliceLocation[k] != idxSliceLocation && this->IndexSliceLocation[k] >= 0 && idxSliceLocation >= 0) ||
- // 903        (this->IndexImageOrientationPatient[k] != idxImageOrientationPatient && this->IndexImageOrientationPatient[k] >= 0 && idxImageOrientationPatient >= 0) )
- // 904     {
- // 905       continue;
- // 906     }

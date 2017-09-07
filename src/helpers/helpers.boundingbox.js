@@ -1,3 +1,5 @@
+// import * as THREE from 'three';
+import {Matrix4, Vector3} from 'three';
 
 /**
  * @module helpers/boundingbox
@@ -15,6 +17,7 @@ export default class HelpersBoundingBox extends THREE.Object3D {
     this._material = null;
     this._geometry = null;
     this._mesh = null;
+    this._meshStack = null;
 
     // create object
     this._create();
@@ -46,38 +49,35 @@ export default class HelpersBoundingBox extends THREE.Object3D {
   // private methods
   _create() {
     // Convenience vars
-    let dimensions = this._stack.dimensionsIJK;
-    let halfDimensions = this._stack.halfDimensionsIJK;
-    let offset = new THREE.Vector3(-0.5, -0.5, -0.5);
+    const dimensions = this._stack.dimensionsIJK;
+    const halfDimensions = this._stack.halfDimensionsIJK;
+    const offset = new Vector3(-0.5, -0.5, -0.5);
 
     // Geometry
-    this._geometry = new THREE.BoxGeometry(
-      dimensions.x, dimensions.y, dimensions.z);
-    // position bbox in image space
-    this._geometry .applyMatrix(new THREE.Matrix4().makeTranslation(
+    const geometry = new THREE.BoxGeometry(dimensions.x, dimensions.y, dimensions.z);
+    geometry.applyMatrix(new Matrix4().makeTranslation(
       halfDimensions.x + offset.x,
       halfDimensions.y + offset.y,
       halfDimensions.z + offset.z));
-
-
-    // Mesh
-    let boxMesh =
-      new THREE.Mesh(this._geometry, new THREE.MeshBasicMaterial(0xff0000));
-    this._mesh = new THREE.BoxHelper(boxMesh, this._color);
+    this._geometry = geometry;
 
     // Material
+    this._material = new THREE.MeshBasicMaterial({
+      wireframe: true,
+    });
+
+    const mesh = new THREE.Mesh(this._geometry, null);
+    mesh.applyMatrix(this._stack.ijk2LPS);
+    mesh.visible = this._visible;
+    this._meshStack = mesh;
+
+    this._mesh = new THREE.BoxHelper(this._meshStack, this._color);
     this._material = this._mesh.material;
 
-    // position bbox in world space
-    this._mesh.applyMatrix(this._stack.ijk2LPS);
-    this._mesh.visible = this._visible;
-
-    // and add it!
     this.add(this._mesh);
   }
 
   _update() {
-    // update slice
     if (this._mesh) {
       this.remove(this._mesh);
       this._mesh.geometry.dispose();

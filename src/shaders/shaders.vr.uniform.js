@@ -1,3 +1,4 @@
+import {Matrix4} from 'three';
 
 /**
  * @module shaders/data
@@ -23,7 +24,7 @@ export default class ShadersUniform {
       },
       'uWorldToData': {
         type: 'm4',
-        value: new THREE.Matrix4(),
+        value: new Matrix4(),
         typeGLSL: 'mat4',
       },
       'uWindowCenterWidth': {

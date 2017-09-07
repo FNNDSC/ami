@@ -1,6 +1,7 @@
 /* globals describe, it, expect, beforeEach*/
 
 import CoreIntersections from '../../src/core/core.intersections';
+import {Matrix4, Vector3} from 'three';
 
 describe('Core.Intersections', function() {
   describe('validateAabb', function() {
@@ -15,55 +16,55 @@ describe('Core.Intersections', function() {
 
       // missing center
       validate = CoreIntersections.validateAabb({
-        toAABB: new THREE.Matrix4(),
+        toAABB: new Matrix4(),
       });
       expect(validate).toEqual(false);
 
       // missing halfDimensions
       validate = CoreIntersections.validateAabb({
-        toAABB: new THREE.Matrix4(),
-        center: new THREE.Vector3(),
+        toAABB: new Matrix4(),
+        center: new Vector3(),
       });
       expect(validate).toEqual(false);
 
       // toAABB should be Matrix4
       validate = CoreIntersections.validateAabb({
-        toAABB: new THREE.Vector3(),
-        center: new THREE.Vector3(),
-        halfDimensions: new THREE.Vector3(),
+        toAABB: new Vector3(),
+        center: new Vector3(),
+        halfDimensions: new Vector3(),
       });
       expect(validate).toEqual(false);
 
       // center should be vector3
       validate = CoreIntersections.validateAabb({
-        toAABB: new THREE.Matrix4(),
-        center: new THREE.Matrix4(),
-        halfDimensions: new THREE.Vector3(),
+        toAABB: new Matrix4(),
+        center: new Matrix4(),
+        halfDimensions: new Vector3(),
       });
       expect(validate).toEqual(false);
 
       // halfDimensions should be vector3
       validate = CoreIntersections.validateAabb({
-        toAABB: new THREE.Matrix4(),
-        center: new THREE.Vector3(),
-        halfDimensions: new THREE.Matrix4(),
+        toAABB: new Matrix4(),
+        center: new Vector3(),
+        halfDimensions: new Matrix4(),
       });
       expect(validate).toEqual(false);
 
       // halfDimensions should be positive
       validate = CoreIntersections.validateAabb({
-        toAABB: new THREE.Matrix4(),
-        center: new THREE.Vector3(),
-        halfDimensions: new THREE.Vector3(-1, -1, -1),
+        toAABB: new Matrix4(),
+        center: new Vector3(),
+        halfDimensions: new Vector3(-1, -1, -1),
       });
       expect(validate).toEqual(false);
     });
 
     it('should return true if AABB is valid', function() {
       let validate = CoreIntersections.validateAabb({
-        toAABB: new THREE.Matrix4(),
-        center: new THREE.Vector3(),
-        halfDimensions: new THREE.Vector3(),
+        toAABB: new Matrix4(),
+        center: new Vector3(),
+        halfDimensions: new Vector3(),
       });
       expect(validate).toEqual(true);
     });
@@ -81,29 +82,29 @@ describe('Core.Intersections', function() {
 
       // missing direction
       validate = CoreIntersections.validatePlane({
-        position: new THREE.Vector3(),
+        position: new Vector3(),
       });
       expect(validate).toEqual(false);
 
       // position should be vector3
       validate = CoreIntersections.validatePlane({
-        position: new THREE.Matrix4(),
-        direction: new THREE.Vector3(),
+        position: new Matrix4(),
+        direction: new Vector3(),
       });
       expect(validate).toEqual(false);
 
       // direction should be vector3
       validate = CoreIntersections.validatePlane({
-        position: new THREE.Vector3(),
-        direction: new THREE.Matrix4(),
+        position: new Vector3(),
+        direction: new Matrix4(),
       });
       expect(validate).toEqual(false);
     });
 
     it('should return true if Plane is valid', function() {
       let validate = CoreIntersections.validatePlane({
-        position: new THREE.Vector3(),
-        direction: new THREE.Vector3(),
+        position: new Vector3(),
+        direction: new Vector3(),
       });
       expect(validate).toEqual(true);
     });
@@ -117,16 +118,15 @@ describe('Core.Intersections', function() {
     });
 
     it('should return array of intersections (if any) if aabb and plane are valid', function() {
-
       // identity transform
       let aabb = {
-        center: new THREE.Vector3(150, 150, 150),
-        halfDimensions: new THREE.Vector3(50, 60, 70),
-        toAABB: new THREE.Matrix4(),
+        center: new Vector3(150, 150, 150),
+        halfDimensions: new Vector3(50, 60, 70),
+        toAABB: new Matrix4(),
       };
       let plane = {
-        position: new THREE.Vector3(110, 120, 130),
-        direction: new THREE.Vector3(1, 0, 0),
+        position: new Vector3(110, 120, 130),
+        direction: new Vector3(1, 0, 0),
       };
 
       let intersections = CoreIntersections.aabbPlane(aabb, plane);
@@ -151,10 +151,10 @@ describe('Core.Intersections', function() {
 
       // rotate along 1 axis && translate
       // do not return duplicate values
-      let m = new THREE.Matrix4();
+      let m = new Matrix4();
 
-      let m1 = new THREE.Matrix4();
-      let m2 = new THREE.Matrix4();
+      let m1 = new Matrix4();
+      let m2 = new Matrix4();
 
       let gamma = Math.PI/4;
 
@@ -163,13 +163,13 @@ describe('Core.Intersections', function() {
       m.multiplyMatrices(m2, m1);
 
       aabb = {
-        center: new THREE.Vector3(150, 150, 150),
-        halfDimensions: new THREE.Vector3(50, 50, 50),
+        center: new Vector3(150, 150, 150),
+        halfDimensions: new Vector3(50, 50, 50),
         toAABB: m,
       };
       plane = {
-        position: new THREE.Vector3(0, 0, 0),
-        direction: new THREE.Vector3(1, 0, 0),
+        position: new Vector3(0, 0, 0),
+        direction: new Vector3(1, 0, 0),
       };
 
       intersections = CoreIntersections.aabbPlane(aabb, plane);
@@ -194,13 +194,13 @@ describe('Core.Intersections', function() {
 
       // plane is a border of the aabb
       aabb = {
-        center: new THREE.Vector3(150, 150, 150),
-        halfDimensions: new THREE.Vector3(50, 50, 50),
-        toAABB: new THREE.Matrix4(),
+        center: new Vector3(150, 150, 150),
+        halfDimensions: new Vector3(50, 50, 50),
+        toAABB: new Matrix4(),
       };
       plane = {
-        position: new THREE.Vector3(100, 150, 150),
-        direction: new THREE.Vector3(1, 0, 0),
+        position: new Vector3(100, 150, 150),
+        direction: new Vector3(1, 0, 0),
       };
 
       intersections = CoreIntersections.aabbPlane(aabb, plane);
@@ -226,13 +226,13 @@ describe('Core.Intersections', function() {
       // plane and aabb do not intersect
       // 0 intersections
       aabb = {
-        center: new THREE.Vector3(150, 150, 150),
-        halfDimensions: new THREE.Vector3(50, 50, 50),
-        toAABB: new THREE.Matrix4(),
+        center: new Vector3(150, 150, 150),
+        halfDimensions: new Vector3(50, 50, 50),
+        toAABB: new Matrix4(),
       };
       plane = {
-        position: new THREE.Vector3(99, 150, 150),
-        direction: new THREE.Vector3(1, 0, 0),
+        position: new Vector3(99, 150, 150),
+        direction: new Vector3(1, 0, 0),
       };
 
       intersections = CoreIntersections.aabbPlane(aabb, plane);

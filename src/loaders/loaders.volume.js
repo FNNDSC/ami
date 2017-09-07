@@ -19,7 +19,6 @@ import ParsersNrrd from '../parsers/parsers.nrrd';
  * Demo: {@link https://fnndsc.github.io/vjs#loader_dicom}
  *
  * @module loaders/volumes
- * @extends LoadersBase
  * @example
  * var files = ['/data/dcm/fruit'];
  *
@@ -38,7 +37,6 @@ import ParsersNrrd from '../parsers/parsers.nrrd';
  * );
  */
 export default class LoadersVolumes extends LoadersBase {
-
   /**
    * Parse response.
    * response is formated as:

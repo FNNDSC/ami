@@ -2,7 +2,6 @@
  *
  */
 export default class WidgetsBase extends THREE.Object3D {
-
   constructor(container) {
     // init THREE Object 3D
     super();
@@ -151,5 +150,4 @@ export default class WidgetsBase extends THREE.Object3D {
     this._color = color;
     this.update();
   }
-
 }

@@ -12,7 +12,6 @@
  */
 
 export default class Validators {
-
   /**
    * Validates a matrix as a THREEJS.Matrix4
    * link

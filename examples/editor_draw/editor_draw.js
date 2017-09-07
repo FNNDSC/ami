@@ -14,7 +14,6 @@ import ShadersDataUniform from '../../src/shaders/shaders.data.uniform';
 import ShadersDataVertex from '../../src/shaders/shaders.data.vertex';
 import ShadersDataFragment from '../../src/shaders/shaders.data.fragment';
 
-
 // standard global variables
 let controls;
 let renderer;

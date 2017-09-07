@@ -114,5 +114,4 @@ export default class {
     this._controls.zoomSpeed = 1.2;
     this._controls.panSpeed = 0.8;
   }
-
 }

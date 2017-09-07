@@ -6,6 +6,7 @@ import Helpers from './helpers/helpers';
 import Loaders from './loaders/loaders';
 import Models from './models/models';
 import Parsers from './parsers/parsers';
+import Presets from './presets/presets';
 import Shaders from './shaders/shaders';
 import Widgets from './widgets/widgets';
 
@@ -17,6 +18,7 @@ export default{
   Core,
   Geometries,
   Helpers,
+  Presets,
   Loaders,
   Models,
   Parsers,

@@ -10,10 +10,10 @@ import VoxelProbe from './widgets.voxelProbe';
  */
 
 export default {
-    Annotation,
-    BiRuler,
-	Handle,
-    Roi,
-    Ruler,
-    VoxelProbe,
+  Annotation,
+  BiRuler,
+  Handle,
+  Roi,
+  Ruler,
+  VoxelProbe,
 };

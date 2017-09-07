@@ -14,7 +14,6 @@ import ShadersDataUniform from '../../src/shaders/shaders.data.uniform';
 import ShadersDataVertex from '../../src/shaders/shaders.data.vertex';
 import ShadersDataFragment from '../../src/shaders/shaders.data.fragment';
 
-
 // standard global letiables
 let controls;
 let renderer;
@@ -439,8 +438,8 @@ window.onload = function() {
 
     let fls = new ShadersLayerFragment(uniformsLayerMix);
     let vls = new ShadersLayerVertex();
-    materialLayerMix = new THREE.ShaderMaterial(
-      {side: THREE.DoubleSide,
+    materialLayerMix = new THREE.ShaderMaterial({
+      side: THREE.DoubleSide,
       uniforms: uniformsLayerMix,
       vertexShader: vls.compute(),
       fragmentShader: fls.compute(),

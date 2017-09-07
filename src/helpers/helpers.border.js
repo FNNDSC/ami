@@ -1,5 +1,3 @@
-/** * Imports ***/
-
 /**
  * @module helpers/border
  */

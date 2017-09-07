@@ -1,6 +1,8 @@
 import CoreUtils from './core.utils';
 import Validators from './core.validators';
 
+import {Matrix4, Vector3} from 'three';
+
 /**
  * Compute/test intersection between different objects.
  *
@@ -8,7 +10,6 @@ import Validators from './core.validators';
  */
 
 export default class Intersections {
-
 /**
  * Compute intersection between oriented bounding box and a plane.
  *
@@ -18,26 +19,26 @@ export default class Intersections {
  * intersect.
  *
  * @param {Object} aabb - Axe Aligned Bounding Box representation.
- * @param {THREE.Vector3} aabb.halfDimensions - Half dimensions of the box.
- * @param {THREE.Vector3} aabb.center - Center of the box.
- * @param {THREE.Matrix4} aabb.toAABB - Transform to go from plane space to box space.
+ * @param {Vector3} aabb.halfDimensions - Half dimensions of the box.
+ * @param {Vector3} aabb.center - Center of the box.
+ * @param {Matrix4} aabb.toAABB - Transform to go from plane space to box space.
  * @param {Object} plane - Plane representation
- * @param {THREE.Vector3} plane.position - position of normal which describes the plane.
- * @param {THREE.Vector3} plane.direction - Direction of normal which describes the plane.
+ * @param {Vector3} plane.position - position of normal which describes the plane.
+ * @param {Vector3} plane.direction - Direction of normal which describes the plane.
  *
- * @returns {Array<THREE.Vector3>} List of all intersections in plane's space.
+ * @returns {Array<Vector3>} List of all intersections in plane's space.
  * @returns {boolean} false is invalid input provided.
  *
  * @example
  * //Returns array with intersection N intersections
  * let aabb = {
- *   center: new THREE.Vector3(150, 150, 150),
- *   halfDimensions: new THREE.Vector3(50, 60, 70),
- *   toAABB: new THREE.Matrix4()
+ *   center: new Vector3(150, 150, 150),
+ *   halfDimensions: new Vector3(50, 60, 70),
+ *   toAABB: new Matrix4()
  * }
  * let plane = {
- *   position: new THREE.Vector3(110, 120, 130),
- *   direction: new THREE.Vector3(1, 0, 0)
+ *   position: new Vector3(110, 120, 130),
+ *   direction: new Vector3(1, 0, 0)
  * }
  *
  * let intersections = CoreIntersections.aabbPlane(aabb, plane);
@@ -55,7 +56,7 @@ export default class Intersections {
  *
  * }
  *
- * let intersections = VJS.Core.Validators.matrix4(new THREE.Vector3());
+ * let intersections = VJS.Core.Validators.matrix4(new Vector3());
  *
  * //Returns false if invalid input?
  *
@@ -104,23 +105,23 @@ export default class Intersections {
     }
 
     // invert space matrix
-    let fromAABB = new THREE.Matrix4();
+    let fromAABB = new Matrix4();
     fromAABB.getInverse(aabb.toAABB);
 
     let t1 = plane.direction.clone().applyMatrix4(aabb.toAABB);
-    let t0 = new THREE.Vector3(0, 0, 0).applyMatrix4(aabb.toAABB);
+    let t0 = new Vector3(0, 0, 0).applyMatrix4(aabb.toAABB);
 
     let planeAABB = this.posdir(
       plane.position.clone().applyMatrix4(aabb.toAABB),
-      new THREE.Vector3(t1.x - t0.x, t1.y - t0.y, t1.z - t0.z).normalize()
+      new Vector3(t1.x - t0.x, t1.y - t0.y, t1.z - t0.z).normalize()
     );
 
     let bbox = CoreUtils.bbox(aabb.center, aabb.halfDimensions);
 
-    let orientation = new THREE.Vector3(
-      new THREE.Vector3(1, 0, 0),
-      new THREE.Vector3(0, 1, 0),
-      new THREE.Vector3(0, 0, 1));
+    let orientation = new Vector3(
+      new Vector3(1, 0, 0),
+      new Vector3(0, 1, 0),
+      new Vector3(0, 0, 1));
 
     // 12 edges (i.e. ray)/plane intersection tests
     // RAYS STARTING FROM THE FIRST CORNER (0, 0, 0)
@@ -134,7 +135,7 @@ export default class Intersections {
     //   +
 
     let ray = this.posdir(
-      new THREE.Vector3(
+      new Vector3(
         aabb.center.x - aabb.halfDimensions.x,
         aabb.center.y - aabb.halfDimensions.y,
         aabb.center.z - aabb.halfDimensions.z),
@@ -160,7 +161,7 @@ export default class Intersections {
     //
 
     let ray2 = this.posdir(
-      new THREE.Vector3(
+      new Vector3(
         aabb.center.x + aabb.halfDimensions.x,
         aabb.center.y + aabb.halfDimensions.y,
         aabb.center.z + aabb.halfDimensions.z),
@@ -185,7 +186,7 @@ export default class Intersections {
     //           +'
 
     let ray3 = this.posdir(
-      new THREE.Vector3(
+      new Vector3(
         aabb.center.x + aabb.halfDimensions.x,
         aabb.center.y - aabb.halfDimensions.y,
         aabb.center.z - aabb.halfDimensions.z),
@@ -207,7 +208,7 @@ export default class Intersections {
     //
 
     let ray4 = this.posdir(
-      new THREE.Vector3(
+      new Vector3(
         aabb.center.x - aabb.halfDimensions.x,
         aabb.center.y + aabb.halfDimensions.y,
         aabb.center.z - aabb.halfDimensions.z),
@@ -229,7 +230,7 @@ export default class Intersections {
     //   +-------+
 
     let ray5 = this.posdir(
-      new THREE.Vector3(
+      new Vector3(
         aabb.center.x - aabb.halfDimensions.x,
         aabb.center.y - aabb.halfDimensions.y,
         aabb.center.z + aabb.halfDimensions.z),
@@ -259,13 +260,13 @@ export default class Intersections {
  * @public
  *
  * @param {Object} ray - Ray representation.
- * @param {THREE.Vector3} ray.position - position of normal which describes the ray.
- * @param {THREE.Vector3} ray.direction - Direction of normal which describes the ray.
+ * @param {Vector3} ray.position - position of normal which describes the ray.
+ * @param {Vector3} ray.direction - Direction of normal which describes the ray.
  * @param {Object} plane - Plane representation
- * @param {THREE.Vector3} plane.position - position of normal which describes the plane.
- * @param {THREE.Vector3} plane.direction - Direction of normal which describes the plane.
+ * @param {Vector3} plane.position - position of normal which describes the plane.
+ * @param {Vector3} plane.direction - Direction of normal which describes the plane.
  *
- * @returns {THREE.Vector3|null} Intersection between ray and plane or null.
+ * @returns {Vector3|null} Intersection between ray and plane or null.
  */
   static rayPlane(ray, plane) {
   // ray: {position, direction}
@@ -305,7 +306,7 @@ export default class Intersections {
     let t = (plane.direction.x * (plane.position.x - ray.position.x) + plane.direction.y * (plane.position.y - ray.position.y) + plane.direction.z * (plane.position.z - ray.position.z)) /
         (plane.direction.x * ray.direction.x + plane.direction.y * ray.direction.y + plane.direction.z * ray.direction.z);
 
-    let intersection = new THREE.Vector3(
+    let intersection = new Vector3(
         ray.position.x + t * ray.direction.x,
         ray.position.y + t * ray.direction.y,
         ray.position.z + t * ray.direction.z);
@@ -335,61 +336,61 @@ export default class Intersections {
 
     // X min
     let plane = this.posdir(
-      new THREE.Vector3(
+      new Vector3(
         bbox.min.x,
         box.center.y,
         box.center.z),
-      new THREE.Vector3(-1, 0, 0)
+      new Vector3(-1, 0, 0)
     );
     this.rayPlaneInBBox(ray, plane, bbox, intersections);
 
     // X max
     plane = this.posdir(
-      new THREE.Vector3(
+      new Vector3(
         bbox.max.x,
         box.center.y,
         box.center.z),
-      new THREE.Vector3(1, 0, 0)
+      new Vector3(1, 0, 0)
     );
     this.rayPlaneInBBox(ray, plane, bbox, intersections);
 
     // Y min
     plane = this.posdir(
-      new THREE.Vector3(
+      new Vector3(
         box.center.x,
         bbox.min.y,
         box.center.z),
-      new THREE.Vector3(0, -1, 0)
+      new Vector3(0, -1, 0)
     );
     this.rayPlaneInBBox(ray, plane, bbox, intersections);
 
     // Y max
     plane = this.posdir(
-      new THREE.Vector3(
+      new Vector3(
         box.center.x,
         bbox.max.y,
         box.center.z),
-      new THREE.Vector3(0, 1, 0)
+      new Vector3(0, 1, 0)
     );
     this.rayPlaneInBBox(ray, plane, bbox, intersections);
 
     // Z min
     plane = this.posdir(
-      new THREE.Vector3(
+      new Vector3(
         box.center.x,
         box.center.y,
         bbox.min.z),
-      new THREE.Vector3(0, 0, -1)
+      new Vector3(0, 0, -1)
     );
     this.rayPlaneInBBox(ray, plane, bbox, intersections);
 
     // Z max
     plane = this.posdir(
-      new THREE.Vector3(
+      new Vector3(
         box.center.x,
         box.center.y,
         bbox.max.z),
-      new THREE.Vector3(0, 0, 1)
+      new Vector3(0, 0, 1)
     );
     this.rayPlaneInBBox(ray, plane, bbox, intersections);
 
@@ -514,5 +515,4 @@ export default class Intersections {
 
     return true;
   }
-
 }

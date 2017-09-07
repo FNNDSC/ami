@@ -6,7 +6,12 @@ import HelpersVR from '../../src/helpers/helpers.volumerendering';
 import LoadersVolume from '../../src/loaders/loaders.volume';
 
 // standard global letiables
-let controls, threeD, renderer, stats, camera, scene;
+let controls;
+let threeD;
+let renderer;
+let stats;
+let camera;
+let scene;
 let vrHelper;
 let lut;
 let ready = false;

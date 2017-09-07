@@ -1,12 +1,9 @@
-import shadersInterpolation from './interpolation/shaders.interpolation';
-
 /**
  * Localizer fragment shader
  */
 export default class {
-
   /**
-   * 
+   *
    */
   constructor(uniforms) {
     this._uniforms = uniforms;
@@ -15,16 +12,16 @@ export default class {
   }
 
   /**
-   * 
+   *
    */
   functions() {
-    if(this._main === '') {
+    if (this._main === '') {
       // if main is empty, functions can not have been computed
       this.main();
     }
 
     let content = '';
-    for(let property in this._functions) {
+    for (let property in this._functions) {
       content += this._functions[property] + '\n';
     }
 
@@ -32,7 +29,7 @@ export default class {
   }
 
   /**
-   * 
+   *
    */
   uniforms() {
     let content = '';
@@ -40,7 +37,7 @@ export default class {
       let uniform = this._uniforms[property];
       content += `uniform ${uniform.typeGLSL} ${property}`;
 
-      if(uniform && uniform.length) {
+      if (uniform && uniform.length) {
         content += `[${uniform.length}]`;
       }
 
@@ -51,7 +48,7 @@ export default class {
   }
 
   /**
-   * 
+   *
    */
   main() {
     // need to pre-call main to fill up the functions list
@@ -130,20 +127,26 @@ void main(void) {
         c3 = vec4(uPlaneColor3, 1. - smoothstep(.5, .7, d3));
       }
 
-      vec3 colorMix = c1.xyz*c1.w + c2.xyz*c2.w + c3.xyz*c3.w;
-      gl_FragColor = vec4(colorMix, max(max(c1.w, c2.w),c3.w));
+      // float uBorderDashLength = 10.0;
+      // float uBorderWidth = 2.0;
+      // float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);
+      // float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);
+      // if( valueX < uBorderDashLength || valueY < uBorderDashLength ){
+        vec3 colorMix = c1.xyz*c1.w + c2.xyz*c2.w + c3.xyz*c3.w;
+        gl_FragColor = vec4(colorMix, max(max(c1.w, c2.w),c3.w)*0.5);
+        return;
+      // }
+      
+      // gl_FragColor = vec4(0., 0., 0., 0.);
+      // return;
 }
    `;
   }
 
   /**
-   * 
+   *
    */
   compute() {
-    let shaderInterpolation = '';
-    // shaderInterpolation.inline(args) //true/false
-    // shaderInterpolation.functions(args)
-
     return `
 // uniforms
 ${this.uniforms()}
@@ -159,5 +162,4 @@ ${this.functions()}
 ${this._main}
       `;
     }
-
 }

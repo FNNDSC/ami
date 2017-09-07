@@ -1,4 +1,5 @@
 import CoreUtils from '../core/core.utils';
+
 /**
  * Event Based progressbar
  * @module helpers/progressBar
@@ -101,7 +102,7 @@ export default class HelpersProgressBarEventBased {
     });
 
     this._emitter.on('parse-start', function(event) {
-      const liParent = document.getElementById('file-' + event.file)
+      const liParent = document.getElementById('file-' + event.file);
       const parseprogress = document.createElement('div');
       parseprogress.id = 'file-parse-' + event.file;
       parseprogress.style.width = '0%';
@@ -121,7 +122,7 @@ export default class HelpersProgressBarEventBased {
       self._domCurrentProgress.style.width = (self.loaded / self.totalFile) *
         100 + '%';
       // show result
-      const liParent = document.getElementById('file-' + event.file)
+      const liParent = document.getElementById('file-' + event.file);
       const result = document.createElement('div');
       result.id = 'file-result-' + event.file;
       result.innerHTML = 'parse-success';
@@ -131,25 +132,20 @@ export default class HelpersProgressBarEventBased {
   }
 
   initContainerDom() {
-    const containerDom =
-      "<div id='ami-progress-bar-container' style='background-color: rgb(33, 33, 33); color: #ffffff;'>" +
-      "<div>" +
-      "<label for='progress-bar' id='progress-label' style='width: 60%; border: 1px solid #ffffff; text-align: center;'>" +
-      "<span id='current-file-index'>0</span>" +
-      "/" +
-      "<span id='total-file'>0</span>" +
-      "</label>" +
-      "<div id='progress-bar' style='width: 60%; border: 1px solid #ffffff; text-align: center;'>" +
-      "<div id='current-progress' style='border: 1px solid red; width: 0%;'></div>" +
-      "</div>" +
-      "</div>" +
-      "<ul id='process-list' style='list-style-type: none; padding: 0; overflow-y: auto;'>" +
-      // "<li class='fetch-file'>" +
-      // "<div id='file-fetch-xxxxxid'></div>" +
-      // "<div id='file-parse-xxxxxid'></div>" +
-      // "</li>" +
-      "</ul>" +
-      "</div>";
+    const containerDom = `
+      <div id="ami-progress-bar-container" style="background-color: rgb(33, 33, 33); color: #ffffff;">
+      <div>
+      <label for="progress-bar" id="progress-label" style="width: 60%; border: 1px solid #ffffff; text-align: center;">
+      <span id="current-file-index">0</span>
+      <span id="total-file">0</span>
+      </label>
+      <div id="progress-bar" style="width: 60%; border: 1px solid #ffffff; text-align: center;">
+      <div id="current-progress" style="border: 1px solid red; width: 0%;"></div>
+      </div>
+      </div>
+      <ul id="process-list" style="list-style-type: none; padding: 0; overflow-y: auto;">
+      </ul>
+      </div>`;
     const wrap = document.createElement('div');
     wrap.innerHTML = containerDom;
     this._dom.append(wrap);

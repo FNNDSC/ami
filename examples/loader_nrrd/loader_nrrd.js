@@ -16,14 +16,6 @@ let threeD;
 function init() {
   // this function is executed on each animation frame
   function animate() {
-    // if (stackHelper) {
-    //   stackHelper.index += 1;
-    //   if (stackHelper.outOfBounds === true) {
-    //     stackHelper.orientation = (stackHelper.orientation + 1) % 3;
-    //     stackHelper.index = 0;
-    //   }
-    // }
-
     controls.update();
     renderer.render(scene, camera);
     stats.update();
@@ -113,9 +105,6 @@ window.onload = function() {
     stackHelper.bbox.color = 0xF9F9F9;
     stackHelper.border.color = 0xF9F9F9;
     scene.add(stackHelper);
-
-    window.console.log(stackHelper.stack.minMax);
-    window.console.log(stackHelper);
 
     // update camrea's and control's target
     let centerLPS = stackHelper.stack.worldCenter();

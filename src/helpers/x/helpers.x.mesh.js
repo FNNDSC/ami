@@ -1,8 +1,10 @@
+import {Matrix4} from 'three';
+
 /**
  * @module helpers/x/mesh
  */
-export default class {
 
+export default class {
   constructor() {
     this._file = null;
 
@@ -11,10 +13,10 @@ export default class {
     this._materialColor = 0xE91E63;
     this._RAStoLPS = null;
     this._material = new THREE.MeshLambertMaterial({
-                                  shading: THREE.SmoothShading,
-                                  color: this._materialColor,
-                                  side: THREE.DoubleSide}
-                                );
+      shading: THREE.SmoothShading,
+      color: this._materialColor,
+      side: THREE.DoubleSide,
+    });
   }
 
   // accessor properties
@@ -42,7 +44,7 @@ export default class {
           (geometry) => {
               geometry.computeVertexNormals();
               this._mesh = new THREE.Mesh(geometry, this._material);
-              this._RAStoLPS = new THREE.Matrix4();
+              this._RAStoLPS = new Matrix4();
               this._RAStoLPS.set(-1, 0, 0, 0,
                                   0, -1, 0, 0,
                                   0, 0, 1, 0,

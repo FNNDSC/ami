@@ -4,7 +4,6 @@ import Texture3d from '../helpers/shaders.helpers.texture3d';
 
 
 class InterpolationIdentity extends ShadersBase {
-
   constructor() {
     super();
     this.name = 'interpolationIdentity';
@@ -41,7 +40,6 @@ void ${this._name}(in vec3 currentVoxel, out vec4 dataValue){
 }
     `;
   }
-
 }
 
 export default new InterpolationIdentity();

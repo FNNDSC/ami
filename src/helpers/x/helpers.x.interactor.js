@@ -11,5 +11,4 @@ export default class Interactor {
 
   _update() {
   }
-
 }

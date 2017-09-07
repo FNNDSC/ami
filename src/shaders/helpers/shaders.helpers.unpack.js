@@ -1,7 +1,12 @@
 import ShadersBase from '../shaders.base';
 
+/**
+ * Set of methods to unpack values from [r][b][g][a] -> float
+ */
 class Unpack extends ShadersBase {
-
+  /**
+   * Constructor
+   */
   constructor() {
     super();
     this.name = 'unpack';
@@ -24,7 +29,9 @@ class Unpack extends ShadersBase {
     };
   }
 
-  api(baseFragment = this._base, packedData = this._packedData, offset = this._offset, unpackedData = this._unpackedData) {
+  api(
+    baseFragment = this._base, packedData = this._packedData,
+    offset = this._offset, unpackedData = this._unpackedData) {
     this._base = baseFragment;
     return this.compute(packedData, offset, unpackedData);
   }
@@ -40,7 +47,6 @@ class Unpack extends ShadersBase {
     let content = '';
     if (this._base._uniforms.uNumberOfChannels.value === 1) {
       switch (this._base._uniforms.uBitsAllocated.value) {
-
         case 1:
         case 8:
           content = this.upack8();
@@ -57,7 +63,6 @@ class Unpack extends ShadersBase {
         default:
           content = this.upackDefault();
           break;
-
       }
     } else {
       content = this.upackIdentity();
@@ -121,16 +126,14 @@ uFloat32(
 
   upackIdentity() {
     return `
-
 unpackedData = packedData;
-
       `;
   }
 
   uInt8() {
     return `
 void uInt8(in float r, out float value){
-  value = r * 256.;
+  value = r * 255.;
 }
     `;
   }
@@ -138,7 +141,7 @@ void uInt8(in float r, out float value){
   uInt16() {
     return `
 void uInt16(in float r, in float a, out float value){
-  value = r * 256. + a * 65536.;
+  value = r * 255. + a * 255. * 256.;
 }
     `;
   }
@@ -146,7 +149,8 @@ void uInt16(in float r, in float a, out float value){
   uInt32() {
     return `
 void uInt32(in float r, in float g, in float b, in float a, out float value){
-  value = r * 256. + g * 65536. + b * 16777216. + a * 4294967296.;
+  value = r * 255. + g * 255. * 256. + b * 255. * 256. * 256. + a * 255. * 256. * 256. * 256.;
+  // value = r * 255. + g * 65025. + b * 16581375. + a * 4228250625.;
 }
     `;
   }
@@ -282,7 +286,6 @@ void uFloat32(in float r, in float g, in float b, in float a, out float value){
 }
     `;
   }
-
 }
 
 export default new Unpack();

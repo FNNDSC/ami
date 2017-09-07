@@ -1,11 +1,6 @@
 export default class ShadersVertex {
-
-    constructor() {
-
-    }
-
-    compute() {
-        return `
+  compute() {
+    return `
 varying vec4 vPos;
 
 //
@@ -19,5 +14,4 @@ void main() {
 }
         `;
     }
-
 }
