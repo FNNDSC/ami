@@ -1,11 +1,18 @@
+import CoreUtils from '../core/core.utils';
+
 let defaultSegmentation = {
   0: {color: [0, 0, 0], opacity: 0, label: 'background'},
   1: {color: [255, 0, 0], opacity: 1, label: 'white matter'},
 };
 
 export default class HelpersSegmentationLut {
-  constructor(containerID, segID = 'Freesurfer', segmentation = defaultSegmentation) {
-    this._containerID = containerID;
+  constructor(domTarget, segID = 'Freesurfer', segmentation = defaultSegmentation) {
+    if (CoreUtils.isString(domTarget)) {
+      this._dom = document.getElementById(domTarget);
+    } else {
+      this._dom = domTarget;
+    }
+
     this._segmentation = segmentation;
 
     /* The segmentation object contains the color, opacity, label and structures associated:
@@ -21,7 +28,7 @@ export default class HelpersSegmentationLut {
 
   initCanvas() {
     // container
-    this._canvasContainer = this.initCanvasContainer(this._containerID);
+    this._canvasContainer = this.initCanvasContainer(this._dom);
     // background
     this._canvasBg = this.createCanvas();
     this._canvasContainer.appendChild(this._canvasBg);
@@ -30,8 +37,8 @@ export default class HelpersSegmentationLut {
     this._canvasContainer.appendChild(this._canvas);
   }
 
-  initCanvasContainer(canvasContainerId) {
-    let canvasContainer = document.getElementById(canvasContainerId);
+  initCanvasContainer(dom) {
+    let canvasContainer = dom;
     canvasContainer.style.width = '256 px';
     canvasContainer.style.height = '128 px';
     canvasContainer.style.border = '1px solid #F9F9F9';

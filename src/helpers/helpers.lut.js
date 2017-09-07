@@ -1,9 +1,10 @@
+import CoreUtils from '../core/core.utils';
+
 /**
  * @module helpers/lut
  */
-
 export default class HelpersLut {
-  constructor(containerID,
+  constructor(domTarget,
               lut = 'default',
               lutO = 'linear',
               color = [[0, 0, 0, 0], [1, 1, 1, 1]],
@@ -12,7 +13,11 @@ export default class HelpersLut {
     // min/max (0-1 or real intensities)
     // show/hide
     // horizontal/vertical
-    this._containerID = containerID;
+    if (CoreUtils.isString(domTarget)) {
+      this._dom = document.getElementById(domTarget);
+    } else {
+      this._dom = domTarget;
+    }
 
     this._discrete = discrete;
     this._color = color;
@@ -29,7 +34,7 @@ export default class HelpersLut {
 
   initCanvas() {
     // container
-    this._canvasContainer = this.initCanvasContainer(this._containerID);
+    this._canvasContainer = this.initCanvasContainer(this._dom);
     // background
     this._canvasBg = this.createCanvas();
     this._canvasContainer.appendChild(this._canvasBg);
@@ -38,8 +43,8 @@ export default class HelpersLut {
     this._canvasContainer.appendChild(this._canvas);
   }
 
-  initCanvasContainer(canvasContainerId) {
-    let canvasContainer = document.getElementById(canvasContainerId);
+  initCanvasContainer(dom) {
+    let canvasContainer = dom;
     canvasContainer.style.width = '256 px';
     canvasContainer.style.height = '128 px';
     canvasContainer.style.border = '1px solid #F9F9F9';
