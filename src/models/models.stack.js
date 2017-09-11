@@ -261,11 +261,13 @@ export default class ModelsStack extends ModelsBase {
       this._rescaleSlope,
       this._rescaleIntercept);
 
-    let width = this._frame[0].windowWidth || this._minMax[1] - this._minMax[0];
-    this._windowWidth = this._rescaleSlope * width + this._rescaleIntercept;
+    let width =
+      this._frame[0].windowWidth * this._rescaleSlope || this._minMax[1] - this._minMax[0];
+    this._windowWidth = width + this._rescaleIntercept;
 
-    let center = this._frame[0].windowCenter || this._minMax[0] + width / 2;
-    this._windowCenter = this._rescaleSlope * center + this._rescaleIntercept;
+    let center =
+      this._frame[0].windowCenter * this._rescaleSlope || this._minMax[0] + width / 2;
+    this._windowCenter = center + this._rescaleIntercept;
 
     this._bitsAllocated = this._frame[0].bitsAllocated;
     this._prepared = true;
