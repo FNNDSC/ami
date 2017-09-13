@@ -41,7 +41,7 @@ export default class ModelsStack extends ModelsBase {
     this._rescaleSlope = 1;
     this._rescaleIntercept = 0;
 
-    this._minMax = [65535, -32768];
+    this._minMax = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
 
     // TRANSFORMATION MATRICES
     this._regMatrix = new Matrix4();
@@ -407,10 +407,19 @@ export default class ModelsStack extends ModelsBase {
    */
   computeMinMaxIntensities() {
     // what about colors!!!!?
+    // we ignore values if NaNs
+    // https://github.com/FNNDSC/ami/issues/185
     for (let i = 0; i < this._frame.length; i++) {
       // get min/max
-      this._minMax[0] = Math.min(this._minMax[0], this._frame[i].minMax[0]);
-      this._minMax[1] = Math.max(this._minMax[1], this._frame[i].minMax[1]);
+      let min = this._frame[i].minMax[0];
+      if (!Number.isNaN(min)) {
+        this._minMax[0] = Math.min(this._minMax[0], min);
+      }
+
+      let max = this._frame[i].minMax[1];
+      if (!Number.isNaN(max)) {
+        this._minMax[1] = Math.max(this._minMax[1], max);
+      }
     }
   }
 
@@ -538,7 +547,11 @@ export default class ModelsStack extends ModelsBase {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
 
-        data[packIndex] = offset + frame[frameIndex].pixelData[inFrameIndex];
+        let raw = frame[frameIndex].pixelData[inFrameIndex] += offset;
+        if (!Number.isNaN(raw)) {
+          data[packIndex] = raw;
+        }
+
         packIndex++;
       }
       packed.textureType = THREE.LuminanceFormat;
@@ -553,9 +566,11 @@ export default class ModelsStack extends ModelsBase {
         inFrameIndex = i % (frameDimension);
 
 
-        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
-        data[4 * coordinate + 2 * channelOffset] = raw & 0x00FF;
-        data[4 * coordinate + 2 * channelOffset + 1] = (raw >>> 8) & 0x00FF;
+        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(raw)) {
+          data[4 * coordinate + 2 * channelOffset] = raw & 0x00FF;
+          data[4 * coordinate + 2 * channelOffset + 1] = (raw >>> 8) & 0x00FF;
+        }
 
         packIndex++;
         coordinate = Math.floor(packIndex / 2);
@@ -570,11 +585,13 @@ export default class ModelsStack extends ModelsBase {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
 
-        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
-        data[4 * packIndex] = raw & 0x000000FF;
-        data[4 * packIndex + 1] = (raw >>> 8) & 0x000000FF;
-        data[4 * packIndex + 2] = (raw >>> 16) & 0x000000FF;
-        data[4 * packIndex + 3] = (raw >>> 24) & 0x000000FF;
+        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(raw)) {
+          data[4 * packIndex] = raw & 0x000000FF;
+          data[4 * packIndex + 1] = (raw >>> 8) & 0x000000FF;
+          data[4 * packIndex + 2] = (raw >>> 16) & 0x000000FF;
+          data[4 * packIndex + 3] = (raw >>> 24) & 0x000000FF;
+        }
 
         packIndex++;
       }
@@ -587,14 +604,16 @@ export default class ModelsStack extends ModelsBase {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
 
-        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
-        let bitString = binaryString(raw);
-        let bitStringArray = bitString.match(/.{1,8}/g);
+        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(raw)) {
+          let bitString = binaryString(raw);
+          let bitStringArray = bitString.match(/.{1,8}/g);
 
-        data[4 * packIndex] = parseInt(bitStringArray[0], 2);
-        data[4 * packIndex + 1] = parseInt(bitStringArray[1], 2);
-        data[4 * packIndex + 2] = parseInt(bitStringArray[2], 2);
-        data[4 * packIndex + 3] = parseInt(bitStringArray[3], 2);
+          data[4 * packIndex] = parseInt(bitStringArray[0], 2);
+          data[4 * packIndex + 1] = parseInt(bitStringArray[1], 2);
+          data[4 * packIndex + 2] = parseInt(bitStringArray[2], 2);
+          data[4 * packIndex + 3] = parseInt(bitStringArray[3], 2);
+        }
 
         packIndex++;
       }
