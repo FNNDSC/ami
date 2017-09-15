@@ -15,6 +15,7 @@ let scene;
 let vrHelper;
 let lut;
 let ready = false;
+let modified = false;
 
 let myStack = {
   lut: 'random',
@@ -26,17 +27,21 @@ let myStack = {
   interpolation: 1,
 };
 
-function onMouseDown() {
+function onMouseDown(event) {
   if (vrHelper && vrHelper.uniforms) {
     vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
     vrHelper.interpolation = 0;
+    modified = true;
+    console.log(event);
   }
 }
 
-function onMouseUp() {
+function onMouseUp(event) {
   if (vrHelper && vrHelper.uniforms) {
     vrHelper.uniforms.uSteps.value = myStack.steps;
     vrHelper.interpolation = myStack.interpolation;
+    modified = true;
+    console.log(event);
   }
 }
 
@@ -45,8 +50,9 @@ function onWindowResize() {
   camera.aspect = threeD.offsetWidth / threeD.offsetHeight;
   camera.updateProjectionMatrix();
 
-    // notify the renderer of the size change
+  // notify the renderer of the size change
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+  modified = true;
 }
 
 function buildGUI() {
@@ -63,6 +69,7 @@ function buildGUI() {
       lut.lut = value;
       vrHelper.uniforms.uTextureLUT.value.dispose();
       vrHelper.uniforms.uTextureLUT.value = lut.texture;
+      modified = true;
     });
   // init LUT
   lut.lut = myStack.lut;
@@ -74,12 +81,14 @@ function buildGUI() {
       lut.lutO = value;
       vrHelper.uniforms.uTextureLUT.value.dispose();
       vrHelper.uniforms.uTextureLUT.value = lut.texture;
+      modified = true;
     });
 
   let stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
   stepsUpdate.onChange(function(value) {
       if (vrHelper.uniforms) {
         vrHelper.uniforms.uSteps.value = value;
+        modified = true;
       }
     });
 
@@ -87,24 +96,16 @@ function buildGUI() {
   alphaCorrrectionUpdate.onChange(function(value) {
       if (vrHelper.uniforms) {
         vrHelper.uniforms.uAlphaCorrection.value = value;
+        modified = true;
       }
     });
 
-  // let frequenceUpdate = stackFolder.add(myStack, 'frequence', 0, 1).step(0.01);
-  // frequenceUpdate.onChange(function(value) {
-  // if (vrHelper.uniforms) {
-  //   vrHelper.uniforms.uFrequence.value = value;
-  // }
-  // });
-
-  // let amplitudeUpdate = stackFolder.add(myStack, 'amplitude', 0, 0.5).step(0.01);
-  // amplitudeUpdate.onChange(function(value) {
-  // if (vrHelper.uniforms) {
-  //   vrHelper.uniforms.uAmplitude.value = value;
-  // }
-  // });
-
-  let interpolation = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
+  let interpolationUpdate = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
+  interpolationUpdate.onChange(function(value) {
+    if (vrHelper.uniforms) {
+      modified = true;
+    }
+  });
 
   stackFolder.open();
 }
@@ -115,8 +116,9 @@ function init() {
     // render
     controls.update();
 
-    if (ready) {
+    if (ready && modified) {
       renderer.render(scene, camera);
+      modified = false;
     }
 
     stats.update();
@@ -156,9 +158,12 @@ function init() {
   controls.panSpeed = 0.8;
   controls.staticMoving = true;
   controls.dynamicDampingFactor = 0.3;
+  controls.addEventListener('change', () => {
+    modified = true;
+  });
+  controls.addEventListener('start', onMouseDown);
+  controls.addEventListener('end', onMouseUp);
 
-  threeD.addEventListener('mousedown', onMouseDown, false);
-  threeD.addEventListener('mouseup', onMouseUp, false);
   window.addEventListener('resize', onWindowResize, false);
 
   // start rendering loop
@@ -219,6 +224,7 @@ window.onload = function() {
 
     // good to go
     ready = true;
+    modified = true;
   })
   .catch((error) => window.console.log(error));
 };
