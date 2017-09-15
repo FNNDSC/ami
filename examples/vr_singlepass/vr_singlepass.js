@@ -16,6 +16,8 @@ let vrHelper;
 let lut;
 let ready = false;
 let modified = false;
+let wheel = null;
+let wheelTO = null;
 
 let myStack = {
   lut: 'random',
@@ -27,22 +29,40 @@ let myStack = {
   interpolation: 1,
 };
 
-function onMouseDown(event) {
-  if (vrHelper && vrHelper.uniforms) {
+function onStart(event) {
+  if (vrHelper && vrHelper.uniforms && !wheel) {
     vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
     vrHelper.interpolation = 0;
     modified = true;
-    console.log(event);
   }
 }
 
-function onMouseUp(event) {
-  if (vrHelper && vrHelper.uniforms) {
+function onEnd(event) {
+  if (vrHelper && vrHelper.uniforms && !wheel) {
     vrHelper.uniforms.uSteps.value = myStack.steps;
     vrHelper.interpolation = myStack.interpolation;
     modified = true;
-    console.log(event);
   }
+}
+
+function onWheel() {
+  if (!wheel) {
+    vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
+    vrHelper.interpolation = 0;
+    wheel = Date.now();
+  }
+
+  if (Date.now() - wheel < 300) {
+    clearTimeout(wheelTO);
+    wheelTO = setTimeout(function() {
+      vrHelper.uniforms.uSteps.value = myStack.steps;
+      vrHelper.interpolation = myStack.interpolation;
+      wheel = null;
+      modified = true;
+    }, 300);
+  }
+
+  modified = true;
 }
 
 function onWindowResize() {
@@ -161,11 +181,11 @@ function init() {
   controls.addEventListener('change', () => {
     modified = true;
   });
-  controls.addEventListener('start', onMouseDown);
-  controls.addEventListener('end', onMouseUp);
+  controls.addEventListener('start', onStart);
+  controls.addEventListener('end', onEnd);
 
   window.addEventListener('resize', onWindowResize, false);
-
+  renderer.domElement.addEventListener('wheel', onWheel);
   // start rendering loop
   animate();
 }
