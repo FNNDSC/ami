@@ -6,6 +6,8 @@ import WidgetsHandle from '../../src/widgets/widgets.handle';
 import WidgetsRuler from '../../src/widgets/widgets.ruler';
 import WidgetsVoxelProbe from '../../src/widgets/widgets.voxelProbe';
 import WidgetsAnnotation from '../../src/widgets/widgets.annotation';
+import WidgetsRoiWidget from '../../src/widgets/widgets.roi';
+import WidgetsBiruler from '../../src/widgets/widgets.biruler';
 import ControlsTrackball from '../../src/controls/controls.trackball';
 
 // standard global variables
@@ -22,6 +24,8 @@ const widgetsAvailable = [
   'Ruler',
   'VoxelProbe',
   'Annotation',
+  'RoiWidget',
+  'Biruler'
 ];
 const guiObjects = {
   type: 'Handle',
@@ -165,6 +169,16 @@ window.onload = function() {
         case 'Annotation':
           widget =
             new WidgetsAnnotation(stackHelper.slice.mesh, controls, camera, threeD);
+          widget.worldPosition = intersects[0].point;
+          break;
+        case 'RoiWidget':
+          widget =
+            new WidgetsRoiWidget(stackHelper.slice.mesh, controls, camera, threeD);
+          widget.worldPosition = intersects[0].point;
+          break;
+        case 'Biruler':
+          widget =
+            new WidgetsBiruler(stackHelper.slice.mesh, controls, camera, threeD);
           widget.worldPosition = intersects[0].point;
           break;
         default:

@@ -337,7 +337,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         transform += ` rotate(${angle}deg)`;
 
         this._line.style.transform = transform;
-        this._line.style.width = length;
+        this._line.style.width = length + 'px';
 
         // update distance
         let w0 = this._handles[0].worldPosition;
@@ -378,7 +378,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         transform += ` rotate(${angle}deg)`;
 
         this._line2.style.transform = transform;
-        this._line2.style.width = length;
+        this._line2.style.width = length + 'px';
 
         // update distance
         let w02 = this._handles[2].worldPosition;
@@ -415,7 +415,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         transform += ` rotate(${angle}deg)`;
 
         this._dashline.style.transform = transform;
-        this._dashline.style.width = length;
+        this._dashline.style.width = length + 'px';
     }
 
     updateDOMColor() {
