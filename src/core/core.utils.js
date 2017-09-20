@@ -236,18 +236,28 @@ export default class CoreUtils {
   }
 
   /**
-   * Get voxel value
+   * Get and set voxel value
    *
    * @param {*} stack
    * @param {*} coordinate
-   *
+   * @param {*} value
    * @return {*}
    */
-  static value(stack, coordinate) {
+  static getValue(stack, coordinate) {
     if (coordinate.z >= 0 &&
         coordinate.z < stack._frame.length) {
       return stack._frame[coordinate.z].
-        value(coordinate.x, coordinate.y);
+        getValue(coordinate.x, coordinate.y);
+    } else {
+      return null;
+    }
+  }
+
+  static setValue(stack, coordinate,value) {
+    if (coordinate.z >= 0 &&
+        coordinate.z < stack._frame.length) {
+      stack._frame[coordinate.z].
+        setValue(coordinate.x, coordinate.y,value);
     } else {
       return null;
     }
