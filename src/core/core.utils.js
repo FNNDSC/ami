@@ -243,21 +243,26 @@ export default class CoreUtils {
    * @param {*} value
    * @return {*}
    */
-  static getValue(stack, coordinate) {
+  static value(stack, coordinate){
+    console.warn('value is deprecated, please use getPixelData instead');
+    this.getPixelData(stack, coordinate);
+  }
+
+  static getPixelData(stack, coordinate) {
     if (coordinate.z >= 0 &&
         coordinate.z < stack._frame.length) {
       return stack._frame[coordinate.z].
-        getValue(coordinate.x, coordinate.y);
+        getPixelData(coordinate.x, coordinate.y);
     } else {
       return null;
     }
   }
 
-  static setValue(stack, coordinate, value) {
+  static setPixelData(stack, coordinate, value) {
     if (coordinate.z >= 0 &&
         coordinate.z < stack._frame.length) {
       stack._frame[coordinate.z].
-        setValue(coordinate.x, coordinate.y, value);
+        setPixelData(coordinate.x, coordinate.y, value);
     } else {
       return null;
     }
