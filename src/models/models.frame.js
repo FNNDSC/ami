@@ -168,15 +168,18 @@ export default class ModelsFrame extends ModelsBase {
   }
 
   /**
-   * Get data value
+   * Get and set data value
    *
    * @param {*} column
    * @param {*} row
-   *
+   * @param {*} value
    * @return {*}
    */
-  value(column, row) {
+  getPixelData(column, row) {
     return this.pixelData[column + this._columns * row];
+  }
+  setPixelData(column, row, value) {
+    this.pixelData[column + this._columns * row] = value;
   }
 
   /**
