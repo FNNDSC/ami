@@ -178,8 +178,7 @@ export default class ModelsFrame extends ModelsBase {
   getValue(column, row) {
     return this.pixelData[column + this._columns * row];
   }
- 
-  setValue(column, row,value) {
+  setValue(column, row, value) {
     this.pixelData[column + this._columns * row] = value;
   }
 

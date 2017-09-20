@@ -253,11 +253,11 @@ export default class CoreUtils {
     }
   }
 
-  static setValue(stack, coordinate,value) {
+  static setValue(stack, coordinate, value) {
     if (coordinate.z >= 0 &&
         coordinate.z < stack._frame.length) {
       stack._frame[coordinate.z].
-        setValue(coordinate.x, coordinate.y,value);
+        setValue(coordinate.x, coordinate.y, value);
     } else {
       return null;
     }
