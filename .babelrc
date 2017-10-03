@@ -15,11 +15,5 @@
         ]
     ],
     "plugins": ["transform-runtime", "add-module-exports"],
-    "ignore": ["external/**/*"],
-
-    "env": {
-        "cjs": {
-            "plugins": ["transform-runtime", "add-module-exports"]
-        }
-    }
+    "ignore": ["external/**/*"]
 }

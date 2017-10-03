@@ -33,7 +33,7 @@
         "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js/",
         "gaKey": "UA-39303022-3",
         "transforms": "-t [babelify --presets [ es2015 ] ]",
-        "babel": "--module-bind js=babel-loader -p --colors --display-error-details"
+        "babel": "--module-bind js=babel-loader --colors --display-error-details"
     },
     "dependencies": {
         "dicom-parser": "1.7.3",
@@ -47,17 +47,17 @@
     },
     "scripts": {
         "dist:prepare": "node ./scripts/$npm_package_config_mode.js --dist",
-        "dist:watchAmi": "watchify -d src/ami $npm_package_config_transforms --standalone AMI -o dist/build/ami.js -v",
+        "dist:watchAmi": "webpack src/ami.js dist/build/ami.js -d --hot $npm_package_config_babel",
         "dist:watch":
-            "watchify $npm_package_config_target -d $npm_package_config_transforms -o dist/$npm_package_config_target -v",
+            "webpack $npm_package_config_target dist/$npm_package_config_target -d --hot $npm_package_config_babel",
         "dist":
-            "npm run dist:prepare --ami.js:mode=$npm_package_config_mode && (live-server dist --open=$npm_package_config_open & npm run dist:watch --ami.js:target=$npm_package_config_target)",
+            "npm run dist:prepare --ami.js:mode=$npm_package_config_mode && (NODE_WEBPACK_TARGET=$npm_package_config_open NODE_WEBPACK_NAME=$npm_package_config_name webpack-dev-server --content-base dist/$npm_package_config_open --config webpack.config.build.js --hot --inline --progress --open)",
         "example": "npm run clean && node ./scripts/router.js examples ",
         "lesson": "npm run clean && mkdir dist/build && touch dist/build/ami.js && node ./scripts/router.js lessons ",
         "demo": "node ./scripts/lessons.js --demo",
         "lint": "eslint src/**/*.js",
         "build:examples":
-            "npm run dist:prepare --ami.js:mode=examples && find examples -name '*.js' -print0 | xargs -0 -n1 -I{} bash -c \"echo Building {}; webpack {} dist/{} $npm_package_config_babel\"",
+            "npm run dist:prepare --ami.js:mode=examples && find examples -name '*.js' -print0 | xargs -0 -n1 -I{} bash -c \"echo Building {}; webpack {} dist/{} -p $npm_package_config_babel\"",
         "build:ami":
             "webpack --config webpack.config.build.js && NODE_ENV=production webpack --config webpack.config.build.js",
         "build": "npm run clean && cp index.html dist/index.html && npm run build:examples && npm run doc",
@@ -86,11 +86,11 @@
         "jasmine-core": "latest",
         "jsdoc": "jsdoc3/jsdoc#master",
         "karma": "latest",
-        "karma-browserify": "latest",
         "karma-jasmine": "latest",
         "karma-phantomjs-launcher": "1.0.4",
         "karma-sinon": "^1.0.5",
         "karma-spec-reporter": "latest",
+        "karma-webpack": "^2.0.4",
         "live-server": "^1.1.0",
         "phantomjs-prebuilt": "2.1.14",
         "rimraf": "^2.6.1",
@@ -98,7 +98,8 @@
         "shelljs": "latest",
         "sinon": "^2.0.0",
         "uglifyjs-webpack-plugin": "^0.4.6",
-        "webpack": "^3.6.0"
+        "webpack": "^3.6.0",
+        "webpack-dev-server": "^2.9.1"
     },
     "engines": {
         "node": ">=6.9.0"

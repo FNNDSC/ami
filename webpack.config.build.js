@@ -3,7 +3,7 @@ var webpack = require('webpack');
 var path = require('path');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
-module.exports = {
+var config = {
     entry: ['three', 'babel-polyfill', './src/ami.js'],
     output: {
         path: path.resolve(__dirname, 'build'),
@@ -57,3 +57,17 @@ module.exports = {
               })
           ]
 };
+
+if (process.env.NODE_WEBPACK_TARGET) {
+    config.entry = [
+        'three',
+        //   'babel-polyfill',
+        path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET, process.env.NODE_WEBPACK_NAME + '.js')
+    ];
+    config.output.path = path.resolve(__dirname, 'dist', process.env.NODE_WEBPACK_TARGET);
+    config.output.filename = process.env.NODE_WEBPACK_NAME + '.js';
+    config.output.library = undefined;
+    config.output.libraryTarget = undefined;
+}
+
+module.exports = config;
