@@ -32,8 +32,7 @@
         "threeVersion": "87",
         "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js/",
         "gaKey": "UA-39303022-3",
-        "transforms": "-t [babelify --presets [ es2015 ] ]",
-        "babel": "--module-bind js=babel-loader -p --colors --display-error-details"
+        "transforms": "-t [babelify --presets [ es2015 ] ]"
     },
     "dependencies": {
         "dicom-parser": "1.7.3",
@@ -57,9 +56,9 @@
         "demo": "node ./scripts/lessons.js --demo",
         "lint": "eslint src/**/*.js",
         "build:examples":
-            "npm run dist:prepare --ami.js:mode=examples && find examples -name '*.js' -print0 | xargs -0 -n1 -I{} bash -c \"echo Building {}; webpack {} dist/{} $npm_package_config_babel\"",
+            "npm run dist:prepare --ami.js:mode=examples && find examples -name '*.js' -print0 | xargs -0 -n1 -I{} bash -c \"echo Building {}; browserify {} -d -v $npm_package_config_transforms > dist/{} \"",
         "build:ami":
-            "webpack --config webpack.config.build.js && NODE_ENV=production webpack --config webpack.config.build.js",
+            "browserify src/ami.js -d -v $npm_package_config_transforms --standalone AMI > build/ami.js && uglifyjs build/ami.js -o build/ami.min.js",
         "build": "npm run clean && cp index.html dist/index.html && npm run build:examples && npm run doc",
         "build-cjs": "rimraf lib && cross-env BABEL_ENV=cjs babel ./src -d lib",
         "clean": "rimraf -rf dist/*",
@@ -70,14 +69,11 @@
     },
     "devDependencies": {
         "babel-cli": "latest",
-        "babel-core": "^6.26.0",
-        "babel-loader": "^7.1.2",
         "babel-plugin-add-module-exports": "^0.2.1",
-        "babel-plugin-transform-runtime": "^6.23.0",
         "babel-polyfill": "^6.13.0",
-        "babel-preset-env": "^1.6.0",
         "babel-preset-es2015": "^6.13.2",
-        "babel-runtime": "^6.26.0",
+        "babelify": "7.3.0",
+        "browserify": "^13.1.0",
         "cross-env": "^3.2.3",
         "eslint": "latest",
         "eslint-config-google": "latest",
@@ -97,10 +93,13 @@
         "rollup-plugin-node-builtins": "^2.1.2",
         "shelljs": "latest",
         "sinon": "^2.0.0",
-        "uglifyjs-webpack-plugin": "^0.4.6",
-        "webpack": "^3.6.0"
+        "uglify-js": "^2.7.3",
+        "watchify": "3.7.0"
     },
     "engines": {
         "node": ">=6.9.0"
+    },
+    "browserify": {
+        "transform": ["babelify"]
     }
 }
