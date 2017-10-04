@@ -47,7 +47,8 @@
     },
     "scripts": {
         "dist:prepare": "node ./scripts/$npm_package_config_mode.js --dist",
-        "dist:watchAmi": "webpack src/ami.js dist/build/ami.js -d --hot $npm_package_config_babel",
+        "dist:watchAmi":
+            "webpack src/ami.js dist/build/ami.js --output-library AMI --output-library-target var -d --hot $npm_package_config_babel",
         "dist:watch":
             "webpack $npm_package_config_target dist/$npm_package_config_target -d --hot $npm_package_config_babel",
         "dist":
@@ -59,7 +60,9 @@
         "build:examples":
             "npm run dist:prepare --ami.js:mode=examples && find examples -name '*.js' -print0 | xargs -0 -n1 -I{} bash -c \"echo Building {}; webpack {} dist/{} -p $npm_package_config_babel\"",
         "build:ami":
-            "webpack --config webpack.config.build.js && NODE_ENV=production webpack --config webpack.config.build.js",
+            "webpack --config webpack.config.build.js && NODE_ENV=production webpack --config webpack.config.build.js && npm run build:ami:umd",
+        "build:ami:umd":
+            "NODE_WEBPACK_LIBMOD=umd webpack --config webpack.config.build.js && NODE_WEBPACK_LIBMOD=umd NODE_ENV=production webpack --config webpack.config.build.js",
         "build": "npm run clean && cp index.html dist/index.html && npm run build:examples && npm run doc",
         "build-cjs": "rimraf lib && cross-env BABEL_ENV=cjs babel ./src -d lib",
         "clean": "rimraf -rf dist/*",
@@ -73,7 +76,6 @@
         "babel-core": "^6.26.0",
         "babel-loader": "^7.1.2",
         "babel-plugin-add-module-exports": "^0.2.1",
-        "babel-plugin-transform-runtime": "^6.23.0",
         "babel-polyfill": "^6.13.0",
         "babel-preset-env": "^1.6.0",
         "babel-preset-es2015": "^6.13.2",
@@ -99,6 +101,7 @@
         "sinon": "^2.0.0",
         "uglifyjs-webpack-plugin": "^0.4.6",
         "webpack": "^3.6.0",
+        "webpack-bundle-analyzer": "^2.9.0",
         "webpack-dev-server": "^2.9.1"
     },
     "engines": {

@@ -1,5 +1,14 @@
-var AMI =
-/******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["AMI"] = factory();
+	else
+		root["AMI"] = factory();
+})(this, function() {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -112658,3 +112667,4 @@ module.exports = {"name":"ami.js","version":"0.0.21-dev","main":"build/ami.js","
 
 /***/ })
 /******/ ]);
+});
