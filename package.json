@@ -60,7 +60,11 @@
         "clean": "npm run build:clean && npm run dist:clean",
         "example": "node ./scripts/router.js examples ",
         "lesson": "node ./scripts/router.js lessons ",
-        "gen:exampleIndexFiles": "node ./scripts/genIndexFiles.js"
+        "gen:exampleIndexFiles": "node ./scripts/genIndexFiles.js",
+        "test": "karma start",
+        "lint": "eslint src/**/*.js",
+        "ami": "npm run lint && npm run demo && npm run dist:ami && npm run test",
+        "demo": ""
     },
     "devDependencies": {
         "babel-cli": "latest",
