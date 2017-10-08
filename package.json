@@ -64,7 +64,7 @@
         "test": "karma start",
         "lint": "eslint src/**/*.js",
         "ami": "npm run lint && npm run demo && npm run dist:ami && npm run test",
-        "demo": ""
+        "demo": "NODE_DUMMY=dummy"
     },
     "devDependencies": {
         "babel-cli": "latest",
