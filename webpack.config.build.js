@@ -1,16 +1,15 @@
 var debug = process.env.NODE_ENV !== 'production';
 var webpack = require('webpack');
 var path = require('path');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 var config = {
     entry: ['babel-polyfill', './src/ami.js'],
+    devtool: 'source-map',
     output: {
-        path: path.resolve(__dirname, 'build'),
-        filename: debug ? 'ami.js' : 'ami.min.js',
-        library: 'AMI',
-        libraryTarget: 'var'
+        path: path.resolve(__dirname, 'lib'),
+        filename: debug ? 'ami.js' : 'ami.min.js'
     },
     //externals: ['three'],
     module: {
@@ -26,7 +25,6 @@ var config = {
     plugins: debug
         ? []
         : [
-              //new BundleAnalyzerPlugin(),
               new webpack.DefinePlugin({
                   'process.env': {
                       NODE_ENV: JSON.stringify('production')
@@ -49,15 +47,20 @@ if (process.env.NODE_WEBPACK_TARGET) {
         //   'babel-polyfill',
         path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET, process.env.NODE_WEBPACK_NAME + '.js')
     ];
-    config.output.path = path.resolve(__dirname, 'dist', process.env.NODE_WEBPACK_TARGET);
+    config.output.path = path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET);
     config.output.filename = process.env.NODE_WEBPACK_NAME + '.js';
     config.output.library = undefined;
     config.output.libraryTarget = undefined;
+    config.output.umdNamedDefine = undefined;
 }
 
 if (process.env.NODE_WEBPACK_LIBMOD) {
+    config.output.library = 'AMI';
     config.output.libraryTarget = process.env.NODE_WEBPACK_LIBMOD;
-    config.output.filename = debug ? 'ami.umd.js' : 'ami.umd.min.js';
+    config.output.umdNamedDefine = true;
+}
+if (process.env.NODE_WEBPACK_ANALIZE) {
+    config.plugins.push(new BundleAnalyzerPlugin());
 }
 
 module.exports = config;

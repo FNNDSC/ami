@@ -1,7 +1,7 @@
 {
     "name": "ami.js",
     "version": "0.0.21-dev",
-    "main": "build/ami.js",
+    "main": "lib/ami.js",
     "keywords": [
         "ami",
         "ami.js",
@@ -32,7 +32,6 @@
         "threeVersion": "87",
         "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js/",
         "gaKey": "UA-39303022-3",
-        "transforms": "-t [babelify --presets [ es2015 ] ]",
         "babel": "--module-bind js=babel-loader --colors --display-error-details"
     },
     "dependencies": {
@@ -46,30 +45,22 @@
         "three": "0.87.0"
     },
     "scripts": {
-        "dist:prepare": "node ./scripts/$npm_package_config_mode.js --dist",
-        "dist:watchAmi":
-            "webpack src/ami.js dist/build/ami.js --output-library AMI --output-library-target var -d --hot $npm_package_config_babel",
-        "dist:watch":
-            "webpack $npm_package_config_target dist/$npm_package_config_target -d --hot $npm_package_config_babel",
-        "dist":
-            "npm run dist:prepare --ami.js:mode=$npm_package_config_mode && (NODE_WEBPACK_TARGET=$npm_package_config_open NODE_WEBPACK_NAME=$npm_package_config_name webpack-dev-server --content-base dist/$npm_package_config_open --config webpack.config.build.js --hot --inline --progress --open)",
-        "example": "npm run clean && node ./scripts/router.js examples ",
-        "lesson": "npm run clean && mkdir dist/build && touch dist/build/ami.js && node ./scripts/router.js lessons ",
-        "demo": "node ./scripts/lessons.js --demo",
-        "lint": "eslint src/**/*.js",
-        "build:examples":
-            "npm run dist:prepare --ami.js:mode=examples && find examples -name '*.js' -print0 | xargs -0 -n1 -I{} bash -c \"echo Building {}; webpack {} dist/{} -p $npm_package_config_babel\"",
-        "build:ami":
-            "webpack --config webpack.config.build.js && NODE_ENV=production webpack --config webpack.config.build.js && npm run build:ami:umd",
-        "build:ami:umd":
-            "NODE_WEBPACK_LIBMOD=umd webpack --config webpack.config.build.js && NODE_WEBPACK_LIBMOD=umd NODE_ENV=production webpack --config webpack.config.build.js",
-        "build": "npm run clean && cp index.html dist/index.html && npm run build:examples && npm run doc",
-        "build-cjs": "rimraf lib && cross-env BABEL_ENV=cjs babel ./src -d lib",
-        "clean": "rimraf -rf dist/*",
-        "test": "karma start",
-        "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src",
-        "ami": "npm run lint && npm run demo && npm run build:ami && npm run test",
-        "deploy": "npm run build && gh-pages -d dist"
+        "build:ami": "cross-env NODE_WEBPACK_LIBMOD=umd webpack --config webpack.config.build.js",
+        "build:ami:prod": "cross-env NODE_ENV=production npm run build:ami",
+        "build:clean": "rimraf -rf lib/*",
+
+        "dev:ami": "cross-env NODE_WEBPACK_LIBMOD=umd webpack --config webpack.config.build.js --watch --colors",
+
+        "dist:ami": "npm run build:ami && npm run build:ami:prod",
+        "dist:clean": "rimraf -rf dist/*",
+
+        "analize:ami": "NODE_WEBPACK_ANALIZE=true npm run build:ami",
+        "analize:ami:prod": "NODE_WEBPACK_ANALIZE=true npm run build:ami:prod",
+
+        "clean": "npm run build:clean && npm run dist:clean",
+        "example": "node ./scripts/router.js examples ",
+        "lesson": "node ./scripts/router.js lessons ",
+        "gen:exampleIndexFiles": "node ./scripts/genIndexFiles.js"
     },
     "devDependencies": {
         "babel-cli": "latest",

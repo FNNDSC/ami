@@ -8,7 +8,7 @@
                     "node": "6.9.0"
                 },
                 "loose": true,
-                //"modules": false,
+                "modules": false,
                 "useBuiltIns": true,
                 "debug": false
             }
