@@ -3,6 +3,7 @@ var webpack = require('webpack');
 var path = require('path');
 var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+var WatchLiveReloadPlugin = require('webpack-watch-livereload-plugin');
 
 var config = {
     entry: ['babel-polyfill', './src/ami.js'],
@@ -55,6 +56,10 @@ if (process.env.NODE_WEBPACK_TARGET) {
     config.output.library = undefined;
     config.output.libraryTarget = undefined;
     config.output.umdNamedDefine = undefined;
+
+    if (debug) {
+        config.plugins.push(new WatchLiveReloadPlugin({ files: ['./lib/*.js'] }));
+    }
 
     config.devServer = {
         contentBase: [path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET), path.resolve(__dirname, 'lib')],

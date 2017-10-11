@@ -68,6 +68,7 @@
 
         "test": "karma start",
         "lint": "eslint src/**/*.js",
+        "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d lib/doc src",
         "ami": "npm run lint && npm run demo && npm run dist:ami && npm run test",
         "demo": "NODE_DUMMY=dummy"
     },
@@ -102,7 +103,8 @@
         "uglifyjs-webpack-plugin": "^0.4.6",
         "webpack": "^3.6.0",
         "webpack-bundle-analyzer": "^2.9.0",
-        "webpack-dev-server": "^2.9.1"
+        "webpack-dev-server": "^2.9.1",
+        "webpack-watch-livereload-plugin": "^0.0.1"
     },
     "engines": {
         "node": ">=6.9.0"

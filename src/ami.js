@@ -12,18 +12,18 @@ import Widgets from './widgets/widgets';
 
 const pckg = require('../package.json');
 
-export default{
-  Cameras,
-  Controls,
-  Core,
-  Geometries,
-  Helpers,
-  Presets,
-  Loaders,
-  Models,
-  Parsers,
-  Shaders,
-  Widgets,
+export default {
+    Cameras,
+    Controls,
+    Core,
+    Geometries,
+    Helpers,
+    Presets,
+    Loaders,
+    Models,
+    Parsers,
+    Shaders,
+    Widgets
 };
 
 window.console.log(`AMI ${pckg.version} ( ThreeJS ${pckg.config.threeVersion})`);
