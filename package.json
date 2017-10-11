@@ -30,7 +30,7 @@
     },
     "config": {
         "threeVersion": "87",
-        "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js/",
+        "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js",
         "gaKey": "UA-39303022-3",
         "babel": "--module-bind js=babel-loader --colors --display-error-details"
     },
@@ -45,11 +45,12 @@
         "three": "0.87.0"
     },
     "scripts": {
-        "build:ami": "cross-env NODE_WEBPACK_LIBMOD=umd webpack --config webpack.config.build.js",
+        "build:ami": "webpack --config webpack.config.build.js",
         "build:ami:prod": "cross-env NODE_ENV=production npm run build:ami",
         "build:clean": "rimraf -rf lib/*",
+        "build:clean:hot": "rimraf -rf lib/*.hot-update.*",
 
-        "dev:ami": "cross-env NODE_WEBPACK_LIBMOD=umd webpack --config webpack.config.build.js --watch --colors",
+        "dev:ami": "webpack --config webpack.config.build.js --hot --watch --watch-poll --colors",
 
         "dist:ami": "npm run build:ami && npm run build:ami:prod",
         "dist:clean": "rimraf -rf dist/*",
@@ -60,7 +61,11 @@
         "clean": "npm run build:clean && npm run dist:clean",
         "example": "node ./scripts/router.js examples ",
         "lesson": "node ./scripts/router.js lessons ",
-        "gen:exampleIndexFiles": "node ./scripts/genIndexFiles.js",
+
+        "gen:index:examples": "node ./scripts/genIndexFiles.js examples",
+        "gen:index:lessons": "node ./scripts/genIndexFiles.js lessons",
+        "gen:index:lessons:cdn": "node ./scripts/genIndexFiles.js lessons cdn",
+
         "test": "karma start",
         "lint": "eslint src/**/*.js",
         "ami": "npm run lint && npm run demo && npm run dist:ami && npm run test",

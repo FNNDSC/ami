@@ -9,7 +9,10 @@ var config = {
     devtool: 'source-map',
     output: {
         path: path.resolve(__dirname, 'lib'),
-        filename: debug ? 'ami.js' : 'ami.min.js'
+        filename: debug ? 'ami.js' : 'ami.min.js',
+        library: 'AMI',
+        libraryTarget: 'umd',
+        umdNamedDefine: true
     },
     //externals: ['three'],
     module: {
@@ -52,13 +55,13 @@ if (process.env.NODE_WEBPACK_TARGET) {
     config.output.library = undefined;
     config.output.libraryTarget = undefined;
     config.output.umdNamedDefine = undefined;
+
+    config.devServer = {
+        contentBase: [path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET), path.resolve(__dirname, 'lib')],
+        historyApiFallback: true
+    };
 }
 
-if (process.env.NODE_WEBPACK_LIBMOD) {
-    config.output.library = 'AMI';
-    config.output.libraryTarget = process.env.NODE_WEBPACK_LIBMOD;
-    config.output.umdNamedDefine = true;
-}
 if (process.env.NODE_WEBPACK_ANALIZE) {
     config.plugins.push(new BundleAnalyzerPlugin());
 }
