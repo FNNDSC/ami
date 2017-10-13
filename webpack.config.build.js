@@ -4,6 +4,7 @@ var path = require('path');
 var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 var WatchLiveReloadPlugin = require('webpack-watch-livereload-plugin');
+var CompressionPlugin = require('compression-webpack-plugin');
 
 var config = {
     entry: ['./src/ami.js'],
@@ -48,6 +49,9 @@ var config = {
                       },
                       minimize: true
                   }
+              }),
+              new CompressionPlugin({
+                  algorithm: 'gzip'
               })
           ]
 };
