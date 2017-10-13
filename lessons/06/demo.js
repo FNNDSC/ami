@@ -1,9 +1,9 @@
 /* globals Stats, dat, AMI*/
 
-var LoadersVolume = AMI.Loaders.Volume;
-var ControlsTrackball = AMI.Controls.Trackball;
-var HelpersLut = AMI.Helpers.Lut;
-var HelpersVR = AMI.Helpers.VolumeRendering;
+var LoadersVolume = AMI.default.Loaders.Volume;
+var ControlsTrackball = AMI.default.Controls.Trackball;
+var HelpersLut = AMI.default.Helpers.Lut;
+var HelpersVR = AMI.default.Helpers.VolumeRendering;
 
 // standard global letiables
 var controls;

@@ -1,7 +1,7 @@
 /* globals AMI*/
 
 // VJS classes we will be using in this lesson
-var LoadersVolume = AMI.Loaders.Volume;
+var LoadersVolume = AMI.default.Loaders.Volume;
 
 // element to contain the progress bar
 var container = document.getElementById('container');

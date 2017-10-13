@@ -49,37 +49,30 @@
         "build:ami:prod": "cross-env NODE_ENV=production npm run build:ami",
         "build:clean": "rimraf -rf lib/*",
         "build:clean:hot": "rimraf -rf lib/*.hot-update.*",
-
-        "dev:ami": "webpack --config webpack.config.build.js --hot --watch --watch-poll --colors",
-
-        "dist:ami": "npm run build:ami && npm run build:ami:prod",
+        "dev:ami": "webpack --config webpack.config.build.js --hot --watch --colors",
+        "dist:ami": "npm run build:clean && npm run build:ami && npm run build:ami:prod && npm run doc",
+        "dist:examples": "node ./scripts/buildDist.js && node ./scripts/router.js examples deploy",
         "dist:clean": "rimraf -rf dist/*",
-
-        "analize:ami": "NODE_WEBPACK_ANALIZE=true npm run build:ami",
-        "analize:ami:prod": "NODE_WEBPACK_ANALIZE=true npm run build:ami:prod",
-
+        "analize:ami": "cross-env NODE_WEBPACK_ANALIZE=true npm run build:ami",
+        "analize:ami:prod": "cross-env NODE_WEBPACK_ANALIZE=true npm run build:ami:prod",
         "clean": "npm run build:clean && npm run dist:clean",
-        "example": "node ./scripts/router.js examples ",
-        "lesson": "node ./scripts/router.js lessons ",
-
+        "example": "node ./scripts/router.js examples",
+        "lesson": "node ./scripts/router.js lessons",
         "gen:index:examples": "node ./scripts/genIndexFiles.js examples",
         "gen:index:lessons": "node ./scripts/genIndexFiles.js lessons",
         "gen:index:lessons:cdn": "node ./scripts/genIndexFiles.js lessons cdn",
-
         "test": "karma start",
         "lint": "eslint src/**/*.js",
-        "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d lib/doc src",
+        "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src",
         "ami": "npm run lint && npm run demo && npm run dist:ami && npm run test",
-        "demo": "NODE_DUMMY=dummy"
+        "demo": "NODE_DUMMY=dummy",
+        "deploy": "npm run dist:clean && npm run build:clean && npm run dist:ami && npm run dist:examples"
     },
     "devDependencies": {
         "babel-cli": "latest",
         "babel-core": "^6.26.0",
         "babel-loader": "^7.1.2",
-        "babel-plugin-add-module-exports": "^0.2.1",
-        "babel-polyfill": "^6.13.0",
         "babel-preset-env": "^1.6.0",
-        "babel-preset-es2015": "^6.13.2",
         "babel-runtime": "^6.26.0",
         "cross-env": "^3.2.3",
         "eslint": "latest",
@@ -100,8 +93,8 @@
         "rollup-plugin-node-builtins": "^2.1.2",
         "shelljs": "latest",
         "sinon": "^2.0.0",
-        "uglifyjs-webpack-plugin": "^0.4.6",
-        "webpack": "^3.6.0",
+        "uglifyjs-webpack-plugin": "^1.0.0-beta.3",
+        "webpack": "^3.7.1",
         "webpack-bundle-analyzer": "^2.9.0",
         "webpack-dev-server": "^2.9.1",
         "webpack-watch-livereload-plugin": "^0.0.1"

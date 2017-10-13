@@ -6,7 +6,7 @@ var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlug
 var WatchLiveReloadPlugin = require('webpack-watch-livereload-plugin');
 
 var config = {
-    entry: ['babel-polyfill', './src/ami.js'],
+    entry: ['./src/ami.js'],
     devtool: 'source-map',
     output: {
         path: path.resolve(__dirname, 'lib'),
@@ -15,7 +15,13 @@ var config = {
         libraryTarget: 'umd',
         umdNamedDefine: true
     },
-    //externals: ['three'],
+    resolve: {
+        modules: [path.resolve(__dirname, 'src'), 'node_modules'],
+        extensions: ['.js', '.jsx', '.css', '.html', '.scss', '.json'],
+        alias: {
+            base: path.resolve(__dirname, 'src')
+        }
+    },
     module: {
         rules: [
             {
@@ -36,33 +42,44 @@ var config = {
               }),
               new UglifyJSPlugin({
                   parallel: true,
-                  compress: {
-                      warnings: false
-                  },
-                  minimize: true,
-                  sourcemap: false
+                  uglifyOptions: {
+                      compress: {
+                          warnings: false
+                      },
+                      minimize: true
+                  }
               })
           ]
 };
 
 if (process.env.NODE_WEBPACK_TARGET) {
     config.entry = [
-        //'three',
-        //   'babel-polyfill',
+        //'babel-polyfill',
         path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET, process.env.NODE_WEBPACK_NAME + '.js')
     ];
+
+    config.resolve.modules.push(path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET));
     config.output.path = path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET);
     config.output.filename = process.env.NODE_WEBPACK_NAME + '.js';
     config.output.library = undefined;
     config.output.libraryTarget = undefined;
     config.output.umdNamedDefine = undefined;
 
-    if (debug) {
-        config.plugins.push(new WatchLiveReloadPlugin({ files: ['./lib/*.js'] }));
+    config.module.rules
+        .find(r => r.loader === 'babel-loader')
+        .include.push(path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET));
+
+    const workPath = path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET);
+    if (debug && workPath.indexOf('/dist/') === -1) {
+        config.plugins.push(
+            new WatchLiveReloadPlugin({
+                files: [path.resolve(__dirname, 'lib') + '/*.js', workPath + '/**/*.html', workPath + '/**/*.css']
+            })
+        );
     }
 
     config.devServer = {
-        contentBase: [path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET), path.resolve(__dirname, 'lib')],
+        contentBase: [workPath, path.resolve(__dirname, 'lib')],
         historyApiFallback: true
     };
 }

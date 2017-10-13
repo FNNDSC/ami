@@ -1,6 +1,5 @@
 {
     "presets": [
-        "es2015",
         [
             "env",
             {
@@ -15,6 +14,6 @@
             }
         ]
     ],
-    "plugins": ["add-module-exports"],
+    "plugins": [],
     "ignore": ["external/**/*"]
 }

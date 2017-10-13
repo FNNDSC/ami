@@ -1,9 +1,9 @@
 /* globals dat, AMI*/
 
 // VJS classes we will be using in this lesson
-var LoadersVolume = AMI.Loaders.Volume;
-var ControlsTrackball = AMI.Controls.Trackball;
-var HelpersStack = AMI.Helpers.Stack;
+var LoadersVolume = AMI.default.Loaders.Volume;
+var ControlsTrackball = AMI.default.Controls.Trackball;
+var HelpersStack = AMI.default.Helpers.Stack;
 
 // Setup renderer
 var container = document.getElementById('container');

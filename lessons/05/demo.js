@@ -1,11 +1,11 @@
 /* globals Stats, dat, AMI*/
 
 // VJS classes we will be using in this lesson
-var LoadersVolume = AMI.Loaders.Volume;
-var CamerasOrthographic = AMI.Cameras.Orthographic;
-var ControlsOrthographic = AMI.Controls.TrackballOrtho;
-var HelpersStack = AMI.Helpers.Stack;
-var ModelsStack = AMI.Models.Stack;
+var LoadersVolume = AMI.default.Loaders.Volume;
+var CamerasOrthographic = AMI.default.Cameras.Orthographic;
+var ControlsOrthographic = AMI.default.Controls.TrackballOrtho;
+var HelpersStack = AMI.default.Helpers.Stack;
+var ModelsStack = AMI.default.Models.Stack;
 
 var stack0, stackHelper0;
 var stack1, stackHelper1;

@@ -1,20 +1,20 @@
 /* globals Stats, dat, AMI*/
 
-var LoadersVolume = AMI.Loaders.Volume;
-var CamerasOrthographic = AMI.Cameras.Orthographic;
-var ControlsOrthographic = AMI.Controls.TrackballOrtho;
-var HelpersLut = AMI.Helpers.Lut;
-var HelpersStack = AMI.Helpers.Stack;
+var LoadersVolume = AMI.default.Loaders.Volume;
+var CamerasOrthographic = AMI.default.Cameras.Orthographic;
+var ControlsOrthographic = AMI.default.Controls.TrackballOrtho;
+var HelpersLut = AMI.default.Helpers.Lut;
+var HelpersStack = AMI.default.Helpers.Stack;
 
 // Shaders
 // Data
-var ShadersDataUniforms = AMI.Shaders.DataUniform;
-var ShadersDataFragment = AMI.Shaders.DataFragment;
-var ShadersDataVertex = AMI.Shaders.DataVertex;
+var ShadersDataUniforms = AMI.default.Shaders.DataUniform;
+var ShadersDataFragment = AMI.default.Shaders.DataFragment;
+var ShadersDataVertex = AMI.default.Shaders.DataVertex;
 // Layer
-var ShadersLayerUniforms = AMI.Shaders.LayerUniform;
-var ShadersLayerFragment = AMI.Shaders.LayerFragment;
-var ShadersLayerVertex = AMI.Shaders.LayerVertex;
+var ShadersLayerUniforms = AMI.default.Shaders.LayerUniform;
+var ShadersLayerFragment = AMI.default.Shaders.LayerFragment;
+var ShadersLayerVertex = AMI.default.Shaders.LayerVertex;
 
 // standard global variables
 var controls;
