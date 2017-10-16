@@ -318,11 +318,19 @@ $> yarn run lesson 00
 
 ```
 
-Build standalone library to `build/`
+Build standalone library to `lib/`
 
 ```bash
 
 $> yarn run build:ami
+
+```
+
+Build minified standalone version run
+
+```bash
+
+$> yarn run build:ami:prod
 
 ```
 
@@ -342,7 +350,7 @@ $> yarn run doc
 
 ```
 
-Deploy dist/ to gh-pages
+Build and deploy dist/ to gh-pages
 
 ```bash
 
