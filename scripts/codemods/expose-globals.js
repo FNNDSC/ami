@@ -1,4 +1,6 @@
 
+const AMI_JS_FILE = 'ami.js';
+
 function toExportedType(fragment) {
     return fragment.substr(0, 1).toUpperCase() + fragment.substr(1, fragment.length - 2);
 }
@@ -23,7 +25,6 @@ export default function transformer(file, api) {
     return j(file.source)
         .find(j.ExportDefaultDeclaration)
         .forEach(path => {
-
 
                 function propertyToExportSpecifier(property) {
 
