@@ -3,13 +3,4 @@ import Stack from './models.stack';
 import Series from './models.series';
 import Voxel from './models.voxel';
 
-/**
- * @module models
- */
-
-export default {
-  Frame,
-  Stack,
-  Series,
-  Voxel,
-};
+export { Frame as FrameModel, Stack as StackModel, Series as SeriesModel, Voxel as VoxelModel };

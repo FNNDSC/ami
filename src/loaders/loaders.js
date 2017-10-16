@@ -1,9 +1,3 @@
 import Volume from './loaders.volume';
 
-/**
- * @module loaders
- */
-
-export default {
-  Volume,
-};
+export { Volume as VolumeLoader };
