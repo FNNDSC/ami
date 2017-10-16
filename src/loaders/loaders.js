@@ -1,3 +1,5 @@
 import Volume from './loaders.volume';
 
-export { Volume as VolumeLoader };
+export {
+    Volume as VolumeLoader,
+};

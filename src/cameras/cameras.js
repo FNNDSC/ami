@@ -1,3 +1,5 @@
 import Orthographic from './cameras.orthographic';
 
-export { Orthographic as OrthographicCamera };
+export {
+    Orthographic as OrthographicCamera,
+};

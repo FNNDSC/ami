@@ -5,4 +5,11 @@ import Roi from './widgets.roi';
 import Ruler from './widgets.ruler';
 import VoxelProbe from './widgets.voxelProbe';
 
-export { Annotation as AnnotationWidget, BiRuler as BiRulerWidget, Handle as HandleWidget, Roi as RoiWidget, Ruler as RulerWidget, VoxelProbe as VoxelProbeWidget };
+export {
+    Annotation as AnnotationWidget,
+    BiRuler as BiRulerWidget,
+    Handle as HandleWidget,
+    Roi as RoiWidget,
+    Ruler as RulerWidget,
+    VoxelProbe as VoxelProbeWidget,
+};

@@ -8,4 +8,15 @@ import ProgressBarEventBased from './helpers.progressbar.eventbased';
 import Slice from './helpers.slice';
 import Stack from './helpers.stack';
 import VolumeRendering from './helpers.volumerendering';
-export { Border as BorderHelper, BoundingBox as BoundingBoxHelper, Localizer as LocalizerHelper, Lut as LutHelper, SegmentationLut as SegmentationLutHelper, ProgressBar as ProgressBarHelper, ProgressBarEventBased as ProgressBarEventBasedHelper, Slice as SliceHelper, Stack as StackHelper, VolumeRendering as VolumeRenderingHelper };
+export {
+    Border as BorderHelper,
+    BoundingBox as BoundingBoxHelper,
+    Localizer as LocalizerHelper,
+    Lut as LutHelper,
+    SegmentationLut as SegmentationLutHelper,
+    ProgressBar as ProgressBarHelper,
+    ProgressBarEventBased as ProgressBarEventBasedHelper,
+    Slice as SliceHelper,
+    Stack as StackHelper,
+    VolumeRendering as VolumeRenderingHelper,
+};

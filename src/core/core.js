@@ -4,4 +4,9 @@ import Pack from './core.pack';
 import Validators from './core.validators';
 import Utils from './core.utils';
 
-export { Colors as ColorsCor, Intersections as IntersectionsCor, Utils as UtilsCor, Validators as ValidatorsCor };
+export {
+    Colors as ColorsCore,
+    Intersections as IntersectionsCore,
+    Utils as UtilsCor,
+    Validators as ValidatorsCore,
+};

@@ -1,2 +1,4 @@
 import Segmentation from './presets.segmentation';
-export { Segmentation as SegmentationPreset };
+export {
+    Segmentation as SegmentationPreset,
+};
