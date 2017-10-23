@@ -66,7 +66,8 @@
         "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src",
         "ami": "npm run lint && npm run demo && npm run dist:ami && npm run test",
         "demo": "NODE_DUMMY=dummy",
-        "deploy": "npm run dist:clean && npm run build:clean && npm run dist:ami && npm run dist:examples"
+        "deploy":
+            "npm run dist:clean && npm run build:clean && npm run dist:ami && npm run dist:examples && gh-pages -d dist"
     },
     "devDependencies": {
         "babel-cli": "latest",

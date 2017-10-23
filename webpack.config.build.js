@@ -57,10 +57,7 @@ var config = {
 };
 
 if (process.env.NODE_WEBPACK_TARGET) {
-    config.entry = [
-        //'babel-polyfill',
-        path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET, process.env.NODE_WEBPACK_NAME + '.js')
-    ];
+    config.entry = [path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET, process.env.NODE_WEBPACK_NAME + '.js')];
 
     config.resolve.modules.push(path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET));
     config.output.path = path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET);
