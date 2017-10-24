@@ -49,9 +49,6 @@ var config = {
                       },
                       minimize: true
                   }
-              }),
-              new CompressionPlugin({
-                  algorithm: 'gzip'
               })
           ]
 };
@@ -83,6 +80,12 @@ if (process.env.NODE_WEBPACK_TARGET) {
         contentBase: [workPath, path.resolve(__dirname, 'lib')],
         historyApiFallback: true
     };
+} else if (!debug) {
+    config.plugins.push(
+        new CompressionPlugin({
+            algorithm: 'gzip'
+        })
+    );
 }
 
 if (process.env.NODE_WEBPACK_ANALIZE) {

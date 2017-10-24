@@ -5,7 +5,12 @@ var copy = (srcDir, dstDir) => {
     var list = fs.readdirSync(srcDir);
     var src, dst;
     list.forEach(file => {
-        if (file === '.DS_Store' || file === 'index.sample.html' || file === 'demo.sample.html') {
+        if (
+            file === '.DS_Store' ||
+            file === 'index.sample.html' ||
+            file === 'demo.sample.html' ||
+            file === 'index.html'
+        ) {
             return;
         }
 
@@ -24,7 +29,6 @@ var copy = (srcDir, dstDir) => {
         } else {
             try {
                 console.log('copying file: ' + dst);
-                //fs.createReadStream(src).pipe(fs.createWriteStream(dst));
                 fs.writeFileSync(dst, fs.readFileSync(src));
             } catch (e) {
                 console.log("could't copy file: " + dst, e);

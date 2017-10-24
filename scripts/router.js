@@ -4,6 +4,7 @@ const fs = require('fs');
 if (process.argv[2] && process.argv[3]) {
     const mode = process.argv[2];
     const target = process.argv[3];
+    const isDeploy = process.argv.length >= 4 && process.argv[4] === 'deploy';
 
     if (target === 'deploy') {
         const targetDir = 'dist/' + mode;
@@ -30,6 +31,16 @@ if (process.argv[2] && process.argv[3]) {
             name = 'demo';
         }
 
+        let webpackCmd =
+            'webpack-dev-server --config webpack.config.build.js --hot --inline --progress --open' + buildAmi;
+
+        let prodVar = '';
+        if (isDeploy) {
+            prodVar = 'cross-env NODE_ENV=production cross-env NODE_GA=true';
+            webpackCmd = prodVar + ' webpack --config webpack.config.build.js --progress --colors';
+            directory = 'dist/' + directory;
+        }
+
         if (
             !fs.existsSync(directory + '/index.html') ||
             (mode === 'lessons' && !fs.existsSync(directory + '/demo.html'))
@@ -37,15 +48,9 @@ if (process.argv[2] && process.argv[3]) {
             generateIndexFiles = 'npm run gen:index:' + mode + ' &&';
         }
 
-        let webpackCmd =
-            'webpack-dev-server --config webpack.config.build.js --hot --inline --progress --open' + buildAmi;
-
-        if (process.argv.length >= 4 && process.argv[4] === 'deploy') {
-            webpackCmd = 'cross-env NODE_ENV=production webpack --config webpack.config.build.js --progress --colors';
-            directory = 'dist/' + directory;
-        }
-
-        exec(`${generateIndexFiles} NODE_WEBPACK_TARGET=${directory} NODE_WEBPACK_NAME=${name} ${webpackCmd}`);
+        exec(
+            `${prodVar} ${generateIndexFiles} NODE_WEBPACK_TARGET=${directory} NODE_WEBPACK_NAME=${name} ${webpackCmd}`
+        );
     }
 } else {
     console.warn('router.js requires 2 arguments. Make sure the following arguments are correct:');

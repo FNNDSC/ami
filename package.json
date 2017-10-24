@@ -59,6 +59,7 @@
         "example": "node ./scripts/router.js examples",
         "lesson": "node ./scripts/router.js lessons",
         "gen:index:examples": "node ./scripts/genIndexFiles.js examples",
+        "gen:index:examples:ga": "cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples",
         "gen:index:lessons": "node ./scripts/genIndexFiles.js lessons",
         "gen:index:lessons:cdn": "node ./scripts/genIndexFiles.js lessons cdn",
         "test": "karma start",

@@ -17,12 +17,16 @@ if (process.argv.length > 3) {
 const _destFile = 'index.html';
 const _sourceFile = targetName + '/index.sample.html';
 const _sourceDemoFile = targetName + '/demo.sample.html';
-const targetDir = targetName + '/';
+let targetDir = targetName + '/';
+const sourceDir = targetDir;
+
+if (process.env.NODE_ENV === 'production') {
+    targetDir = 'dist/' + targetDir;
+}
 
 const threeVersion = packageJSON.config.threeVersion;
-const name = '';
-const gaKey = '';
-const content = packageJSON.config.gaKey;
+const name = packageJSON.name;
+const gaKey = packageJSON.config.gaKey;
 
 analytics = (name, key) => {
     return `<script>
@@ -49,14 +53,14 @@ demoAmi = mode => {
 };
 
 const sourceHtml = fs.readFileSync(_sourceFile, 'utf8');
-fs.readdir(targetDir, (error, files) => {
+fs.readdir(sourceDir, (error, files) => {
     files.forEach(file => {
         if (file === '.DS_Store' || file === 'index.sample.html' || file === 'demo.sample.html') {
             return;
         }
 
         let destFile = targetDir + file + '/' + 'index.html';
-        const sourceContentHtml = fs.readFileSync(targetDir + file + '/' + file + '.html', 'utf8');
+        const sourceContentHtml = fs.readFileSync(sourceDir + file + '/' + file + '.html', 'utf8');
 
         let targetHtml = sourceHtml.replace(/##template.name##/gi, targetName === 'lessons' ? 'demo' : file);
         targetHtml = targetHtml.replace('##template.target##', file);
@@ -66,7 +70,7 @@ fs.readdir(targetDir, (error, files) => {
         targetHtml = targetHtml.replace('##template.ami', targetName === 'lessons' ? demoAmi(targetMode) : '');
 
         let gaScript = '';
-        if (process.env.NODE_ENV === 'production') {
+        if (process.env.NODE_GA) {
             gaScript = analytics(file, gaKey);
         }
 
