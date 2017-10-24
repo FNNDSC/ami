@@ -1,0 +1,177 @@
+<p align="center">
+  <img src="https://cloud.githubusercontent.com/assets/214063/23213764/78ade038-f90c-11e6-8208-4fcade5f3832.png" width="60%">
+</p>
+
+This is a guide through the ami build system. It is based on Webpack v3 in combination with Babel.
+
+# package.json scripts
+Every `package.json` script will be explaned here.
+
+## AMI
+### Build
+
+To build AMI.js run the following command:
+```bash
+yarn build:ami
+```
+It creates the files `ami.js` and `ami.js.map` in the `lib` folder.
+
+---
+
+For a production build run 
+```bash
+yarn build:ami:prod
+````
+This creates a minified version of AMI `ami.min.js` as well as a gunzipped version `ami.min.js.gz`.
+
+---
+
+### Clean
+
+ The following commands are deleting the target directory `lib`.
+
+ ```bash
+yarn build:clean
+ ```
+ or
+ ```bash
+yarn build:clean:hot
+ ````
+ This script will only delete hot.update.js files which webpack creates in lesson mode. This runs automaticly and you have not to bother this script.
+
+---
+
+The following script deletes the `dist` directory, in preparation for an AMI deployment.
+
+```bash
+yarn dist:clean
+```
+
+and finally this combines both the `lib` and the `dist` clean.
+
+```bash
+yarn clean
+```
+
+---
+
+This script starts a running webpack instance that watches continuously the AMI sources and creates a new bundle when the sources have been changed. The script is used by other scripts in order to develop the library (more on development below).
+
+```bash
+yarn dev:ami
+```
+
+---
+
+### deploy
+
+To deploy the AMI library run the following script
+
+```bash
+yarn dist:ami
+```
+
+It runs a combination of `clean` and `build` including a "production" version of AMI. In addition the that some automated documentation is generated (see below)
+
+to create a full deployment run 
+```bash
+yarn deploy
+```
+
+full means that
+* the directories (`lib` & `dist`) gets cleaned
+* build AMI (including docs)
+* build & deploy `examples` into the `dist` folder
+
+---
+
+### Docs
+```bash
+yarn doc
+```
+
+With this script some automated documentation are generated based on the source. Target directory is `dist`.
+
+---
+
+### Linter & Tests
+```bash
+yarn test
+```
+
+```bash
+yarn lint
+```
+
+### Analze `ami.js` bundle
+
+It is possible to analize the content of the `ami.js` bundle both "normal" built as well as "production" built. After creation of the bundle the browser gets opened and shows the content of it including other additional information like the size.
+
+```bash
+yarn analize:ami
+```
+
+and for production
+
+```bash
+yarn analize:ami:prod
+```
+
+## Examples & Lessons
+The AMI library comes with a set of examples and lessons to teach, demonstrate and develop the AMI library. 
+
+### Examples
+
+The `examples` directory consists of examples of different aspects of the library. An example folder contains a entry html, javascript and css file.
+
+to run an example execute
+
+```bash
+yarn example [name of example folder]
+
+yarn example geometries_slice
+```
+
+It starts a webpack-dev-server on the example folder and opens a Browser to load the example. Now the example can be edited and webpack-dev-server will automaticly reload the page. 
+
+However webpack-dev-server is only "watching" the created bundle (living only in memory). Files that are part of the app/example but not of the bundle, like html and css files, will served through webpack-dev-server but not "hot-reloaded". For that matter there is a free plugin/addon called "LiveReload". It fills the gap and "hot-reloads" all other files except the bundle. 
+
+---
+
+The html files are based on sample html files. They're placed directly in the `examples` parent directory. With the following script the `index.html` files are generated in the example sub folders. This is only necessary when the html files are missing or the sample has changed. There should already be an existing set of `index.html` files. These are mandatory in order to run the examples.
+
+```bash
+yarn gen:index:examples
+
+yarn gen:index:examples:ga
+``` 
+
+The second script adds optional google analytics to the html files.
+
+On AMI deployment these examples are copied to the `dist` folder and are processed with webpack.
+
+Side note: the examples are using AMI by import of sources. This is the recommended way of using AMI but the use of a bundler like Webpack or Browserify is mandatory. That way only the used part of AMI gets bundled and that lowers the final file size.
+
+### Lessons
+
+Same like with examples these are server with webpack-dev-server. Unlike examples the lessons are not copied to `dist` folder on AMI deployment. 
+
+Side note: Unlike the examples are using the lessons the full AMI bundle as UMD Module directly from the `lib` folder. That why a second webpack instance is running on lessons which observes the AMI sources.
+
+To run a lesson
+
+```bash
+yarn lesson [name of lesson]
+
+yarn lesson 01
+```
+
+Like Examples the `index.html` files are generated by samples. the following scripts are generating these files.
+
+```bash
+yarn gen:index:lessons
+
+yarn gen:index:lessons:cdn
+```
+
+Second script generates `index.html` files with CDN Links to the public AMI library instead of the local bundle.
