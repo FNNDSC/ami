@@ -8,14 +8,19 @@ This is a guide through the ami build system. It is based on Webpack v3 in combi
 
 The build system is based on Webpack v3 and Webpack-dev-server. Basicly pipeline runs as follows:
 * `ami.js`, `example` or `lesson` source and all if its dependencies it references gets read in by webpack to an one big file.
+
 * at same time it gets read in it runs through the configured loaders:
   * Javascript: runs through Babel.js where all "modern" Javascript will get transpiled "down" to the Javascript abilities of the set target browsers (IE11, Safari 10, Firefox ESR, Edge 12, Google Chrome 54). Example: IE 11 does not support Arrow Functions `sum = (a, b) => { return a + b; }` so it gets transpiled to ES5 style functions `function sum(a, b) { return a + b; }`. Another word you might already heard of for such a replacement is `polyfill`. If all that browsers support a feature then the native implementation of the browser is used.
   * css/sass/less Webpack in capable not only bundling javascript but also other kinds of files. In fact, everthing there is a loader available. When css/sass/less files are referenced in the source javascript, then they will get extracted out of the javascript bundle, sass/less gets "compiled" to css and then also bundled to a seperate css file bundle. If you want to dive in to that topic I highly recommend the [Webpack docs](https://webpack.js.org/concepts/)
+
 * in `development` mode then all things get written to files in the output directory and thats it. In `production` mode there are a couple of things that happen additionally:
   * the javascript code gets `uglyfied`. That means that it will modified to minimal file size. Every not needed character (including linefeed) gets stripped out, variable and function names gets replaced by single or very short generic names like `a` or `f1`. That minified version of the library is getting saved as `min.js` like `ami.min.js`
   * In case of `ami.js` the minified bundle gets additinally zipped with gunzip to shrink down the file size even more. Most modern browsers and servers support zipped files. 
+
 * When the webpack-dev-server is running everthing gets run through like with webpack except one detail. An express.js mini-http server is launched to serve the contents of a directory or bunch of files, normally including the created bundle. It also runs in `hot` or `HMR` mode, means it watches the source of the bundle and refeshes the bundle and the browser when something changes. 
   * Side note: the bundle, created by webpack-dev-server are `not` written to the filesystem. It "lives" only in Memory (RAM) as long the webpack-dev-server is running.
+
+* on `examples` and `lessons` it works the same. Just not the AMI Library gets build but the javascript files of the `examples/lessons`. Depending on if a deployment is running it happens "in place" or in the deployment folder `dist`.
 
 # package.json scripts
 Every `package.json` script will be explaned here.
