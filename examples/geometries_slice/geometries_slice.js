@@ -1,8 +1,8 @@
 /* globals Stats, dat*/
 
-import ControlsTrackball from '../../src/controls/controls.trackball';
-import HelpersStack from '../../src/helpers/helpers.stack';
-import LoadersVolume from '../../src/loaders/loaders.volume';
+import ControlsTrackball from 'base/controls/controls.trackball';
+import HelpersStack from 'base/helpers/helpers.stack';
+import LoadersVolume from 'base/loaders/loaders.volume';
 
 // standard global letiables
 let controls;

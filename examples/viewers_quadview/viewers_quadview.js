@@ -1,17 +1,17 @@
 /* globals Stats, dat*/
 
-import CamerasOrthographic from '../../src/cameras/cameras.orthographic';
-import ControlsOrthographic from '../../src/controls/controls.trackballortho';
-import ControlsTrackball from '../../src/controls/controls.trackball';
-import CoreUtils from '../../src/core/core.utils';
-import HelpersBoundingBox from '../../src/helpers/helpers.boundingbox';
-import HelpersLocalizer from '../../src/helpers/helpers.localizer';
-import HelpersStack from '../../src/helpers/helpers.stack';
-import LoadersVolume from '../../src/loaders/loaders.volume';
+import CamerasOrthographic from 'base/cameras/cameras.orthographic';
+import ControlsOrthographic from 'base/controls/controls.trackballortho';
+import ControlsTrackball from 'base/controls/controls.trackball';
+import CoreUtils from 'base/core/core.utils';
+import HelpersBoundingBox from 'base/helpers/helpers.boundingbox';
+import HelpersLocalizer from 'base/helpers/helpers.localizer';
+import HelpersStack from 'base/helpers/helpers.stack';
+import LoadersVolume from 'base/loaders/loaders.volume';
 
-import ShadersContourUniform from '../../src/shaders/shaders.contour.uniform';
-import ShadersContourVertex from '../../src/shaders/shaders.contour.vertex';
-import ShadersContourFragment from '../../src/shaders/shaders.contour.fragment';
+import ShadersContourUniform from 'base/shaders/shaders.contour.uniform';
+import ShadersContourVertex from 'base/shaders/shaders.contour.vertex';
+import ShadersContourFragment from 'base/shaders/shaders.contour.fragment';
 
 // standard global variables
 let stats;

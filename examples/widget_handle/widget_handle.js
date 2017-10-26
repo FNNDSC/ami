@@ -1,14 +1,14 @@
 /* globals Stats, dat*/
 
-import HelpersStack from '../../src/helpers/helpers.stack';
-import LoadersVolume from '../../src/loaders/loaders.volume';
-import WidgetsHandle from '../../src/widgets/widgets.handle';
-import WidgetsRuler from '../../src/widgets/widgets.ruler';
-import WidgetsVoxelProbe from '../../src/widgets/widgets.voxelProbe';
-import WidgetsAnnotation from '../../src/widgets/widgets.annotation';
-import WidgetsRoiWidget from '../../src/widgets/widgets.roi';
-import WidgetsBiruler from '../../src/widgets/widgets.biruler';
-import ControlsTrackball from '../../src/controls/controls.trackball';
+import HelpersStack from 'base/helpers/helpers.stack';
+import LoadersVolume from 'base/loaders/loaders.volume';
+import WidgetsHandle from 'base/widgets/widgets.handle';
+import WidgetsRuler from 'base/widgets/widgets.ruler';
+import WidgetsVoxelProbe from 'base/widgets/widgets.voxelProbe';
+import WidgetsAnnotation from 'base/widgets/widgets.annotation';
+import WidgetsRoiWidget from 'base/widgets/widgets.roi';
+import WidgetsBiruler from 'base/widgets/widgets.biruler';
+import ControlsTrackball from 'base/controls/controls.trackball';
 
 // standard global variables
 let controls;
