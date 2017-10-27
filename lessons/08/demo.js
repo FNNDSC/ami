@@ -1,10 +1,5 @@
 /* globals AMI*/
 
-// VJS classes we will be using in this lesson
-var LoadersVolume = AMI.default.Loaders.Volume;
-var ControlsTrackball = AMI.default.Controls.Trackball;
-var HelpersStack = AMI.default.Helpers.Stack;
-
 var CustomProgressBar = function(container) {
     this._container = container;
     this._modes = {
@@ -119,7 +114,7 @@ camera.position.y = 150;
 camera.position.z = 100;
 
 // Setup controls
-var controls = new ControlsTrackball(camera, container);
+var controls = new AMI.TrackballControl(camera, container);
 
 /**
  * Handle window resize
@@ -133,7 +128,7 @@ function onWindowResize() {
 window.addEventListener('resize', onWindowResize, false);
 
 // Setup loader
-var loader = new LoadersVolume(container, CustomProgressBar);
+var loader = new AMI.VolumeLoader(container, CustomProgressBar);
 
 var t2 = ['template_T2.nii.gz'];
 var files = t2.map(function(v) {
@@ -149,7 +144,7 @@ loader
         loader = null;
 
         // be carefull that series and target stack exist!
-        var stackHelper = new HelpersStack(series[0].stack[0]);
+        var stackHelper = new AMI.StackHelper(series[0].stack[0]);
         stackHelper.border.color = 0xffeb3b;
 
         scene.add(stackHelper);

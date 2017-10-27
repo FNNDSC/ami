@@ -1,21 +1,5 @@
 /* globals Stats, dat, AMI*/
 
-var LoadersVolume = AMI.default.Loaders.Volume;
-var CamerasOrthographic = AMI.default.Cameras.Orthographic;
-var ControlsOrthographic = AMI.default.Controls.TrackballOrtho;
-var HelpersLut = AMI.default.Helpers.Lut;
-var HelpersStack = AMI.default.Helpers.Stack;
-
-// Shaders
-// Data
-var ShadersDataUniforms = AMI.default.Shaders.DataUniform;
-var ShadersDataFragment = AMI.default.Shaders.DataFragment;
-var ShadersDataVertex = AMI.default.Shaders.DataVertex;
-// Layer
-var ShadersLayerUniforms = AMI.default.Shaders.LayerUniform;
-var ShadersLayerFragment = AMI.default.Shaders.LayerFragment;
-var ShadersLayerVertex = AMI.default.Shaders.LayerVertex;
-
 // standard global variables
 var controls;
 var renderer;
@@ -40,7 +24,7 @@ var uniformsLayerMix;
 var materialLayerMix;
 
 var layerMix = {
-    opacity1: 1.0
+    opacity1: 1.0,
 };
 
 /**
@@ -71,7 +55,7 @@ function init() {
     threeD = document.getElementById('container');
     renderer = new THREE.WebGLRenderer({
         antialias: true,
-        alpha: true
+        alpha: true,
     });
     renderer.setSize(threeD.clientWidth, threeD.clientHeight);
     renderer.setClearColor(0x607d8b, 1);
@@ -91,17 +75,17 @@ function init() {
     sceneLayer0TextureTarget = new THREE.WebGLRenderTarget(threeD.clientWidth, threeD.clientHeight, {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.NearestFilter,
-        format: THREE.RGBAFormat
+        format: THREE.RGBAFormat,
     });
 
     sceneLayer1TextureTarget = new THREE.WebGLRenderTarget(threeD.clientWidth, threeD.clientHeight, {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.NearestFilter,
-        format: THREE.RGBAFormat
+        format: THREE.RGBAFormat,
     });
 
     // camera
-    camera = new CamerasOrthographic(
+    camera = new AMI.OrthographicCamera(
         threeD.clientWidth / -2,
         threeD.clientWidth / 2,
         threeD.clientHeight / 2,
@@ -111,7 +95,7 @@ function init() {
     );
 
     // controls
-    controls = new ControlsOrthographic(camera, threeD);
+    controls = new AMI.TrackballOrthoControl(camera, threeD);
     controls.staticMoving = true;
     controls.noRotate = true;
     camera.controls = controls;
@@ -163,7 +147,7 @@ var files = dataFullPath.concat(labelmapFullPath);
 // load sequence for each file
 // instantiate the loader
 // it loads and parses the dicom image
-var loader = new LoadersVolume(threeD);
+var loader = new AMI.VolumeLoader(threeD);
 
 /**
  * Build GUI
@@ -206,7 +190,7 @@ function buildGUI(stackHelper) {
     var stack = stackHelper.stack;
 
     var gui = new dat.GUI({
-        autoPlace: false
+        autoPlace: false,
     });
 
     var customContainer = document.getElementById('my-gui-container');
@@ -274,7 +258,7 @@ function buildGUI(stackHelper) {
         var threeD = document.getElementById('container');
         camera.canvas = {
             width: threeD.clientWidth,
-            height: threeD.clientHeight
+            height: threeD.clientHeight,
         };
         camera.fitBox(2);
 
@@ -302,7 +286,7 @@ function handleSeries() {
         stack2 = mergedSeries[1].stack[0];
     }
 
-    var stackHelper = new HelpersStack(stack);
+    var stackHelper = new AMI.StackHelper(stack);
     stackHelper.bbox.visible = false;
     stackHelper.border.visible = false;
     stackHelper.index = 10;
@@ -343,7 +327,7 @@ function handleSeries() {
     }
 
     // create material && mesh then add it to sceneLayer1
-    uniformsLayer1 = ShadersDataUniforms.uniforms();
+    uniformsLayer1 = AMI.DataUniformShader.uniforms();
     uniformsLayer1.uTextureSize.value = stack2.textureSize;
     uniformsLayer1.uTextureContainer.value = textures2;
     uniformsLayer1.uWorldToData.value = stack2.lps2IJK;
@@ -356,13 +340,13 @@ function handleSeries() {
     uniformsLayer1.uInterpolation.value = 0;
 
     // generate shaders on-demand!
-    var fs = new ShadersDataFragment(uniformsLayer1);
-    var vs = new ShadersDataVertex();
+    var fs = new AMI.DataFragmentShader(uniformsLayer1);
+    var vs = new AMI.DataVertexShader();
     materialLayer1 = new THREE.ShaderMaterial({
         side: THREE.DoubleSide,
         uniforms: uniformsLayer1,
         vertexShader: vs.compute(),
-        fragmentShader: fs.compute()
+        fragmentShader: fs.compute(),
     });
 
     // add mesh in this scene with right shaders...
@@ -372,18 +356,18 @@ function handleSeries() {
     sceneLayer1.add(meshLayer1);
 
     // Create the Mix layer
-    uniformsLayerMix = ShadersLayerUniforms.uniforms();
+    uniformsLayerMix = AMI.LayerUniformShader.uniforms();
     uniformsLayerMix.uTextureBackTest0.value = sceneLayer0TextureTarget.texture;
     uniformsLayerMix.uTextureBackTest1.value = sceneLayer1TextureTarget.texture;
 
-    let fls = new ShadersLayerFragment(uniformsLayerMix);
-    let vls = new ShadersLayerVertex();
+    let fls = new AMI.LayerFragmentShader(uniformsLayerMix);
+    let vls = new AMI.LayerVertexShader();
     materialLayerMix = new THREE.ShaderMaterial({
         side: THREE.DoubleSide,
         uniforms: uniformsLayerMix,
         vertexShader: vls.compute(),
         fragmentShader: fls.compute(),
-        transparent: true
+        transparent: true,
     });
 
     // add mesh in this scene with right shaders...
@@ -406,7 +390,7 @@ function handleSeries() {
     // init and zoom
     var canvas = {
         width: threeD.clientWidth,
-        height: threeD.clientHeight
+        height: threeD.clientHeight,
     };
     camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
     camera.box = box;
@@ -415,16 +399,16 @@ function handleSeries() {
     camera.fitBox(2);
 
     // CREATE LUT
-    lutLayer0 = new HelpersLut(
+    lutLayer0 = new AMI.LutHelper(
         'my-lut-canvases-l0',
         'default',
         'linear',
         [[0, 0, 0, 0], [1, 1, 1, 1]],
         [[0, 1], [1, 1]]
     );
-    lutLayer0.luts = HelpersLut.presetLuts();
+    lutLayer0.luts = AMI.LutHelper.presetLuts();
 
-    lutLayer1 = new HelpersLut(
+    lutLayer1 = new AMI.LutHelper(
         'my-lut-canvases-l1',
         'default',
         'linear',

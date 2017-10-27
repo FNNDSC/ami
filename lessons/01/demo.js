@@ -1,10 +1,5 @@
 /* globals dat, AMI*/
 
-// VJS classes we will be using in this lesson
-var LoadersVolume = AMI.default.Loaders.Volume;
-var ControlsTrackball = AMI.default.Controls.Trackball;
-var HelpersStack = AMI.default.Helpers.Stack;
-
 // Setup renderer
 var container = document.getElementById('container');
 var renderer = new THREE.WebGLRenderer({
@@ -25,7 +20,7 @@ camera.position.y = 150;
 camera.position.z = 100;
 
 // Setup controls
-var controls = new ControlsTrackball(camera, container);
+var controls = new AMI.TrackballControl(camera, container);
 
 /**
  * Handle window resize
@@ -45,7 +40,7 @@ window.addEventListener('resize', onWindowResize, false);
 function gui(stackHelper) {
     var stack = stackHelper.stack;
     var gui = new dat.GUI({
-        autoPlace: false
+        autoPlace: false,
     });
     var customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
@@ -110,7 +105,7 @@ function animate() {
 animate();
 
 // Setup loader
-var loader = new LoadersVolume(container);
+var loader = new AMI.VolumeLoader(container);
 
 var t2 = [
     '36444280',
@@ -123,7 +118,6 @@ var t2 = [
     '36444378',
     '36444392',
     '36444406',
-    '36444420',
     '36444434',
     '36444448',
     '36444462',
@@ -147,7 +141,7 @@ loader
         loader.free();
         loader = null;
         // be carefull that series and target stack exist!
-        var stackHelper = new HelpersStack(stack);
+        var stackHelper = new AMI.StackHelper(stack);
         stackHelper.bbox.color = 0x8bc34a;
         stackHelper.border.color = 0xf44336;
 

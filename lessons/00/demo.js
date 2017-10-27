@@ -1,13 +1,10 @@
 /* globals AMI*/
 
-// VJS classes we will be using in this lesson
-var LoadersVolume = AMI.default.Loaders.Volume;
-
 // element to contain the progress bar
 var container = document.getElementById('container');
 
 // instantiate the loader
-var loader = new LoadersVolume(container);
+var loader = new AMI.VolumeLoader(container);
 
 var t2 = ['36444280', '36444294', '36444308', '36444322', '36444336'];
 var files = t2.map(function(v) {

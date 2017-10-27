@@ -1,10 +1,5 @@
 /* globals Stats, dat, AMI*/
 
-var LoadersVolume = AMI.default.Loaders.Volume;
-var ControlsTrackball = AMI.default.Controls.Trackball;
-var HelpersLut = AMI.default.Helpers.Lut;
-var HelpersVR = AMI.default.Helpers.VolumeRendering;
-
 // standard global letiables
 var controls;
 var threeD;
@@ -151,7 +146,7 @@ function init() {
     camera.up.set(-0.42, 0.86, 0.26);
 
     // controls
-    controls = new ControlsTrackball(camera, threeD);
+    controls = new AMI.TrackballControl(camera, threeD);
     controls.rotateSpeed = 5.5;
     controls.zoomSpeed = 1.2;
     controls.panSpeed = 0.8;
@@ -171,7 +166,7 @@ init();
 
 var file = 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz';
 
-var loader = new LoadersVolume(threeD);
+var loader = new AMI.VolumeLoader(threeD);
 loader.load(file).then(function() {
     var series = loader.data[0].mergeSeries(loader.data)[0];
     loader.free();
@@ -179,14 +174,14 @@ loader.load(file).then(function() {
     // get first stack from series
     var stack = series.stack[0];
 
-    vrHelper = new HelpersVR(stack);
+    vrHelper = new AMI.VolumeRenderingHelper(stack);
     // scene
     scene.add(vrHelper);
 
     // CREATE LUT
-    lut = new HelpersLut('my-tf');
-    lut.luts = HelpersLut.presetLuts();
-    lut.lutsO = HelpersLut.presetLutsO();
+    lut = new AMI.LutHelper('my-tf');
+    lut.luts = AMI.LutHelper.presetLuts();
+    lut.lutsO = AMI.LutHelper.presetLutsO();
     // update related uniforms
     vrHelper.uniforms.uTextureLUT.value = lut.texture;
     vrHelper.uniforms.uLut.value = 1;

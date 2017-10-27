@@ -1,11 +1,11 @@
 /* globals Stats, dat, AMI*/
 
 // VJS classes we will be using in this lesson
-var LoadersVolume = AMI.default.Loaders.Volume;
-var CamerasOrthographic = AMI.default.Cameras.Orthographic;
-var ControlsOrthographic = AMI.default.Controls.TrackballOrtho;
-var HelpersStack = AMI.default.Helpers.Stack;
-var ModelsStack = AMI.default.Models.Stack;
+var LoadersVolume = AMI.VolumeLoader;
+var CamerasOrthographic = AMI.OrthographicCamera;
+var ControlsOrthographic = AMI.TrackballOrthoControl;
+var HelpersStack = AMI.StackHelper;
+var ModelsStack = AMI.StackModel;
 
 var stack0, stackHelper0;
 var stack1, stackHelper1;
@@ -69,7 +69,7 @@ function onWindowResize() {
     // 0
     camera.canvas = {
         width: container.offsetWidth,
-        height: container.offsetHeight
+        height: container.offsetHeight,
     };
     camera.fitBox(2);
 
@@ -78,7 +78,7 @@ function onWindowResize() {
     // 1
     camera1.canvas = {
         width: container1.offsetWidth,
-        height: container1.offsetHeight
+        height: container1.offsetHeight,
     };
     camera1.fitBox(2);
 
