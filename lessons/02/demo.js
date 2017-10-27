@@ -1,10 +1,5 @@
 /* globals AMI*/
 
-// VJS classes we will be using in this lesson
-var LoadersVolume = AMI.default.Loaders.Volume;
-var ControlsTrackball = AMI.default.Controls.Trackball;
-var HelpersStack = AMI.default.Helpers.Stack;
-
 // Setup renderer
 var container = document.getElementById('container');
 var renderer = new THREE.WebGLRenderer({
@@ -25,7 +20,7 @@ camera.position.y = 150;
 camera.position.z = 100;
 
 // Setup controls
-var controls = new ControlsTrackball(camera, container);
+var controls = new AMI.TrackballControl(camera, container);
 
 /**
  * Handle window resize
@@ -67,7 +62,7 @@ loaderSTL.load('https://cdn.rawgit.com/FNNDSC/data/master/stl/adi_brain/WM.stl',
 });
 
 // Setup loader
-var loader = new LoadersVolume(container);
+var loader = new AMI.VolumeLoader(container);
 
 var t1 = [
     '36747136',
@@ -260,7 +255,7 @@ loader
         loader = null;
 
         // be carefull that series and target stack exist!
-        var stackHelper = new HelpersStack(series[0].stack[0]);
+        var stackHelper = new AMI.StackHelper(series[0].stack[0]);
         stackHelper.border.color = 0xffeb3b;
 
         scene.add(stackHelper);

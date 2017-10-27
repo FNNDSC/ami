@@ -1,11 +1,5 @@
 /* globals dat, AMI*/
 
-// VJS classes we will be using in this lesson
-var LoadersVolume = AMI.default.Loaders.Volume;
-var CamerasOrthographic = AMI.default.Cameras.Orthographic;
-var ControlsOrthographic = AMI.default.Controls.TrackballOrtho;
-var HelpersStack = AMI.default.Helpers.Stack;
-
 // Setup renderer
 var container = document.getElementById('container');
 var renderer = new THREE.WebGLRenderer({
@@ -20,7 +14,7 @@ container.appendChild(renderer.domElement);
 var scene = new THREE.Scene();
 
 // Setup camera
-var camera = new CamerasOrthographic(
+var camera = new AMI.OrthographicCamera(
     container.clientWidth / -2,
     container.clientWidth / 2,
     container.clientHeight / 2,
@@ -30,7 +24,7 @@ var camera = new CamerasOrthographic(
 );
 
 // Setup controls
-var controls = new ControlsOrthographic(camera, container);
+var controls = new AMI.TrackballOrthoControl(camera, container);
 controls.staticMoving = true;
 controls.noRotate = true;
 camera.controls = controls;
@@ -41,7 +35,7 @@ camera.controls = controls;
 function onWindowResize() {
     camera.canvas = {
         width: container.offsetWidth,
-        height: container.offsetHeight
+        height: container.offsetHeight,
     };
     camera.fitBox(2);
 
@@ -66,7 +60,7 @@ function gui(stackHelper) {
         rotate45: false,
         rotate: 0,
         orientation: 'default',
-        convention: 'radio'
+        convention: 'radio',
     };
 
     // camera
@@ -136,7 +130,7 @@ function animate() {
 animate();
 
 // Setup loader
-var loader = new LoadersVolume(container);
+var loader = new AMI.VolumeLoader(container);
 var file = 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/adi_brain/adi_brain.nii.gz';
 
 loader
@@ -148,7 +142,7 @@ loader
         loader.free();
         loader = null;
         // be carefull that series and target stack exist!
-        var stackHelper = new HelpersStack(stack);
+        var stackHelper = new AMI.StackHelper(stack);
         // stackHelper.orientation = 2;
         // stackHelper.index = 56;
 
@@ -179,7 +173,7 @@ loader
         // init and zoom
         var canvas = {
             width: container.clientWidth,
-            height: container.clientHeight
+            height: container.clientHeight,
         };
 
         camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
