@@ -247,8 +247,11 @@ export default class ModelsStack extends ModelsBase {
     this.computeLPS2AABB();
     // this.packEchos();
 
-    this._rescaleSlope = this._frame[0].rescaleSlope || 1;
-    this._rescaleIntercept = this._frame[0].rescaleIntercept || 0;
+    const middleFrameIndex = Math.floor(this._frame.length / 2);
+    const middleFrame = this._frame[middleFrameIndex];
+
+    this._rescaleSlope = middleFrame.rescaleSlope || 1;
+    this._rescaleIntercept = middleFrame.rescaleIntercept || 0;
 
     // rescale/slope min max
     this.computeMinMaxIntensities();
@@ -262,14 +265,14 @@ export default class ModelsStack extends ModelsBase {
       this._rescaleIntercept);
 
     let width =
-      this._frame[0].windowWidth * this._rescaleSlope || this._minMax[1] - this._minMax[0];
+      middleFrame.windowWidth * this._rescaleSlope || this._minMax[1] - this._minMax[0];
     this._windowWidth = width + this._rescaleIntercept;
 
     let center =
-      this._frame[0].windowCenter * this._rescaleSlope || this._minMax[0] + width / 2;
+      middleFrame.windowCenter * this._rescaleSlope || this._minMax[0] + width / 2;
     this._windowCenter = center + this._rescaleIntercept;
 
-    this._bitsAllocated = this._frame[0].bitsAllocated;
+    this._bitsAllocated = middleFrame.bitsAllocated;
     this._prepared = true;
   }
 
