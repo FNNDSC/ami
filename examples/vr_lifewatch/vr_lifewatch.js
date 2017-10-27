@@ -1,9 +1,9 @@
 /* globals Stats, dat*/
 
-import ControlsTrackball from '../../src/controls/controls.trackball';
-import HelpersLut from '../../src/helpers/helpers.lut';
-import HelpersVR from '../../src/helpers/helpers.volumerendering';
-import LoadersVolume from '../../src/loaders/loaders.volume';
+import ControlsTrackball from 'base/controls/controls.trackball';
+import HelpersLut from 'base/helpers/helpers.lut';
+import HelpersVR from 'base/helpers/helpers.volumerendering';
+import LoadersVolume from 'base/loaders/loaders.volume';
 
 // standard global letiables
 let controls, threeD, renderer, stats, camera, scene;
@@ -180,7 +180,7 @@ window.onload = function() {
   // ];
 
   // let files = data.map(function(v) {
-  //   return '../../data/nii/' + v;
+  //   return '@/data/nii/' + v;
   // });
 
   // load sequence for each file
