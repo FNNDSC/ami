@@ -167,6 +167,7 @@ export default class CoreUtils {
 
   /**
    * Compute IJK to LPS tranform.
+   *  http://nipy.org/nibabel/dicom/dicom_orientation.html
    *
    * @param {*} xCos
    * @param {*} yCos

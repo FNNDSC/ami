@@ -99,9 +99,16 @@ export default class ParsersMHD extends ParsersVolume {
     return bitsAllocated;
   }
 
+  /**
+   * https://itk.org/Wiki/ITK/MetaIO/Documentation
+   * ElementSpacing[0] spacing between elements along X axis (i.e. column spacing)
+   * ElementSpacing[1] spacing between elements along Y axis (i.e. row spacing)
+   *
+   * @param {*} frameIndex 
+   */
   pixelSpacing(frameIndex = 0) {
-    let x = parseFloat(this._header.ElementSpacing[0], 10);
-    let y = parseFloat(this._header.ElementSpacing[1], 10);
+    let x = parseFloat(this._header.ElementSpacing[1], 10);
+    let y = parseFloat(this._header.ElementSpacing[0], 10);
     let z = parseFloat(this._header.ElementSpacing[2], 10);
     return [x, y, z];
   }
