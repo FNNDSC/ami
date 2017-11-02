@@ -88,7 +88,7 @@ if (process.env.NODE_WEBPACK_TARGET) {
     );
 }
 
-if (process.env.NODE_WEBPACK_ANALIZE) {
+if (process.env.NODE_WEBPACK_ANALYZE) {
     config.plugins.push(new BundleAnalyzerPlugin());
 }
 

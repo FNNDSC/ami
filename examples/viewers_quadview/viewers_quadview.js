@@ -5,22 +5,18 @@ import ControlsOrthographic from 'base/controls/controls.trackballortho';
 import ControlsTrackball from 'base/controls/controls.trackball';
 import CoreUtils from 'base/core/core.utils';
 import HelpersBoundingBox from 'base/helpers/helpers.boundingbox';
+import HelpersContour from 'base/helpers/helpers.contour';
 import HelpersLocalizer from 'base/helpers/helpers.localizer';
 import HelpersStack from 'base/helpers/helpers.stack';
 import LoadersVolume from 'base/loaders/loaders.volume';
-
-import ShadersContourUniform from 'base/shaders/shaders.contour.uniform';
-import ShadersContourVertex from 'base/shaders/shaders.contour.vertex';
-import ShadersContourFragment from 'base/shaders/shaders.contour.fragment';
 
 // standard global variables
 let stats;
 let ready = false;
 
+let redContourHelper = null;
 let redTextureTarget = null;
-let redContourMesh = null;
-let redCountourScene = null;
-let redContourMaterial = null;
+let redContourScene = null;
 
 // 3d renderer
 const r0 = {
@@ -296,8 +292,8 @@ function init() {
         object.materialBack.clippingPlanes = [clipPlane1];
         r1.renderer.render(object.scene, r1.camera, redTextureTarget, true);
         r1.renderer.clearDepth();
-        redContourMaterial.uniforms.uWidth.value = object.selected ? 2 : 1;
-        r1.renderer.render(redCountourScene, r1.camera);
+        redContourHelper.contourWidth = object.selected ? 2 : 1;
+        r1.renderer.render(redContourScene, r1.camera);
         r1.renderer.clearDepth();
       });
 
@@ -411,28 +407,12 @@ window.onload = function() {
       }
     );
 
-    // need 1 per tooth...
-    let uniformsLayerMix = ShadersContourUniform.uniforms();
-    uniformsLayerMix.uTextureFilled.value = redTextureTarget.texture;
-    uniformsLayerMix.uWidth.value = 1.0;
-    uniformsLayerMix.uCanvasWidth.value = redTextureTarget.width;
-    uniformsLayerMix.uCanvasHeight.value = redTextureTarget.height;
-
-    let fls = new ShadersContourFragment(uniformsLayerMix);
-    let vls = new ShadersContourVertex();
-    redContourMaterial = new THREE.ShaderMaterial(
-      {side: THREE.DoubleSide,
-      uniforms: uniformsLayerMix,
-      vertexShader: vls.compute(),
-      fragmentShader: fls.compute(),
-      transparent: true,
-      extensions: {
-        derivatives: true,
-      },
-    });
-    redContourMesh = new THREE.Mesh(
-          r1.stackHelper.slice.geometry, redContourMaterial);
-    redCountourScene = new THREE.Scene(redContourMesh);
+    redContourHelper = new HelpersContour(stack, r1.stackHelper.slice.geometry);
+    redContourHelper.canvasWidth = redTextureTarget.width;
+    redContourHelper.canvasHeight = redTextureTarget.height;
+    redContourHelper.textureToFilter = redTextureTarget.texture;
+    redContourScene = new THREE.Scene();
+    redContourScene.add(redContourHelper);
 
     // yellow slice
     initHelpersStack(r2, stack);
@@ -566,19 +546,8 @@ window.onload = function() {
       updateLocalizer(r1, [r2.localizerHelper, r3.localizerHelper]);
       updateClipPlane(r1, clipPlane1);
 
-      if (redContourMesh) {
-        redCountourScene.remove(redContourMesh);
-        redContourMesh.material.dispose();
-        redContourMesh.material = null;
-        redContourMesh.geometry.dispose();
-        redContourMesh.geometry = null;
-
-        redContourMesh = new THREE.Mesh(
-          r1.stackHelper.slice.geometry, redContourMaterial);
-        // go to LPS space
-        redContourMesh.applyMatrix(r1.stackHelper.stack._ijk2LPS);
-
-        redCountourScene.add(redContourMesh);
+      if (redContourHelper) {
+        redContourHelper.geometry = r1.stackHelper.slice.geometry;
       }
     }
 

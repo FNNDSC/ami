@@ -42,7 +42,7 @@ export default class HelpersLocalizer extends THREE.Object3D {
   }
 
   _prepareMaterial() {
-    if (!this.material) {
+    if (!this._material) {
       // reference plane
       this._uniforms.uSlice.value = this._referencePlane;
 
@@ -90,19 +90,56 @@ export default class HelpersLocalizer extends THREE.Object3D {
     this._create();
   }
 
+  dispose() {
+    //
+    this._referencePlane = null;
+    this._plane1 = null;
+    this._color1 = null;
+    this._plane2 = null;
+    this._color2 = null;
+    this._plane3 = null;
+    this._color3 = null;
+
+    this._shadersFragment = null;
+    this._shadersVertex = null;
+
+    this._uniforms = null;
+
+    // material, geometry and mesh
+    this.remove(this._mesh);
+    this._mesh.geometry.dispose();
+    this._mesh.geometry = null;
+    this._mesh.material.dispose();
+    this._mesh.material = null;
+    this._mesh = null;
+
+    this._geometry.dispose();
+    this._geometry = null;
+    this._material.vertexShader = null;
+    this._material.fragmentShader = null;
+    this._material.uniforms = null;
+    this._material.dispose();
+    this._material = null;
+
+    this._stack = null;
+  }
+
   get geometry() {
     return this._geometry;
   }
 
   set geometry(geometry) {
-    this._geometry = geometry;
-
     if (this._mesh) {
       this.remove(this._mesh);
       this._mesh.geometry.dispose();
       this._mesh.geometry = null;
       this._mesh = null;
+
+      this._geometry.dispose();
+      this._geometry = null;
     }
+
+    this._geometry = geometry;
 
     this._create();
   }

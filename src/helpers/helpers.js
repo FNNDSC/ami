@@ -1,5 +1,6 @@
 import Border from './helpers.border';
 import BoundingBox from './helpers.boundingbox';
+import Contour from './helpers.contour';
 import Localizer from './helpers.localizer';
 import Lut from './helpers.lut';
 import SegmentationLut from './helpers.segmentationlut';
@@ -11,6 +12,7 @@ import VolumeRendering from './helpers.volumerendering';
 export {
     Border as BorderHelper,
     BoundingBox as BoundingBoxHelper,
+    Contour as ContourHelper,
     Localizer as LocalizerHelper,
     Lut as LutHelper,
     SegmentationLut as SegmentationLutHelper,
