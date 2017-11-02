@@ -167,6 +167,7 @@ export default class CoreUtils {
 
   /**
    * Compute IJK to LPS tranform.
+   *  http://nipy.org/nibabel/dicom/dicom_orientation.html
    *
    * @param {*} xCos
    * @param {*} yCos
@@ -236,18 +237,33 @@ export default class CoreUtils {
   }
 
   /**
-   * Get voxel value
+   * Get and set voxel value
    *
    * @param {*} stack
    * @param {*} coordinate
-   *
+   * @param {*} value
    * @return {*}
    */
   static value(stack, coordinate) {
+    console.warn('value is deprecated, please use getPixelData instead');
+    this.getPixelData(stack, coordinate);
+  }
+
+  static getPixelData(stack, coordinate) {
     if (coordinate.z >= 0 &&
         coordinate.z < stack._frame.length) {
       return stack._frame[coordinate.z].
-        value(coordinate.x, coordinate.y);
+        getPixelData(coordinate.x, coordinate.y);
+    } else {
+      return null;
+    }
+  }
+
+  static setPixelData(stack, coordinate, value) {
+    if (coordinate.z >= 0 &&
+        coordinate.z < stack._frame.length) {
+      stack._frame[coordinate.z].
+        setPixelData(coordinate.x, coordinate.y, value);
     } else {
       return null;
     }

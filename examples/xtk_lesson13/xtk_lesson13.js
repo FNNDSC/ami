@@ -1,10 +1,10 @@
 /* globals dat*/
 
-import XRenderer3D from '../../src/helpers/x/helpers.x.renderer3d';
-import XRenderer2D from '../../src/helpers/x/helpers.x.renderer2d';
-import XVolume from '../../src/helpers/x/helpers.x.volume';
+import XRenderer3D from 'base/helpers/x/helpers.x.renderer3d';
+import XRenderer2D from 'base/helpers/x/helpers.x.renderer2d';
+import XVolume from 'base/helpers/x/helpers.x.volume';
 
-import HelpersBoundingBox from '../../src/helpers/helpers.boundingbox';
+import HelpersBoundingBox from 'base/helpers/helpers.boundingbox';
 
 // files to be loaded
 const t2 = [

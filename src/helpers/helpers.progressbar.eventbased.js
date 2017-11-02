@@ -1,4 +1,5 @@
 import CoreUtils from '../core/core.utils';
+
 /**
  * Event Based progressbar
  * @module helpers/progressBar

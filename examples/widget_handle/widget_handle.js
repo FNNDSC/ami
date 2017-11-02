@@ -1,12 +1,14 @@
 /* globals Stats, dat*/
 
-import HelpersStack from '../../src/helpers/helpers.stack';
-import LoadersVolume from '../../src/loaders/loaders.volume';
-import WidgetsHandle from '../../src/widgets/widgets.handle';
-import WidgetsRuler from '../../src/widgets/widgets.ruler';
-import WidgetsVoxelProbe from '../../src/widgets/widgets.voxelProbe';
-import WidgetsAnnotation from '../../src/widgets/widgets.annotation';
-import ControlsTrackball from '../../src/controls/controls.trackball';
+import HelpersStack from 'base/helpers/helpers.stack';
+import LoadersVolume from 'base/loaders/loaders.volume';
+import WidgetsHandle from 'base/widgets/widgets.handle';
+import WidgetsRuler from 'base/widgets/widgets.ruler';
+import WidgetsVoxelProbe from 'base/widgets/widgets.voxelProbe';
+import WidgetsAnnotation from 'base/widgets/widgets.annotation';
+import WidgetsRoiWidget from 'base/widgets/widgets.roi';
+import WidgetsBiruler from 'base/widgets/widgets.biruler';
+import ControlsTrackball from 'base/controls/controls.trackball';
 
 // standard global variables
 let controls;
@@ -22,6 +24,8 @@ const widgetsAvailable = [
   'Ruler',
   'VoxelProbe',
   'Annotation',
+  'RoiWidget',
+  'Biruler'
 ];
 const guiObjects = {
   type: 'Handle',
@@ -165,6 +169,16 @@ window.onload = function() {
         case 'Annotation':
           widget =
             new WidgetsAnnotation(stackHelper.slice.mesh, controls, camera, threeD);
+          widget.worldPosition = intersects[0].point;
+          break;
+        case 'RoiWidget':
+          widget =
+            new WidgetsRoiWidget(stackHelper.slice.mesh, controls, camera, threeD);
+          widget.worldPosition = intersects[0].point;
+          break;
+        case 'Biruler':
+          widget =
+            new WidgetsBiruler(stackHelper.slice.mesh, controls, camera, threeD);
           widget.worldPosition = intersects[0].point;
           break;
         default:

@@ -4,12 +4,9 @@ import Pack from './core.pack';
 import Validators from './core.validators';
 import Utils from './core.utils';
 
-/**
- * @module core
- */
-export default {
-  Colors,
-  Intersections,
-  Utils,
-  Validators,
+export {
+    Colors as ColorsCore,
+    Intersections as IntersectionsCore,
+    Utils as UtilsCor,
+    Validators as ValidatorsCore,
 };

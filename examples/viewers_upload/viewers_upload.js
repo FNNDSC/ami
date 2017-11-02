@@ -1,10 +1,10 @@
 /* globals dat*/
-import CoreUtils from '../../src/core/core.utils';
-import LoadersVolume from '../../src/loaders/loaders.volume';
-import HelpersStack from '../../src/helpers/helpers.stack';
-import HelpersLut from '../../src/helpers/helpers.lut';
-import CamerasOrthographic from '../../src/cameras/cameras.orthographic';
-import ControlsOrthographic from '../../src/controls/controls.trackballortho';
+import CoreUtils from 'base/core/core.utils';
+import LoadersVolume from 'base/loaders/loaders.volume';
+import HelpersStack from 'base/helpers/helpers.stack';
+import HelpersLut from 'base/helpers/helpers.lut';
+import CamerasOrthographic from 'base/cameras/cameras.orthographic';
+import ControlsOrthographic from 'base/controls/controls.trackballortho';
 
 // standard global variables
 let controls;
@@ -299,6 +299,8 @@ window.onload = function() {
     stackHelper.borderColor = '#2196F3';
     stackHelper.border.visible = false;
     scene.add(stackHelper);
+
+    console.log(stackHelper.stack);
 
     // set camera
     let worldbb = stack.worldBoundingBox();

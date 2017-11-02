@@ -1,10 +1,19 @@
 {
-  "presets": ["es2015"],
-  "ignore": ["external/**/*"],
-
-  "env": {
-    "cjs": {
-      "plugins": ["add-module-exports"]
-    }
-  }
+    "presets": [
+        [
+            "env",
+            {
+                "targets": {
+                    "node": "6.9.0",
+                    "browsers": ["chrome >= 54", "firefox ESR", "edge >= 12", "safari >= 10", "ie >= 11"]
+                },
+                "loose": true,
+                "modules": false,
+                "useBuiltIns": true,
+                "debug": false
+            }
+        ]
+    ],
+    "plugins": [],
+    "ignore": ["external/**/*"]
 }
