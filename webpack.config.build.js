@@ -10,7 +10,7 @@ var config = {
     entry: ['./src/ami.js'],
     devtool: 'source-map',
     output: {
-        path: path.resolve(__dirname, 'lib'),
+        path: path.resolve(__dirname, 'build'),
         filename: debug ? 'ami.js' : 'ami.min.js',
         library: 'AMI',
         libraryTarget: 'umd',
@@ -71,13 +71,13 @@ if (process.env.NODE_WEBPACK_TARGET) {
     if (debug && workPath.indexOf('/dist/') === -1) {
         config.plugins.push(
             new WatchLiveReloadPlugin({
-                files: [path.resolve(__dirname, 'lib') + '/*.js', workPath + '/**/*.html', workPath + '/**/*.css']
+                files: [path.resolve(__dirname, 'build') + '/*.js', workPath + '/**/*.html', workPath + '/**/*.css']
             })
         );
     }
 
     config.devServer = {
-        contentBase: [workPath, path.resolve(__dirname, 'lib')],
+        contentBase: [workPath, path.resolve(__dirname, 'build')],
         historyApiFallback: true
     };
 } else if (!debug) {

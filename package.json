@@ -1,7 +1,7 @@
 {
     "name": "ami.js",
-    "version": "0.0.21",
-    "main": "lib/ami.js",
+    "version": "0.0.22",
+    "main": "build/ami.js",
     "keywords": [
         "ami",
         "ami.js",
@@ -47,8 +47,8 @@
     "scripts": {
         "build:ami": "webpack --config webpack.config.build.js",
         "build:ami:prod": "cross-env NODE_ENV=production npm run build:ami",
-        "build:clean": "rimraf -rf lib/*",
-        "build:clean:hot": "rimraf -rf lib/*.hot-update.*",
+        "build:clean": "rimraf -rf build/*",
+        "build:clean:hot": "rimraf -rf build/*.hot-update.*",
         "dev:ami": "webpack --config webpack.config.build.js --hot --watch --colors",
         "dist:ami": "npm run build:clean && npm run build:ami && npm run build:ami:prod && npm run doc",
         "dist:examples": "node ./scripts/buildDist.js && node ./scripts/router.js examples deploy",
