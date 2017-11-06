@@ -49,8 +49,9 @@ Please submit pull request, open issues or contact us for any question, feature 
 2. [Features](#features)
 3. [Usage](#npm)
 4. [Developer corner](#developer-corner)
-5. [Credits](#credits)
-6. [Citations](#citations)
+5. [Change log](#change-log)
+6. [Credits](#credits)
+7. [Citations](#citations)
 
 ## Hello AMI
 
@@ -351,6 +352,8 @@ $> yarn deploy
 ```
 
 Find out more about the [API](https://fnndsc.github.io/ami/doc).
+
+# [Change log](https://github.com/FNNDSC/ami/releases)
 
 # Credits
 
