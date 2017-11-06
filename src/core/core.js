@@ -7,6 +7,6 @@ import Utils from './core.utils';
 export {
     Colors as ColorsCore,
     Intersections as IntersectionsCore,
-    Utils as UtilsCor,
+    Utils as UtilsCore,
     Validators as ValidatorsCore,
 };
