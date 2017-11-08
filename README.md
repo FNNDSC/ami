@@ -402,6 +402,7 @@ AMI would not exist without them:
 
 # Citations
 ### 2017
+- [From brain imaging to weather imaging - McCaie - informaticslab, Met Office (blog post)](http://www.informaticslab.co.uk/side-projects/weather/3d/visualisations/2017/04/04/from-brain-imaging-to-weather-imaging.html)
 - [Medical imaging in the browser with the A* Medical Imaging (AMI) toolkit. - Rannou et al. - ESMRMB 2017 (poster)](http://epostersonline.com/esmrmb2017/node/3443)
 - [Reusable Client-Side JavaScript Modules for Immersive Web-Based Real-Time Collaborative Neuroimage Visualization - Bernal-Rusiel et al. - Frontiers in Neuroinformatics 2017 (article)](http://journal.frontiersin.org/article/10.3389/fninf.2017.00032/full)
 ### 2016
