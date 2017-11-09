@@ -49,7 +49,7 @@ if (process.argv[2] && process.argv[3]) {
         }
 
         exec(
-            `${prodVar} ${generateIndexFiles} NODE_WEBPACK_TARGET=${directory} NODE_WEBPACK_NAME=${name} ${webpackCmd}`
+            `${prodVar} ${generateIndexFiles} cross-env NODE_WEBPACK_TARGET=${directory} cross-env NODE_WEBPACK_NAME=${name} ${webpackCmd}`
         );
     }
 } else {
