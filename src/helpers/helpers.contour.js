@@ -15,6 +15,7 @@ export default class HelpersContour extends THREE.Object3D {
     this._stack = stack;
     this._textureToFilter = texture;
     this._contourWidth = 1;
+    this._contourOpacity = 1;
     this._canvasWidth = 0;
     this._canvasHeight = 0;
     this._shadersFragment = ShadersFragment;
@@ -37,6 +38,7 @@ export default class HelpersContour extends THREE.Object3D {
     if (!this._material) {
       // contour default width
       this._uniforms.uWidth.value = this._contourWidth;
+      this._uniforms.uOpacity.value = this._contourOpacity;
 
       //
       this._uniforms.uCanvasWidth.value = this._canvasWidth;
@@ -127,6 +129,15 @@ export default class HelpersContour extends THREE.Object3D {
     this._textureToFilter = texture;
     this._uniforms.uTextureFilled.value = texture;
     this._material.needsUpdate = true;
+  }
+
+  get contourOpacity() {
+    return this._contourOpacity;
+  }
+
+  set contourOpacity(contourOpacity) {
+    this._contourOpacity = contourOpacity;
+    this._uniforms.uOpacity.value = this._contourOpacity;
   }
 
   get contourWidth() {

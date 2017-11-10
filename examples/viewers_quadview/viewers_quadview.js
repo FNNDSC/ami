@@ -292,7 +292,8 @@ function init() {
         object.materialBack.clippingPlanes = [clipPlane1];
         r1.renderer.render(object.scene, r1.camera, redTextureTarget, true);
         r1.renderer.clearDepth();
-        redContourHelper.contourWidth = object.selected ? 2 : 1;
+        redContourHelper.contourWidth = object.selected ? 1 : 1;
+        redContourHelper.contourOpacity = object.selected ? 1 : .2;
         r1.renderer.render(redContourScene, r1.camera);
         r1.renderer.clearDepth();
       });

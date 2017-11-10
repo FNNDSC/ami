@@ -51460,6 +51460,11 @@ var ShadersUniform = function () {
         value: 1.,
         typeGLSL: 'float'
       },
+      'uOpacity': {
+        type: 'f',
+        value: 1.,
+        typeGLSL: 'float'
+      },
       'uTextureFilled': {
         type: 't',
         value: [],
@@ -51543,7 +51548,7 @@ var ShadersFragment = function () {
 
   ShadersFragment.prototype.main = function main() {
     // need to pre-call main to fill up the functions list
-    this._main = '\n\nfloat luma (vec3 rgb) {\n  return (rgb.r + rgb.g + rgb.b)/3.0;\n}\n\nconst float T = 0.04;\nconst float M = 1.0;\nconst float L = 0.002;\n\nvoid main(void) {\n\n  vec2 texCoord = vec2(((vProjectedCoords.x / vProjectedCoords.w) + 1.0 ) / 2.0,\n                ((vProjectedCoords.y / vProjectedCoords.w) + 1.0 ) / 2.0 );\n\n  float borderWidth = uWidth; // in px\n  float step_u = borderWidth * 1.0 / uCanvasWidth;\n  float step_v = borderWidth * 1.0 / uCanvasHeight;\n  vec4 centerPixel = texture2D(uTextureFilled, texCoord);\n\n  vec4 rightPixel  = texture2D(uTextureFilled, texCoord + vec2(step_u, 0.0));\n  vec4 bottomPixel = texture2D(uTextureFilled, texCoord + vec2(0.0, step_v));\n\n  // now manually compute the derivatives\n  float _dFdX = length(rightPixel - centerPixel) / step_u;\n  float _dFdY = length(bottomPixel - centerPixel) / step_v;\n\n  // gl_FragColor.r = _dFdX;\n  // gl_FragColor.g = _dFdY;\n  gl_FragColor.r = max(max(centerPixel.r, rightPixel.r), bottomPixel.r);\n  gl_FragColor.g = max(max(centerPixel.g, rightPixel.g), bottomPixel.g);\n  gl_FragColor.b = max(max(centerPixel.b, rightPixel.b), bottomPixel.b);\n  gl_FragColor.a = max(_dFdX, _dFdY);\n\n  return;\n  // float h = 1./uCanvasHeight;\n  // float w = 1./uCanvasWidth;\n  // vec4 n[9];\n  // n[0] = texture2D(uTextureFilled, vProjectedTextCoords + vec2( -w, -h));\n  // n[1] = texture2D(uTextureFilled, vProjectedTextCoords + vec2(0.0, -h));\n  // n[2] = texture2D(uTextureFilled, vProjectedTextCoords + vec2(  w, -h));\n  // n[3] = texture2D(uTextureFilled, vProjectedTextCoords + vec2( -w, 0.0));\n  // n[4] = texture2D(uTextureFilled, vProjectedTextCoords);\n  // n[5] = texture2D(uTextureFilled, texCoord + vec2(  w, 0.0));\n  // n[6] = texture2D(uTextureFilled, texCoord + vec2( -w, h));\n  // n[7] = texture2D(uTextureFilled, texCoord + vec2(0.0, h));\n  // n[8] = texture2D(uTextureFilled, texCoord + vec2(  w, h));\n  // vec4 sobel_horizEdge = n[2] + (2.0*n[5]) + n[8] - (n[0] + (2.0*n[3]) + n[6]);\n  // vec4 sobel_vertEdge  = n[0] + (2.0*n[1]) + n[2] - (n[6] + (2.0*n[7]) + n[8]);\n  // vec3 sobel = sqrt((sobel_horizEdge.rgb * sobel_horizEdge.rgb) + (sobel_vertEdge.rgb * sobel_vertEdge.rgb));\n  // gl_FragColor = vec4( sobel, max(max(sobel.r, sobel.g), sobel.b) );\n\n  return;\n}\n   ';
+    this._main = '\n\nfloat luma (vec3 rgb) {\n  return (rgb.r + rgb.g + rgb.b)/3.0;\n}\n\nconst float T = 0.04;\nconst float M = 1.0;\nconst float L = 0.002;\n\nvoid main(void) {\n\n  vec2 texCoord = vec2(((vProjectedCoords.x / vProjectedCoords.w) + 1.0 ) / 2.0,\n                ((vProjectedCoords.y / vProjectedCoords.w) + 1.0 ) / 2.0 );\n\n  float borderWidth = uWidth; // in px\n  float step_u = borderWidth * 1.0 / uCanvasWidth;\n  float step_v = borderWidth * 1.0 / uCanvasHeight;\n  vec4 centerPixel = texture2D(uTextureFilled, texCoord);\n\n  vec4 rightPixel  = texture2D(uTextureFilled, texCoord + vec2(step_u, 0.0));\n  vec4 bottomPixel = texture2D(uTextureFilled, texCoord + vec2(0.0, step_v));\n\n  // now manually compute the derivatives\n  float _dFdX = length(rightPixel - centerPixel) / step_u;\n  float _dFdY = length(bottomPixel - centerPixel) / step_v;\n\n  // gl_FragColor.r = _dFdX;\n  // gl_FragColor.g = _dFdY;\n  gl_FragColor.r = max(max(centerPixel.r, rightPixel.r), bottomPixel.r);\n  gl_FragColor.g = max(max(centerPixel.g, rightPixel.g), bottomPixel.g);\n  gl_FragColor.b = max(max(centerPixel.b, rightPixel.b), bottomPixel.b);\n  float maxDerivative = max(_dFdX, _dFdY);\n  float clampedDerivative = clamp(maxDerivative, 0., 1.);\n  gl_FragColor.a = uOpacity * clampedDerivative;\n\n  return;\n  // float h = 1./uCanvasHeight;\n  // float w = 1./uCanvasWidth;\n  // vec4 n[9];\n  // n[0] = texture2D(uTextureFilled, vProjectedTextCoords + vec2( -w, -h));\n  // n[1] = texture2D(uTextureFilled, vProjectedTextCoords + vec2(0.0, -h));\n  // n[2] = texture2D(uTextureFilled, vProjectedTextCoords + vec2(  w, -h));\n  // n[3] = texture2D(uTextureFilled, vProjectedTextCoords + vec2( -w, 0.0));\n  // n[4] = texture2D(uTextureFilled, vProjectedTextCoords);\n  // n[5] = texture2D(uTextureFilled, texCoord + vec2(  w, 0.0));\n  // n[6] = texture2D(uTextureFilled, texCoord + vec2( -w, h));\n  // n[7] = texture2D(uTextureFilled, texCoord + vec2(0.0, h));\n  // n[8] = texture2D(uTextureFilled, texCoord + vec2(  w, h));\n  // vec4 sobel_horizEdge = n[2] + (2.0*n[5]) + n[8] - (n[0] + (2.0*n[3]) + n[6]);\n  // vec4 sobel_vertEdge  = n[0] + (2.0*n[1]) + n[2] - (n[6] + (2.0*n[7]) + n[8]);\n  // vec3 sobel = sqrt((sobel_horizEdge.rgb * sobel_horizEdge.rgb) + (sobel_vertEdge.rgb * sobel_vertEdge.rgb));\n  // gl_FragColor = vec4( sobel, max(max(sobel.r, sobel.g), sobel.b) );\n\n  // return;\n}\n   ';
   };
 
   ShadersFragment.prototype.compute = function compute() {
@@ -64773,6 +64778,7 @@ var HelpersContour = function (_THREE$Object3D) {
     _this._stack = stack;
     _this._textureToFilter = texture;
     _this._contourWidth = 1;
+    _this._contourOpacity = 1;
     _this._canvasWidth = 0;
     _this._canvasHeight = 0;
     _this._shadersFragment = __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_contour_fragment__["a" /* default */];
@@ -64796,6 +64802,7 @@ var HelpersContour = function (_THREE$Object3D) {
     if (!this._material) {
       // contour default width
       this._uniforms.uWidth.value = this._contourWidth;
+      this._uniforms.uOpacity.value = this._contourOpacity;
 
       //
       this._uniforms.uCanvasWidth.value = this._canvasWidth;
@@ -64811,7 +64818,6 @@ var HelpersContour = function (_THREE$Object3D) {
         fragmentShader: fs.compute(),
         transparent: true
       });
-      this._material.transparent = true;
     }
   };
 
@@ -64886,6 +64892,15 @@ var HelpersContour = function (_THREE$Object3D) {
       this._textureToFilter = texture;
       this._uniforms.uTextureFilled.value = texture;
       this._material.needsUpdate = true;
+    }
+  }, {
+    key: 'contourOpacity',
+    get: function get() {
+      return this._contourOpacity;
+    },
+    set: function set(contourOpacity) {
+      this._contourOpacity = contourOpacity;
+      this._uniforms.uOpacity.value = this._contourOpacity;
     }
   }, {
     key: 'contourWidth',

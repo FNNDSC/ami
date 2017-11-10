@@ -46,16 +46,16 @@
     },
     "scripts": {
         "build:ami": "webpack --config webpack.config.build.js",
-        "build:ami:prod": "cross-env NODE_ENV=production npm run build:ami",
+        "build:ami:prod": "cross-env NODE_ENV=production yarn build:ami",
         "build:clean": "rimraf -rf build/*",
         "build:clean:hot": "rimraf -rf build/*.hot-update.*",
         "dev:ami": "webpack --config webpack.config.build.js --hot --watch --colors",
-        "dist:ami": "npm run build:clean && npm run build:ami && npm run build:ami:prod && npm run doc",
+        "dist:ami": "yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc",
         "dist:examples": "node ./scripts/buildDist.js && node ./scripts/router.js examples deploy",
         "dist:clean": "rimraf -rf dist/*",
-        "analyze:ami": "cross-env NODE_WEBPACK_ANALYZE=true npm run build:ami",
-        "analyze:ami:prod": "cross-env NODE_WEBPACK_ANALYZE=true npm run build:ami:prod",
-        "clean": "npm run build:clean && npm run dist:clean",
+        "analyze:ami": "cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami",
+        "analyze:ami:prod": "cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod",
+        "clean": "yarn build:clean && yarn dist:clean",
         "example": "node ./scripts/router.js examples",
         "lesson": "node ./scripts/router.js lessons",
         "gen:index:examples": "node ./scripts/genIndexFiles.js examples",
@@ -65,9 +65,9 @@
         "test": "karma start",
         "lint": "eslint src/**/*.js",
         "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src",
-        "ami": "npm run lint && npm run dist:ami && npm run test",
+        "ami": "yarn lint && yarn dist:ami && yarn test",
         "deploy":
-            "npm run dist:clean && npm run build:clean && npm run dist:ami && npm run dist:examples && gh-pages -d dist"
+            "yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"
     },
     "devDependencies": {
         "babel-cli": "latest",

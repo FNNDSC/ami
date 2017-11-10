@@ -47,7 +47,7 @@ Please submit pull request, open issues or contact us for any question, feature 
 
 1. [Hello AMI](#hello-ami)
 2. [Features](#features)
-3. [Usage](#npm)
+3. [Usage](#yarn)
 4. [Developer corner](#developer-corner)
 5. [Change log](#change-log)
 6. [Credits](#credits)
@@ -240,7 +240,7 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 
 ```
 
-### NPM
+### Yarn
 
 ```bash
 
