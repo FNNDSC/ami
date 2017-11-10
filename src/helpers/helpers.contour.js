@@ -54,7 +54,6 @@ export default class HelpersContour extends THREE.Object3D {
           transparent: true,
         }
       );
-      this._material.transparent = true;
     }
   }
 
