@@ -1,7 +1,4 @@
-Please note that we do not have a `ami.js` tag on StackOverflow yet.
-After asking help on SO, please open an issue with the link to the SO post so we get notified.
-
-If you have privilegies to create a new tag on SO, please help us by creating the `ami.js` tag.
+After asking help on SO (use `ami.js` tag), please open an issue with the link to the SO post so we get notified.
 
 <!--
 If you are asking a question rather than filing a bug, try one of these instead:
