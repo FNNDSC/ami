@@ -23,7 +23,7 @@ Note: We need this file so we can log new features while we are developing inste
 ### Removed
 
 ### Fixed
-- #212 - Missing export for one `NODE_WEBPACK_TARGET` variable
+- [#212](https://github.com/FNNDSC/ami/issue/212) - Missing export for one `NODE_WEBPACK_TARGET` variable
 
 ## 0.0.22 - 2017-11-06
 ### Fixed
