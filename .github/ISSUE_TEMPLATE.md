@@ -1,10 +1,6 @@
-After asking help on SO (use `ami.js` tag), please open an issue with the link to the SO post so we get notified.
-
-<!--
 If you are asking a question rather than filing a bug, try one of these instead:
 - StackOverflow (http://stackoverflow.com/questions/tagged/ami.js)
 - FNNDSC #AMI Slack Channel (https://slack.babymri.org)
--->
 
 ### Description
 <!-- Example: Error thrown when loading file XXX -->
