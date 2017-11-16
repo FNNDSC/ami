@@ -391,7 +391,7 @@ window.onload = function() {
     // add mesh in this scene with right shaders...
     meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
     // go the LPS space
-    meshLayer1.applyMatrix(stack2._ijk2LPS);
+    meshLayer1.applyMatrix(stack._ijk2LPS);
     sceneLayer1.add(meshLayer1);
 
     //
@@ -416,7 +416,7 @@ window.onload = function() {
     // add mesh in this scene with right shaders...
     meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
     // go the LPS space
-    meshLayerMix.applyMatrix(stack2._ijk2LPS);
+    meshLayerMix.applyMatrix(stack._ijk2LPS);
     sceneLayerMix.add(meshLayerMix);
 
     // set camera
