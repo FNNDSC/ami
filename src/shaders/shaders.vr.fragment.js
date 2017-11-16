@@ -106,7 +106,7 @@ void main(void) {
       colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;
     }
 
-    alphaSample = alphaSample * uAlphaCorrection;
+    alphaSample = 1.0 - pow((1.0- alphaSample),tStep*uAlphaCorrection);
     alphaSample *= (1.0 - accumulatedAlpha);
 
     accumulatedColor += alphaSample * colorSample;
