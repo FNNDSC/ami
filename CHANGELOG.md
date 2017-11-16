@@ -5,14 +5,14 @@ We may want to also add it to the Gtihub release information.
 
 Note: We need this file so we can log new features while we are developing instead of having to do it all at once when release happens.
 
-## [0.0.23-dev]
+## 0.0.23-dev
 
-https://github.com/olivierlacan/keep-a-changelog/blob/master/CHANGELOG.md
 
 ### Big changes
 - We now have a `ami.js` stack overflow tag - [#65](https://github.com/FNNDSC/ami/issues/65)
 
 ### API changes
+- Removed `segId` argument from Segmentation LUT helper - [here](https://github.com/FNNDSC/ami/commit/c311a3e1f82d964ab6bebd368d2286dc104f6a2e)
 
 ### Added
 - Add flag to control the opacity of a contour in the Contour helpers and shaders
@@ -25,13 +25,14 @@ https://github.com/olivierlacan/keep-a-changelog/blob/master/CHANGELOG.md
 ### Removed
 
 ### Fixed
+- [parsers / nrrd](https://github.com/FNNDSC/ami/commit/6940c141dfbcee4612fef2acc3a6fc870e1c3c9d) - Wrong spacing parsing.
+- [example / viewer compare](https://github.com/FNNDSC/ami/commit/4585cb39eedc33341c1f7f78d215770d1ce60924) - Incorrect layer orientation.
 - [#212](https://github.com/FNNDSC/ami/issue/212) - Missing export for one `NODE_WEBPACK_TARGET` variable
-
 ## 0.0.22 - 2017-11-06
 ### Fixed
 - [Issue reference]() - Fix typo in the Core.Utils export
 
-## [0.0.21] - 2017-11-02
+## 0.0.21 - 2017-11-02
 ### Big changes
 - DOCUMENT NEW BUILD WORKFLOW
 ### API changes
@@ -39,6 +40,8 @@ https://github.com/olivierlacan/keep-a-changelog/blob/master/CHANGELOG.md
 ### Added
 - [Helpers: contours](https://github.com/FNNDSC/ami/blob/dev/src/helpers/helpers.contour.js)
 
+
+Ref: https://github.com/olivierlacan/keep-a-changelog/blob/master/CHANGELOG.md
 [Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.2.0...v0.3.0
