@@ -15,7 +15,7 @@ Note: We need this file so we can log new features while we are developing inste
 - [[helpers: segmentation lut]](https://github.com/FNNDSC/ami/commit/c311a3e1f82d964ab6bebd368d2286dc104f6a2e) Removed `segId` argument in constructor
 
 ### Added
-- [[shaders: contours]]() - Add flag to control the opacity of a contour
+- [[shaders: contours]]() Add flag to control the opacity of a contour
 
 ### Changed
 - Update `NPM` to `Yarn` in *README.md*
