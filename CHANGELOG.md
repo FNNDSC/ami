@@ -12,14 +12,14 @@ Note: We need this file so we can log new features while we are developing inste
 - We now have a `ami.js` stack overflow tag - [#65](https://github.com/FNNDSC/ami/issues/65)
 
 ### API changes
-- [helpers / segmentation lut](https://github.com/FNNDSC/ami/commit/c311a3e1f82d964ab6bebd368d2286dc104f6a2e) -Removed `segId` argument in constructor
+- [helpers / segmentation lut](https://github.com/FNNDSC/ami/commit/c311a3e1f82d964ab6bebd368d2286dc104f6a2e) - Removed `segId` argument in constructor
 
 ### Added
-- [shaders / contours] - Add flag to control the opacity of a contour
+- [shaders / contours]() - Add flag to control the opacity of a contour
 
 ### Changed
 - Update `NPM` to `Yarn` in *README.md*
-- Update `npm run` to `yarn` in *package.json*
+- Update command `npm run` to `yarn` in *package.json*
 - [shader / single pass volume rendering](https://github.com/FNNDSC/ami/pull/213) - Improved volume rendering opacity
 
 ### Removed
