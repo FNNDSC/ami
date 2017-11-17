@@ -83,7 +83,6 @@ void main(void) {
       normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
 
     float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
-    float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;
     normalizedIntensity =
       ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];
 
