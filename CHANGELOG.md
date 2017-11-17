@@ -23,6 +23,7 @@ Note: We need this file so we can log new features while we are developing inste
 - [[shaders: single pass volume rendering]](https://github.com/FNNDSC/ami/pull/213) Improved volume rendering opacity
 
 ### Removed
+- [[shaders: vr]](https://github.com/FNNDSC/ami/pull/219) Remove unused variables
 
 ### Fixed
 - [[parsers: nrrd]](https://github.com/FNNDSC/ami/commit/6940c141dfbcee4612fef2acc3a6fc870e1c3c9d) Wrong spacing parsing.
