@@ -45,16 +45,16 @@ export default class HelpersLut {
 
   initCanvasContainer(dom) {
     let canvasContainer = dom;
-    canvasContainer.style.width = '256 px';
-    canvasContainer.style.height = '128 px';
     canvasContainer.style.border = '1px solid #F9F9F9';
     return canvasContainer;
   }
 
   createCanvas() {
     let canvas = document.createElement('canvas');
-    canvas.height = 16;
+    canvas.height = 1;
     canvas.width = 256;
+    canvas.style.width = '256px';
+    canvas.style.height = '16px';
     return canvas;
   }
 
