@@ -73,6 +73,17 @@ export default class HelpersLut {
 
       ctx.fillStyle = color;
       ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+
+      // setup context
+      ctx.globalCompositeOperation = 'destination-in';
+
+      // apply opacity
+      let opacity = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
+      for (let i = 0; i < this._opacity.length; i++) {
+        opacity.addColorStop(this._opacity[i][0], 'rgba(255, 255, 255, ' + this._opacity[i][1] + ')');
+      }
+      ctx.fillStyle = opacity;
+      ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
     } else {
       ctx.lineWidth=2*this._canvas.height;
 
@@ -99,20 +110,6 @@ export default class HelpersLut {
         ctx.stroke();
         ctx.closePath();
       }
-    }
-
-    if (!this._discrete) {
-      // if discrete, we already took care of the opacity.
-      // setup context
-      ctx.globalCompositeOperation = 'destination-in';
-
-      // apply opacity
-      let opacity = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
-      for (let i = 0; i < this._opacity.length; i++) {
-        opacity.addColorStop(this._opacity[i][0], 'rgba(255, 255, 255, ' + this._opacity[i][1] + ')');
-      }
-      ctx.fillStyle = opacity;
-      ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
     }
   }
 
