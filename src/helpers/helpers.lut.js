@@ -45,16 +45,16 @@ export default class HelpersLut {
 
   initCanvasContainer(dom) {
     let canvasContainer = dom;
-    canvasContainer.style.width = '256 px';
-    canvasContainer.style.height = '128 px';
     canvasContainer.style.border = '1px solid #F9F9F9';
     return canvasContainer;
   }
 
   createCanvas() {
     let canvas = document.createElement('canvas');
-    canvas.height = 16;
+    canvas.height = 1;
     canvas.width = 256;
+    canvas.style.width = '256px';
+    canvas.style.height = '16px';
     return canvas;
   }
 
@@ -66,12 +66,23 @@ export default class HelpersLut {
 
     // apply color
     if (!this._discrete) {
-      let color = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
+      let color = ctx.createLinearGradient(0, 0, this._canvas.width, 0);
       for (let i = 0; i < this._color.length; i++) {
         color.addColorStop(this._color[i][0], `rgba( ${Math.round(this._color[i][1] * 255)}, ${Math.round(this._color[i][2] * 255)}, ${Math.round(this._color[i][3] * 255)}, 1)`);
       }
 
       ctx.fillStyle = color;
+      ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+
+      // setup context
+      ctx.globalCompositeOperation = 'destination-in';
+
+      // apply opacity
+      let opacity = ctx.createLinearGradient(0, 0, this._canvas.width, 0);
+      for (let i = 0; i < this._opacity.length; i++) {
+        opacity.addColorStop(this._opacity[i][0], 'rgba(255, 255, 255, ' + this._opacity[i][1] + ')');
+      }
+      ctx.fillStyle = opacity;
       ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
     } else {
       ctx.lineWidth=2*this._canvas.height;
@@ -99,20 +110,6 @@ export default class HelpersLut {
         ctx.stroke();
         ctx.closePath();
       }
-    }
-
-    if (!this._discrete) {
-      // if discrete, we already took care of the opacity.
-      // setup context
-      ctx.globalCompositeOperation = 'destination-in';
-
-      // apply opacity
-      let opacity = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
-      for (let i = 0; i < this._opacity.length; i++) {
-        opacity.addColorStop(this._opacity[i][0], 'rgba(255, 255, 255, ' + this._opacity[i][1] + ')');
-      }
-      ctx.fillStyle = opacity;
-      ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
     }
   }
 
