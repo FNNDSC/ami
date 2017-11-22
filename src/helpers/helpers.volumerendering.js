@@ -75,7 +75,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
     this._uniforms.uInterpolation.value = this._interpolation;
 
     this._createMaterial({
-      side: THREE.FrontSide,
+      side: THREE.BackSide,
       transparent: true,
     });
   }
