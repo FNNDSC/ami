@@ -2,6 +2,8 @@ const packageJSON = require('./package.json');
 
 ('use strict');
 
+process.env.CHROME_BIN = require('puppeteer').executablePath()
+
 module.exports = function(karma) {
     karma.set({
         // frameworks to use
@@ -26,7 +28,7 @@ module.exports = function(karma) {
             // 'src/core/*.spec.js': ['browserify']
         },
 
-        browsers: ['PhantomJS'],
+        browsers: ['ChromeHeadless'],
 
         // web server port
         // port: 9876,

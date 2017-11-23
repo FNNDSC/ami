@@ -66,8 +66,7 @@
         "lint": "eslint src/**/*.js",
         "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src",
         "ami": "yarn lint && yarn dist:ami && yarn test",
-        "deploy":
-            "yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"
+        "deploy": "yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"
     },
     "devDependencies": {
         "babel-cli": "latest",
@@ -84,13 +83,13 @@
         "jasmine-core": "latest",
         "jsdoc": "jsdoc3/jsdoc#master",
         "karma": "latest",
+        "karma-chrome-launcher": "^2.2.0",
         "karma-jasmine": "latest",
-        "karma-phantomjs-launcher": "1.0.4",
         "karma-sinon": "^1.0.5",
         "karma-spec-reporter": "latest",
         "karma-webpack": "^2.0.4",
         "live-server": "^1.1.0",
-        "phantomjs-prebuilt": "2.1.14",
+        "puppeteer": "^0.13.0",
         "rimraf": "^2.6.1",
         "rollup-plugin-node-builtins": "^2.1.2",
         "shelljs": "latest",
