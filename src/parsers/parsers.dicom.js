@@ -34,7 +34,8 @@ export default class ParsersDicom extends ParsersVolume {
       this._dataSet = DicomParser.parseDicom(byteArray);
     } catch (e) {
       window.console.log(e);
-      throw 'parsers.dicom could not parse the file';
+      const error = new Error('parsers.dicom could not parse the file');
+      throw error;
     }
   }
 
@@ -563,8 +564,6 @@ export default class ParsersDicom extends ParsersVolume {
       inStackPositionNumber = null;
     }
 
-    console.log(`instack position ${inStackPositionNumber}`);
-
     return inStackPositionNumber;
   }
 
@@ -741,12 +740,14 @@ export default class ParsersDicom extends ParsersVolume {
 
     let componentsCount = jpxImage.componentsCount;
     if (componentsCount !== 1) {
-      throw 'JPEG2000 decoder returned a componentCount of ${componentsCount}, when 1 is expected';
+      const error = new Error('JPEG2000 decoder returned a componentCount of ${componentsCount}, when 1 is expected');
+      throw error;
     }
     let tileCount = jpxImage.tiles.length;
 
     if (tileCount !== 1) {
-      throw 'JPEG2000 decoder returned a tileCount of ${tileCount}, when 1 is expected';
+      const error = new Error('JPEG2000 decoder returned a tileCount of ${tileCount}, when 1 is expected');
+      throw error;
     }
 
     let tileComponents = jpxImage.tiles[0];
@@ -898,7 +899,8 @@ export default class ParsersDicom extends ParsersVolume {
       } else if (uncompressedData instanceof Uint16Array) {
         rgbData = new Uint16Array(uncompressedData.length);
       } else {
-        throw 'unsuported typed array: ${uncompressedData}';
+        const error = new Error(`unsuported typed array: ${uncompressedData}`);
+        throw error;
       }
 
       let numPixels = uncompressedData.length / 3;
@@ -921,7 +923,8 @@ export default class ParsersDicom extends ParsersVolume {
       } else if (uncompressedData instanceof Uint16Array) {
         rgbData = new Uint16Array(uncompressedData.length);
       } else {
-        throw 'unsuported typed array: ${uncompressedData}';
+        const error = new Error(`unsuported typed array: ${uncompressedData}`);
+        throw error;
       }
 
       // https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/decodeYBRFull.js
@@ -938,7 +941,8 @@ export default class ParsersDicom extends ParsersVolume {
         // rgbData[rgbaIndex++] = 255; //alpha
       }
     } else {
-      throw 'photometric interpolation not supported: ${photometricInterpretation}';
+      const error = new Error(`photometric interpolation not supported: ${photometricInterpretation}`);
+      throw error;
     }
 
     return rgbData;

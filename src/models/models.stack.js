@@ -1060,7 +1060,7 @@ export default class ModelsStack extends ModelsBase {
    * @return {*}
    */
   static value(stack, coordinate) {
-    console.warn(
+    window.console.warn(
       `models.stack.value is deprecated.
        Please use core.utils.value instead.`);
     return CoreUtils.value(stack, coordinate);
@@ -1078,7 +1078,7 @@ export default class ModelsStack extends ModelsBase {
    * @return {*}
    */
   static valueRescaleSlopeIntercept(value, slope, intercept) {
-    console.warn(
+    window.console.warn(
       `models.stack.valueRescaleSlopeIntercept is deprecated.
        Please use core.utils.rescaleSlopeIntercept instead.`);
     return CoreUtils.rescaleSlopeIntercept(
@@ -1096,7 +1096,7 @@ export default class ModelsStack extends ModelsBase {
    * @return {*}
    */
   static worldToData(stack, worldCoordinates) {
-    console.warn(
+    window.console.warn(
       `models.stack.worldToData is deprecated.
        Please use core.utils.worldToData instead.`);
 

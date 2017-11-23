@@ -14,7 +14,7 @@ import CoreUtils from '../core/core.utils';
 export default class HelpersProgressBarEventBased {
   constructor(emitter, domTarget) {
     if (!emitter || !this._isFunction(emitter.emit)) {
-      console.error('please give the this._emitter instance');
+      window.console.error('please give the this._emitter instance');
       return;
     }
 
@@ -25,7 +25,7 @@ export default class HelpersProgressBarEventBased {
     }
 
     if (!CoreUtils.isElement(this._dom)) {
-      console.error('please give the id of container dom or directly a dom instance');
+      window.console.error('please give the id of container dom or directly a dom instance');
       return;
     }
     this._emitter = emitter;

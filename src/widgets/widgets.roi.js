@@ -92,7 +92,7 @@ export default class WidgetsRoi extends WidgetsBase {
             this._container.appendChild(newLine);
         }
 
-        var hovered = false;
+        let hovered = false;
 
         for (let index in this._handles) {
             this._handles[index].onMove(evt);

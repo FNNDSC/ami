@@ -104,7 +104,7 @@ export default class ParsersMHD extends ParsersVolume {
    * ElementSpacing[0] spacing between elements along X axis (i.e. column spacing)
    * ElementSpacing[1] spacing between elements along Y axis (i.e. row spacing)
    *
-   * @param {*} frameIndex 
+   * @param {*} frameIndex
    */
   pixelSpacing(frameIndex = 0) {
     let x = parseFloat(this._header.ElementSpacing[1], 10);
@@ -158,10 +158,8 @@ export default class ParsersMHD extends ParsersVolume {
     let frameOffset = frameIndex * numPixels;
 
     if (this._header.ElementType === 'MET_CHAR') {
-      frameOffset = frameOffset;
       return new Int8Array(buffer, frameOffset, numPixels);
     } else if (this._header.ElementType === 'MET_UCHAR') {
-      frameOffset = frameOffset;
       return new Uint8Array(buffer, frameOffset, numPixels);
     } else if (this._header.ElementType === 'MET_SHORT') {
       frameOffset = frameOffset * 2;

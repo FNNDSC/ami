@@ -265,10 +265,8 @@ export default class ParsersNifti extends ParsersVolume {
 
     if (this._dataSet.type === 'int8' ||
        this._dataSet.type === 'char') {
-      frameOffset = frameOffset;
       return new Int8Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.type === 'uint8') {
-      frameOffset = frameOffset;
       return new Uint8Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.type === 'int16' ||
        this._dataSet.type === 'short') {

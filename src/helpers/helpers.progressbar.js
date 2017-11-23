@@ -78,7 +78,6 @@ export default class HelpersProgressBar {
       return false;
     }
 
-    const message = '';
     const progress = Math.round((this._value / this._total) * 100);
     const color = this._modes[this._mode].color;
 

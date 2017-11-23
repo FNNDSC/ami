@@ -30,7 +30,8 @@ export default class ParsersNifti extends ParsersVolume {
       this._niftiImage =
         NiftiReader.readImage(this._dataSet, this._arrayBuffer);
     } else {
-      throw 'parsers.nifti could not parse the file';
+      const error = new Error('parsers.nifti could not parse the file');
+      throw error;
     }
   }
 
@@ -152,19 +153,16 @@ export default class ParsersNifti extends ParsersVolume {
           2*(c*d+a*b),
         ];
     } else if (this._dataSet.sform_code > 0) {
-      console.log('sform > 0');
-
-      let sx = this._dataSet.srow_x;
-      let sy = this._dataSet.srow_y;
-      let sz = this._dataSet.srow_z;
+      // sform > 0
+      // let sx = this._dataSet.srow_x;
+      // let sy = this._dataSet.srow_y;
+      // let sz = this._dataSet.srow_z;
       // fill IJKToRAS
       // goog.vec.Mat4.setRowValues(IJKToRAS, 0, sx[0], sx[1], sx[2], sx[3]);
       // goog.vec.Mat4.setRowValues(IJKToRAS, 1, sy[0], sy[1], sy[2], sy[3]);
       // goog.vec.Mat4.setRowValues(IJKToRAS, 2, sz[0], sz[1], sz[2], sz[3]);
     } else if (this._dataSet.qform_code === 0) {
-      console.log('qform === 0');
-
-
+      // form === 0
       // fill IJKToRAS
       // goog.vec.Mat4.setRowValues(IJKToRAS, 0, MRI.pixdim[1], 0, 0, 0);
       // goog.vec.Mat4.setRowValues(IJKToRAS, 1, 0, MRI.pixdim[2], 0, 0);
@@ -270,13 +268,12 @@ export default class ParsersNifti extends ParsersVolume {
       frameOffset = frameOffset * 4;
       return new Float32Array(buffer, frameOffset, numPixels);
     } else {
-      console.log(
+      window.console.warning(
         `Unknown data type: datatypeCode : ${this._dataSet.datatypeCode}`);
     }
   }
 
   _reorderData() {
-    window.console.log('re-order');
     let numberOfChannels = this.numberOfChannels();
     let numPixels = this.rows() * this.columns() * numberOfChannels;
     let buffer = this._niftiImage;
