@@ -18,6 +18,7 @@ Note: We need this file so we can log new features while we are developing inste
 - [[shaders: contours]]() Add flag to control the opacity of a contour
 
 ### Changed
+- [[karma]](https://github.com/FNNDSC/ami/commit/57e7d89c9bc84add8c622c5040a74880638c905b) ChromeHeadless instead of Phantom for Karma tests
 - Update `NPM` to `Yarn` in *README.md*
 - Update command `npm run` to `yarn` in *package.json*
 - [[shaders: single pass volume rendering]](https://github.com/FNNDSC/ami/pull/213) Improved volume rendering opacity
