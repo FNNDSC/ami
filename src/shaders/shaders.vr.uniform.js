@@ -105,6 +105,31 @@ export default class ShadersUniform {
         value: 0.0,
         typeGLSL: 'float',
       },
+      'uShading': {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int',
+      },
+      'uAmbient': {
+        type: 'f',
+        value: 0.6,
+        typeGLSL: 'float',
+      },
+      'uSpecular': {
+        type: 'f',
+        value: 0.4,
+        typeGLSL: 'float',
+      },
+      'uDiffuse': {
+        type: 'f',
+        value: 0.3,
+        typeGLSL: 'float',
+      },
+      'uShininess': {
+        type: 'f',
+        value: 1.0,
+        typeGLSL: 'float',
+      },
     };
   }
 }
