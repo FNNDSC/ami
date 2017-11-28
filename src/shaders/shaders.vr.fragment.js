@@ -61,6 +61,7 @@ void main(void) {
 
   // the ray
   vec3 rayOrigin = cameraPosition;
+  vec3 lightOrigin = cameraPosition;
   vec3 rayDirection = normalize(vPos.xyz - rayOrigin);
 
   // the Axe-Aligned B-Box
@@ -106,6 +107,33 @@ void main(void) {
       colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;
     }
 
+    if (uShading == 1) {
+      vec3 normal = -normalize(gradient);
+      vec3 colorPhong = vec3(colorSample.r,colorSample.g,colorSample.b);
+      float alpha = colorSample.a;
+      vec3 ambient_color = colorPhong;
+      vec3 diffuse_color = colorPhong;
+      vec3 specular_color = vec3(1.,1.,1.);
+      vec3 litColor = uAmbient * ambient_color;
+      vec3 pointToEye = normalize(rayOrigin - currentPosition);
+      vec3 pointToLight = normalize(lightOrigin - currentPosition);
+      float lightDot = dot(pointToLight, normal);
+      litColor += uDiffuse * lightDot * diffuse_color;
+
+      float eyeDotPos = step(0.0,dot(pointToEye, normal));
+      float lightDotPos = step(0.0,lightDot);
+
+      vec3 lightReflection = reflect(-pointToLight,normal);
+      float reflectDot = dot(lightReflection,pointToEye);
+      litColor += uSpecular * eyeDotPos * lightDotPos * pow(abs(reflectDot), uShininess) * specular_color;
+
+      litColor = clamp(litColor, 0.0, 1.0);
+
+      colorSample.r = litColor.r;
+      colorSample.g = litColor.g;
+      colorSample.b = litColor.b;
+    }
+    
     alphaSample = 1.0 - pow((1.0- alphaSample),tStep*uAlphaCorrection);
     alphaSample *= (1.0 - accumulatedAlpha);
 
