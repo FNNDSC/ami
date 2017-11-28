@@ -57,6 +57,9 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
   else if(textureIndex == 4){ dataValue = texture2D(uTextureContainer[4], uv); }
   else if(textureIndex == 5){ dataValue = texture2D(uTextureContainer[5], uv); }
   else if(textureIndex == 6){ dataValue = texture2D(uTextureContainer[6], uv); }
+  else {
+    dataValue = vec4(0.);
+  }
 
 }
     `;
