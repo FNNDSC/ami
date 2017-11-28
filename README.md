@@ -272,7 +272,7 @@ Add AMI in your index.html **after** THREEJS.
 <script src="app.js"></script>
 
 #app.js
-const AMI = AMI.default;
+const AMI = AMI;
 window.console.log('Ready to rock!!');
 
 ```
