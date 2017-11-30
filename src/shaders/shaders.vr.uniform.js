@@ -164,7 +164,7 @@ export default class ShadersUniform {
         type: 'i',
         value: 1,
         typeGLSL: 'int',
-      }
+      },
     };
   }
 }
