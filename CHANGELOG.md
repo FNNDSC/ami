@@ -9,31 +9,32 @@ Note: We need this file so we can log new features while we are developing inste
 
 
 ### Big changes
-- We now have a `ami.js` stack overflow tag - [#65](https://github.com/FNNDSC/ami/issues/65)
+- We now have a `ami.js` stack overflow tag - [#65](https://github.com/FNNDSC/ami/issues/65).
 
 ### API changes
-- [[helpers: segmentation lut]](https://github.com/FNNDSC/ami/commit/c311a3e1f82d964ab6bebd368d2286dc104f6a2e) Removed `segId` argument in constructor
+- [[helpers: segmentation lut]](https://github.com/FNNDSC/ami/commit/c311a3e1f82d964ab6bebd368d2286dc104f6a2e) Removed `segId` argument in constructor.
 
 ### Added
-- [[shaders: contours]]() Add flag to control the opacity of a contour
+- [[shaders: contours]]() Add flag to control the opacity of a contour.
 
 ### Changed
-- [[karma]](https://github.com/FNNDSC/ami/commit/57e7d89c9bc84add8c622c5040a74880638c905b) ChromeHeadless instead of Phantom for Karma tests
-- Update `NPM` to `Yarn` in *README.md*
-- Update command `npm run` to `yarn` in *package.json*
-- [[shaders: single pass volume rendering]](https://github.com/FNNDSC/ami/pull/213) Improved volume rendering opacity
+- [[karma]](https://github.com/FNNDSC/ami/commit/57e7d89c9bc84add8c622c5040a74880638c905b) ChromeHeadless instead of Phantom for Karma tests.
+- Update `NPM` to `Yarn` in *README.md*.
+- Update command `npm run` to `yarn` in *package.json*.
+- [[shaders: single pass volume rendering]](https://github.com/FNNDSC/ami/pull/213) Improved volume rendering opacity.
 
 ### Removed
-- [[shaders: vr]](https://github.com/FNNDSC/ami/pull/219) Remove unused variables
+- [[shaders: vr]](https://github.com/FNNDSC/ami/pull/219) Remove unused variables.
 
 ### Fixed
+- [[shaders: trilinear interpolation / gradient]](https://github.com/FNNDSC/ami/issues/229) Fix gradient computation during trilinear interpolation.
 - [[helpers: vr]](https://github.com/FNNDSC/ami/pull/227) Render back face of mesh to be able to zoom in VR volume.
 - [[parsers: nrrd]](https://github.com/FNNDSC/ami/commit/6940c141dfbcee4612fef2acc3a6fc870e1c3c9d) Wrong spacing parsing.
 - [[examples: viewers compare]](https://github.com/FNNDSC/ami/commit/4585cb39eedc33341c1f7f78d215770d1ce60924) Incorrect layer orientation.
-- [#212](https://github.com/FNNDSC/ami/issue/212) Missing export for one `NODE_WEBPACK_TARGET` variable
+- [#212](https://github.com/FNNDSC/ami/issue/212) Missing export for one `NODE_WEBPACK_TARGET` variable.
 ## 0.0.22 - 2017-11-06
 ### Fixed
-- [X]() - Fix typo in the Core.Utils export
+- [X]() - Fix typo in the Core.Utils export.
 
 ## 0.0.21 - 2017-11-02
 ### Big changes
