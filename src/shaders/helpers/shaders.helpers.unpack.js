@@ -61,7 +61,7 @@ class Unpack extends ShadersBase {
           break;
 
         default:
-          content = this.upackDefault();
+          content = this.upackIdentity();
           break;
       }
     } else {
