@@ -56,12 +56,46 @@ void getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradien
   intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];
 }
 
+void phongShading(in vec3 lightOrigin, in vec3 rayOrigin, in vec3 currentPosition, in vec3 gradient, in vec4 colorSample, out vec3 litColor){
+  vec3 normal = -normalize(gradient);
+  vec3 color  = vec3(colorSample.r,colorSample.g,colorSample.b);
+  vec3 ambient_color = color;
+  vec3 diffuse_color = color;
+
+  if (uSampleColorToAmbient == 0) {
+    ambient_color = uAmbientColor;
+  }
+  if (uSampleColorToDiffuse == 0) {
+    diffuse_color = uDiffuseColor;
+  }
+
+  litColor          = uAmbient * ambient_color;
+  vec3 pointToEye   = normalize(rayOrigin - currentPosition);
+  vec3 pointToLight = normalize(lightOrigin - currentPosition);
+  float lightDot    = dot(pointToLight, normal);
+  litColor         += uDiffuse * lightDot * diffuse_color;
+
+  float eyeDotPos   = step(0.0,dot(pointToEye, normal));
+  float lightDotPos = step(0.0,lightDot);
+
+  vec3 lightReflection = reflect(-pointToLight,normal);
+  float reflectDot     = dot(lightReflection,pointToEye);
+  litColor            += uSpecular * eyeDotPos * lightDotPos * pow(abs(reflectDot), uShininess) * uSpecularColor;
+
+  litColor = clamp(litColor, 0.0, 1.0);
+}
+
 void main(void) {
   const int maxSteps = 1024;
 
   // the ray
-  vec3 rayOrigin = cameraPosition;
+  vec3 rayOrigin   = cameraPosition;
   vec3 lightOrigin = cameraPosition;
+
+  if (uLightPositionInCamera == 0){
+    lightOrigin = uLightPosition;
+  }
+
   vec3 rayDirection = normalize(vPos.xyz - rayOrigin);
 
   // the Axe-Aligned B-Box
@@ -108,32 +142,12 @@ void main(void) {
     }
 
     if (uShading == 1) {
-      vec3 normal = -normalize(gradient);
-      vec3 colorPhong = vec3(colorSample.r,colorSample.g,colorSample.b);
+      vec3 litColor = vec3(0., 0., 0.);
+      phongShading(lightOrigin, rayOrigin, currentPosition, gradient, colorSample, litColor);
       float alpha = colorSample.a;
-      vec3 ambient_color = colorPhong;
-      vec3 diffuse_color = colorPhong;
-      vec3 specular_color = vec3(1.,1.,1.);
-      vec3 litColor = uAmbient * ambient_color;
-      vec3 pointToEye = normalize(rayOrigin - currentPosition);
-      vec3 pointToLight = normalize(lightOrigin - currentPosition);
-      float lightDot = dot(pointToLight, normal);
-      litColor += uDiffuse * lightDot * diffuse_color;
-
-      float eyeDotPos = step(0.0,dot(pointToEye, normal));
-      float lightDotPos = step(0.0,lightDot);
-
-      vec3 lightReflection = reflect(-pointToLight,normal);
-      float reflectDot = dot(lightReflection,pointToEye);
-      litColor += uSpecular * eyeDotPos * lightDotPos * pow(abs(reflectDot), uShininess) * specular_color;
-
-      litColor = clamp(litColor, 0.0, 1.0);
-
-      colorSample.r = litColor.r;
-      colorSample.g = litColor.g;
-      colorSample.b = litColor.b;
+      colorSample = vec4(litColor, alpha);
     }
-    
+
     alphaSample = 1.0 - pow((1.0- alphaSample),tStep*uAlphaCorrection);
     alphaSample *= (1.0 - accumulatedAlpha);
 
