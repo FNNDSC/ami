@@ -44706,7 +44706,7 @@ var CoreUtils = function () {
 
 
   CoreUtils.value = function value(stack, coordinate) {
-    console.warn('value is deprecated, please use getPixelData instead');
+    window.console.warn('value is deprecated, please use getPixelData instead');
     this.getPixelData(stack, coordinate);
   };
 
@@ -44951,9 +44951,9 @@ process.umask = function() { return 0; };
 
 
 
-var base64 = __webpack_require__(133)
-var ieee754 = __webpack_require__(134)
-var isArray = __webpack_require__(135)
+var base64 = __webpack_require__(132)
+var ieee754 = __webpack_require__(133)
+var isArray = __webpack_require__(134)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -48792,8 +48792,8 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 var assign    = __webpack_require__(2).assign;
 
-var deflate   = __webpack_require__(113);
-var inflate   = __webpack_require__(116);
+var deflate   = __webpack_require__(112);
+var inflate   = __webpack_require__(115);
 var constants = __webpack_require__(56);
 
 var pako = {};
@@ -49269,7 +49269,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 
 
-var binaryString = __webpack_require__(122);
+var binaryString = __webpack_require__(121);
 
 /**
  * Stack object.
@@ -49999,7 +49999,7 @@ var ModelsStack = function (_ModelsBase) {
    * @return {*}
    */
   ModelsStack.value = function value(stack, coordinate) {
-    console.warn('models.stack.value is deprecated.\n       Please use core.utils.value instead.');
+    window.console.warn('models.stack.value is deprecated.\n       Please use core.utils.value instead.');
     return __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].value(stack, coordinate);
   };
 
@@ -50017,7 +50017,7 @@ var ModelsStack = function (_ModelsBase) {
 
 
   ModelsStack.valueRescaleSlopeIntercept = function valueRescaleSlopeIntercept(value, slope, intercept) {
-    console.warn('models.stack.valueRescaleSlopeIntercept is deprecated.\n       Please use core.utils.rescaleSlopeIntercept instead.');
+    window.console.warn('models.stack.valueRescaleSlopeIntercept is deprecated.\n       Please use core.utils.rescaleSlopeIntercept instead.');
     return __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].rescaleSlopeIntercept(value, slope, intercept);
   };
 
@@ -50034,7 +50034,7 @@ var ModelsStack = function (_ModelsBase) {
 
 
   ModelsStack.worldToData = function worldToData(stack, worldCoordinates) {
-    console.warn('models.stack.worldToData is deprecated.\n       Please use core.utils.worldToData instead.');
+    window.console.warn('models.stack.worldToData is deprecated.\n       Please use core.utils.worldToData instead.');
 
     return __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].worldToData(stack._lps2IJK, worldCoordinates);
   };
@@ -50378,7 +50378,7 @@ module.exports = isString;
 
 // MODULES //
 
-var isInteger = __webpack_require__( 127 );
+var isInteger = __webpack_require__( 126 );
 
 
 // IS NONNEGATIVE INTEGER //
@@ -50977,8 +50977,8 @@ var GeometriesSlice = function (_THREE$ShapeGeometry) {
       window.console.log('Plane');
       window.console.log(plane);
       window.console.log('exiting...');
-      // or throw error?
-      throw 'geometries.slice has less than 3 intersections, can not create a valid geometry.';
+      var err = new Error('geometries.slice has less than 3 intersections, can not create a valid geometry.');
+      throw err;
     }
 
     var orderedIntersections = GeometriesSlice.orderIntersections(intersections, direction);
@@ -51840,7 +51840,6 @@ var HelpersProgressBar = function () {
       return false;
     }
 
-    var message = '';
     var progress = Math.round(this._value / this._total * 100);
     var color = this._modes[this._mode].color;
 
@@ -52604,7 +52603,7 @@ var ShadersFragment = function () {
 
   ShadersFragment.prototype.main = function main() {
     // need to pre-call main to fill up the functions list
-    this._main = '\nvoid main(void) {\n\n  // draw border if slice is cropped\n  // float uBorderDashLength = 10.;\n\n  if( uCanvasWidth > 0. &&\n      ((gl_FragCoord.x > uBorderMargin && (gl_FragCoord.x - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.x < (uCanvasWidth - uBorderMargin) && (gl_FragCoord.x + uBorderMargin) > (uCanvasWidth - uBorderWidth) ))){\n    float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);\n    if( valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  if( uCanvasHeight > 0. &&\n      ((gl_FragCoord.y > uBorderMargin && (gl_FragCoord.y - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.y < (uCanvasHeight - uBorderMargin) && (gl_FragCoord.y + uBorderMargin) > (uCanvasHeight - uBorderWidth) ))){\n    float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);\n    if( valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = dataCoordinates.xyz;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  vec3 gradient = vec3(0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'currentVoxel', 'dataValue', 'gradient') + '\n\n  // how do we deal wil more than 1 channel?\n  float intensity = dataValue.r;\n  if(uNumberOfChannels == 1){\n    float normalizedIntensity = dataValue.r;\n\n    // rescale/slope\n    normalizedIntensity =\n      normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    float windowMax = uWindowCenterWidth[0] + uWindowCenterWidth[1] * 0.5;\n    normalizedIntensity =\n      ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];\n\n    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;\n    dataValue.a = 1.0;\n  }\n\n  // Apply LUT table...\n  //\n  if(uLut == 1){\n    // should opacity be grabbed there?\n    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n  }\n\n  if(uLutSegmentation == 1){\n    // should opacity be grabbed there?\n    //\n    float textureWidth = 256.;\n    float textureHeight = 128.;\n    float min = 0.;\n    // start at 0!\n    int adjustedIntensity = int(floor(intensity + 0.5));\n\n    // Get row and column in the texture\n    int colIndex = int(mod(float(adjustedIntensity), textureWidth));\n    int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));\n\n    float texWidth = 1./textureWidth;\n    float texHeight = 1./textureHeight;\n  \n    // Map row and column to uv\n    vec2 uv = vec2(0,0);\n    uv.x = 0.5 * texWidth + (texWidth * float(colIndex));\n    uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);\n\n    dataValue = texture2D( uTextureLUTSegmentation, uv );\n    // uv.x = (0.5 + float(colIndex)) / textureWidth;\n    // uv.y = 1. - (0.5 + float(rowIndex)) / textureHeight;\n    // dataValue = texture2D( uTextureLUTSegmentation, uv );\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n\n    // if on edge, draw line\n  // float xPos = gl_FragCoord.x/512.;\n  // float yPos = gl_FragCoord.y/512.;\n  // if( xPos < 0.05 || xPos > .95 || yPos < 0.05 || yPos > .95){\n  //   gl_FragColor = vec4(xPos, yPos, 0., 1.);//dataValue;\n  //   //return;\n  // }\n\n}\n   ';
+    this._main = '\nvoid main(void) {\n\n  // draw border if slice is cropped\n  // float uBorderDashLength = 10.;\n\n  if( uCanvasWidth > 0. &&\n      ((gl_FragCoord.x > uBorderMargin && (gl_FragCoord.x - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.x < (uCanvasWidth - uBorderMargin) && (gl_FragCoord.x + uBorderMargin) > (uCanvasWidth - uBorderWidth) ))){\n    float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);\n    if( valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  if( uCanvasHeight > 0. &&\n      ((gl_FragCoord.y > uBorderMargin && (gl_FragCoord.y - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.y < (uCanvasHeight - uBorderMargin) && (gl_FragCoord.y + uBorderMargin) > (uCanvasHeight - uBorderWidth) ))){\n    float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);\n    if( valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = dataCoordinates.xyz;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  vec3 gradient = vec3(0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'currentVoxel', 'dataValue', 'gradient') + '\n\n  // how do we deal wil more than 1 channel?\n  float intensity = dataValue.r;\n  if(uNumberOfChannels == 1){\n    float normalizedIntensity = dataValue.r;\n\n    // rescale/slope\n    normalizedIntensity =\n      normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    normalizedIntensity =\n      ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];\n\n    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;\n    dataValue.a = 1.0;\n  }\n\n  // Apply LUT table...\n  //\n  if(uLut == 1){\n    // should opacity be grabbed there?\n    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n  }\n\n  if(uLutSegmentation == 1){\n    // should opacity be grabbed there?\n    //\n    float textureWidth = 256.;\n    float textureHeight = 128.;\n    float min = 0.;\n    // start at 0!\n    int adjustedIntensity = int(floor(intensity + 0.5));\n\n    // Get row and column in the texture\n    int colIndex = int(mod(float(adjustedIntensity), textureWidth));\n    int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));\n\n    float texWidth = 1./textureWidth;\n    float texHeight = 1./textureHeight;\n  \n    // Map row and column to uv\n    vec2 uv = vec2(0,0);\n    uv.x = 0.5 * texWidth + (texWidth * float(colIndex));\n    uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);\n\n    dataValue = texture2D( uTextureLUTSegmentation, uv );\n    // uv.x = (0.5 + float(colIndex)) / textureWidth;\n    // uv.y = 1. - (0.5 + float(rowIndex)) / textureHeight;\n    // dataValue = texture2D( uTextureLUTSegmentation, uv );\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n\n    // if on edge, draw line\n  // float xPos = gl_FragCoord.x/512.;\n  // float yPos = gl_FragCoord.y/512.;\n  // if( xPos < 0.05 || xPos > .95 || yPos < 0.05 || yPos > .95){\n  //   gl_FragColor = vec4(xPos, yPos, 0., 1.);//dataValue;\n  //   //return;\n  // }\n\n}\n   ';
   };
 
   ShadersFragment.prototype.compute = function compute() {
@@ -52626,7 +52625,7 @@ var ShadersFragment = function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_interpolation_identity__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_trilinear__ = __webpack_require__(107);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_trilinear__ = __webpack_require__(106);
 
 
 
@@ -52653,8 +52652,8 @@ function shadersInterpolation(baseFragment, currentVoxel, dataValue, gradient) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_base__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_unpack__ = __webpack_require__(105);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_shaders_helpers_texture3d__ = __webpack_require__(106);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_unpack__ = __webpack_require__(104);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_shaders_helpers_texture3d__ = __webpack_require__(105);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -52888,13 +52887,78 @@ var ShadersUniform = function () {
       },
       'uFrequence': {
         type: 'f',
-        value: 0.0,
+        value: 0.,
         typeGLSL: 'float'
       },
       'uAmplitude': {
         type: 'f',
-        value: 0.0,
+        value: 0.,
         typeGLSL: 'float'
+      },
+      'uShading': {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int'
+      },
+      'uAmbient': {
+        type: 'f',
+        value: 0.1,
+        typeGLSL: 'float'
+      },
+      'uAmbientColor': {
+        type: 'v3',
+        value: [1.0, 1.0, 0.0],
+        typeGLSL: 'vec3'
+      },
+      'uSampleColorToAmbient': {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int'
+      },
+      'uSpecular': {
+        type: 'f',
+        value: 1.,
+        typeGLSL: 'float'
+      },
+      'uSpecularColor': {
+        type: 'v3',
+        value: [1.0, 1.0, 1.0],
+        typeGLSL: 'vec3'
+      },
+      'uDiffuse': {
+        type: 'f',
+        value: 0.3,
+        typeGLSL: 'float'
+      },
+      'uDiffuseColor': {
+        type: 'v3',
+        value: [1.0, 1.0, 0.0],
+        typeGLSL: 'vec3'
+      },
+      'uSampleColorToDiffuse': {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int'
+      },
+      'uShininess': {
+        type: 'f',
+        value: 5.,
+        typeGLSL: 'float'
+      },
+      'uLightPosition': {
+        type: 'v3',
+        value: [0.0, 0.0, 0.0],
+        typeGLSL: 'vec3'
+      },
+      'uLightPositionInCamera': {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int'
+      },
+      'uIntensity': {
+        type: 'v3',
+        value: [.8, .8, .8],
+        typeGLSL: 'vec3'
       }
     };
   };
@@ -52931,7 +52995,7 @@ var ShadersVertex = function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__ = __webpack_require__(46);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_intersectBox__ = __webpack_require__(110);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_intersectBox__ = __webpack_require__(109);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
@@ -52979,7 +53043,7 @@ var ShadersFragment = function () {
 
   ShadersFragment.prototype.main = function main() {
     // need to pre-call main to fill up the functions list
-    this._main = '\nvoid getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradient){\n\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'dataCoordinates', 'dataValue', 'gradient') + '\n\n  intensity = dataValue.r;\n\n  // rescale/slope\n  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  // window level\n  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n}\n\nvoid main(void) {\n  const int maxSteps = 1024;\n\n  // the ray\n  vec3 rayOrigin = cameraPosition;\n  vec3 rayDirection = normalize(vPos.xyz - rayOrigin);\n\n  // the Axe-Aligned B-Box\n  vec3 AABBMin = vec3(uWorldBBox[0], uWorldBBox[2], uWorldBBox[4]);\n  vec3 AABBMax = vec3(uWorldBBox[1], uWorldBBox[3], uWorldBBox[5]);\n\n  // Intersection ray/bbox\n  float tNear, tFar;\n  bool intersect = false;\n  ' + __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_intersectBox__["a" /* default */].api(this, 'rayOrigin', 'rayDirection', 'AABBMin', 'AABBMax', 'tNear', 'tFar', 'intersect') + '\n  if (tNear < 0.0) tNear = 0.0;\n\n  // init the ray marching\n  float tCurrent = tNear;\n  float tStep = (tFar - tNear) / float(uSteps);\n  vec4 accumulatedColor = vec4(0.0);\n  float accumulatedAlpha = 0.0;\n\n  for(int rayStep = 0; rayStep < maxSteps; rayStep++){\n    vec3 currentPosition = rayOrigin + rayDirection * tCurrent;\n    // some non-linear FUN\n    // some occlusion issue to be fixed\n    vec3 transformedPosition = currentPosition; //transformPoint(currentPosition, uAmplitude, uFrequence);\n    // world to data coordinates\n    // rounding trick\n    // first center of first voxel in data space is CENTERED on (0,0,0)\n    vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);\n    vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);\n    float intensity = 0.0;\n    vec3 gradient = vec3(0., 0., 0.);\n    getIntensity(currentVoxel, intensity, gradient);\n\n    vec4 colorSample;\n    float alphaSample;\n    if(uLut == 1){\n      vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );\n      // 256 colors\n      colorSample = colorFromLUT;\n      alphaSample = colorFromLUT.a;\n    }\n    else{\n      alphaSample = intensity;\n      colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;\n    }\n\n    alphaSample = 1.0 - pow((1.0- alphaSample),tStep*uAlphaCorrection);\n    alphaSample *= (1.0 - accumulatedAlpha);\n\n    accumulatedColor += alphaSample * colorSample;\n    accumulatedAlpha += alphaSample;\n\n    tCurrent += tStep;\n\n    if(tCurrent > tFar || accumulatedAlpha >= 1.0 ) break;\n  }\n\n  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);\n}\n   ';
+    this._main = '\nvoid getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradient){\n\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'dataCoordinates', 'dataValue', 'gradient') + '\n\n  intensity = dataValue.r;\n\n  // rescale/slope\n  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  // window level\n  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n}\n\nmat4 inverse(mat4 m) {\n  float\n    a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],\n    a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3],\n    a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3],\n    a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3],\n\n    b00 = a00 * a11 - a01 * a10,\n    b01 = a00 * a12 - a02 * a10,\n    b02 = a00 * a13 - a03 * a10,\n    b03 = a01 * a12 - a02 * a11,\n    b04 = a01 * a13 - a03 * a11,\n    b05 = a02 * a13 - a03 * a12,\n    b06 = a20 * a31 - a21 * a30,\n    b07 = a20 * a32 - a22 * a30,\n    b08 = a20 * a33 - a23 * a30,\n    b09 = a21 * a32 - a22 * a31,\n    b10 = a21 * a33 - a23 * a31,\n    b11 = a22 * a33 - a23 * a32,\n\n    det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;\n\n  return mat4(\n    a11 * b11 - a12 * b10 + a13 * b09,\n    a02 * b10 - a01 * b11 - a03 * b09,\n    a31 * b05 - a32 * b04 + a33 * b03,\n    a22 * b04 - a21 * b05 - a23 * b03,\n    a12 * b08 - a10 * b11 - a13 * b07,\n    a00 * b11 - a02 * b08 + a03 * b07,\n    a32 * b02 - a30 * b05 - a33 * b01,\n    a20 * b05 - a22 * b02 + a23 * b01,\n    a10 * b10 - a11 * b08 + a13 * b06,\n    a01 * b08 - a00 * b10 - a03 * b06,\n    a30 * b04 - a31 * b02 + a33 * b00,\n    a21 * b02 - a20 * b04 - a23 * b00,\n    a11 * b07 - a10 * b09 - a12 * b06,\n    a00 * b09 - a01 * b07 + a02 * b06,\n    a31 * b01 - a30 * b03 - a32 * b00,\n    a20 * b03 - a21 * b01 + a22 * b00) / det;\n}\n\n/**\n * Adapted from original sources\n * \n * Original code: \n * http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/\n * https://www.shadertoy.com/view/lt33z7\n * \n * The vec3 returned is the RGB color of the light\'s contribution.\n *\n * k_a: Ambient color\n * k_d: Diffuse color\n * k_s: Specular color\n * alpha: Shininess coefficient\n * p: position of point being lit\n * eye: the position of the camera\n * lightPos: the position of the light\n * lightIntensity: color/intensity of the light\n *\n * See https://en.wikipedia.org/wiki/Phong_reflection_model#Description\n */\nvec3 phongShading(vec3 k_a, vec3 k_d, vec3 k_s, float shininess, vec3 p, vec3 eye,\n  vec3 lightPos, vec3 lightIntensity, vec3 normal) {\n  vec3 N = normal;\n  vec3 L = normalize(lightPos - p);\n  vec3 V = normalize(eye - p);\n  vec3 R = normalize(reflect(-L, N));\n\n  float dotLN = dot(L, N);\n  float dotRV = dot(R, V);\n\n  if (dotLN < 0.0) {\n    // Light not visible from this point on the surface\n    return k_a;\n  } \n\n  if (dotRV < 0.0) {\n    // Light reflection in opposite direction as viewer, apply only diffuse\n    // component\n    return k_a + lightIntensity * (k_d * dotLN);\n  }\n\n  return k_a + lightIntensity * (k_d * dotLN  + k_s * pow(dotRV, shininess));\n}\n\nvoid main(void) {\n  const int maxSteps = 1024;\n\n  // the ray\n  vec3 rayOrigin = cameraPosition;\n  vec3 rayDirection = normalize(vPos.xyz - rayOrigin);\n\n  vec3 lightOrigin = uLightPositionInCamera == 1 ? cameraPosition : uLightPosition;\n\n  // the Axe-Aligned B-Box\n  vec3 AABBMin = vec3(uWorldBBox[0], uWorldBBox[2], uWorldBBox[4]);\n  vec3 AABBMax = vec3(uWorldBBox[1], uWorldBBox[3], uWorldBBox[5]);\n\n  // Intersection ray/bbox\n  float tNear, tFar;\n  bool intersect = false;\n  ' + __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_intersectBox__["a" /* default */].api(this, 'rayOrigin', 'rayDirection', 'AABBMin', 'AABBMax', 'tNear', 'tFar', 'intersect') + '\n  if (tNear < 0.0) tNear = 0.0;\n\n  // init the ray marching\n  float tCurrent = tNear;\n  float tStep = (tFar - tNear) / float(uSteps);\n  vec4 accumulatedColor = vec4(0.0);\n  float accumulatedAlpha = 0.0;\n  mat4 dataToWorld = inverse(uWorldToData);\n\n  for(int rayStep = 0; rayStep < maxSteps; rayStep++){\n    vec3 currentPosition = rayOrigin + rayDirection * tCurrent;\n    // some non-linear FUN\n    // some occlusion issue to be fixed\n    vec3 transformedPosition = currentPosition; //transformPoint(currentPosition, uAmplitude, uFrequence);\n    // world to data coordinates\n    // rounding trick\n    // first center of first voxel in data space is CENTERED on (0,0,0)\n    vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);\n    vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);\n    float intensity = 0.0;\n    vec3 gradient = vec3(0., 0., 0.);\n    getIntensity(currentVoxel, intensity, gradient);\n    // map gradient to world space and normalize before using\n    // we avoid to call "normalize" as it may be undefined if vector length == 0.\n    gradient = (vec3(dataToWorld * vec4(gradient, 0.)));\n    if (length(gradient) > 0.0) {\n      gradient = normalize(gradient);\n    }\n\n    vec4 colorSample;\n    float alphaSample;\n    if(uLut == 1){\n      vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );\n      // 256 colors\n      colorSample = colorFromLUT;\n      alphaSample = colorFromLUT.a;\n    }\n    else{\n      alphaSample = intensity;\n      colorSample.r = colorSample.g = colorSample.b = intensity;\n    }\n\n    if (uShading == 1 && uInterpolation != 0) {\n      vec3 ambientComponent = uSampleColorToAmbient == 1 ? colorSample.xyz : uAmbientColor;\n      ambientComponent *= uAmbient;\n      vec3 diffuseComponent = uSampleColorToDiffuse == 1 ? colorSample.xyz : uDiffuseColor;\n      diffuseComponent *= uDiffuse;\n      vec3 specularComponent = uSpecular * uSpecularColor;\n      float shininess = uShininess;\n      vec3 intensity = uIntensity;\n\n      colorSample.xyz += phongShading(\n        ambientComponent,\n        diffuseComponent,\n        specularComponent,\n        shininess,\n        currentPosition.xyz,\n        rayOrigin.xyz,\n        lightOrigin.xyz,\n        intensity,\n        gradient);\n    }\n\n    alphaSample = 1.0 - pow((1.0- alphaSample),tStep*uAlphaCorrection);\n    alphaSample *= (1.0 - accumulatedAlpha);\n\n    accumulatedColor += alphaSample * colorSample;\n    accumulatedAlpha += alphaSample;\n\n    tCurrent += tStep;\n\n    if(tCurrent > tFar || accumulatedAlpha >= 1.0 ) break;\n  }\n\n  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);\n}\n   ';
   };
 
   ShadersFragment.prototype.compute = function compute() {
@@ -54379,10 +54443,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /** * Imports ***/
 
 
-var DicomParser = __webpack_require__(132);
-var Jpeg = __webpack_require__(156);
-var JpegBaseline = __webpack_require__(158);
-var Jpx = __webpack_require__(159);
+var DicomParser = __webpack_require__(131);
+var Jpeg = __webpack_require__(155);
+var JpegBaseline = __webpack_require__(157);
+var Jpx = __webpack_require__(158);
 
 /**
  * Dicom parser is a combination of utilities to get a VJS image from dicom files.
@@ -54417,7 +54481,8 @@ var ParsersDicom = function (_ParsersVolume) {
       _this._dataSet = DicomParser.parseDicom(byteArray);
     } catch (e) {
       window.console.log(e);
-      throw 'parsers.dicom could not parse the file';
+      var error = new Error('parsers.dicom could not parse the file');
+      throw error;
     }
     return _this;
   }
@@ -54996,8 +55061,6 @@ var ParsersDicom = function (_ParsersVolume) {
       inStackPositionNumber = null;
     }
 
-    console.log('instack position ' + inStackPositionNumber);
-
     return inStackPositionNumber;
   };
 
@@ -55174,12 +55237,14 @@ var ParsersDicom = function (_ParsersVolume) {
 
     var componentsCount = jpxImage.componentsCount;
     if (componentsCount !== 1) {
-      throw 'JPEG2000 decoder returned a componentCount of ${componentsCount}, when 1 is expected';
+      var error = new Error('JPEG2000 decoder returned a componentCount of ${componentsCount}, when 1 is expected');
+      throw error;
     }
     var tileCount = jpxImage.tiles.length;
 
     if (tileCount !== 1) {
-      throw 'JPEG2000 decoder returned a tileCount of ${tileCount}, when 1 is expected';
+      var _error = new Error('JPEG2000 decoder returned a tileCount of ${tileCount}, when 1 is expected');
+      throw _error;
     }
 
     var tileComponents = jpxImage.tiles[0];
@@ -55336,7 +55401,8 @@ var ParsersDicom = function (_ParsersVolume) {
       } else if (uncompressedData instanceof Uint16Array) {
         rgbData = new Uint16Array(uncompressedData.length);
       } else {
-        throw 'unsuported typed array: ${uncompressedData}';
+        var error = new Error('unsuported typed array: ' + uncompressedData);
+        throw error;
       }
 
       var numPixels = uncompressedData.length / 3;
@@ -55359,7 +55425,8 @@ var ParsersDicom = function (_ParsersVolume) {
       } else if (uncompressedData instanceof Uint16Array) {
         rgbData = new Uint16Array(uncompressedData.length);
       } else {
-        throw 'unsuported typed array: ${uncompressedData}';
+        var _error2 = new Error('unsuported typed array: ' + uncompressedData);
+        throw _error2;
       }
 
       // https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/decodeYBRFull.js
@@ -55376,7 +55443,8 @@ var ParsersDicom = function (_ParsersVolume) {
         // rgbData[rgbaIndex++] = 255; //alpha
       }
     } else {
-      throw 'photometric interpolation not supported: ${photometricInterpretation}';
+      var _error3 = new Error('photometric interpolation not supported: ' + photometricInterpretation);
+      throw _error3;
     }
 
     return rgbData;
@@ -55445,7 +55513,7 @@ var processNextTick = __webpack_require__(16);
 module.exports = Readable;
 
 /*<replacement>*/
-var isArray = __webpack_require__(139);
+var isArray = __webpack_require__(138);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -55485,7 +55553,7 @@ util.inherits = __webpack_require__(12);
 /*</replacement>*/
 
 /*<replacement>*/
-var debugUtil = __webpack_require__(140);
+var debugUtil = __webpack_require__(139);
 var debug = void 0;
 if (debugUtil && debugUtil.debuglog) {
   debug = debugUtil.debuglog('stream');
@@ -55494,7 +55562,7 @@ if (debugUtil && debugUtil.debuglog) {
 }
 /*</replacement>*/
 
-var BufferList = __webpack_require__(141);
+var BufferList = __webpack_require__(140);
 var destroyImpl = __webpack_require__(64);
 var StringDecoder;
 
@@ -56585,7 +56653,7 @@ util.inherits = __webpack_require__(12);
 
 /*<replacement>*/
 var internalUtil = {
-  deprecate: __webpack_require__(144)
+  deprecate: __webpack_require__(143)
 };
 /*</replacement>*/
 
@@ -57177,7 +57245,7 @@ Writable.prototype._destroy = function (err, cb) {
   this.end();
   cb(err);
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(142).setImmediate, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(141).setImmediate, __webpack_require__(1)))
 
 /***/ }),
 /* 66 */
@@ -58262,7 +58330,7 @@ function isPrimitive(arg) {
 }
 exports.isPrimitive = isPrimitive;
 
-exports.isBuffer = __webpack_require__(154);
+exports.isBuffer = __webpack_require__(153);
 
 function objectToString(o) {
   return Object.prototype.toString.call(o);
@@ -58306,7 +58374,7 @@ exports.log = function() {
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
  */
-exports.inherits = __webpack_require__(155);
+exports.inherits = __webpack_require__(154);
 
 exports._extend = function(origin, add) {
   // Don't do anything if add isn't an object
@@ -59560,7 +59628,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /** * Imports ***/
 
 
-var NiftiReader = __webpack_require__(161);
+var NiftiReader = __webpack_require__(160);
 /**
  * @module parsers/nifti
  */
@@ -59593,7 +59661,8 @@ var ParsersNifti = function (_ParsersVolume) {
       _this._dataSet = NiftiReader.readHeader(_this._arrayBuffer);
       _this._niftiImage = NiftiReader.readImage(_this._dataSet, _this._arrayBuffer);
     } else {
-      throw 'parsers.nifti could not parse the file';
+      var error = new Error('parsers.nifti could not parse the file');
+      throw error;
     }
     return _this;
   }
@@ -59717,18 +59786,16 @@ var ParsersNifti = function (_ParsersVolume) {
 
       return [-(a * a + b * b - c * c - d * d), -2 * (b * c + a * d), 2 * (b * d - a * c), -2 * (b * c - a * d), -(a * a + c * c - b * b - d * d), 2 * (c * d + a * b)];
     } else if (this._dataSet.sform_code > 0) {
-      console.log('sform > 0');
-
-      var sx = this._dataSet.srow_x;
-      var sy = this._dataSet.srow_y;
-      var sz = this._dataSet.srow_z;
+      // sform > 0
+      // let sx = this._dataSet.srow_x;
+      // let sy = this._dataSet.srow_y;
+      // let sz = this._dataSet.srow_z;
       // fill IJKToRAS
       // goog.vec.Mat4.setRowValues(IJKToRAS, 0, sx[0], sx[1], sx[2], sx[3]);
       // goog.vec.Mat4.setRowValues(IJKToRAS, 1, sy[0], sy[1], sy[2], sy[3]);
       // goog.vec.Mat4.setRowValues(IJKToRAS, 2, sz[0], sz[1], sz[2], sz[3]);
     } else if (this._dataSet.qform_code === 0) {
-      console.log('qform === 0');
-
+      // form === 0
       // fill IJKToRAS
       // goog.vec.Mat4.setRowValues(IJKToRAS, 0, MRI.pixdim[1], 0, 0, 0);
       // goog.vec.Mat4.setRowValues(IJKToRAS, 1, 0, MRI.pixdim[2], 0, 0);
@@ -59847,12 +59914,11 @@ var ParsersNifti = function (_ParsersVolume) {
       frameOffset = frameOffset * 4;
       return new Float32Array(buffer, frameOffset, numPixels);
     } else {
-      console.log('Unknown data type: datatypeCode : ' + this._dataSet.datatypeCode);
+      window.console.warning('Unknown data type: datatypeCode : ' + this._dataSet.datatypeCode);
     }
   };
 
   ParsersNifti.prototype._reorderData = function _reorderData() {
-    window.console.log('re-order');
     var numberOfChannels = this.numberOfChannels();
     var numPixels = this.rows() * this.columns() * numberOfChannels;
     var buffer = this._niftiImage;
@@ -60791,7 +60857,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 
 var pako = __webpack_require__(19);
-var NrrdReader = __webpack_require__(163);
+var NrrdReader = __webpack_require__(162);
 /**
  * @module parsers/nifti
  */
@@ -61075,10 +61141,8 @@ var ParsersNifti = function (_ParsersVolume) {
     }
 
     if (this._dataSet.type === 'int8' || this._dataSet.type === 'char') {
-      frameOffset = frameOffset;
       return new Int8Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.type === 'uint8') {
-      frameOffset = frameOffset;
       return new Uint8Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.type === 'int16' || this._dataSet.type === 'short') {
       frameOffset = frameOffset * 2;
@@ -61197,10 +61261,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "IntersectionsCore", function() { return __WEBPACK_IMPORTED_MODULE_2__core_core__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "UtilsCore", function() { return __WEBPACK_IMPORTED_MODULE_2__core_core__["c"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ValidatorsCore", function() { return __WEBPACK_IMPORTED_MODULE_2__core_core__["d"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometries_geometries__ = __webpack_require__(98);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometries_geometries__ = __webpack_require__(97);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "SliceGeometry", function() { return __WEBPACK_IMPORTED_MODULE_3__geometries_geometries__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VoxelGeometry", function() { return __WEBPACK_IMPORTED_MODULE_3__geometries_geometries__["b"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__ = __webpack_require__(99);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__ = __webpack_require__(98);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "BorderHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "BoundingBoxHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ContourHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["c"]; });
@@ -61212,20 +61276,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "SliceHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["i"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "StackHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["j"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VolumeRenderingHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["k"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__loaders_loaders__ = __webpack_require__(111);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__loaders_loaders__ = __webpack_require__(110);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VolumeLoader", function() { return __WEBPACK_IMPORTED_MODULE_5__loaders_loaders__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_models__ = __webpack_require__(164);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_models__ = __webpack_require__(163);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "FrameModel", function() { return __WEBPACK_IMPORTED_MODULE_6__models_models__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "StackModel", function() { return __WEBPACK_IMPORTED_MODULE_6__models_models__["c"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "SeriesModel", function() { return __WEBPACK_IMPORTED_MODULE_6__models_models__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VoxelModel", function() { return __WEBPACK_IMPORTED_MODULE_6__models_models__["d"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__ = __webpack_require__(165);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__ = __webpack_require__(164);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "DicomParser", function() { return __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "NiftiParser", function() { return __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "NrrdParser", function() { return __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__["c"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__presets_presets__ = __webpack_require__(166);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__presets_presets__ = __webpack_require__(165);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "SegmentationPreset", function() { return __WEBPACK_IMPORTED_MODULE_8__presets_presets__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__ = __webpack_require__(169);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__ = __webpack_require__(168);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ContourUniformShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ContourFragmentShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ContourVertexShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["c"]; });
@@ -61241,7 +61305,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "LocalizerUniformShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["k"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "LocalizerFragmentShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["j"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "LocalizerVertexShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["l"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__ = __webpack_require__(173);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__ = __webpack_require__(172);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "AnnotationWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "BiRulerWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "HandleWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["c"]; });
@@ -61260,7 +61324,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-var pckg = __webpack_require__(179);
+var pckg = __webpack_require__(178);
 window.console.log('AMI ' + pckg.version + ' ( ThreeJS ' + pckg.config.threeVersion + ')');
 
 /***/ }),
@@ -61349,8 +61413,8 @@ var CamerasOrthographic = function (_THREE$OrthographicCa) {
 
 
   CamerasOrthographic.prototype.init = function init(xCosine, yCosine, zCosine, controls, box, canvas) {
-    // DEPRECATED
-    console.warn('cameras.orthographic.init(...) is deprecated.\n      Use .cosines, .controls, .box and .canvas instead.');
+    // DEPRECATION NOTICE
+    window.console.warn('cameras.orthographic.init(...) is deprecated.\n      Use .cosines, .controls, .box and .canvas instead.');
 
     //
     if (!(__WEBPACK_IMPORTED_MODULE_1__core_core_validators__["a" /* default */].vector3(xCosine) && __WEBPACK_IMPORTED_MODULE_1__core_core_validators__["a" /* default */].vector3(yCosine) && __WEBPACK_IMPORTED_MODULE_1__core_core_validators__["a" /* default */].vector3(zCosine) && __WEBPACK_IMPORTED_MODULE_1__core_core_validators__["a" /* default */].box(box) && controls)) {
@@ -61475,7 +61539,7 @@ var CamerasOrthographic = function (_THREE$OrthographicCa) {
             break;
 
           default:
-            console.warn('"' + this._orientation + '" orientation is not valid.\n                (choices: axial, coronal, sagittal)');
+            window.console.warn('"' + this._orientation + '" orientation is not valid.\n                (choices: axial, coronal, sagittal)');
             break;
         }
       } else if (this._convention === 'neuro') {
@@ -61533,11 +61597,11 @@ var CamerasOrthographic = function (_THREE$OrthographicCa) {
             break;
 
           default:
-            console.warn('"' + this._orientation + '" orientation is not valid.\n                (choices: axial, coronal, sagittal)');
+            window.console.warn('"' + this._orientation + '" orientation is not valid.\n                (choices: axial, coronal, sagittal)');
             break;
         }
       } else {
-        console.warn(this._convention + ' is not valid (choices: radio, neuro)');
+        window.console.warn(this._convention + ' is not valid (choices: radio, neuro)');
       }
     }
 
@@ -64651,14 +64715,12 @@ var Trackballortho = function (_EventDispatcher) {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_colors__ = __webpack_require__(30);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_intersections__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_pack__ = __webpack_require__(97);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__core_validators__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__core_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_validators__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__core_utils__ = __webpack_require__(3);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__core_colors__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__core_intersections__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_4__core_utils__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_3__core_validators__["a"]; });
-
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_3__core_utils__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_2__core_validators__["a"]; });
 
 
 
@@ -64668,24 +64730,6 @@ var Trackballortho = function (_EventDispatcher) {
 
 /***/ }),
 /* 97 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Packing functions.
- *
- * @module core/pack */
-
-var Pack = function Pack() {
-  _classCallCheck(this, Pack);
-};
-
-/* unused harmony default export */ var _unused_webpack_default_export = (Pack);
-
-/***/ }),
-/* 98 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -64699,21 +64743,21 @@ var Pack = function Pack() {
 
 
 /***/ }),
-/* 99 */
+/* 98 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__helpers_border__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_boundingbox__ = __webpack_require__(34);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_contour__ = __webpack_require__(100);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__helpers_localizer__ = __webpack_require__(101);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_lut__ = __webpack_require__(102);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__helpers_segmentationlut__ = __webpack_require__(103);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_contour__ = __webpack_require__(99);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__helpers_localizer__ = __webpack_require__(100);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_lut__ = __webpack_require__(101);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__helpers_segmentationlut__ = __webpack_require__(102);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__helpers_progressbar__ = __webpack_require__(41);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__helpers_progressbar_eventbased__ = __webpack_require__(104);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__helpers_progressbar_eventbased__ = __webpack_require__(103);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__helpers_slice__ = __webpack_require__(42);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__helpers_stack__ = __webpack_require__(108);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__helpers_volumerendering__ = __webpack_require__(109);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__helpers_stack__ = __webpack_require__(107);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__helpers_volumerendering__ = __webpack_require__(108);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__helpers_border__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__helpers_boundingbox__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_2__helpers_contour__["a"]; });
@@ -64739,7 +64783,7 @@ var Pack = function Pack() {
 
 
 /***/ }),
-/* 100 */
+/* 99 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -64935,7 +64979,7 @@ var HelpersContour = function (_THREE$Object3D) {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersContour);
 
 /***/ }),
-/* 101 */
+/* 100 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65187,7 +65231,7 @@ var HelpersLocalizer = function (_THREE$Object3D) {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersLocalizer);
 
 /***/ }),
-/* 102 */
+/* 101 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65250,16 +65294,16 @@ var HelpersLut = function () {
 
   HelpersLut.prototype.initCanvasContainer = function initCanvasContainer(dom) {
     var canvasContainer = dom;
-    canvasContainer.style.width = '256 px';
-    canvasContainer.style.height = '128 px';
     canvasContainer.style.border = '1px solid #F9F9F9';
     return canvasContainer;
   };
 
   HelpersLut.prototype.createCanvas = function createCanvas() {
     var canvas = document.createElement('canvas');
-    canvas.height = 16;
+    canvas.height = 1;
     canvas.width = 256;
+    canvas.style.width = '256px';
+    canvas.style.height = '16px';
     return canvas;
   };
 
@@ -65271,53 +65315,50 @@ var HelpersLut = function () {
 
     // apply color
     if (!this._discrete) {
-      var color = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
+      var color = ctx.createLinearGradient(0, 0, this._canvas.width, 0);
       for (var i = 0; i < this._color.length; i++) {
         color.addColorStop(this._color[i][0], 'rgba( ' + Math.round(this._color[i][1] * 255) + ', ' + Math.round(this._color[i][2] * 255) + ', ' + Math.round(this._color[i][3] * 255) + ', 1)');
       }
 
       ctx.fillStyle = color;
       ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+
+      // setup context
+      ctx.globalCompositeOperation = 'destination-in';
+
+      // apply opacity
+      var opacity = ctx.createLinearGradient(0, 0, this._canvas.width, 0);
+      for (var _i = 0; _i < this._opacity.length; _i++) {
+        opacity.addColorStop(this._opacity[_i][0], 'rgba(255, 255, 255, ' + this._opacity[_i][1] + ')');
+      }
+      ctx.fillStyle = opacity;
+      ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
     } else {
       ctx.lineWidth = 2 * this._canvas.height;
 
-      for (var _i = 0; _i < this._color.length; _i++) {
-        var currentPos = this._color[_i][0];
+      for (var _i2 = 0; _i2 < this._color.length; _i2++) {
+        var currentPos = this._color[_i2][0];
         var nextPos = 1;
-        if (_i < this._color.length - 1) {
-          nextPos = this._color[_i + 1][0];
+        if (_i2 < this._color.length - 1) {
+          nextPos = this._color[_i2 + 1][0];
         }
         var previousPos = 0;
-        if (_i > 0) {
-          previousPos = this._color[_i - 1][0];
+        if (_i2 > 0) {
+          previousPos = this._color[_i2 - 1][0];
         }
 
         var from = previousPos + (currentPos - previousPos) / 2;
         var to = currentPos + (nextPos - currentPos) / 2;
-        var _color = this._color[_i];
-        var opacity = this._opacity[_i] ? this._opacity[_i][1] : 1;
+        var _color = this._color[_i2];
+        var _opacity = this._opacity[_i2] ? this._opacity[_i2][1] : 1;
 
         ctx.beginPath();
-        ctx.strokeStyle = 'rgba( ' + Math.round(_color[1] * 255) + ', ' + Math.round(_color[2] * 255) + ', ' + Math.round(_color[3] * 255) + ', ' + opacity + ')';
+        ctx.strokeStyle = 'rgba( ' + Math.round(_color[1] * 255) + ', ' + Math.round(_color[2] * 255) + ', ' + Math.round(_color[3] * 255) + ', ' + _opacity + ')';
         ctx.moveTo(from * this._canvas.width, 0);
         ctx.lineTo(to * this._canvas.width, 0);
         ctx.stroke();
         ctx.closePath();
       }
-    }
-
-    if (!this._discrete) {
-      // if discrete, we already took care of the opacity.
-      // setup context
-      ctx.globalCompositeOperation = 'destination-in';
-
-      // apply opacity
-      var _opacity = ctx.createLinearGradient(0, 0, this._canvas.width, this._canvas.height);
-      for (var _i2 = 0; _i2 < this._opacity.length; _i2++) {
-        _opacity.addColorStop(this._opacity[_i2][0], 'rgba(255, 255, 255, ' + this._opacity[_i2][1] + ')');
-      }
-      ctx.fillStyle = _opacity;
-      ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
     }
   };
 
@@ -65351,7 +65392,8 @@ var HelpersLut = function () {
       'green': [[0, 0, 0.75, 0], [0.5, 0.5, 1, 0], [0.95, 1, 1, 0], [1, 1, 1, 1]],
       'blue': [[0, 0, 0, 1], [0.5, 0, 0.5, 1], [0.95, 0, 1, 1], [1, 1, 1, 1]],
       'walking_dead': [[0, 0.1, 1, 1], [1, 1, 1, 1]],
-      'random': [[0, 0, 0, 0], [0.27, 0.18, 0.18, 0.18], [0.41, 1, 1, 1], [0.7, 1, 0, 0], [1, 1, 1, 1]]
+      'random': [[0, 0, 0, 0], [0.27, 0.18, 0.18, 0.18], [0.41, 1, 1, 1], [0.7, 1, 0, 0], [1, 1, 1, 1]],
+      'muscle_bone': [[0, 0, 0, 0], [0.00392156862745098, 0.00784313725490196, 0, 0], [0.00784313725490196, 0.0196078431372549, 0, 0], [0.011764705882352941, 0.03137254901960784, 0, 0], [0.01568627450980392, 0.0392156862745098, 0, 0.00392156862745098], [0.0196078431372549, 0.050980392156862744, 0.00392156862745098, 0.00392156862745098], [0.023529411764705882, 0.06274509803921569, 0.00392156862745098, 0.00392156862745098], [0.027450980392156862, 0.07058823529411765, 0.00392156862745098, 0.00784313725490196], [0.03137254901960784, 0.08235294117647059, 0.00392156862745098, 0.00784313725490196], [0.03529411764705882, 0.09411764705882353, 0.00784313725490196, 0.00784313725490196], [0.0392156862745098, 0.10196078431372549, 0.00784313725490196, 0.00784313725490196], [0.043137254901960784, 0.11372549019607843, 0.00784313725490196, 0.011764705882352941], [0.047058823529411764, 0.12549019607843137, 0.00784313725490196, 0.011764705882352941], [0.050980392156862744, 0.13333333333333333, 0.011764705882352941, 0.011764705882352941], [0.054901960784313725, 0.1450980392156863, 0.011764705882352941, 0.01568627450980392], [0.058823529411764705, 0.1568627450980392, 0.011764705882352941, 0.01568627450980392], [0.06274509803921569, 0.16470588235294117, 0.011764705882352941, 0.01568627450980392], [0.06666666666666667, 0.17647058823529413, 0.011764705882352941, 0.0196078431372549], [0.07058823529411765, 0.18823529411764706, 0.01568627450980392, 0.0196078431372549], [0.07450980392156863, 0.2, 0.01568627450980392, 0.0196078431372549], [0.0784313725490196, 0.20784313725490197, 0.01568627450980392, 0.0196078431372549], [0.08235294117647059, 0.2196078431372549, 0.01568627450980392, 0.023529411764705882], [0.08627450980392157, 0.23137254901960785, 0.0196078431372549, 0.023529411764705882], [0.09019607843137255, 0.23921568627450981, 0.0196078431372549, 0.023529411764705882], [0.09411764705882353, 0.25098039215686274, 0.0196078431372549, 0.027450980392156862], [0.09803921568627451, 0.2627450980392157, 0.0196078431372549, 0.027450980392156862], [0.10196078431372549, 0.27058823529411763, 0.023529411764705882, 0.027450980392156862], [0.10588235294117647, 0.2823529411764706, 0.023529411764705882, 0.027450980392156862], [0.10980392156862745, 0.29411764705882354, 0.023529411764705882, 0.03137254901960784], [0.11372549019607843, 0.30196078431372547, 0.023529411764705882, 0.03137254901960784], [0.11764705882352941, 0.3137254901960784, 0.023529411764705882, 0.03137254901960784], [0.12156862745098039, 0.3254901960784314, 0.027450980392156862, 0.03529411764705882], [0.12549019607843137, 0.3333333333333333, 0.027450980392156862, 0.03529411764705882], [0.12941176470588237, 0.34509803921568627, 0.027450980392156862, 0.03529411764705882], [0.13333333333333333, 0.3568627450980392, 0.027450980392156862, 0.0392156862745098], [0.13725490196078433, 0.36470588235294116, 0.03137254901960784, 0.0392156862745098], [0.1411764705882353, 0.3764705882352941, 0.03137254901960784, 0.0392156862745098], [0.1450980392156863, 0.38823529411764707, 0.03137254901960784, 0.0392156862745098], [0.14901960784313725, 0.4, 0.03137254901960784, 0.043137254901960784], [0.15294117647058825, 0.40784313725490196, 0.03529411764705882, 0.043137254901960784], [0.1568627450980392, 0.4196078431372549, 0.03529411764705882, 0.043137254901960784], [0.1607843137254902, 0.43137254901960786, 0.03529411764705882, 0.047058823529411764], [0.16470588235294117, 0.4392156862745098, 0.03529411764705882, 0.047058823529411764], [0.16862745098039217, 0.45098039215686275, 0.03529411764705882, 0.047058823529411764], [0.17254901960784313, 0.4627450980392157, 0.0392156862745098, 0.047058823529411764], [0.17647058823529413, 0.47058823529411764, 0.0392156862745098, 0.050980392156862744], [0.1803921568627451, 0.4823529411764706, 0.0392156862745098, 0.050980392156862744], [0.1843137254901961, 0.49411764705882355, 0.0392156862745098, 0.050980392156862744], [0.18823529411764706, 0.5019607843137255, 0.043137254901960784, 0.054901960784313725], [0.19215686274509805, 0.5137254901960784, 0.043137254901960784, 0.054901960784313725], [0.19607843137254902, 0.5254901960784314, 0.043137254901960784, 0.054901960784313725], [0.2, 0.5333333333333333, 0.043137254901960784, 0.058823529411764705], [0.20392156862745098, 0.5450980392156862, 0.047058823529411764, 0.058823529411764705], [0.20784313725490197, 0.5568627450980392, 0.047058823529411764, 0.058823529411764705], [0.21176470588235294, 0.5647058823529412, 0.047058823529411764, 0.058823529411764705], [0.21568627450980393, 0.5764705882352941, 0.047058823529411764, 0.06274509803921569], [0.2196078431372549, 0.5882352941176471, 0.047058823529411764, 0.06274509803921569], [0.2235294117647059, 0.6, 0.050980392156862744, 0.06274509803921569], [0.22745098039215686, 0.6078431372549019, 0.050980392156862744, 0.06666666666666667], [0.23137254901960785, 0.6196078431372549, 0.050980392156862744, 0.06666666666666667], [0.23529411764705882, 0.6313725490196078, 0.050980392156862744, 0.06666666666666667], [0.23921568627450981, 0.6392156862745098, 0.054901960784313725, 0.06666666666666667], [0.24313725490196078, 0.6509803921568628, 0.054901960784313725, 0.07058823529411765], [0.24705882352941178, 0.6627450980392157, 0.054901960784313725, 0.07058823529411765], [0.25098039215686274, 0.6705882352941176, 0.054901960784313725, 0.07058823529411765], [0.2549019607843137, 0.6823529411764706, 0.058823529411764705, 0.07450980392156863], [0.25882352941176473, 0.6941176470588235, 0.058823529411764705, 0.07450980392156863], [0.2627450980392157, 0.7019607843137254, 0.058823529411764705, 0.07450980392156863], [0.26666666666666666, 0.7137254901960784, 0.058823529411764705, 0.0784313725490196], [0.27058823529411763, 0.7254901960784313, 0.058823529411764705, 0.0784313725490196], [0.27450980392156865, 0.7333333333333333, 0.06274509803921569, 0.0784313725490196], [0.2784313725490196, 0.7450980392156863, 0.06274509803921569, 0.0784313725490196], [0.2823529411764706, 0.7568627450980392, 0.06274509803921569, 0.08235294117647059], [0.28627450980392155, 0.7647058823529411, 0.06274509803921569, 0.08235294117647059], [0.2901960784313726, 0.7764705882352941, 0.06666666666666667, 0.08235294117647059], [0.29411764705882354, 0.788235294117647, 0.06666666666666667, 0.08627450980392157], [0.2980392156862745, 0.8, 0.06666666666666667, 0.08627450980392157], [0.30196078431372547, 0.807843137254902, 0.06666666666666667, 0.08627450980392157], [0.3058823529411765, 0.8196078431372549, 0.07058823529411765, 0.08627450980392157], [0.30980392156862746, 0.8313725490196079, 0.07058823529411765, 0.09019607843137255], [0.3137254901960784, 0.8392156862745098, 0.07058823529411765, 0.09019607843137255], [0.3176470588235294, 0.8509803921568627, 0.07058823529411765, 0.09019607843137255], [0.3215686274509804, 0.8627450980392157, 0.07058823529411765, 0.09411764705882353], [0.3254901960784314, 0.8705882352941177, 0.07450980392156863, 0.09411764705882353], [0.32941176470588235, 0.8823529411764706, 0.07450980392156863, 0.09411764705882353], [0.3333333333333333, 0.8941176470588236, 0.07450980392156863, 0.09803921568627451], [0.33725490196078434, 0.9019607843137255, 0.07450980392156863, 0.09803921568627451], [0.3411764705882353, 0.9137254901960784, 0.0784313725490196, 0.09803921568627451], [0.34509803921568627, 0.9254901960784314, 0.0784313725490196, 0.09803921568627451], [0.34901960784313724, 0.9333333333333333, 0.0784313725490196, 0.10196078431372549], [0.35294117647058826, 0.9450980392156862, 0.0784313725490196, 0.10196078431372549], [0.3568627450980392, 0.9568627450980393, 0.08235294117647059, 0.10196078431372549], [0.3607843137254902, 0.9647058823529412, 0.08235294117647059, 0.10588235294117647], [0.36470588235294116, 0.9764705882352941, 0.08235294117647059, 0.10588235294117647], [0.3686274509803922, 0.9882352941176471, 0.08235294117647059, 0.10588235294117647], [0.37254901960784315, 1, 0.08235294117647059, 0.10588235294117647], [0.3764705882352941, 1, 0.09411764705882353, 0.10588235294117647], [0.3803921568627451, 1, 0.10588235294117647, 0.10588235294117647], [0.3843137254901961, 1, 0.11764705882352941, 0.10196078431372549], [0.38823529411764707, 1, 0.12941176470588237, 0.10196078431372549], [0.39215686274509803, 1, 0.1411764705882353, 0.10196078431372549], [0.396078431372549, 1, 0.15294117647058825, 0.09803921568627451], [0.4, 1, 0.16470588235294117, 0.09803921568627451], [0.403921568627451, 1, 0.17647058823529413, 0.09803921568627451], [0.40784313725490196, 1, 0.18823529411764706, 0.09411764705882353], [0.4117647058823529, 1, 0.2, 0.09411764705882353], [0.41568627450980394, 1, 0.21176470588235294, 0.09411764705882353], [0.4196078431372549, 1, 0.2235294117647059, 0.09019607843137255], [0.4235294117647059, 1, 0.23529411764705882, 0.09019607843137255], [0.42745098039215684, 1, 0.24705882352941178, 0.08627450980392157], [0.43137254901960786, 1, 0.25882352941176473, 0.08627450980392157], [0.43529411764705883, 1, 0.27058823529411763, 0.08627450980392157], [0.4392156862745098, 1, 0.2823529411764706, 0.08235294117647059], [0.44313725490196076, 1, 0.29411764705882354, 0.08235294117647059], [0.4470588235294118, 1, 0.3058823529411765, 0.08235294117647059], [0.45098039215686275, 1, 0.3176470588235294, 0.0784313725490196], [0.4549019607843137, 1, 0.32941176470588235, 0.0784313725490196], [0.4588235294117647, 1, 0.3411764705882353, 0.0784313725490196], [0.4627450980392157, 1, 0.35294117647058826, 0.07450980392156863], [0.4666666666666667, 1, 0.36470588235294116, 0.07450980392156863], [0.47058823529411764, 1, 0.3764705882352941, 0.07450980392156863], [0.4745098039215686, 1, 0.38823529411764707, 0.07058823529411765], [0.47843137254901963, 1, 0.4, 0.07058823529411765], [0.4823529411764706, 1, 0.4117647058823529, 0.07058823529411765], [0.48627450980392156, 1, 0.4235294117647059, 0.06666666666666667], [0.49019607843137253, 1, 0.43529411764705883, 0.06666666666666667], [0.49411764705882355, 1, 0.4470588235294118, 0.06274509803921569], [0.4980392156862745, 1, 0.4588235294117647, 0.06274509803921569], [0.5019607843137255, 1, 0.47058823529411764, 0.06274509803921569], [0.5058823529411764, 1, 0.4823529411764706, 0.058823529411764705], [0.5098039215686274, 1, 0.49411764705882355, 0.058823529411764705], [0.5137254901960784, 1, 0.5058823529411764, 0.058823529411764705], [0.5176470588235295, 1, 0.5137254901960784, 0.054901960784313725], [0.5215686274509804, 1, 0.5254901960784314, 0.054901960784313725], [0.5254901960784314, 1, 0.5372549019607843, 0.054901960784313725], [0.5294117647058824, 1, 0.5490196078431373, 0.050980392156862744], [0.5333333333333333, 1, 0.5607843137254902, 0.050980392156862744], [0.5372549019607843, 1, 0.5725490196078431, 0.050980392156862744], [0.5411764705882353, 1, 0.5843137254901961, 0.047058823529411764], [0.5450980392156862, 1, 0.596078431372549, 0.047058823529411764], [0.5490196078431373, 1, 0.6078431372549019, 0.043137254901960784], [0.5529411764705883, 1, 0.6196078431372549, 0.043137254901960784], [0.5568627450980392, 1, 0.6313725490196078, 0.043137254901960784], [0.5607843137254902, 1, 0.6431372549019608, 0.0392156862745098], [0.5647058823529412, 1, 0.6549019607843137, 0.0392156862745098], [0.5686274509803921, 1, 0.6666666666666666, 0.0392156862745098], [0.5725490196078431, 1, 0.6784313725490196, 0.03529411764705882], [0.5764705882352941, 1, 0.6901960784313725, 0.03529411764705882], [0.5803921568627451, 1, 0.6941176470588235, 0.0392156862745098], [0.5843137254901961, 1, 0.7019607843137254, 0.0392156862745098], [0.5882352941176471, 1, 0.7058823529411765, 0.043137254901960784], [0.592156862745098, 1, 0.7098039215686275, 0.043137254901960784], [0.596078431372549, 1, 0.7137254901960784, 0.047058823529411764], [0.6, 1, 0.7176470588235294, 0.047058823529411764], [0.6039215686274509, 1, 0.7254901960784313, 0.050980392156862744], [0.6078431372549019, 1, 0.7294117647058823, 0.050980392156862744], [0.611764705882353, 1, 0.7333333333333333, 0.054901960784313725], [0.615686274509804, 1, 0.7372549019607844, 0.058823529411764705], [0.6196078431372549, 1, 0.7411764705882353, 0.058823529411764705], [0.6235294117647059, 1, 0.7490196078431373, 0.06274509803921569], [0.6274509803921569, 1, 0.7529411764705882, 0.06274509803921569], [0.6313725490196078, 1, 0.7568627450980392, 0.06666666666666667], [0.6352941176470588, 1, 0.7607843137254902, 0.06666666666666667], [0.6392156862745098, 1, 0.7647058823529411, 0.07058823529411765], [0.6431372549019608, 1, 0.7725490196078432, 0.07058823529411765], [0.6470588235294118, 1, 0.7764705882352941, 0.07450980392156863], [0.6509803921568628, 1, 0.7803921568627451, 0.07450980392156863], [0.6549019607843137, 1, 0.7843137254901961, 0.0784313725490196], [0.6588235294117647, 1, 0.788235294117647, 0.08235294117647059], [0.6627450980392157, 1, 0.796078431372549, 0.08235294117647059], [0.6666666666666666, 1, 0.8, 0.08627450980392157], [0.6705882352941176, 1, 0.803921568627451, 0.08627450980392157], [0.6745098039215687, 1, 0.807843137254902, 0.09019607843137255], [0.6784313725490196, 1, 0.8117647058823529, 0.09019607843137255], [0.6823529411764706, 1, 0.8196078431372549, 0.09411764705882353], [0.6862745098039216, 1, 0.8235294117647058, 0.09411764705882353], [0.6901960784313725, 1, 0.8274509803921568, 0.09803921568627451], [0.6941176470588235, 1, 0.8313725490196079, 0.10196078431372549], [0.6980392156862745, 1, 0.8352941176470589, 0.10196078431372549], [0.7019607843137254, 1, 0.8431372549019608, 0.10588235294117647], [0.7058823529411765, 1, 0.8470588235294118, 0.10588235294117647], [0.7098039215686275, 1, 0.8509803921568627, 0.10980392156862745], [0.7137254901960784, 1, 0.8549019607843137, 0.10980392156862745], [0.7176470588235294, 1, 0.8627450980392157, 0.11372549019607843], [0.7215686274509804, 1, 0.8666666666666667, 0.11372549019607843], [0.7254901960784313, 1, 0.8705882352941177, 0.11764705882352941], [0.7294117647058823, 1, 0.8745098039215686, 0.12156862745098039], [0.7333333333333333, 1, 0.8784313725490196, 0.12156862745098039], [0.7372549019607844, 1, 0.8862745098039215, 0.12549019607843137], [0.7411764705882353, 1, 0.8901960784313725, 0.12549019607843137], [0.7450980392156863, 1, 0.8941176470588236, 0.12941176470588237], [0.7490196078431373, 1, 0.8980392156862745, 0.12941176470588237], [0.7529411764705882, 1, 0.9019607843137255, 0.13333333333333333], [0.7568627450980392, 1, 0.9098039215686274, 0.13333333333333333], [0.7607843137254902, 1, 0.9137254901960784, 0.13725490196078433], [0.7647058823529411, 1, 0.9176470588235294, 0.1411764705882353], [0.7686274509803922, 1, 0.9215686274509803, 0.1411764705882353], [0.7725490196078432, 1, 0.9254901960784314, 0.1450980392156863], [0.7764705882352941, 1, 0.9333333333333333, 0.1450980392156863], [0.7803921568627451, 1, 0.9372549019607843, 0.14901960784313725], [0.7843137254901961, 1, 0.9411764705882353, 0.14901960784313725], [0.788235294117647, 1, 0.9450980392156862, 0.15294117647058825], [0.792156862745098, 1, 0.9450980392156862, 0.16862745098039217], [0.796078431372549, 1, 0.9490196078431372, 0.1843137254901961], [0.8, 1, 0.9490196078431372, 0.2], [0.803921568627451, 1, 0.9490196078431372, 0.21568627450980393], [0.807843137254902, 1, 0.9490196078431372, 0.22745098039215686], [0.8117647058823529, 1, 0.9529411764705882, 0.24313725490196078], [0.8156862745098039, 1, 0.9529411764705882, 0.25882352941176473], [0.8196078431372549, 1, 0.9529411764705882, 0.27450980392156865], [0.8235294117647058, 1, 0.9529411764705882, 0.2901960784313726], [0.8274509803921568, 1, 0.9568627450980393, 0.3058823529411765], [0.8313725490196079, 1, 0.9568627450980393, 0.3215686274509804], [0.8352941176470589, 1, 0.9568627450980393, 0.33725490196078434], [0.8392156862745098, 1, 0.9568627450980393, 0.35294117647058826], [0.8431372549019608, 1, 0.9607843137254902, 0.3686274509803922], [0.8470588235294118, 1, 0.9607843137254902, 0.3843137254901961], [0.8509803921568627, 1, 0.9607843137254902, 0.4], [0.8549019607843137, 1, 0.9607843137254902, 0.4117647058823529], [0.8588235294117647, 1, 0.9647058823529412, 0.42745098039215684], [0.8627450980392157, 1, 0.9647058823529412, 0.44313725490196076], [0.8666666666666667, 1, 0.9647058823529412, 0.4588235294117647], [0.8705882352941177, 1, 0.9647058823529412, 0.4745098039215686], [0.8745098039215686, 1, 0.9686274509803922, 0.49019607843137253], [0.8784313725490196, 1, 0.9686274509803922, 0.5058823529411764], [0.8823529411764706, 1, 0.9686274509803922, 0.5215686274509804], [0.8862745098039215, 1, 0.9686274509803922, 0.5372549019607843], [0.8901960784313725, 1, 0.9725490196078431, 0.5529411764705883], [0.8941176470588236, 1, 0.9725490196078431, 0.5686274509803921], [0.8980392156862745, 1, 0.9725490196078431, 0.5843137254901961], [0.9019607843137255, 1, 0.9725490196078431, 0.6], [0.9058823529411765, 1, 0.9725490196078431, 0.611764705882353], [0.9098039215686274, 1, 0.9764705882352941, 0.6274509803921569], [0.9137254901960784, 1, 0.9764705882352941, 0.6431372549019608], [0.9176470588235294, 1, 0.9764705882352941, 0.6588235294117647], [0.9215686274509803, 1, 0.9764705882352941, 0.6745098039215687], [0.9254901960784314, 1, 0.9803921568627451, 0.6901960784313725], [0.9294117647058824, 1, 0.9803921568627451, 0.7058823529411765], [0.9333333333333333, 1, 0.9803921568627451, 0.7215686274509804], [0.9372549019607843, 1, 0.9803921568627451, 0.7372549019607844], [0.9411764705882353, 1, 0.984313725490196, 0.7529411764705882], [0.9450980392156862, 1, 0.984313725490196, 0.7686274509803922], [0.9490196078431372, 1, 0.984313725490196, 0.7843137254901961], [0.9529411764705882, 1, 0.984313725490196, 0.8], [0.9568627450980393, 1, 0.9882352941176471, 0.8117647058823529], [0.9607843137254902, 1, 0.9882352941176471, 0.8274509803921568], [0.9647058823529412, 1, 0.9882352941176471, 0.8431372549019608], [0.9686274509803922, 1, 0.9882352941176471, 0.8588235294117647], [0.9725490196078431, 1, 0.9921568627450981, 0.8745098039215686], [0.9764705882352941, 1, 0.9921568627450981, 0.8901960784313725], [0.9803921568627451, 1, 0.9921568627450981, 0.9058823529411765], [0.984313725490196, 1, 0.9921568627450981, 0.9215686274509803], [0.9882352941176471, 1, 0.996078431372549, 0.9372549019607843], [0.9921568627450981, 1, 0.996078431372549, 0.9529411764705882], [0.996078431372549, 1, 0.996078431372549, 0.9686274509803922], [1, 1, 0.996078431372549, 0.984313725490196]]
     };
   };
 
@@ -65362,7 +65404,8 @@ var HelpersLut = function () {
       'bandpass': [[0, 0], [0.4, 0.8], [0.6, 0.8], [1, 0]],
       'highpass': [[0, 0], [0.7, 0.1], [0.8, 0.6], [1, 0.8]],
       'flat': [[0, .7], [1, 1]],
-      'random': [[0, 0.], [0.38, 0.], [0.55, 1.], [0.72, 1.], [1, 0.05]]
+      'random': [[0, 0.], [0.38, 0.], [0.55, 1.], [0.72, 1.], [1, 0.05]],
+      'linear_full': [[0, 0], [0.00392156862745098, 0.00392156862745098], [0.00784313725490196, 0.00784313725490196], [0.011764705882352941, 0.011764705882352941], [0.01568627450980392, 0.01568627450980392], [0.0196078431372549, 0.0196078431372549], [0.023529411764705882, 0.023529411764705882], [0.027450980392156862, 0.027450980392156862], [0.03137254901960784, 0.03137254901960784], [0.03529411764705882, 0.03529411764705882], [0.0392156862745098, 0.0392156862745098], [0.043137254901960784, 0.043137254901960784], [0.047058823529411764, 0.047058823529411764], [0.050980392156862744, 0.050980392156862744], [0.054901960784313725, 0.054901960784313725], [0.058823529411764705, 0.058823529411764705], [0.06274509803921569, 0.06274509803921569], [0.06666666666666667, 0.06666666666666667], [0.07058823529411765, 0.07058823529411765], [0.07450980392156863, 0.07450980392156863], [0.0784313725490196, 0.0784313725490196], [0.08235294117647059, 0.08235294117647059], [0.08627450980392157, 0.08627450980392157], [0.09019607843137255, 0.09019607843137255], [0.09411764705882353, 0.09411764705882353], [0.09803921568627451, 0.09803921568627451], [0.10196078431372549, 0.10196078431372549], [0.10588235294117647, 0.10588235294117647], [0.10980392156862745, 0.10980392156862745], [0.11372549019607843, 0.11372549019607843], [0.11764705882352941, 0.11764705882352941], [0.12156862745098039, 0.12156862745098039], [0.12549019607843137, 0.12549019607843137], [0.12941176470588237, 0.12941176470588237], [0.13333333333333333, 0.13333333333333333], [0.13725490196078433, 0.13725490196078433], [0.1411764705882353, 0.1411764705882353], [0.1450980392156863, 0.1450980392156863], [0.14901960784313725, 0.14901960784313725], [0.15294117647058825, 0.15294117647058825], [0.1568627450980392, 0.1568627450980392], [0.1607843137254902, 0.1607843137254902], [0.16470588235294117, 0.16470588235294117], [0.16862745098039217, 0.16862745098039217], [0.17254901960784313, 0.17254901960784313], [0.17647058823529413, 0.17647058823529413], [0.1803921568627451, 0.1803921568627451], [0.1843137254901961, 0.1843137254901961], [0.18823529411764706, 0.18823529411764706], [0.19215686274509805, 0.19215686274509805], [0.19607843137254902, 0.19607843137254902], [0.2, 0.2], [0.20392156862745098, 0.20392156862745098], [0.20784313725490197, 0.20784313725490197], [0.21176470588235294, 0.21176470588235294], [0.21568627450980393, 0.21568627450980393], [0.2196078431372549, 0.2196078431372549], [0.2235294117647059, 0.2235294117647059], [0.22745098039215686, 0.22745098039215686], [0.23137254901960785, 0.23137254901960785], [0.23529411764705882, 0.23529411764705882], [0.23921568627450981, 0.23921568627450981], [0.24313725490196078, 0.24313725490196078], [0.24705882352941178, 0.24705882352941178], [0.25098039215686274, 0.25098039215686274], [0.2549019607843137, 0.2549019607843137], [0.25882352941176473, 0.25882352941176473], [0.2627450980392157, 0.2627450980392157], [0.26666666666666666, 0.26666666666666666], [0.27058823529411763, 0.27058823529411763], [0.27450980392156865, 0.27450980392156865], [0.2784313725490196, 0.2784313725490196], [0.2823529411764706, 0.2823529411764706], [0.28627450980392155, 0.28627450980392155], [0.2901960784313726, 0.2901960784313726], [0.29411764705882354, 0.29411764705882354], [0.2980392156862745, 0.2980392156862745], [0.30196078431372547, 0.30196078431372547], [0.3058823529411765, 0.3058823529411765], [0.30980392156862746, 0.30980392156862746], [0.3137254901960784, 0.3137254901960784], [0.3176470588235294, 0.3176470588235294], [0.3215686274509804, 0.3215686274509804], [0.3254901960784314, 0.3254901960784314], [0.32941176470588235, 0.32941176470588235], [0.3333333333333333, 0.3333333333333333], [0.33725490196078434, 0.33725490196078434], [0.3411764705882353, 0.3411764705882353], [0.34509803921568627, 0.34509803921568627], [0.34901960784313724, 0.34901960784313724], [0.35294117647058826, 0.35294117647058826], [0.3568627450980392, 0.3568627450980392], [0.3607843137254902, 0.3607843137254902], [0.36470588235294116, 0.36470588235294116], [0.3686274509803922, 0.3686274509803922], [0.37254901960784315, 0.37254901960784315], [0.3764705882352941, 0.3764705882352941], [0.3803921568627451, 0.3803921568627451], [0.3843137254901961, 0.3843137254901961], [0.38823529411764707, 0.38823529411764707], [0.39215686274509803, 0.39215686274509803], [0.396078431372549, 0.396078431372549], [0.4, 0.4], [0.403921568627451, 0.403921568627451], [0.40784313725490196, 0.40784313725490196], [0.4117647058823529, 0.4117647058823529], [0.41568627450980394, 0.41568627450980394], [0.4196078431372549, 0.4196078431372549], [0.4235294117647059, 0.4235294117647059], [0.42745098039215684, 0.42745098039215684], [0.43137254901960786, 0.43137254901960786], [0.43529411764705883, 0.43529411764705883], [0.4392156862745098, 0.4392156862745098], [0.44313725490196076, 0.44313725490196076], [0.4470588235294118, 0.4470588235294118], [0.45098039215686275, 0.45098039215686275], [0.4549019607843137, 0.4549019607843137], [0.4588235294117647, 0.4588235294117647], [0.4627450980392157, 0.4627450980392157], [0.4666666666666667, 0.4666666666666667], [0.47058823529411764, 0.47058823529411764], [0.4745098039215686, 0.4745098039215686], [0.47843137254901963, 0.47843137254901963], [0.4823529411764706, 0.4823529411764706], [0.48627450980392156, 0.48627450980392156], [0.49019607843137253, 0.49019607843137253], [0.49411764705882355, 0.49411764705882355], [0.4980392156862745, 0.4980392156862745], [0.5019607843137255, 0.5019607843137255], [0.5058823529411764, 0.5058823529411764], [0.5098039215686274, 0.5098039215686274], [0.5137254901960784, 0.5137254901960784], [0.5176470588235295, 0.5176470588235295], [0.5215686274509804, 0.5215686274509804], [0.5254901960784314, 0.5254901960784314], [0.5294117647058824, 0.5294117647058824], [0.5333333333333333, 0.5333333333333333], [0.5372549019607843, 0.5372549019607843], [0.5411764705882353, 0.5411764705882353], [0.5450980392156862, 0.5450980392156862], [0.5490196078431373, 0.5490196078431373], [0.5529411764705883, 0.5529411764705883], [0.5568627450980392, 0.5568627450980392], [0.5607843137254902, 0.5607843137254902], [0.5647058823529412, 0.5647058823529412], [0.5686274509803921, 0.5686274509803921], [0.5725490196078431, 0.5725490196078431], [0.5764705882352941, 0.5764705882352941], [0.5803921568627451, 0.5803921568627451], [0.5843137254901961, 0.5843137254901961], [0.5882352941176471, 0.5882352941176471], [0.592156862745098, 0.592156862745098], [0.596078431372549, 0.596078431372549], [0.6, 0.6], [0.6039215686274509, 0.6039215686274509], [0.6078431372549019, 0.6078431372549019], [0.611764705882353, 0.611764705882353], [0.615686274509804, 0.615686274509804], [0.6196078431372549, 0.6196078431372549], [0.6235294117647059, 0.6235294117647059], [0.6274509803921569, 0.6274509803921569], [0.6313725490196078, 0.6313725490196078], [0.6352941176470588, 0.6352941176470588], [0.6392156862745098, 0.6392156862745098], [0.6431372549019608, 0.6431372549019608], [0.6470588235294118, 0.6470588235294118], [0.6509803921568628, 0.6509803921568628], [0.6549019607843137, 0.6549019607843137], [0.6588235294117647, 0.6588235294117647], [0.6627450980392157, 0.6627450980392157], [0.6666666666666666, 0.6666666666666666], [0.6705882352941176, 0.6705882352941176], [0.6745098039215687, 0.6745098039215687], [0.6784313725490196, 0.6784313725490196], [0.6823529411764706, 0.6823529411764706], [0.6862745098039216, 0.6862745098039216], [0.6901960784313725, 0.6901960784313725], [0.6941176470588235, 0.6941176470588235], [0.6980392156862745, 0.6980392156862745], [0.7019607843137254, 0.7019607843137254], [0.7058823529411765, 0.7058823529411765], [0.7098039215686275, 0.7098039215686275], [0.7137254901960784, 0.7137254901960784], [0.7176470588235294, 0.7176470588235294], [0.7215686274509804, 0.7215686274509804], [0.7254901960784313, 0.7254901960784313], [0.7294117647058823, 0.7294117647058823], [0.7333333333333333, 0.7333333333333333], [0.7372549019607844, 0.7372549019607844], [0.7411764705882353, 0.7411764705882353], [0.7450980392156863, 0.7450980392156863], [0.7490196078431373, 0.7490196078431373], [0.7529411764705882, 0.7529411764705882], [0.7568627450980392, 0.7568627450980392], [0.7607843137254902, 0.7607843137254902], [0.7647058823529411, 0.7647058823529411], [0.7686274509803922, 0.7686274509803922], [0.7725490196078432, 0.7725490196078432], [0.7764705882352941, 0.7764705882352941], [0.7803921568627451, 0.7803921568627451], [0.7843137254901961, 0.7843137254901961], [0.788235294117647, 0.788235294117647], [0.792156862745098, 0.792156862745098], [0.796078431372549, 0.796078431372549], [0.8, 0.8], [0.803921568627451, 0.803921568627451], [0.807843137254902, 0.807843137254902], [0.8117647058823529, 0.8117647058823529], [0.8156862745098039, 0.8156862745098039], [0.8196078431372549, 0.8196078431372549], [0.8235294117647058, 0.8235294117647058], [0.8274509803921568, 0.8274509803921568], [0.8313725490196079, 0.8313725490196079], [0.8352941176470589, 0.8352941176470589], [0.8392156862745098, 0.8392156862745098], [0.8431372549019608, 0.8431372549019608], [0.8470588235294118, 0.8470588235294118], [0.8509803921568627, 0.8509803921568627], [0.8549019607843137, 0.8549019607843137], [0.8588235294117647, 0.8588235294117647], [0.8627450980392157, 0.8627450980392157], [0.8666666666666667, 0.8666666666666667], [0.8705882352941177, 0.8705882352941177], [0.8745098039215686, 0.8745098039215686], [0.8784313725490196, 0.8784313725490196], [0.8823529411764706, 0.8823529411764706], [0.8862745098039215, 0.8862745098039215], [0.8901960784313725, 0.8901960784313725], [0.8941176470588236, 0.8941176470588236], [0.8980392156862745, 0.8980392156862745], [0.9019607843137255, 0.9019607843137255], [0.9058823529411765, 0.9058823529411765], [0.9098039215686274, 0.9098039215686274], [0.9137254901960784, 0.9137254901960784], [0.9176470588235294, 0.9176470588235294], [0.9215686274509803, 0.9215686274509803], [0.9254901960784314, 0.9254901960784314], [0.9294117647058824, 0.9294117647058824], [0.9333333333333333, 0.9333333333333333], [0.9372549019607843, 0.9372549019607843], [0.9411764705882353, 0.9411764705882353], [0.9450980392156862, 0.9450980392156862], [0.9490196078431372, 0.9490196078431372], [0.9529411764705882, 0.9529411764705882], [0.9568627450980393, 0.9568627450980393], [0.9607843137254902, 0.9607843137254902], [0.9647058823529412, 0.9647058823529412], [0.9686274509803922, 0.9686274509803922], [0.9725490196078431, 0.9725490196078431], [0.9764705882352941, 0.9764705882352941], [0.9803921568627451, 0.9803921568627451], [0.984313725490196, 0.984313725490196], [0.9882352941176471, 0.9882352941176471], [0.9921568627450981, 0.9921568627450981], [0.996078431372549, 0.996078431372549], [1, 1]]
     };
   };
 
@@ -65433,7 +65476,7 @@ var HelpersLut = function () {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersLut);
 
 /***/ }),
-/* 103 */
+/* 102 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65556,7 +65599,7 @@ var HelpersSegmentationLut = function () {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersSegmentationLut);
 
 /***/ }),
-/* 104 */
+/* 103 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65581,7 +65624,7 @@ var HelpersProgressBarEventBased = function () {
     _classCallCheck(this, HelpersProgressBarEventBased);
 
     if (!emitter || !this._isFunction(emitter.emit)) {
-      console.error('please give the this._emitter instance');
+      window.console.error('please give the this._emitter instance');
       return;
     }
 
@@ -65592,7 +65635,7 @@ var HelpersProgressBarEventBased = function () {
     }
 
     if (!__WEBPACK_IMPORTED_MODULE_0__core_core_utils__["a" /* default */].isElement(this._dom)) {
-      console.error('please give the id of container dom or directly a dom instance');
+      window.console.error('please give the id of container dom or directly a dom instance');
       return;
     }
     this._emitter = emitter;
@@ -65715,7 +65758,7 @@ var HelpersProgressBarEventBased = function () {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersProgressBarEventBased);
 
 /***/ }),
-/* 105 */
+/* 104 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65799,7 +65842,7 @@ var Unpack = function (_ShadersBase) {
           break;
 
         default:
-          content = this.upackDefault();
+          content = this.upackIdentity();
           break;
       }
     } else {
@@ -65859,7 +65902,7 @@ var Unpack = function (_ShadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (new Unpack());
 
 /***/ }),
-/* 106 */
+/* 105 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65906,7 +65949,7 @@ var Texture3d = function (_ShadersBase) {
   };
 
   Texture3d.prototype.computeDefinition = function computeDefinition() {
-    this._definition = '\nvoid ' + this._name + '(in ivec3 dataCoordinates, out vec4 dataValue, out int offset){\n    \n  int index = dataCoordinates.x\n            + dataCoordinates.y * uDataDimensions.x\n            + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;\n  int indexP = int(index/uPackedPerPixel);\n  offset = index - 2*indexP;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = uTextureSize*uTextureSize;\n  int textureIndex = int(floor(float(indexP) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = indexP - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(uTextureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(uTextureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(uTextureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(uTextureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(uTextureContainer[0], uv); }\n  else if(textureIndex == 1){dataValue = texture2D(uTextureContainer[1], uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(uTextureContainer[2], uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(uTextureContainer[3], uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(uTextureContainer[4], uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(uTextureContainer[5], uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(uTextureContainer[6], uv); }\n\n}\n    ';
+    this._definition = '\nvoid ' + this._name + '(in ivec3 dataCoordinates, out vec4 dataValue, out int offset){\n    \n  int index = dataCoordinates.x\n            + dataCoordinates.y * uDataDimensions.x\n            + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;\n  int indexP = int(index/uPackedPerPixel);\n  offset = index - 2*indexP;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = uTextureSize*uTextureSize;\n  int textureIndex = int(floor(float(indexP) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = indexP - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(uTextureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(uTextureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(uTextureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(uTextureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(uTextureContainer[0], uv); }\n  else if(textureIndex == 1){dataValue = texture2D(uTextureContainer[1], uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(uTextureContainer[2], uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(uTextureContainer[3], uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(uTextureContainer[4], uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(uTextureContainer[5], uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(uTextureContainer[6], uv); }\n  else {\n    dataValue = vec4(0.);\n  }\n\n}\n    ';
   };
 
   return Texture3d;
@@ -65915,7 +65958,7 @@ var Texture3d = function (_ShadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (new Texture3d());
 
 /***/ }),
-/* 107 */
+/* 106 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65964,7 +66007,7 @@ var InterpolationTrilinear = function (_ShadersBase) {
   };
 
   InterpolationTrilinear.prototype.computeDefinition = function computeDefinition() {
-    this._definition = '\nvoid ' + this._name + '(in vec3 currentVoxel, out vec4 dataValue, out vec3 gradient){\n\n  // https://en.wikipedia.org/wiki/Trilinear_interpolation\n  vec3 lower_bound = vec3(floor(currentVoxel.x), floor(currentVoxel.y), floor(currentVoxel.z));\n  if(lower_bound.x < 0.){\n    lower_bound.x = 0.;\n  }\n  if(lower_bound.y < 0.){\n    lower_bound.y = 0.;\n  }\n  if(lower_bound.z < 0.){\n    lower_bound.z = 0.;\n  }\n  \n  vec3 higher_bound = lower_bound + vec3(1);\n\n  float xd = ( currentVoxel.x - lower_bound.x ) / ( higher_bound.x - lower_bound.x );\n  float yd = ( currentVoxel.y - lower_bound.y ) / ( higher_bound.y - lower_bound.y );\n  float zd = ( currentVoxel.z - lower_bound.z ) / ( higher_bound.z - lower_bound.z );\n\n  //\n  // c00\n  //\n\n  //\n\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c000 = vec3(lower_bound.x, lower_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c000', 'v000') + '\n  vec3 g000 = v000.r * vec3(-1., -1., -1.);\n\n  //\n\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c100 = vec3(higher_bound.x, lower_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c100', 'v100') + '\n  vec3 g100 = v100.r * vec3(1., -1., -1.);\n\n  vec4 c00 = v000 * ( 1.0 - xd ) + v100 * xd;\n\n  //\n  // c01\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c001 = vec3(lower_bound.x, lower_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c001', 'v001') + '\n  vec3 g001 = v001.r * vec3(-1., -1., 1.);\n\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c101 = vec3(higher_bound.x, lower_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c101', 'v101') + '\n  vec3 g101 = v101.r * vec3(1., -1., 1.);\n\n  vec4 c01 = v001 * ( 1.0 - xd ) + v101 * xd;\n\n  //\n  // c10\n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c010 = vec3(lower_bound.x, higher_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c010', 'v010') + '\n  vec3 g010 = v010.r * vec3(-1., 1., -1.);\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c110 = vec3(higher_bound.x, higher_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c110', 'v110') + '\n  vec3 g110 = v110.r * vec3(1., 1., -1.);\n\n  vec4 c10 = v010 * ( 1.0 - xd ) + v110 * xd;\n\n  //\n  // c11\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c011 = vec3(lower_bound.x, higher_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c011', 'v011') + '\n  vec3 g011 = v011.r * vec3(-1., 1., 1.);\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c111 = vec3(higher_bound.x, higher_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c111', 'v111') + '\n  vec3 g111 = v111.r * vec3(1., 1., 1.);\n\n  vec4 c11 = v011 * ( 1.0 - xd ) + v111 * xd;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - yd) + c10 * yd;\n  vec4 c1 = c01 * ( 1.0 - yd) + c11 * yd;\n\n  // c\n  vec4 c = c0 * ( 1.0 - zd) + c1 * zd;\n  dataValue = c;\n\n  // compute gradient\n  gradient = g000 + g100 + g010 + g110 + g011 + g111 + g110 + g011;\n  // gradientMagnitude = length(gradient);\n  // // https://en.wikipedia.org/wiki/Normal_(geometry)#Transforming_normals\n  // vec3 localNormal = (-1. / gradientMagnitude) * gradient;\n  // normal = normalize(normalPixelToPatient' + this.id + ' * localNormal);\n  //normal = gradient;\n\n}\n    ';
+    this._definition = '\nvoid trilinearInterpolation(\n  in vec3 normalizedPosition,\n  out vec4 interpolatedValue,\n  in vec4 v000, in vec4 v100,\n  in vec4 v001, in vec4 v101,\n  in vec4 v010, in vec4 v110,\n  in vec4 v011, in vec4 v111) {\n\n  // https://en.wikipedia.org/wiki/Trilinear_interpolation\n\n  vec4 c00 = v000 * ( 1.0 - normalizedPosition.x ) + v100 * normalizedPosition.x;\n  vec4 c01 = v001 * ( 1.0 - normalizedPosition.x ) + v101 * normalizedPosition.x;\n  vec4 c10 = v010 * ( 1.0 - normalizedPosition.x ) + v110 * normalizedPosition.x;\n  vec4 c11 = v011 * ( 1.0 - normalizedPosition.x ) + v111 * normalizedPosition.x;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - normalizedPosition.y) + c10 * normalizedPosition.y;\n  vec4 c1 = c01 * ( 1.0 - normalizedPosition.y) + c11 * normalizedPosition.y;\n\n  // c\n  vec4 c = c0 * ( 1.0 - normalizedPosition.z) + c1 * normalizedPosition.z;\n  interpolatedValue = c;\n}\n\nvoid ' + this._name + '(in vec3 currentVoxel, out vec4 dataValue, out vec3 gradient){\n\n  vec3 lower_bound = floor(currentVoxel);\n  if(lower_bound.x < 0.){\n    lower_bound.x = 0.;\n  }\n  if(lower_bound.y < 0.){\n    lower_bound.y = 0.;\n  }\n  if(lower_bound.z < 0.){\n    lower_bound.z = 0.;\n  }\n  \n  vec3 higher_bound = lower_bound + vec3(1.);\n  vec3 normalizedPosition = (currentVoxel - lower_bound);\n  vec4 interpolatedValue = vec4(0.);\n\n  //\n  // fetch values required for interpolation\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c000 = vec3(lower_bound.x, lower_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c000', 'v000') + '\n\n  //\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c100 = vec3(higher_bound.x, lower_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c100', 'v100') + '\n\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c001 = vec3(lower_bound.x, lower_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c001', 'v001') + '\n\n  //\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c101 = vec3(higher_bound.x, lower_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c101', 'v101') + '\n  \n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c010 = vec3(lower_bound.x, higher_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c010', 'v010') + '\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c110 = vec3(higher_bound.x, higher_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c110', 'v110') + '\n\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c011 = vec3(lower_bound.x, higher_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c011', 'v011') + '\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c111 = vec3(higher_bound.x, higher_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c111', 'v111') + '\n\n  // compute interpolation at position\n  trilinearInterpolation(normalizedPosition, interpolatedValue ,v000, v100, v001, v101, v010,v110, v011,v111);\n  dataValue = interpolatedValue;\n\n  // compute gradient\n  float gradientStep = 0.005;\n\n  // x axis\n  vec3 g100 = vec3(1., 0., 0.);\n  vec3 ng100 = normalizedPosition + g100 * gradientStep;\n  if (ng100.x > 1.) {\n    ng100.x = 1.;\n  }\n  vec4 vg100 = vec4(0.);\n  trilinearInterpolation(ng100, vg100 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  vec3 go100 = -g100;\n  vec3 ngo100 = normalizedPosition + go100 * gradientStep;\n  if (ngo100.x < 0.) {\n    ngo100.x = 0.;\n  }\n  vec4 vgo100 = vec4(0.);\n  trilinearInterpolation(ngo100, vgo100 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  gradient.x = (g100.x * vg100.x + go100.x * vgo100.x);\n\n  // y axis\n  vec3 g010 = vec3(0., 1., 0.);\n  vec3 ng010 = normalizedPosition + g010 * gradientStep;\n  if (ng010.y > 1.) {\n    ng010.y = 1.;\n  }\n  vec4 vg010 = vec4(0.);\n  trilinearInterpolation(ng010, vg010 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  vec3 go010 = -g010;\n  vec3 ngo010 = normalizedPosition + go010 * gradientStep;\n  if (ngo010.y < 0.) {\n    ngo010.y = 0.;\n  }\n  vec4 vgo010 = vec4(0.);\n  trilinearInterpolation(ngo010, vgo010 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  gradient.y = (g010.y * vg010.x + go010.y * vgo010.x);\n\n  // z axis\n  vec3 g001 = vec3(0., 0., 1.);\n  vec3 ng001 = normalizedPosition + g001 * gradientStep;\n  if (ng001.z > 1.) {\n    ng001.z = 1.;\n  }\n  vec4 vg001 = vec4(0.);\n  trilinearInterpolation(ng001, vg001 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  vec3 go001 = -g001;\n  vec3 ngo001 = normalizedPosition + go001 * gradientStep;\n  if (ngo001.z < 0.) {\n    ngo001.z = 0.;\n  }\n  vec4 vgo001 = vec4(0.);\n  trilinearInterpolation(ngo001, vgo001 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  gradient.z = (g001.z * vg001.x + go001.z * vgo001.x);\n\n  // normalize gradient\n  float gradientMagnitude = length(gradient);\n  if (gradientMagnitude > 0.0) {\n    gradient = -(1. / gradientMagnitude) * gradient;\n  }\n}\n    ';
   };
 
   return InterpolationTrilinear;
@@ -65973,7 +66016,7 @@ var InterpolationTrilinear = function (_ShadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (new InterpolationTrilinear());
 
 /***/ }),
-/* 108 */
+/* 107 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -66481,7 +66524,7 @@ var HelpersStack = function (_THREE$Object3D) {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersStack);
 
 /***/ }),
-/* 109 */
+/* 108 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -66530,6 +66573,8 @@ var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
     _this._geometry = null;
 
     _this._interpolation = 1; // default to trilinear interpolation
+    _this._shading = 1; // shading is on by default
+    _this._shininess = 10.0;
 
     _this._create();
     return _this;
@@ -66577,9 +66622,11 @@ var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
     this._uniforms.uRescaleSlopeIntercept.value = [this._stack.rescaleSlope, this._stack.rescaleIntercept];
     this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x, this._stack.dimensionsIJK.y, this._stack.dimensionsIJK.z];
     this._uniforms.uInterpolation.value = this._interpolation;
+    this._uniforms.uShading.value = this._shading;
+    this._uniforms.uShininess.value = this._shininess;
 
     this._createMaterial({
-      side: THREE.FrontSide,
+      side: THREE.BackSide,
       transparent: true
     });
   };
@@ -66618,6 +66665,24 @@ var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
       this._uniforms.uInterpolation.value = this._interpolation;
       this._updateMaterial();
     }
+  }, {
+    key: 'shading',
+    get: function get() {
+      return this._shading;
+    },
+    set: function set(shading) {
+      this._shading = shading;
+      this._uniforms.uShading.value = this._shading;
+    }
+  }, {
+    key: 'shininess',
+    get: function get() {
+      return this._shininess;
+    },
+    set: function set(shininess) {
+      this._shininess = shininess;
+      this._uniforms.uShininess.value = this._shininess;
+    }
   }]);
 
   return HelpersVolumeRendering;
@@ -66626,7 +66691,7 @@ var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersVolumeRendering);
 
 /***/ }),
-/* 110 */
+/* 109 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -66690,28 +66755,28 @@ var IntersectBox = function (_ShadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (new IntersectBox());
 
 /***/ }),
-/* 111 */
+/* 110 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__loaders_volume__ = __webpack_require__(112);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__loaders_volume__ = __webpack_require__(111);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__loaders_volume__["a"]; });
 
 
 
 
 /***/ }),
-/* 112 */
+/* 111 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__loaders_base__ = __webpack_require__(121);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__loaders_base__ = __webpack_require__(120);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_core_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_models_series__ = __webpack_require__(57);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_models_stack__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_models_frame__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__parsers_parsers_dicom__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__parsers_parsers_mhd__ = __webpack_require__(160);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__parsers_parsers_mhd__ = __webpack_require__(159);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__parsers_parsers_nifti__ = __webpack_require__(79);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__parsers_parsers_nrrd__ = __webpack_require__(81);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -67067,14 +67132,14 @@ var LoadersVolumes = function (_LoadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (LoadersVolumes);
 
 /***/ }),
-/* 113 */
+/* 112 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var zlib_deflate = __webpack_require__(114);
+var zlib_deflate = __webpack_require__(113);
 var utils        = __webpack_require__(2);
 var strings      = __webpack_require__(54);
 var msg          = __webpack_require__(20);
@@ -67474,14 +67539,14 @@ exports.gzip = gzip;
 
 
 /***/ }),
-/* 114 */
+/* 113 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils   = __webpack_require__(2);
-var trees   = __webpack_require__(115);
+var trees   = __webpack_require__(114);
 var adler32 = __webpack_require__(52);
 var crc32   = __webpack_require__(53);
 var msg     = __webpack_require__(20);
@@ -69329,7 +69394,7 @@ exports.deflateTune = deflateTune;
 
 
 /***/ }),
-/* 115 */
+/* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -70538,20 +70603,20 @@ exports._tr_align = _tr_align;
 
 
 /***/ }),
-/* 116 */
+/* 115 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var zlib_inflate = __webpack_require__(117);
+var zlib_inflate = __webpack_require__(116);
 var utils        = __webpack_require__(2);
 var strings      = __webpack_require__(54);
 var c            = __webpack_require__(56);
 var msg          = __webpack_require__(20);
 var ZStream      = __webpack_require__(55);
-var GZheader     = __webpack_require__(120);
+var GZheader     = __webpack_require__(119);
 
 var toString = Object.prototype.toString;
 
@@ -70963,7 +71028,7 @@ exports.ungzip  = inflate;
 
 
 /***/ }),
-/* 117 */
+/* 116 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -70973,8 +71038,8 @@ exports.ungzip  = inflate;
 var utils         = __webpack_require__(2);
 var adler32       = __webpack_require__(52);
 var crc32         = __webpack_require__(53);
-var inflate_fast  = __webpack_require__(118);
-var inflate_table = __webpack_require__(119);
+var inflate_fast  = __webpack_require__(117);
+var inflate_table = __webpack_require__(118);
 
 var CODES = 0;
 var LENS = 1;
@@ -72508,7 +72573,7 @@ exports.inflateUndermine = inflateUndermine;
 
 
 /***/ }),
-/* 118 */
+/* 117 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -72841,7 +72906,7 @@ module.exports = function inflate_fast(strm, start) {
 
 
 /***/ }),
-/* 119 */
+/* 118 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73175,7 +73240,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
 
 
 /***/ }),
-/* 120 */
+/* 119 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73222,7 +73287,7 @@ module.exports = GZheader;
 
 
 /***/ }),
-/* 121 */
+/* 120 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -73549,7 +73614,7 @@ var LoadersBase = function (_EventEmitter) {
 /* harmony default export */ __webpack_exports__["a"] = (LoadersBase);
 
 /***/ }),
-/* 122 */
+/* 121 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73557,15 +73622,15 @@ var LoadersBase = function (_EventEmitter) {
 
 // MODULES //
 
-var pinf = __webpack_require__( 123 );
-var ninf = __webpack_require__( 124 );
-var abs = __webpack_require__( 125 );
+var pinf = __webpack_require__( 122 );
+var ninf = __webpack_require__( 123 );
+var abs = __webpack_require__( 124 );
 var floor = __webpack_require__( 58 );
-var rpad = __webpack_require__( 126 );
-var lpad = __webpack_require__( 129 );
+var rpad = __webpack_require__( 125 );
+var lpad = __webpack_require__( 128 );
 var repeat = __webpack_require__( 26 );
-var div2 = __webpack_require__( 130 );
-var mult2 = __webpack_require__( 131 );
+var div2 = __webpack_require__( 129 );
+var mult2 = __webpack_require__( 130 );
 
 
 // CONSTANTS //
@@ -73677,7 +73742,7 @@ module.exports = binaryString;
 
 
 /***/ }),
-/* 123 */
+/* 122 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73701,7 +73766,7 @@ module.exports = FLOAT32_VIEW[ 0 ];
 
 
 /***/ }),
-/* 124 */
+/* 123 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73725,7 +73790,7 @@ module.exports = FLOAT32_VIEW[ 0 ];
 
 
 /***/ }),
-/* 125 */
+/* 124 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73755,7 +73820,7 @@ module.exports = abs;
 
 
 /***/ }),
-/* 126 */
+/* 125 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73823,7 +73888,7 @@ module.exports = rpad;
 
 
 /***/ }),
-/* 127 */
+/* 126 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73859,7 +73924,7 @@ module.exports = rpad;
 
 // MODULES //
 
-var isNumber = __webpack_require__( 128 );
+var isNumber = __webpack_require__( 127 );
 
 
 // ISINTEGER //
@@ -73882,7 +73947,7 @@ module.exports = isInteger;
 
 
 /***/ }),
-/* 128 */
+/* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73934,7 +73999,7 @@ module.exports = isNumber;
 
 
 /***/ }),
-/* 129 */
+/* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -74002,7 +74067,7 @@ module.exports = lpad;
 
 
 /***/ }),
-/* 130 */
+/* 129 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -74046,7 +74111,7 @@ module.exports = div2;
 
 
 /***/ }),
-/* 131 */
+/* 130 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -74107,7 +74172,7 @@ module.exports = mult2;
 
 
 /***/ }),
-/* 132 */
+/* 131 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, Buffer) {var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! dicom-parser - v1.7.3 - 2016-08-18 | (c) 2014 Chris Hafey | https://github.com/chafey/dicomParser */
@@ -74190,7 +74255,7 @@ var dicomParser = (function(dicomParser) {
                 // http://stackoverflow.com/questions/4224606/how-to-check-whether-a-script-is-running-under-node-js
                 else if (typeof module !== 'undefined' && this.module !== module) {
                     // inflate it
-                    var zlib = __webpack_require__(136);
+                    var zlib = __webpack_require__(135);
                     var deflatedBuffer = dicomParser.sharedCopy(byteArray, position, byteArray.length - position);
                     var inflatedBuffer = zlib.inflateRawSync(deflatedBuffer);
 
@@ -76800,7 +76865,7 @@ var dicomParser = (function (dicomParser)
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)(module), __webpack_require__(5).Buffer))
 
 /***/ }),
-/* 133 */
+/* 132 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -76921,7 +76986,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 134 */
+/* 133 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -77011,7 +77076,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 135 */
+/* 134 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -77022,7 +77087,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 136 */
+/* 135 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -77046,9 +77111,9 @@ module.exports = Array.isArray || function (arr) {
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var Transform = __webpack_require__(137);
+var Transform = __webpack_require__(136);
 
-var binding = __webpack_require__(146);
+var binding = __webpack_require__(145);
 var util = __webpack_require__(71);
 var assert = __webpack_require__(72).ok;
 
@@ -77639,14 +77704,14 @@ util.inherits(Unzip, Zlib);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer, __webpack_require__(4)))
 
 /***/ }),
-/* 137 */
+/* 136 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(138).Transform
+module.exports = __webpack_require__(137).Transform
 
 
 /***/ }),
-/* 138 */
+/* 137 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(62);
@@ -77655,11 +77720,11 @@ exports.Readable = exports;
 exports.Writable = __webpack_require__(65);
 exports.Duplex = __webpack_require__(6);
 exports.Transform = __webpack_require__(67);
-exports.PassThrough = __webpack_require__(145);
+exports.PassThrough = __webpack_require__(144);
 
 
 /***/ }),
-/* 139 */
+/* 138 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -77670,13 +77735,13 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 140 */
+/* 139 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 141 */
+/* 140 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -77756,7 +77821,7 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 142 */
+/* 141 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -77809,13 +77874,13 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(143);
+__webpack_require__(142);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 143 */
+/* 142 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -78008,7 +78073,7 @@ exports.clearImmediate = clearImmediate;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(4)))
 
 /***/ }),
-/* 144 */
+/* 143 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -78082,7 +78147,7 @@ function config (name) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
-/* 145 */
+/* 144 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -78135,14 +78200,14 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 };
 
 /***/ }),
-/* 146 */
+/* 145 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, Buffer) {var msg = __webpack_require__(68);
-var zstream = __webpack_require__(147);
-var zlib_deflate = __webpack_require__(148);
-var zlib_inflate = __webpack_require__(150);
-var constants = __webpack_require__(153);
+var zstream = __webpack_require__(146);
+var zlib_deflate = __webpack_require__(147);
+var zlib_inflate = __webpack_require__(149);
+var constants = __webpack_require__(152);
 
 for (var key in constants) {
   exports[key] = constants[key];
@@ -78378,7 +78443,7 @@ exports.Zlib = Zlib;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(5).Buffer))
 
 /***/ }),
-/* 147 */
+/* 146 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -78414,14 +78479,14 @@ module.exports = ZStream;
 
 
 /***/ }),
-/* 148 */
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils   = __webpack_require__(17);
-var trees   = __webpack_require__(149);
+var trees   = __webpack_require__(148);
 var adler32 = __webpack_require__(69);
 var crc32   = __webpack_require__(70);
 var msg     = __webpack_require__(68);
@@ -80276,7 +80341,7 @@ exports.deflateTune = deflateTune;
 
 
 /***/ }),
-/* 149 */
+/* 148 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -81485,7 +81550,7 @@ exports._tr_align = _tr_align;
 
 
 /***/ }),
-/* 150 */
+/* 149 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -81495,8 +81560,8 @@ exports._tr_align = _tr_align;
 var utils         = __webpack_require__(17);
 var adler32       = __webpack_require__(69);
 var crc32         = __webpack_require__(70);
-var inflate_fast  = __webpack_require__(151);
-var inflate_table = __webpack_require__(152);
+var inflate_fast  = __webpack_require__(150);
+var inflate_table = __webpack_require__(151);
 
 var CODES = 0;
 var LENS = 1;
@@ -83030,7 +83095,7 @@ exports.inflateUndermine = inflateUndermine;
 
 
 /***/ }),
-/* 151 */
+/* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -83363,7 +83428,7 @@ module.exports = function inflate_fast(strm, start) {
 
 
 /***/ }),
-/* 152 */
+/* 151 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -83697,7 +83762,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
 
 
 /***/ }),
-/* 153 */
+/* 152 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -83754,7 +83819,7 @@ module.exports = {
 
 
 /***/ }),
-/* 154 */
+/* 153 */
 /***/ (function(module, exports) {
 
 module.exports = function isBuffer(arg) {
@@ -83765,7 +83830,7 @@ module.exports = function isBuffer(arg) {
 }
 
 /***/ }),
-/* 155 */
+/* 154 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -83794,7 +83859,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 156 */
+/* 155 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -83808,7 +83873,7 @@ var jpeg = jpeg || {};
 jpeg.lossless = jpeg.lossless || {};
 jpeg.lossless.ComponentSpec = jpeg.lossless.ComponentSpec || (( true) ? __webpack_require__(73) : null);
 jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(7) : null);
-jpeg.lossless.Decoder = jpeg.lossless.Decoder || (( true) ? __webpack_require__(157) : null);
+jpeg.lossless.Decoder = jpeg.lossless.Decoder || (( true) ? __webpack_require__(156) : null);
 jpeg.lossless.FrameHeader = jpeg.lossless.FrameHeader || (( true) ? __webpack_require__(78) : null);
 jpeg.lossless.HuffmanTable = jpeg.lossless.HuffmanTable || (( true) ? __webpack_require__(74) : null);
 jpeg.lossless.QuantizationTable = jpeg.lossless.QuantizationTable || (( true) ? __webpack_require__(75) : null);
@@ -83825,7 +83890,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 157 */
+/* 156 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -84659,7 +84724,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 158 */
+/* 157 */
 /***/ (function(module, exports) {
 
 // jshint ignore: start
@@ -85683,7 +85748,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 }
 
 /***/ }),
-/* 159 */
+/* 158 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -89743,7 +89808,7 @@ function loadJpegStream(id, imageUrl, objs) {
 }
 
 /***/ }),
-/* 160 */
+/* 159 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -89869,7 +89934,7 @@ var ParsersMHD = function (_ParsersVolume) {
    * ElementSpacing[0] spacing between elements along X axis (i.e. column spacing)
    * ElementSpacing[1] spacing between elements along Y axis (i.e. row spacing)
    *
-   * @param {*} frameIndex 
+   * @param {*} frameIndex
    */
 
 
@@ -89921,10 +89986,8 @@ var ParsersMHD = function (_ParsersVolume) {
     var frameOffset = frameIndex * numPixels;
 
     if (this._header.ElementType === 'MET_CHAR') {
-      frameOffset = frameOffset;
       return new Int8Array(buffer, frameOffset, numPixels);
     } else if (this._header.ElementType === 'MET_UCHAR') {
-      frameOffset = frameOffset;
       return new Uint8Array(buffer, frameOffset, numPixels);
     } else if (this._header.ElementType === 'MET_SHORT') {
       frameOffset = frameOffset * 2;
@@ -89944,7 +90007,7 @@ var ParsersMHD = function (_ParsersVolume) {
 /* harmony default export */ __webpack_exports__["a"] = (ParsersMHD);
 
 /***/ }),
-/* 161 */
+/* 160 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -89962,7 +90025,7 @@ var ParsersMHD = function (_ParsersVolume) {
  */
 var nifti = nifti || {};
 nifti.NIFTI1 = nifti.NIFTI1 || (( true) ? __webpack_require__(80) : null);
-nifti.NIFTI2 = nifti.NIFTI2 || (( true) ? __webpack_require__(162) : null);
+nifti.NIFTI2 = nifti.NIFTI2 || (( true) ? __webpack_require__(161) : null);
 nifti.Utils = nifti.Utils || (( true) ? __webpack_require__(28) : null);
 
 var pako = pako || (( true) ? __webpack_require__(19) : null);
@@ -90161,7 +90224,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 162 */
+/* 161 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -90564,7 +90627,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 163 */
+/* 162 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -91817,7 +91880,7 @@ function serializeToTextBuffer(data) {
 
 
 /***/ }),
-/* 164 */
+/* 163 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -91837,7 +91900,7 @@ function serializeToTextBuffer(data) {
 
 
 /***/ }),
-/* 165 */
+/* 164 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -91854,21 +91917,21 @@ function serializeToTextBuffer(data) {
 
 
 /***/ }),
-/* 166 */
+/* 165 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__presets_segmentation__ = __webpack_require__(167);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__presets_segmentation__ = __webpack_require__(166);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__presets_segmentation__["a"]; });
 
 
 
 /***/ }),
-/* 167 */
+/* 166 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__presets_segmentation_freesurfer__ = __webpack_require__(168);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__presets_segmentation_freesurfer__ = __webpack_require__(167);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -91933,7 +91996,7 @@ var PresetsSegmentation = function () {
 /* harmony default export */ __webpack_exports__["a"] = (PresetsSegmentation);
 
 /***/ }),
-/* 168 */
+/* 167 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -93235,7 +93298,7 @@ var segmentationFs = {
 /* harmony default export */ __webpack_exports__["a"] = (segmentationFs);
 
 /***/ }),
-/* 169 */
+/* 168 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -93248,9 +93311,9 @@ var segmentationFs = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__shaders_vr_uniform__ = __webpack_require__(49);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__shaders_vr_fragment__ = __webpack_require__(51);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__shaders_vr_vertex__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__shaders_layer_uniform__ = __webpack_require__(170);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__shaders_layer_fragment__ = __webpack_require__(171);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__shaders_layer_vertex__ = __webpack_require__(172);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__shaders_layer_uniform__ = __webpack_require__(169);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__shaders_layer_fragment__ = __webpack_require__(170);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__shaders_layer_vertex__ = __webpack_require__(171);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__shaders_localizer_uniform__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__shaders_localizer_fragment__ = __webpack_require__(40);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__shaders_localizer_vertex__ = __webpack_require__(39);
@@ -93292,7 +93355,7 @@ var segmentationFs = {
 
 
 /***/ }),
-/* 170 */
+/* 169 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -93361,7 +93424,7 @@ var ShadersUniform = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersUniform);
 
 /***/ }),
-/* 171 */
+/* 170 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -93426,7 +93489,7 @@ var ShadersFragment = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersFragment);
 
 /***/ }),
-/* 172 */
+/* 171 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -93447,16 +93510,16 @@ var ShadersVertex = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersVertex);
 
 /***/ }),
-/* 173 */
+/* 172 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_annotation__ = __webpack_require__(174);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_biruler__ = __webpack_require__(175);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_annotation__ = __webpack_require__(173);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_biruler__ = __webpack_require__(174);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__widgets_handle__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__widgets_roi__ = __webpack_require__(176);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__widgets_ruler__ = __webpack_require__(177);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__widgets_voxelProbe__ = __webpack_require__(178);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__widgets_roi__ = __webpack_require__(175);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__widgets_ruler__ = __webpack_require__(176);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__widgets_voxelProbe__ = __webpack_require__(177);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__widgets_annotation__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__widgets_biruler__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_2__widgets_handle__["a"]; });
@@ -93473,7 +93536,7 @@ var ShadersVertex = function () {
 
 
 /***/ }),
-/* 174 */
+/* 173 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -94004,7 +94067,7 @@ var WidgetsAnnotation = function (_WidgetsBase) {
 /* harmony default export */ __webpack_exports__["a"] = (WidgetsAnnotation);
 
 /***/ }),
-/* 175 */
+/* 174 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -94505,7 +94568,7 @@ var WidgetsBiRuler = function (_WidgetsBase) {
 /* harmony default export */ __webpack_exports__["a"] = (WidgetsBiRuler);
 
 /***/ }),
-/* 176 */
+/* 175 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -94903,7 +94966,7 @@ var WidgetsRoi = function (_WidgetsBase) {
 /* harmony default export */ __webpack_exports__["a"] = (WidgetsRoi);
 
 /***/ }),
-/* 177 */
+/* 176 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -95252,7 +95315,7 @@ var WidgetsRuler = function (_WidgetsBase) {
 /* harmony default export */ __webpack_exports__["a"] = (WidgetsRuler);
 
 /***/ }),
-/* 178 */
+/* 177 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -95762,10 +95825,10 @@ var WidgetsVoxelProbe = function (_WidgetsBase) {
 /* harmony default export */ __webpack_exports__["a"] = (WidgetsVoxelProbe);
 
 /***/ }),
-/* 179 */
+/* 178 */
 /***/ (function(module, exports) {
 
-module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"87","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"dependencies":{"dicom-parser":"1.7.3","image-JPEG2000":"OHIF/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.87.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","lesson":"node ./scripts/router.js lessons","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","gen:index:lessons":"node ./scripts/genIndexFiles.js lessons","gen:index:lessons:cdn":"node ./scripts/genIndexFiles.js lessons cdn","test":"karma start","lint":"eslint src/**/*.js","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"latest","eslint-config-google":"latest","gh-pages":"latest","glslify":"5.1.0","jasmine-core":"latest","jsdoc":"jsdoc3/jsdoc#master","karma":"latest","karma-jasmine":"latest","karma-phantomjs-launcher":"1.0.4","karma-sinon":"^1.0.5","karma-spec-reporter":"latest","karma-webpack":"^2.0.4","live-server":"^1.1.0","phantomjs-prebuilt":"2.1.14","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"latest","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.0.0-beta.3","webpack":"^3.7.1","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^2.9.1","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}}
+module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"87","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"dependencies":{"dicom-parser":"1.7.3","image-JPEG2000":"OHIF/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.87.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","lesson":"node ./scripts/router.js lessons","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","gen:index:lessons":"node ./scripts/genIndexFiles.js lessons","gen:index:lessons:cdn":"node ./scripts/genIndexFiles.js lessons cdn","test":"karma start","lint":"eslint src/**/*.js","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"latest","eslint-config-google":"latest","gh-pages":"latest","glslify":"5.1.0","jasmine-core":"latest","jsdoc":"jsdoc3/jsdoc#master","karma":"latest","karma-chrome-launcher":"^2.2.0","karma-jasmine":"latest","karma-sinon":"^1.0.5","karma-spec-reporter":"latest","karma-webpack":"^2.0.4","live-server":"^1.1.0","puppeteer":"^0.13.0","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"latest","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.0.0-beta.3","webpack":"^3.7.1","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^2.9.1","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}}
 
 /***/ })
 /******/ ]);
