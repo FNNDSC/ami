@@ -56,6 +56,7 @@ void getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradien
   intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];
 }
 
+<<<<<<< HEAD
 mat4 inverse(mat4 m) {
   float
       a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],
@@ -98,6 +99,10 @@ mat4 inverse(mat4 m) {
 }
 
 void phongShading(in vec3 lightOrigin, in vec3 rayOrigin, in vec3 currentPosition, in vec3 gradient, in vec4 colorSample, out vec3 litColor){
+=======
+void phongShading(in vec3 lightOrigin, in vec3 rayOrigin, in vec3 currentPosition, in vec3 gradient, in vec4 colorSample, out vec3 litColor){
+  vec3 normal = -normalize(gradient);
+>>>>>>> 3fda418a8a7d741d72237ef076a827deca2cefa9
   vec3 color  = vec3(colorSample.r,colorSample.g,colorSample.b);
   vec3 ambient_color = color;
   vec3 diffuse_color = color;
@@ -112,6 +117,7 @@ void phongShading(in vec3 lightOrigin, in vec3 rayOrigin, in vec3 currentPositio
   litColor          = uAmbient * ambient_color;
   vec3 pointToEye   = normalize(rayOrigin - currentPosition);
   vec3 pointToLight = normalize(lightOrigin - currentPosition);
+<<<<<<< HEAD
   float lightDot    = dot(pointToLight, gradient);
   litColor         += uDiffuse * lightDot * diffuse_color;
 
@@ -119,6 +125,15 @@ void phongShading(in vec3 lightOrigin, in vec3 rayOrigin, in vec3 currentPositio
   float lightDotPos = step(0.0,lightDot);
 
   vec3 lightReflection = reflect(-pointToLight, gradient);
+=======
+  float lightDot    = dot(pointToLight, normal);
+  litColor         += uDiffuse * lightDot * diffuse_color;
+
+  float eyeDotPos   = step(0.0,dot(pointToEye, normal));
+  float lightDotPos = step(0.0,lightDot);
+
+  vec3 lightReflection = reflect(-pointToLight,normal);
+>>>>>>> 3fda418a8a7d741d72237ef076a827deca2cefa9
   float reflectDot     = dot(lightReflection,pointToEye);
   litColor            += uSpecular * eyeDotPos * lightDotPos * pow(abs(reflectDot), uShininess) * uSpecularColor;
 
