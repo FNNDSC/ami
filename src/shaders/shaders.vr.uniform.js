@@ -105,6 +105,66 @@ export default class ShadersUniform {
         value: 0.0,
         typeGLSL: 'float',
       },
+      'uShading': {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int',
+      },
+      'uAmbient': {
+        type: 'f',
+        value: 0.6,
+        typeGLSL: 'float',
+      },
+      'uAmbientColor': {
+        type: 'v3',
+        value: [1.0, 1.0, 0.0],
+        typeGLSL: 'vec3',
+      },
+      'uSampleColorToAmbient': {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int',
+      },
+      'uSpecular': {
+        type: 'f',
+        value: 0.4,
+        typeGLSL: 'float',
+      },
+      'uSpecularColor': {
+        type: 'v3',
+        value: [1.0, 1.0, 0.0],
+        typeGLSL: 'vec3',
+      },
+      'uDiffuse': {
+        type: 'f',
+        value: 0.3,
+        typeGLSL: 'float',
+      },
+      'uDiffuseColor': {
+        type: 'v3',
+        value: [1.0, 1.0, 0.0],
+        typeGLSL: 'vec3',
+      },
+      'uSampleColorToDiffuse': {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int',
+      },
+      'uShininess': {
+        type: 'f',
+        value: 1.0,
+        typeGLSL: 'float',
+      },
+      'uLightPosition': {
+        type: 'v3',
+        value: [0.0, 0.0, 0.0],
+        typeGLSL: 'vec3',
+      },
+      'uLightPositionInCamera': {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int',
+      },
     };
   }
 }
