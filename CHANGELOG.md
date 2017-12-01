@@ -15,6 +15,7 @@ Note: We need this file so we can log new features while we are developing inste
 - [[helpers: segmentation lut]](https://github.com/FNNDSC/ami/commit/c311a3e1f82d964ab6bebd368d2286dc104f6a2e) Removed `segId` argument in constructor.
 
 ### Added
+- [[shaders: single pass volume rendering]](https://github.com/FNNDSC/ami/pull/228) Add phong shading support.
 - [[shaders: contours]]() Add flag to control the opacity of a contour.
 
 ### Changed
