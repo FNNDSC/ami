@@ -58,85 +58,97 @@ void getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradien
 
 mat4 inverse(mat4 m) {
   float
-      a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],
-      a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3],
-      a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3],
-      a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3],
+    a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],
+    a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3],
+    a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3],
+    a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3],
 
-      b00 = a00 * a11 - a01 * a10,
-      b01 = a00 * a12 - a02 * a10,
-      b02 = a00 * a13 - a03 * a10,
-      b03 = a01 * a12 - a02 * a11,
-      b04 = a01 * a13 - a03 * a11,
-      b05 = a02 * a13 - a03 * a12,
-      b06 = a20 * a31 - a21 * a30,
-      b07 = a20 * a32 - a22 * a30,
-      b08 = a20 * a33 - a23 * a30,
-      b09 = a21 * a32 - a22 * a31,
-      b10 = a21 * a33 - a23 * a31,
-      b11 = a22 * a33 - a23 * a32,
+    b00 = a00 * a11 - a01 * a10,
+    b01 = a00 * a12 - a02 * a10,
+    b02 = a00 * a13 - a03 * a10,
+    b03 = a01 * a12 - a02 * a11,
+    b04 = a01 * a13 - a03 * a11,
+    b05 = a02 * a13 - a03 * a12,
+    b06 = a20 * a31 - a21 * a30,
+    b07 = a20 * a32 - a22 * a30,
+    b08 = a20 * a33 - a23 * a30,
+    b09 = a21 * a32 - a22 * a31,
+    b10 = a21 * a33 - a23 * a31,
+    b11 = a22 * a33 - a23 * a32,
 
-      det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+    det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
   return mat4(
-      a11 * b11 - a12 * b10 + a13 * b09,
-      a02 * b10 - a01 * b11 - a03 * b09,
-      a31 * b05 - a32 * b04 + a33 * b03,
-      a22 * b04 - a21 * b05 - a23 * b03,
-      a12 * b08 - a10 * b11 - a13 * b07,
-      a00 * b11 - a02 * b08 + a03 * b07,
-      a32 * b02 - a30 * b05 - a33 * b01,
-      a20 * b05 - a22 * b02 + a23 * b01,
-      a10 * b10 - a11 * b08 + a13 * b06,
-      a01 * b08 - a00 * b10 - a03 * b06,
-      a30 * b04 - a31 * b02 + a33 * b00,
-      a21 * b02 - a20 * b04 - a23 * b00,
-      a11 * b07 - a10 * b09 - a12 * b06,
-      a00 * b09 - a01 * b07 + a02 * b06,
-      a31 * b01 - a30 * b03 - a32 * b00,
-      a20 * b03 - a21 * b01 + a22 * b00) / det;
+    a11 * b11 - a12 * b10 + a13 * b09,
+    a02 * b10 - a01 * b11 - a03 * b09,
+    a31 * b05 - a32 * b04 + a33 * b03,
+    a22 * b04 - a21 * b05 - a23 * b03,
+    a12 * b08 - a10 * b11 - a13 * b07,
+    a00 * b11 - a02 * b08 + a03 * b07,
+    a32 * b02 - a30 * b05 - a33 * b01,
+    a20 * b05 - a22 * b02 + a23 * b01,
+    a10 * b10 - a11 * b08 + a13 * b06,
+    a01 * b08 - a00 * b10 - a03 * b06,
+    a30 * b04 - a31 * b02 + a33 * b00,
+    a21 * b02 - a20 * b04 - a23 * b00,
+    a11 * b07 - a10 * b09 - a12 * b06,
+    a00 * b09 - a01 * b07 + a02 * b06,
+    a31 * b01 - a30 * b03 - a32 * b00,
+    a20 * b03 - a21 * b01 + a22 * b00) / det;
 }
 
-void phongShading(in vec3 lightOrigin, in vec3 rayOrigin, in vec3 currentPosition, in vec3 gradient, in vec4 colorSample, out vec3 litColor){
-  vec3 color  = vec3(colorSample.r,colorSample.g,colorSample.b);
-  vec3 ambient_color = color;
-  vec3 diffuse_color = color;
+/**
+ * Adapted from original sources
+ * 
+ * Original code: 
+ * http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/
+ * https://www.shadertoy.com/view/lt33z7
+ * 
+ * The vec3 returned is the RGB color of the light's contribution.
+ *
+ * k_a: Ambient color
+ * k_d: Diffuse color
+ * k_s: Specular color
+ * alpha: Shininess coefficient
+ * p: position of point being lit
+ * eye: the position of the camera
+ * lightPos: the position of the light
+ * lightIntensity: color/intensity of the light
+ *
+ * See https://en.wikipedia.org/wiki/Phong_reflection_model#Description
+ */
+vec3 phongShading(vec3 k_a, vec3 k_d, vec3 k_s, float shininess, vec3 p, vec3 eye,
+  vec3 lightPos, vec3 lightIntensity, vec3 normal) {
+  vec3 N = normal;
+  vec3 L = normalize(lightPos - p);
+  vec3 V = normalize(eye - p);
+  vec3 R = normalize(reflect(-L, N));
 
-  if (uSampleColorToAmbient == 0) {
-    ambient_color = uAmbientColor;
+  float dotLN = dot(L, N);
+  float dotRV = dot(R, V);
+
+  if (dotLN < 0.0) {
+    // Light not visible from this point on the surface
+    return k_a;
+  } 
+
+  if (dotRV < 0.0) {
+    // Light reflection in opposite direction as viewer, apply only diffuse
+    // component
+    return k_a + lightIntensity * (k_d * dotLN);
   }
-  if (uSampleColorToDiffuse == 0) {
-    diffuse_color = uDiffuseColor;
-  }
 
-  litColor          = uAmbient * ambient_color;
-  vec3 pointToEye   = normalize(rayOrigin - currentPosition);
-  vec3 pointToLight = normalize(lightOrigin - currentPosition);
-  float lightDot    = dot(pointToLight, gradient);
-  litColor         += uDiffuse * lightDot * diffuse_color;
-
-  float eyeDotPos   = step(0.0,dot(pointToEye, gradient));
-  float lightDotPos = step(0.0,lightDot);
-
-  vec3 lightReflection = reflect(-pointToLight, gradient);
-  float reflectDot     = dot(lightReflection,pointToEye);
-  litColor            += uSpecular * eyeDotPos * lightDotPos * pow(abs(reflectDot), uShininess) * uSpecularColor;
-
-  litColor = clamp(litColor, 0.0, 1.0);
+  return k_a + lightIntensity * (k_d * dotLN  + k_s * pow(dotRV, shininess));
 }
 
 void main(void) {
   const int maxSteps = 1024;
 
   // the ray
-  vec3 rayOrigin   = cameraPosition;
-  vec3 lightOrigin = cameraPosition;
-
-  if (uLightPositionInCamera == 0){
-    lightOrigin = uLightPosition;
-  }
-
+  vec3 rayOrigin = cameraPosition;
   vec3 rayDirection = normalize(vPos.xyz - rayOrigin);
+
+  vec3 lightOrigin = uLightPositionInCamera == 1 ? cameraPosition : uLightPosition;
 
   // the Axe-Aligned B-Box
   vec3 AABBMin = vec3(uWorldBBox[0], uWorldBBox[2], uWorldBBox[4]);
@@ -185,14 +197,28 @@ void main(void) {
     }
     else{
       alphaSample = intensity;
-      colorSample.r = colorSample.g = colorSample.b = intensity * alphaSample;
+      colorSample.r = colorSample.g = colorSample.b = intensity;
     }
 
-    if (uShading == 1) {
-      vec3 litColor = vec3(0., 0., 0.);
-      phongShading(lightOrigin, rayOrigin, currentPosition, gradient, colorSample, litColor);
-      float alpha = colorSample.a;
-      colorSample = vec4(litColor, alpha);
+    if (uShading == 1 && uInterpolation != 0) {
+      vec3 ambientComponent = uSampleColorToAmbient == 1 ? colorSample.xyz : uAmbientColor;
+      ambientComponent *= uAmbient;
+      vec3 diffuseComponent = uSampleColorToDiffuse == 1 ? colorSample.xyz : uDiffuseColor;
+      diffuseComponent *= uDiffuse;
+      vec3 specularComponent = uSpecular * uSpecularColor;
+      float shininess = uShininess;
+      vec3 intensity = uIntensity;
+
+      colorSample.xyz += phongShading(
+        ambientComponent,
+        diffuseComponent,
+        specularComponent,
+        shininess,
+        currentPosition.xyz,
+        rayOrigin.xyz,
+        lightOrigin.xyz,
+        intensity,
+        gradient);
     }
 
     alphaSample = 1.0 - pow((1.0- alphaSample),tStep*uAlphaCorrection);

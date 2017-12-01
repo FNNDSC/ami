@@ -97,12 +97,12 @@ export default class ShadersUniform {
       },
       'uFrequence': {
         type: 'f',
-        value: 0.0,
+        value: 0.,
         typeGLSL: 'float',
       },
       'uAmplitude': {
         type: 'f',
-        value: 0.0,
+        value: 0.,
         typeGLSL: 'float',
       },
       'uShading': {
@@ -112,7 +112,7 @@ export default class ShadersUniform {
       },
       'uAmbient': {
         type: 'f',
-        value: 0.6,
+        value: 0.1,
         typeGLSL: 'float',
       },
       'uAmbientColor': {
@@ -127,12 +127,12 @@ export default class ShadersUniform {
       },
       'uSpecular': {
         type: 'f',
-        value: 0.4,
+        value: 1.,
         typeGLSL: 'float',
       },
       'uSpecularColor': {
         type: 'v3',
-        value: [1.0, 1.0, 0.0],
+        value: [1.0, 1.0, 1.0],
         typeGLSL: 'vec3',
       },
       'uDiffuse': {
@@ -152,7 +152,7 @@ export default class ShadersUniform {
       },
       'uShininess': {
         type: 'f',
-        value: 1.0,
+        value: 5.,
         typeGLSL: 'float',
       },
       'uLightPosition': {
@@ -164,6 +164,11 @@ export default class ShadersUniform {
         type: 'i',
         value: 1,
         typeGLSL: 'int',
+      },
+      'uIntensity': {
+        type: 'v3',
+        value: [.8, .8, .8],
+        typeGLSL: 'vec3',
       },
     };
   }
