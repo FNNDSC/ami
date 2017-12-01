@@ -127,6 +127,20 @@ function buildGUI() {
     }
   });
 
+  let shadingUpdate = stackFolder.add(vrHelper, 'shading', 0, 1).step(1);
+  shadingUpdate.onChange(function(value) {
+    if (vrHelper.uniforms) {
+      modified = true;
+    }
+  });
+
+  let shininessUpdate = stackFolder.add(vrHelper, 'shininess', 0, 20).step(.1);
+  shininessUpdate.onChange(function(value) {
+    if (vrHelper.uniforms) {
+      modified = true;
+    }
+  });
+
   stackFolder.open();
 }
 
@@ -195,11 +209,12 @@ window.onload = function() {
   init();
 
   let filename = 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz';
+  let files = [filename];
 
   // load sequence for each file
   // instantiate the loader
   let loader = new LoadersVolume(threeD);
-  loader.load(filename)
+  loader.load(files)
   .then(() => {
     let series = loader.data[0].mergeSeries(loader.data)[0];
     loader.free();
