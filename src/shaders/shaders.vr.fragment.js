@@ -120,9 +120,18 @@ mat4 inverse(mat4 m) {
 vec3 phongShading(vec3 k_a, vec3 k_d, vec3 k_s, float shininess, vec3 p, vec3 eye,
   vec3 lightPos, vec3 lightIntensity, vec3 normal) {
   vec3 N = normal;
-  vec3 L = normalize(lightPos - p);
-  vec3 V = normalize(eye - p);
-  vec3 R = normalize(reflect(-L, N));
+  vec3 L = lightPos - p;
+  if (length(L) > 0.) {
+    L = L / length(L);
+  }
+  vec3 V = eye - p;
+  if (length(V) > 0.) {
+    V = V / length(V);
+  }
+  vec3 R = reflect(-L, N);
+  if (length(R) > 0.) {
+    R = R / length(R);
+  }
 
   // https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model
   vec3 h = L + V;
@@ -146,7 +155,7 @@ vec3 phongShading(vec3 k_a, vec3 k_d, vec3 k_s, float shininess, vec3 p, vec3 ey
   }
 
   float specAngle = max(dot(H, normal), 0.0);
-  float specular = pow(specAngle, shininess); // pow(dotRV, shininess)
+  float specular = pow(dotRV, shininess); //pow(specAngle, shininess); // 
   return k_a + lightIntensity * (k_d * dotLN  + k_s * specular);
 }
 
@@ -188,7 +197,7 @@ void main(void) {
   float accumulatedAlpha = 0.0;
   mat4 dataToWorld = inverse(uWorldToData);
 
-  rayOrigin -= rayDirection * gold_noise(vPos.xz, vPos.y) / 100.;  
+  // rayOrigin -= rayDirection * 0.1; // gold_noise(vPos.xz, vPos.y) / 100.;  
 
   for(int rayStep = 0; rayStep < maxSteps; rayStep++){
     vec3 currentPosition = rayOrigin + rayDirection * tCurrent;
