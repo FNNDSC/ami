@@ -124,21 +124,42 @@ vec3 phongShading(vec3 k_a, vec3 k_d, vec3 k_s, float shininess, vec3 p, vec3 ey
   vec3 V = normalize(eye - p);
   vec3 R = normalize(reflect(-L, N));
 
+  // https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model
+  vec3 h = L + V;
+  vec3 H = h;
+  if (length(h) > 0.) {
+    H = H / length(h);
+  }
+
   float dotLN = dot(L, N);
   float dotRV = dot(R, V);
 
-  if (dotLN < 0.0) {
+  if (dotLN < 0.) {
     // Light not visible from this point on the surface
     return k_a;
   } 
 
-  if (dotRV < 0.0) {
+  if (dotRV < 0.) {
     // Light reflection in opposite direction as viewer, apply only diffuse
     // component
     return k_a + lightIntensity * (k_d * dotLN);
   }
 
-  return k_a + lightIntensity * (k_d * dotLN  + k_s * pow(dotRV, shininess));
+  float specAngle = max(dot(H, normal), 0.0);
+  float specular = pow(specAngle, shininess); // pow(dotRV, shininess)
+  return k_a + lightIntensity * (k_d * dotLN  + k_s * specular);
+}
+
+
+float PHI = 1.61803398874989484820459 * 00000.1; // Golden Ratio   
+float PI  = 3.14159265358979323846264 * 00000.1; // PI
+float SRT = 1.41421356237309504880169 * 10000.0; // Square Root of Two
+
+// Gold Noise function ?  Should use a texture
+//
+float gold_noise(in vec2 coordinate, in float seed)
+{
+    return fract(sin(dot(coordinate*seed, vec2(PHI, PI)))*SRT);
 }
 
 void main(void) {
@@ -166,6 +187,8 @@ void main(void) {
   vec4 accumulatedColor = vec4(0.0);
   float accumulatedAlpha = 0.0;
   mat4 dataToWorld = inverse(uWorldToData);
+
+  rayOrigin -= rayDirection * gold_noise(vPos.xz, vPos.y) / 100.;  
 
   for(int rayStep = 0; rayStep < maxSteps; rayStep++){
     vec3 currentPosition = rayOrigin + rayDirection * tCurrent;
@@ -201,6 +224,7 @@ void main(void) {
     }
 
     if (uShading == 1 && uInterpolation != 0) {
+      //  && alphaSample > .3
       vec3 ambientComponent = uSampleColorToAmbient == 1 ? colorSample.xyz : uAmbientColor;
       ambientComponent *= uAmbient;
       vec3 diffuseComponent = uSampleColorToDiffuse == 1 ? colorSample.xyz : uDiffuseColor;
