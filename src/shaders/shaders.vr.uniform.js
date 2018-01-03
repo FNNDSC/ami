@@ -170,6 +170,11 @@ export default class ShadersUniform {
         value: [.8, .8, .8],
         typeGLSL: 'vec3',
       },
+      'uAlgorithm': {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int',
+      },
     };
   }
 }

@@ -24,6 +24,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
     this._material = null;
     this._geometry = null;
 
+    this._algorithm = 0; // ray marching
     this._interpolation = 1; // default to trilinear interpolation
     this._shading = 1; // shading is on by default
     this._shininess = 10.0;
@@ -77,6 +78,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
     this._uniforms.uInterpolation.value = this._interpolation;
     this._uniforms.uShading.value = this._shading;
     this._uniforms.uShininess.value = this._shininess;
+    this._uniforms.uAlgorithm.value = this._algorithm;
 
     this._createMaterial({
       side: THREE.BackSide,
@@ -138,5 +140,14 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
   set shininess(shininess) {
     this._shininess = shininess;
     this._uniforms.uShininess.value = this._shininess;
+  }
+
+  get algorithm() {
+    return this._algorithm;
+  }
+
+  set algorithm(algorithm) {
+    this._algorithm = algorithm;
+    this._uniforms.uAlgorithm.value = this._algorithm;
   }
 }

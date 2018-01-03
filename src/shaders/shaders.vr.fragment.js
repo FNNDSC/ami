@@ -195,6 +195,10 @@ void main(void) {
   float tStep = (tFar - tNear) / float(uSteps);
   vec4 accumulatedColor = vec4(0.0);
   float accumulatedAlpha = 0.0;
+
+  // MIP volume rendering
+  float maxIntensity = 0.0;
+
   mat4 dataToWorld = inverse(uWorldToData);
 
   // rayOrigin -= rayDirection * 0.1; // gold_noise(vPos.xz, vPos.y) / 100.;  
@@ -232,7 +236,10 @@ void main(void) {
       colorSample.r = colorSample.g = colorSample.b = intensity;
     }
 
-    if (uShading == 1 && uInterpolation != 0) {
+    // ray marching algorithm
+    // shading on
+    // interpolation on
+    if (uAlgorithm == 0 && uShading == 1 && uInterpolation != 0) {
       //  && alphaSample > .3
       vec3 ambientComponent = uSampleColorToAmbient == 1 ? colorSample.xyz : uAmbientColor;
       ambientComponent *= uAmbient;
@@ -240,7 +247,7 @@ void main(void) {
       diffuseComponent *= uDiffuse;
       vec3 specularComponent = uSpecular * uSpecularColor;
       float shininess = uShininess;
-      vec3 intensity = uIntensity;
+      vec3 vIntensity = uIntensity;
 
       colorSample.xyz += phongShading(
         ambientComponent,
@@ -250,7 +257,7 @@ void main(void) {
         currentPosition.xyz,
         rayOrigin.xyz,
         lightOrigin.xyz,
-        intensity,
+        vIntensity,
         gradient);
     }
 
@@ -262,7 +269,13 @@ void main(void) {
 
     tCurrent += tStep;
 
-    if(tCurrent > tFar || accumulatedAlpha >= 1.0 ) break;
+    if (tCurrent > tFar || (uAlgorithm == 0 && accumulatedAlpha >= 1.0)) break;
+
+    if (uAlgorithm == 1 && (intensity >= maxIntensity)) {
+      maxIntensity = intensity;
+      accumulatedColor = colorSample;
+      accumulatedAlpha = 1.;
+    }
   }
 
   gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);

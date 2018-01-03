@@ -20,6 +20,7 @@ let wheel = null;
 let wheelTO = null;
 
 let myStack = {
+  algorithm: 'ray marching',
   lut: 'random',
   opacity: 'random',
   steps: 256,
@@ -84,6 +85,12 @@ function buildGUI() {
   customContainer.appendChild(gui.domElement);
 
   let stackFolder = gui.addFolder('Settings');
+  let algorithmUpdate = stackFolder.add(myStack, 'algorithm', ['ray marching', 'mip']);
+  algorithmUpdate.onChange(function(value) {
+    vrHelper.algorithm = value === 'mip' ? 1 : 0;
+    modified = true;
+  });
+
   let lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
   lutUpdate.onChange(function(value) {
       lut.lut = value;

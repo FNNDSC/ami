@@ -130,11 +130,11 @@
   /*left: 50%;*/
   /*transform: translate(-50%, 0);*/
   z-index: 1;
-  color: #F9F9F9;
+  color: #212121;
   display: flex;
   padding: 10px;
   font-size: 18px;
   text-decoration: none;
-  background-color: #2196F3;
+  background-color: #dedede;
   font-family: 'Roboto', sans-serif;
 }
