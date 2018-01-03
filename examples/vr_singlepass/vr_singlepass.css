@@ -5,11 +5,11 @@
 }
 
 #r3d {
-  background: #E0F2F1;
-  background: -webkit-linear-gradient(#E0F2F1, #607D8B); /* For Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(#E0F2F1, #607D8B); /* For Opera 11.1 to 12.0 */
-  background: -moz-linear-gradient(#E0F2F1, #607D8B); /* For Firefox 3.6 to 15 */
-  background: linear-gradient(#E0F2F1, #607D8B); /* Standard syntax */
+  background: #000;
+  background: -webkit-linear-gradient(#000, #607D8B); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(#000, #607D8B); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(#000, #607D8B); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(#000, #607D8B); /* Standard syntax */
   left: 0;
   right: 0;
   top: 0;
@@ -130,11 +130,11 @@
   /*left: 50%;*/
   /*transform: translate(-50%, 0);*/
   z-index: 1;
-  color: #F9F9F9;
+  color: #212121;
   display: flex;
   padding: 10px;
   font-size: 18px;
   text-decoration: none;
-  background-color: #2196F3;
+  background-color: #dedede;
   font-family: 'Roboto', sans-serif;
 }
