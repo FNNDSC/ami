@@ -673,6 +673,7 @@ export default class ParsersDicom extends ParsersVolume {
   _decodePixelData(frameIndex = 0) {
     // if compressed..?
     let transferSyntaxUID = this.transferSyntaxUID();
+    console.log(transferSyntaxUID);
 
     // find compression scheme
     if (
@@ -719,7 +720,7 @@ export default class ParsersDicom extends ParsersVolume {
     return (numberOfFrames !== pixelDataElement.fragments.length);
   }
 
-  _decodeJ2K(frameIndex = 0) {
+  _readEncapsulatedData(frameIndex = 0) {
     // https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/imageLoader/wadouri/getEncapsulatedImageFrame.js
     let encodedPixelData = null;
 
@@ -733,6 +734,13 @@ export default class ParsersDicom extends ParsersVolume {
       encodedPixelData = DicomParser.readEncapsulatedPixelDataFromFragments(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
     }
 
+    return encodedPixelData;
+  }
+
+  _decodeJ2K(frameIndex = 0) {
+    let encodedPixelData = this._readEncapsulatedData(frameIndex);
+
+    console.time('JPX');
     let jpxImage = new Jpx();
     // https://github.com/OHIF/image-JPEG2000/issues/6
     // It currently returns either Int16 or Uint16 based on whether the codestream is signed or not.
@@ -750,6 +758,7 @@ export default class ParsersDicom extends ParsersVolume {
       throw error;
     }
 
+    console.timeEnd('JPX');
     let tileComponents = jpxImage.tiles[0];
     let pixelData = tileComponents.items;
 
@@ -758,27 +767,35 @@ export default class ParsersDicom extends ParsersVolume {
 
   // from cornerstone
   _decodeJPEGLossless(frameIndex = 0) {
-    let encodedPixelData = DicomParser.readEncapsulatedPixelData(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
+    console.time('readencaps');
+    let encodedPixelData = this._readEncapsulatedData(frameIndex);
+    console.timeEnd('readencaps');
+    console.time('pixrep');
     let pixelRepresentation = this.pixelRepresentation(frameIndex);
+    console.timeEnd('pixrep');
     let bitsAllocated = this.bitsAllocated(frameIndex);
+    console.time('lossless');
     let byteOutput = bitsAllocated <= 8 ? 1 : 2;
     let decoder = new Jpeg.lossless.Decoder();
     let decompressedData = decoder.decode(encodedPixelData.buffer, encodedPixelData.byteOffset, encodedPixelData.length, byteOutput);
 
     if (pixelRepresentation === 0) {
       if (byteOutput === 2) {
+        console.timeEnd('lossless');
         return new Uint16Array(decompressedData.buffer);
       } else {
         // untested!
+        console.timeEnd('lossless');
         return new Uint8Array(decompressedData.buffer);
       }
     } else {
+      console.timeEnd('lossless');
       return new Int16Array(decompressedData.buffer);
     }
   }
 
   _decodeJPEGBaseline(frameIndex = 0) {
-    let encodedPixelData = DicomParser.readEncapsulatedPixelData(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
+    let encodedPixelData = this._readEncapsulatedData(frameIndex);
     let rows = this.rows(frameIndex);
     let columns = this.columns(frameIndex);
     let bitsAllocated = this.bitsAllocated(frameIndex);

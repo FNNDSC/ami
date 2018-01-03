@@ -104,7 +104,7 @@ function buildGUI() {
       modified = true;
     });
 
-  let stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
+  let stepsUpdate = stackFolder.add(myStack, 'steps', 0, 1024).step(1);
   stepsUpdate.onChange(function(value) {
       if (vrHelper.uniforms) {
         vrHelper.uniforms.uSteps.value = value;
@@ -210,6 +210,11 @@ window.onload = function() {
 
   let filename = 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz';
   let files = [filename];
+  for (let i=0; i<400; i++) {
+    const fileID = i.toString().padStart(7, 'DCT0000');
+    files.push(`http://www.promaton.nl/data/frank/dicom/${fileID}.dcm`);
+  }
+
 
   // load sequence for each file
   // instantiate the loader

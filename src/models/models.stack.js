@@ -32,7 +32,7 @@ export default class ModelsStack extends ModelsBase {
     this._pixelRepresentation = 0;
 
     this._textureSize = 4096;
-    this._nbTextures = 7;
+    this._nbTextures = 13;
     this._rawData = [];
 
     this._windowCenter = 0;
@@ -475,6 +475,8 @@ export default class ModelsStack extends ModelsBase {
    * Pack current stack pixel data into 8 bits array buffers
    */
   pack() {
+    console.timeEnd('parse');
+    console.time('pack');
     // Get total number of voxels
     const nbVoxels =
       this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
@@ -484,10 +486,17 @@ export default class ModelsStack extends ModelsBase {
       this._packedPerPixel = 2;
     }
 
+    if (this._bitsAllocated === 8 && this._numberOfChannels === 1) {
+      this._packedPerPixel = 4;
+    }
+
+    console.log(this);
+
     // Loop through all the textures we need
     const textureDimension = this._textureSize * this._textureSize;
     const requiredTextures =
       Math.ceil(nbVoxels / (textureDimension * this._packedPerPixel));
+    console.log(requiredTextures);
     let voxelIndexStart = 0;
     let voxelIndexStop = this._packedPerPixel * textureDimension;
     if (voxelIndexStop > nbVoxels) {
@@ -513,6 +522,7 @@ export default class ModelsStack extends ModelsBase {
     }
 
     this._packed = true;
+    console.timeEnd('pack');
   }
 
   /**
@@ -546,18 +556,23 @@ export default class ModelsStack extends ModelsBase {
 
     if (bitsAllocated === 8 && channels === 1 || bitsAllocated === 1) {
       let data = new Uint8Array(textureSize * textureSize * 1);
+      let coordinate = 0;
+      let channelOffset = 0;
+      console.log('pack4');
       for (let i = startVoxel; i < stopVoxel; i++) {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
 
         let raw = frame[frameIndex].pixelData[inFrameIndex] += offset;
         if (!Number.isNaN(raw)) {
-          data[packIndex] = raw;
+          data[4 * coordinate + 4 * channelOffset] = raw;
         }
 
         packIndex++;
+        coordinate = Math.floor(packIndex / 4);
+        channelOffset = packIndex % 4;
       }
-      packed.textureType = THREE.LuminanceFormat;
+      packed.textureType = THREE.RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 16 && channels === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);

@@ -119,6 +119,8 @@ export default class LoadersVolumes extends LoadersBase {
                 reject(e);
               }
 
+              console.time('parse');
+
               // create a series
               let series = new ModelsSeries();
               // global information
@@ -193,6 +195,7 @@ export default class LoadersVolumes extends LoadersBase {
    * @param {promise.reject} reject - promise reject args
    */
   parseFrame(series, stack, url, i, dataParser, resolve, reject) {
+    console.time('parseFrame');
     let frame = new ModelsFrame();
     frame.sopInstanceUID = dataParser.sopInstanceUID(i);
     frame.url = url;
@@ -202,7 +205,9 @@ export default class LoadersVolumes extends LoadersBase {
     frame.numberOfChannels = stack.numberOfChannels;
     frame.pixelRepresentation = stack.pixelRepresentation;
     frame.pixelType = stack.pixelType;
+    console.time('extractPixelData');
     frame.pixelData = dataParser.extractPixelData(i);
+    console.timeEnd('extractPixelData');
     frame.pixelSpacing = dataParser.pixelSpacing(i);
     frame.spacingBetweenSlices = dataParser.spacingBetweenSlices(i);
     frame.sliceThickness = dataParser.sliceThickness(i);
@@ -249,6 +254,8 @@ export default class LoadersVolumes extends LoadersBase {
       parsed: this._parsed,
       time: new Date(),
     });
+
+    console.timeEnd('parseFrame');
 
     if (this._parsed === this._totalParsed) {
       // emit 'parse-success' event

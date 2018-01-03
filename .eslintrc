@@ -1,7 +1,7 @@
 {
   "extends": ["eslint:recommended", "./node_modules/eslint-config-google/index.js"],
   "parserOptions": { 
-    "ecmaVersion": 6,
+    "ecmaVersion": 2017,
       "sourceType": "module",
       "ecmaFeatures": {
         "modules": true

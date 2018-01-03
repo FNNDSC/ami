@@ -1,7 +1,7 @@
 /* globals describe, it, expect, beforeEach*/
-
 import CoreUtils from '../../src/core/core.utils';
 import {Matrix3, Vector3} from 'three';
+import puppeteer from 'puppeteer';
 
 describe('Core.Utils', function() {
   describe('bbox', function() {
@@ -47,6 +47,21 @@ describe('Core.Utils', function() {
       expect(bbox.max.x).toEqual(2);
       expect(bbox.max.y).toEqual(4);
       expect(bbox.max.z).toEqual(6);
+    });
+
+    it('should release memory', async () => {
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      await page.evaluate(() => window.map = new Map());
+      // Get a handle to the Map object prototype
+      const mapPrototype = await page.evaluateHandle(() => Map.prototype);
+      // Query all map instances into an array
+      const mapInstances = await page.queryObjects(mapPrototype);
+      // Count amount of map objects in heap
+      const count = await page.evaluate((maps) => maps.length, mapInstances);
+      await mapInstances.dispose();
+      await mapPrototype.dispose();
+      await browser.close();
     });
   });
 });

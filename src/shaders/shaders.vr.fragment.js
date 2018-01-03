@@ -176,6 +176,7 @@ void main(void) {
 
   // the ray
   vec3 rayOrigin = cameraPosition;
+  // potential issue is camera position == "vPos"
   vec3 rayDirection = normalize(vPos.xyz - rayOrigin);
 
   vec3 lightOrigin = uLightPositionInCamera == 1 ? cameraPosition : uLightPosition;
@@ -216,7 +217,7 @@ void main(void) {
     // we avoid to call "normalize" as it may be undefined if vector length == 0.
     gradient = (vec3(dataToWorld * vec4(gradient, 0.)));
     if (length(gradient) > 0.0) {
-      gradient = normalize(gradient);
+      gradient = gradient / length(gradient);
     }
 
     vec4 colorSample;

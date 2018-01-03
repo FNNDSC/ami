@@ -31,7 +31,7 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
             + dataCoordinates.y * uDataDimensions.x
             + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;
   int indexP = int(index/uPackedPerPixel);
-  offset = index - 2*indexP;
+  offset = index - int(uPackedPerPixel)*indexP;
 
   // Map data index to right sampler2D texture
   int voxelsPerTexture = uTextureSize*uTextureSize;
@@ -57,6 +57,12 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
   else if(textureIndex == 4){ dataValue = texture2D(uTextureContainer[4], uv); }
   else if(textureIndex == 5){ dataValue = texture2D(uTextureContainer[5], uv); }
   else if(textureIndex == 6){ dataValue = texture2D(uTextureContainer[6], uv); }
+  else if(textureIndex == 7){ dataValue = texture2D(uTextureContainer[7], uv); }
+  else if(textureIndex == 8){ dataValue = texture2D(uTextureContainer[8], uv); }
+  else if(textureIndex == 9){ dataValue = texture2D(uTextureContainer[9], uv); }
+  else if(textureIndex == 10){ dataValue = texture2D(uTextureContainer[10], uv); }
+  else if(textureIndex == 11){ dataValue = texture2D(uTextureContainer[11], uv); }
+  else if(textureIndex == 12){ dataValue = texture2D(uTextureContainer[12], uv); }
   else {
     dataValue = vec4(0.);
   }
