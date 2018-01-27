@@ -10,6 +10,7 @@ import ParsersDicom from '../parsers/parsers.dicom';
 import ParsersMhd from '../parsers/parsers.mhd';
 import ParsersNifti from '../parsers/parsers.nifti';
 import ParsersNrrd from '../parsers/parsers.nrrd';
+import ParsersMgh from '../parsers/parsers.mgh';
 
 /**
  *
@@ -293,6 +294,10 @@ export default class LoadersVolumes extends LoadersBase {
       case 'NRRD':
         Parser = ParsersNrrd;
         break;
+      case 'MGH':
+      case 'MGZ':
+        Parser = ParsersMgh;
+        break;
       default:
         window.console.log('unsupported extension: ' + extension);
         return false;
@@ -318,6 +323,11 @@ export default class LoadersVolumes extends LoadersBase {
       data.gzcompressed = true;
       data.extension =
         data.filename.split('.gz').shift().split('.').pop();
+      let decompressedData = PAKO.inflate(data.buffer);
+      data.buffer = decompressedData.buffer;
+    } else if (data.extension === 'mgz') {
+      data.gzcompressed = true;
+      data.extension = 'mgh';
       let decompressedData = PAKO.inflate(data.buffer);
       data.buffer = decompressedData.buffer;
     } else {
