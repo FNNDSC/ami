@@ -314,7 +314,10 @@ export default class ParsersMgh extends ParsersVolume {
             let high = tempBuff.getInt32(i*8 + shiftHigh, this._swapEndian);
             let low  = tempBuff.getInt32(i*8 + shiftLow, this._swapEndian);
             if (high != 0)
+            {
                 console.log("Unable to read Int64 with high word: " + high + " low word: " + low);
+                low=undefined;
+            }
             v[i]=low;
         }
         if (len==0)
@@ -342,7 +345,7 @@ export default class ParsersMgh extends ParsersVolume {
         return v;
     }
     
-        _readUChar(len=1) { //unsigned int8
+    _readUChar(len=1) { //unsigned int8
         let tempBuff=new DataView(this._buffer.slice(this._bufferPos,this._bufferPos+len))
         this._bufferPos += len;
         let v=undefined;
@@ -397,6 +400,8 @@ export default class ParsersMgh extends ParsersVolume {
             default:
                 tagLen=this._readLong();
         }
+        if (tagLen==undefined)
+            tagType=undefined;
         return [tagType,tagLen];
     }
 }
