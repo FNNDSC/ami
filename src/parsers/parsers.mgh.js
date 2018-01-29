@@ -2,7 +2,7 @@
 import ParsersVolume from './parsers.volume';
 
 /**
- * @module parsers/nifti
+ * @module parsers/mgh
  */
 export default class ParsersMgh extends ParsersVolume {
     constructor(data, id) {
@@ -162,10 +162,6 @@ export default class ParsersMgh extends ParsersVolume {
         return this._depth;
     }
 
-    numberOfChannels() { 
-        return 1;
-    }
-
     sopInstanceUID(frameIndex = 0) {
         return frameIndex;
     }
@@ -214,43 +210,12 @@ export default class ParsersMgh extends ParsersVolume {
         return this._spacingXYZ;
     }
 
-    sliceThickness() {
-        // should be a string...
-        return null;// nifti: this._dataSet.pixDims[3].toString();
-    }
-
     imageOrientation(frameIndex = 0) {
         return this._imageOrient;
     }
 
     imagePosition(frameIndex = 0) {
         return this._origin;
-    }
-
-    dimensionIndexValues(frameIndex = 0) {
-        return null;
-    }
-
-    instanceNumber(frameIndex = 0) {
-        return frameIndex;
-    }
-
-    windowCenter(frameIndex = 0) {
-        // calc min and calc max
-        return null;
-    }
-
-    windowWidth(frameIndex = 0) {
-        // calc min and calc max
-        return null;
-    }
-
-    rescaleSlope(frameIndex = 0) {
-        return 1;
-    }
-
-    rescaleIntercept(frameIndex = 0) {
-        return 0;
     }
 
 
