@@ -211,8 +211,8 @@ export default class ParsersMgh extends ParsersVolume {
         
         if (this._readStyle==1)
         {
-            this._imageOrient=[1, 0, 0, 0, 0, -1];
-            this._origin=[-128, -128, 128];
+            this._imageOrient=[-1, 0, 0, 0, 0, -1];
+            this._origin=[128, 128, 128];
         } else {
             this._imageOrient = [
                 this._Xras[0], this._Xras[1], this._Xras[2],
