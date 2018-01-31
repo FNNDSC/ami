@@ -121,9 +121,18 @@ Object.assign(THREE.FreeSurferLoader.prototype, THREE.EventDispatcher.prototype,
                 geometry = new THREE.Geometry();
                 for (let v=0; v < vertCount; v++)
                 {
-                    geometry.vertices.push(
-                        new THREE.Vector3(reader.getFloat32(offset +  0,littleEndian),  reader.getFloat32(offset +  4,littleEndian), reader.getFloat32(offset +  8,littleEndian) )
-                    );
+                    if (false) //Use original, unmodified vectors (MGH _readType 2)
+                    {
+                        geometry.vertices.push(
+                            new THREE.Vector3(reader.getFloat32(offset +  0,littleEndian),  reader.getFloat32(offset +  4,littleEndian), reader.getFloat32(offset +  8,littleEndian) )
+                        );
+                    }
+                    else
+                    {
+                        geometry.vertices.push(
+                            new THREE.Vector3(reader.getFloat32(offset +  0,littleEndian) * -1,  reader.getFloat32(offset +  4,littleEndian) * -1, reader.getFloat32(offset +  8,littleEndian) )
+                        );
+                    }
                     offset+=12;
                 }
                 
