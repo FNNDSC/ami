@@ -355,7 +355,7 @@ export default class ParsersMgh extends ParsersVolume {
     }
 
     // unsigned int8
-    _readUChar(len=1){
+    _readUChar(len=1) {
         let tempBuff=new DataView(this._buffer.slice(this._bufferPos, this._bufferPos+len));
         this._bufferPos += len;
         let v=undefined;
