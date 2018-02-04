@@ -74,35 +74,89 @@ Object.assign(THREE.FreeSurferLoader.prototype, THREE.EventDispatcher.prototype,
         let littleEndian = this.littleEndian();
         let reader = new DataView(data);
         let offset = 0;
-        let surfType = 0;
         let surfDesc = undefined;
         let geometry = undefined;
 
-        window.console.log(this);
-        // check magic bytes
-        let b1=reader.getUint8(offset); offset++;
-        let b2=reader.getUint8(offset); offset++;
-        let b3=reader.getUint8(offset); offset++;
-        if (b1 == 0xff && b2 == 0xff && b3 < 0xff) {
-            surfType+=b1 << 16;
-            surfType+=b2 << 8;
-            surfType+=b3;
-            littleEndian=false;
-        } else if (b1 < 0xff && b2==0xff && b3 == 0xff) {
-            window.console.log('Endian swap');
-            surfType+=b3 << 16;
-            surfType+=b2 << 8;
-            surfType+=b1;
-            littleEndian=true;
+        function readInt24(offset, littleEndian=false) {
+            let v = 0;
+            let b1=reader.getUint8(offset);
+            let b2=reader.getUint8(offset+1);
+            let b3=reader.getUint8(offset+2);
+            if (littleEndian) {
+                v+=b3 << 16;
+                v+=b2 << 8;
+                v+=b1;
+            } else {
+                v+=b1 << 16;
+                v+=b2 << 8;
+                v+=b3;
+            }
+            return v;
         }
 
+        window.console.log(this);
+        // check magic bytes
+        let surfType = readInt24(0);
+        if (surfType > 0xffff00) {
+            littleEndian=false;
+        } else {
+            window.console.log('Endian swap');
+            littleEndian=true;
+            surfType = readInt24(0, littleEndian);
+        }
+        offset+=3;
+
+        let vertCount=0;
+        let faceCount=0;
         switch (surfType) {
-            case THREE.FreeSurferLoader.QUAD_FILE_MAGIC_NUMBER:
-                throw Error('Parser not defined for  QUAD_FILE_MAGIC_NUMBER');
-            case THREE.FreeSurferLoader.TRIANGLE_FILE_MAGIC_NUMBER:
+            case THREE.FreeSurferLoader.QUAD_FILE_MAGIC_NUMBER: {
+                vertCount=readInt24(offset, littleEndian);
+                offset+=3;
+                faceCount=readInt24(offset, littleEndian);
+                offset+=3;
+                window.console.log('VertCount='+vertCount+'; FaceCount='+faceCount);
+
+                // Sanity check from FreeSurfer: utils/mrisurf.c
+                if (faceCount > 4 * vertCount) {
+                    throw Error('file has many more faces than vertices!  Probably trying to use a scalar data file as a surface!');
+                }
+
+                geometry = new THREE.Geometry();
+                if (typeof ParsersMgh != 'undefined' && typeof ParsersMgh.FREESURFER_ORIENT != 'undefined' && ParsersMgh.FREESURFER_ORIENT) {
+                    for (let v=0; v < vertCount; v++) {
+                        geometry.vertices.push(
+                            new THREE.Vector3(reader.getInt16(offset + 0, littleEndian) * -1 /100, reader.getInt16(offset + 2, littleEndian) * -1/100, reader.getInt16(offset + 4, littleEndian) / 100)
+                        );
+                        offset+=6;
+                    }
+                } else {
+                    for (let v=0; v < vertCount; v++) {
+                        geometry.vertices.push(
+                            new THREE.Vector3(reader.getInt16(offset + 0, littleEndian) / 100, reader.getInt16(offset + 2, littleEndian) / 100, reader.getInt16(offset + 4, littleEndian) / 100)
+                        );
+                        offset+=6;
+                    }
+                }
+
+                for (let f=0; f < faceCount; f++) {
+                    // THREE.Face4 doesn't exist anymore
+                    // using recommendation from
+                    // https://stackoverflow.com/questions/46132689/how-to-fix-face4-to-face3
+                    let v1=readInt24(offset + 0, littleEndian);
+                    let v2=readInt24(offset + 3, littleEndian);
+                    let v3=readInt24(offset + 6, littleEndian);
+                    let v4=readInt24(offset + 9, littleEndian);
+                    offset+=12;
+                    geometry.faces.push(new THREE.Face3(v1, v2, v3));
+                    geometry.faces.push(new THREE.Face3(v1, v3, v4));
+                }
+                geometry.computeBoundingBox();
+                break;
+            }
+            case THREE.FreeSurferLoader.TRIANGLE_FILE_MAGIC_NUMBER: {
                 // the "created by text"
-                b1=0;
-                b2=0;
+                let b1=0;
+                let b2=0;
                 while (b1 != 10 && b2 != 10) {
                     b1=b2;
                     b2=reader.getUint8(offset); offset++;
@@ -111,9 +165,9 @@ Object.assign(THREE.FreeSurferLoader.prototype, THREE.EventDispatcher.prototype,
                 surfDesc=enc.decode(data.slice(3, offset-1));
                 console.log(surfDesc);
                 offset++;
-                let vertCount=reader.getInt32(offset, littleEndian);
+                vertCount=reader.getInt32(offset, littleEndian);
                 offset+=4;
-                let faceCount=reader.getInt32(offset, littleEndian);
+                faceCount=reader.getInt32(offset, littleEndian);
                 offset+=4;
                 window.console.log('VertCount='+vertCount+'; FaceCount='+faceCount);
 
@@ -140,10 +194,13 @@ Object.assign(THREE.FreeSurferLoader.prototype, THREE.EventDispatcher.prototype,
                 }
                 geometry.computeBoundingBox();
                 break;
-            case THREE.FreeSurferLoader.NEW_QUAD_FILE_MAGIC_NUMBER:
+            }
+            case THREE.FreeSurferLoader.NEW_QUAD_FILE_MAGIC_NUMBER: {
                 throw Error('Parser not defined for  NEW_QUAD_FILE_MAGIC_NUMBER');
-            default:
+            }
+            default: {
                 throw Error('Unknown FreeSurfer MAGICNUMBER: ' + surfType.toString(16));
+            }
         }
         return geometry;
     },
