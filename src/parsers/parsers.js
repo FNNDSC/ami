@@ -1,11 +1,11 @@
 import Dicom from './parsers.dicom';
+import Mgh from './parsers.mgh';
 import Nifti from './parsers.nifti';
 import Nrrd from './parsers.nrrd';
-import Mgh from './parsers.mgh';
 
 export {
     Dicom as DicomParser,
+    Mgh as MghParser,
     Nifti as NiftiParser,
     Nrrd as NrrdParser,
-    Mgh as MghParser,
 };
