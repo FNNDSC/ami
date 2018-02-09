@@ -100,7 +100,7 @@ let dataInfo = [
         meshFront: null,
         meshBack: null,
         color: 0xe91e63,
-        opacity: 0.7,
+        opacity: 0.8,
     }],
     ['adi2', {
         location:
@@ -292,8 +292,8 @@ function init() {
         object.materialBack.clippingPlanes = [clipPlane1];
         r1.renderer.render(object.scene, r1.camera, redTextureTarget, true);
         r1.renderer.clearDepth();
-        redContourHelper.contourWidth = object.selected ? 1 : 1;
-        redContourHelper.contourOpacity = object.selected ? 1 : .2;
+        redContourHelper.contourWidth = object.selected ? 3 : 2;
+        redContourHelper.contourOpacity = object.selected ? 1 : .8;
         r1.renderer.render(redContourScene, r1.camera);
         r1.renderer.clearDepth();
       });
@@ -586,8 +586,6 @@ window.onload = function() {
       if (intersects.length > 0) {
         let ijk =
           CoreUtils.worldToData(stackHelper.stack.lps2IJK, intersects[0].point);
-        console.log(ijk);
-        console.log(intersects[0].point);
 
         r1.stackHelper.index =
           ijk.getComponent((r1.stackHelper.orientation + 2) % 3);
@@ -753,14 +751,11 @@ window.onload = function() {
           });
           object.mesh = new THREE.Mesh(geometry, object.material);
           object.mesh.objRef = object;
-
-          console.log(r1.stackHelper.stack.lps2IJK);
           const array = r1.stackHelper.stack.lps2IJK.toArray();
-          console.log(r1.stackHelper.stack);
 
           let RASToLPS = new THREE.Matrix4();
           const worldCenter = r1.stackHelper.stack.worldCenter();
-          RASToLPS.set( -1, 0, 0, worldCenter.x,
+          RASToLPS.set(-1, 0, 0, worldCenter.x,
                         0, -1, 0, worldCenter.y,
                         0, 0, 1, worldCenter.z,
                         0, 0, 0, 1);
