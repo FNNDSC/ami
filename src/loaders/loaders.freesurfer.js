@@ -6,8 +6,6 @@ Object.assign(THREE.FreeSurferLoader.prototype, THREE.EventDispatcher.prototype,
     constructor: THREE.FreeSurferLoader,
 
     load: function(url, onLoad, onProgress, onError) {
-        window.console.log(url, onLoad, onProgress, onError);
-
         let scope = this;
         let xhr = new XMLHttpRequest();
 
@@ -66,10 +64,6 @@ Object.assign(THREE.FreeSurferLoader.prototype, THREE.EventDispatcher.prototype,
         return new Int16Array(buffer)[0] === 256;
     },
 
-    scan: function(type, chunks, offset, data) {
-        window.console.log(type, chunks, offset, data);
-    },
-
     parse: function(data) {
         let littleEndian = this.littleEndian();
         let reader = new DataView(data);
@@ -94,13 +88,11 @@ Object.assign(THREE.FreeSurferLoader.prototype, THREE.EventDispatcher.prototype,
             return v;
         }
 
-        window.console.log(this);
         // check magic bytes
         let surfType = readInt24(0);
         if (surfType > 0xffff00) {
             littleEndian=false;
         } else {
-            window.console.log('Endian swap');
             littleEndian=true;
             surfType = readInt24(0, littleEndian);
         }
@@ -114,7 +106,6 @@ Object.assign(THREE.FreeSurferLoader.prototype, THREE.EventDispatcher.prototype,
                 offset+=3;
                 faceCount=readInt24(offset, littleEndian);
                 offset+=3;
-                window.console.log('VertCount='+vertCount+'; FaceCount='+faceCount);
 
                 // Sanity check from FreeSurfer: utils/mrisurf.c
                 if (faceCount > 4 * vertCount) {
@@ -122,20 +113,11 @@ Object.assign(THREE.FreeSurferLoader.prototype, THREE.EventDispatcher.prototype,
                 }
 
                 geometry = new THREE.Geometry();
-                if (typeof ParsersMgh != 'undefined' && typeof ParsersMgh.FREESURFER_ORIENT != 'undefined' && ParsersMgh.FREESURFER_ORIENT) {
-                    for (let v=0; v < vertCount; v++) {
-                        geometry.vertices.push(
-                            new THREE.Vector3(reader.getInt16(offset + 0, littleEndian) * -1 /100, reader.getInt16(offset + 2, littleEndian) * -1/100, reader.getInt16(offset + 4, littleEndian) / 100)
-                        );
-                        offset+=6;
-                    }
-                } else {
-                    for (let v=0; v < vertCount; v++) {
-                        geometry.vertices.push(
-                            new THREE.Vector3(reader.getInt16(offset + 0, littleEndian) / 100, reader.getInt16(offset + 2, littleEndian) / 100, reader.getInt16(offset + 4, littleEndian) / 100)
-                        );
-                        offset+=6;
-                    }
+                for (let v=0; v < vertCount; v++) {
+                    geometry.vertices.push(
+                        new THREE.Vector3(reader.getInt16(offset + 0, littleEndian) / 100, reader.getInt16(offset + 2, littleEndian) / 100, reader.getInt16(offset + 4, littleEndian) / 100)
+                    );
+                    offset+=6;
                 }
 
                 for (let f=0; f < faceCount; f++) {
@@ -163,29 +145,18 @@ Object.assign(THREE.FreeSurferLoader.prototype, THREE.EventDispatcher.prototype,
                 }
                 let enc = new TextDecoder();
                 surfDesc=enc.decode(data.slice(3, offset-1));
-                console.log(surfDesc);
                 offset++;
                 vertCount=reader.getInt32(offset, littleEndian);
                 offset+=4;
                 faceCount=reader.getInt32(offset, littleEndian);
                 offset+=4;
-                window.console.log('VertCount='+vertCount+'; FaceCount='+faceCount);
 
                 geometry = new THREE.Geometry();
-                if (typeof ParsersMgh != 'undefined' && typeof ParsersMgh.FREESURFER_ORIENT != 'undefined' && ParsersMgh.FREESURFER_ORIENT) {
-                    for (let v=0; v < vertCount; v++) {
-                        geometry.vertices.push(
-                            new THREE.Vector3(reader.getFloat32(offset + 0, littleEndian) * -1, reader.getFloat32(offset + 4, littleEndian) * -1, reader.getFloat32(offset + 8, littleEndian))
-                        );
-                        offset+=12;
-                    }
-                } else {
-                    for (let v=0; v < vertCount; v++) {
-                        geometry.vertices.push(
-                            new THREE.Vector3(reader.getFloat32(offset + 0, littleEndian), reader.getFloat32(offset + 4, littleEndian), reader.getFloat32(offset + 8, littleEndian))
-                        );
-                        offset+=12;
-                    }
+                for (let v=0; v < vertCount; v++) {
+                    geometry.vertices.push(
+                        new THREE.Vector3(reader.getFloat32(offset + 0, littleEndian), reader.getFloat32(offset + 4, littleEndian), reader.getFloat32(offset + 8, littleEndian))
+                    );
+                    offset+=12;
                 }
 
                 for (let f=0; f < faceCount; f++) {
