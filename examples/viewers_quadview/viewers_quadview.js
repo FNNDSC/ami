@@ -9,7 +9,7 @@ import HelpersContour from 'base/helpers/helpers.contour';
 import HelpersLocalizer from 'base/helpers/helpers.localizer';
 import HelpersStack from 'base/helpers/helpers.stack';
 import LoadersVolume from 'base/loaders/loaders.volume';
-
+import LoadersFS from 'base/loaders/loaders.freesurfer';
 // standard global variables
 let stats;
 let ready = false;
@@ -90,7 +90,7 @@ const r3 = {
 let dataInfo = [
     ['adi1', {
         location:
-          'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/mesh.stl',
+          './fs6_sample/surf/lh.orig',
         label: 'Left',
         loaded: false,
         material: null,
@@ -104,7 +104,7 @@ let dataInfo = [
     }],
     ['adi2', {
         location:
-          'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/mesh2.stl',
+          './fs6_sample/surf/rh.smoothwm',
         label: 'Right',
         loaded: false,
         material: null,
@@ -371,6 +371,8 @@ window.onload = function() {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
   });
 
+  files = ['./fs6_sample/mri/orig.mgz'];
+
   // load sequence for each file
   // instantiate the loader
   // it loads and parses the dicom image
@@ -602,6 +604,8 @@ window.onload = function() {
       if (intersects.length > 0) {
         let ijk =
           CoreUtils.worldToData(stackHelper.stack.lps2IJK, intersects[0].point);
+        console.log(ijk);
+        console.log(intersects[0].point);
 
         r1.stackHelper.index =
           ijk.getComponent((r1.stackHelper.orientation + 2) % 3);
@@ -755,8 +759,9 @@ window.onload = function() {
     // load meshes on the stack is all set
     let meshesLoaded = 0;
     function loadSTLObject(object) {
-      const stlLoader = new THREE.STLLoader();
+      const stlLoader = new THREE.FreeSurferLoader();
       stlLoader.load(object.location, function(geometry) {
+        geometry.computeVertexNormals();
           // 3D mesh
           object.material = new THREE.MeshLambertMaterial({
             opacity: object.opacity,
@@ -766,12 +771,18 @@ window.onload = function() {
           });
           object.mesh = new THREE.Mesh(geometry, object.material);
           object.mesh.objRef = object;
-          const RASToLPS = new THREE.Matrix4();
-          RASToLPS.set(-1, 0, 0, 0,
-                        0, -1, 0, 0,
-                        0, 0, 1, 0,
+
+          console.log(r1.stackHelper.stack.lps2IJK);
+          const array = r1.stackHelper.stack.lps2IJK.toArray();
+          console.log(r1.stackHelper.stack);
+
+          let RASToLPS = new THREE.Matrix4();
+          const worldCenter = r1.stackHelper.stack.worldCenter();
+          RASToLPS.set( -1, 0, 0, worldCenter.x,
+                        0, -1, 0, worldCenter.y,
+                        0, 0, 1, worldCenter.z,
                         0, 0, 0, 1);
-          // object.mesh.applyMatrix(RASToLPS);
+          object.mesh.applyMatrix(RASToLPS);
           r0.scene.add(object.mesh);
 
           object.scene = new THREE.Scene();
@@ -787,7 +798,7 @@ window.onload = function() {
           });
 
           object.meshFront = new THREE.Mesh(geometry, object.materialFront);
-          // object.meshFront.applyMatrix(RASToLPS);
+          object.meshFront.applyMatrix(RASToLPS);
           object.scene.add(object.meshFront);
 
           // back
@@ -801,7 +812,7 @@ window.onload = function() {
           });
 
           object.meshBack = new THREE.Mesh(geometry, object.materialBack);
-          // object.meshBack.applyMatrix(RASToLPS);
+          object.meshBack.applyMatrix(RASToLPS);
           object.scene.add(object.meshBack);
           sceneClip.add(object.scene);
 

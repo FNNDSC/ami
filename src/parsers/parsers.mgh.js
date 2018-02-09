@@ -1,5 +1,6 @@
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
+import {Vector3} from 'three';
 
 /**
  * @module parsers/mgh
@@ -79,75 +80,21 @@ export default class ParsersMgh extends ParsersVolume {
         let dataSize=this._width * this._height * this._depth * this._nframes;
         let vSize=this._width * this._height * this._depth;
 
-
-        if (ParsersMgh.FREESURFER_ORIENT) {
-            console.log('MGH/MGZ reading data in FreeSurfer style');
-            switch (this._type) {
-                case ParsersMgh.MRI_UCHAR:
-                    this._pixelData=new Uint8Array(dataSize);
-                    break;
-                case ParsersMgh.MRI_INT:
-                    this._pixelData=new Int32Array(dataSize);
-                    break;
-                case ParsersMgh.MRI_FLOAT:
-                    this._pixelData=new Float32Array(dataSize);
-                    break;
-                case ParsersMgh.MRI_SHORT:
-                    this._pixelData=new Int16Array(dataSize);
-                    break;
-                default:
-                    throw Error('MGH/MGZ parser: Unknown _type.  _type reports: ' + this._type);
-            }
-            for (let t=0; t < this._nframes; t++) {
-                for (let y=0; y < this._height; y++) {
-                    for (let z=0; z < this._depth; z++) {
-                        // read an X line all at once then copy to
-                        // _pixelData to speed things up over doing an
-                        // indivdual _read* per datavalue
-                        let pOffset=t*vSize;
-                        pOffset +=y*(this._width*this._depth);
-                        pOffset +=z*this._depth;
-                        let dest = undefined;
-                        switch (this._type) {
-                            case ParsersMgh.MRI_UCHAR:
-                                dest = this._readUChar(this._width).reverse();
-                                break;
-                            case ParsersMgh.MRI_INT:
-                                dest = this._readInt(this._width).reverse();
-                                break;
-                            case ParsersMgh.MRI_FLOAT:
-                                dest = this._readFloat(this._width).reverse();
-                                break;
-                            case ParsersMgh.MRI_SHORT:
-                                dest = this._readShort(this._width).reverse();
-                                break;
-                            default:
-                                throw Error('MGH/MGZ parser: Unknown _type.  _type reports: ' + this._type);
-                        }
-                        for (let x=0; x < this._width; x++) {
-                            this._pixelData[pOffset+x]=dest[x];
-                        }
-                    }
-                }
-            }
-        } else {
-            console.log('MGH/MGZ reading data native format');
-            switch (this._type) {
-                case ParsersMgh.MRI_UCHAR:
-                    this._pixelData = this._readUChar(dataSize);
-                    break;
-                case ParsersMgh.MRI_INT:
-                    this._pixelData = this._readInt(dataSize);
-                    break;
-                case ParsersMgh.MRI_FLOAT:
-                    this._pixelData = this._readFloat(dataSize);
-                    break;
-                case ParsersMgh.MRI_SHORT:
-                    this._pixelData = this._readShort(dataSize);
-                    break;
-                default:
-                    throw Error('MGH/MGZ parser: Unknown _type.  _type reports: ' + this._type);
-            }
+        switch (this._type) {
+            case ParsersMgh.MRI_UCHAR:
+                this._pixelData = this._readUChar(dataSize);
+                break;
+            case ParsersMgh.MRI_INT:
+                this._pixelData = this._readInt(dataSize);
+                break;
+            case ParsersMgh.MRI_FLOAT:
+                this._pixelData = this._readFloat(dataSize);
+                break;
+            case ParsersMgh.MRI_SHORT:
+                this._pixelData = this._readShort(dataSize);
+                break;
+            default:
+                throw Error('MGH/MGZ parser: Unknown _type.  _type reports: ' + this._type);
         }
 
         this._tr = this._readFloat(1);
@@ -178,30 +125,40 @@ export default class ParsersMgh extends ParsersVolume {
             t=this._tagReadStart();
         }
 
-        if (ParsersMgh.FREESURFER_ORIENT) {
-            this._imageOrient=[1, 0, 0, 0, 0, -1];
-            this._origin=[-128, -128, 128];
-        } else {
-            this._imageOrient = [
-                this._Xras[0], this._Xras[1], this._Xras[2],
-                this._Yras[0], this._Yras[1], this._Yras[2],
-            ];
+        // detect if we are in a right handed coordinate system
+        const first = new Vector3().fromArray(this._Xras);
+        const second = new Vector3().fromArray(this._Yras);
+        const crossFirstSecond = new Vector3().crossVectors(first, second);
+        const third = new Vector3().fromArray(this._Zras);
 
-            // Calculate origin
-            // From XTK parserMGZ.js
-            // compute origin
-            let fcx = this._width / 2.0;
-            let fcy = this._height / 2.0;
-            let fcz = this._depth / 2.0;
-
-            for (let ui = 0; ui < 3; ++ui) {
-                this._origin[ui] = this._Cras[ui]
-                    - (this._Xras[ui] * this._spacingXYZ[0] * fcx
-                    + this._Yras[ui] * this._spacingXYZ[1] * fcy
-                    + this._Zras[ui] * this._spacingXYZ[2] * fcz);
-            }
+        if (crossFirstSecond.angleTo(third) > Math.PI / 2) {
+            this._rightHanded = false;
         }
-        console.log(this);
+
+        // - sign to move to LPS space
+        this._imageOrient = [
+            -this._Xras[0], -this._Xras[1], this._Xras[2],
+            -this._Yras[0], -this._Yras[1], this._Yras[2],
+        ];
+
+        // Calculate origin
+        let fcx = this._width / 2.0;
+        let fcy = this._height / 2.0;
+        let fcz = this._depth / 2.0;
+
+        for (let ui = 0; ui < 3; ++ui) {
+            this._origin[ui] = this._Cras[ui]
+                - (this._Xras[ui] * this._spacingXYZ[0] * fcx
+                + this._Yras[ui] * this._spacingXYZ[1] * fcy
+                + this._Zras[ui] * this._spacingXYZ[2] * fcz);
+        }
+
+        // - sign to move to LPS space
+        this._origin = [
+            -this._origin[0],
+            -this._origin[1],
+            this._origin[2],
+        ];
     }
 
     seriesInstanceUID() {
@@ -387,7 +344,6 @@ export default class ParsersMgh extends ParsersVolume {
     }
 
     _tagReadStart() {
-//        console.log("compare bufferPos " + this._bufferPos + " and byteLength " + this._buffer.byteLength)
         if (this._bufferPos >= this._buffer.byteLength) {
             return [undefined, undefined];
         }
@@ -446,16 +402,3 @@ ParsersMgh.TAG_SCALAR_DOUBLE = 40;
 ParsersMgh.TAG_PEDIR = 41;
 ParsersMgh.TAG_MRI_FRAME = 42;
 ParsersMgh.TAG_FIELDSTRENGTH = 43;
-
-/*
- * This is here because there are two different ways of interpreting
- * the origin of an MGH file. One can ignore the offsets in the
- * transform, using the centre of the voxel grid. Or you can correct
- * these naive grid centres using the values stored in the transform.
- * The first approach is what is used by surface files, so to get them
- * to register nicely ...
- *
- * Override this to load with freesufer orientation (false is MGH native
- * method #2 above)
-*/
-ParsersMgh.FREESURFER_ORIENT=false;
