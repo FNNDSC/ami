@@ -9,7 +9,8 @@ Note: We need this file so we can log new features while we are developing inste
 
 
 ### Big changes
-- We now have a `ami.js` stack overflow tag - [#65](https://github.com/FNNDSC/ami/issues/65).
+- MGH/Z and FSM support - [#134, #242](https://github.com/FNNDSC/ami/pull/245).
+- `ami.js` stack overflow tag - [#65](https://github.com/FNNDSC/ami/issues/65).
 
 ### API changes
 - [[helpers: segmentation lut]](https://github.com/FNNDSC/ami/commit/c311a3e1f82d964ab6bebd368d2286dc104f6a2e) Removed `segId` argument in constructor.
