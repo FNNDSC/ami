@@ -70,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 83);
+/******/ 	return __webpack_require__(__webpack_require__.s = 84);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -44450,13 +44450,13 @@ exports.setTyped(TYPED_OK);
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_validators__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_validators__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(0);
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var URL = __webpack_require__(87);
+var URL = __webpack_require__(88);
 
 
 
@@ -44951,9 +44951,9 @@ process.umask = function() { return 0; };
 
 
 
-var base64 = __webpack_require__(132)
-var ieee754 = __webpack_require__(133)
-var isArray = __webpack_require__(134)
+var base64 = __webpack_require__(133)
+var ieee754 = __webpack_require__(134)
+var isArray = __webpack_require__(135)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -46783,8 +46783,8 @@ var objectKeys = Object.keys || function (obj) {
 module.exports = Duplex;
 
 /*<replacement>*/
-var util = __webpack_require__(11);
-util.inherits = __webpack_require__(12);
+var util = __webpack_require__(12);
+util.inherits = __webpack_require__(13);
 /*</replacement>*/
 
 var Readable = __webpack_require__(62);
@@ -47122,7 +47122,7 @@ var WidgetsBase = function (_THREE$Object3D) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_utils__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_validators__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_validators__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -47611,6 +47611,240 @@ var ShadersBase = function () {
 
 /***/ }),
 /* 11 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * @module parsers/volume
+ */
+var ParsersVolume = function () {
+  function ParsersVolume() {
+    _classCallCheck(this, ParsersVolume);
+
+    this._rightHanded = true;
+  }
+
+  ParsersVolume.prototype.pixelRepresentation = function pixelRepresentation() {
+    return 0;
+  };
+
+  ParsersVolume.prototype.modality = function modality() {
+    return 'unknown';
+  };
+
+  ParsersVolume.prototype.segmentationType = function segmentationType() {
+    return 'unknown';
+  };
+
+  ParsersVolume.prototype.segmentationSegments = function segmentationSegments() {
+    return [];
+  };
+
+  ParsersVolume.prototype.referencedSegmentNumber = function referencedSegmentNumber(frameIndex) {
+    return -1;
+  };
+
+  ParsersVolume.prototype.rightHanded = function rightHanded() {
+    return this._rightHanded;
+  };
+
+  ParsersVolume.prototype.spacingBetweenSlices = function spacingBetweenSlices() {
+    return null;
+  };
+
+  ParsersVolume.prototype.numberOfChannels = function numberOfChannels() {
+    return 1;
+  };
+
+  ParsersVolume.prototype.sliceThickness = function sliceThickness() {
+    return null;
+  };
+
+  ParsersVolume.prototype.dimensionIndexValues = function dimensionIndexValues() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    return null;
+  };
+
+  ParsersVolume.prototype.instanceNumber = function instanceNumber() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    return frameIndex;
+  };
+
+  ParsersVolume.prototype.windowCenter = function windowCenter() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    return null;
+  };
+
+  ParsersVolume.prototype.windowWidth = function windowWidth() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    return null;
+  };
+
+  ParsersVolume.prototype.rescaleSlope = function rescaleSlope() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    return 1;
+  };
+
+  ParsersVolume.prototype.rescaleIntercept = function rescaleIntercept() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    return 0;
+  };
+
+  ParsersVolume.prototype._decompressUncompressed = function _decompressUncompressed() {};
+
+  // http://stackoverflow.com/questions/5320439/how-do-i-swap-endian-ness-byte-order-of-a-variable-in-javascript
+
+
+  ParsersVolume.prototype._swap16 = function _swap16(val) {
+    return (val & 0xFF) << 8 | val >> 8 & 0xFF;
+  };
+
+  ParsersVolume.prototype._swap32 = function _swap32(val) {
+    return (val & 0xFF) << 24 | (val & 0xFF00) << 8 | val >> 8 & 0xFF00 | val >> 24 & 0xFF;
+  };
+
+  ParsersVolume.prototype.invert = function invert() {
+    return false;
+  };
+
+  /**
+   * Get the transfer syntax UID.
+   * @return {*}
+   */
+
+
+  ParsersVolume.prototype.transferSyntaxUID = function transferSyntaxUID() {
+    return 'no value provided';
+  };
+
+  /**
+   * Get the study date.
+   * @return {*}
+   */
+
+
+  ParsersVolume.prototype.studyDate = function studyDate() {
+    return 'no value provided';
+  };
+
+  /**
+   * Get the study desciption.
+   * @return {*}
+   */
+
+
+  ParsersVolume.prototype.studyDescription = function studyDescription() {
+    return 'no value provided';
+  };
+
+  /**
+   * Get the series date.
+   * @return {*}
+   */
+
+
+  ParsersVolume.prototype.seriesDate = function seriesDate() {
+    return 'no value provided';
+  };
+
+  /**
+   * Get the series desciption.
+   * @return {*}
+   */
+
+
+  ParsersVolume.prototype.seriesDescription = function seriesDescription() {
+    return 'no value provided';
+  };
+
+  /**
+   * Get the patient ID.
+   * @return {*}
+   */
+
+
+  ParsersVolume.prototype.patientID = function patientID() {
+    return 'no value provided';
+  };
+
+  /**
+   * Get the patient name.
+   * @return {*}
+   */
+
+
+  ParsersVolume.prototype.patientName = function patientName() {
+    return 'no value provided';
+  };
+
+  /**
+   * Get the patient age.
+   * @return {*}
+   */
+
+
+  ParsersVolume.prototype.patientAge = function patientAge() {
+    return 'no value provided';
+  };
+
+  /**
+   * Get the patient birthdate.
+   * @return {*}
+   */
+
+
+  ParsersVolume.prototype.patientBirthdate = function patientBirthdate() {
+    return 'no value provided';
+  };
+
+  /**
+   * Get the patient sex.
+   * @return {*}
+   */
+
+
+  ParsersVolume.prototype.patientSex = function patientSex() {
+    return 'no value provided';
+  };
+
+  /**
+   * Get min/max values in array
+   *
+   * @param {*} pixelData
+   *
+   * @return {*}
+   */
+
+
+  ParsersVolume.prototype.minMaxPixelData = function minMaxPixelData() {
+    var pixelData = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+    var minMax = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
+    var numPixels = pixelData.length;
+    for (var index = 0; index < numPixels; index++) {
+      var spv = pixelData[index];
+      minMax[0] = Math.min(minMax[0], spv);
+      minMax[1] = Math.max(minMax[1], spv);
+    }
+
+    return minMax;
+  };
+
+  return ParsersVolume;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (ParsersVolume);
+
+/***/ }),
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {// Copyright Joyent, Inc. and other Node contributors.
@@ -47724,7 +47958,7 @@ function objectToString(o) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -47753,7 +47987,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -48185,7 +48419,7 @@ var WidgetsHandle = function (_WidgetsBase) {
 /* harmony default export */ __webpack_exports__["a"] = (WidgetsHandle);
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -48288,240 +48522,6 @@ var Validators = function () {
 }();
 
 /* harmony default export */ __webpack_exports__["a"] = (Validators);
-
-/***/ }),
-/* 15 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * @module parsers/volume
- */
-var ParsersVolume = function () {
-  function ParsersVolume() {
-    _classCallCheck(this, ParsersVolume);
-
-    this._rightHanded = true;
-  }
-
-  ParsersVolume.prototype.pixelRepresentation = function pixelRepresentation() {
-    return 0;
-  };
-
-  ParsersVolume.prototype.modality = function modality() {
-    return 'unknown';
-  };
-
-  ParsersVolume.prototype.segmentationType = function segmentationType() {
-    return 'unknown';
-  };
-
-  ParsersVolume.prototype.segmentationSegments = function segmentationSegments() {
-    return [];
-  };
-
-  ParsersVolume.prototype.referencedSegmentNumber = function referencedSegmentNumber(frameIndex) {
-    return -1;
-  };
-
-  ParsersVolume.prototype.rightHanded = function rightHanded() {
-    return this._rightHanded;
-  };
-
-  ParsersVolume.prototype.spacingBetweenSlices = function spacingBetweenSlices() {
-    return null;
-  };
-
-  ParsersVolume.prototype.numberOfChannels = function numberOfChannels() {
-    return 1;
-  };
-
-  ParsersVolume.prototype.sliceThickness = function sliceThickness() {
-    return null;
-  };
-
-  ParsersVolume.prototype.dimensionIndexValues = function dimensionIndexValues() {
-    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-    return null;
-  };
-
-  ParsersVolume.prototype.instanceNumber = function instanceNumber() {
-    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-    return frameIndex;
-  };
-
-  ParsersVolume.prototype.windowCenter = function windowCenter() {
-    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-    return null;
-  };
-
-  ParsersVolume.prototype.windowWidth = function windowWidth() {
-    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-    return null;
-  };
-
-  ParsersVolume.prototype.rescaleSlope = function rescaleSlope() {
-    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-    return 1;
-  };
-
-  ParsersVolume.prototype.rescaleIntercept = function rescaleIntercept() {
-    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-    return 0;
-  };
-
-  ParsersVolume.prototype._decompressUncompressed = function _decompressUncompressed() {};
-
-  // http://stackoverflow.com/questions/5320439/how-do-i-swap-endian-ness-byte-order-of-a-variable-in-javascript
-
-
-  ParsersVolume.prototype._swap16 = function _swap16(val) {
-    return (val & 0xFF) << 8 | val >> 8 & 0xFF;
-  };
-
-  ParsersVolume.prototype._swap32 = function _swap32(val) {
-    return (val & 0xFF) << 24 | (val & 0xFF00) << 8 | val >> 8 & 0xFF00 | val >> 24 & 0xFF;
-  };
-
-  ParsersVolume.prototype.invert = function invert() {
-    return false;
-  };
-
-  /**
-   * Get the transfer syntax UID.
-   * @return {*}
-   */
-
-
-  ParsersVolume.prototype.transferSyntaxUID = function transferSyntaxUID() {
-    return 'no value provided';
-  };
-
-  /**
-   * Get the study date.
-   * @return {*}
-   */
-
-
-  ParsersVolume.prototype.studyDate = function studyDate() {
-    return 'no value provided';
-  };
-
-  /**
-   * Get the study desciption.
-   * @return {*}
-   */
-
-
-  ParsersVolume.prototype.studyDescription = function studyDescription() {
-    return 'no value provided';
-  };
-
-  /**
-   * Get the series date.
-   * @return {*}
-   */
-
-
-  ParsersVolume.prototype.seriesDate = function seriesDate() {
-    return 'no value provided';
-  };
-
-  /**
-   * Get the series desciption.
-   * @return {*}
-   */
-
-
-  ParsersVolume.prototype.seriesDescription = function seriesDescription() {
-    return 'no value provided';
-  };
-
-  /**
-   * Get the patient ID.
-   * @return {*}
-   */
-
-
-  ParsersVolume.prototype.patientID = function patientID() {
-    return 'no value provided';
-  };
-
-  /**
-   * Get the patient name.
-   * @return {*}
-   */
-
-
-  ParsersVolume.prototype.patientName = function patientName() {
-    return 'no value provided';
-  };
-
-  /**
-   * Get the patient age.
-   * @return {*}
-   */
-
-
-  ParsersVolume.prototype.patientAge = function patientAge() {
-    return 'no value provided';
-  };
-
-  /**
-   * Get the patient birthdate.
-   * @return {*}
-   */
-
-
-  ParsersVolume.prototype.patientBirthdate = function patientBirthdate() {
-    return 'no value provided';
-  };
-
-  /**
-   * Get the patient sex.
-   * @return {*}
-   */
-
-
-  ParsersVolume.prototype.patientSex = function patientSex() {
-    return 'no value provided';
-  };
-
-  /**
-   * Get min/max values in array
-   *
-   * @param {*} pixelData
-   *
-   * @return {*}
-   */
-
-
-  ParsersVolume.prototype.minMaxPixelData = function minMaxPixelData() {
-    var pixelData = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-
-    var minMax = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
-    var numPixels = pixelData.length;
-    for (var index = 0; index < numPixels; index++) {
-      var spv = pixelData[index];
-      minMax[0] = Math.min(minMax[0], spv);
-      minMax[1] = Math.max(minMax[1], spv);
-    }
-
-    return minMax;
-  };
-
-  return ParsersVolume;
-}();
-
-/* harmony default export */ __webpack_exports__["a"] = (ParsersVolume);
 
 /***/ }),
 /* 16 */
@@ -48792,8 +48792,8 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 var assign    = __webpack_require__(2).assign;
 
-var deflate   = __webpack_require__(112);
-var inflate   = __webpack_require__(115);
+var deflate   = __webpack_require__(113);
+var inflate   = __webpack_require__(116);
 var constants = __webpack_require__(56);
 
 var pako = {};
@@ -49269,7 +49269,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 
 
-var binaryString = __webpack_require__(121);
+var binaryString = __webpack_require__(122);
 
 /**
  * Stack object.
@@ -50378,7 +50378,7 @@ module.exports = isString;
 
 // MODULES //
 
-var isInteger = __webpack_require__( 126 );
+var isInteger = __webpack_require__( 127 );
 
 
 // IS NONNEGATIVE INTEGER //
@@ -52625,7 +52625,7 @@ var ShadersFragment = function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_interpolation_identity__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_trilinear__ = __webpack_require__(106);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_trilinear__ = __webpack_require__(107);
 
 
 
@@ -52652,8 +52652,8 @@ function shadersInterpolation(baseFragment, currentVoxel, dataValue, gradient) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_base__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_unpack__ = __webpack_require__(104);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_shaders_helpers_texture3d__ = __webpack_require__(105);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_unpack__ = __webpack_require__(105);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_shaders_helpers_texture3d__ = __webpack_require__(106);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -52959,6 +52959,11 @@ var ShadersUniform = function () {
         type: 'v3',
         value: [.8, .8, .8],
         typeGLSL: 'vec3'
+      },
+      'uAlgorithm': {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int'
       }
     };
   };
@@ -52995,7 +53000,7 @@ var ShadersVertex = function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__ = __webpack_require__(46);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_intersectBox__ = __webpack_require__(109);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_intersectBox__ = __webpack_require__(110);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
@@ -53043,7 +53048,7 @@ var ShadersFragment = function () {
 
   ShadersFragment.prototype.main = function main() {
     // need to pre-call main to fill up the functions list
-    this._main = '\nvoid getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradient){\n\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'dataCoordinates', 'dataValue', 'gradient') + '\n\n  intensity = dataValue.r;\n\n  // rescale/slope\n  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  // window level\n  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n}\n\nmat4 inverse(mat4 m) {\n  float\n    a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],\n    a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3],\n    a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3],\n    a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3],\n\n    b00 = a00 * a11 - a01 * a10,\n    b01 = a00 * a12 - a02 * a10,\n    b02 = a00 * a13 - a03 * a10,\n    b03 = a01 * a12 - a02 * a11,\n    b04 = a01 * a13 - a03 * a11,\n    b05 = a02 * a13 - a03 * a12,\n    b06 = a20 * a31 - a21 * a30,\n    b07 = a20 * a32 - a22 * a30,\n    b08 = a20 * a33 - a23 * a30,\n    b09 = a21 * a32 - a22 * a31,\n    b10 = a21 * a33 - a23 * a31,\n    b11 = a22 * a33 - a23 * a32,\n\n    det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;\n\n  return mat4(\n    a11 * b11 - a12 * b10 + a13 * b09,\n    a02 * b10 - a01 * b11 - a03 * b09,\n    a31 * b05 - a32 * b04 + a33 * b03,\n    a22 * b04 - a21 * b05 - a23 * b03,\n    a12 * b08 - a10 * b11 - a13 * b07,\n    a00 * b11 - a02 * b08 + a03 * b07,\n    a32 * b02 - a30 * b05 - a33 * b01,\n    a20 * b05 - a22 * b02 + a23 * b01,\n    a10 * b10 - a11 * b08 + a13 * b06,\n    a01 * b08 - a00 * b10 - a03 * b06,\n    a30 * b04 - a31 * b02 + a33 * b00,\n    a21 * b02 - a20 * b04 - a23 * b00,\n    a11 * b07 - a10 * b09 - a12 * b06,\n    a00 * b09 - a01 * b07 + a02 * b06,\n    a31 * b01 - a30 * b03 - a32 * b00,\n    a20 * b03 - a21 * b01 + a22 * b00) / det;\n}\n\n/**\n * Adapted from original sources\n * \n * Original code: \n * http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/\n * https://www.shadertoy.com/view/lt33z7\n * \n * The vec3 returned is the RGB color of the light\'s contribution.\n *\n * k_a: Ambient color\n * k_d: Diffuse color\n * k_s: Specular color\n * alpha: Shininess coefficient\n * p: position of point being lit\n * eye: the position of the camera\n * lightPos: the position of the light\n * lightIntensity: color/intensity of the light\n *\n * See https://en.wikipedia.org/wiki/Phong_reflection_model#Description\n */\nvec3 phongShading(vec3 k_a, vec3 k_d, vec3 k_s, float shininess, vec3 p, vec3 eye,\n  vec3 lightPos, vec3 lightIntensity, vec3 normal) {\n  vec3 N = normal;\n  vec3 L = normalize(lightPos - p);\n  vec3 V = normalize(eye - p);\n  vec3 R = normalize(reflect(-L, N));\n\n  float dotLN = dot(L, N);\n  float dotRV = dot(R, V);\n\n  if (dotLN < 0.0) {\n    // Light not visible from this point on the surface\n    return k_a;\n  } \n\n  if (dotRV < 0.0) {\n    // Light reflection in opposite direction as viewer, apply only diffuse\n    // component\n    return k_a + lightIntensity * (k_d * dotLN);\n  }\n\n  return k_a + lightIntensity * (k_d * dotLN  + k_s * pow(dotRV, shininess));\n}\n\nvoid main(void) {\n  const int maxSteps = 1024;\n\n  // the ray\n  vec3 rayOrigin = cameraPosition;\n  vec3 rayDirection = normalize(vPos.xyz - rayOrigin);\n\n  vec3 lightOrigin = uLightPositionInCamera == 1 ? cameraPosition : uLightPosition;\n\n  // the Axe-Aligned B-Box\n  vec3 AABBMin = vec3(uWorldBBox[0], uWorldBBox[2], uWorldBBox[4]);\n  vec3 AABBMax = vec3(uWorldBBox[1], uWorldBBox[3], uWorldBBox[5]);\n\n  // Intersection ray/bbox\n  float tNear, tFar;\n  bool intersect = false;\n  ' + __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_intersectBox__["a" /* default */].api(this, 'rayOrigin', 'rayDirection', 'AABBMin', 'AABBMax', 'tNear', 'tFar', 'intersect') + '\n  if (tNear < 0.0) tNear = 0.0;\n\n  // init the ray marching\n  float tCurrent = tNear;\n  float tStep = (tFar - tNear) / float(uSteps);\n  vec4 accumulatedColor = vec4(0.0);\n  float accumulatedAlpha = 0.0;\n  mat4 dataToWorld = inverse(uWorldToData);\n\n  for(int rayStep = 0; rayStep < maxSteps; rayStep++){\n    vec3 currentPosition = rayOrigin + rayDirection * tCurrent;\n    // some non-linear FUN\n    // some occlusion issue to be fixed\n    vec3 transformedPosition = currentPosition; //transformPoint(currentPosition, uAmplitude, uFrequence);\n    // world to data coordinates\n    // rounding trick\n    // first center of first voxel in data space is CENTERED on (0,0,0)\n    vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);\n    vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);\n    float intensity = 0.0;\n    vec3 gradient = vec3(0., 0., 0.);\n    getIntensity(currentVoxel, intensity, gradient);\n    // map gradient to world space and normalize before using\n    // we avoid to call "normalize" as it may be undefined if vector length == 0.\n    gradient = (vec3(dataToWorld * vec4(gradient, 0.)));\n    if (length(gradient) > 0.0) {\n      gradient = normalize(gradient);\n    }\n\n    vec4 colorSample;\n    float alphaSample;\n    if(uLut == 1){\n      vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );\n      // 256 colors\n      colorSample = colorFromLUT;\n      alphaSample = colorFromLUT.a;\n    }\n    else{\n      alphaSample = intensity;\n      colorSample.r = colorSample.g = colorSample.b = intensity;\n    }\n\n    if (uShading == 1 && uInterpolation != 0) {\n      vec3 ambientComponent = uSampleColorToAmbient == 1 ? colorSample.xyz : uAmbientColor;\n      ambientComponent *= uAmbient;\n      vec3 diffuseComponent = uSampleColorToDiffuse == 1 ? colorSample.xyz : uDiffuseColor;\n      diffuseComponent *= uDiffuse;\n      vec3 specularComponent = uSpecular * uSpecularColor;\n      float shininess = uShininess;\n      vec3 intensity = uIntensity;\n\n      colorSample.xyz += phongShading(\n        ambientComponent,\n        diffuseComponent,\n        specularComponent,\n        shininess,\n        currentPosition.xyz,\n        rayOrigin.xyz,\n        lightOrigin.xyz,\n        intensity,\n        gradient);\n    }\n\n    alphaSample = 1.0 - pow((1.0- alphaSample),tStep*uAlphaCorrection);\n    alphaSample *= (1.0 - accumulatedAlpha);\n\n    accumulatedColor += alphaSample * colorSample;\n    accumulatedAlpha += alphaSample;\n\n    tCurrent += tStep;\n\n    if(tCurrent > tFar || accumulatedAlpha >= 1.0 ) break;\n  }\n\n  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);\n}\n   ';
+    this._main = '\nvoid getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradient){\n\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'dataCoordinates', 'dataValue', 'gradient') + '\n\n  intensity = dataValue.r;\n\n  // rescale/slope\n  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  // window level\n  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];\n}\n\nmat4 inverse(mat4 m) {\n  float\n    a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],\n    a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3],\n    a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3],\n    a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3],\n\n    b00 = a00 * a11 - a01 * a10,\n    b01 = a00 * a12 - a02 * a10,\n    b02 = a00 * a13 - a03 * a10,\n    b03 = a01 * a12 - a02 * a11,\n    b04 = a01 * a13 - a03 * a11,\n    b05 = a02 * a13 - a03 * a12,\n    b06 = a20 * a31 - a21 * a30,\n    b07 = a20 * a32 - a22 * a30,\n    b08 = a20 * a33 - a23 * a30,\n    b09 = a21 * a32 - a22 * a31,\n    b10 = a21 * a33 - a23 * a31,\n    b11 = a22 * a33 - a23 * a32,\n\n    det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;\n\n  return mat4(\n    a11 * b11 - a12 * b10 + a13 * b09,\n    a02 * b10 - a01 * b11 - a03 * b09,\n    a31 * b05 - a32 * b04 + a33 * b03,\n    a22 * b04 - a21 * b05 - a23 * b03,\n    a12 * b08 - a10 * b11 - a13 * b07,\n    a00 * b11 - a02 * b08 + a03 * b07,\n    a32 * b02 - a30 * b05 - a33 * b01,\n    a20 * b05 - a22 * b02 + a23 * b01,\n    a10 * b10 - a11 * b08 + a13 * b06,\n    a01 * b08 - a00 * b10 - a03 * b06,\n    a30 * b04 - a31 * b02 + a33 * b00,\n    a21 * b02 - a20 * b04 - a23 * b00,\n    a11 * b07 - a10 * b09 - a12 * b06,\n    a00 * b09 - a01 * b07 + a02 * b06,\n    a31 * b01 - a30 * b03 - a32 * b00,\n    a20 * b03 - a21 * b01 + a22 * b00) / det;\n}\n\n/**\n * Adapted from original sources\n * \n * Original code: \n * http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/\n * https://www.shadertoy.com/view/lt33z7\n * \n * The vec3 returned is the RGB color of the light\'s contribution.\n *\n * k_a: Ambient color\n * k_d: Diffuse color\n * k_s: Specular color\n * alpha: Shininess coefficient\n * p: position of point being lit\n * eye: the position of the camera\n * lightPos: the position of the light\n * lightIntensity: color/intensity of the light\n *\n * See https://en.wikipedia.org/wiki/Phong_reflection_model#Description\n */\nvec3 phongShading(vec3 k_a, vec3 k_d, vec3 k_s, float shininess, vec3 p, vec3 eye,\n  vec3 lightPos, vec3 lightIntensity, vec3 normal) {\n  vec3 N = normal;\n  vec3 L = lightPos - p;\n  if (length(L) > 0.) {\n    L = L / length(L);\n  }\n  vec3 V = eye - p;\n  if (length(V) > 0.) {\n    V = V / length(V);\n  }\n  vec3 R = reflect(-L, N);\n  if (length(R) > 0.) {\n    R = R / length(R);\n  }\n\n  // https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model\n  vec3 h = L + V;\n  vec3 H = h;\n  if (length(h) > 0.) {\n    H = H / length(h);\n  }\n\n  float dotLN = dot(L, N);\n  float dotRV = dot(R, V);\n\n  if (dotLN < 0.) {\n    // Light not visible from this point on the surface\n    return k_a;\n  } \n\n  if (dotRV < 0.) {\n    // Light reflection in opposite direction as viewer, apply only diffuse\n    // component\n    return k_a + lightIntensity * (k_d * dotLN);\n  }\n\n  float specAngle = max(dot(H, normal), 0.0);\n  float specular = pow(dotRV, shininess); //pow(specAngle, shininess); // \n  return k_a + lightIntensity * (k_d * dotLN  + k_s * specular);\n}\n\n\nfloat PHI = 1.61803398874989484820459 * 00000.1; // Golden Ratio   \nfloat PI  = 3.14159265358979323846264 * 00000.1; // PI\nfloat SRT = 1.41421356237309504880169 * 10000.0; // Square Root of Two\n\n// Gold Noise function ?  Should use a texture\n//\nfloat gold_noise(in vec2 coordinate, in float seed)\n{\n    return fract(sin(dot(coordinate*seed, vec2(PHI, PI)))*SRT);\n}\n\nvoid main(void) {\n  const int maxSteps = 1024;\n\n  // the ray\n  vec3 rayOrigin = cameraPosition;\n  vec3 rayDirection = normalize(vPos.xyz - rayOrigin);\n\n  vec3 lightOrigin = uLightPositionInCamera == 1 ? cameraPosition : uLightPosition;\n\n  // the Axe-Aligned B-Box\n  vec3 AABBMin = vec3(uWorldBBox[0], uWorldBBox[2], uWorldBBox[4]);\n  vec3 AABBMax = vec3(uWorldBBox[1], uWorldBBox[3], uWorldBBox[5]);\n\n  // Intersection ray/bbox\n  float tNear, tFar;\n  bool intersect = false;\n  ' + __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_intersectBox__["a" /* default */].api(this, 'rayOrigin', 'rayDirection', 'AABBMin', 'AABBMax', 'tNear', 'tFar', 'intersect') + '\n  if (tNear < 0.0) tNear = 0.0;\n\n  // init the ray marching\n  float tCurrent = tNear;\n  float tStep = (tFar - tNear) / float(uSteps);\n  vec4 accumulatedColor = vec4(0.0);\n  float accumulatedAlpha = 0.0;\n\n  // MIP volume rendering\n  float maxIntensity = 0.0;\n\n  mat4 dataToWorld = inverse(uWorldToData);\n\n  // rayOrigin -= rayDirection * 0.1; // gold_noise(vPos.xz, vPos.y) / 100.;  \n\n  for(int rayStep = 0; rayStep < maxSteps; rayStep++){\n    vec3 currentPosition = rayOrigin + rayDirection * tCurrent;\n    // some non-linear FUN\n    // some occlusion issue to be fixed\n    vec3 transformedPosition = currentPosition; //transformPoint(currentPosition, uAmplitude, uFrequence);\n    // world to data coordinates\n    // rounding trick\n    // first center of first voxel in data space is CENTERED on (0,0,0)\n    vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);\n    vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);\n    float intensity = 0.0;\n    vec3 gradient = vec3(0., 0., 0.);\n    getIntensity(currentVoxel, intensity, gradient);\n    // map gradient to world space and normalize before using\n    // we avoid to call "normalize" as it may be undefined if vector length == 0.\n    gradient = (vec3(dataToWorld * vec4(gradient, 0.)));\n    if (length(gradient) > 0.0) {\n      gradient = normalize(gradient);\n    }\n\n    vec4 colorSample;\n    float alphaSample;\n    if(uLut == 1){\n      vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );\n      // 256 colors\n      colorSample = colorFromLUT;\n      alphaSample = colorFromLUT.a;\n    }\n    else{\n      alphaSample = intensity;\n      colorSample.r = colorSample.g = colorSample.b = intensity;\n    }\n\n    // ray marching algorithm\n    // shading on\n    // interpolation on\n    if (uAlgorithm == 0 && uShading == 1 && uInterpolation != 0) {\n      //  && alphaSample > .3\n      vec3 ambientComponent = uSampleColorToAmbient == 1 ? colorSample.xyz : uAmbientColor;\n      ambientComponent *= uAmbient;\n      vec3 diffuseComponent = uSampleColorToDiffuse == 1 ? colorSample.xyz : uDiffuseColor;\n      diffuseComponent *= uDiffuse;\n      vec3 specularComponent = uSpecular * uSpecularColor;\n      float shininess = uShininess;\n      vec3 vIntensity = uIntensity;\n\n      colorSample.xyz += phongShading(\n        ambientComponent,\n        diffuseComponent,\n        specularComponent,\n        shininess,\n        currentPosition.xyz,\n        rayOrigin.xyz,\n        lightOrigin.xyz,\n        vIntensity,\n        gradient);\n    }\n\n    alphaSample = 1.0 - pow((1.0- alphaSample),tStep*uAlphaCorrection);\n    alphaSample *= (1.0 - accumulatedAlpha);\n\n    accumulatedColor += alphaSample * colorSample;\n    accumulatedAlpha += alphaSample;\n\n    tCurrent += tStep;\n\n    if (tCurrent > tFar || (uAlgorithm == 0 && accumulatedAlpha >= 1.0)) break;\n\n    if (uAlgorithm == 1 && (intensity >= maxIntensity)) {\n      maxIntensity = intensity;\n      accumulatedColor = colorSample;\n      accumulatedAlpha = 1.;\n    }\n  }\n\n  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);\n}\n   ';
   };
 
   ShadersFragment.prototype.compute = function compute() {
@@ -54433,7 +54438,7 @@ var ModelsFrame = function (_ModelsBase) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(11);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -54443,10 +54448,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /** * Imports ***/
 
 
-var DicomParser = __webpack_require__(131);
-var Jpeg = __webpack_require__(155);
-var JpegBaseline = __webpack_require__(157);
-var Jpx = __webpack_require__(158);
+var DicomParser = __webpack_require__(132);
+var Jpeg = __webpack_require__(156);
+var JpegBaseline = __webpack_require__(158);
+var Jpx = __webpack_require__(159);
 
 /**
  * Dicom parser is a combination of utilities to get a VJS image from dicom files.
@@ -55513,7 +55518,7 @@ var processNextTick = __webpack_require__(16);
 module.exports = Readable;
 
 /*<replacement>*/
-var isArray = __webpack_require__(138);
+var isArray = __webpack_require__(139);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -55548,12 +55553,12 @@ function _isUint8Array(obj) {
 /*</replacement>*/
 
 /*<replacement>*/
-var util = __webpack_require__(11);
-util.inherits = __webpack_require__(12);
+var util = __webpack_require__(12);
+util.inherits = __webpack_require__(13);
 /*</replacement>*/
 
 /*<replacement>*/
-var debugUtil = __webpack_require__(139);
+var debugUtil = __webpack_require__(140);
 var debug = void 0;
 if (debugUtil && debugUtil.debuglog) {
   debug = debugUtil.debuglog('stream');
@@ -55562,7 +55567,7 @@ if (debugUtil && debugUtil.debuglog) {
 }
 /*</replacement>*/
 
-var BufferList = __webpack_require__(140);
+var BufferList = __webpack_require__(141);
 var destroyImpl = __webpack_require__(64);
 var StringDecoder;
 
@@ -56647,13 +56652,13 @@ var Duplex;
 Writable.WritableState = WritableState;
 
 /*<replacement>*/
-var util = __webpack_require__(11);
-util.inherits = __webpack_require__(12);
+var util = __webpack_require__(12);
+util.inherits = __webpack_require__(13);
 /*</replacement>*/
 
 /*<replacement>*/
 var internalUtil = {
-  deprecate: __webpack_require__(143)
+  deprecate: __webpack_require__(144)
 };
 /*</replacement>*/
 
@@ -57245,7 +57250,7 @@ Writable.prototype._destroy = function (err, cb) {
   this.end();
   cb(err);
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(141).setImmediate, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(142).setImmediate, __webpack_require__(1)))
 
 /***/ }),
 /* 66 */
@@ -57549,8 +57554,8 @@ module.exports = Transform;
 var Duplex = __webpack_require__(6);
 
 /*<replacement>*/
-var util = __webpack_require__(11);
-util.inherits = __webpack_require__(12);
+var util = __webpack_require__(12);
+util.inherits = __webpack_require__(13);
 /*</replacement>*/
 
 util.inherits(Transform, Duplex);
@@ -58330,7 +58335,7 @@ function isPrimitive(arg) {
 }
 exports.isPrimitive = isPrimitive;
 
-exports.isBuffer = __webpack_require__(153);
+exports.isBuffer = __webpack_require__(154);
 
 function objectToString(o) {
   return Object.prototype.toString.call(o);
@@ -58374,7 +58379,7 @@ exports.log = function() {
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
  */
-exports.inherits = __webpack_require__(154);
+exports.inherits = __webpack_require__(155);
 
 exports._extend = function(origin, add) {
   // Don't do anything if add isn't an object
@@ -59618,7 +59623,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(11);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -59628,7 +59633,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /** * Imports ***/
 
 
-var NiftiReader = __webpack_require__(160);
+var NiftiReader = __webpack_require__(161);
 /**
  * @module parsers/nifti
  */
@@ -60844,7 +60849,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(0);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -60857,7 +60862,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 
 var pako = __webpack_require__(19);
-var NrrdReader = __webpack_require__(162);
+var NrrdReader = __webpack_require__(163);
 /**
  * @module parsers/nifti
  */
@@ -61172,6 +61177,467 @@ var ParsersNifti = function (_ParsersVolume) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(0);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/** * Imports ***/
+
+
+
+/**
+ * @module parsers/mgh
+ */
+
+var ParsersMgh = function (_ParsersVolume) {
+    _inherits(ParsersMgh, _ParsersVolume);
+
+    function ParsersMgh(data, id) {
+        _classCallCheck(this, ParsersMgh);
+
+        /**
+          * @member
+          * @type {arraybuffer}
+        */
+        var _this = _possibleConstructorReturn(this, _ParsersVolume.call(this));
+
+        _this._id = id;
+        _this._url = data.url;
+        _this._buffer = null;
+        _this._bufferPos = 0;
+        _this._dataPos = 0;
+        _this._pixelData = null;
+
+        // Default MGH Header as described at:
+        // https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat
+        // Image "header" with default values
+        _this._version = 1;
+        _this._width = 0;
+        _this._height = 0;
+        _this._depth = 0;
+        _this._nframes = 0;
+        _this._type = ParsersMgh.MRI_UCHAR; // 0-UCHAR, 4-SHORT, 1-INT, 3-FLOAT
+        _this._dof = 0;
+        _this._goodRASFlag = 0; // True: Use directional cosines, false assume CORONAL
+        _this._spacingXYZ = [1, 1, 1];
+        _this._Xras = [-1, 0, 0];
+        _this._Yras = [0, 0, -1];
+        _this._Zras = [0, 1, 0];
+        _this._Cras = [0, 0, 0];
+        // Image "footer"
+        _this._tr = 0; // ms
+        _this._flipAngle = 0; // radians
+        _this._te = 0; // ms
+        _this._ti = 0; // ms
+        _this._fov = 0; // from doc: IGNORE THIS FIELD (data is inconsistent)
+        _this._tags = []; // Will then contain variable length char strings
+
+        // Other misc
+        _this._origin = [0, 0, 0];
+        _this._imageOrient = [0, 0, 0, 0, 0, 0];
+
+        // Read header
+        // ArrayBuffer in data.buffer may need endian swap
+        _this._buffer = data.buffer;
+
+        _this._version = _this._readInt();
+        _this._swapEndian = false;
+        if (_this._version == 1) {
+            // Life is good
+        } else if (_this._version == 16777216) {
+            _this._swapEndian = true;
+            _this._version = _this._swap32(_this._version);
+        } else {
+            var error = new Error('MGH/MGZ parser: Unknown Endian.  Version reports: ' + _this._version);
+            throw error;
+        }
+        _this._width = _this._readInt();
+        _this._height = _this._readInt();
+        _this._depth = _this._readInt(); // AMI calls this frames
+        _this._nframes = _this._readInt();
+        _this._type = _this._readInt();
+        _this._dof = _this._readInt();
+        _this._goodRASFlag = _this._readShort();
+        _this._spacingXYZ = _this._readFloat(3);
+        _this._Xras = _this._readFloat(3);
+        _this._Yras = _this._readFloat(3);
+        _this._Zras = _this._readFloat(3);
+        _this._Cras = _this._readFloat(3);
+
+        _this._bufferPos = 284;
+        var dataSize = _this._width * _this._height * _this._depth * _this._nframes;
+        var vSize = _this._width * _this._height * _this._depth;
+
+        switch (_this._type) {
+            case ParsersMgh.MRI_UCHAR:
+                _this._pixelData = _this._readUChar(dataSize);
+                break;
+            case ParsersMgh.MRI_INT:
+                _this._pixelData = _this._readInt(dataSize);
+                break;
+            case ParsersMgh.MRI_FLOAT:
+                _this._pixelData = _this._readFloat(dataSize);
+                break;
+            case ParsersMgh.MRI_SHORT:
+                _this._pixelData = _this._readShort(dataSize);
+                break;
+            default:
+                throw Error('MGH/MGZ parser: Unknown _type.  _type reports: ' + _this._type);
+        }
+
+        _this._tr = _this._readFloat(1);
+        _this._flipAngle = _this._readFloat(1);
+        _this._te = _this._readFloat(1);
+        _this._ti = _this._readFloat(1);
+        _this._fov = _this._readFloat(1);
+
+        var enc = new TextDecoder();
+        var t = _this._tagReadStart();
+        while (t[0] != undefined) {
+            var tagType = t[0];
+            var tagLen = t[1];
+            var tagValue = undefined;
+
+            switch (tagType) {
+                case ParsersMgh.TAG_OLD_MGH_XFORM:
+                case ParsersMgh.TAG_MGH_XFORM:
+                    tagValue = _this._readChar(tagLen);
+                    break;
+                default:
+                    tagValue = _this._readChar(tagLen);
+            }
+            tagValue = enc.decode(tagValue);
+            _this._tags.push({ tagType: tagType, tagValue: tagValue });
+
+            // read for next loop
+            t = _this._tagReadStart();
+        }
+
+        // detect if we are in a right handed coordinate system
+        var first = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */]().fromArray(_this._Xras);
+        var second = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */]().fromArray(_this._Yras);
+        var crossFirstSecond = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */]().crossVectors(first, second);
+        var third = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */]().fromArray(_this._Zras);
+
+        if (crossFirstSecond.angleTo(third) > Math.PI / 2) {
+            _this._rightHanded = false;
+        }
+
+        // - sign to move to LPS space
+        _this._imageOrient = [-_this._Xras[0], -_this._Xras[1], _this._Xras[2], -_this._Yras[0], -_this._Yras[1], _this._Yras[2]];
+
+        // Calculate origin
+        var fcx = _this._width / 2.0;
+        var fcy = _this._height / 2.0;
+        var fcz = _this._depth / 2.0;
+
+        for (var ui = 0; ui < 3; ++ui) {
+            _this._origin[ui] = _this._Cras[ui] - (_this._Xras[ui] * _this._spacingXYZ[0] * fcx + _this._Yras[ui] * _this._spacingXYZ[1] * fcy + _this._Zras[ui] * _this._spacingXYZ[2] * fcz);
+        }
+
+        // - sign to move to LPS space
+        _this._origin = [-_this._origin[0], -_this._origin[1], _this._origin[2]];
+        return _this;
+    }
+
+    ParsersMgh.prototype.seriesInstanceUID = function seriesInstanceUID() {
+        // use filename + timestamp..?
+        return this._url;
+    };
+
+    ParsersMgh.prototype.numberOfFrames = function numberOfFrames() {
+        // AMI calls Z component frames, not T (_nframes)
+        return this._depth;
+    };
+
+    ParsersMgh.prototype.sopInstanceUID = function sopInstanceUID() {
+        var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+        return frameIndex;
+    };
+
+    ParsersMgh.prototype.rows = function rows() {
+        var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+        return this._width;
+    };
+
+    ParsersMgh.prototype.columns = function columns() {
+        var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+        return this._height;
+    };
+
+    ParsersMgh.prototype.pixelType = function pixelType() {
+        var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+        // Return: 0 integer, 1 float
+        switch (this._type) {
+            case ParsersMgh.MRI_UCHAR:
+            case ParsersMgh.MRI_INT:
+            case ParsersMgh.MRI_SHORT:
+                return 0;
+            case ParsersMgh.MRI_FLOAT:
+                return 1;
+            default:
+                throw Error('MGH/MGZ parser: Unknown _type.  _type reports: ' + this._type);
+        }
+    };
+
+    ParsersMgh.prototype.bitsAllocated = function bitsAllocated() {
+        var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+        switch (this._type) {
+            case ParsersMgh.MRI_UCHAR:
+                return 8;
+            case ParsersMgh.MRI_SHORT:
+                return 16;
+            case ParsersMgh.MRI_INT:
+            case ParsersMgh.MRI_FLOAT:
+                return 32;
+            default:
+                throw Error('MGH/MGZ parser: Unknown _type.  _type reports: ' + this._type);
+        }
+    };
+
+    ParsersMgh.prototype.pixelSpacing = function pixelSpacing() {
+        var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+        return this._spacingXYZ;
+    };
+
+    ParsersMgh.prototype.imageOrientation = function imageOrientation() {
+        var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+        return this._imageOrient;
+    };
+
+    ParsersMgh.prototype.imagePosition = function imagePosition() {
+        var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+        return this._origin;
+    };
+
+    ParsersMgh.prototype.extractPixelData = function extractPixelData() {
+        var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+        var sliceSize = this._width * this._height;
+        return this._pixelData.slice(frameIndex * sliceSize, (frameIndex + 1) * sliceSize);
+    };
+
+    // signed int32
+
+
+    ParsersMgh.prototype._readInt = function _readInt() {
+        var len = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+        var tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 4));
+        this._bufferPos += len * 4;
+        var v = undefined;
+        if (len == 1) {
+            v = tempBuff.getInt32(0, this._swapEndian);
+        } else {
+            v = new Int32Array(len);
+            for (var i = 0; i < len; i++) {
+                v[i] = tempBuff.getInt32(i * 4, this._swapEndian);
+            }
+        }
+        return v;
+    };
+
+    // signed int16
+
+
+    ParsersMgh.prototype._readShort = function _readShort() {
+        var len = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+        var tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 2));
+        this._bufferPos += len * 2;
+        var v = undefined;
+        if (len == 1) {
+            v = tempBuff.getInt16(0, this._swapEndian);
+        } else {
+            v = new Int16Array(len);
+            for (var i = 0; i < len; i++) {
+                v[i] = tempBuff.getInt16(i * 2, this._swapEndian);
+            }
+        }
+        return v;
+    };
+
+    // signed int64
+
+
+    ParsersMgh.prototype._readLong = function _readLong() {
+        var len = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+        var tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 8));
+        this._bufferPos += len * 8;
+        var v = new Uint16Array(len);
+        for (var i = 0; i < len; i++) {
+            /* DataView doesn't have Int64.
+             * This work around based off Scalajs
+             * (https://github.com/scala-js/scala-js/blob/master/library/src/main/scala/scala/scalajs/js/typedarray/DataViewExt.scala)
+             * v[i]=tempBuff.getInt64(i*8,this._swapEndian);
+            */
+            var shiftHigh = 0;
+            var shiftLow = 0;
+            if (this._swapendian) {
+                shiftHigh = 4;
+            } else {
+                shiftLow = 4;
+            }
+            var high = tempBuff.getInt32(i * 8 + shiftHigh, this._swapEndian);
+            var low = tempBuff.getInt32(i * 8 + shiftLow, this._swapEndian);
+            if (high != 0) {
+                console.log('Unable to read Int64 with high word: ' + high + 'low word: ' + low);
+                low = undefined;
+            }
+            v[i] = low;
+        }
+        if (len == 0) {
+            return undefined;
+        } else if (len == 1) {
+            return v[0];
+        } else {
+            return v;
+        }
+    };
+
+    // signed int8
+
+
+    ParsersMgh.prototype._readChar = function _readChar() {
+        var len = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+        var tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len));
+        this._bufferPos += len;
+        var v = undefined;
+        if (len == 1) {
+            v = tempBuff.getInt8(0, this._swapEndian);
+        } else {
+            v = new Int8Array(len);
+            for (var i = 0; i < len; i++) {
+                v[i] = tempBuff.getInt8(i, this._swapEndian);
+            }
+        }
+        return v;
+    };
+
+    // unsigned int8
+
+
+    ParsersMgh.prototype._readUChar = function _readUChar() {
+        var len = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+        var tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len));
+        this._bufferPos += len;
+        var v = undefined;
+        if (len == 1) {
+            v = tempBuff.getUint8(0, this._swapEndian);
+        } else {
+            v = new Uint8Array(len);
+            for (var i = 0; i < len; i++) {
+                v[i] = tempBuff.getUint8(i, this._swapEndian);
+            }
+        }
+        return v;
+    };
+
+    // float32
+
+
+    ParsersMgh.prototype._readFloat = function _readFloat() {
+        var len = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+        var tempBuff = new DataView(this._buffer.slice(this._bufferPos, this._bufferPos + len * 4));
+        this._bufferPos += len * 4;
+        var v = undefined;
+        if (len == 1) {
+            v = tempBuff.getFloat32(0, this._swapEndian);
+        } else {
+            v = new Float32Array(len);
+            for (var i = 0; i < len; i++) {
+                v[i] = tempBuff.getFloat32(i * 4, this._swapEndian);
+            }
+        }
+        return v;
+    };
+
+    ParsersMgh.prototype._tagReadStart = function _tagReadStart() {
+        if (this._bufferPos >= this._buffer.byteLength) {
+            return [undefined, undefined];
+        }
+        var tagType = this._readInt();
+        var tagLen = undefined;
+        switch (tagType) {
+            case ParsersMgh.TAG_OLD_MGH_XFORM:
+                tagLen = this._readInt();
+                tagLen -= 1;
+                break;
+            case ParsersMgh.TAG_OLD_SURF_GEOM:
+            case ParsersMgh.TAG_OLD_USEREALRAS:
+            case ParsersMgh.TAG_OLD_COLORTABLE:
+                tagLen = 0;
+                break;
+            default:
+                tagLen = this._readLong();
+        }
+        if (tagLen == undefined) {
+            tagType = undefined;
+        }
+        return [tagType, tagLen];
+    };
+
+    return ParsersMgh;
+}(__WEBPACK_IMPORTED_MODULE_0__parsers_volume__["a" /* default */]);
+
+// https://github.com/freesurfer/freesurfer/
+// See include/mri.h
+
+
+/* harmony default export */ __webpack_exports__["a"] = (ParsersMgh);
+ParsersMgh.MRI_UCHAR = 0;
+ParsersMgh.MRI_INT = 1;
+ParsersMgh.MRI_LONG = 2;
+ParsersMgh.MRI_FLOAT = 3;
+ParsersMgh.MRI_SHORT = 4;
+ParsersMgh.MRI_BITMAP = 5;
+ParsersMgh.MRI_TENSOR = 6;
+ParsersMgh.MRI_FLOAT_COMPLEX = 7;
+ParsersMgh.MRI_DOUBLE_COMPLEX = 8;
+ParsersMgh.MRI_RGB = 9;
+
+// https://github.com/freesurfer/freesurfer/
+// See include/tags.h
+ParsersMgh.TAG_OLD_COLORTABLE = 1;
+ParsersMgh.TAG_OLD_USEREALRAS = 2;
+ParsersMgh.TAG_CMDLINE = 3;
+ParsersMgh.TAG_USEREALRAS = 4;
+ParsersMgh.TAG_COLORTABLE = 5;
+ParsersMgh.TAG_GCAMORPH_GEOM = 10;
+ParsersMgh.TAG_GCAMORPH_TYPE = 11;
+ParsersMgh.TAG_GCAMORPH_LABELS = 12;
+ParsersMgh.TAG_OLD_SURF_GEOM = 20;
+ParsersMgh.TAG_SURF_GEOM = 21;
+ParsersMgh.TAG_OLD_MGH_XFORM = 30;
+ParsersMgh.TAG_MGH_XFORM = 31;
+ParsersMgh.TAG_GROUP_AVG_SURFACE_AREA = 32;
+ParsersMgh.TAG_AUTO_ALIGN = 33;
+ParsersMgh.TAG_SCALAR_DOUBLE = 40;
+ParsersMgh.TAG_PEDIR = 41;
+ParsersMgh.TAG_MRI_FRAME = 42;
+ParsersMgh.TAG_FIELDSTRENGTH = 43;
+
+/***/ }),
+/* 83 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -61239,32 +61705,32 @@ var ModelsVoxel = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ModelsVoxel);
 
 /***/ }),
-/* 83 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(84);
+module.exports = __webpack_require__(85);
 
 
 /***/ }),
-/* 84 */
+/* 85 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__cameras_cameras__ = __webpack_require__(85);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__cameras_cameras__ = __webpack_require__(86);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "OrthographicCamera", function() { return __WEBPACK_IMPORTED_MODULE_0__cameras_cameras__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__controls_controls__ = __webpack_require__(93);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__controls_controls__ = __webpack_require__(94);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TrackballControl", function() { return __WEBPACK_IMPORTED_MODULE_1__controls_controls__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TrackballOrthoControl", function() { return __WEBPACK_IMPORTED_MODULE_1__controls_controls__["b"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_core__ = __webpack_require__(96);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_core__ = __webpack_require__(97);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ColorsCore", function() { return __WEBPACK_IMPORTED_MODULE_2__core_core__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "IntersectionsCore", function() { return __WEBPACK_IMPORTED_MODULE_2__core_core__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "UtilsCore", function() { return __WEBPACK_IMPORTED_MODULE_2__core_core__["c"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ValidatorsCore", function() { return __WEBPACK_IMPORTED_MODULE_2__core_core__["d"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometries_geometries__ = __webpack_require__(97);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometries_geometries__ = __webpack_require__(98);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "SliceGeometry", function() { return __WEBPACK_IMPORTED_MODULE_3__geometries_geometries__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VoxelGeometry", function() { return __WEBPACK_IMPORTED_MODULE_3__geometries_geometries__["b"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__ = __webpack_require__(98);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__ = __webpack_require__(99);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "BorderHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "BoundingBoxHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ContourHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["c"]; });
@@ -61276,20 +61742,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "SliceHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["i"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "StackHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["j"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VolumeRenderingHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["k"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__loaders_loaders__ = __webpack_require__(110);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__loaders_loaders__ = __webpack_require__(111);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VolumeLoader", function() { return __WEBPACK_IMPORTED_MODULE_5__loaders_loaders__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_models__ = __webpack_require__(163);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_models__ = __webpack_require__(164);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "FrameModel", function() { return __WEBPACK_IMPORTED_MODULE_6__models_models__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "StackModel", function() { return __WEBPACK_IMPORTED_MODULE_6__models_models__["c"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "SeriesModel", function() { return __WEBPACK_IMPORTED_MODULE_6__models_models__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VoxelModel", function() { return __WEBPACK_IMPORTED_MODULE_6__models_models__["d"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__ = __webpack_require__(164);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__ = __webpack_require__(165);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "DicomParser", function() { return __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__["a"]; });
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "NiftiParser", function() { return __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__["b"]; });
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "NrrdParser", function() { return __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__["c"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__presets_presets__ = __webpack_require__(165);
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "MghParser", function() { return __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__["b"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "NiftiParser", function() { return __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__["c"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "NrrdParser", function() { return __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__["d"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__presets_presets__ = __webpack_require__(166);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "SegmentationPreset", function() { return __WEBPACK_IMPORTED_MODULE_8__presets_presets__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__ = __webpack_require__(168);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__ = __webpack_require__(169);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ContourUniformShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ContourFragmentShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ContourVertexShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["c"]; });
@@ -61305,7 +61772,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "LocalizerUniformShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["k"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "LocalizerFragmentShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["j"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "LocalizerVertexShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["l"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__ = __webpack_require__(172);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__ = __webpack_require__(173);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "AnnotationWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "BiRulerWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "HandleWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["c"]; });
@@ -61324,27 +61791,27 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-var pckg = __webpack_require__(178);
+var pckg = __webpack_require__(179);
 window.console.log('AMI ' + pckg.version + ' ( ThreeJS ' + pckg.config.threeVersion + ')');
-
-/***/ }),
-/* 85 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__cameras_orthographic__ = __webpack_require__(86);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__cameras_orthographic__["a"]; });
-
-
-
 
 /***/ }),
 /* 86 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__cameras_orthographic__ = __webpack_require__(87);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__cameras_orthographic__["a"]; });
+
+
+
+
+/***/ }),
+/* 87 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_core_intersections__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_core_validators__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_core_validators__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -62064,7 +62531,7 @@ var CamerasOrthographic = function (_THREE$OrthographicCa) {
 /* harmony default export */ __webpack_exports__["a"] = (CamerasOrthographic);
 
 /***/ }),
-/* 87 */
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -62091,8 +62558,8 @@ var CamerasOrthographic = function (_THREE$OrthographicCa) {
 
 
 
-var punycode = __webpack_require__(88);
-var util = __webpack_require__(89);
+var punycode = __webpack_require__(89);
+var util = __webpack_require__(90);
 
 exports.parse = urlParse;
 exports.resolve = urlResolve;
@@ -62167,7 +62634,7 @@ var protocolPattern = /^([a-z0-9.+-]+:)/i,
       'gopher:': true,
       'file:': true
     },
-    querystring = __webpack_require__(90);
+    querystring = __webpack_require__(91);
 
 function urlParse(url, parseQueryString, slashesDenoteHost) {
   if (url && util.isObject(url) && url instanceof Url) return url;
@@ -62803,7 +63270,7 @@ Url.prototype.parseHost = function() {
 
 
 /***/ }),
-/* 88 */
+/* 89 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/*! https://mths.be/punycode v1.4.1 by @mathias */
@@ -63342,7 +63809,7 @@ Url.prototype.parseHost = function() {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)(module), __webpack_require__(1)))
 
 /***/ }),
-/* 89 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63365,18 +63832,18 @@ module.exports = {
 
 
 /***/ }),
-/* 90 */
+/* 91 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-exports.decode = exports.parse = __webpack_require__(91);
-exports.encode = exports.stringify = __webpack_require__(92);
+exports.decode = exports.parse = __webpack_require__(92);
+exports.encode = exports.stringify = __webpack_require__(93);
 
 
 /***/ }),
-/* 91 */
+/* 92 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63467,7 +63934,7 @@ var isArray = Array.isArray || function (xs) {
 
 
 /***/ }),
-/* 92 */
+/* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63559,12 +64026,12 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /***/ }),
-/* 93 */
+/* 94 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__controls_trackball__ = __webpack_require__(94);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__controls_trackballortho__ = __webpack_require__(95);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__controls_trackball__ = __webpack_require__(95);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__controls_trackballortho__ = __webpack_require__(96);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__controls_trackball__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__controls_trackballortho__["a"]; });
 
@@ -63573,7 +64040,7 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /***/ }),
-/* 94 */
+/* 95 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -64242,7 +64709,7 @@ var Trackball = function (_EventDispatcher) {
 /* harmony default export */ __webpack_exports__["a"] = (Trackball);
 
 /***/ }),
-/* 95 */
+/* 96 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -64709,13 +65176,13 @@ var Trackballortho = function (_EventDispatcher) {
 /* harmony default export */ __webpack_exports__["a"] = (Trackballortho);
 
 /***/ }),
-/* 96 */
+/* 97 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_colors__ = __webpack_require__(30);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_intersections__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_validators__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_validators__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__core_utils__ = __webpack_require__(3);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__core_colors__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__core_intersections__["a"]; });
@@ -64729,7 +65196,7 @@ var Trackballortho = function (_EventDispatcher) {
 
 
 /***/ }),
-/* 97 */
+/* 98 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -64743,21 +65210,21 @@ var Trackballortho = function (_EventDispatcher) {
 
 
 /***/ }),
-/* 98 */
+/* 99 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__helpers_border__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_boundingbox__ = __webpack_require__(34);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_contour__ = __webpack_require__(99);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__helpers_localizer__ = __webpack_require__(100);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_lut__ = __webpack_require__(101);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__helpers_segmentationlut__ = __webpack_require__(102);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_contour__ = __webpack_require__(100);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__helpers_localizer__ = __webpack_require__(101);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_lut__ = __webpack_require__(102);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__helpers_segmentationlut__ = __webpack_require__(103);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__helpers_progressbar__ = __webpack_require__(41);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__helpers_progressbar_eventbased__ = __webpack_require__(103);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__helpers_progressbar_eventbased__ = __webpack_require__(104);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__helpers_slice__ = __webpack_require__(42);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__helpers_stack__ = __webpack_require__(107);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__helpers_volumerendering__ = __webpack_require__(108);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__helpers_stack__ = __webpack_require__(108);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__helpers_volumerendering__ = __webpack_require__(109);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__helpers_border__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__helpers_boundingbox__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_2__helpers_contour__["a"]; });
@@ -64783,7 +65250,7 @@ var Trackballortho = function (_EventDispatcher) {
 
 
 /***/ }),
-/* 99 */
+/* 100 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -64979,7 +65446,7 @@ var HelpersContour = function (_THREE$Object3D) {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersContour);
 
 /***/ }),
-/* 100 */
+/* 101 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65231,7 +65698,7 @@ var HelpersLocalizer = function (_THREE$Object3D) {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersLocalizer);
 
 /***/ }),
-/* 101 */
+/* 102 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65476,7 +65943,7 @@ var HelpersLut = function () {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersLut);
 
 /***/ }),
-/* 102 */
+/* 103 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65599,7 +66066,7 @@ var HelpersSegmentationLut = function () {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersSegmentationLut);
 
 /***/ }),
-/* 103 */
+/* 104 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65758,7 +66225,7 @@ var HelpersProgressBarEventBased = function () {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersProgressBarEventBased);
 
 /***/ }),
-/* 104 */
+/* 105 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65902,7 +66369,7 @@ var Unpack = function (_ShadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (new Unpack());
 
 /***/ }),
-/* 105 */
+/* 106 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -65958,7 +66425,7 @@ var Texture3d = function (_ShadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (new Texture3d());
 
 /***/ }),
-/* 106 */
+/* 107 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -66016,7 +66483,7 @@ var InterpolationTrilinear = function (_ShadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (new InterpolationTrilinear());
 
 /***/ }),
-/* 107 */
+/* 108 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -66524,7 +66991,7 @@ var HelpersStack = function (_THREE$Object3D) {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersStack);
 
 /***/ }),
-/* 108 */
+/* 109 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -66572,6 +67039,7 @@ var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
     _this._material = null;
     _this._geometry = null;
 
+    _this._algorithm = 0; // ray marching
     _this._interpolation = 1; // default to trilinear interpolation
     _this._shading = 1; // shading is on by default
     _this._shininess = 10.0;
@@ -66624,6 +67092,7 @@ var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
     this._uniforms.uInterpolation.value = this._interpolation;
     this._uniforms.uShading.value = this._shading;
     this._uniforms.uShininess.value = this._shininess;
+    this._uniforms.uAlgorithm.value = this._algorithm;
 
     this._createMaterial({
       side: THREE.BackSide,
@@ -66683,6 +67152,15 @@ var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
       this._shininess = shininess;
       this._uniforms.uShininess.value = this._shininess;
     }
+  }, {
+    key: 'algorithm',
+    get: function get() {
+      return this._algorithm;
+    },
+    set: function set(algorithm) {
+      this._algorithm = algorithm;
+      this._uniforms.uAlgorithm.value = this._algorithm;
+    }
   }]);
 
   return HelpersVolumeRendering;
@@ -66691,7 +67169,7 @@ var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersVolumeRendering);
 
 /***/ }),
-/* 109 */
+/* 110 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -66755,30 +67233,31 @@ var IntersectBox = function (_ShadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (new IntersectBox());
 
 /***/ }),
-/* 110 */
+/* 111 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__loaders_volume__ = __webpack_require__(111);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__loaders_volume__ = __webpack_require__(112);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__loaders_volume__["a"]; });
 
 
 
 
 /***/ }),
-/* 111 */
+/* 112 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__loaders_base__ = __webpack_require__(120);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__loaders_base__ = __webpack_require__(121);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_core_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_models_series__ = __webpack_require__(57);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_models_stack__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_models_frame__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__parsers_parsers_dicom__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__parsers_parsers_mhd__ = __webpack_require__(159);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__parsers_parsers_mhd__ = __webpack_require__(160);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__parsers_parsers_nifti__ = __webpack_require__(79);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__parsers_parsers_nrrd__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__parsers_parsers_mgh__ = __webpack_require__(82);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -66787,6 +67266,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 /** * Imports ***/
 var PAKO = __webpack_require__(19);
+
 
 
 
@@ -67079,6 +67559,10 @@ var LoadersVolumes = function (_LoadersBase) {
       case 'NRRD':
         Parser = __WEBPACK_IMPORTED_MODULE_8__parsers_parsers_nrrd__["a" /* default */];
         break;
+      case 'MGH':
+      case 'MGZ':
+        Parser = __WEBPACK_IMPORTED_MODULE_9__parsers_parsers_mgh__["a" /* default */];
+        break;
       default:
         window.console.log('unsupported extension: ' + extension);
         return false;
@@ -67106,6 +67590,11 @@ var LoadersVolumes = function (_LoadersBase) {
       data.extension = data.filename.split('.gz').shift().split('.').pop();
       var decompressedData = PAKO.inflate(data.buffer);
       data.buffer = decompressedData.buffer;
+    } else if (data.extension === 'mgz') {
+      data.gzcompressed = true;
+      data.extension = 'mgh';
+      var _decompressedData = PAKO.inflate(data.buffer);
+      data.buffer = _decompressedData.buffer;
     } else {
       data.gzcompressed = false;
     }
@@ -67132,14 +67621,14 @@ var LoadersVolumes = function (_LoadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (LoadersVolumes);
 
 /***/ }),
-/* 112 */
+/* 113 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var zlib_deflate = __webpack_require__(113);
+var zlib_deflate = __webpack_require__(114);
 var utils        = __webpack_require__(2);
 var strings      = __webpack_require__(54);
 var msg          = __webpack_require__(20);
@@ -67539,14 +68028,14 @@ exports.gzip = gzip;
 
 
 /***/ }),
-/* 113 */
+/* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils   = __webpack_require__(2);
-var trees   = __webpack_require__(114);
+var trees   = __webpack_require__(115);
 var adler32 = __webpack_require__(52);
 var crc32   = __webpack_require__(53);
 var msg     = __webpack_require__(20);
@@ -69394,7 +69883,7 @@ exports.deflateTune = deflateTune;
 
 
 /***/ }),
-/* 114 */
+/* 115 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -70603,20 +71092,20 @@ exports._tr_align = _tr_align;
 
 
 /***/ }),
-/* 115 */
+/* 116 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var zlib_inflate = __webpack_require__(116);
+var zlib_inflate = __webpack_require__(117);
 var utils        = __webpack_require__(2);
 var strings      = __webpack_require__(54);
 var c            = __webpack_require__(56);
 var msg          = __webpack_require__(20);
 var ZStream      = __webpack_require__(55);
-var GZheader     = __webpack_require__(119);
+var GZheader     = __webpack_require__(120);
 
 var toString = Object.prototype.toString;
 
@@ -71028,7 +71517,7 @@ exports.ungzip  = inflate;
 
 
 /***/ }),
-/* 116 */
+/* 117 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -71038,8 +71527,8 @@ exports.ungzip  = inflate;
 var utils         = __webpack_require__(2);
 var adler32       = __webpack_require__(52);
 var crc32         = __webpack_require__(53);
-var inflate_fast  = __webpack_require__(117);
-var inflate_table = __webpack_require__(118);
+var inflate_fast  = __webpack_require__(118);
+var inflate_table = __webpack_require__(119);
 
 var CODES = 0;
 var LENS = 1;
@@ -72573,7 +73062,7 @@ exports.inflateUndermine = inflateUndermine;
 
 
 /***/ }),
-/* 117 */
+/* 118 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -72906,7 +73395,7 @@ module.exports = function inflate_fast(strm, start) {
 
 
 /***/ }),
-/* 118 */
+/* 119 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73240,7 +73729,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
 
 
 /***/ }),
-/* 119 */
+/* 120 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73287,7 +73776,7 @@ module.exports = GZheader;
 
 
 /***/ }),
-/* 120 */
+/* 121 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -73614,7 +74103,7 @@ var LoadersBase = function (_EventEmitter) {
 /* harmony default export */ __webpack_exports__["a"] = (LoadersBase);
 
 /***/ }),
-/* 121 */
+/* 122 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73622,15 +74111,15 @@ var LoadersBase = function (_EventEmitter) {
 
 // MODULES //
 
-var pinf = __webpack_require__( 122 );
-var ninf = __webpack_require__( 123 );
-var abs = __webpack_require__( 124 );
+var pinf = __webpack_require__( 123 );
+var ninf = __webpack_require__( 124 );
+var abs = __webpack_require__( 125 );
 var floor = __webpack_require__( 58 );
-var rpad = __webpack_require__( 125 );
-var lpad = __webpack_require__( 128 );
+var rpad = __webpack_require__( 126 );
+var lpad = __webpack_require__( 129 );
 var repeat = __webpack_require__( 26 );
-var div2 = __webpack_require__( 129 );
-var mult2 = __webpack_require__( 130 );
+var div2 = __webpack_require__( 130 );
+var mult2 = __webpack_require__( 131 );
 
 
 // CONSTANTS //
@@ -73742,7 +74231,7 @@ module.exports = binaryString;
 
 
 /***/ }),
-/* 122 */
+/* 123 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73766,7 +74255,7 @@ module.exports = FLOAT32_VIEW[ 0 ];
 
 
 /***/ }),
-/* 123 */
+/* 124 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73790,7 +74279,7 @@ module.exports = FLOAT32_VIEW[ 0 ];
 
 
 /***/ }),
-/* 124 */
+/* 125 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73820,7 +74309,7 @@ module.exports = abs;
 
 
 /***/ }),
-/* 125 */
+/* 126 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73888,7 +74377,7 @@ module.exports = rpad;
 
 
 /***/ }),
-/* 126 */
+/* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73924,7 +74413,7 @@ module.exports = rpad;
 
 // MODULES //
 
-var isNumber = __webpack_require__( 127 );
+var isNumber = __webpack_require__( 128 );
 
 
 // ISINTEGER //
@@ -73947,7 +74436,7 @@ module.exports = isInteger;
 
 
 /***/ }),
-/* 127 */
+/* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -73999,7 +74488,7 @@ module.exports = isNumber;
 
 
 /***/ }),
-/* 128 */
+/* 129 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -74067,7 +74556,7 @@ module.exports = lpad;
 
 
 /***/ }),
-/* 129 */
+/* 130 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -74111,7 +74600,7 @@ module.exports = div2;
 
 
 /***/ }),
-/* 130 */
+/* 131 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -74172,7 +74661,7 @@ module.exports = mult2;
 
 
 /***/ }),
-/* 131 */
+/* 132 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, Buffer) {var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! dicom-parser - v1.7.3 - 2016-08-18 | (c) 2014 Chris Hafey | https://github.com/chafey/dicomParser */
@@ -74255,7 +74744,7 @@ var dicomParser = (function(dicomParser) {
                 // http://stackoverflow.com/questions/4224606/how-to-check-whether-a-script-is-running-under-node-js
                 else if (typeof module !== 'undefined' && this.module !== module) {
                     // inflate it
-                    var zlib = __webpack_require__(135);
+                    var zlib = __webpack_require__(136);
                     var deflatedBuffer = dicomParser.sharedCopy(byteArray, position, byteArray.length - position);
                     var inflatedBuffer = zlib.inflateRawSync(deflatedBuffer);
 
@@ -76865,7 +77354,7 @@ var dicomParser = (function (dicomParser)
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)(module), __webpack_require__(5).Buffer))
 
 /***/ }),
-/* 132 */
+/* 133 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -76986,7 +77475,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 133 */
+/* 134 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -77076,7 +77565,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 134 */
+/* 135 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -77087,7 +77576,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 135 */
+/* 136 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -77111,9 +77600,9 @@ module.exports = Array.isArray || function (arr) {
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var Transform = __webpack_require__(136);
+var Transform = __webpack_require__(137);
 
-var binding = __webpack_require__(145);
+var binding = __webpack_require__(146);
 var util = __webpack_require__(71);
 var assert = __webpack_require__(72).ok;
 
@@ -77704,14 +78193,14 @@ util.inherits(Unzip, Zlib);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer, __webpack_require__(4)))
 
 /***/ }),
-/* 136 */
+/* 137 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(137).Transform
+module.exports = __webpack_require__(138).Transform
 
 
 /***/ }),
-/* 137 */
+/* 138 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(62);
@@ -77720,11 +78209,11 @@ exports.Readable = exports;
 exports.Writable = __webpack_require__(65);
 exports.Duplex = __webpack_require__(6);
 exports.Transform = __webpack_require__(67);
-exports.PassThrough = __webpack_require__(144);
+exports.PassThrough = __webpack_require__(145);
 
 
 /***/ }),
-/* 138 */
+/* 139 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -77735,13 +78224,13 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 139 */
+/* 140 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 140 */
+/* 141 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -77821,7 +78310,7 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 141 */
+/* 142 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -77874,13 +78363,13 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(142);
+__webpack_require__(143);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 142 */
+/* 143 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -78073,7 +78562,7 @@ exports.clearImmediate = clearImmediate;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(4)))
 
 /***/ }),
-/* 143 */
+/* 144 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -78147,7 +78636,7 @@ function config (name) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
-/* 144 */
+/* 145 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -78183,8 +78672,8 @@ module.exports = PassThrough;
 var Transform = __webpack_require__(67);
 
 /*<replacement>*/
-var util = __webpack_require__(11);
-util.inherits = __webpack_require__(12);
+var util = __webpack_require__(12);
+util.inherits = __webpack_require__(13);
 /*</replacement>*/
 
 util.inherits(PassThrough, Transform);
@@ -78200,14 +78689,14 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 };
 
 /***/ }),
-/* 145 */
+/* 146 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, Buffer) {var msg = __webpack_require__(68);
-var zstream = __webpack_require__(146);
-var zlib_deflate = __webpack_require__(147);
-var zlib_inflate = __webpack_require__(149);
-var constants = __webpack_require__(152);
+var zstream = __webpack_require__(147);
+var zlib_deflate = __webpack_require__(148);
+var zlib_inflate = __webpack_require__(150);
+var constants = __webpack_require__(153);
 
 for (var key in constants) {
   exports[key] = constants[key];
@@ -78443,7 +78932,7 @@ exports.Zlib = Zlib;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(5).Buffer))
 
 /***/ }),
-/* 146 */
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -78479,14 +78968,14 @@ module.exports = ZStream;
 
 
 /***/ }),
-/* 147 */
+/* 148 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils   = __webpack_require__(17);
-var trees   = __webpack_require__(148);
+var trees   = __webpack_require__(149);
 var adler32 = __webpack_require__(69);
 var crc32   = __webpack_require__(70);
 var msg     = __webpack_require__(68);
@@ -80341,7 +80830,7 @@ exports.deflateTune = deflateTune;
 
 
 /***/ }),
-/* 148 */
+/* 149 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -81550,7 +82039,7 @@ exports._tr_align = _tr_align;
 
 
 /***/ }),
-/* 149 */
+/* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -81560,8 +82049,8 @@ exports._tr_align = _tr_align;
 var utils         = __webpack_require__(17);
 var adler32       = __webpack_require__(69);
 var crc32         = __webpack_require__(70);
-var inflate_fast  = __webpack_require__(150);
-var inflate_table = __webpack_require__(151);
+var inflate_fast  = __webpack_require__(151);
+var inflate_table = __webpack_require__(152);
 
 var CODES = 0;
 var LENS = 1;
@@ -83095,7 +83584,7 @@ exports.inflateUndermine = inflateUndermine;
 
 
 /***/ }),
-/* 150 */
+/* 151 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -83428,7 +83917,7 @@ module.exports = function inflate_fast(strm, start) {
 
 
 /***/ }),
-/* 151 */
+/* 152 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -83762,7 +84251,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
 
 
 /***/ }),
-/* 152 */
+/* 153 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -83819,7 +84308,7 @@ module.exports = {
 
 
 /***/ }),
-/* 153 */
+/* 154 */
 /***/ (function(module, exports) {
 
 module.exports = function isBuffer(arg) {
@@ -83830,7 +84319,7 @@ module.exports = function isBuffer(arg) {
 }
 
 /***/ }),
-/* 154 */
+/* 155 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -83859,7 +84348,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 155 */
+/* 156 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -83873,7 +84362,7 @@ var jpeg = jpeg || {};
 jpeg.lossless = jpeg.lossless || {};
 jpeg.lossless.ComponentSpec = jpeg.lossless.ComponentSpec || (( true) ? __webpack_require__(73) : null);
 jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(7) : null);
-jpeg.lossless.Decoder = jpeg.lossless.Decoder || (( true) ? __webpack_require__(156) : null);
+jpeg.lossless.Decoder = jpeg.lossless.Decoder || (( true) ? __webpack_require__(157) : null);
 jpeg.lossless.FrameHeader = jpeg.lossless.FrameHeader || (( true) ? __webpack_require__(78) : null);
 jpeg.lossless.HuffmanTable = jpeg.lossless.HuffmanTable || (( true) ? __webpack_require__(74) : null);
 jpeg.lossless.QuantizationTable = jpeg.lossless.QuantizationTable || (( true) ? __webpack_require__(75) : null);
@@ -83890,7 +84379,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 156 */
+/* 157 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -84724,7 +85213,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 157 */
+/* 158 */
 /***/ (function(module, exports) {
 
 // jshint ignore: start
@@ -85748,7 +86237,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 }
 
 /***/ }),
-/* 158 */
+/* 159 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -89808,11 +90297,11 @@ function loadJpegStream(id, imageUrl, objs) {
 }
 
 /***/ }),
-/* 159 */
+/* 160 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(0);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -90007,7 +90496,7 @@ var ParsersMHD = function (_ParsersVolume) {
 /* harmony default export */ __webpack_exports__["a"] = (ParsersMHD);
 
 /***/ }),
-/* 160 */
+/* 161 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -90025,7 +90514,7 @@ var ParsersMHD = function (_ParsersVolume) {
  */
 var nifti = nifti || {};
 nifti.NIFTI1 = nifti.NIFTI1 || (( true) ? __webpack_require__(80) : null);
-nifti.NIFTI2 = nifti.NIFTI2 || (( true) ? __webpack_require__(161) : null);
+nifti.NIFTI2 = nifti.NIFTI2 || (( true) ? __webpack_require__(162) : null);
 nifti.Utils = nifti.Utils || (( true) ? __webpack_require__(28) : null);
 
 var pako = pako || (( true) ? __webpack_require__(19) : null);
@@ -90224,7 +90713,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 161 */
+/* 162 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -90627,7 +91116,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 162 */
+/* 163 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -91880,14 +92369,14 @@ function serializeToTextBuffer(data) {
 
 
 /***/ }),
-/* 163 */
+/* 164 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_frame__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__models_stack__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_series__ = __webpack_require__(57);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_voxel__ = __webpack_require__(82);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_voxel__ = __webpack_require__(83);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__models_frame__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_1__models_stack__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_2__models_series__["a"]; });
@@ -91900,29 +92389,22 @@ function serializeToTextBuffer(data) {
 
 
 /***/ }),
-/* 164 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_dicom__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__parsers_nifti__ = __webpack_require__(79);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__parsers_nrrd__ = __webpack_require__(81);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__parsers_dicom__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__parsers_nifti__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_2__parsers_nrrd__["a"]; });
-
-
-
-
-
-
-/***/ }),
 /* 165 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__presets_segmentation__ = __webpack_require__(166);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__presets_segmentation__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_dicom__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__parsers_mgh__ = __webpack_require__(82);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__parsers_nifti__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__parsers_nrrd__ = __webpack_require__(81);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__parsers_dicom__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__parsers_mgh__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_2__parsers_nifti__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_3__parsers_nrrd__["a"]; });
+
+
+
+
 
 
 
@@ -91931,7 +92413,17 @@ function serializeToTextBuffer(data) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__presets_segmentation_freesurfer__ = __webpack_require__(167);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__presets_segmentation__ = __webpack_require__(167);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__presets_segmentation__["a"]; });
+
+
+
+/***/ }),
+/* 167 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__presets_segmentation_freesurfer__ = __webpack_require__(168);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -91996,7 +92488,7 @@ var PresetsSegmentation = function () {
 /* harmony default export */ __webpack_exports__["a"] = (PresetsSegmentation);
 
 /***/ }),
-/* 167 */
+/* 168 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -93298,7 +93790,7 @@ var segmentationFs = {
 /* harmony default export */ __webpack_exports__["a"] = (segmentationFs);
 
 /***/ }),
-/* 168 */
+/* 169 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -93311,9 +93803,9 @@ var segmentationFs = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__shaders_vr_uniform__ = __webpack_require__(49);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__shaders_vr_fragment__ = __webpack_require__(51);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__shaders_vr_vertex__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__shaders_layer_uniform__ = __webpack_require__(169);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__shaders_layer_fragment__ = __webpack_require__(170);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__shaders_layer_vertex__ = __webpack_require__(171);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__shaders_layer_uniform__ = __webpack_require__(170);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__shaders_layer_fragment__ = __webpack_require__(171);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__shaders_layer_vertex__ = __webpack_require__(172);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__shaders_localizer_uniform__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__shaders_localizer_fragment__ = __webpack_require__(40);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__shaders_localizer_vertex__ = __webpack_require__(39);
@@ -93355,7 +93847,7 @@ var segmentationFs = {
 
 
 /***/ }),
-/* 169 */
+/* 170 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -93424,7 +93916,7 @@ var ShadersUniform = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersUniform);
 
 /***/ }),
-/* 170 */
+/* 171 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -93489,7 +93981,7 @@ var ShadersFragment = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersFragment);
 
 /***/ }),
-/* 171 */
+/* 172 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -93510,16 +94002,16 @@ var ShadersVertex = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersVertex);
 
 /***/ }),
-/* 172 */
+/* 173 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_annotation__ = __webpack_require__(173);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_biruler__ = __webpack_require__(174);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__widgets_handle__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__widgets_roi__ = __webpack_require__(175);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__widgets_ruler__ = __webpack_require__(176);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__widgets_voxelProbe__ = __webpack_require__(177);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_annotation__ = __webpack_require__(174);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_biruler__ = __webpack_require__(175);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__widgets_handle__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__widgets_roi__ = __webpack_require__(176);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__widgets_ruler__ = __webpack_require__(177);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__widgets_voxelProbe__ = __webpack_require__(178);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__widgets_annotation__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__widgets_biruler__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_2__widgets_handle__["a"]; });
@@ -93536,12 +94028,12 @@ var ShadersVertex = function () {
 
 
 /***/ }),
-/* 173 */
+/* 174 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -94067,12 +94559,12 @@ var WidgetsAnnotation = function (_WidgetsBase) {
 /* harmony default export */ __webpack_exports__["a"] = (WidgetsAnnotation);
 
 /***/ }),
-/* 174 */
+/* 175 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -94568,12 +95060,12 @@ var WidgetsBiRuler = function (_WidgetsBase) {
 /* harmony default export */ __webpack_exports__["a"] = (WidgetsBiRuler);
 
 /***/ }),
-/* 175 */
+/* 176 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -94966,12 +95458,12 @@ var WidgetsRoi = function (_WidgetsBase) {
 /* harmony default export */ __webpack_exports__["a"] = (WidgetsRoi);
 
 /***/ }),
-/* 176 */
+/* 177 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -95315,14 +95807,14 @@ var WidgetsRuler = function (_WidgetsBase) {
 /* harmony default export */ __webpack_exports__["a"] = (WidgetsRuler);
 
 /***/ }),
-/* 177 */
+/* 178 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__geometries_geometries_voxel__ = __webpack_require__(32);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_models_stack__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_models_voxel__ = __webpack_require__(82);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_models_voxel__ = __webpack_require__(83);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__core_core_intersections__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_three__ = __webpack_require__(0);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -95825,7 +96317,7 @@ var WidgetsVoxelProbe = function (_WidgetsBase) {
 /* harmony default export */ __webpack_exports__["a"] = (WidgetsVoxelProbe);
 
 /***/ }),
-/* 178 */
+/* 179 */
 /***/ (function(module, exports) {
 
 module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"87","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"dependencies":{"dicom-parser":"1.7.3","image-JPEG2000":"OHIF/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.87.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","lesson":"node ./scripts/router.js lessons","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","gen:index:lessons":"node ./scripts/genIndexFiles.js lessons","gen:index:lessons:cdn":"node ./scripts/genIndexFiles.js lessons cdn","test":"karma start","lint":"eslint src/**/*.js","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"latest","eslint-config-google":"latest","gh-pages":"latest","glslify":"5.1.0","jasmine-core":"latest","jsdoc":"jsdoc3/jsdoc#master","karma":"latest","karma-chrome-launcher":"^2.2.0","karma-jasmine":"latest","karma-sinon":"^1.0.5","karma-spec-reporter":"latest","karma-webpack":"^2.0.4","live-server":"^1.1.0","puppeteer":"^0.13.0","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"latest","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.0.0-beta.3","webpack":"^3.7.1","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^2.9.1","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}}
