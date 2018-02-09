@@ -9,7 +9,7 @@ import HelpersContour from 'base/helpers/helpers.contour';
 import HelpersLocalizer from 'base/helpers/helpers.localizer';
 import HelpersStack from 'base/helpers/helpers.stack';
 import LoadersVolume from 'base/loaders/loaders.volume';
-import LoadersFS from 'base/loaders/loaders.freesurfer';
+
 // standard global variables
 let stats;
 let ready = false;
