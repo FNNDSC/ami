@@ -141,7 +141,7 @@ export default class CoreUtils {
 
     // get file name
     if (!data.filename) {
-    data.filename = data.pathname.split('/').pop();
+      data.filename = data.pathname.split('/').pop();
     }
 
 
