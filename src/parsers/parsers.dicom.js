@@ -878,17 +878,29 @@ export default class ParsersDicom extends ParsersVolume {
     }
   }
 
+  _interpretAsRGB(photometricInterpretation) {
+    const rgbLikeTypes = [
+      'RGB',
+      'YBR_RCT',
+      'YBR_ICT',
+      'YBR_FULL_422',
+    ];
+
+    return rgbLikeTypes.indexOf(photometricInterpretation) !== -1;
+  }
+
   _convertColorSpace(uncompressedData) {
     let rgbData = null;
     let photometricInterpretation = this.photometricInterpretation();
     let planarConfiguration = this.planarConfiguration();
 
-    if (photometricInterpretation === 'RGB' &&
+    const interpretAsRGB = this._interpretAsRGB(photometricInterpretation);
+    if (interpretAsRGB &&
         planarConfiguration === 0) {
       // ALL GOOD, ALREADY ORDERED
       // planar or non planar planarConfiguration
       rgbData = uncompressedData;
-    } else if (photometricInterpretation === 'RGB' &&
+    } else if (interpretAsRGB &&
         planarConfiguration === 1) {
       if (uncompressedData instanceof Int8Array) {
         rgbData = new Int8Array(uncompressedData.length);
