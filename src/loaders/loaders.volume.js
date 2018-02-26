@@ -323,15 +323,19 @@ export default class LoadersVolumes extends LoadersBase {
       data.gzcompressed = true;
       data.extension =
         data.filename.split('.gz').shift().split('.').pop();
-      let decompressedData = PAKO.inflate(data.buffer);
-      data.buffer = decompressedData.buffer;
     } else if (data.extension === 'mgz') {
       data.gzcompressed = true;
       data.extension = 'mgh';
-      let decompressedData = PAKO.inflate(data.buffer);
-      data.buffer = decompressedData.buffer;
+    } else if (data.extension === 'zraw') {
+      data.gzcompressed = true;
+      data.extension = 'raw';
     } else {
       data.gzcompressed = false;
+    }
+
+    if (data.gzcompressed) {
+      let decompressedData = PAKO.inflate(data.buffer);
+      data.buffer = decompressedData.buffer;
     }
   }
 

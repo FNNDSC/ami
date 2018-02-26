@@ -91,6 +91,8 @@ export default class ParsersMHD extends ParsersVolume {
         this._header.ElementType === 'MET_SHORT') {
       bitsAllocated = 16;
     } else if (
+        this._header.ElementType === 'MET_UINT' ||
+        this._header.ElementType === 'MET_INT' ||
         this._header.ElementType === 'MET_UFLOAT' ||
         this._header.ElementType === 'MET_FLOAT') {
       bitsAllocated = 32;
@@ -167,6 +169,12 @@ export default class ParsersMHD extends ParsersVolume {
     } else if (this._header.ElementType === 'MET_USHORT') {
       frameOffset = frameOffset * 2;
       return new Uint16Array(buffer, frameOffset, numPixels);
+    } else if (this._header.ElementType === 'MET_INT') {
+      frameOffset = frameOffset * 4;
+      return new Int32Array(buffer, frameOffset, numPixels);
+    } else if (this._header.ElementType === 'MET_UINT') {
+      frameOffset = frameOffset * 4;
+      return new Uint32Array(buffer, frameOffset, numPixels);
     } else if (this._header.ElementType === 'MET_FLOAT') {
       frameOffset = frameOffset * 4;
       return new Float32Array(buffer, frameOffset, numPixels);
