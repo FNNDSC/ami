@@ -55387,16 +55387,23 @@ var ParsersDicom = function (_ParsersVolume) {
     }
   };
 
+  ParsersDicom.prototype._interpretAsRGB = function _interpretAsRGB(photometricInterpretation) {
+    var rgbLikeTypes = ['RGB', 'YBR_RCT', 'YBR_ICT', 'YBR_FULL_422'];
+
+    return rgbLikeTypes.indexOf(photometricInterpretation) !== -1;
+  };
+
   ParsersDicom.prototype._convertColorSpace = function _convertColorSpace(uncompressedData) {
     var rgbData = null;
     var photometricInterpretation = this.photometricInterpretation();
     var planarConfiguration = this.planarConfiguration();
 
-    if (photometricInterpretation === 'RGB' && planarConfiguration === 0) {
+    var interpretAsRGB = this._interpretAsRGB(photometricInterpretation);
+    if (interpretAsRGB && planarConfiguration === 0) {
       // ALL GOOD, ALREADY ORDERED
       // planar or non planar planarConfiguration
       rgbData = uncompressedData;
-    } else if (photometricInterpretation === 'RGB' && planarConfiguration === 1) {
+    } else if (interpretAsRGB && planarConfiguration === 1) {
       if (uncompressedData instanceof Int8Array) {
         rgbData = new Int8Array(uncompressedData.length);
       } else if (uncompressedData instanceof Uint8Array) {
@@ -59851,7 +59858,7 @@ var ParsersNifti = function (_ParsersVolume) {
   ParsersNifti.prototype.rescaleIntercept = function rescaleIntercept() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    return this._dataSet.scl_intercept;
+    return this._dataSet.scl_inter;
   };
 
   ParsersNifti.prototype.extractPixelData = function extractPixelData() {
@@ -67588,15 +67595,19 @@ var LoadersVolumes = function (_LoadersBase) {
     if (data.extension === 'gz') {
       data.gzcompressed = true;
       data.extension = data.filename.split('.gz').shift().split('.').pop();
-      var decompressedData = PAKO.inflate(data.buffer);
-      data.buffer = decompressedData.buffer;
     } else if (data.extension === 'mgz') {
       data.gzcompressed = true;
       data.extension = 'mgh';
-      var _decompressedData = PAKO.inflate(data.buffer);
-      data.buffer = _decompressedData.buffer;
+    } else if (data.extension === 'zraw') {
+      data.gzcompressed = true;
+      data.extension = 'raw';
     } else {
       data.gzcompressed = false;
+    }
+
+    if (data.gzcompressed) {
+      var decompressedData = PAKO.inflate(data.buffer);
+      data.buffer = decompressedData.buffer;
     }
   };
 
@@ -90411,7 +90422,7 @@ var ParsersMHD = function (_ParsersVolume) {
       bitsAllocated = 8;
     } else if (this._header.ElementType === 'MET_USHORT' || this._header.ElementType === 'MET_SHORT') {
       bitsAllocated = 16;
-    } else if (this._header.ElementType === 'MET_UFLOAT' || this._header.ElementType === 'MET_FLOAT') {
+    } else if (this._header.ElementType === 'MET_UINT' || this._header.ElementType === 'MET_INT' || this._header.ElementType === 'MET_UFLOAT' || this._header.ElementType === 'MET_FLOAT') {
       bitsAllocated = 32;
     }
 
@@ -90484,6 +90495,12 @@ var ParsersMHD = function (_ParsersVolume) {
     } else if (this._header.ElementType === 'MET_USHORT') {
       frameOffset = frameOffset * 2;
       return new Uint16Array(buffer, frameOffset, numPixels);
+    } else if (this._header.ElementType === 'MET_INT') {
+      frameOffset = frameOffset * 4;
+      return new Int32Array(buffer, frameOffset, numPixels);
+    } else if (this._header.ElementType === 'MET_UINT') {
+      frameOffset = frameOffset * 4;
+      return new Uint32Array(buffer, frameOffset, numPixels);
     } else if (this._header.ElementType === 'MET_FLOAT') {
       frameOffset = frameOffset * 4;
       return new Float32Array(buffer, frameOffset, numPixels);
