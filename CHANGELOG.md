@@ -10,6 +10,7 @@ Note: We need this file so we can log new features while we are developing inste
 
 ### Big changes
 - MGH/Z and FSM support - [#134, #242](https://github.com/FNNDSC/ami/pull/245).
+- MHD/RAWZ support. [#249](https://github.com/FNNDSC/ami/pull/252)
 - `ami.js` stack overflow tag - [#65](https://github.com/FNNDSC/ami/issues/65).
 
 ### API changes
