@@ -430,7 +430,8 @@ window.onload = function() {
     for (let i = 0; i < evt.target.files.length; i++) {
       let dataUrl = CoreUtils.parseUrl(evt.target.files[i].name);
       if (dataUrl.extension.toUpperCase() === 'MHD' ||
-          dataUrl.extension.toUpperCase() === 'RAW') {
+          dataUrl.extension.toUpperCase() === 'RAW' ||
+          dataUrl.extension.toUpperCase() === 'ZRAW') {
         dataGroups.push(
           {
             file: evt.target.files[i],
@@ -446,8 +447,10 @@ window.onload = function() {
       // if raw/mhd pair
       const mhdFile = dataGroups.filter(_filterByExtension.bind(null, 'MHD'));
       const rawFile = dataGroups.filter(_filterByExtension.bind(null, 'RAW'));
+      const zrawFile = dataGroups.filter(_filterByExtension.bind(null, 'ZRAW'));
       if (mhdFile.length === 1 &&
-          rawFile.length === 1) {
+          (rawFile.length === 1 ||
+            zrawFile.length === 1)) {
       loadSequenceContainer.push(
         loadSequenceGroup(dataGroups)
       );
