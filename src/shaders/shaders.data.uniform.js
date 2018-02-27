@@ -37,6 +37,12 @@ export default class ShadersUniform {
         typeGLSL: 'float',
         length: 2,
       },
+      'uUpperLowerThreshold': {
+        type: 'fv1',
+        value: [0.0, 0.0],
+        typeGLSL: 'float',
+        length: 2,
+      },
       'uRescaleSlopeIntercept': {
         type: 'fv1',
         value: [0.0, 0.0],
