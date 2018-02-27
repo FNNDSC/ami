@@ -40,7 +40,11 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this._windowCenter = null;
     this._rescaleSlope = null;
     this._rescaleIntercept = null;
-
+    
+    //threshold
+    this._upperThreshold = null;
+    this._lowerThreshold = null;
+    
     this._canvasWidth = 0;
     this._canvasHeight = 0;
     this._borderColor = null;
@@ -97,7 +101,25 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this._windowCenter = windowCenter;
     this.updateIntensitySettingsUniforms();
   }
+  
+  //adding thresholding method
+  get upperThreshold() {
+    return this._upperThreshold;
+  }
 
+  set upperThreshold(upperThreshold) {
+    this._upperThreshold = upperThreshold;
+    this.updateIntensitySettingsUniforms();
+  }
+
+  get lowerThreshold() {
+    return this._lowerThreshold;
+  }
+
+  set lowerThreshold(lowerThreshold) {
+    this._lowerThreshold = lowerThreshold;
+    this.updateIntensitySettingsUniforms();
+  }
   get rescaleSlope() {
     return this._rescaleSlope;
   }
@@ -377,7 +399,11 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
       [this._rescaleSlope, this._rescaleIntercept];
     this._uniforms.uWindowCenterWidth.value =
       [offset + this._windowCenter, this._windowWidth];
-
+    
+    // set slice upper/lower threshold
+    this._uniforms.uUpperLowerThreshold.value =
+      [this._lowerThreshold, this._upperThreshold];
+    
     // invert
     this._uniforms.uInvert.value = this._invert === true ? 1 : 0;
 
