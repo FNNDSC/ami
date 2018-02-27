@@ -81,13 +81,22 @@ void main(void) {
     // rescale/slope
     normalizedIntensity =
       normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
-
+    if ( normalizedIntensity < uUpperLowerThreshold[0] ||
+      normalizedIntensity > uUpperLowerThreshold[1]) {
+      discard;
+    }
     float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
     normalizedIntensity =
       ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];
 
     dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;
-    dataValue.a = 1.0;
+   
+    highp float zero = 0.0;
+    if(normalizedIntensity==zero){
+      dataValue.a = 0.0;
+    }else{
+      dataValue.a = 1.0;
+    }
   }
 
   // Apply LUT table...
