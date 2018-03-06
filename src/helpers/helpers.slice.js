@@ -375,6 +375,11 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
       if (this._upperThreshold === null) {
         this._upperThreshold = this._stack._minMax[1];
       }
+      
+      if (this._lowerThreshold === null) {
+        this._lowerThreshold = this._stack._minMax[0];
+      }
+      
       if (this.__windowWidth === null) {
         this._windowWidth = this._stack.windowWidth;
       }
