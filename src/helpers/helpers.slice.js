@@ -41,7 +41,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this._rescaleSlope = null;
     this._rescaleIntercept = null;
     
-    //threshold
+    // threshold
     this._upperThreshold = null;
     this._lowerThreshold = null;
     
@@ -102,7 +102,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this.updateIntensitySettingsUniforms();
   }
   
-  //adding thresholding method
+  // adding thresholding method
   get upperThreshold() {
     return this._upperThreshold;
   }
