@@ -18,28 +18,20 @@ import LocalizerUniform from './shaders.localizer.uniform';
 import LocalizerFragment from './shaders.localizer.fragment';
 import LocalizerVertex from './shaders.localizer.vertex';
 
-/**
- * @module shaders
- */
-
-export default {
-  ContourUniform,
-  ContourFragment,
-  ContourVertex,
-
-  DataUniform,
-  DataFragment,
-  DataVertex,
-
-  VRUniform,
-  VRFragment,
-  VRVertex,
-
-  LayerUniform,
-  LayerFragment,
-  LayerVertex,
-
-  LocalizerUniform,
-  LocalizerFragment,
-  LocalizerVertex,
+export {
+    ContourUniform as ContourUniformShader,
+    ContourFragment as ContourFragmentShader,
+    ContourVertex as ContourVertexShader,
+    DataUniform as DataUniformShader,
+    DataFragment as DataFragmentShader,
+    DataVertex as DataVertexShader,
+    VRUniform as VRUniformShader,
+    VRFragment as VRFragmentShader,
+    VRVertex as VRVertexShader,
+    LayerUniform as LayerUniformShader,
+    LayerFragment as LayerFragmentShader,
+    LayerVertex as LayerVertexShader,
+    LocalizerUniform as LocalizerUniformShader,
+    LocalizerFragment as LocalizerFragmentShader,
+    LocalizerVertex as LocalizerVertexShader,
 };

@@ -2,7 +2,6 @@
  * Colors utility functions
  */
 export default class Colors {
-
   /**
    * Convert LAB to XYZ
    * http://www.easyrgb.com/index.php?X=MATH&H=08#text8
@@ -102,5 +101,4 @@ export default class Colors {
     let xyz = this.cielab2XYZ(l, a, b);
     return this.xyz2RGB(...xyz);
   }
-
 }

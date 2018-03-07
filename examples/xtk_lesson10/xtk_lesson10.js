@@ -1,7 +1,7 @@
 // XTK imports
-import XRenderer3D from '../../src/helpers/x/helpers.x.renderer3d';
-import XMesh from '../../src/helpers/x/helpers.x.mesh';
-import XVolume from '../../src/helpers/x/helpers.x.volume';
+import XRenderer3D from 'base/helpers/x/helpers.x.renderer3d';
+import XMesh from 'base/helpers/x/helpers.x.mesh';
+import XVolume from 'base/helpers/x/helpers.x.volume';
 
 window.onload = function() {
     // INIT THE RENDERER

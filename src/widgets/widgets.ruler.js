@@ -1,5 +1,7 @@
-import WidgetsBase from '../widgets/widgets.base';
-import WidgetsHandle from '../widgets/widgets.handle';
+import WidgetsBase from './widgets.base';
+import WidgetsHandle from './widgets.handle';
+
+import {Vector3} from 'three';
 
 /**
  * @module widgets/handle
@@ -7,19 +9,17 @@ import WidgetsHandle from '../widgets/widgets.handle';
  */
 
 export default class WidgetsRuler extends WidgetsBase {
-
   constructor(targetMesh, controls, camera, container) {
     super(container);
 
     this._targetMesh = targetMesh;
     this._controls = controls;
     this._camera = camera;
-    this._container = container;
 
     this._active = true;
     this._lastEvent = null;
 
-    this._worldPosition = new THREE.Vector3();
+    this._worldPosition = new Vector3();
     if (this._targetMesh !== null) {
       this._worldPosition = this._targetMesh.position;
     }
@@ -173,6 +173,10 @@ export default class WidgetsRuler extends WidgetsBase {
   update() {
     this.updateColor();
 
+    // update handles
+    this._handles[0].update();
+    this._handles[1].update();
+
     // mesh stuff
     this.updateMeshColor();
     this.updateMeshPosition();
@@ -216,7 +220,7 @@ export default class WidgetsRuler extends WidgetsBase {
     // add line!
     this._line = document.createElement('div');
     this._line.setAttribute('id', this.uuid);
-    this._line.setAttribute('class', 'widgets handle line');
+    this._line.setAttribute('class', 'AMI Widget Ruler');
     this._line.style.position = 'absolute';
     this._line.style.transformOrigin = '0 100%';
     this._line.style.marginTop = '-1px';
@@ -241,18 +245,23 @@ export default class WidgetsRuler extends WidgetsBase {
   }
 
   updateDOMPosition() {
-
     // update rulers lines and text!
     let x1 = this._handles[0].screenPosition.x;
     let y1 = this._handles[0].screenPosition.y;
     let x2 = this._handles[1].screenPosition.x;
     let y2 = this._handles[1].screenPosition.y;
 
-    let x0 = x1 + (x2 - x1)/2;
-    let y0 = y1 + (y2 - y1)/2;
+    let x0 = x2;
+    let y0 = y2;
+
+    if (y1 >= y2) {
+      y0 = y2 - 30;
+    } else {
+      y0 = y2 + 30;
+    }
 
     let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-    let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI; //result in deg
+    let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
 
     let posY = y1 - this._container.offsetHeight;
 
@@ -317,5 +326,4 @@ export default class WidgetsRuler extends WidgetsBase {
 
     this.update();
   }
-
 }

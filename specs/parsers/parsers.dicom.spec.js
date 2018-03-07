@@ -485,7 +485,7 @@ function dicomTestSequence(referenceDataset) {
         var orientation = parser.imageOrientation(frameIndex);
         var orientationReference = referenceDataset.imageOrientation;
 
-        if(orientation !== null){
+        if (orientation !== null) {
           orientation = orientation.toString();
           orientationReference = orientationReference.toString();
         }

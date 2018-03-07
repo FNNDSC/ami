@@ -1,3 +1,5 @@
+import {Matrix4} from 'three';
+
 /**
  *
  * @module geometries/voxel
@@ -9,7 +11,7 @@ export default class GeometriesVoxel extends THREE.BoxGeometry {
 
     this._location = dataPosition;
 
-    this.applyMatrix(new THREE.Matrix4().makeTranslation(
+    this.applyMatrix(new Matrix4().makeTranslation(
       this._location.x,
       this._location.y,
       this._location.z));
@@ -42,7 +44,7 @@ export default class GeometriesVoxel extends THREE.BoxGeometry {
     this.vertices[7].set(- 0.5, - 0.5, + 0.5);
 
     this.applyMatrix(
-      new THREE.Matrix4().makeTranslation(
+      new Matrix4().makeTranslation(
         this._location.x,
         this._location.y,
         this._location.z));
@@ -53,6 +55,4 @@ export default class GeometriesVoxel extends THREE.BoxGeometry {
   get location() {
     return this._location;
   }
-
-
 }

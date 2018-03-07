@@ -1,7 +1,6 @@
 import ShadersBase from '../shaders.base';
 
 class Texture3d extends ShadersBase {
-
   constructor() {
     super();
     this.name = 'texture3d';
@@ -62,7 +61,6 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
 }
     `;
   }
-
 }
 
 export default new Texture3d();

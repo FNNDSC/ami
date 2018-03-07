@@ -1,5 +1,4 @@
 export default class ShadersFragment {
-
   // pass uniforms object
   constructor(uniforms) {
     this._uniforms = uniforms;
@@ -8,7 +7,7 @@ export default class ShadersFragment {
   }
 
   functions() {
-    if(this._main === '') {
+    if (this._main === '') {
       // if main is empty, functions can not have been computed
       this.main();
     }
@@ -27,7 +26,7 @@ export default class ShadersFragment {
       let uniform = this._uniforms[property];
       content += `uniform ${uniform.typeGLSL} ${property}`;
 
-      if(uniform && uniform.length) {
+      if (uniform && uniform.length) {
         content += `[${uniform.length}]`;
       }
 
@@ -46,7 +45,7 @@ void main(void) {
                 ((vProjectedCoords.y / vProjectedCoords.w) + 1.0 ) / 2.0 );
 
   // just silence warning for
-  vec4 dummy = vPos;
+  // vec4 dummy = vPos;
 
   //The back position is the world space position stored in the texture.
   vec4 baseColor0 = texture2D(uTextureBackTest0, texc);
@@ -98,7 +97,7 @@ void main(void) {
 ${this.uniforms()}
 
 // varying (should fetch it from vertex directly)
-varying vec4      vPos;
+// varying vec4      vPos;
 varying vec4      vProjectedCoords;
 
 // tailored functions
@@ -108,5 +107,4 @@ ${this.functions()}
 ${this._main}
       `;
     }
-
 }

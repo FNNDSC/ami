@@ -18,7 +18,10 @@ export default class ModelsSeries extends ModelsBase {
     this._transferSyntaxUID = '';
     this._seriesNumber = -1;
     this._seriesDescription = '';
+    this._seriesDate = '';
     this._studyDescription = '';
+    this._studyDate = '';
+    this._accessionNumber = -1;
     this._modality = 'Modality not set';
     this._dimensionIndexSequence = [];
     // it is used in the loader in case a dicom/nifti contains multiple frames
@@ -179,6 +182,24 @@ export default class ModelsSeries extends ModelsBase {
   }
 
   /**
+   * Study date setter
+   *
+   * @param {*} studyDate
+   */
+  set studyDate(studyDate) {
+    this._studyDate = studyDate;
+  }
+
+  /**
+   * Study date getter
+   *
+   * @return {*}
+   */
+  get studyDate() {
+    return this._studyDate;
+  }
+
+  /**
    * Study descripition setter
    *
    * @param {*} studyDescription
@@ -194,6 +215,24 @@ export default class ModelsSeries extends ModelsBase {
    */
   get studyDescription() {
     return this._studyDescription;
+  }
+
+  /**
+   * Series date setter
+   *
+   * @param {*} seriesDate
+   */
+  set seriesDate(seriesDate) {
+    this._seriesDate = seriesDate;
+  }
+
+  /**
+   * Series date getter
+   *
+   * @return {*}
+   */
+  get seriesDate() {
+    return this._seriesDate;
   }
 
   /**
@@ -340,34 +379,74 @@ export default class ModelsSeries extends ModelsBase {
     return this._numberOfChannels;
   }
 
+  /**
+   * Stack setter
+   *
+   * @param {*} stack
+   */
   set stack(stack) {
     this._stack = stack;
   }
 
+  /**
+   * Stack getter
+   *
+   * @return {*}
+   */
   get stack() {
     return this._stack;
   }
 
+  /**
+   * Modality setter
+   *
+   * @param {*} modality
+   */
   set modality(modality) {
     this._modality = modality;
   }
 
+  /**
+   * Modality getter
+   *
+   * @return {*}
+   */
   get modality() {
     return this._modality;
   }
 
+  /**
+   * Segmentation type setter
+   *
+   * @param {*} segmentationType
+   */
   set segmentationType(segmentationType) {
     this._segmentationType = segmentationType;
   }
 
+  /**
+   * Segmentation type getter
+   *
+   * @return {*}
+   */
   get segmentationType() {
     return this._segmentationType;
   }
 
+  /**
+   * Segmentation segments setter
+   *
+   * @param {*} segmentationSegments
+   */
   set segmentationSegments(segmentationSegments) {
     this._segmentationSegments = segmentationSegments;
   }
 
+  /**
+   * Segmentation segments getter
+   *
+   * @return {*}
+   */
   get segmentationSegments() {
     return this._segmentationSegments;
   }

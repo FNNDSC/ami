@@ -2,7 +2,6 @@ import ShadersBase from '../shaders.base';
 import InterpolationIdentity from './shaders.interpolation.identity';
 
 class InterpolationTrilinear extends ShadersBase {
-
   constructor() {
     super();
     this.name = 'interpolationTrilinear';
@@ -130,8 +129,6 @@ void ${this._name}(in vec3 currentVoxel, out vec4 dataValue, out vec3 gradient){
 }
     `;
   }
-
-
 }
 
 export default new InterpolationTrilinear();

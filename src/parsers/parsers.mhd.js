@@ -1,5 +1,6 @@
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
+import {Vector3} from 'three';
 
 /**
  * @module parsers/mhd
@@ -98,9 +99,16 @@ export default class ParsersMHD extends ParsersVolume {
     return bitsAllocated;
   }
 
+  /**
+   * https://itk.org/Wiki/ITK/MetaIO/Documentation
+   * ElementSpacing[0] spacing between elements along X axis (i.e. column spacing)
+   * ElementSpacing[1] spacing between elements along Y axis (i.e. row spacing)
+   *
+   * @param {*} frameIndex 
+   */
   pixelSpacing(frameIndex = 0) {
-    let x = parseFloat(this._header.ElementSpacing[0], 10);
-    let y = parseFloat(this._header.ElementSpacing[1], 10);
+    let x = parseFloat(this._header.ElementSpacing[1], 10);
+    let y = parseFloat(this._header.ElementSpacing[0], 10);
     let z = parseFloat(this._header.ElementSpacing[2], 10);
     return [x, y, z];
   }
@@ -109,13 +117,13 @@ export default class ParsersMHD extends ParsersVolume {
     let invertX = this._header.AnatomicalOrientation.match(/L/) ? -1 : 1;
     let invertY = this._header.AnatomicalOrientation.match(/P/) ? -1 : 1;
 
-    let x = new THREE.Vector3(
+    let x = new Vector3(
       parseFloat(this._header.TransformMatrix[0]) * invertX,
       parseFloat(this._header.TransformMatrix[1]) * invertY,
       parseFloat(this._header.TransformMatrix[2]));
     x.normalize();
 
-    let y = new THREE.Vector3(
+    let y = new Vector3(
       parseFloat(this._header.TransformMatrix[3]) * invertX,
       parseFloat(this._header.TransformMatrix[4]) * invertY,
       parseFloat(this._header.TransformMatrix[5]));
@@ -133,18 +141,6 @@ export default class ParsersMHD extends ParsersVolume {
       parseFloat(this._header.Offset[1]),
       parseFloat(this._header.Offset[2]),
     ];
-  }
-
-  minMaxPixelData(pixelData = []) {
-    let minMax = [65535, -32768];
-    let numPixels = pixelData.length;
-    for (let index = 0; index < numPixels; index++) {
-      let spv = pixelData[index];
-      minMax[0] = Math.min(minMax[0], spv);
-      minMax[1] = Math.max(minMax[1], spv);
-    }
-
-    return minMax;
   }
 
   extractPixelData(frameIndex = 0) {

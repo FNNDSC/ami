@@ -1,8 +1,8 @@
 /* globals Stats*/
 
-import ControlsTrackball from '../../src/controls/controls.trackball';
-import HelpersStack from '../../src/helpers/helpers.stack';
-import LoadersVolume from '../../src/loaders/loaders.volume';
+import ControlsTrackball from 'base/controls/controls.trackball';
+import HelpersStack from 'base/helpers/helpers.stack';
+import LoadersVolume from 'base/loaders/loaders.volume';
 
 // standard global variables
 let controls;
@@ -58,18 +58,10 @@ function init() {
   camera.position.y = 250;
   camera.position.z = 250;
 
-  // light
-  // var dirLight = new THREE.DirectionalLight( 0xffffff );
-  // dirLight.position.set( 200, 200, 1000 ).normalize();
-  // camera.add( dirLight );
-  // camera.add( dirLight.target );
-//   let particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
-// scene.add( particleLight );
-
-scene.add(new THREE.AmbientLight(0x353535));
-let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(200, 200, 1000).normalize();
-scene.add(directionalLight);
+  scene.add(new THREE.AmbientLight(0x353535));
+  let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  directionalLight.position.set(200, 200, 1000).normalize();
+  scene.add(directionalLight);
 
   // controls
   controls = new ControlsTrackball(camera, threeD);
@@ -86,18 +78,18 @@ window.onload = function() {
 
   // load vtk file
   let loader1 = new THREE.VTKLoader();
-  loader1.load('../../blood1.vtk', function(geometry) {
+  loader1.load('https://cdn.rawgit.com/FNNDSC/data/master/vtk/fetalatlas_brain/cortex.vtk', function(geometry) {
     geometry.computeVertexNormals();
-    console.log(geometry);
     let material = new THREE.MeshLambertMaterial({
       color: 0x009688,
       side: THREE.DoubleSide});
     brain = new THREE.Mesh(geometry, material);
     let toLPS = new THREE.Matrix4();
-    toLPS.set(-1, 0, 0, 0,
-                   0, -1, 0, 0,
-                   0, 0, 1, 0,
-                   0, 0, 0, 1);
+    toLPS.set(
+      -1, 0, 0, 0,
+      0, -1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1);
     brain.applyMatrix(toLPS);
     scene.add(brain);
   });
@@ -113,10 +105,8 @@ window.onload = function() {
   let files = t2.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/fetalatlas_brain/t2/' + v;
   });
-  files = ['../../data/MRBrainTumor1_PIL.nii'];
 
   // load sequence for each file
-  let seriesContainer = [];
   let loadSequence = [];
   files.forEach(function(url) {
     loadSequence.push(
@@ -154,9 +144,6 @@ window.onload = function() {
     let geometry = new THREE.SphereBufferGeometry(5, 32, 32);
     let material = new THREE.MeshBasicMaterial({color: 0xffff00});
     let sphere = new THREE.Mesh(geometry, material);
-
-    // this._origin = null;
-    console.log(stack._origin);
     sphere.position.set(stack._origin.x, stack._origin.y, stack._origin.z);
     scene.add(sphere);
 

@@ -1,20 +1,3 @@
-// use nifti-js and just parse header.???
-
-// Slicer way to handle images
-// should follow it...
- // 897   if ( (this->IndexSeriesInstanceUIDs[k] != idxSeriesInstanceUID && this->IndexSeriesInstanceUIDs[k] >= 0 && idxSeriesInstanceUID >= 0) ||
- // 898        (this->IndexContentTime[k] != idxContentTime && this->IndexContentTime[k] >= 0 && idxContentTime >= 0) ||
- // 899        (this->IndexTriggerTime[k] != idxTriggerTime && this->IndexTriggerTime[k] >= 0 && idxTriggerTime >= 0) ||
- // 900        (this->IndexEchoNumbers[k] != idxEchoNumbers && this->IndexEchoNumbers[k] >= 0 && idxEchoNumbers >= 0) ||
- // 901        (this->IndexDiffusionGradientOrientation[k] != idxDiffusionGradientOrientation  && this->IndexDiffusionGradientOrientation[k] >= 0 && idxDiffusionGradientOrientation >= 0) ||
- // 902        (this->IndexSliceLocation[k] != idxSliceLocation && this->IndexSliceLocation[k] >= 0 && idxSliceLocation >= 0) ||
- // 903        (this->IndexImageOrientationPatient[k] != idxImageOrientationPatient && this->IndexImageOrientationPatient[k] >= 0 && idxImageOrientationPatient >= 0) )
- // 904     {
- // 905       continue;
- // 906     }
-
-// http://brainder.org/2012/09/23/the-nifti-file-format/
-
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
 
@@ -150,10 +133,10 @@ export default class ParsersNifti extends ParsersVolume {
                    /* special case */
 
         a = 1.0 / Math.sqrt(b*b+c*c+d*d);
-        b *= a; c *= a; d *= a;        /* normalize (b,c,d) vector */
-        a = 0.0;                       /* a = 0 ==> 180 degree rotation */
+        b *= a; c *= a; d *= a; /* normalize (b,c,d) vector */
+        a = 0.0; /* a = 0 ==> 180 degree rotation */
       } else {
-        a = Math.sqrt(a);                     /* angle = 2*arccos(a) */
+        a = Math.sqrt(a); /* angle = 2*arccos(a) */
       }
 
       if (this._dataSet.pixDims[0] < 0.0) {
@@ -225,43 +208,8 @@ export default class ParsersNifti extends ParsersVolume {
     return this._dataSet.scl_intercept;
   }
 
-  minMaxPixelData(pixelData = []) {
-    let minMax = [65535, -32768];
-    let numPixels = pixelData.length;
-    for (let index = 0; index < numPixels; index++) {
-      let spv = pixelData[index];
-      minMax[0] = Math.min(minMax[0], spv);
-      minMax[1] = Math.max(minMax[1], spv);
-    }
-
-    return minMax;
-  }
-
   extractPixelData(frameIndex = 0) {
     return this._decompressUncompressed(frameIndex);
-    // let buffer = this._dataSet.imageData;
-    // if (this._dataSet.compressed) {
-    // let buffer = this._dataSet.rawData[0];
-    // try {
-    //   let data = pako.inflate(new Uint8Array(buffer));
-    //   buffer = data.buffer;
-    // } catch (err) {
-    //   console.log(err);
-    // }
-
-    // window.console.log(buffer);
-    // }
-
-    // is it compressed?
-    // yes/no
-
-    //     try {
-    //   var result = pako.inflate(compressed);
-    // } catch (err) {
-    //   console.log(err);
-    // }
-
-    // window.console.log(this);
   }
 
   _decompressUncompressed(frameIndex = 0) {

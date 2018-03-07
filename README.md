@@ -49,8 +49,9 @@ Please submit pull request, open issues or contact us for any question, feature 
 2. [Features](#features)
 3. [Usage](#npm)
 4. [Developer corner](#developer-corner)
-5. [Credits](#credits)
-6. [Citations](#citations)
+5. [Change log](#change-log)
+6. [Credits](#credits)
+7. [Citations](#citations)
 
 ## Hello AMI
 
@@ -243,7 +244,7 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 
 ```bash
 
-$> npm install ami.js
+$> yarn add ami.js
 
 ```
 
@@ -284,15 +285,7 @@ Get the source code and related packages.
 
 $> git clone https://github.com/FNNDSC/ami.git
 $> cd ami
-$> yarn install --ignore-optional
-
-```
-
-Default task (lint, tests, demo and build)
-
-```bash
-
-$> yarn run
+$> yarn install
 
 ```
 
@@ -300,10 +293,10 @@ To run examples (browserify/babelify/serve the example)
 
 ```bash
 
-$> yarn run example <examples name>
+$> yarn example <examples name>
 
 #run the geometries_slice example
-$> yarn run example geometries_slice
+$> yarn example geometries_slice
 
 ```
 
@@ -311,18 +304,26 @@ To run lessons (browserify/babelify/serve the lesson)
 
 ```bash
 
-$> yarn run lesson <lesson number>
+$> yarn lesson <lesson number>
 
 # run lesson 00
-$> yarn run lesson 00
+$> yarn lesson 00
 
 ```
 
-Build standalone library to `build/`
+Build standalone library to `lib/`
 
 ```bash
 
-$> yarn run build:ami
+$> yarn build:ami
+
+```
+
+Build minified standalone version run
+
+```bash
+
+$> yarn build:ami:prod
 
 ```
 
@@ -330,7 +331,7 @@ Tests
 
 ```bash
 
-$> yarn run test
+$> yarn test
 
 ```
 
@@ -338,19 +339,21 @@ Documentation
 
 ```bash
 
-$> yarn run doc
+$> yarn doc
 
 ```
 
-Deploy dist/ to gh-pages
+Build and deploy dist/ to gh-pages
 
 ```bash
 
-$> yarn run deploy
+$> yarn deploy
 
 ```
 
 Find out more about the [API](https://fnndsc.github.io/ami/doc).
+
+# [Change log](https://github.com/FNNDSC/ami/releases)
 
 # Credits
 
@@ -399,6 +402,7 @@ AMI would not exist without them:
 
 # Citations
 ### 2017
+- [Medical imaging in the browser with the A* Medical Imaging (AMI) toolkit. - Rannou et al. - ESMRMB 2017 (poster)](http://epostersonline.com/esmrmb2017/node/3443)
 - [Reusable Client-Side JavaScript Modules for Immersive Web-Based Real-Time Collaborative Neuroimage Visualization - Bernal-Rusiel et al. - Frontiers in Neuroinformatics 2017 (article)](http://journal.frontiersin.org/article/10.3389/fninf.2017.00032/full)
 ### 2016
 - [Volume Visualization Tools for Medical Applications in Ubiquitous Platforms - Arbelaiz et al. - LNICST 2016 (article)](https://link.springer.com/chapter/10.1007/978-3-319-49655-9_54)

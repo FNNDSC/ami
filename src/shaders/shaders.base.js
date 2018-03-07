@@ -1,5 +1,4 @@
 export default class ShadersBase {
-
   constructor() {
     this._name = 'shadersBase';
     this._base = {

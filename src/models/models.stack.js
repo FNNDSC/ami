@@ -1,4 +1,5 @@
 /** * Imports ***/
+import {Vector3, Matrix4} from 'three';
 import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
 import ModelsBase from '../models/models.base';
@@ -40,10 +41,10 @@ export default class ModelsStack extends ModelsBase {
     this._rescaleSlope = 1;
     this._rescaleIntercept = 0;
 
-    this._minMax = [65535, -32768];
+    this._minMax = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
 
     // TRANSFORMATION MATRICES
-    this._regMatrix = new THREE.Matrix4();
+    this._regMatrix = new Matrix4();
 
     this._ijk2LPS = null;
     this._lps2IJK = null;
@@ -55,14 +56,14 @@ export default class ModelsStack extends ModelsBase {
     // IJK dimensions
     this._dimensionsIJK = null;
     this._halfDimensionsIJK = null;
-    this._spacing = new THREE.Vector3(1, 1, 1);
+    this._spacing = new Vector3(1, 1, 1);
     this._spacingBetweenSlices = 0;
     this._sliceThickness = 0;
     this._origin = null;
     this._rightHanded = true;
-    this._xCosine = new THREE.Vector3(1, 0, 0);
-    this._yCosine = new THREE.Vector3(0, 1, 0);
-    this._zCosine = new THREE.Vector3(0, 0, 1);
+    this._xCosine = new Vector3(1, 0, 0);
+    this._yCosine = new Vector3(0, 1, 0);
+    this._zCosine = new Vector3(0, 0, 1);
 
     // convenience vars
     this._prepared = false;
@@ -211,8 +212,8 @@ export default class ModelsStack extends ModelsBase {
     this._rows = this._frame[0].rows;
     this._columns = this._frame[0].columns;
     this._dimensionsIJK =
-      new THREE.Vector3(this._columns, this._rows, this._numberOfFrames);
-    this._halfDimensionsIJK = new THREE.Vector3(
+      new Vector3(this._columns, this._rows, this._numberOfFrames);
+    this._halfDimensionsIJK = new Vector3(
       this._dimensionsIJK.x / 2,
       this._dimensionsIJK.y / 2,
       this._dimensionsIJK.z / 2
@@ -246,27 +247,32 @@ export default class ModelsStack extends ModelsBase {
     this.computeLPS2AABB();
     // this.packEchos();
 
-    this._rescaleSlope = this._frame[0].rescaleSlope || 1;
-    this._rescaleIntercept = this._frame[0].rescaleIntercept || 0;
+    const middleFrameIndex = Math.floor(this._frame.length / 2);
+    const middleFrame = this._frame[middleFrameIndex];
+
+    this._rescaleSlope = middleFrame.rescaleSlope || 1;
+    this._rescaleIntercept = middleFrame.rescaleIntercept || 0;
 
     // rescale/slope min max
     this.computeMinMaxIntensities();
-    this._minMax[0] = ModelsStack.valueRescaleSlopeIntercept(
+    this._minMax[0] = CoreUtils.rescaleSlopeIntercept(
       this._minMax[0],
       this._rescaleSlope,
       this._rescaleIntercept);
-    this._minMax[1] = ModelsStack.valueRescaleSlopeIntercept(
+    this._minMax[1] = CoreUtils.rescaleSlopeIntercept(
       this._minMax[1],
       this._rescaleSlope,
       this._rescaleIntercept);
 
-    let width = this._frame[0].windowWidth || this._minMax[1] - this._minMax[0];
-    this._windowWidth = this._rescaleSlope * width + this._rescaleIntercept;
+    let width =
+      middleFrame.windowWidth * this._rescaleSlope || this._minMax[1] - this._minMax[0];
+    this._windowWidth = width + this._rescaleIntercept;
 
-    let center = this._frame[0].windowCenter || this._minMax[0] + width / 2;
-    this._windowCenter = this._rescaleSlope * center + this._rescaleIntercept;
+    let center =
+      middleFrame.windowCenter * this._rescaleSlope || this._minMax[0] + width / 2;
+    this._windowCenter = center + this._rescaleIntercept;
 
-    this._bitsAllocated = this._frame[0].bitsAllocated;
+    this._bitsAllocated = middleFrame.bitsAllocated;
     this._prepared = true;
   }
 
@@ -287,8 +293,8 @@ export default class ModelsStack extends ModelsBase {
     this._frame = packedEcho;
     this._numberOfFrames = this._frame.length;
     this._dimensionsIJK =
-      new THREE.Vector3(this._columns, this._rows, this._numberOfFrames);
-    this._halfDimensionsIJK = new THREE.Vector3(
+      new Vector3(this._columns, this._rows, this._numberOfFrames);
+    this._halfDimensionsIJK = new Vector3(
       this._dimensionsIJK.x / 2,
       this._dimensionsIJK.y / 2,
       this._dimensionsIJK.z / 2
@@ -404,10 +410,19 @@ export default class ModelsStack extends ModelsBase {
    */
   computeMinMaxIntensities() {
     // what about colors!!!!?
+    // we ignore values if NaNs
+    // https://github.com/FNNDSC/ami/issues/185
     for (let i = 0; i < this._frame.length; i++) {
       // get min/max
-      this._minMax[0] = Math.min(this._minMax[0], this._frame[i].minMax[0]);
-      this._minMax[1] = Math.max(this._minMax[1], this._frame[i].minMax[1]);
+      let min = this._frame[i].minMax[0];
+      if (!Number.isNaN(min)) {
+        this._minMax[0] = Math.min(this._minMax[0], min);
+      }
+
+      let max = this._frame[i].minMax[1];
+      if (!Number.isNaN(max)) {
+        this._minMax[1] = Math.max(this._minMax[1], max);
+      }
     }
   }
 
@@ -423,7 +438,7 @@ export default class ModelsStack extends ModelsBase {
     );
 
     // lps 2 ijk
-    this._lps2IJK = new THREE.Matrix4();
+    this._lps2IJK = new Matrix4();
     this._lps2IJK.getInverse(this._ijk2LPS);
   }
 
@@ -436,7 +451,7 @@ export default class ModelsStack extends ModelsBase {
       this._origin
     );
 
-    this._lps2AABB = new THREE.Matrix4();
+    this._lps2AABB = new Matrix4();
     this._lps2AABB.getInverse(this._aabb2LPS);
   }
 
@@ -535,7 +550,11 @@ export default class ModelsStack extends ModelsBase {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
 
-        data[packIndex] = offset + frame[frameIndex].pixelData[inFrameIndex];
+        let raw = frame[frameIndex].pixelData[inFrameIndex] += offset;
+        if (!Number.isNaN(raw)) {
+          data[packIndex] = raw;
+        }
+
         packIndex++;
       }
       packed.textureType = THREE.LuminanceFormat;
@@ -550,9 +569,11 @@ export default class ModelsStack extends ModelsBase {
         inFrameIndex = i % (frameDimension);
 
 
-        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
-        data[4 * coordinate + 2 * channelOffset] = raw & 0x00FF;
-        data[4 * coordinate + 2 * channelOffset + 1] = (raw >>> 8) & 0x00FF;
+        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(raw)) {
+          data[4 * coordinate + 2 * channelOffset] = raw & 0x00FF;
+          data[4 * coordinate + 2 * channelOffset + 1] = (raw >>> 8) & 0x00FF;
+        }
 
         packIndex++;
         coordinate = Math.floor(packIndex / 2);
@@ -567,11 +588,13 @@ export default class ModelsStack extends ModelsBase {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
 
-        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
-        data[4 * packIndex] = raw & 0x000000FF;
-        data[4 * packIndex + 1] = (raw >>> 8) & 0x000000FF;
-        data[4 * packIndex + 2] = (raw >>> 16) & 0x000000FF;
-        data[4 * packIndex + 3] = (raw >>> 24) & 0x000000FF;
+        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(raw)) {
+          data[4 * packIndex] = raw & 0x000000FF;
+          data[4 * packIndex + 1] = (raw >>> 8) & 0x000000FF;
+          data[4 * packIndex + 2] = (raw >>> 16) & 0x000000FF;
+          data[4 * packIndex + 3] = (raw >>> 24) & 0x000000FF;
+        }
 
         packIndex++;
       }
@@ -584,14 +607,16 @@ export default class ModelsStack extends ModelsBase {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
 
-        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
-        let bitString = binaryString(raw);
-        let bitStringArray = bitString.match(/.{1,8}/g);
+        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(raw)) {
+          let bitString = binaryString(raw);
+          let bitStringArray = bitString.match(/.{1,8}/g);
 
-        data[4 * packIndex] = parseInt(bitStringArray[0], 2);
-        data[4 * packIndex + 1] = parseInt(bitStringArray[1], 2);
-        data[4 * packIndex + 2] = parseInt(bitStringArray[2], 2);
-        data[4 * packIndex + 3] = parseInt(bitStringArray[3], 2);
+          data[4 * packIndex] = parseInt(bitStringArray[0], 2);
+          data[4 * packIndex + 1] = parseInt(bitStringArray[1], 2);
+          data[4 * packIndex + 2] = parseInt(bitStringArray[2], 2);
+          data[4 * packIndex + 3] = parseInt(bitStringArray[3], 2);
+        }
 
         packIndex++;
       }
@@ -638,9 +663,9 @@ export default class ModelsStack extends ModelsBase {
    */
   worldBoundingBox() {
     let bbox = [
-      Number.MAX_VALUE, Number.MIN_VALUE,
-      Number.MAX_VALUE, Number.MIN_VALUE,
-      Number.MAX_VALUE, Number.MIN_VALUE,
+      Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY,
+      Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY,
+      Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY,
     ];
 
     const dims = this._dimensionsIJK;
@@ -648,7 +673,7 @@ export default class ModelsStack extends ModelsBase {
     for (let i = 0; i <= dims.x; i += dims.x) {
       for (let j = 0; j <= dims.y; j += dims.y) {
         for (let k = 0; k <= dims.z; k += dims.z) {
-          let world = new THREE.Vector3(i, j, k).applyMatrix4(this._ijk2LPS);
+          let world = new Vector3(i, j, k).applyMatrix4(this._ijk2LPS);
           bbox = [
             Math.min(bbox[0], world.x), Math.max(bbox[1], world.x), // x min/max
             Math.min(bbox[2], world.y), Math.max(bbox[3], world.y),
@@ -667,7 +692,7 @@ export default class ModelsStack extends ModelsBase {
    * @return {*}
    */
   AABBox() {
-    let world0 = new THREE.Vector3().addScalar(-0.5)
+    let world0 = new Vector3().addScalar(-0.5)
       .applyMatrix4(this._ijk2LPS)
       .applyMatrix4(this._lps2AABB);
 
@@ -675,7 +700,7 @@ export default class ModelsStack extends ModelsBase {
       .applyMatrix4(this._ijk2LPS)
       .applyMatrix4(this._lps2AABB);
 
-    let minBBox = new THREE.Vector3(
+    let minBBox = new Vector3(
       Math.abs(world0.x - world7.x),
       Math.abs(world0.y - world7.y),
       Math.abs(world0.z - world7.z)
@@ -707,7 +732,7 @@ export default class ModelsStack extends ModelsBase {
   }
 
   _arrayToVector3(array, index) {
-    return new THREE.Vector3(
+    return new Vector3(
       array[index],
       array[index + 1],
       array[index + 2]
@@ -1078,16 +1103,3 @@ export default class ModelsStack extends ModelsBase {
     return CoreUtils.worldToData(stack._lps2IJK, worldCoordinates);
   }
 }
-
-// Slicer way to handle images
-// should follow it...
- // 897   if ( (this->IndexSeriesInstanceUIDs[k] != idxSeriesInstanceUID && this->IndexSeriesInstanceUIDs[k] >= 0 && idxSeriesInstanceUID >= 0) ||
- // 898        (this->IndexContentTime[k] != idxContentTime && this->IndexContentTime[k] >= 0 && idxContentTime >= 0) ||
- // 899        (this->IndexTriggerTime[k] != idxTriggerTime && this->IndexTriggerTime[k] >= 0 && idxTriggerTime >= 0) ||
- // 900        (this->IndexEchoNumbers[k] != idxEchoNumbers && this->IndexEchoNumbers[k] >= 0 && idxEchoNumbers >= 0) ||
- // 901        (this->IndexDiffusionGradientOrientation[k] != idxDiffusionGradientOrientation  && this->IndexDiffusionGradientOrientation[k] >= 0 && idxDiffusionGradientOrientation >= 0) ||
- // 902        (this->IndexSliceLocation[k] != idxSliceLocation && this->IndexSliceLocation[k] >= 0 && idxSliceLocation >= 0) ||
- // 903        (this->IndexImageOrientationPatient[k] != idxImageOrientationPatient && this->IndexImageOrientationPatient[k] >= 0 && idxImageOrientationPatient >= 0) )
- // 904     {
- // 905       continue;
- // 906     }

@@ -1,16 +1,9 @@
 /**
- * 
+ *
  */
 export default class {
     /**
-     * 
-     */
-    constructor() {
-
-    }
-
-    /**
-     * 
+     *
      */
     compute() {
         return `
@@ -29,5 +22,4 @@ void main() {
 }
         `;
     }
-
 }

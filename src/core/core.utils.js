@@ -1,19 +1,20 @@
 const URL = require('url');
 import Validators from './core.validators';
 
+import {Matrix4, Vector3} from 'three';
+
 /**
  * General purpose functions.
  *
  * @module core/utils
  */
 export default class CoreUtils {
-
   /**
    * Generate a bouding box object.
-   * @param {THREE.Vector3} center - Center of the box.
-   * @param {THREE.Vector3} halfDimensions - Half Dimensions of the box.
-   * @return {Object} The bounding box object. {Object.min} is a {THREE.Vector3}
-   * containing the min bounds. {Object.max} is a {THREE.Vector3} containing the
+   * @param {Vector3} center - Center of the box.
+   * @param {Vector3} halfDimensions - Half Dimensions of the box.
+   * @return {Object} The bounding box object. {Object.min} is a {Vector3}
+   * containing the min bounds. {Object.max} is a {Vector3} containing the
    * max bounds.
    * @return {boolean} False input NOT valid.
    * @example
@@ -22,10 +23,10 @@ export default class CoreUtils {
    * //  max: { x : 2, y : 4,  z : 6 }
    * //}
    * VJS.Core.Utils.bbox(
-   *   new THREE.Vector3(1, 2, 3), new THREE.Vector3(1, 2, 3));
+   *   new Vector3(1, 2, 3), new Vector3(1, 2, 3));
    *
    * //Returns false
-   * VJS.Core.Utils.bbox(new THREE.Vector3(), new THREE.Matrix4());
+   * VJS.Core.Utils.bbox(new Vector3(), new Matrix4());
    *
    */
   static bbox(center, halfDimensions) {
@@ -102,12 +103,20 @@ export default class CoreUtils {
   }
 
   /**
-   * Parse url
-   * @param {*} url
+   * Parse url and find out the extension of the exam file.
+   *
+   * @param {*} url - The url to be parsed.
+   * The query string can contain some "special" parameters that can be used to ease the parsing process
+   * when the url doesn't match the exam file name on the filesystem:
+   * - filename: the name of the exam file
+   * - contentType: the mime type of the exam file. Currently only "application/dicom" is recognized, nifti files don't have a standard mime type.
+   * For  example:
+   * http://<hostname>/getExam?id=100&filename=myexam%2Enii%2Egz
+   * http://<hostname>/getExam?id=100&contentType=application%2Fdicom
+   *
    * @return {Object}
    */
   static parseUrl(url) {
-    //
     const data = {};
     data.filename = '';
     data.extension = '';
@@ -115,11 +124,26 @@ export default class CoreUtils {
     data.query = '';
 
     let parsedUrl = URL.parse(url);
+
     data.pathname = parsedUrl.pathname;
     data.query = parsedUrl.query;
 
+    if (data.query) {
+      // Find "filename" parameter value, if present
+      data.filename = data.query.split('&').reduce((acc, fieldval) => {
+        let fvPair = fieldval.split('=');
+        if (fvPair.length > 0 && fvPair[0] == 'filename') {
+            acc = fvPair[1];
+        }
+        return acc;
+      });
+    }
+
     // get file name
-    data.filename = data.pathname.split('/').pop();
+    if (!data.filename) {
+      data.filename = data.pathname.split('/').pop();
+    }
+
 
     // find extension
     let splittedName = data.filename.split('.');
@@ -143,6 +167,7 @@ export default class CoreUtils {
 
   /**
    * Compute IJK to LPS tranform.
+   *  http://nipy.org/nibabel/dicom/dicom_orientation.html
    *
    * @param {*} xCos
    * @param {*} yCos
@@ -156,12 +181,12 @@ export default class CoreUtils {
   static ijk2LPS(
     xCos, yCos, zCos,
     spacing, origin,
-    registrationMatrix = new THREE.Matrix4()) {
-    const ijk2LPS = new THREE.Matrix4();
+    registrationMatrix = new Matrix4()) {
+    const ijk2LPS = new Matrix4();
     ijk2LPS.set(
-      xCos.x * spacing.x, yCos.x * spacing.y, zCos.x * spacing.z, origin.x,
-      xCos.y * spacing.x, yCos.y * spacing.y, zCos.y * spacing.z, origin.y,
-      xCos.z * spacing.x, yCos.z * spacing.y, zCos.z * spacing.z, origin.z,
+      xCos.x * spacing.y, yCos.x * spacing.x, zCos.x * spacing.z, origin.x,
+      xCos.y * spacing.y, yCos.y * spacing.x, zCos.y * spacing.z, origin.y,
+      xCos.z * spacing.y, yCos.z * spacing.x, zCos.z * spacing.z, origin.z,
       0, 0, 0, 1);
     ijk2LPS.premultiply(registrationMatrix);
 
@@ -182,7 +207,7 @@ export default class CoreUtils {
   static aabb2LPS(
     xCos, yCos, zCos,
     origin) {
-    const aabb2LPS = new THREE.Matrix4();
+    const aabb2LPS = new Matrix4();
     aabb2LPS.set(
         xCos.x, yCos.x, zCos.x, origin.x,
         xCos.y, yCos.y, zCos.y, origin.y,
@@ -201,7 +226,7 @@ export default class CoreUtils {
    * @return {*}
    */
     static worldToData(lps2IJK, worldCoordinates) {
-    let dataCoordinate = new THREE.Vector3()
+    let dataCoordinate = new Vector3()
       .copy(worldCoordinates)
       .applyMatrix4(lps2IJK);
 
@@ -212,18 +237,33 @@ export default class CoreUtils {
   }
 
   /**
-   * Get voxel value
+   * Get and set voxel value
    *
    * @param {*} stack
    * @param {*} coordinate
-   *
+   * @param {*} value
    * @return {*}
    */
   static value(stack, coordinate) {
+    console.warn('value is deprecated, please use getPixelData instead');
+    this.getPixelData(stack, coordinate);
+  }
+
+  static getPixelData(stack, coordinate) {
     if (coordinate.z >= 0 &&
         coordinate.z < stack._frame.length) {
       return stack._frame[coordinate.z].
-        value(coordinate.x, coordinate.y);
+        getPixelData(coordinate.x, coordinate.y);
+    } else {
+      return null;
+    }
+  }
+
+  static setPixelData(stack, coordinate, value) {
+    if (coordinate.z >= 0 &&
+        coordinate.z < stack._frame.length) {
+      stack._frame[coordinate.z].
+        setPixelData(coordinate.x, coordinate.y, value);
     } else {
       return null;
     }
@@ -241,5 +281,4 @@ export default class CoreUtils {
   static rescaleSlopeIntercept(value, slope, intercept) {
     return value * slope + intercept;
   }
-
 }

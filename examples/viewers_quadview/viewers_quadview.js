@@ -1,29 +1,25 @@
 /* globals Stats, dat*/
 
-import CamerasOrthographic from '../../src/cameras/cameras.orthographic';
-import ControlsOrthographic from '../../src/controls/controls.trackballortho';
-import ControlsTrackball from '../../src/controls/controls.trackball';
-import HelpersBoundingBox from '../../src/helpers/helpers.boundingbox';
-import HelpersLocalizer from '../../src/helpers/helpers.localizer';
-import HelpersStack from '../../src/helpers/helpers.stack';
-import LoadersVolume from '../../src/loaders/loaders.volume';
-import ModelsStack from '../../src/models/models.stack';
-
-import ShadersContourUniform from '../../src/shaders/shaders.contour.uniform';
-import ShadersContourVertex from '../../src/shaders/shaders.contour.vertex';
-import ShadersContourFragment from '../../src/shaders/shaders.contour.fragment';
+import CamerasOrthographic from 'base/cameras/cameras.orthographic';
+import ControlsOrthographic from 'base/controls/controls.trackballortho';
+import ControlsTrackball from 'base/controls/controls.trackball';
+import CoreUtils from 'base/core/core.utils';
+import HelpersBoundingBox from 'base/helpers/helpers.boundingbox';
+import HelpersContour from 'base/helpers/helpers.contour';
+import HelpersLocalizer from 'base/helpers/helpers.localizer';
+import HelpersStack from 'base/helpers/helpers.stack';
+import LoadersVolume from 'base/loaders/loaders.volume';
 
 // standard global variables
 let stats;
 let ready = false;
 
+let redContourHelper = null;
 let redTextureTarget = null;
-let redContourMesh = null;
-let redCountourScene = null;
-let redContourMaterial = null;
+let redContourScene = null;
 
 // 3d renderer
-let r0 = {
+const r0 = {
   domId: 'r0',
   domElement: null,
   renderer: null,
@@ -36,7 +32,7 @@ let r0 = {
 };
 
 // 2d axial renderer
-let r1 = {
+const r1 = {
   domId: 'r1',
   domElement: null,
   renderer: null,
@@ -54,7 +50,7 @@ let r1 = {
 };
 
 // 2d sagittal renderer
-let r2 = {
+const r2 = {
   domId: 'r2',
   domElement: null,
   renderer: null,
@@ -73,7 +69,7 @@ let r2 = {
 
 
 // 2d coronal renderer
-let r3 = {
+const r3 = {
   domId: 'r3',
   domElement: null,
   renderer: null,
@@ -296,8 +292,8 @@ function init() {
         object.materialBack.clippingPlanes = [clipPlane1];
         r1.renderer.render(object.scene, r1.camera, redTextureTarget, true);
         r1.renderer.clearDepth();
-        redContourMaterial.uniforms.uWidth.value = object.selected ? 5 : 1;
-        r1.renderer.render(redCountourScene, r1.camera);
+        redContourHelper.contourWidth = object.selected ? 2 : 1;
+        r1.renderer.render(redContourScene, r1.camera);
         r1.renderer.clearDepth();
       });
 
@@ -411,28 +407,12 @@ window.onload = function() {
       }
     );
 
-    // need 1 per tooth...
-    let uniformsLayerMix = ShadersContourUniform.uniforms();
-    uniformsLayerMix.uTextureFilled.value = redTextureTarget.texture;
-    uniformsLayerMix.uWidth.value = 1.0;
-    uniformsLayerMix.uCanvasWidth.value = redTextureTarget.width;
-    uniformsLayerMix.uCanvasHeight.value = redTextureTarget.height;
-
-    let fls = new ShadersContourFragment(uniformsLayerMix);
-    let vls = new ShadersContourVertex();
-    redContourMaterial = new THREE.ShaderMaterial(
-      {side: THREE.DoubleSide,
-      uniforms: uniformsLayerMix,
-      vertexShader: vls.compute(),
-      fragmentShader: fls.compute(),
-      transparent: true,
-      extensions: {
-        derivatives: true,
-      },
-    });
-    redContourMesh = new THREE.Mesh(
-          r1.stackHelper.slice.geometry, redContourMaterial);
-    redCountourScene = new THREE.Scene(redContourMesh);
+    redContourHelper = new HelpersContour(stack, r1.stackHelper.slice.geometry);
+    redContourHelper.canvasWidth = redTextureTarget.width;
+    redContourHelper.canvasHeight = redTextureTarget.height;
+    redContourHelper.textureToFilter = redTextureTarget.texture;
+    redContourScene = new THREE.Scene();
+    redContourScene.add(redContourHelper);
 
     // yellow slice
     initHelpersStack(r2, stack);
@@ -483,18 +463,30 @@ window.onload = function() {
 
     let customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
+
+    // Red
     let stackFolder1 = gui.addFolder('Axial (Red)');
     let redChanged = stackFolder1.add(
       r1.stackHelper,
       'index', 0, r1.stackHelper.orientationMaxIndex).step(1).listen();
+    stackFolder1.add(
+      r1.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
+
+    // Yellow
     let stackFolder2 = gui.addFolder('Sagittal (yellow)');
     let yellowChanged = stackFolder2.add(
       r2.stackHelper,
       'index', 0, r2.stackHelper.orientationMaxIndex).step(1).listen();
+    stackFolder2.add(
+      r2.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
+
+    // Green
     let stackFolder3 = gui.addFolder('Coronal (green)');
     let greenChanged = stackFolder3.add(
       r3.stackHelper,
       'index', 0, r3.stackHelper.orientationMaxIndex).step(1).listen();
+    stackFolder3.add(
+      r3.stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
 
     /**
      * Update Layer Mix
@@ -507,12 +499,12 @@ window.onload = function() {
 
       // bit of a hack... works fine for this application
       for (let i = 0; i < targetLocalizersHelpers.length; i++) {
-        for (let j = 0; j < 4; j++) {
+        for (let j = 0; j < 3; j++) {
           let targetPlane = targetLocalizersHelpers[i]['plane' + (j + 1)];
           if (targetPlane &&
-             plane.x === targetPlane.x &&
-             plane.y === targetPlane.y &&
-             plane.z === targetPlane.z) {
+             plane.x.toFixed(6) === targetPlane.x.toFixed(6) &&
+             plane.y.toFixed(6) === targetPlane.y.toFixed(6) &&
+             plane.z.toFixed(6) === targetPlane.z.toFixed(6)) {
             targetLocalizersHelpers[i]['plane' + (j + 1)] = plane;
           }
         }
@@ -554,19 +546,8 @@ window.onload = function() {
       updateLocalizer(r1, [r2.localizerHelper, r3.localizerHelper]);
       updateClipPlane(r1, clipPlane1);
 
-      if (redContourMesh) {
-        redCountourScene.remove(redContourMesh);
-        redContourMesh.material.dispose();
-        redContourMesh.material = null;
-        redContourMesh.geometry.dispose();
-        redContourMesh.geometry = null;
-
-        redContourMesh = new THREE.Mesh(
-          r1.stackHelper.slice.geometry, redContourMaterial);
-        // go to LPS space
-        redContourMesh.applyMatrix(r1.stackHelper.stack._ijk2LPS);
-
-        redCountourScene.add(redContourMesh);
+      if (redContourHelper) {
+        redContourHelper.geometry = r1.stackHelper.slice.geometry;
       }
     }
 
@@ -580,7 +561,7 @@ window.onload = function() {
     greenChanged.onChange(onGreenChanged);
 
     function onDoubleClick(event) {
-      const canvas = event.srcElement.parentElement;
+      const canvas = event.target.parentElement;
       const id = event.target.id;
       const mouse = {
         x: ((event.clientX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1,
@@ -619,7 +600,8 @@ window.onload = function() {
       const intersects = raycaster.intersectObjects(scene.children, true);
       if (intersects.length > 0) {
         let ijk =
-          ModelsStack.worldToData(stackHelper.stack, intersects[0].point);
+          CoreUtils.worldToData(stackHelper.stack.lps2IJK, intersects[0].point);
+
         r1.stackHelper.index =
           ijk.getComponent((r1.stackHelper.orientation + 2) % 3);
         r2.stackHelper.index =
@@ -640,7 +622,7 @@ window.onload = function() {
     r3.domElement.addEventListener('dblclick', onDoubleClick);
 
     function onClick(event) {
-      const canvas = event.srcElement.parentElement;
+      const canvas = event.target.parentElement;
       const id = event.target.id;
       const mouse = {
         x: ((event.clientX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1,

@@ -5,6 +5,7 @@ import ShadersFragment from '../shaders/shaders.vr.fragment';
 
 import HelpersMaterialMixin from '../helpers/helpers.material.mixin';
 
+import {Matrix4} from 'three';
 
 /**
  * @module helpers/volumerendering
@@ -87,7 +88,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
       worldBBox[1] - worldBBox[0],
       worldBBox[3] - worldBBox[2],
       worldBBox[5] - worldBBox[4]);
-    this._geometry.applyMatrix(new THREE.Matrix4().makeTranslation(
+    this._geometry.applyMatrix(new Matrix4().makeTranslation(
       centerLPS.x, centerLPS.y, centerLPS.z));
   }
 

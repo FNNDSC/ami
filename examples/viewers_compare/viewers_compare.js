@@ -1,20 +1,24 @@
 /* globals Stats, dat*/
 
-import CamerasOrthographic from '../../src/cameras/cameras.orthographic';
-import ControlsOrthographic from '../../src/controls/controls.trackballortho';
-import HelpersLut from '../../src/helpers/helpers.lut';
-import HelpersStack from '../../src/helpers/helpers.stack';
-import LoadersVolume from '../../src/loaders/loaders.volume';
+import CamerasOrthographic from 'base/cameras/cameras.orthographic';
+import ControlsOrthographic from 'base/controls/controls.trackballortho';
+import HelpersLut from 'base/helpers/helpers.lut';
+import HelpersStack from 'base/helpers/helpers.stack';
+import LoadersVolume from 'base/loaders/loaders.volume';
 
-import ShadersLayerUniform from '../../src/shaders/shaders.layer.uniform';
-import ShadersLayerVertex from '../../src/shaders/shaders.layer.vertex';
-import ShadersLayerFragment from '../../src/shaders/shaders.layer.fragment';
-import ShadersUniform from '../../src/shaders/shaders.data.uniform';
-import ShadersVertex from '../../src/shaders/shaders.data.vertex';
-import ShadersFragment from '../../src/shaders/shaders.data.fragment';
+import ShadersLayerUniform from 'base/shaders/shaders.layer.uniform';
+import ShadersLayerVertex from 'base/shaders/shaders.layer.vertex';
+import ShadersLayerFragment from 'base/shaders/shaders.layer.fragment';
+import ShadersUniform from 'base/shaders/shaders.data.uniform';
+import ShadersVertex from 'base/shaders/shaders.data.vertex';
+import ShadersFragment from 'base/shaders/shaders.data.fragment';
 
 // standard global letiables
-let controls, renderer, camera, statsyay, threeD;
+let controls;
+let renderer;
+let camera;
+let statsyay;
+let threeD;
 //
 let mouse = {
   x: 0,

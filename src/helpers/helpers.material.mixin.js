@@ -5,7 +5,6 @@
  */
 
 let HerlpersMaterialMixin = (superclass) => class extends superclass {
-
   _createMaterial(extraOptions) {
     // generate shaders on-demand!
     let fs = new this._shadersFragment(this._uniforms);
@@ -53,7 +52,6 @@ let HerlpersMaterialMixin = (superclass) => class extends superclass {
       this._textures.push(tex);
     }
   }
-
 };
 
 export default HerlpersMaterialMixin;
