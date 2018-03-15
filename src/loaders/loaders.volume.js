@@ -201,6 +201,7 @@ export default class LoadersVolumes extends LoadersBase {
     frame.rows = dataParser.rows(i);
     frame.columns = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;
+    frame.pixelPaddingValue = dataParser.pixelPaddingValue(i);
     frame.pixelRepresentation = stack.pixelRepresentation;
     frame.pixelType = stack.pixelType;
     frame.pixelData = dataParser.extractPixelData(i);
