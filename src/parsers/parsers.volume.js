@@ -10,6 +10,10 @@ export default class ParsersVolume {
     return 0;
   }
 
+  pixelPaddingValue(frameIndex = 0) {
+    return null;
+  }
+
   modality() {
     return 'unknown';
   }

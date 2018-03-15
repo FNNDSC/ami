@@ -470,6 +470,16 @@ export default class ParsersDicom extends ParsersVolume {
     return pixelRepresentation;
   }
 
+  pixelPaddingValue(frameIndex = 0) {
+    let padding = this._dataSet.int16('x00280120');
+
+    if (typeof padding === 'undefined') {
+      padding = null;
+    }
+
+    return padding;
+  }
+
   bitsAllocated(frameIndex = 0) {
     // expect frame index to start at 0!
     let bitsAllocated = this._dataSet.uint16('x00280100');
