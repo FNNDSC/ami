@@ -40,7 +40,6 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this._windowCenter = null;
     this._rescaleSlope = null;
     this._rescaleIntercept = null;
-    // threshold
     this._upperThreshold = null;
     this._lowerThreshold = null;
     this._canvasWidth = 0;
