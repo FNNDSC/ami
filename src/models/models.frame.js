@@ -214,7 +214,7 @@ export default class ModelsFrame extends ModelsBase {
       params = {
         invert: this._invert,
         min: this._minMax[0],
-        padding: this._pixelPaddingValue
+        padding: this._pixelPaddingValue,
       };
     let data = new Uint8Array(dimension * 4);
 
