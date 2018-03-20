@@ -205,7 +205,7 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   rescaleIntercept(frameIndex = 0) {
-    return this._dataSet.scl_intercept;
+    return this._dataSet.scl_inter;
   }
 
   extractPixelData(frameIndex = 0) {
