@@ -722,27 +722,38 @@ export default class ParsersDicom extends ParsersVolume {
     }
   }
 
-  framesAreFragmented(dataSet) {
-    const numberOfFrames = dataSet.intString('x00280008');
-    const pixelDataElement = dataSet.elements.x7fe00010;
+  // https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/imageLoader/wadouri/getEncapsulatedImageFrame.js
+  framesAreFragmented() {
+    const numberOfFrames = this._dataSet.intString('x00280008');
+    const pixelDataElement = this._dataSet.elements.x7fe00010;
 
     return (numberOfFrames !== pixelDataElement.fragments.length);
   }
 
-  _decodeJ2K(frameIndex = 0) {
-    // https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/imageLoader/wadouri/getEncapsulatedImageFrame.js
-    let encodedPixelData = null;
-
-    if (this._dataSet.elements.x7fe00010.basicOffsetTable.length) {
+  getEncapsulatedImageFrame(frameIndex) {
+    if (this._dataSet.elements.x7fe00010 && this._dataSet.elements.x7fe00010.basicOffsetTable.length) {
       // Basic Offset Table is not empty
-      encodedPixelData = DicomParser.readEncapsulatedImageFrame(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
-    } else if (this.framesAreFragmented(this._dataSet)) {
-      const basicOffsetTable = DicomParser.createJPEGBasicOffsetTable(this._dataSet, this._dataSet.elements.x7fe00010);
-      encodedPixelData = DicomParser.readEncapsulatedImageFrame(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex, basicOffsetTable);
-    } else {
-      encodedPixelData = DicomParser.readEncapsulatedPixelDataFromFragments(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
+      return DicomParser.readEncapsulatedImageFrame(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
     }
 
+    if (this.framesAreFragmented()) { // Basic Offset Table is empty
+      return DicomParser.readEncapsulatedImageFrame(
+        this._dataSet,
+        this._dataSet.elements.x7fe00010,
+        frameIndex,
+        DicomParser.createJPEGBasicOffsetTable(this._dataSet, this._dataSet.elements.x7fe00010)
+      );
+    }
+
+    return DicomParser.readEncapsulatedPixelDataFromFragments(
+      this._dataSet,
+      this._dataSet.elements.x7fe00010,
+      frameIndex
+    );
+  }
+
+  _decodeJ2K(frameIndex = 0) {
+    let encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
     let jpxImage = new Jpx();
     // https://github.com/OHIF/image-JPEG2000/issues/6
     // It currently returns either Int16 or Uint16 based on whether the codestream is signed or not.
@@ -768,7 +779,7 @@ export default class ParsersDicom extends ParsersVolume {
 
   // from cornerstone
   _decodeJPEGLossless(frameIndex = 0) {
-    let encodedPixelData = DicomParser.readEncapsulatedPixelData(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
+    let encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
     let pixelRepresentation = this.pixelRepresentation(frameIndex);
     let bitsAllocated = this.bitsAllocated(frameIndex);
     let byteOutput = bitsAllocated <= 8 ? 1 : 2;
@@ -788,7 +799,7 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   _decodeJPEGBaseline(frameIndex = 0) {
-    let encodedPixelData = DicomParser.readEncapsulatedPixelData(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
+    let encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
     let rows = this.rows(frameIndex);
     let columns = this.columns(frameIndex);
     let bitsAllocated = this.bitsAllocated(frameIndex);
