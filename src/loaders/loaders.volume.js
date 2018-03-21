@@ -198,6 +198,7 @@ export default class LoadersVolumes extends LoadersBase {
     frame.sopInstanceUID = dataParser.sopInstanceUID(i);
     frame.url = url;
     frame.index = i;
+    frame.invert = stack.invert;
     frame.rows = dataParser.rows(i);
     frame.columns = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;
