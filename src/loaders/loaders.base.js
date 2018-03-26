@@ -66,9 +66,10 @@ export default class LoadersBase extends EventEmitter {
   /**
    * load the resource by url.
    * @param {string} url - resource url.
+   * @param {object} token - cancellation token.
    * @return {promise} promise.
    */
-  fetch(url) {
+  fetch(url, token) {
     return new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
       request.open('GET', url);
@@ -124,13 +125,13 @@ export default class LoadersBase extends EventEmitter {
       };
 
       request.onabort = (event) => {
-        // emit 'fetch-start' event
+        // emit 'fetch-abort' event
         this.emit('fetch-abort', {
           file: url,
           time: new Date(),
         });
 
-        reject(request.statusText);
+        reject(request.statusText || 'Aborted');
       };
 
       request.ontimeout = () => {
@@ -170,6 +171,14 @@ export default class LoadersBase extends EventEmitter {
         // reject(request.statusText);
       };
 
+      if (Array.isArray(token)) {
+        token.push(() => {
+          request.abort();
+          // promise will be rejected in the onabort listener
+          // reject(new Error("Cancelled"));
+        });
+      }
+
       request.send();
     });
   }
@@ -189,14 +198,15 @@ export default class LoadersBase extends EventEmitter {
   /**
    * default load sequence group promise.
    * @param {array} url - resource url.
+   * @param {object} token - cancellation token.
    * @return {promise} promise.
    */
-  loadSequenceGroup(url) {
+  loadSequenceGroup(url, token) {
     const fetchSequence = [];
 
     url.forEach((file) => {
       fetchSequence.push(
-        this.fetch(file)
+        this.fetch(file, token)
       );
     });
 
@@ -209,6 +219,9 @@ export default class LoadersBase extends EventEmitter {
         return data;
       })
       .catch(function(error) {
+        if (error === 'Aborted') {
+            return;
+        }
         window.console.log('oops... something went wrong...');
         window.console.log(error);
       });
@@ -217,10 +230,11 @@ export default class LoadersBase extends EventEmitter {
   /**
    * default load sequence promise.
    * @param {string} url - resource url.
+   * @param {object} token - cancellation token.
    * @return {promise} promise.
    */
-  loadSequence(url) {
-    return this.fetch(url)
+  loadSequence(url, token) {
+    return this.fetch(url, token)
       .then((rawdata) => {
         return this.parse(rawdata);
       })
@@ -229,6 +243,9 @@ export default class LoadersBase extends EventEmitter {
         return data;
       })
       .catch(function(error) {
+        if (error === 'Aborted') {
+          return;
+        }
         window.console.log('oops... something went wrong...');
         window.console.log(error);
       });
@@ -237,9 +254,10 @@ export default class LoadersBase extends EventEmitter {
   /**
    * load the data by url(urls)
    * @param {string|array} url - resource url.
+   * @param {object} token - cancellation token.
    * @return {promise} promise
    */
-  load(url) {
+  load(url, token) {
     // if we load a single file, convert it to an array
     if (!Array.isArray(url)) {
       url = [url];
@@ -255,11 +273,11 @@ export default class LoadersBase extends EventEmitter {
     url.forEach((file) => {
       if (!Array.isArray(file)) {
         loadSequences.push(
-          this.loadSequence(file)
+          this.loadSequence(file, token)
         );
       } else {
         loadSequences.push(
-          this.loadSequenceGroup(file)
+          this.loadSequenceGroup(file, token)
         );
       }
     });
