@@ -91,12 +91,7 @@ void main(void) {
 
     dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;
    
-    highp float zero = 0.0;
-    if(normalizedIntensity==zero){
-      dataValue.a = 0.0;
-    }else{
-      dataValue.a = 1.0;
-    }
+    dataValue.a = step(normalizedIntensity, 0.);
   }
 
   // Apply LUT table...
