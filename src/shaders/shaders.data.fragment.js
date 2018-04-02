@@ -81,8 +81,8 @@ void main(void) {
     // rescale/slope
     normalizedIntensity =
       normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
-    if ( normalizedIntensity < uUpperLowerThreshold[0] ||
-      normalizedIntensity > uUpperLowerThreshold[1]) {
+    if ( normalizedIntensity < uLowerUpperThreshold[0] ||
+      normalizedIntensity > uLowerUpperThreshold[1]) {
       discard;
     }
     float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
