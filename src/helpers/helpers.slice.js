@@ -409,7 +409,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
       [offset + this._windowCenter, this._windowWidth];
 
     // set slice upper/lower threshold
-    this._uniforms.uUpperLowerThreshold.value =
+    this._uniforms.uLowerUpperThreshold.value =
       [this._lowerThreshold, this._upperThreshold];
 
     // invert
