@@ -259,7 +259,7 @@ export default class LoadersBase extends EventEmitter {
 
     if (this._progressBar) {
       this._progressBar.totalFiles = url.length;
-      this._progressBar.cancellationToken = token;
+      this._progressBar.requests = requests;
     }
 
     // emit 'load-start' event
