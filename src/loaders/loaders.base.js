@@ -66,9 +66,10 @@ export default class LoadersBase extends EventEmitter {
   /**
    * load the resource by url.
    * @param {string} url - resource url.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
-  fetch(url) {
+  fetch(url, requests) {
     return new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
       request.open('GET', url);
@@ -124,13 +125,13 @@ export default class LoadersBase extends EventEmitter {
       };
 
       request.onabort = (event) => {
-        // emit 'fetch-start' event
+        // emit 'fetch-abort' event
         this.emit('fetch-abort', {
           file: url,
           time: new Date(),
         });
 
-        reject(request.statusText);
+        reject(request.statusText || 'Aborted');
       };
 
       request.ontimeout = () => {
@@ -170,6 +171,10 @@ export default class LoadersBase extends EventEmitter {
         // reject(request.statusText);
       };
 
+      if (requests instanceof Map) {
+        requests.set(url, request);
+      }
+
       request.send();
     });
   }
@@ -189,14 +194,15 @@ export default class LoadersBase extends EventEmitter {
   /**
    * default load sequence group promise.
    * @param {array} url - resource url.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
-  loadSequenceGroup(url) {
+  loadSequenceGroup(url, requests) {
     const fetchSequence = [];
 
     url.forEach((file) => {
       fetchSequence.push(
-        this.fetch(file)
+        this.fetch(file, requests)
       );
     });
 
@@ -209,6 +215,9 @@ export default class LoadersBase extends EventEmitter {
         return data;
       })
       .catch(function(error) {
+        if (error === 'Aborted') {
+            return;
+        }
         window.console.log('oops... something went wrong...');
         window.console.log(error);
       });
@@ -217,10 +226,11 @@ export default class LoadersBase extends EventEmitter {
   /**
    * default load sequence promise.
    * @param {string} url - resource url.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
-  loadSequence(url) {
-    return this.fetch(url)
+  loadSequence(url, requests) {
+    return this.fetch(url, requests)
       .then((rawdata) => {
         return this.parse(rawdata);
       })
@@ -229,6 +239,9 @@ export default class LoadersBase extends EventEmitter {
         return data;
       })
       .catch(function(error) {
+        if (error === 'Aborted') {
+          return;
+        }
         window.console.log('oops... something went wrong...');
         window.console.log(error);
       });
@@ -237,9 +250,10 @@ export default class LoadersBase extends EventEmitter {
   /**
    * load the data by url(urls)
    * @param {string|array} url - resource url.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise
    */
-  load(url) {
+  load(url, requests) {
     // if we load a single file, convert it to an array
     if (!Array.isArray(url)) {
       url = [url];
@@ -255,11 +269,11 @@ export default class LoadersBase extends EventEmitter {
     url.forEach((file) => {
       if (!Array.isArray(file)) {
         loadSequences.push(
-          this.loadSequence(file)
+          this.loadSequence(file, requests)
         );
       } else {
         loadSequences.push(
-          this.loadSequenceGroup(file)
+          this.loadSequenceGroup(file, requests)
         );
       }
     });
