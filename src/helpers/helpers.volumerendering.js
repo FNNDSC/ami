@@ -57,7 +57,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
 
     // compensate for the offset to only pass > 0 values to shaders
     // models > models.stack.js : _packTo8Bits
-    this._offset = this._stack._minMax[0] < 0 ? this._stack._minMax[0] : 0;
+    this._offset = Math.min(0, this._stack._minMax[0]);
     this._windowCenter = this._stack.windowCenter;
     this._windowWidth = this._stack.windowWidth * 0.8; // multiply for better default visualization
   }
@@ -133,7 +133,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
   }
 
   set windowWidth(windowWidth) {
-    this._windowWidth = windowWidth < 1 ? 1 : windowWidth;
+    this._windowWidth = Math.max(1, windowWidth);
     this._uniforms.uWindowCenterWidth.value[1] = this._windowWidth;
   }
 
