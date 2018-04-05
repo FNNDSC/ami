@@ -57,9 +57,9 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
 
     // compensate for the offset to only pass > 0 values to shaders
     // models > models.stack.js : _packTo8Bits
-    let offset = this._stack._minMax[0] < 0 ? this._stack._minMax[0] : 0;
-    this.windowCenter = this._stack.windowCenter - offset;
-    this.windowWidth = this._stack.windowWidth * 0.8; // multiply for better default visualization
+    this._offset = this._stack._minMax[0] < 0 ? this._stack._minMax[0] : 0;
+    this._windowCenter = this._stack.windowCenter;
+    this._windowWidth = this._stack.windowWidth * 0.8; // multiply for better default visualization
   }
 
   _prepareMaterial() {
@@ -73,7 +73,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
     this._uniforms.uPixelType.value = this._stack.pixelType;
     this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
     this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
-    this._uniforms.uWindowCenterWidth.value = [this._windowCenter, this._windowWidth];
+    this._uniforms.uWindowCenterWidth.value = [this._windowCenter - this._offset, this._windowWidth];
     this._uniforms.uRescaleSlopeIntercept.value = [this._stack.rescaleSlope, this._stack.rescaleIntercept];
     this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x,
                                                 this._stack.dimensionsIJK.y,
@@ -125,7 +125,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
 
   set windowCenter(windowCenter) {
     this._windowCenter = windowCenter;
-    this._uniforms.uWindowCenterWidth.value[0] = this._windowCenter;
+    this._uniforms.uWindowCenterWidth.value[0] = this._windowCenter - this._offset;
   }
 
   get windowWidth() {
