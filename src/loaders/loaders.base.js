@@ -66,10 +66,10 @@ export default class LoadersBase extends EventEmitter {
   /**
    * load the resource by url.
    * @param {string} url - resource url.
-   * @param {object} token - cancellation token.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
-  fetch(url, token) {
+  fetch(url, requests) {
     return new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
       request.open('GET', url);
@@ -171,12 +171,8 @@ export default class LoadersBase extends EventEmitter {
         // reject(request.statusText);
       };
 
-      if (Array.isArray(token)) {
-        token.push(() => {
-          request.abort();
-          // promise will be rejected in the onabort listener
-          // reject(new Error("Cancelled"));
-        });
+      if (requests instanceof Map) {
+        requests.set(url, request);
       }
 
       request.send();
@@ -198,15 +194,15 @@ export default class LoadersBase extends EventEmitter {
   /**
    * default load sequence group promise.
    * @param {array} url - resource url.
-   * @param {object} token - cancellation token.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
-  loadSequenceGroup(url, token) {
+  loadSequenceGroup(url, requests) {
     const fetchSequence = [];
 
     url.forEach((file) => {
       fetchSequence.push(
-        this.fetch(file, token)
+        this.fetch(file, requests)
       );
     });
 
@@ -230,11 +226,11 @@ export default class LoadersBase extends EventEmitter {
   /**
    * default load sequence promise.
    * @param {string} url - resource url.
-   * @param {object} token - cancellation token.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
-  loadSequence(url, token) {
-    return this.fetch(url, token)
+  loadSequence(url, requests) {
+    return this.fetch(url, requests)
       .then((rawdata) => {
         return this.parse(rawdata);
       })
@@ -254,10 +250,10 @@ export default class LoadersBase extends EventEmitter {
   /**
    * load the data by url(urls)
    * @param {string|array} url - resource url.
-   * @param {object} token - cancellation token.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise
    */
-  load(url, token) {
+  load(url, requests) {
     // if we load a single file, convert it to an array
     if (!Array.isArray(url)) {
       url = [url];
@@ -273,11 +269,11 @@ export default class LoadersBase extends EventEmitter {
     url.forEach((file) => {
       if (!Array.isArray(file)) {
         loadSequences.push(
-          this.loadSequence(file, token)
+          this.loadSequence(file, requests)
         );
       } else {
         loadSequences.push(
-          this.loadSequenceGroup(file, token)
+          this.loadSequenceGroup(file, requests)
         );
       }
     });
