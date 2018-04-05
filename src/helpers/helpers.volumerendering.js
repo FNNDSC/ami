@@ -25,9 +25,13 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
     this._geometry = null;
 
     this._algorithm = 0; // ray marching
+    this._alphaCorrection = 0.5; // default
     this._interpolation = 1; // default to trilinear interpolation
     this._shading = 1; // shading is on by default
     this._shininess = 10.0;
+    this._steps = 256; // default
+    this._windowCenter = 0.0;
+    this._windowWidth = 1.0;
 
     this._create();
   }
@@ -50,16 +54,15 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
     if (!this._stack.packed) {
       this._stack.pack();
     }
+
+    // compensate for the offset to only pass > 0 values to shaders
+    // models > models.stack.js : _packTo8Bits
+    let offset = this._stack._minMax[0] < 0 ? this._stack._minMax[0] : 0;
+    this.windowCenter = this._stack.windowCenter - offset;
+    this.windowWidth = this._stack.windowWidth * 0.8; // multiply for better default visualization
   }
 
   _prepareMaterial() {
-    // compensate for the offset to only pass > 0 values to shaders
-    // models > models.stack.js : _packTo8Bits
-    let offset = 0;
-    if (this._stack._minMax[0] < 0) {
-      offset = this._stack._minMax[0];
-    }
-
     // uniforms
     this._uniforms = ShadersUniform.uniforms();
     this._uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
@@ -70,14 +73,16 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
     this._uniforms.uPixelType.value = this._stack.pixelType;
     this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
     this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
-    this._uniforms.uWindowCenterWidth.value = [offset + this._stack.windowCenter, this._stack.windowWidth * 0.8];
+    this._uniforms.uWindowCenterWidth.value = [this._windowCenter, this._windowWidth];
     this._uniforms.uRescaleSlopeIntercept.value = [this._stack.rescaleSlope, this._stack.rescaleIntercept];
     this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x,
                                                 this._stack.dimensionsIJK.y,
                                                 this._stack.dimensionsIJK.z];
+    this._uniforms.uAlphaCorrection.value = this._alphaCorrection;
     this._uniforms.uInterpolation.value = this._interpolation;
     this._uniforms.uShading.value = this._shading;
     this._uniforms.uShininess.value = this._shininess;
+    this._uniforms.uSteps.value = this._steps;
     this._uniforms.uAlgorithm.value = this._algorithm;
 
     this._createMaterial({
@@ -112,6 +117,42 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
 
   set stack(stack) {
     this._stack = stack;
+  }
+
+  get windowCenter() {
+    return this._windowCenter;
+  }
+
+  set windowCenter(windowCenter) {
+    this._windowCenter = windowCenter;
+    this._uniforms.uWindowCenterWidth.value[0] = this._windowCenter;
+  }
+
+  get windowWidth() {
+    return this._windowWidth;
+  }
+
+  set windowWidth(windowWidth) {
+    this._windowWidth = windowWidth < 1 ? 1 : windowWidth;
+    this._uniforms.uWindowCenterWidth.value[1] = this._windowWidth;
+  }
+
+  get steps() {
+    return this._steps;
+  }
+
+  set steps(steps) {
+    this._steps = steps;
+    this._uniforms.uSteps.value = this._steps;
+  }
+
+  get alphaCorrection() {
+    return this._alphaCorrection;
+  }
+
+  set alphaCorrection(alphaCorrection) {
+    this._alphaCorrection = alphaCorrection;
+    this._uniforms.uAlphaCorrection.value = this._alphaCorrection;
   }
 
   get interpolation() {
