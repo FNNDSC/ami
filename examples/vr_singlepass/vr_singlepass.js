@@ -32,34 +32,46 @@ let myStack = {
 
 function onStart(event) {
   if (vrHelper && vrHelper.uniforms && !wheel) {
-    vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
-    vrHelper.interpolation = 0;
+    renderer.setPixelRatio(.1 * window.devicePixelRatio);
+    renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
     modified = true;
   }
 }
 
 function onEnd(event) {
   if (vrHelper && vrHelper.uniforms && !wheel) {
-    vrHelper.uniforms.uSteps.value = myStack.steps;
-    vrHelper.interpolation = myStack.interpolation;
+    renderer.setPixelRatio(.5 * window.devicePixelRatio);
+    renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
     modified = true;
+
+    setTimeout(function() {
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+      modified = true;
+    }, 100);
   }
 }
 
 function onWheel() {
   if (!wheel) {
-    vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
-    vrHelper.interpolation = 0;
+    renderer.setPixelRatio(.1 * window.devicePixelRatio);
+    renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
     wheel = Date.now();
   }
 
   if (Date.now() - wheel < 300) {
     clearTimeout(wheelTO);
     wheelTO = setTimeout(function() {
-      vrHelper.uniforms.uSteps.value = myStack.steps;
-      vrHelper.interpolation = myStack.interpolation;
-      wheel = null;
+      renderer.setPixelRatio(.5 * window.devicePixelRatio);
+      renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
       modified = true;
+
+      setTimeout(function() {
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+        wheel = null;
+        modified = true;
+      }, 100);
     }, 300);
   }
 
@@ -176,6 +188,7 @@ function init() {
     alpha: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
   threeD.appendChild(renderer.domElement);
 
   // scene
