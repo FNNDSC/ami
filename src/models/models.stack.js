@@ -203,8 +203,8 @@ export default class ModelsStack extends ModelsBase {
     if (this._frame && this._frame.length > 0) {
       this._numberOfFrames = this._frame.length;
     } else {
-      window.console.log('_frame doesn\'t contain anything....');
-      window.console.log(this._frame);
+      window.console.warn('_frame doesn\'t contain anything....');
+      window.console.warn(this._frame);
       return false;
     }
 
@@ -264,13 +264,11 @@ export default class ModelsStack extends ModelsBase {
       this._rescaleSlope,
       this._rescaleIntercept);
 
-    let width =
-      middleFrame.windowWidth * this._rescaleSlope || this._minMax[1] - this._minMax[0];
-    this._windowWidth = width + this._rescaleIntercept;
+    this._windowWidth =
+      middleFrame.windowWidth || this._minMax[1] - this._minMax[0];
 
-    let center =
-      middleFrame.windowCenter * this._rescaleSlope || this._minMax[0] + width / 2;
-    this._windowCenter = center + this._rescaleIntercept;
+    this._windowCenter =
+      middleFrame.windowCenter || this._minMax[0] + this._windowWidth / 2;
 
     this._bitsAllocated = middleFrame.bitsAllocated;
     this._prepared = true;
@@ -342,18 +340,7 @@ export default class ModelsStack extends ModelsBase {
       this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
       this._frame.sort(this._sortSopInstanceUIDArraySort);
     } else {
-      // window.console.log(this._frame[0]);
-      // window.console.log(this._frame[1]);
-      // window.console.log(this._frame[0].instanceNumber !== null && true);
-      // window.console.log(
-      // this._frame[0].instanceNumber !== this._frame[1].instanceNumber);
-      window.console.log('do not know how to order the frames...');
-      // else slice location
-      // image number
-      // ORDERING BASED ON instance number
-      // _ordering = 'instance_number';
-      // first_image.sort(function(a,b){
-      // return a["instance_number"]-b["instance_number"]});
+      window.console.warn('do not know how to order the frames...');
     }
   }
 
@@ -480,6 +467,10 @@ export default class ModelsStack extends ModelsBase {
       this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
 
     // Packing style
+    if (this._bitsAllocated === 8 && this._numberOfChannels === 1) {
+      this._packedPerPixel = 4;
+    }
+
     if (this._bitsAllocated === 16 && this._numberOfChannels === 1) {
       this._packedPerPixel = 2;
     }
@@ -544,20 +535,24 @@ export default class ModelsStack extends ModelsBase {
     // frame should return it!
     const frameDimension = frame[0].rows * frame[0].columns;
 
-    if (bitsAllocated === 8 && channels === 1 || bitsAllocated === 1) {
-      let data = new Uint8Array(textureSize * textureSize * 1);
+    if (bitsAllocated === 8 && channels === 1) {
+      let data = new Uint8Array(textureSize * textureSize * 4);
+      let coordinate = 0;
+      let channelOffset = 0;
       for (let i = startVoxel; i < stopVoxel; i++) {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
 
-        let raw = frame[frameIndex].pixelData[inFrameIndex] += offset;
+        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
         if (!Number.isNaN(raw)) {
-          data[packIndex] = raw;
+          data[4 * coordinate + channelOffset] = raw;
         }
 
         packIndex++;
+        coordinate = Math.floor(packIndex / 4);
+        channelOffset = packIndex % 4;
       }
-      packed.textureType = THREE.LuminanceFormat;
+      packed.textureType = THREE.RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 16 && channels === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -750,9 +745,9 @@ export default class ModelsStack extends ModelsBase {
         }
       }
     } else {
-      window.console.log('One of the frames doesn\'t have a dimensionIndexValues array.');
-      window.console.log(a);
-      window.console.log(b);
+      window.console.warn('One of the frames doesn\'t have a dimensionIndexValues array.');
+      window.console.warn(a);
+      window.console.warn(b);
     }
 
     return 0;
