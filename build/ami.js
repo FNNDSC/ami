@@ -47630,6 +47630,12 @@ var ParsersVolume = function () {
     return 0;
   };
 
+  ParsersVolume.prototype.pixelPaddingValue = function pixelPaddingValue() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    return null;
+  };
+
   ParsersVolume.prototype.modality = function modality() {
     return 'unknown';
   };
@@ -49463,8 +49469,8 @@ var ModelsStack = function (_ModelsBase) {
     if (this._frame && this._frame.length > 0) {
       this._numberOfFrames = this._frame.length;
     } else {
-      window.console.log('_frame doesn\'t contain anything....');
-      window.console.log(this._frame);
+      window.console.warn('_frame doesn\'t contain anything....');
+      window.console.warn(this._frame);
       return false;
     }
 
@@ -49513,11 +49519,9 @@ var ModelsStack = function (_ModelsBase) {
     this._minMax[0] = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].rescaleSlopeIntercept(this._minMax[0], this._rescaleSlope, this._rescaleIntercept);
     this._minMax[1] = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].rescaleSlopeIntercept(this._minMax[1], this._rescaleSlope, this._rescaleIntercept);
 
-    var width = middleFrame.windowWidth * this._rescaleSlope || this._minMax[1] - this._minMax[0];
-    this._windowWidth = width + this._rescaleIntercept;
+    this._windowWidth = middleFrame.windowWidth || this._minMax[1] - this._minMax[0];
 
-    var center = middleFrame.windowCenter * this._rescaleSlope || this._minMax[0] + width / 2;
-    this._windowCenter = center + this._rescaleIntercept;
+    this._windowCenter = middleFrame.windowCenter || this._minMax[0] + this._windowWidth / 2;
 
     this._bitsAllocated = middleFrame.bitsAllocated;
     this._prepared = true;
@@ -49575,18 +49579,7 @@ var ModelsStack = function (_ModelsBase) {
     } else if (this._frame[0].sopInstanceUID && this._frame[1] && this._frame[1].sopInstanceUID && this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
       this._frame.sort(this._sortSopInstanceUIDArraySort);
     } else {
-      // window.console.log(this._frame[0]);
-      // window.console.log(this._frame[1]);
-      // window.console.log(this._frame[0].instanceNumber !== null && true);
-      // window.console.log(
-      // this._frame[0].instanceNumber !== this._frame[1].instanceNumber);
-      window.console.log('do not know how to order the frames...');
-      // else slice location
-      // image number
-      // ORDERING BASED ON instance number
-      // _ordering = 'instance_number';
-      // first_image.sort(function(a,b){
-      // return a["instance_number"]-b["instance_number"]});
+      window.console.warn('do not know how to order the frames...');
     }
   };
 
@@ -49717,6 +49710,10 @@ var ModelsStack = function (_ModelsBase) {
     var nbVoxels = this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
 
     // Packing style
+    if (this._bitsAllocated === 8 && this._numberOfChannels === 1) {
+      this._packedPerPixel = 4;
+    }
+
     if (this._bitsAllocated === 16 && this._numberOfChannels === 1) {
       this._packedPerPixel = 2;
     }
@@ -49776,25 +49773,29 @@ var ModelsStack = function (_ModelsBase) {
     // frame should return it!
     var frameDimension = frame[0].rows * frame[0].columns;
 
-    if (bitsAllocated === 8 && channels === 1 || bitsAllocated === 1) {
-      var data = new Uint8Array(textureSize * textureSize * 1);
+    if (bitsAllocated === 8 && channels === 1) {
+      var data = new Uint8Array(textureSize * textureSize * 4);
+      var coordinate = 0;
+      var channelOffset = 0;
       for (var i = startVoxel; i < stopVoxel; i++) {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % frameDimension;
 
-        var raw = frame[frameIndex].pixelData[inFrameIndex] += offset;
+        var raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
         if (!Number.isNaN(raw)) {
-          data[packIndex] = raw;
+          data[4 * coordinate + channelOffset] = raw;
         }
 
         packIndex++;
+        coordinate = Math.floor(packIndex / 4);
+        channelOffset = packIndex % 4;
       }
-      packed.textureType = THREE.LuminanceFormat;
+      packed.textureType = THREE.RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 16 && channels === 1) {
       var _data = new Uint8Array(textureSize * textureSize * 4);
-      var coordinate = 0;
-      var channelOffset = 0;
+      var _coordinate = 0;
+      var _channelOffset = 0;
 
       for (var _i3 = startVoxel; _i3 < stopVoxel; _i3++) {
         frameIndex = ~~(_i3 / frameDimension);
@@ -49802,13 +49803,13 @@ var ModelsStack = function (_ModelsBase) {
 
         var _raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
         if (!Number.isNaN(_raw)) {
-          _data[4 * coordinate + 2 * channelOffset] = _raw & 0x00FF;
-          _data[4 * coordinate + 2 * channelOffset + 1] = _raw >>> 8 & 0x00FF;
+          _data[4 * _coordinate + 2 * _channelOffset] = _raw & 0x00FF;
+          _data[4 * _coordinate + 2 * _channelOffset + 1] = _raw >>> 8 & 0x00FF;
         }
 
         packIndex++;
-        coordinate = Math.floor(packIndex / 2);
-        channelOffset = packIndex % 2;
+        _coordinate = Math.floor(packIndex / 2);
+        _channelOffset = packIndex % 2;
       }
 
       packed.textureType = THREE.RGBAFormat;
@@ -49961,9 +49962,9 @@ var ModelsStack = function (_ModelsBase) {
         }
       }
     } else {
-      window.console.log('One of the frames doesn\'t have a dimensionIndexValues array.');
-      window.console.log(a);
-      window.console.log(b);
+      window.console.warn('One of the frames doesn\'t have a dimensionIndexValues array.');
+      window.console.warn(a);
+      window.console.warn(b);
     }
 
     return 0;
@@ -54050,6 +54051,7 @@ var ModelsFrame = function (_ModelsBase) {
     _this._sopInstanceUID = null;
     _this._url = null;
     _this._stackID = -1;
+    _this._invert = false;
     _this._rows = 0;
     _this._columns = 0;
     _this._dimensionIndexValues = [];
@@ -54058,6 +54060,7 @@ var ModelsFrame = function (_ModelsBase) {
     _this._rightHanded = true;
     _this._sliceThickness = 1;
     _this._spacingBetweenSlices = null;
+    _this._pixelPaddingValue = null;
     _this._pixelRepresentation = 0;
     _this._pixelType = 0;
     _this._pixelSpacing = null;
@@ -54071,6 +54074,7 @@ var ModelsFrame = function (_ModelsBase) {
     _this._rescaleIntercept = null;
 
     _this._bitsAllocated = 8;
+    _this._numberOfChannels = 1;
 
     _this._minMax = null;
     _this._dist = null;
@@ -54197,6 +54201,107 @@ var ModelsFrame = function (_ModelsBase) {
 
   ModelsFrame.prototype.setPixelData = function setPixelData(column, row, value) {
     this.pixelData[column + this._columns * row] = value;
+  };
+
+  /**
+   * Get frame preview as data:URL
+   *
+   * @return {String}
+   */
+
+
+  ModelsFrame.prototype.getImageDataUrl = function getImageDataUrl() {
+    var canvas = document.createElement('canvas');
+    canvas.width = this._columns;
+    canvas.height = this._rows;
+
+    var context = canvas.getContext('2d'),
+        imageData = context.createImageData(canvas.width, canvas.height);
+
+    imageData.data.set(this._frameToCanvas());
+    context.putImageData(imageData, 0, 0);
+
+    return canvas.toDataURL();
+  };
+
+  /**
+   * Convert frame.pixelData to canvas.context.imageData.data
+   *
+   * @return {Uint8Array}
+   */
+
+
+  ModelsFrame.prototype._frameToCanvas = function _frameToCanvas() {
+    var dimension = this._columns * this._rows,
+        params = {
+      invert: this._invert,
+      min: this._minMax[0],
+      padding: this._pixelPaddingValue
+    };
+    var data = new Uint8Array(dimension * 4);
+
+    if (params.padding !== null) {
+      // recalculation of min ignoring pixelPaddingValue
+      params.min = this._minMax[1];
+      for (var index = 0, numPixels = this._pixelData.length; index < numPixels; index++) {
+        if (this._pixelData[index] !== params.padding) {
+          params.min = Math.min(params.min, this._pixelData[index]);
+        }
+      }
+    }
+
+    if (this._windowWidth && this._windowCenter !== null) {
+      // applying windowCenter and windowWidth
+      var intercept = this._rescaleIntercept || 0,
+          slope = this._rescaleSlope || 1;
+
+      params.min = Math.max((this._windowCenter - this._windowWidth / 2 - intercept) / slope, params.min);
+      params.max = Math.min((this._windowCenter + this._windowWidth / 2 - intercept) / slope, this._minMax[1]);
+    } else {
+      params.max = this._minMax[1];
+    }
+
+    params.range = params.max - params.min || 255; // if max is 0 convert it to: 255 - black, 1 - white
+
+    if (this._numberOfChannels === 1) {
+      for (var i = 0; i < dimension; i++) {
+        var normalized = this._pixelTo8Bit(this._pixelData[i], params);
+        data[4 * i] = normalized;
+        data[4 * i + 1] = normalized;
+        data[4 * i + 2] = normalized;
+        data[4 * i + 3] = 255; // alpha channel (fully opaque)
+      }
+    } else if (this._numberOfChannels === 3) {
+      for (var _i = 0; _i < dimension; _i++) {
+        data[4 * _i] = this._pixelTo8Bit(this._pixelData[3 * _i], params);
+        data[4 * _i + 1] = this._pixelTo8Bit(this._pixelData[3 * _i + 1], params);
+        data[4 * _i + 2] = this._pixelTo8Bit(this._pixelData[3 * _i + 2], params);
+        data[4 * _i + 3] = 255; // alpha channel (fully opaque)
+      }
+    }
+
+    return data;
+  };
+
+  /**
+   * Convert pixel value to 8 bit (canvas.context.imageData.data: maximum 8 bit per each of RGBA value)
+   *
+   * @param {Number} value  Pixel value
+   * @param {Object} params {invert, min, mix, padding, range}
+   *
+   * @return {Number}
+   */
+
+
+  ModelsFrame.prototype._pixelTo8Bit = function _pixelTo8Bit(value, params) {
+    // values equal to pixelPaddingValue are outside of the image and should be ignored
+    var packedValue = value <= params.min || value === params.padding ? 0 : 255;
+
+    if (value > params.min && value < params.max) {
+      packedValue = Math.round((value - params.min) * 255 / params.range);
+    }
+
+    return Number.isNaN(packedValue) ? 0 : params.invert ? 255 - packedValue : packedValue;
   };
 
   /**
@@ -54379,6 +54484,14 @@ var ModelsFrame = function (_ModelsBase) {
       return this._sopInstanceUID;
     }
   }, {
+    key: 'pixelPaddingValue',
+    get: function get() {
+      return this._pixelPaddingValue;
+    },
+    set: function set(pixelPaddingValue) {
+      this._pixelPaddingValue = pixelPaddingValue;
+    }
+  }, {
     key: 'pixelRepresentation',
     get: function get() {
       return this._pixelRepresentation;
@@ -54425,6 +54538,22 @@ var ModelsFrame = function (_ModelsBase) {
     },
     set: function set(index) {
       this._index = index;
+    }
+  }, {
+    key: 'invert',
+    get: function get() {
+      return this._invert;
+    },
+    set: function set(invert) {
+      this._invert = invert;
+    }
+  }, {
+    key: 'numberOfChannels',
+    get: function get() {
+      return this._numberOfChannels;
+    },
+    set: function set(numberOfChannels) {
+      this._numberOfChannels = numberOfChannels;
     }
   }]);
 
@@ -54962,6 +55091,18 @@ var ParsersDicom = function (_ParsersVolume) {
     return pixelRepresentation;
   };
 
+  ParsersDicom.prototype.pixelPaddingValue = function pixelPaddingValue() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    var padding = this._dataSet.int16('x00280120');
+
+    if (typeof padding === 'undefined') {
+      padding = null;
+    }
+
+    return padding;
+  };
+
   ParsersDicom.prototype.bitsAllocated = function bitsAllocated() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
@@ -55212,29 +55353,34 @@ var ParsersDicom = function (_ParsersVolume) {
     }
   };
 
-  ParsersDicom.prototype.framesAreFragmented = function framesAreFragmented(dataSet) {
-    var numberOfFrames = dataSet.intString('x00280008');
-    var pixelDataElement = dataSet.elements.x7fe00010;
+  // https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/imageLoader/wadouri/getEncapsulatedImageFrame.js
+
+
+  ParsersDicom.prototype.framesAreFragmented = function framesAreFragmented() {
+    var numberOfFrames = this._dataSet.intString('x00280008');
+    var pixelDataElement = this._dataSet.elements.x7fe00010;
 
     return numberOfFrames !== pixelDataElement.fragments.length;
+  };
+
+  ParsersDicom.prototype.getEncapsulatedImageFrame = function getEncapsulatedImageFrame(frameIndex) {
+    if (this._dataSet.elements.x7fe00010 && this._dataSet.elements.x7fe00010.basicOffsetTable.length) {
+      // Basic Offset Table is not empty
+      return DicomParser.readEncapsulatedImageFrame(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
+    }
+
+    if (this.framesAreFragmented()) {
+      // Basic Offset Table is empty
+      return DicomParser.readEncapsulatedImageFrame(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex, DicomParser.createJPEGBasicOffsetTable(this._dataSet, this._dataSet.elements.x7fe00010));
+    }
+
+    return DicomParser.readEncapsulatedPixelDataFromFragments(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
   };
 
   ParsersDicom.prototype._decodeJ2K = function _decodeJ2K() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    // https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/imageLoader/wadouri/getEncapsulatedImageFrame.js
-    var encodedPixelData = null;
-
-    if (this._dataSet.elements.x7fe00010.basicOffsetTable.length) {
-      // Basic Offset Table is not empty
-      encodedPixelData = DicomParser.readEncapsulatedImageFrame(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
-    } else if (this.framesAreFragmented(this._dataSet)) {
-      var basicOffsetTable = DicomParser.createJPEGBasicOffsetTable(this._dataSet, this._dataSet.elements.x7fe00010);
-      encodedPixelData = DicomParser.readEncapsulatedImageFrame(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex, basicOffsetTable);
-    } else {
-      encodedPixelData = DicomParser.readEncapsulatedPixelDataFromFragments(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
-    }
-
+    var encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
     var jpxImage = new Jpx();
     // https://github.com/OHIF/image-JPEG2000/issues/6
     // It currently returns either Int16 or Uint16 based on whether the codestream is signed or not.
@@ -55264,7 +55410,7 @@ var ParsersDicom = function (_ParsersVolume) {
   ParsersDicom.prototype._decodeJPEGLossless = function _decodeJPEGLossless() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    var encodedPixelData = DicomParser.readEncapsulatedPixelData(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
+    var encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
     var pixelRepresentation = this.pixelRepresentation(frameIndex);
     var bitsAllocated = this.bitsAllocated(frameIndex);
     var byteOutput = bitsAllocated <= 8 ? 1 : 2;
@@ -55286,7 +55432,7 @@ var ParsersDicom = function (_ParsersVolume) {
   ParsersDicom.prototype._decodeJPEGBaseline = function _decodeJPEGBaseline() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    var encodedPixelData = DicomParser.readEncapsulatedPixelData(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
+    var encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
     var rows = this.rows(frameIndex);
     var columns = this.columns(frameIndex);
     var bitsAllocated = this.bitsAllocated(frameIndex);
@@ -66329,7 +66475,7 @@ var Unpack = function (_ShadersBase) {
   Unpack.prototype.upack8 = function upack8() {
     this._base._functions['uInt8'] = this.uInt8();
 
-    return '\nuInt8(\n  packedData.r,\n  unpackedData.x);\n    ';
+    return '\nuInt8(\n  step( abs( float(offset - 0) ), 0.0 ) * packedData.r +\n  step( abs( float(offset - 1) ), 0.0 ) * packedData.g +\n  step( abs( float(offset - 2) ), 0.0 ) * packedData.b +\n  step( abs( float(offset - 3) ), 0.0 ) * packedData.a\n  ,\n  unpackedData.x);\n    ';
   };
 
   Unpack.prototype.upack16 = function upack16() {
@@ -66423,7 +66569,7 @@ var Texture3d = function (_ShadersBase) {
   };
 
   Texture3d.prototype.computeDefinition = function computeDefinition() {
-    this._definition = '\nvoid ' + this._name + '(in ivec3 dataCoordinates, out vec4 dataValue, out int offset){\n    \n  int index = dataCoordinates.x\n            + dataCoordinates.y * uDataDimensions.x\n            + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;\n  int indexP = int(index/uPackedPerPixel);\n  offset = index - 2*indexP;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = uTextureSize*uTextureSize;\n  int textureIndex = int(floor(float(indexP) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = indexP - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(uTextureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(uTextureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(uTextureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(uTextureSize);\n\n  //\n  if(textureIndex == 0){ dataValue = texture2D(uTextureContainer[0], uv); }\n  else if(textureIndex == 1){dataValue = texture2D(uTextureContainer[1], uv);}\n  else if(textureIndex == 2){ dataValue = texture2D(uTextureContainer[2], uv); }\n  else if(textureIndex == 3){ dataValue = texture2D(uTextureContainer[3], uv); }\n  else if(textureIndex == 4){ dataValue = texture2D(uTextureContainer[4], uv); }\n  else if(textureIndex == 5){ dataValue = texture2D(uTextureContainer[5], uv); }\n  else if(textureIndex == 6){ dataValue = texture2D(uTextureContainer[6], uv); }\n  else {\n    dataValue = vec4(0.);\n  }\n\n}\n    ';
+    this._definition = '\nvoid ' + this._name + '(in ivec3 dataCoordinates, out vec4 dataValue, out int offset){\n    \n  int index = dataCoordinates.x\n            + dataCoordinates.y * uDataDimensions.x\n            + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;\n  int indexP = int(index/uPackedPerPixel);\n  offset = index - int(uPackedPerPixel)*indexP;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = uTextureSize*uTextureSize;\n  int textureIndex = int(floor(float(indexP) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = indexP - voxelsPerTexture*textureIndex;\n  float textureIndexF = float(textureIndex);\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(uTextureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(uTextureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(uTextureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(uTextureSize);\n\n  // get rid of if statements\n  dataValue = vec4(0.) +\n    step( abs( textureIndexF - 0.0 ), 0.0 ) * texture2D(uTextureContainer[0], uv) +\n    step( abs( textureIndexF - 1.0 ), 0.0 ) * texture2D(uTextureContainer[1], uv) +\n    step( abs( textureIndexF - 2.0 ), 0.0 ) * texture2D(uTextureContainer[2], uv) +\n    step( abs( textureIndexF - 3.0 ), 0.0 ) * texture2D(uTextureContainer[3], uv) +\n    step( abs( textureIndexF - 4.0 ), 0.0 ) * texture2D(uTextureContainer[4], uv) +\n    step( abs( textureIndexF - 5.0 ), 0.0 ) * texture2D(uTextureContainer[5], uv) +\n    step( abs( textureIndexF - 6.0 ), 0.0 ) * texture2D(uTextureContainer[6], uv);\n\n}\n    ';
   };
 
   return Texture3d;
@@ -67047,9 +67193,13 @@ var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
     _this._geometry = null;
 
     _this._algorithm = 0; // ray marching
+    _this._alphaCorrection = 0.5; // default
     _this._interpolation = 1; // default to trilinear interpolation
     _this._shading = 1; // shading is on by default
     _this._shininess = 10.0;
+    _this._steps = 256; // default
+    _this._windowCenter = 0.0;
+    _this._windowWidth = 1.0;
 
     _this._create();
     return _this;
@@ -67073,16 +67223,15 @@ var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
     if (!this._stack.packed) {
       this._stack.pack();
     }
+
+    // compensate for the offset to only pass > 0 values to shaders
+    // models > models.stack.js : _packTo8Bits
+    this._offset = Math.min(0, this._stack._minMax[0]);
+    this._windowCenter = this._stack.windowCenter;
+    this._windowWidth = this._stack.windowWidth * 0.8; // multiply for better default visualization
   };
 
   HelpersVolumeRendering.prototype._prepareMaterial = function _prepareMaterial() {
-    // compensate for the offset to only pass > 0 values to shaders
-    // models > models.stack.js : _packTo8Bits
-    var offset = 0;
-    if (this._stack._minMax[0] < 0) {
-      offset = this._stack._minMax[0];
-    }
-
     // uniforms
     this._uniforms = __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_vr_uniform__["a" /* default */].uniforms();
     this._uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
@@ -67093,12 +67242,14 @@ var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
     this._uniforms.uPixelType.value = this._stack.pixelType;
     this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
     this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
-    this._uniforms.uWindowCenterWidth.value = [offset + this._stack.windowCenter, this._stack.windowWidth * 0.8];
+    this._uniforms.uWindowCenterWidth.value = [this._windowCenter - this._offset, this._windowWidth];
     this._uniforms.uRescaleSlopeIntercept.value = [this._stack.rescaleSlope, this._stack.rescaleIntercept];
     this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x, this._stack.dimensionsIJK.y, this._stack.dimensionsIJK.z];
+    this._uniforms.uAlphaCorrection.value = this._alphaCorrection;
     this._uniforms.uInterpolation.value = this._interpolation;
     this._uniforms.uShading.value = this._shading;
     this._uniforms.uShininess.value = this._shininess;
+    this._uniforms.uSteps.value = this._steps;
     this._uniforms.uAlgorithm.value = this._algorithm;
 
     this._createMaterial({
@@ -67130,6 +67281,42 @@ var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
     },
     set: function set(stack) {
       this._stack = stack;
+    }
+  }, {
+    key: 'windowCenter',
+    get: function get() {
+      return this._windowCenter;
+    },
+    set: function set(windowCenter) {
+      this._windowCenter = windowCenter;
+      this._uniforms.uWindowCenterWidth.value[0] = this._windowCenter - this._offset;
+    }
+  }, {
+    key: 'windowWidth',
+    get: function get() {
+      return this._windowWidth;
+    },
+    set: function set(windowWidth) {
+      this._windowWidth = Math.max(1, windowWidth);
+      this._uniforms.uWindowCenterWidth.value[1] = this._windowWidth;
+    }
+  }, {
+    key: 'steps',
+    get: function get() {
+      return this._steps;
+    },
+    set: function set(steps) {
+      this._steps = steps;
+      this._uniforms.uSteps.value = this._steps;
+    }
+  }, {
+    key: 'alphaCorrection',
+    get: function get() {
+      return this._alphaCorrection;
+    },
+    set: function set(alphaCorrection) {
+      this._alphaCorrection = alphaCorrection;
+      this._uniforms.uAlphaCorrection.value = this._alphaCorrection;
     }
   }, {
     key: 'interpolation',
@@ -67471,9 +67658,11 @@ var LoadersVolumes = function (_LoadersBase) {
     frame.sopInstanceUID = dataParser.sopInstanceUID(i);
     frame.url = url;
     frame.index = i;
+    frame.invert = stack.invert;
     frame.rows = dataParser.rows(i);
     frame.columns = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;
+    frame.pixelPaddingValue = dataParser.pixelPaddingValue(i);
     frame.pixelRepresentation = stack.pixelRepresentation;
     frame.pixelType = stack.pixelType;
     frame.pixelData = dataParser.extractPixelData(i);
@@ -73882,11 +74071,12 @@ var LoadersBase = function (_EventEmitter) {
   /**
    * load the resource by url.
    * @param {string} url - resource url.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
 
 
-  LoadersBase.prototype.fetch = function fetch(url) {
+  LoadersBase.prototype.fetch = function fetch(url, requests) {
     var _this2 = this;
 
     return new Promise(function (resolve, reject) {
@@ -73943,13 +74133,13 @@ var LoadersBase = function (_EventEmitter) {
       };
 
       request.onabort = function (event) {
-        // emit 'fetch-start' event
+        // emit 'fetch-abort' event
         _this2.emit('fetch-abort', {
           file: url,
           time: new Date()
         });
 
-        reject(request.statusText);
+        reject(request.statusText || 'Aborted');
       };
 
       request.ontimeout = function () {
@@ -73988,6 +74178,10 @@ var LoadersBase = function (_EventEmitter) {
         // reject(request.statusText);
       };
 
+      if (requests instanceof Map) {
+        requests.set(url, request);
+      }
+
       request.send();
     });
   };
@@ -74009,17 +74203,18 @@ var LoadersBase = function (_EventEmitter) {
   /**
    * default load sequence group promise.
    * @param {array} url - resource url.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
 
 
-  LoadersBase.prototype.loadSequenceGroup = function loadSequenceGroup(url) {
+  LoadersBase.prototype.loadSequenceGroup = function loadSequenceGroup(url, requests) {
     var _this3 = this;
 
     var fetchSequence = [];
 
     url.forEach(function (file) {
-      fetchSequence.push(_this3.fetch(file));
+      fetchSequence.push(_this3.fetch(file, requests));
     });
 
     return Promise.all(fetchSequence).then(function (rawdata) {
@@ -74028,6 +74223,9 @@ var LoadersBase = function (_EventEmitter) {
       _this3._data.push(data);
       return data;
     }).catch(function (error) {
+      if (error === 'Aborted') {
+        return;
+      }
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });
@@ -74036,19 +74234,23 @@ var LoadersBase = function (_EventEmitter) {
   /**
    * default load sequence promise.
    * @param {string} url - resource url.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
 
 
-  LoadersBase.prototype.loadSequence = function loadSequence(url) {
+  LoadersBase.prototype.loadSequence = function loadSequence(url, requests) {
     var _this4 = this;
 
-    return this.fetch(url).then(function (rawdata) {
+    return this.fetch(url, requests).then(function (rawdata) {
       return _this4.parse(rawdata);
     }).then(function (data) {
       _this4._data.push(data);
       return data;
     }).catch(function (error) {
+      if (error === 'Aborted') {
+        return;
+      }
       window.console.log('oops... something went wrong...');
       window.console.log(error);
     });
@@ -74057,11 +74259,12 @@ var LoadersBase = function (_EventEmitter) {
   /**
    * load the data by url(urls)
    * @param {string|array} url - resource url.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise
    */
 
 
-  LoadersBase.prototype.load = function load(url) {
+  LoadersBase.prototype.load = function load(url, requests) {
     var _this5 = this;
 
     // if we load a single file, convert it to an array
@@ -74078,9 +74281,9 @@ var LoadersBase = function (_EventEmitter) {
     var loadSequences = [];
     url.forEach(function (file) {
       if (!Array.isArray(file)) {
-        loadSequences.push(_this5.loadSequence(file));
+        loadSequences.push(_this5.loadSequence(file, requests));
       } else {
-        loadSequences.push(_this5.loadSequenceGroup(file));
+        loadSequences.push(_this5.loadSequenceGroup(file, requests));
       }
     });
     return Promise.all(loadSequences);

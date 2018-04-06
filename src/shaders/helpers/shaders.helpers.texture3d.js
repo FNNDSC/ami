@@ -39,6 +39,7 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
   // modulo seems incorrect sometimes...
   // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));
   int inTextureIndex = indexP - voxelsPerTexture*textureIndex;
+  float textureIndexF = float(textureIndex);
 
   // Get row and column in the texture
   int colIndex = int(mod(float(inTextureIndex), float(uTextureSize)));
