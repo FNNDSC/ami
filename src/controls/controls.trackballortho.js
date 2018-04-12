@@ -427,9 +427,6 @@ export default class Trackballortho extends EventDispatcher {
       this.domElement.removeEventListener('touchend', touchend, false);
       this.domElement.removeEventListener('touchmove', touchmove, false);
 
-      document.removeEventListener('mousemove', mousemove, false);
-      document.removeEventListener('mouseup', mouseup, false);
-
       window.removeEventListener('keydown', keydown, false);
       window.removeEventListener('keyup', keyup, false);
     };

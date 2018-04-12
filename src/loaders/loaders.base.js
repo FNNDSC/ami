@@ -54,6 +54,7 @@ export default class LoadersBase extends EventEmitter {
    * free the reference.
    */
   free() {
+    this._data = [];
     this._container = null;
     // this._helpersProgressBar = null;
 
