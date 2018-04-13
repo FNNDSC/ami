@@ -224,21 +224,16 @@ export default class WidgetsRoi extends WidgetsBase {
 
         var points = [];
         for (let index in this._handles) {
-            //this._geometry.vertices.push(this._handles[index].worldPosition);
-            //var dataCoordinates = AMI.default.Models.Stack.worldToData(
-            //    this._stackHelper.stack,
-            //   this._handles[index].worldPosition);
             points.push( this._handles[index].worldPosition );
         }
 
-        var center = AMI.default.Geometries.Slice.centerOfMass(points);
+        var center = AMI.SliceGeometry.centerOfMass(points);
         var side1 = new THREE.Vector3( 0, 0, 0 );
         var side2 = new THREE.Vector3( 0, 0, 0 );
         side1.subVectors(points[0], center);
         side2.subVectors (points[1], center);
         var direction = new THREE.Vector3( 0, 0, 0 );
         direction.crossVectors(side1, side2);
-        //for( var i = 0; i < roiPts.length; i ++ ) roiPts[ i ].multiplyScalar( 0.75 );
 
         let reference = center;
         // direction from first point to reference
@@ -274,14 +269,10 @@ export default class WidgetsRoi extends WidgetsBase {
 
             orderedpoints.push(point);
         }
-        //let orderedIntersections = AMI.default.Geometries.Slice.orderIntersections(roiPts, direction);
-        let sliceShape = AMI.default.Geometries.Slice.shape(orderedpoints);
+
+        let sliceShape = AMI.SliceGeometry.shape(orderedpoints);
 
         var shape  = new THREE.Shape( orderedpoints );
-        // material
-        //this._material = new THREE.LineBasicMaterial();
-        // mesh
-        //this._mesh = new THREE.Line(this._geometry, this._material);
 
         this._geometry = new THREE.ShapeGeometry( sliceShape );
 
@@ -290,13 +281,7 @@ export default class WidgetsRoi extends WidgetsBase {
         this._geometry.elementsNeedUpdate = true;
 
         this._mesh = new THREE.Mesh( this._geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00 } ) );
-        //var position = new THREE.Vector3( 0, 0, this._slice );
-        //position.applyMatrix4(this._stackHelper.stack._ijk2LPS);
-        //this._mesh.position.set(position.x, position.y, position.z);
-        //this._mesh.rotation.set( 0, 0, 0 );
-        //this._mesh.scale.set( 1, 1, 1 );
 
-        //this.updateMeshColor();
         this._mesh.visible = true;
         // add it!
         this.add(this._mesh);
@@ -341,7 +326,12 @@ export default class WidgetsRoi extends WidgetsBase {
 
         let isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
 
-        if (isOnLine) {
+        let w0 = handle0;
+        let w1 = newhandle;
+ 
+        var interpointdist = Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z));
+
+        if (isOnLine || interpointdist < 3) {
             handle1._dom.style.display = 'none';
             this.remove(handle1);
 

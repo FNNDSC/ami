@@ -43,6 +43,8 @@ export default class WidgetsAngle extends WidgetsBase {
         // add handles
         this._handles = [];
 
+        this._defaultAngle = true;
+
     }
 
     setPoints(pointsList) {
@@ -190,8 +192,6 @@ export default class WidgetsAngle extends WidgetsBase {
         this._handles[2].onEnd(evt);
 
         this._moving = false;
-
-        window.console.log(this);
 
         // Second Handle
         if (this._dragged || !this._handles[1].tracking) {
@@ -374,8 +374,6 @@ export default class WidgetsAngle extends WidgetsBase {
         let x2 = this._handles[1].screenPosition.x;
         let y2 = this._handles[1].screenPosition.y;
 
-        // let x0 = x1 + (x2 - x1)/2;
-        // let y0 = y1 + (y2 - y1)/2;
         let x0 = x2;
         let y0 = y2;
 
@@ -407,8 +405,8 @@ export default class WidgetsAngle extends WidgetsBase {
         let p02 = Math.sqrt((w0.x-w2.x)*(w0.x-w2.x) + (w0.y-w2.y)*(w0.y-w2.y) + (w0.z-w2.z)*(w0.z-w2.z));
 
         let a0102 = Math.acos((p10*p10 + p12*p12 - p02*p02)/(2 * p10 * p12));
-        this._opangle = a0102*180/Math.PI;
-        this._distance.innerHTML = `${(a0102*180/Math.PI).toFixed(2)}&deg;`;
+        this._opangle = this._defaultAngle ? a0102*180/Math.PI : 360-(a0102*180/Math.PI);
+        this._distance.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
         this._distanceValue = Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2);
         let posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight/2;
@@ -423,8 +421,6 @@ export default class WidgetsAngle extends WidgetsBase {
         let x4 = this._handles[2].screenPosition.x;
         let y4 = this._handles[2].screenPosition.y;
 
-        // let x0 = x1 + (x2 - x1)/2;
-        // let y0 = y1 + (y2 - y1)/2;
         let x02 = x4;
         let y02 = y4;
 
@@ -502,5 +498,14 @@ export default class WidgetsAngle extends WidgetsBase {
 
     get angle() {
         return this._opangle;
+    }
+
+    toggleDefaultAngle() {
+        this._defaultAngle = !this._defaultAngle;
+        if (this._defaultAngle) {
+            this._dashline.style.borderTop = '2.5px dashed #F9F9F9';
+        } else {
+            this._dashline.style.borderTop = '2.5px dashed #ffa7a7';
+        }
     }
 }

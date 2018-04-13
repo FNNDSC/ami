@@ -19,7 +19,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._active = true;
     this._lastEvent = null;
     this._moving = false;
-
+    this._domHovered = false;
     this._worldPosition = new Vector3();
     if (this._targetMesh !== null) {
       this._worldPosition = this._targetMesh.position;
