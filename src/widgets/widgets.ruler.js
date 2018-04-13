@@ -18,7 +18,8 @@ export default class WidgetsRuler extends WidgetsBase {
 
     this._active = true;
     this._lastEvent = null;
-
+    this._moving = false;
+    this._domHovered = false;
     this._worldPosition = new Vector3();
     if (this._targetMesh !== null) {
       this._worldPosition = this._targetMesh.position;
@@ -56,12 +57,28 @@ export default class WidgetsRuler extends WidgetsBase {
 
     this._handles.push(secondHandle);
 
+    // first handle
+    this.imoveHandle =
+        new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+    this.imoveHandle.worldPosition = this._worldPosition;
+    this.imoveHandle.hovered = true;
+    this.add(this.imoveHandle);
+    this._handles.push(this.imoveHandle);
+  
+    this.fmoveHandle =
+       new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+    this.fmoveHandle.worldPosition = this._worldPosition;
+    this.fmoveHandle.hovered = true;
+    this.add(this.fmoveHandle);
+    this._handles.push(this.fmoveHandle);
+
     // Create ruler
     this.create();
     this.initOffsets();
 
     this.onMove = this.onMove.bind(this);
     this.onEndControl = this.onEndControl.bind(this);
+    this.onHover = this.onHover.bind(this);
     this.addEventListeners();
   }
 
@@ -70,6 +87,11 @@ export default class WidgetsRuler extends WidgetsBase {
     this._container.addEventListener('DOMMouseScroll', this.onMove);
 
     this._controls.addEventListener('end', this.onEndControl);
+
+    this._line.addEventListener('mouseenter', this.onHover);
+    this._line.addEventListener('mouseleave', this.onHover);
+    this._distance.addEventListener('mouseenter', this.onHover);
+    this._distance.addEventListener('mouseleave', this.onHover);
   }
 
   removeEventListeners() {
@@ -77,16 +99,64 @@ export default class WidgetsRuler extends WidgetsBase {
     this._container.removeEventListener('DOMMouseScroll', this.onMove);
 
     this._controls.removeEventListener('end', this.onEndControl);
+
+    this._line.removeEventListener('mouseenter', this.onHover);
+    this._line.removeEventListener('mouseleave', this.onHover);
+    this._distance.removeEventListener('mouseenter', this.onHover);
+    this._distance.removeEventListener('mouseleave', this.onHover);
+  }
+
+  onHover(evt) {
+      if (evt) {
+        this._lastEvent = evt;
+        evt.preventDefault();
+        this.hoverDom(evt);
+      }
+
+      this.hoverMesh();
+
+      this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._domHovered;
+      this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+  }
+
+  hoverMesh() {
+      // check raycast intersection, do we want to hover on mesh or just css?
+  }
+
+  hoverDom(evt) {
+      this._domHovered = (evt.type === 'mouseenter');
   }
 
   onMove(evt) {
     this._lastEvent = evt;
     this._dragged = true;
 
+    if (this._active) {
+      this.fmoveHandle.active = true;
+      this.fmoveHandle.onMove(evt);
+      this.fmoveHandle.active = false;
+      this.fmoveHandle.hide();
+    
+
+      if (this._moving) {
+        for (let index in this._handles.slice(0, -2)) {
+          this._handles[index].worldPosition.x = this._handles[index].worldPosition.x + (this.fmoveHandle.worldPosition.x - this.imoveHandle.worldPosition.x);
+          this._handles[index].worldPosition.y = this._handles[index].worldPosition.y + (this.fmoveHandle.worldPosition.y - this.imoveHandle.worldPosition.y);
+          this._handles[index].worldPosition.z = this._handles[index].worldPosition.z + (this.fmoveHandle.worldPosition.z - this.imoveHandle.worldPosition.z);
+        }
+      }
+
+      this.imoveHandle.active = true;
+      this.imoveHandle.onMove(evt);
+      this.imoveHandle.active = false;
+      this.imoveHandle.hide();
+    }
+
     this._handles[0].onMove(evt);
     this._handles[1].onMove(evt);
 
-    this._hovered = this._handles[0].hovered || this._handles[1].hovered;
+    this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._domHovered;
+
     this.update();
   }
 
@@ -94,10 +164,20 @@ export default class WidgetsRuler extends WidgetsBase {
     this._lastEvent = evt;
     this._dragged = false;
 
+    this.imoveHandle.active = true;
+    this.imoveHandle.onMove(evt);
+    this.imoveHandle.active = false;
+    this.imoveHandle.hide();
+
     this._handles[0].onStart(evt);
     this._handles[1].onStart(evt);
 
-    this._active = this._handles[0].active || this._handles[1].active;
+    this._active = this._handles[0].active || this._handles[1].active || this._domHovered;
+
+    if (this._domHovered) {
+      this._moving = true;
+    }
+    
     this.update();
   }
 
@@ -106,6 +186,7 @@ export default class WidgetsRuler extends WidgetsBase {
     // First Handle
     this._handles[0].onEnd(evt);
 
+    this._moving = false;
     // window.console.log(this);
 
     // Second Handle
