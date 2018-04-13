@@ -64,7 +64,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this.imoveHandle.hovered = true;
     this.add(this.imoveHandle);
     this._handles.push(this.imoveHandle);
-  
+
     this.fmoveHandle =
        new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
     this.fmoveHandle.worldPosition = this._worldPosition;
@@ -136,7 +136,6 @@ export default class WidgetsRuler extends WidgetsBase {
       this.fmoveHandle.onMove(evt);
       this.fmoveHandle.active = false;
       this.fmoveHandle.hide();
-    
 
       if (this._moving) {
         for (let index in this._handles.slice(0, -2)) {
@@ -177,7 +176,7 @@ export default class WidgetsRuler extends WidgetsBase {
     if (this._domHovered) {
       this._moving = true;
     }
-    
+
     this.update();
   }
 
