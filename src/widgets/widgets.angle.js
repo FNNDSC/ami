@@ -44,11 +44,9 @@ export default class WidgetsAngle extends WidgetsBase {
         this._handles = [];
 
         this._defaultAngle = true;
-
     }
 
     setPoints(pointsList) {
-
         for (var i = 0; i < pointsList.length; i++) {
             // first handle
             let newHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
@@ -66,7 +64,7 @@ export default class WidgetsAngle extends WidgetsBase {
         this.onMove = this.onMove.bind(this);
         this.onHover = this.onHover.bind(this);
         this.addEventListeners();
-        
+
         this._orientation = null;
         this._slice = null;
 
@@ -84,7 +82,6 @@ export default class WidgetsAngle extends WidgetsBase {
         this.fmoveHandle.hovered = true;
         this.add(this.fmoveHandle);
         this._handles.push(this.fmoveHandle);
-
     }
 
     addEventListeners() {
@@ -114,9 +111,9 @@ export default class WidgetsAngle extends WidgetsBase {
           evt.preventDefault();
           this.hoverDom(evt);
         }
-    
+
         this.hoverMesh();
-    
+
         this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._handles[2].hovered || this._meshHovered || this._domHovered;
         this._container.style.cursor = this._hovered ? 'pointer' : 'default';
     }
@@ -137,8 +134,7 @@ export default class WidgetsAngle extends WidgetsBase {
             this.fmoveHandle.onMove(evt);
             this.fmoveHandle.active = false;
             this.fmoveHandle.hide();
-          
-      
+
             if (this._moving) {
               for (let index in this._handles.slice(0, -2)) {
                 this._handles[index].worldPosition.x = this._handles[index].worldPosition.x + (this.fmoveHandle.worldPosition.x - this.imoveHandle.worldPosition.x);
@@ -146,14 +142,13 @@ export default class WidgetsAngle extends WidgetsBase {
                 this._handles[index].worldPosition.z = this._handles[index].worldPosition.z + (this.fmoveHandle.worldPosition.z - this.imoveHandle.worldPosition.z);
               }
             }
-      
+
             this.imoveHandle.active = true;
             this.imoveHandle.onMove(evt);
             this.imoveHandle.active = false;
             this.imoveHandle.hide();
           }
 
-          
         this._handles[0].onMove(evt);
         this._handles[1].onMove(evt);
         this._handles[2].onMove(evt);
@@ -182,7 +177,6 @@ export default class WidgetsAngle extends WidgetsBase {
             this._moving = true;
         }
 
-      
         this.update();
     }
 
