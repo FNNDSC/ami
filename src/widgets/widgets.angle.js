@@ -121,7 +121,7 @@ export default class WidgetsAngle extends WidgetsBase {
     hoverMesh() {
         // check raycast intersection, do we want to hover on mesh or just css?
     }
-    
+
     hoverDom(evt) {
         this._domHovered = (evt.type === 'mouseenter');
     }
@@ -172,7 +172,6 @@ export default class WidgetsAngle extends WidgetsBase {
 
         this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._domHovered;
 
-        
         if (this._domHovered) {
             this._moving = true;
         }
