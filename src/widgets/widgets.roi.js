@@ -157,11 +157,11 @@ export default class WidgetsRoi extends WidgetsBase {
         }
 
         this._init = true;
+        this.updateMesh();
         this.update();
     }
 
     create() {
-        this.createMesh();
         this.createDOM();
     }
 
@@ -219,21 +219,70 @@ export default class WidgetsRoi extends WidgetsBase {
         this.updateDOMColor();
     }
 
-    createMesh() {
+    updateMesh() {
         // geometry
-        this._geometry = new THREE.Geometry();
+
+        var points = [];
         for (let index in this._handles) {
-            this._geometry.vertices.push(this._handles[index].worldPosition);
+            points.push( this._handles[index].worldPosition );
         }
 
-        // material
-        this._material = new THREE.LineBasicMaterial();
-        this.updateMeshColor();
+        var center = AMI.SliceGeometry.centerOfMass(points);
+        var side1 = new THREE.Vector3( 0, 0, 0 );
+        var side2 = new THREE.Vector3( 0, 0, 0 );
+        side1.subVectors(points[0], center);
+        side2.subVectors (points[1], center);
+        var direction = new THREE.Vector3( 0, 0, 0 );
+        direction.crossVectors(side1, side2);
 
-        // mesh
-        this._mesh = new THREE.Line(this._geometry, this._material);
+        let reference = center;
+        // direction from first point to reference
+        let referenceDirection = new THREE.Vector3(
+            points[0].x - reference.x,
+            points[0].y - reference.y,
+            points[0].z - reference.z
+        ).normalize();
+
+        let base = new THREE.Vector3(0, 0, 0)
+            .crossVectors(referenceDirection, direction)
+            .normalize();
+
+        let orderedpoints = [];
+
+        // other lines // if inter, return location + angle
+        for (let j = 0; j < points.length; j++) {
+            let point = new THREE.Vector3(
+                points[j].x,
+                points[j].y,
+                points[j].z);
+            point.direction = new THREE.Vector3(
+                points[j].x - reference.x,
+                points[j].y - reference.y,
+                points[j].z - reference.z).normalize();
+
+            let x = referenceDirection.dot(point.direction);
+            let y = base.dot(point.direction);
+            point.xy = {x, y};
+
+            let theta = Math.atan2(y, x) * (180 / Math.PI);
+            point.angle = theta;
+
+            orderedpoints.push(point);
+        }
+
+        let sliceShape = AMI.SliceGeometry.shape(orderedpoints);
+
+        var shape  = new THREE.Shape( orderedpoints );
+
+        this._geometry = new THREE.ShapeGeometry( sliceShape );
+
+        this._geometry.vertices = orderedpoints;
+        this._geometry.verticesNeedUpdate = true;
+        this._geometry.elementsNeedUpdate = true;
+
+        this._mesh = new THREE.Mesh( this._geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00 } ) );
+
         this._mesh.visible = true;
-
         // add it!
         this.add(this._mesh);
     }
@@ -261,19 +310,6 @@ export default class WidgetsRoi extends WidgetsBase {
         this._line.style.width = '3px';
         this._container.appendChild(this._line);
 
-        // add distance!
-        this._distance = document.createElement('div');
-        this._distance.setAttribute('class', 'widgets handle distance');
-        this._distance.style.border = '2px solid';
-        this._distance.style.backgroundColor = '#F9F9F9';
-        // this._distance.style.opacity = '0.5';
-        this._distance.style.color = '#353535';
-        this._distance.style.padding = '4px';
-        this._distance.style.position = 'absolute';
-        this._distance.style.transformOrigin = '0 100%';
-        this._distance.innerHTML = 'Hello, world!';
-        this._container.appendChild(this._distance);
-
         this.updateDOMColor();
     }
 
@@ -290,7 +326,12 @@ export default class WidgetsRoi extends WidgetsBase {
 
         let isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
 
-        if (isOnLine) {
+        let w0 = handle0;
+        let w1 = newhandle;
+ 
+        var interpointdist = Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z));
+
+        if (isOnLine || interpointdist < 3) {
             handle1._dom.style.display = 'none';
             this.remove(handle1);
 
@@ -331,7 +372,7 @@ export default class WidgetsRoi extends WidgetsBase {
         transform += ` rotate(${angle}deg)`;
 
         this._lines[lineIndex].style.transform = transform;
-        this._lines[lineIndex].style.width = length;
+        this._lines[lineIndex].style.width = length + 'px';
     }
 
     updateDOMPosition() {
@@ -343,8 +384,11 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     updateDOMColor() {
-        this._line.style.backgroundColor = `${this._color}`;
-        this._distance.style.borderColor = `${this._color}`;
+        if (this._handles.length >= 2) {
+            for (let index in this._lines) {
+                this._lines[index].style.backgroundColor = `${this._color}`;
+            }
+        }
     }
 
     getPointInBetweenByPerc(pointA, pointB, percentage) {
