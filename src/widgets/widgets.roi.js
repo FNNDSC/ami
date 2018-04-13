@@ -231,8 +231,8 @@ export default class WidgetsRoi extends WidgetsBase {
         var side1 = new THREE.Vector3(0, 0, 0);
         var side2 = new THREE.Vector3(0, 0, 0);
         side1.subVectors(points[0], center);
-        side2.subVectors (points[1], center);
-        var direction = new THREE.Vector3( 0, 0, 0 );
+        side2.subVectors(points[1], center);
+        var direction = new THREE.Vector3(0, 0, 0);
         direction.crossVectors(side1, side2);
 
         let reference = center;
@@ -280,7 +280,7 @@ export default class WidgetsRoi extends WidgetsBase {
         this._geometry.verticesNeedUpdate = true;
         this._geometry.elementsNeedUpdate = true;
 
-        this._mesh = new THREE.Mesh(this._geometry, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+        this._mesh = new THREE.Mesh(this._geometry, new THREE.MeshBasicMaterial({color: 0x00ff00}));
 
         this._mesh.visible = true;
         // add it!
@@ -328,7 +328,7 @@ export default class WidgetsRoi extends WidgetsBase {
 
         let w0 = handle0;
         let w1 = newhandle;
- 
+
         var interpointdist = Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z));
 
         if (isOnLine || interpointdist < 3) {
