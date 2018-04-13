@@ -272,7 +272,7 @@ export default class WidgetsRoi extends WidgetsBase {
 
         let sliceShape = AMI.SliceGeometry.shape(orderedpoints);
 
-        var shape  = new THREE.Shape(orderedpoints);
+        var shape = new THREE.Shape(orderedpoints);
 
         this._geometry = new THREE.ShapeGeometry(sliceShape);
 
