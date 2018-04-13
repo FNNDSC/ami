@@ -224,12 +224,12 @@ export default class WidgetsRoi extends WidgetsBase {
 
         var points = [];
         for (let index in this._handles) {
-            points.push( this._handles[index].worldPosition );
+            points.push(this._handles[index].worldPosition);
         }
 
         var center = AMI.SliceGeometry.centerOfMass(points);
-        var side1 = new THREE.Vector3( 0, 0, 0 );
-        var side2 = new THREE.Vector3( 0, 0, 0 );
+        var side1 = new THREE.Vector3(0, 0, 0);
+        var side2 = new THREE.Vector3(0, 0, 0);
         side1.subVectors(points[0], center);
         side2.subVectors (points[1], center);
         var direction = new THREE.Vector3( 0, 0, 0 );
@@ -272,15 +272,15 @@ export default class WidgetsRoi extends WidgetsBase {
 
         let sliceShape = AMI.SliceGeometry.shape(orderedpoints);
 
-        var shape  = new THREE.Shape( orderedpoints );
+        var shape  = new THREE.Shape(orderedpoints);
 
-        this._geometry = new THREE.ShapeGeometry( sliceShape );
+        this._geometry = new THREE.ShapeGeometry(sliceShape);
 
         this._geometry.vertices = orderedpoints;
         this._geometry.verticesNeedUpdate = true;
         this._geometry.elementsNeedUpdate = true;
 
-        this._mesh = new THREE.Mesh( this._geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00 } ) );
+        this._mesh = new THREE.Mesh(this._geometry, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
 
         this._mesh.visible = true;
         // add it!
