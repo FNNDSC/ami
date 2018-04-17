@@ -40,6 +40,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this._windowCenter = null;
     this._rescaleSlope = null;
     this._rescaleIntercept = null;
+    this._thickness = 0.;
 
     this._canvasWidth = 0;
     this._canvasHeight = 0;
@@ -78,6 +79,15 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
 
   set stack(stack) {
     this._stack = stack;
+  }
+
+  get thickness() {
+    return this._thickness;
+  }
+
+  set thickness(thickness) {
+    this._thickness = thickness;
+    this._uniforms.uThickness.value = this._thickness;
   }
 
   get windowWidth() {
@@ -313,6 +323,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
       this._uniforms.uPixelType.value = this._stack.pixelType;
       this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
       this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
+      this._uniforms.uThickness.value = this._thickness;
       // compute texture if material exist
       this._prepareTexture();
       this._uniforms.uTextureContainer.value = this._textures;

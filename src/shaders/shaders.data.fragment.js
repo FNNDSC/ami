@@ -67,11 +67,32 @@ void main(void) {
   }
 
   // get texture coordinates of current pixel
-  vec4 dataCoordinates = uWorldToData * vPos;
-  vec3 currentVoxel = dataCoordinates.xyz;
   vec4 dataValue = vec4(0., 0., 0., 0.);
   vec3 gradient = vec3(0., 0., 0.);
-  ${shadersInterpolation(this, 'currentVoxel', 'dataValue', 'gradient')}
+  float steps = uThickness;
+  const float maxSteps = 1024.;
+  float stepSize = 0.8;
+
+  if (steps > 1.) {
+    float interval = 0.8;
+    vec3 origin = vPos - stepSize * steps * 0.5 * vNormal;
+    vec4 dataValueAcc = vec4(0., 0., 0., 0.);
+    for (float step = 0.; step < maxSteps; step++) {
+      vec3 cPosition = origin + step * stepSize * vNormal;
+      vec4 dataCoordinates = uWorldToData * vec4(cPosition, 1.);
+      vec3 currentVoxel = dataCoordinates.xyz;
+      ${shadersInterpolation(this, 'currentVoxel', 'dataValueAcc', 'gradient')};
+      dataValue.r = max(dataValueAcc.r, dataValue.r);
+
+      if (step >= steps) break;
+    }
+
+    // dataValue /= steps;
+  } else {
+    vec4 dataCoordinates = uWorldToData * vec4(vPos, 1.);
+    vec3 currentVoxel = dataCoordinates.xyz;
+    ${shadersInterpolation(this, 'currentVoxel', 'dataValue', 'gradient')}
+  }
 
   // how do we deal wil more than 1 channel?
   float intensity = dataValue.r;
@@ -132,6 +153,8 @@ void main(void) {
 
   gl_FragColor = dataValue;
 
+  // gl_FragColor = vec4(vNormal, 1.0);
+
     // if on edge, draw line
   // float xPos = gl_FragCoord.x/512.;
   // float yPos = gl_FragCoord.y/512.;
@@ -154,7 +177,8 @@ void main(void) {
 ${this.uniforms()}
 
 // varying (should fetch it from vertex directly)
-varying vec4      vPos;
+varying vec3 vPos;
+varying vec3 vNormal;
 
 // tailored functions
 ${this.functions()}

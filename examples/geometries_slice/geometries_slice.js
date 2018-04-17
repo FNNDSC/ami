@@ -69,7 +69,6 @@ function updateGeometries() {
     // update border with new slice
     stackHelper.border.helpersSlice = stackHelper.slice;
 
-
     // update colors based on planeDirection
     let color = rgbToHex(
       Math.round(Math.abs(255*dirLPS.x)),
@@ -182,6 +181,9 @@ window.onload = function() {
     stackHelper.slice.planePosition.z = centerLPS.z;
     scene.add(stackHelper);
 
+    let helper = new THREE.VertexNormalsHelper(stackHelper.slice._mesh, 2, 0x00ff00, 1);
+    scene.add(helper);
+
     // LINE STUFF
     let materialLine = new THREE.LineBasicMaterial();
     let geometryLine = new THREE.Geometry();
@@ -219,6 +221,8 @@ window.onload = function() {
       worldBBox[4], worldBBox[5]).step(0.01).listen();
     positionFolder.add(stackHelper.slice, 'interpolation',
       0, 1).step(1).listen();
+    positionFolder.add(stackHelper.slice, 'thickness',
+      0, 20).step(1).listen();
     positionFolder.open();
 
     frameIndexControllerOriginI.onChange(updateGeometries);

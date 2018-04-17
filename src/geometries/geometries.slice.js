@@ -86,6 +86,7 @@ export default class GeometriesSlice extends THREE.ShapeGeometry {
       // update real position of each vertex! (not in 2d)
       this.vertices = orderedIntersections;
       this.verticesNeedUpdate = true;
+      this.computeVertexNormals();
     }
 
     static shape(points) {
