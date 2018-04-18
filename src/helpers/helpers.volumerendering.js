@@ -30,6 +30,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
     this._shading = 1; // shading is on by default
     this._shininess = 10.0;
     this._steps = 256; // default
+    this._offset = 0.;
     this._windowCenter = 0.0;
     this._windowWidth = 1.0;
 
