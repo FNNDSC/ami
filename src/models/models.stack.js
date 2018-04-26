@@ -225,7 +225,9 @@ export default class ModelsStack extends ModelsBase {
     this.computeCosines();
 
     // order the frames
-    this.orderFrames();
+    if (this._numberOfFrames > 1) {
+      this.orderFrames();
+    }
 
     // compute/guess spacing
     this.computeSpacing();

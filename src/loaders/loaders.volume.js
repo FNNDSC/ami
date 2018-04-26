@@ -58,7 +58,7 @@ export default class LoadersVolumes extends LoadersBase {
     // after the rendering will be blocked with intensive JS
     // will be removed after eventer set up
     if (this._progressBar) {
-      this._progressBar.update(0, 100, 'parse');
+      this._progressBar.update(0, 100, 'parse', response.url);
     }
 
     return new Promise(
@@ -242,7 +242,7 @@ export default class LoadersVolumes extends LoadersBase {
 
     // will be removed after eventer set up
     if (this._progressBar) {
-      this._progressBar.update(this._parsed, this._totalParsed, 'parse');
+      this._progressBar.update(this._parsed, this._totalParsed, 'parse', url);
     }
 
     // emit 'parsing' event
