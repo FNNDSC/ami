@@ -350,7 +350,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
         this._windowCenter = this._stack.windowCenter;
       }
 
-      if (this.__windowWidth === null) {
+      if (this._windowWidth === null) {
         this._windowWidth = this._stack.windowWidth;
       }
 
