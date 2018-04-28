@@ -123,10 +123,20 @@ export default class ShadersUniform {
         value: 10.,
         typeGLSL: 'float',
       },
+      'uSpacing': {
+        type: 'f',
+        value: 0.,
+        typeGLSL: 'float',
+      },
       'uThickness': {
         type: 'f',
         value: 0.,
         typeGLSL: 'float',
+      },
+      'uThicknessMethod': {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int',
       },
     };
   }

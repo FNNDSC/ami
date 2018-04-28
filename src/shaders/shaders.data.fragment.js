@@ -67,27 +67,41 @@ void main(void) {
   }
 
   // get texture coordinates of current pixel
-  vec4 dataValue = vec4(0., 0., 0., 0.);
-  vec3 gradient = vec3(0., 0., 0.);
-  float steps = uThickness;
-  const float maxSteps = 1024.;
-  float stepSize = 0.8;
+  vec4 dataValue = vec4(0.);
+  vec3 gradient = vec3(0.);
+  float steps = floor(uThickness / uSpacing + 0.5);
 
   if (steps > 1.) {
-    float interval = 0.8;
-    vec3 origin = vPos - stepSize * steps * 0.5 * vNormal;
-    vec4 dataValueAcc = vec4(0., 0., 0., 0.);
-    for (float step = 0.; step < maxSteps; step++) {
-      vec3 cPosition = origin + step * stepSize * vNormal;
-      vec4 dataCoordinates = uWorldToData * vec4(cPosition, 1.);
+    vec3 origin = vPos - uThickness * 0.5 * vNormal;
+    vec4 dataValueAcc = vec4(0.);
+    for (float step = 0.; step < 128.; step++) {
+      if (step >= steps) {
+        break;
+      }
+
+      vec4 dataCoordinates = uWorldToData * vec4(origin + step * uSpacing * vNormal, 1.);
       vec3 currentVoxel = dataCoordinates.xyz;
       ${shadersInterpolation(this, 'currentVoxel', 'dataValueAcc', 'gradient')};
-      dataValue.r = max(dataValueAcc.r, dataValue.r);
 
-      if (step >= steps) break;
+      if (step == 0.) {
+        dataValue.r = dataValueAcc.r;
+        continue;
+      }
+
+      if (uThicknessMethod == 0) {
+        dataValue.r = max(dataValueAcc.r, dataValue.r);
+      }
+      if (uThicknessMethod == 1) {
+        dataValue.r += dataValueAcc.r;
+      }
+      if (uThicknessMethod == 2) {
+        dataValue.r = min(dataValueAcc.r, dataValue.r);
+      }
     }
 
-    // dataValue /= steps;
+    if (uThicknessMethod == 1) {
+      dataValue.r /= steps;
+    }
   } else {
     vec4 dataCoordinates = uWorldToData * vec4(vPos, 1.);
     vec3 currentVoxel = dataCoordinates.xyz;

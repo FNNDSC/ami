@@ -40,7 +40,9 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this._windowCenter = null;
     this._rescaleSlope = null;
     this._rescaleIntercept = null;
-    this._thickness = 0.;
+    this._spacing = this._stack.orientationSpacing;
+    this._thickness = this._stack.orientationSpacing;
+    this._thicknessMethod = 0; // default to MIP (Maximum Intensity Projection); 1 - Mean; 2 - MinIP
 
     this._canvasWidth = 0;
     this._canvasHeight = 0;
@@ -81,6 +83,15 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this._stack = stack;
   }
 
+  get spacing() {
+    return this._spacing;
+  }
+
+  set spacing(spacing) {
+    this._spacing = spacing;
+    this._uniforms.uSpacing.value = this._spacing;
+  }
+
   get thickness() {
     return this._thickness;
   }
@@ -90,6 +101,14 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this._uniforms.uThickness.value = this._thickness;
   }
 
+  get thicknessMethod() {
+    return this._thicknessMethod;
+  }
+
+  set thicknessMethod(thicknessMethod) {
+    this._thicknessMethod = thicknessMethod;
+    this._uniforms.uThicknessMethod.value = this._thicknessMethod;
+  }
   get windowWidth() {
     return this._windowWidth;
   }
@@ -323,7 +342,9 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
       this._uniforms.uPixelType.value = this._stack.pixelType;
       this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
       this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
+      this._uniforms.uSpacing.value = this._spacing;
       this._uniforms.uThickness.value = this._thickness;
+      this._uniforms.uThicknessMethod.value = this._thicknessMethod;
       // compute texture if material exist
       this._prepareTexture();
       this._uniforms.uTextureContainer.value = this._textures;

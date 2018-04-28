@@ -54,6 +54,7 @@ export default class HelpersStack extends THREE.Object3D {
     this._autoWindowLevel = false;
     this._outOfBounds = false;
     this._orientationMaxIndex = 0;
+    this._orientationSpacing = 0;
 
     this._canvasWidth = 0;
     this._canvasHeight = 0;
@@ -152,6 +153,10 @@ export default class HelpersStack extends THREE.Object3D {
     this._orientation = orientation;
     this._computeOrientationMaxIndex();
 
+    this._computeOrientationSpacing();
+    this._slice.spacing = this._orientationSpacing;
+    this._slice.thickness = this._orientationSpacing;
+
     this._slice.planeDirection = this._prepareDirection(this._orientation);
 
     // also update the border
@@ -176,9 +181,9 @@ export default class HelpersStack extends THREE.Object3D {
   }
 
   /**
-   * Set/get the orientationMaxIndex flag.
+   * Set/get the orientationMaxIndex.
    *
-   * @type {boolean}
+   * @type {number}
    */
   set orientationMaxIndex(orientationMaxIndex) {
     this._orientationMaxIndex = orientationMaxIndex;
@@ -186,6 +191,19 @@ export default class HelpersStack extends THREE.Object3D {
 
   get orientationMaxIndex() {
     return this._orientationMaxIndex;
+  }
+
+  /**
+   * Set/get the orientationSpacing.
+   *
+   * @type {number}
+   */
+  set orientationSpacing(orientationSpacing) {
+    this._orientationSpacing = orientationSpacing;
+  }
+
+  get orientationSpacing() {
+    return this._orientationSpacing;
   }
 
   set canvasWidth(canvasWidth) {
@@ -238,6 +256,24 @@ export default class HelpersStack extends THREE.Object3D {
       // todo: Arrow
     } else {
       window.console.log('no stack to be prepared...');
+    }
+  }
+
+  _computeOrientationSpacing() {
+    let spacing = this._stack._spacing;
+    switch (this._orientation) {
+      case 0:
+        this._orientationSpacing = spacing.z;
+        break;
+      case 1:
+        this._orientationSpacing = spacing.x;
+        break;
+      case 2:
+        this._orientationSpacing = spacing.y;
+        break;
+      default:
+        this._orientationSpacing = 0;
+        break;
     }
   }
 
