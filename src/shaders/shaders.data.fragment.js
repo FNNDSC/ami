@@ -68,7 +68,7 @@ void main(void) {
 
   // get texture coordinates of current pixel
   vec4 dataValue = vec4(0.);
-  vec3 gradient = vec3(0.);
+  vec3 gradient = vec3(1.); // gradient calculations will be skipped if it is equal to vec3(1.) 
   float steps = floor(uThickness / uSpacing + 0.5);
 
   if (steps > 1.) {
