@@ -24,9 +24,9 @@ export default class ModelsBase {
       return false;
     }
 
-    for (let i = 0; i < targetArray.length; i++) {
+    for (let i = 0, targetLength = targetArray.length; i < targetLength; i++) {
       // test targetArray against existing targetArray
-      for (let j = 0; j < referenceArray.length; j++) {
+      for (let j = 0, refLength = referenceArray.length; j < refLength; j++) {
         if (referenceArray[j].merge(targetArray[i])) {
           // merged successfully
           break;
