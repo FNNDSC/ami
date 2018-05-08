@@ -93,10 +93,14 @@ export default class ModelsSeries extends ModelsBase {
     }
 
     if (this._seriesInstanceUID === series.seriesInstanceUID) {
-      // may merge incorrect if loader will create several stacks in one series
-      this._stack[0].computeNumberOfFrames();
+      // may merge incorrectly if loader will return more than one stacks per series
+      if (this._stack[0]._numberOfFrames === 0) {
+        this._stack[0].computeNumberOfFrames();
+      }
       this._stack[0].computeCosines();
-      series.stack[0].computeNumberOfFrames();
+      if (series.stack[0]._numberOfFrames === 0) {
+        series.stack[0].computeNumberOfFrames();
+      }
       series.stack[0].computeCosines();
       return this.mergeModels(this._stack, series.stack);
     } else {

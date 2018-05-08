@@ -461,9 +461,9 @@ export default class ModelsStack extends ModelsBase {
         this._numberOfFrames === 1 && stack._numberOfFrames === 1 &&
         this._frame[0].columns === stack.frame[0].columns &&
         this._frame[0].rows === stack.frame[0].rows &&
-        this._xCosine === stack.xCosine &&
-        this._yCosine === stack.yCosine &&
-        this._zCosine === stack.zCosine) {
+        this._xCosine.equals(stack.xCosine) &&
+        this._yCosine.equals(stack.yCosine) &&
+        this._zCosine.equals(stack.zCosine)) {
       return this.mergeModels(this._frame, stack.frame);
     } else {
       return false;
