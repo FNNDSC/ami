@@ -314,33 +314,31 @@ export default class ModelsStack extends ModelsBase {
   }
 
   orderFrames() {
-    if (this._frames.length < 2) {
+    if (this._frame.length < 2) {
       return;
     }
 
     if (this._frame[0].imagePosition && this._frame[0].imageOrientation &&
-        this._frame[1].imagePosition && this._frame[1].imageOrientation &&
-        this._frame[0].imagePosition.join() !== this._frame[1].imagePosition.join()
-    ) {
-      // compute dist in this stack
+        this._frame[1].imagePosition && this._frame[1].imageOrientation
+    ) { // compute dist in this stack
       this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
     }
 
     this._frame.sort(function (a, b) {
-      if (a.instanceNumber && b.instanceNumber &&
+      if (a.instanceNumber !== null && b.instanceNumber !== null &&
           a.instanceNumber !== b.instanceNumber
       ) {
         return a.instanceNumber - b.instanceNumber;
       }
 
-      if (a.sopInstanceUID && b.sopInstanceUID &&
+      if (a.sopInstanceUID !== null && b.sopInstanceUID !== null &&
           a.sopInstanceUID !== b.sopInstanceUID
       ) {
         return a.sopInstanceUID - b.sopInstanceUID;
       }
 
-      if (a.dist && b.dist && a.dist !== b.dist) { // order by image position
-        return a.dist - b.dist;
+      if (a.dist !== null && b.dist !== null && a.dist !== b.dist) {
+        return a.dist - b.dist; // order by image position
       }
 
       if (Array.isArray(a.dimensionIndexValues) &&
