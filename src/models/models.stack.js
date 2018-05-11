@@ -100,10 +100,10 @@ export default class ModelsStack extends ModelsBase {
     this._frameSegment = this._frame;
     let mergedFrames = [];
 
-    // order frames
+    // compute direction cosines
     this.computeCosines();
-    this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
-    this._frame.sort(this._sortDistanceArraySort);
+    // order the frames
+    this.orderFrames();
 
     // merge frames
     let prevIndex = -1;
@@ -216,11 +216,8 @@ export default class ModelsStack extends ModelsBase {
 
     // compute direction cosines
     this.computeCosines();
-
     // order the frames
-    if (this._numberOfFrames > 1) {
-      this.orderFrames();
-    }
+    this.orderFrames();
 
     // compute/guess spacing
     this.computeSpacing();
@@ -317,37 +314,55 @@ export default class ModelsStack extends ModelsBase {
   }
 
   orderFrames() {
-    // order the frames based on theirs dimension indices
-    // first index is the most important.
-    // 1,1,1,1 will be first
-    // 1,1,2,1 will be next
-    // 1,1,2,3 will be next
-    // 1,1,3,1 will be next
-    if (this._frame[0].dimensionIndexValues) {
-      this._frame.sort(this._orderFrameOnDimensionIndicesArraySort);
-
-    // else order with image position and orientation
-    } else if (
-      this._frame[0].imagePosition && this._frame[0].imageOrientation &&
-      this._frame[1] &&
-      this._frame[1].imagePosition && this._frame[1].imageOrientation &&
-      this._frame[0].imagePosition.join() !== this._frame[1].imagePosition.join()) {
-      // compute and sort by dist in this series
-      this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
-      this._frame.sort(this._sortDistanceArraySort);
-    } else if (
-      this._frame[0].instanceNumber !== null &&
-      this._frame[1] && this._frame[1].instanceNumber !== null &&
-      this._frame[0].instanceNumber !== this._frame[1].instanceNumber) {
-      this._frame.sort(this._sortInstanceNumberArraySort);
-    } else if (
-      this._frame[0].sopInstanceUID &&
-      this._frame[1] && this._frame[1].sopInstanceUID &&
-      this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
-      this._frame.sort(this._sortSopInstanceUIDArraySort);
-    } else {
-      window.console.warn('do not know how to order the frames...');
+    if (this._frames.length < 2) {
+      return;
     }
+
+    if (this._frame[0].imagePosition && this._frame[0].imageOrientation &&
+        this._frame[1].imagePosition && this._frame[1].imageOrientation &&
+        this._frame[0].imagePosition.join() !== this._frame[1].imagePosition.join()
+    ) {
+      // compute dist in this stack
+      this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
+    }
+
+    this._frame.sort(function (a, b) {
+      if (a.instanceNumber && b.instanceNumber &&
+          a.instanceNumber !== b.instanceNumber
+      ) {
+        return a.instanceNumber - b.instanceNumber;
+      }
+
+      if (a.sopInstanceUID && b.sopInstanceUID &&
+          a.sopInstanceUID !== b.sopInstanceUID
+      ) {
+        return a.sopInstanceUID - b.sopInstanceUID;
+      }
+
+      if (a.dist && b.dist && a.dist !== b.dist) { // order by image position
+        return a.dist - b.dist;
+      }
+
+      if (Array.isArray(a.dimensionIndexValues) &&
+          Array.isArray(b.dimensionIndexValues) &&
+          a.dimensionIndexValues !== b.dimensionIndexValues
+      ) {
+        // importance of indices is reduced from left to right
+        // 1,1,1,1 - first
+        // 1,1,2,1 - next
+        // 1,1,2,3 - next
+        // 1,1,3,1 - next
+        let index = a.findIndex(function (elem, ind) {
+          return elem !== b[ind];
+        });
+
+        return a[index] - b[index];
+      }
+
+      window.console.warn('It is impossible to uniquely determine the order of frames!');
+
+      return 0;
+    });
   }
 
   computeSpacing() {
@@ -363,13 +378,8 @@ export default class ModelsStack extends ModelsBase {
       if (this._frame[0].pixelSpacing && this._frame[0].pixelSpacing[2]) {
         this._spacing.z = this._frame[0].pixelSpacing[2];
       } else {
-        // compute and sort by dist in this series
-        this._frame.map(
-          this._computeDistanceArrayMap.bind(null, this._zCosine));
-
-        // if distances are different, re-sort array
+        // if distances are different (frames must be ordered)
         if (this._frame[1].dist !== this._frame[0].dist) {
-          this._frame.sort(this._sortDistanceArraySort);
           this._spacing.z = this._frame[1].dist - this._frame[0].dist;
         } else if (this._spacingBetweenSlices) {
           this._spacing.z = this._spacingBetweenSlices;
@@ -456,9 +466,7 @@ export default class ModelsStack extends ModelsBase {
    * @return {*}
    */
   merge(stack) {
-    // also make sure x/y/z cosines are a match!
     if (this._stackID === stack.stackID &&
-        this._numberOfFrames === 1 && stack._numberOfFrames === 1 &&
         this._frame[0].columns === stack.frame[0].columns &&
         this._frame[0].rows === stack.frame[0].rows &&
         this._xCosine.equals(stack.xCosine) &&
@@ -746,40 +754,11 @@ export default class ModelsStack extends ModelsBase {
       );
   }
 
-  _orderFrameOnDimensionIndicesArraySort(a, b) {
-    if ('dimensionIndexValues' in a && Object.prototype.toString.call(a.dimensionIndexValues) === '[object Array]' && 'dimensionIndexValues' in b && Object.prototype.toString.call(b.dimensionIndexValues) === '[object Array]') {
-      for (let i = 0; i < a.dimensionIndexValues.length; i++) {
-        if (parseInt(a.dimensionIndexValues[i], 10) > parseInt(b.dimensionIndexValues[i], 10)) {
-          return 1;
-        }
-        if (parseInt(a.dimensionIndexValues[i], 10) < parseInt(b.dimensionIndexValues[i], 10)) {
-          return -1;
-        }
-      }
-    } else {
-      window.console.warn('One of the frames doesn\'t have a dimensionIndexValues array.');
-      window.console.warn(a);
-      window.console.warn(b);
-    }
-
-    return 0;
-  }
-
   _computeDistanceArrayMap(normal, frame) {
     frame.dist = frame.imagePosition[0] * normal.x +
       frame.imagePosition[1] * normal.y +
       frame.imagePosition[2] * normal.z;
     return frame;
-  }
-
-  _sortDistanceArraySort(a, b) {
-    return a.dist - b.dist;
-  }
-  _sortInstanceNumberArraySort(a, b) {
-    return a.instanceNumber - b.instanceNumber;
-  }
-  _sortSopInstanceUIDArraySort(a, b) {
-    return a.sopInstanceUID - b.sopInstanceUID;
   }
 
   set numberOfChannels(numberOfChannels) {
