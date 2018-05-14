@@ -90,8 +90,7 @@ void main(void) {
       ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];
 
     dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;
-   
-    dataValue.a = step(normalizedIntensity, 0.);
+    dataValue.a = step(0., normalizedIntensity);
   }
 
   // Apply LUT table...
@@ -123,9 +122,6 @@ void main(void) {
     uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);
 
     dataValue = texture2D( uTextureLUTSegmentation, uv );
-    // uv.x = (0.5 + float(colIndex)) / textureWidth;
-    // uv.y = 1. - (0.5 + float(rowIndex)) / textureHeight;
-    // dataValue = texture2D( uTextureLUTSegmentation, uv );
   }
 
   if(uInvert == 1){
@@ -135,24 +131,11 @@ void main(void) {
   }
 
   gl_FragColor = dataValue;
-
-    // if on edge, draw line
-  // float xPos = gl_FragCoord.x/512.;
-  // float yPos = gl_FragCoord.y/512.;
-  // if( xPos < 0.05 || xPos > .95 || yPos < 0.05 || yPos > .95){
-  //   gl_FragColor = vec4(xPos, yPos, 0., 1.);//dataValue;
-  //   //return;
-  // }
-
 }
    `;
   }
 
   compute() {
-    let shaderInterpolation = '';
-    // shaderInterpolation.inline(args) //true/false
-    // shaderInterpolation.functions(args)
-
     return `
 // uniforms
 ${this.uniforms()}
