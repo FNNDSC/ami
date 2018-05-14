@@ -49173,9 +49173,9 @@ var ModelsBase = function () {
       return false;
     }
 
-    for (var i = 0; i < targetArray.length; i++) {
+    for (var i = 0, targetLength = targetArray.length; i < targetLength; i++) {
       // test targetArray against existing targetArray
-      for (var j = 0; j < referenceArray.length; j++) {
+      for (var j = 0, refLength = referenceArray.length; j < refLength; j++) {
         if (referenceArray[j].merge(targetArray[i])) {
           // merged successfully
           break;
@@ -49465,14 +49465,7 @@ var ModelsStack = function (_ModelsBase) {
       this.prepareSegmentation();
     }
 
-    // we need at least 1 frame
-    if (this._frame && this._frame.length > 0) {
-      this._numberOfFrames = this._frame.length;
-    } else {
-      window.console.warn('_frame doesn\'t contain anything....');
-      window.console.warn(this._frame);
-      return false;
-    }
+    this.computeNumberOfFrames();
 
     // pass parameters from frame to stack
     this._rows = this._frame[0].rows;
@@ -49549,6 +49542,17 @@ var ModelsStack = function (_ModelsBase) {
     this._halfDimensionsIJK = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](this._dimensionsIJK.x / 2, this._dimensionsIJK.y / 2, this._dimensionsIJK.z / 2);
   };
 
+  ModelsStack.prototype.computeNumberOfFrames = function computeNumberOfFrames() {
+    // we need at least 1 frame
+    if (this._frame && this._frame.length > 0) {
+      this._numberOfFrames = this._frame.length;
+    } else {
+      window.console.warn('_frame doesn\'t contain anything....');
+      window.console.warn(this._frame);
+      return false;
+    }
+  };
+
   // frame.cosines - returns array [x, y, z]
 
 
@@ -49564,10 +49568,10 @@ var ModelsStack = function (_ModelsBase) {
   ModelsStack.prototype.orderFrames = function orderFrames() {
     // order the frames based on theirs dimension indices
     // first index is the most important.
-    // 1,1,1,1 willl be first
+    // 1,1,1,1 will be first
     // 1,1,2,1 will be next
     // 1,1,2,3 will be next
-    // 1,1,3,1 wil be next
+    // 1,1,3,1 will be next
     if (this._frame[0].dimensionIndexValues) {
       this._frame.sort(this._orderFrameOnDimensionIndicesArraySort);
 
@@ -49695,7 +49699,7 @@ var ModelsStack = function (_ModelsBase) {
 
   ModelsStack.prototype.merge = function merge(stack) {
     // also make sure x/y/z cosines are a match!
-    if (this._stackID === stack.stackID) {
+    if (this._stackID === stack.stackID && this._numberOfFrames === 1 && stack._numberOfFrames === 1 && this._frame[0].columns === stack.frame[0].columns && this._frame[0].rows === stack.frame[0].rows && this._xCosine.equals(stack.xCosine) && this._yCosine.equals(stack.yCosine) && this._zCosine.equals(stack.zCosine)) {
       return this.mergeModels(this._frame, stack.frame);
     } else {
       return false;
@@ -51984,6 +51988,10 @@ var HelpersSlice = function (_HelpersMaterialMixin) {
     _this._rescaleSlope = null;
     _this._rescaleIntercept = null;
 
+    // threshold
+    _this._lowerThreshold = null;
+    _this._upperThreshold = null;
+
     _this._canvasWidth = 0;
     _this._canvasHeight = 0;
     _this._borderColor = null;
@@ -52101,7 +52109,7 @@ var HelpersSlice = function (_HelpersMaterialMixin) {
         this._windowCenter = this._stack.windowCenter;
       }
 
-      if (this.__windowWidth === null) {
+      if (this._windowWidth === null) {
         this._windowWidth = this._stack.windowWidth;
       }
 
@@ -52112,6 +52120,15 @@ var HelpersSlice = function (_HelpersMaterialMixin) {
       if (this._rescaleIntercept === null) {
         this._rescaleIntercept = this._stack.rescaleIntercept;
       }
+    }
+
+    // adding thresholding
+    if (this._upperThreshold === null) {
+      this._upperThreshold = this._stack._minMax[1];
+    }
+
+    if (this._lowerThreshold === null) {
+      this._lowerThreshold = this._stack._minMax[0];
     }
   };
 
@@ -52126,6 +52143,9 @@ var HelpersSlice = function (_HelpersMaterialMixin) {
     // set slice window center and width
     this._uniforms.uRescaleSlopeIntercept.value = [this._rescaleSlope, this._rescaleIntercept];
     this._uniforms.uWindowCenterWidth.value = [offset + this._windowCenter, this._windowWidth];
+
+    // set slice upper/lower threshold
+    this._uniforms.uLowerUpperThreshold.value = [offset + this._lowerThreshold, offset + this._upperThreshold];
 
     // invert
     this._uniforms.uInvert.value = this._invert === true ? 1 : 0;
@@ -52238,6 +52258,27 @@ var HelpersSlice = function (_HelpersMaterialMixin) {
     },
     set: function set(windowCenter) {
       this._windowCenter = windowCenter;
+      this.updateIntensitySettingsUniforms();
+    }
+
+    // adding thresholding method
+
+  }, {
+    key: 'upperThreshold',
+    get: function get() {
+      return this._upperThreshold;
+    },
+    set: function set(upperThreshold) {
+      this._upperThreshold = upperThreshold;
+      this.updateIntensitySettingsUniforms();
+    }
+  }, {
+    key: 'lowerThreshold',
+    get: function get() {
+      return this._lowerThreshold;
+    },
+    set: function set(lowerThreshold) {
+      this._lowerThreshold = lowerThreshold;
       this.updateIntensitySettingsUniforms();
     }
   }, {
@@ -52457,6 +52498,12 @@ var ShadersUniform = function () {
         typeGLSL: 'float',
         length: 2
       },
+      'uLowerUpperThreshold': {
+        type: 'fv1',
+        value: [0.0, 0.0],
+        typeGLSL: 'float',
+        length: 2
+      },
       'uRescaleSlopeIntercept': {
         type: 'fv1',
         value: [0.0, 0.0],
@@ -52624,7 +52671,7 @@ var ShadersFragment = function () {
 
   ShadersFragment.prototype.main = function main() {
     // need to pre-call main to fill up the functions list
-    this._main = '\nvoid main(void) {\n\n  // draw border if slice is cropped\n  // float uBorderDashLength = 10.;\n\n  if( uCanvasWidth > 0. &&\n      ((gl_FragCoord.x > uBorderMargin && (gl_FragCoord.x - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.x < (uCanvasWidth - uBorderMargin) && (gl_FragCoord.x + uBorderMargin) > (uCanvasWidth - uBorderWidth) ))){\n    float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);\n    if( valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  if( uCanvasHeight > 0. &&\n      ((gl_FragCoord.y > uBorderMargin && (gl_FragCoord.y - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.y < (uCanvasHeight - uBorderMargin) && (gl_FragCoord.y + uBorderMargin) > (uCanvasHeight - uBorderWidth) ))){\n    float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);\n    if( valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = dataCoordinates.xyz;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  vec3 gradient = vec3(0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'currentVoxel', 'dataValue', 'gradient') + '\n\n  // how do we deal wil more than 1 channel?\n  float intensity = dataValue.r;\n  if(uNumberOfChannels == 1){\n    float normalizedIntensity = dataValue.r;\n\n    // rescale/slope\n    normalizedIntensity =\n      normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    normalizedIntensity =\n      ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];\n\n    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;\n    dataValue.a = 1.0;\n  }\n\n  // Apply LUT table...\n  //\n  if(uLut == 1){\n    // should opacity be grabbed there?\n    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n  }\n\n  if(uLutSegmentation == 1){\n    // should opacity be grabbed there?\n    //\n    float textureWidth = 256.;\n    float textureHeight = 128.;\n    float min = 0.;\n    // start at 0!\n    int adjustedIntensity = int(floor(intensity + 0.5));\n\n    // Get row and column in the texture\n    int colIndex = int(mod(float(adjustedIntensity), textureWidth));\n    int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));\n\n    float texWidth = 1./textureWidth;\n    float texHeight = 1./textureHeight;\n  \n    // Map row and column to uv\n    vec2 uv = vec2(0,0);\n    uv.x = 0.5 * texWidth + (texWidth * float(colIndex));\n    uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);\n\n    dataValue = texture2D( uTextureLUTSegmentation, uv );\n    // uv.x = (0.5 + float(colIndex)) / textureWidth;\n    // uv.y = 1. - (0.5 + float(rowIndex)) / textureHeight;\n    // dataValue = texture2D( uTextureLUTSegmentation, uv );\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n\n    // if on edge, draw line\n  // float xPos = gl_FragCoord.x/512.;\n  // float yPos = gl_FragCoord.y/512.;\n  // if( xPos < 0.05 || xPos > .95 || yPos < 0.05 || yPos > .95){\n  //   gl_FragColor = vec4(xPos, yPos, 0., 1.);//dataValue;\n  //   //return;\n  // }\n\n}\n   ';
+    this._main = '\nvoid main(void) {\n\n  // draw border if slice is cropped\n  // float uBorderDashLength = 10.;\n\n  if( uCanvasWidth > 0. &&\n      ((gl_FragCoord.x > uBorderMargin && (gl_FragCoord.x - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.x < (uCanvasWidth - uBorderMargin) && (gl_FragCoord.x + uBorderMargin) > (uCanvasWidth - uBorderWidth) ))){\n    float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);\n    if( valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  if( uCanvasHeight > 0. &&\n      ((gl_FragCoord.y > uBorderMargin && (gl_FragCoord.y - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.y < (uCanvasHeight - uBorderMargin) && (gl_FragCoord.y + uBorderMargin) > (uCanvasHeight - uBorderWidth) ))){\n    float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);\n    if( valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = dataCoordinates.xyz;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  vec3 gradient = vec3(0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'currentVoxel', 'dataValue', 'gradient') + '\n\n  // how do we deal wil more than 1 channel?\n  float intensity = dataValue.r;\n  if(uNumberOfChannels == 1){\n    float normalizedIntensity = dataValue.r;\n\n    // rescale/slope\n    normalizedIntensity =\n      normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n    if ( normalizedIntensity < uLowerUpperThreshold[0] ||\n      normalizedIntensity > uLowerUpperThreshold[1]) {\n      discard;\n    }\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    normalizedIntensity =\n      ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];\n\n    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;\n   \n    dataValue.a = step(normalizedIntensity, 0.);\n  }\n\n  // Apply LUT table...\n  //\n  if(uLut == 1){\n    // should opacity be grabbed there?\n    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n  }\n\n  if(uLutSegmentation == 1){\n    // should opacity be grabbed there?\n    //\n    float textureWidth = 256.;\n    float textureHeight = 128.;\n    float min = 0.;\n    // start at 0!\n    int adjustedIntensity = int(floor(intensity + 0.5));\n\n    // Get row and column in the texture\n    int colIndex = int(mod(float(adjustedIntensity), textureWidth));\n    int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));\n\n    float texWidth = 1./textureWidth;\n    float texHeight = 1./textureHeight;\n  \n    // Map row and column to uv\n    vec2 uv = vec2(0,0);\n    uv.x = 0.5 * texWidth + (texWidth * float(colIndex));\n    uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);\n\n    dataValue = texture2D( uTextureLUTSegmentation, uv );\n    // uv.x = (0.5 + float(colIndex)) / textureWidth;\n    // uv.y = 1. - (0.5 + float(rowIndex)) / textureHeight;\n    // dataValue = texture2D( uTextureLUTSegmentation, uv );\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n\n    // if on edge, draw line\n  // float xPos = gl_FragCoord.x/512.;\n  // float yPos = gl_FragCoord.y/512.;\n  // if( xPos < 0.05 || xPos > .95 || yPos < 0.05 || yPos > .95){\n  //   gl_FragColor = vec4(xPos, yPos, 0., 1.);//dataValue;\n  //   //return;\n  // }\n\n}\n   ';
   };
 
   ShadersFragment.prototype.compute = function compute() {
@@ -53569,6 +53616,17 @@ var ModelsSeries = function (_ModelsBase) {
     }
 
     if (this._seriesInstanceUID === series.seriesInstanceUID) {
+      // may merge incorrectly if loader will return more than one stacks per series
+      if (series.stack[0]) {
+        if (this._stack[0]._numberOfFrames === 0) {
+          this._stack[0].computeNumberOfFrames();
+        }
+        this._stack[0].computeCosines();
+        if (series.stack[0]._numberOfFrames === 0) {
+          series.stack[0].computeNumberOfFrames();
+        }
+        series.stack[0].computeCosines();
+      }
       return this.mergeModels(this._stack, series.stack);
     } else {
       return false;
@@ -66303,7 +66361,7 @@ var HelpersProgressBarEventBased = function () {
     var self = this;
 
     this._emitter.on('load-start', function (event) {
-      var totalFiles = event.totalFiles;
+      var totalFiles = event.files.length;
       self.totalFile = totalFiles;
       self._domTotalFile.innerHTML = totalFiles;
     });
@@ -67228,6 +67286,7 @@ var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
     _this._shading = 1; // shading is on by default
     _this._shininess = 10.0;
     _this._steps = 256; // default
+    _this._offset = 0.;
     _this._windowCenter = 0.0;
     _this._windowWidth = 1.0;
 
@@ -96790,12 +96849,10 @@ var WidgetsAngle = function (_WidgetsBase) {
         _this._handles = [];
 
         _this._defaultAngle = true;
-
         return _this;
     }
 
     WidgetsAngle.prototype.setPoints = function setPoints(pointsList) {
-
         for (var i = 0; i < pointsList.length; i++) {
             // first handle
             var newHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](this._targetMesh, this._controls, this._camera, this._container);
@@ -97261,7 +97318,7 @@ var WidgetsAngle = function (_WidgetsBase) {
 /* 180 */
 /***/ (function(module, exports) {
 
-module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"87","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"dependencies":{"dicom-parser":"1.7.3","image-JPEG2000":"OHIF/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.87.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","lesson":"node ./scripts/router.js lessons","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","gen:index:lessons":"node ./scripts/genIndexFiles.js lessons","gen:index:lessons:cdn":"node ./scripts/genIndexFiles.js lessons cdn","test":"karma start","lint":"eslint src/**/*.js","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"latest","eslint-config-google":"latest","gh-pages":"latest","glslify":"5.1.0","jasmine-core":"latest","jsdoc":"jsdoc3/jsdoc#master","karma":"latest","karma-chrome-launcher":"^2.2.0","karma-jasmine":"latest","karma-sinon":"^1.0.5","karma-spec-reporter":"latest","karma-webpack":"^2.0.4","live-server":"^1.1.0","puppeteer":"^0.13.0","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"latest","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.0.0-beta.3","webpack":"^3.7.1","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^2.9.1","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}}
+module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"87","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"dependencies":{"dicom-parser":"1.7.3","image-JPEG2000":"OHIF/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.87.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","lesson":"node ./scripts/router.js lessons","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","gen:index:lessons":"node ./scripts/genIndexFiles.js lessons","gen:index:lessons:cdn":"node ./scripts/genIndexFiles.js lessons cdn","test":"karma start","lint":"eslint src/**/*.js","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"latest","eslint-config-google":"latest","gh-pages":"latest","glslify":"5.1.0","jasmine-core":"latest","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.2","karma-chrome-launcher":"^2.2.0","karma-jasmine":"latest","karma-sinon":"^1.0.5","karma-spec-reporter":"latest","karma-webpack":"^2.0.4","live-server":"^1.1.0","puppeteer":"^0.13.0","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"latest","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.0.0-beta.3","webpack":"^3.7.1","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^2.9.1","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}}
 
 /***/ })
 /******/ ]);

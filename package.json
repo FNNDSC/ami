@@ -82,7 +82,7 @@
         "glslify": "5.1.0",
         "jasmine-core": "latest",
         "jsdoc": "jsdoc3/jsdoc#master",
-        "karma": "latest",
+        "karma": "^2.0.2",
         "karma-chrome-launcher": "^2.2.0",
         "karma-jasmine": "latest",
         "karma-sinon": "^1.0.5",
