@@ -125,7 +125,7 @@ export default class ModelsSeries extends ModelsBase {
       return;
     }
 
-    this._stack.sort(function (a, b) {
+    this._stack.sort(function(a, b) {
       let aFrame = a.frame[0],
         bFrame = b.frame[0];
 

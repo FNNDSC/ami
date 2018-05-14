@@ -324,7 +324,7 @@ export default class ModelsStack extends ModelsBase {
       this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
     }
 
-    this._frame.sort(function (a, b) {
+    this._frame.sort(function(a, b) {
       if (a.instanceNumber !== null && b.instanceNumber !== null &&
           a.instanceNumber !== b.instanceNumber
       ) {
@@ -350,7 +350,7 @@ export default class ModelsStack extends ModelsBase {
         // 1,1,2,1 - next
         // 1,1,2,3 - next
         // 1,1,3,1 - next
-        let index = a.findIndex(function (elem, ind) {
+        let index = a.findIndex(function(elem, ind) {
           return elem !== b[ind];
         });
 
