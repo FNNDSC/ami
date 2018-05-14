@@ -52671,14 +52671,10 @@ var ShadersFragment = function () {
 
   ShadersFragment.prototype.main = function main() {
     // need to pre-call main to fill up the functions list
-    this._main = '\nvoid main(void) {\n\n  // draw border if slice is cropped\n  // float uBorderDashLength = 10.;\n\n  if( uCanvasWidth > 0. &&\n      ((gl_FragCoord.x > uBorderMargin && (gl_FragCoord.x - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.x < (uCanvasWidth - uBorderMargin) && (gl_FragCoord.x + uBorderMargin) > (uCanvasWidth - uBorderWidth) ))){\n    float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);\n    if( valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  if( uCanvasHeight > 0. &&\n      ((gl_FragCoord.y > uBorderMargin && (gl_FragCoord.y - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.y < (uCanvasHeight - uBorderMargin) && (gl_FragCoord.y + uBorderMargin) > (uCanvasHeight - uBorderWidth) ))){\n    float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);\n    if( valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = dataCoordinates.xyz;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  vec3 gradient = vec3(0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'currentVoxel', 'dataValue', 'gradient') + '\n\n  // how do we deal wil more than 1 channel?\n  float intensity = dataValue.r;\n  if(uNumberOfChannels == 1){\n    float normalizedIntensity = dataValue.r;\n\n    // rescale/slope\n    normalizedIntensity =\n      normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n    if ( normalizedIntensity < uLowerUpperThreshold[0] ||\n      normalizedIntensity > uLowerUpperThreshold[1]) {\n      discard;\n    }\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    normalizedIntensity =\n      ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];\n\n    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;\n   \n    dataValue.a = step(normalizedIntensity, 0.);\n  }\n\n  // Apply LUT table...\n  //\n  if(uLut == 1){\n    // should opacity be grabbed there?\n    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n  }\n\n  if(uLutSegmentation == 1){\n    // should opacity be grabbed there?\n    //\n    float textureWidth = 256.;\n    float textureHeight = 128.;\n    float min = 0.;\n    // start at 0!\n    int adjustedIntensity = int(floor(intensity + 0.5));\n\n    // Get row and column in the texture\n    int colIndex = int(mod(float(adjustedIntensity), textureWidth));\n    int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));\n\n    float texWidth = 1./textureWidth;\n    float texHeight = 1./textureHeight;\n  \n    // Map row and column to uv\n    vec2 uv = vec2(0,0);\n    uv.x = 0.5 * texWidth + (texWidth * float(colIndex));\n    uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);\n\n    dataValue = texture2D( uTextureLUTSegmentation, uv );\n    // uv.x = (0.5 + float(colIndex)) / textureWidth;\n    // uv.y = 1. - (0.5 + float(rowIndex)) / textureHeight;\n    // dataValue = texture2D( uTextureLUTSegmentation, uv );\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n\n    // if on edge, draw line\n  // float xPos = gl_FragCoord.x/512.;\n  // float yPos = gl_FragCoord.y/512.;\n  // if( xPos < 0.05 || xPos > .95 || yPos < 0.05 || yPos > .95){\n  //   gl_FragColor = vec4(xPos, yPos, 0., 1.);//dataValue;\n  //   //return;\n  // }\n\n}\n   ';
+    this._main = '\nvoid main(void) {\n\n  // draw border if slice is cropped\n  // float uBorderDashLength = 10.;\n\n  if( uCanvasWidth > 0. &&\n      ((gl_FragCoord.x > uBorderMargin && (gl_FragCoord.x - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.x < (uCanvasWidth - uBorderMargin) && (gl_FragCoord.x + uBorderMargin) > (uCanvasWidth - uBorderWidth) ))){\n    float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);\n    if( valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  if( uCanvasHeight > 0. &&\n      ((gl_FragCoord.y > uBorderMargin && (gl_FragCoord.y - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.y < (uCanvasHeight - uBorderMargin) && (gl_FragCoord.y + uBorderMargin) > (uCanvasHeight - uBorderWidth) ))){\n    float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);\n    if( valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = dataCoordinates.xyz;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  vec3 gradient = vec3(0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'currentVoxel', 'dataValue', 'gradient') + '\n\n  // how do we deal wil more than 1 channel?\n  float intensity = dataValue.r;\n  if(uNumberOfChannels == 1){\n    float normalizedIntensity = dataValue.r;\n\n    // rescale/slope\n    normalizedIntensity =\n      normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n    if ( normalizedIntensity < uLowerUpperThreshold[0] ||\n      normalizedIntensity > uLowerUpperThreshold[1]) {\n      discard;\n    }\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    normalizedIntensity =\n      ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];\n\n    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;\n    dataValue.a = step(0., normalizedIntensity);\n  }\n\n  // Apply LUT table...\n  //\n  if(uLut == 1){\n    // should opacity be grabbed there?\n    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n  }\n\n  if(uLutSegmentation == 1){\n    // should opacity be grabbed there?\n    //\n    float textureWidth = 256.;\n    float textureHeight = 128.;\n    float min = 0.;\n    // start at 0!\n    int adjustedIntensity = int(floor(intensity + 0.5));\n\n    // Get row and column in the texture\n    int colIndex = int(mod(float(adjustedIntensity), textureWidth));\n    int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));\n\n    float texWidth = 1./textureWidth;\n    float texHeight = 1./textureHeight;\n  \n    // Map row and column to uv\n    vec2 uv = vec2(0,0);\n    uv.x = 0.5 * texWidth + (texWidth * float(colIndex));\n    uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);\n\n    dataValue = texture2D( uTextureLUTSegmentation, uv );\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n}\n   ';
   };
 
   ShadersFragment.prototype.compute = function compute() {
-    var shaderInterpolation = '';
-    // shaderInterpolation.inline(args) //true/false
-    // shaderInterpolation.functions(args)
-
     return '\n// uniforms\n' + this.uniforms() + '\n\n// varying (should fetch it from vertex directly)\nvarying vec4      vPos;\n\n// tailored functions\n' + this.functions() + '\n\n// main loop\n' + this._main + '\n      ';
   };
 
@@ -59995,10 +59991,56 @@ var ParsersNifti = function (_ParsersVolume) {
   ParsersNifti.prototype.imageOrientation = function imageOrientation() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    // window.console.log(this._dataSet);
     // http://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1.h
     // http://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1_io.c
     if (this._dataSet.qform_code > 0) {
+      // METHOD 2 (used when qform_code > 0, which should be the "normal" case):
+      // ---------------------------------------------------------------------
+      // The (x,y,z) coordinates are given by the pixdim[] scales, a rotation
+      // matrix, and a shift.  This method is intended to represent
+      // "scanner-anatomical" coordinates, which are often embedded in the
+      // image header (e.g., DICOM fields (0020,0032), (0020,0037), (0028,0030),
+      // and (0018,0050)), and represent the nominal orientation and location of
+      // the data.  This method can also be used to represent "aligned"
+      // coordinates, which would typically result from some post-acquisition
+      // alignment of the volume to a standard orientation (e.g., the same
+      // subject on another day, or a rigid rotation to true anatomical
+      // orientation from the tilted position of the subject in the scanner).
+      // The formula for (x,y,z) in terms of header parameters and (i,j,k) is:
+
+      //   [ x ]   [ R11 R12 R13 ] [        pixdim[1] * i ]   [ qoffset_x ]
+      //   [ y ] = [ R21 R22 R23 ] [        pixdim[2] * j ] + [ qoffset_y ]
+      //   [ z ]   [ R31 R32 R33 ] [ qfac * pixdim[3] * k ]   [ qoffset_z ]
+
+      // The qoffset_* shifts are in the NIFTI-1 header.  Note that the center
+      // of the (i,j,k)=(0,0,0) voxel (first value in the dataset array) is
+      // just (x,y,z)=(qoffset_x,qoffset_y,qoffset_z).
+
+      // The rotation matrix R is calculated from the quatern_* parameters.
+      // This calculation is described below.
+
+      // The scaling factor qfac is either 1 or -1.  The rotation matrix R
+      // defined by the quaternion parameters is "proper" (has determinant 1).
+      // This may not fit the needs of the data; for example, if the image
+      // grid is
+      //   i increases from Left-to-Right
+      //   j increases from Anterior-to-Posterior
+      //   k increases from Inferior-to-Superior
+      // Then (i,j,k) is a left-handed triple.  In this example, if qfac=1,
+      // the R matrix would have to be
+
+      //   [  1   0   0 ]
+      //   [  0  -1   0 ]  which is "improper" (determinant = -1).
+      //   [  0   0   1 ]
+
+      // If we set qfac=-1, then the R matrix would be
+
+      //   [  1   0   0 ]
+      //   [  0  -1   0 ]  which is proper.
+      //   [  0   0  -1 ]
+
+      // This R matrix is represented by quaternion [a,b,c,d] = [0,1,0,0]
+      // (which encodes a 180 degree rotation about the x-axis).
       // https://github.com/Kitware/ITK/blob/master/Modules/IO/NIFTI/src/itkNiftiImageIO.cxx
       var a = 0.0;
       var b = this._dataSet.quatern_b;
@@ -60022,20 +60064,35 @@ var ParsersNifti = function (_ParsersVolume) {
 
       return [-(a * a + b * b - c * c - d * d), -2 * (b * c + a * d), 2 * (b * d - a * c), -2 * (b * c - a * d), -(a * a + c * c - b * b - d * d), 2 * (c * d + a * b)];
     } else if (this._dataSet.sform_code > 0) {
-      // sform > 0
-      // let sx = this._dataSet.srow_x;
-      // let sy = this._dataSet.srow_y;
-      // let sz = this._dataSet.srow_z;
-      // fill IJKToRAS
-      // goog.vec.Mat4.setRowValues(IJKToRAS, 0, sx[0], sx[1], sx[2], sx[3]);
-      // goog.vec.Mat4.setRowValues(IJKToRAS, 1, sy[0], sy[1], sy[2], sy[3]);
-      // goog.vec.Mat4.setRowValues(IJKToRAS, 2, sz[0], sz[1], sz[2], sz[3]);
+      // METHOD 3 (used when sform_code > 0):
+      // -----------------------------------
+      // The (x,y,z) coordinates are given by a general affine transformation
+      // of the (i,j,k) indexes:
+
+      //   x = srow_x[0] * i + srow_x[1] * j + srow_x[2] * k + srow_x[3]
+      //   y = srow_y[0] * i + srow_y[1] * j + srow_y[2] * k + srow_y[3]
+      //   z = srow_z[0] * i + srow_z[1] * j + srow_z[2] * k + srow_z[3]
+
+      // The srow_* vectors are in the NIFTI_1 header.  Note that no use is
+      // made of pixdim[] in this method.
+      var rowX = [-this._dataSet.affine[0][0], -this._dataSet.affine[0][1], this._dataSet.affine[0][2]];
+      var rowY = [-this._dataSet.affine[1][0], -this._dataSet.affine[1][1], this._dataSet.affine[0][2]];
+      return [].concat(rowX, rowY);
     } else if (this._dataSet.qform_code === 0) {
-      // form === 0
-      // fill IJKToRAS
-      // goog.vec.Mat4.setRowValues(IJKToRAS, 0, MRI.pixdim[1], 0, 0, 0);
-      // goog.vec.Mat4.setRowValues(IJKToRAS, 1, 0, MRI.pixdim[2], 0, 0);
-      // goog.vec.Mat4.setRowValues(IJKToRAS, 2, 0, 0, MRI.pixdim[3], 0);
+      // METHOD 1 (the "old" way, used only when qform_code = 0):
+      // -------------------------------------------------------
+      // The coordinate mapping from (i,j,k) to (x,y,z) is the ANALYZE
+      // 7.5 way.  This is a simple scaling relationship:
+
+      //   x = pixdim[1] * i
+      //   y = pixdim[2] * j
+      //   z = pixdim[3] * k
+
+      // No particular spatial orientation is attached to these (x,y,z)
+      // coordinates.  (NIFTI-1 does not have the ANALYZE 7.5 orient field,
+      // which is not general and is often not set properly.)  This method
+      // is not recommended, and is present mainly for compatibility with
+      // ANALYZE 7.5 files.
     }
     return [1, 0, 0, 0, 1, 0];
   };
@@ -60148,9 +60205,15 @@ var ParsersNifti = function (_ParsersVolume) {
     } else if (this._dataSet.datatypeCode === 16) {
       // signed float 32 bit
       frameOffset = frameOffset * 4;
-      return new Float32Array(buffer, frameOffset, numPixels);
+      var data = new Float32Array(buffer, frameOffset, numPixels);
+      for (var i = 0; i < data.length; i++) {
+        if (data[i] === Infinity || data[i] === -Infinity) {
+          data[i] = 0;
+        }
+      }
+      return data;
     } else {
-      window.console.warning('Unknown data type: datatypeCode : ' + this._dataSet.datatypeCode);
+      window.console.warn('Unknown data type: datatypeCode : ' + this._dataSet.datatypeCode);
     }
   };
 
