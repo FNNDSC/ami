@@ -42,8 +42,8 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this._rescaleIntercept = null;
 
     // threshold
-    this._upperThreshold = null;
     this._lowerThreshold = null;
+    this._upperThreshold = null;
 
     this._canvasWidth = 0;
     this._canvasHeight = 0;
@@ -371,14 +371,6 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
       if (this._windowCenter === null) {
         this._windowCenter = this._stack.windowCenter;
       }
-      // adding thresholding
-      if (this._upperThreshold === null) {
-        this._upperThreshold = this._stack._minMax[1];
-      }
-
-      if (this._lowerThreshold === null) {
-        this._lowerThreshold = this._stack._minMax[0];
-      }
 
       if (this._windowWidth === null) {
         this._windowWidth = this._stack.windowWidth;
@@ -391,6 +383,15 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
       if (this._rescaleIntercept === null) {
         this._rescaleIntercept = this._stack.rescaleIntercept;
       }
+    }
+
+    // adding thresholding
+    if (this._upperThreshold === null) {
+      this._upperThreshold = this._stack._minMax[1];
+    }
+
+    if (this._lowerThreshold === null) {
+      this._lowerThreshold = this._stack._minMax[0];
     }
   }
 
@@ -410,7 +411,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
 
     // set slice upper/lower threshold
     this._uniforms.uLowerUpperThreshold.value =
-      [this._lowerThreshold, this._upperThreshold];
+      [offset + this._lowerThreshold, offset + this._upperThreshold];
 
     // invert
     this._uniforms.uInvert.value = this._invert === true ? 1 : 0;
