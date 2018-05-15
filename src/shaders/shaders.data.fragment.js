@@ -75,8 +75,8 @@ void main(void) {
 
   // how do we deal wil more than 1 channel?
   float intensity = dataValue.r;
-  float isInferior = 1. - step(uLowerUpperThreshold[0] - 1., intensity);
-  float isSuperior = step(uLowerUpperThreshold[1] + 1., intensity);
+  float isInferior = 1. - step(uLowerUpperThreshold[0], intensity);
+  float isSuperior = step(uLowerUpperThreshold[1], intensity);
   float isInRange = step(0., isInferior + isSuperior);
 
   if (isInferior + isSuperior > 0.) {
