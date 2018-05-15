@@ -469,7 +469,7 @@ export default class ModelsStack extends ModelsBase {
       this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
 
     // Packing style
-    if (this._bitsAllocated === 8 && this._numberOfChannels === 1) {
+    if (this._bitsAllocated === 8 && this._numberOfChannels === 1 || this._bitsAllocated === 1) {
       this._packedPerPixel = 4;
     }
 
@@ -537,7 +537,7 @@ export default class ModelsStack extends ModelsBase {
     // frame should return it!
     const frameDimension = frame[0].rows * frame[0].columns;
 
-    if (bitsAllocated === 8 && channels === 1) {
+    if (bitsAllocated === 8 && channels === 1 || bitsAllocated === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
       let coordinate = 0;
       let channelOffset = 0;
