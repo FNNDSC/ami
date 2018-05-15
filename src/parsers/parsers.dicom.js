@@ -437,6 +437,27 @@ export default class ParsersDicom extends ParsersVolume {
     return pixelSpacing;
   }
 
+  frameTime(frameIndex = 0) {
+    let frameIncrementPointer = this._dataSet.uint16('x00280009', 1),
+      frameRate = this._dataSet.intString('x00082144'),
+      frameTime;
+
+    if (typeof frameIncrementPointer === 'number') {
+      frameIncrementPointer = frameIncrementPointer.toString(16);
+      frameTime = this._dataSet.floatString('x0018' + frameIncrementPointer);
+    }
+
+    if (typeof frameTime === 'undefined' && typeof frameRate === 'number') {
+      frameTime = 1000 / frameRate;
+    }
+
+    if (typeof frameTime === 'undefined') {
+      frameTime = null;
+    }
+
+    return frameTime;
+  }
+
   rows(frameIndex = 0) {
     let rows = this._dataSet.uint16('x00280010');
 

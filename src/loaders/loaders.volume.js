@@ -199,6 +199,7 @@ export default class LoadersVolumes extends LoadersBase {
     frame.url = url;
     frame.index = i;
     frame.invert = stack.invert;
+    frame.frameTime = dataParser.frameTime(i);
     frame.rows = dataParser.rows(i);
     frame.columns = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;
