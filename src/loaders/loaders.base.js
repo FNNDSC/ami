@@ -86,7 +86,7 @@ export default class LoadersBase extends EventEmitter {
       };
 
       request.onload = (event) => {
-        if (request.status === 200) {
+        if (request.status === 200 || request.status === 0) {
           this._loaded = event.loaded;
           this._totalLoaded = event.total;
 
