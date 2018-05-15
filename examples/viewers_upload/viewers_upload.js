@@ -306,8 +306,6 @@ window.onload = function() {
     stackHelper.border.visible = false;
     scene.add(stackHelper);
 
-    console.log(stackHelper.stack);
-
     // set camera
     let worldbb = stack.worldBoundingBox();
     let lpsDims = new THREE.Vector3(

@@ -405,6 +405,7 @@ window.onload = function() {
     uniformsLayer1.uWorldToData.value = stack2.lps2IJK;
     uniformsLayer1.uNumberOfChannels.value = stack2.numberOfChannels;
     uniformsLayer1.uPixelType.value = stack2.pixelType;
+    uniformsLayer1.uPackedPerPixel.value = stack2.packedPerPixel;
     uniformsLayer1.uBitsAllocated.value = stack2.bitsAllocated;
     uniformsLayer1.uWindowCenterWidth.value =
       [stack2.windowCenter, stack2.windowWidth];

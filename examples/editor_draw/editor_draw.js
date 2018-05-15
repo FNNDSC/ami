@@ -674,6 +674,7 @@ window.onload = function() {
         uniformsLayer1.uNumberOfChannels.value = stack2.numberOfChannels;
         uniformsLayer1.uPixelType.value = stack2.pixelType;
         uniformsLayer1.uBitsAllocated.value = stack2.bitsAllocated;
+        uniformsLayer1.uPackedPerPixel.value = stack2.packedPerPixel;
         uniformsLayer1.uWindowCenterWidth.value = [stack2.windowCenter, stack2.windowWidth];
         uniformsLayer1.uRescaleSlopeIntercept.value = [stack2.rescaleSlope, stack2.rescaleIntercept];
         uniformsLayer1.uDataDimensions.value = [stack2.dimensionsIJK.x, stack2.dimensionsIJK.y, stack2.dimensionsIJK.z];

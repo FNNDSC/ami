@@ -75,26 +75,28 @@ void main(void) {
 
   // how do we deal wil more than 1 channel?
   float intensity = dataValue.r;
+  float isInferior = 1. - step(uLowerUpperThreshold[0] - 1., intensity);
+  float isSuperior = step(uLowerUpperThreshold[1] + 1., intensity);
+  float isInRange = step(0., isInferior + isSuperior);
+
+  if (isInferior + isSuperior > 0.) {
+    discard;
+  }
+
   if(uNumberOfChannels == 1){
-    float normalizedIntensity = dataValue.r;
+    float normalizedIntensity = intensity;
 
     // rescale/slope
     normalizedIntensity =
       normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
-    if ( normalizedIntensity < uLowerUpperThreshold[0] ||
-      normalizedIntensity > uLowerUpperThreshold[1]) {
-      discard;
-    }
+  
     float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
     normalizedIntensity =
       ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];
 
     dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;
-    dataValue.a = step(0., normalizedIntensity);
   }
 
-  // Apply LUT table...
-  //
   if(uLut == 1){
     // should opacity be grabbed there?
     dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );
