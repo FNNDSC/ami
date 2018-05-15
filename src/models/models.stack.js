@@ -199,14 +199,7 @@ export default class ModelsStack extends ModelsBase {
       this.prepareSegmentation();
     }
 
-    // we need at least 1 frame
-    if (this._frame && this._frame.length > 0) {
-      this._numberOfFrames = this._frame.length;
-    } else {
-      window.console.warn('_frame doesn\'t contain anything....');
-      window.console.warn(this._frame);
-      return false;
-    }
+    this.computeNumberOfFrames();
 
     // pass parameters from frame to stack
     this._rows = this._frame[0].rows;
@@ -301,6 +294,17 @@ export default class ModelsStack extends ModelsBase {
     );
   }
 
+  computeNumberOfFrames() {
+    // we need at least 1 frame
+    if (this._frame && this._frame.length > 0) {
+      this._numberOfFrames = this._frame.length;
+    } else {
+      window.console.warn('_frame doesn\'t contain anything....');
+      window.console.warn(this._frame);
+      return false;
+    }
+  }
+
   // frame.cosines - returns array [x, y, z]
   computeCosines() {
     if (this._frame &&
@@ -315,10 +319,10 @@ export default class ModelsStack extends ModelsBase {
   orderFrames() {
     // order the frames based on theirs dimension indices
     // first index is the most important.
-    // 1,1,1,1 willl be first
+    // 1,1,1,1 will be first
     // 1,1,2,1 will be next
     // 1,1,2,3 will be next
-    // 1,1,3,1 wil be next
+    // 1,1,3,1 will be next
     if (this._frame[0].dimensionIndexValues) {
       this._frame.sort(this._orderFrameOnDimensionIndicesArraySort);
 
@@ -453,7 +457,13 @@ export default class ModelsStack extends ModelsBase {
    */
   merge(stack) {
     // also make sure x/y/z cosines are a match!
-    if (this._stackID === stack.stackID) {
+    if (this._stackID === stack.stackID &&
+        this._numberOfFrames === 1 && stack._numberOfFrames === 1 &&
+        this._frame[0].columns === stack.frame[0].columns &&
+        this._frame[0].rows === stack.frame[0].rows &&
+        this._xCosine.equals(stack.xCosine) &&
+        this._yCosine.equals(stack.yCosine) &&
+        this._zCosine.equals(stack.zCosine)) {
       return this.mergeModels(this._frame, stack.frame);
     } else {
       return false;
