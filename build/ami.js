@@ -48136,6 +48136,12 @@ var ParsersVolume = function () {
     return 0;
   };
 
+  ParsersVolume.prototype.frameTime = function frameTime() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    return null;
+  };
+
   ParsersVolume.prototype._decompressUncompressed = function _decompressUncompressed() {};
 
   // http://stackoverflow.com/questions/5320439/how-do-i-swap-endian-ness-byte-order-of-a-variable-in-javascript
@@ -49716,7 +49722,7 @@ var ModelsStack = function (_ModelsBase) {
     var nbVoxels = this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
 
     // Packing style
-    if (this._bitsAllocated === 8 && this._numberOfChannels === 1) {
+    if (this._bitsAllocated === 8 && this._numberOfChannels === 1 || this._bitsAllocated === 1) {
       this._packedPerPixel = 4;
     }
 
@@ -49779,7 +49785,7 @@ var ModelsStack = function (_ModelsBase) {
     // frame should return it!
     var frameDimension = frame[0].rows * frame[0].columns;
 
-    if (bitsAllocated === 8 && channels === 1) {
+    if (bitsAllocated === 8 && channels === 1 || bitsAllocated === 1) {
       var data = new Uint8Array(textureSize * textureSize * 4);
       var coordinate = 0;
       var channelOffset = 0;
@@ -52671,7 +52677,7 @@ var ShadersFragment = function () {
 
   ShadersFragment.prototype.main = function main() {
     // need to pre-call main to fill up the functions list
-    this._main = '\nvoid main(void) {\n\n  // draw border if slice is cropped\n  // float uBorderDashLength = 10.;\n\n  if( uCanvasWidth > 0. &&\n      ((gl_FragCoord.x > uBorderMargin && (gl_FragCoord.x - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.x < (uCanvasWidth - uBorderMargin) && (gl_FragCoord.x + uBorderMargin) > (uCanvasWidth - uBorderWidth) ))){\n    float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);\n    if( valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  if( uCanvasHeight > 0. &&\n      ((gl_FragCoord.y > uBorderMargin && (gl_FragCoord.y - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.y < (uCanvasHeight - uBorderMargin) && (gl_FragCoord.y + uBorderMargin) > (uCanvasHeight - uBorderWidth) ))){\n    float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);\n    if( valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = dataCoordinates.xyz;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  vec3 gradient = vec3(0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'currentVoxel', 'dataValue', 'gradient') + '\n\n  // how do we deal wil more than 1 channel?\n  float intensity = dataValue.r;\n  if(uNumberOfChannels == 1){\n    float normalizedIntensity = dataValue.r;\n\n    // rescale/slope\n    normalizedIntensity =\n      normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n    if ( normalizedIntensity < uLowerUpperThreshold[0] ||\n      normalizedIntensity > uLowerUpperThreshold[1]) {\n      discard;\n    }\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    normalizedIntensity =\n      ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];\n\n    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;\n    dataValue.a = step(0., normalizedIntensity);\n  }\n\n  // Apply LUT table...\n  //\n  if(uLut == 1){\n    // should opacity be grabbed there?\n    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n  }\n\n  if(uLutSegmentation == 1){\n    // should opacity be grabbed there?\n    //\n    float textureWidth = 256.;\n    float textureHeight = 128.;\n    float min = 0.;\n    // start at 0!\n    int adjustedIntensity = int(floor(intensity + 0.5));\n\n    // Get row and column in the texture\n    int colIndex = int(mod(float(adjustedIntensity), textureWidth));\n    int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));\n\n    float texWidth = 1./textureWidth;\n    float texHeight = 1./textureHeight;\n  \n    // Map row and column to uv\n    vec2 uv = vec2(0,0);\n    uv.x = 0.5 * texWidth + (texWidth * float(colIndex));\n    uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);\n\n    dataValue = texture2D( uTextureLUTSegmentation, uv );\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n}\n   ';
+    this._main = '\nvoid main(void) {\n\n  // draw border if slice is cropped\n  // float uBorderDashLength = 10.;\n\n  if( uCanvasWidth > 0. &&\n      ((gl_FragCoord.x > uBorderMargin && (gl_FragCoord.x - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.x < (uCanvasWidth - uBorderMargin) && (gl_FragCoord.x + uBorderMargin) > (uCanvasWidth - uBorderWidth) ))){\n    float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);\n    if( valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  if( uCanvasHeight > 0. &&\n      ((gl_FragCoord.y > uBorderMargin && (gl_FragCoord.y - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.y < (uCanvasHeight - uBorderMargin) && (gl_FragCoord.y + uBorderMargin) > (uCanvasHeight - uBorderWidth) ))){\n    float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);\n    if( valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = dataCoordinates.xyz;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  vec3 gradient = vec3(0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'currentVoxel', 'dataValue', 'gradient') + '\n\n  // how do we deal wil more than 1 channel?\n  float intensity = dataValue.r;\n  float isInferior = 1. - step(uLowerUpperThreshold[0], intensity);\n  float isSuperior = step(uLowerUpperThreshold[1], intensity);\n  float isInRange = step(0., isInferior + isSuperior);\n\n  if (isInferior + isSuperior > 0.) {\n    discard;\n  }\n\n  if(uNumberOfChannels == 1){\n    float normalizedIntensity = intensity;\n\n    // rescale/slope\n    normalizedIntensity =\n      normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  \n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    normalizedIntensity =\n      ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];\n\n    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;\n  }\n\n  if(uLut == 1){\n    // should opacity be grabbed there?\n    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );\n  }\n\n  if(uLutSegmentation == 1){\n    // should opacity be grabbed there?\n    //\n    float textureWidth = 256.;\n    float textureHeight = 128.;\n    float min = 0.;\n    // start at 0!\n    int adjustedIntensity = int(floor(intensity + 0.5));\n\n    // Get row and column in the texture\n    int colIndex = int(mod(float(adjustedIntensity), textureWidth));\n    int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));\n\n    float texWidth = 1./textureWidth;\n    float texHeight = 1./textureHeight;\n  \n    // Map row and column to uv\n    vec2 uv = vec2(0,0);\n    uv.x = 0.5 * texWidth + (texWidth * float(colIndex));\n    uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);\n\n    dataValue = texture2D( uTextureLUTSegmentation, uv );\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n}\n   ';
   };
 
   ShadersFragment.prototype.compute = function compute() {
@@ -54126,6 +54132,7 @@ var ModelsFrame = function (_ModelsBase) {
     _this._url = null;
     _this._stackID = -1;
     _this._invert = false;
+    _this._frameTime = null;
     _this._rows = 0;
     _this._columns = 0;
     _this._dimensionIndexValues = [];
@@ -54406,6 +54413,14 @@ var ModelsFrame = function (_ModelsBase) {
   };
 
   _createClass(ModelsFrame, [{
+    key: 'frameTime',
+    get: function get() {
+      return this._frameTime;
+    },
+    set: function set(frameTime) {
+      this._frameTime = frameTime;
+    }
+  }, {
     key: 'rows',
     get: function get() {
       return this._rows;
@@ -55122,6 +55137,29 @@ var ParsersDicom = function (_ParsersVolume) {
     }
 
     return pixelSpacing;
+  };
+
+  ParsersDicom.prototype.frameTime = function frameTime() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    var frameIncrementPointer = this._dataSet.uint16('x00280009', 1),
+        frameRate = this._dataSet.intString('x00082144'),
+        frameTime = void 0;
+
+    if (typeof frameIncrementPointer === 'number') {
+      frameIncrementPointer = frameIncrementPointer.toString(16);
+      frameTime = this._dataSet.floatString('x0018' + frameIncrementPointer);
+    }
+
+    if (typeof frameTime === 'undefined' && typeof frameRate === 'number') {
+      frameTime = 1000 / frameRate;
+    }
+
+    if (typeof frameTime === 'undefined') {
+      frameTime = null;
+    }
+
+    return frameTime;
   };
 
   ParsersDicom.prototype.rows = function rows() {
@@ -67844,6 +67882,7 @@ var LoadersVolumes = function (_LoadersBase) {
     frame.url = url;
     frame.index = i;
     frame.invert = stack.invert;
+    frame.frameTime = dataParser.frameTime(i);
     frame.rows = dataParser.rows(i);
     frame.columns = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;
@@ -74280,7 +74319,7 @@ var LoadersBase = function (_EventEmitter) {
       };
 
       request.onload = function (event) {
-        if (request.status === 200) {
+        if (request.status === 200 || request.status === 0) {
           _this2._loaded = event.loaded;
           _this2._totalLoaded = event.total;
 
@@ -97381,7 +97420,7 @@ var WidgetsAngle = function (_WidgetsBase) {
 /* 180 */
 /***/ (function(module, exports) {
 
-module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"87","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"dependencies":{"dicom-parser":"1.7.3","image-JPEG2000":"OHIF/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.87.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","lesson":"node ./scripts/router.js lessons","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","gen:index:lessons":"node ./scripts/genIndexFiles.js lessons","gen:index:lessons:cdn":"node ./scripts/genIndexFiles.js lessons cdn","test":"karma start","lint":"eslint src/**/*.js","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"latest","eslint-config-google":"latest","gh-pages":"latest","glslify":"5.1.0","jasmine-core":"latest","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.2","karma-chrome-launcher":"^2.2.0","karma-jasmine":"latest","karma-sinon":"^1.0.5","karma-spec-reporter":"latest","karma-webpack":"^2.0.4","live-server":"^1.1.0","puppeteer":"^0.13.0","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"latest","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.0.0-beta.3","webpack":"^3.7.1","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^2.9.1","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}}
+module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"92","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"dependencies":{"dicom-parser":"1.7.3","image-JPEG2000":"OHIF/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.87.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","lesson":"node ./scripts/router.js lessons","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","gen:index:lessons":"node ./scripts/genIndexFiles.js lessons","gen:index:lessons:cdn":"node ./scripts/genIndexFiles.js lessons cdn","test":"karma start","lint":"eslint src/**/*.js","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"latest","eslint-config-google":"latest","gh-pages":"latest","glslify":"5.1.0","jasmine-core":"latest","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.2","karma-chrome-launcher":"^2.2.0","karma-jasmine":"latest","karma-sinon":"^1.0.5","karma-spec-reporter":"latest","karma-webpack":"^2.0.4","live-server":"^1.1.0","puppeteer":"^0.13.0","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"latest","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.0.0-beta.3","webpack":"^3.7.1","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^2.9.1","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}}
 
 /***/ })
 /******/ ]);
