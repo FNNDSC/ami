@@ -73,13 +73,12 @@ void main(void) {
   vec3 gradient = vec3(0., 0., 0.);
   ${shadersInterpolation(this, 'currentVoxel', 'dataValue', 'gradient')}
 
-  // how do we deal wil more than 1 channel?
   float intensity = dataValue.r;
   float isInferior = 1. - step(uLowerUpperThreshold[0], intensity);
   float isSuperior = step(uLowerUpperThreshold[1], intensity);
-  float isInRange = step(0., isInferior + isSuperior);
 
-  if (isInferior + isSuperior > 0.) {
+  // > 0. could lead to incorrect thresholding due to floating point precision
+  if (isInferior + isSuperior > 0.5) {
     discard;
   }
 
@@ -95,6 +94,7 @@ void main(void) {
       ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];
 
     dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;
+    dataValue.a = 1.;
   }
 
   if(uLut == 1){

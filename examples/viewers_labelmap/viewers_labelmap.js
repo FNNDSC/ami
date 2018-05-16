@@ -415,6 +415,7 @@ window.onload = function() {
                                             stack2.dimensionsIJK.y,
                                             stack2.dimensionsIJK.z];
     uniformsLayer1.uInterpolation.value = 0;
+    uniformsLayer1.uLowerUpperThreshold.value = [...stack2.minMax];
 
     // generate shaders on-demand!
     let fs = new ShadersDataFragment(uniformsLayer1);
