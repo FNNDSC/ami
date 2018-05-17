@@ -479,7 +479,7 @@ export default class ModelsStack extends ModelsBase {
   instanceFirst(index) {
     const initialFrame = this.frame[index];
 
-    return this.frame.findIndex(function (elem) {
+    return this.frame.findIndex(function(elem) {
         return elem.instanceDifference(initialFrame) === 0;
       });
   }
@@ -494,11 +494,11 @@ export default class ModelsStack extends ModelsBase {
   instanceLast(index) {
     const initialFrame = this.frame[index];
 
-    return this.frame.findIndex(function (elem, ind, arr) {
+    return this.frame.findIndex(function(elem, ind, arr) {
         return elem.instanceDifference(initialFrame) === 0
           && (ind === this._numberOfFrames - 1
             || elem.instanceDifference(arr[ind + 1]) !== 0);
-      });
+      }.bind(this));
   }
 
   /**
