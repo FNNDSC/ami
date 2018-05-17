@@ -325,16 +325,9 @@ export default class ModelsStack extends ModelsBase {
     }
 
     this._frame.sort(function(a, b) {
-      if (a.instanceNumber !== null && b.instanceNumber !== null &&
-          a.instanceNumber !== b.instanceNumber
-      ) {
-        return a.instanceNumber - b.instanceNumber;
-      }
-
-      if (a.sopInstanceUID !== null && b.sopInstanceUID !== null &&
-          a.sopInstanceUID !== b.sopInstanceUID
-      ) {
-        return a.sopInstanceUID - b.sopInstanceUID;
+      let diff = a.instanceDifference(b);
+      if (diff) {
+        return diff;
       }
 
       if (a.dist !== null && b.dist !== null && a.dist !== b.dist) {
@@ -474,6 +467,38 @@ export default class ModelsStack extends ModelsBase {
     } else {
       return false;
     }
+  }
+
+  /**
+   * Get the index of the first frame belonging to the same instance
+   *
+   * @param {Number} index
+   *
+   * @return {Number}
+   */
+  instanceFirst(index) {
+    const initialFrame = this.frame[index];
+
+    return this.frame.findIndex(function (elem) {
+        return elem.instanceDifference(initialFrame) === 0;
+      });
+  }
+
+  /**
+   * Get the index of the last frame belonging to the same instance
+   *
+   * @param {Number} index
+   *
+   * @return {Number}
+   */
+  instanceLast(index) {
+    const initialFrame = this.frame[index];
+
+    return this.frame.findIndex(function (elem, ind, arr) {
+        return elem.instanceDifference(initialFrame) === 0
+          && (ind === this._numberOfFrames - 1
+            || elem.instanceDifference(arr[ind + 1]) !== 0);
+      });
   }
 
   /**

@@ -126,19 +126,9 @@ export default class ModelsSeries extends ModelsBase {
     }
 
     this._stack.sort(function(a, b) {
-      let aFrame = a.frame[0],
-        bFrame = b.frame[0];
-
-      if (aFrame.instanceNumber && bFrame.instanceNumber &&
-          aFrame.instanceNumber !== bFrame.instanceNumber
-      ) {
-        return aFrame.instanceNumber - bFrame.instanceNumber;
-      }
-
-      if (aFrame.sopInstanceUID && bFrame.sopInstanceUID &&
-          aFrame.sopInstanceUID !== bFrame.sopInstanceUID
-      ) {
-        return aFrame.sopInstanceUID - bFrame.sopInstanceUID;
+      let diff = a.frame[0].instanceDifference(b.frame[0]);
+      if (diff) {
+        return diff;
       }
 
       window.console.warn('It is impossible to uniquely determine the order of stacks!');
