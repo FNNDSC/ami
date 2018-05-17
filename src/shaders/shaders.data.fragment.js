@@ -74,6 +74,11 @@ void main(void) {
   ${shadersInterpolation(this, 'currentVoxel', 'dataValue', 'gradient')}
 
   float intensity = dataValue.r;
+
+  // rescale/slope
+  intensity =
+    intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
+
   float isInferior = 1. - step(uLowerUpperThreshold[0], intensity);
   float isSuperior = step(uLowerUpperThreshold[1], intensity);
 
@@ -83,15 +88,9 @@ void main(void) {
   }
 
   if(uNumberOfChannels == 1){
-    float normalizedIntensity = intensity;
-
-    // rescale/slope
-    normalizedIntensity =
-      normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
-  
     float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
-    normalizedIntensity =
-      ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];
+    float normalizedIntensity =
+      ( intensity - windowMin ) / uWindowCenterWidth[1];
 
     dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;
     dataValue.a = 1.;
