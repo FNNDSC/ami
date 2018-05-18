@@ -83,7 +83,7 @@ void main(void) {
   float isSuperior = step(uLowerUpperThreshold[1], intensity);
 
   // > 0. could lead to incorrect thresholding due to floating point precision
-  if (isInferior + isSuperior > 0.5) {
+  if (intensity < uLowerUpperThreshold[0] || intensity > uLowerUpperThreshold[1]) {
     discard;
   }
 
