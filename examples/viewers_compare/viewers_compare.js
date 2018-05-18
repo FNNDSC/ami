@@ -67,19 +67,23 @@ let layerMix = {
   trackMouse: true,
 };
 
+function render() {
+  // render
+  controls.update();
+  // render first layer offscreen
+  renderer.render(sceneLayer0, camera, sceneLayer0TextureTarget, true);
+  // render second layer offscreen
+  renderer.render(sceneLayer1, camera, sceneLayer1TextureTarget, true);
+  // mix the layers and render it ON screen!
+  renderer.render(sceneLayerMix, camera);
+  statsyay.update();
+}
+
 // FUNCTIONS
 function init() {
   // this function is executed on each animation frame
   function animate() {
-    // render
-    controls.update();
-    // render first layer offscreen
-    renderer.render(sceneLayer0, camera, sceneLayer0TextureTarget, true);
-    // render second layer offscreen
-    renderer.render(sceneLayer1, camera, sceneLayer1TextureTarget, true);
-    // mix the layers and render it ON screen!
-    renderer.render(sceneLayerMix, camera);
-    statsyay.update();
+    render();
 
     // request new frame
     requestAnimationFrame(function() {
@@ -472,6 +476,12 @@ window.onload = function() {
   loader.load(files)
   .then(function() {
     handleSeries();
+    // force 1st render
+    render();
+    // notify puppeteer to take screenshot
+    const puppetDiv = document.createElement('div');
+    puppetDiv.setAttribute('id', 'puppeteer');
+    document.body.appendChild(puppetDiv);
   })
   .catch(function(error) {
     window.console.log('oops... something went wrong...');

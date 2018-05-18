@@ -77,6 +77,11 @@ function init() {
 }
 
 window.onload = function() {
+  // notify puppeteer to take screenshot
+  const puppetDiv = document.createElement('div');
+  puppetDiv.setAttribute('id', 'puppeteer');
+  document.body.appendChild(puppetDiv);
+
   // hookup load button
   document.getElementById('buttoninput').onclick = function() {
     document.getElementById('filesinput').click();

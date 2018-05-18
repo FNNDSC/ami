@@ -25,19 +25,23 @@ const widgetsAvailable = [
   'VoxelProbe',
   'Annotation',
   'RoiWidget',
-  'Biruler'
+  'Biruler',
 ];
 const guiObjects = {
   type: 'Handle',
 };
 
-function init() {
-  // this function is executed on each animation frame
-  function animate() {
+function render() {
     // render
     controls.update();
     renderer.render(scene, camera);
     stats.update();
+}
+
+function init() {
+  // this function is executed on each animation frame
+  function animate() {
+    render();
 
     // request new frame
     requestAnimationFrame(function() {
@@ -243,5 +247,12 @@ window.onload = function() {
 
     const customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
+
+    // force first render
+    render();
+    // notify puppeteer to take screenshot
+    const puppetDiv = document.createElement('div');
+    puppetDiv.setAttribute('id', 'puppeteer');
+    document.body.appendChild(puppetDiv);
   });
 };
