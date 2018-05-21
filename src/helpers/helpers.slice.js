@@ -44,6 +44,10 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this._thickness = this._stack.orientationSpacing;
     this._thicknessMethod = 0; // default to MIP (Maximum Intensity Projection); 1 - Mean; 2 - MinIP
 
+    // threshold
+    this._lowerThreshold = null;
+    this._upperThreshold = null;
+
     this._canvasWidth = 0;
     this._canvasHeight = 0;
     this._borderColor = null;
@@ -127,6 +131,24 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this.updateIntensitySettingsUniforms();
   }
 
+  // adding thresholding method
+  get upperThreshold() {
+    return this._upperThreshold;
+  }
+
+  set upperThreshold(upperThreshold) {
+    this._upperThreshold = upperThreshold;
+    this.updateIntensitySettingsUniforms();
+  }
+
+  get lowerThreshold() {
+    return this._lowerThreshold;
+  }
+
+  set lowerThreshold(lowerThreshold) {
+    this._lowerThreshold = lowerThreshold;
+    this.updateIntensitySettingsUniforms();
+  }
   get rescaleSlope() {
     return this._rescaleSlope;
   }
@@ -382,7 +404,7 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
         this._windowCenter = this._stack.windowCenter;
       }
 
-      if (this.__windowWidth === null) {
+      if (this._windowWidth === null) {
         this._windowWidth = this._stack.windowWidth;
       }
 
@@ -393,6 +415,15 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
       if (this._rescaleIntercept === null) {
         this._rescaleIntercept = this._stack.rescaleIntercept;
       }
+    }
+
+    // adding thresholding
+    if (this._upperThreshold === null) {
+      this._upperThreshold = this._stack._minMax[1];
+    }
+
+    if (this._lowerThreshold === null) {
+      this._lowerThreshold = this._stack._minMax[0];
     }
   }
 
@@ -409,6 +440,10 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
       [this._rescaleSlope, this._rescaleIntercept];
     this._uniforms.uWindowCenterWidth.value =
       [offset + this._windowCenter, this._windowWidth];
+
+    // set slice upper/lower threshold
+    this._uniforms.uLowerUpperThreshold.value =
+      [offset + this._lowerThreshold, offset + this._upperThreshold];
 
     // invert
     this._uniforms.uInvert.value = this._invert === true ? 1 : 0;

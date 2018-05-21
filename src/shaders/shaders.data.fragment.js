@@ -108,25 +108,29 @@ void main(void) {
     ${shadersInterpolation(this, 'currentVoxel', 'dataValue', 'gradient')}
   }
 
-  // how do we deal wil more than 1 channel?
   float intensity = dataValue.r;
-  if(uNumberOfChannels == 1){
-    float normalizedIntensity = dataValue.r;
 
-    // rescale/slope
-    normalizedIntensity =
-      normalizedIntensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
+  // rescale/slope
+  intensity =
+    intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
 
-    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
-    normalizedIntensity =
-      ( normalizedIntensity - windowMin ) / uWindowCenterWidth[1];
+  float isInferior = 1. - step(uLowerUpperThreshold[0], intensity);
+  float isSuperior = step(uLowerUpperThreshold[1], intensity);
 
-    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;
-    dataValue.a = 1.0;
+  // > 0. could lead to incorrect thresholding due to floating point precision
+  if (intensity < uLowerUpperThreshold[0] || intensity > uLowerUpperThreshold[1]) {
+    discard;
   }
 
-  // Apply LUT table...
-  //
+  if(uNumberOfChannels == 1){
+    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
+    float normalizedIntensity =
+      ( intensity - windowMin ) / uWindowCenterWidth[1];
+
+    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;
+    dataValue.a = 1.;
+  }
+
   if(uLut == 1){
     // should opacity be grabbed there?
     dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );
@@ -154,9 +158,6 @@ void main(void) {
     uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);
 
     dataValue = texture2D( uTextureLUTSegmentation, uv );
-    // uv.x = (0.5 + float(colIndex)) / textureWidth;
-    // uv.y = 1. - (0.5 + float(rowIndex)) / textureHeight;
-    // dataValue = texture2D( uTextureLUTSegmentation, uv );
   }
 
   if(uInvert == 1){
@@ -166,26 +167,11 @@ void main(void) {
   }
 
   gl_FragColor = dataValue;
-
-  // gl_FragColor = vec4(vNormal, 1.0);
-
-    // if on edge, draw line
-  // float xPos = gl_FragCoord.x/512.;
-  // float yPos = gl_FragCoord.y/512.;
-  // if( xPos < 0.05 || xPos > .95 || yPos < 0.05 || yPos > .95){
-  //   gl_FragColor = vec4(xPos, yPos, 0., 1.);//dataValue;
-  //   //return;
-  // }
-
 }
    `;
   }
 
   compute() {
-    let shaderInterpolation = '';
-    // shaderInterpolation.inline(args) //true/false
-    // shaderInterpolation.functions(args)
-
     return `
 // uniforms
 ${this.uniforms()}

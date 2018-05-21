@@ -5,11 +5,11 @@
 }
 
 #r3d {
-  background: #000;
-  background: -webkit-linear-gradient(#000, #607D8B); /* For Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(#000, #607D8B); /* For Opera 11.1 to 12.0 */
-  background: -moz-linear-gradient(#000, #607D8B); /* For Firefox 3.6 to 15 */
-  background: linear-gradient(#000, #607D8B); /* Standard syntax */
+  background: #9E9E9E;
+  background: -webkit-linear-gradient(#9E9E9E, #607D8B); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(#9E9E9E, #607D8B); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(#9E9E9E, #607D8B); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(#9E9E9E, #607D8B); /* Standard syntax */
   left: 0;
   right: 0;
   top: 0;

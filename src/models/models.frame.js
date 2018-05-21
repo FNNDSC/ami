@@ -19,6 +19,7 @@ export default class ModelsFrame extends ModelsBase {
     this._url = null;
     this._stackID = -1;
     this._invert = false;
+    this._frameTime = null;
     this._rows = 0;
     this._columns = 0;
     this._dimensionIndexValues = [];
@@ -303,6 +304,14 @@ export default class ModelsFrame extends ModelsBase {
     }
 
     return false;
+  }
+
+  get frameTime() {
+    return this._frameTime;
+  }
+
+  set frameTime(frameTime) {
+    this._frameTime = frameTime;
   }
 
   get rows() {

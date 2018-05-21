@@ -39,7 +39,7 @@ let textures2;
 let ijkBBox = [99999999, 0, 9999999, 0, 999999999, 0];
 let layerMix = {
     opacity1: 1.0,
-    lut: null
+    lut: null,
 };
 let canvas;
 let canvasDiv;
@@ -53,15 +53,16 @@ let cursor = {
     value: 0,
     size: 15,
     shape: 'round',
-    segment: 'erase'
+    segment: 'erase',
 };
 let segmentsList = [];
 let segmentsDict = {};
 let editorStats = {
     '0': 0,
     '1': 0,
-    '2': 0
+    '2': 0,
 };
+let firstRender = false;
 
 // FUNCTIONS
 /**
@@ -307,6 +308,17 @@ function setupEditor() {
     initEditorStats();
 }
 
+function render() {
+    // render
+    controls.update();
+    // render first layer offscreen
+    renderer.render(sceneLayer0, camera, sceneLayer0TextureTarget, true);
+    // render second layer offscreen
+    renderer.render(sceneLayer1, camera, sceneLayer1TextureTarget, true);
+    // mix the layers and render it ON screen!
+    renderer.render(sceneLayerMix, camera);
+}
+
 /**
  *
  */
@@ -315,14 +327,7 @@ function init() {
    *
    */
     function animate() {
-        // render
-        controls.update();
-        // render first layer offscreen
-        renderer.render(sceneLayer0, camera, sceneLayer0TextureTarget, true);
-        // render second layer offscreen
-        renderer.render(sceneLayer1, camera, sceneLayer1TextureTarget, true);
-        // mix the layers and render it ON screen!
-        renderer.render(sceneLayerMix, camera);
+        render();
 
         // request new frame
         requestAnimationFrame(function() {
@@ -334,7 +339,7 @@ function init() {
     threeD = document.getElementById('r3d');
     renderer = new THREE.WebGLRenderer({
         antialias: true,
-        alpha: true
+        alpha: true,
     });
     renderer.setSize(threeD.clientWidth, threeD.clientHeight);
     renderer.setClearColor(0x607d8b, 1);
@@ -359,13 +364,13 @@ function init() {
     sceneLayer0TextureTarget = new THREE.WebGLRenderTarget(threeD.clientWidth, threeD.clientHeight, {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.NearestFilter,
-        format: THREE.RGBAFormat
+        format: THREE.RGBAFormat,
     });
 
     sceneLayer1TextureTarget = new THREE.WebGLRenderTarget(threeD.clientWidth, threeD.clientHeight, {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.NearestFilter,
-        format: THREE.RGBAFormat
+        format: THREE.RGBAFormat,
     });
 
     // camera
@@ -566,7 +571,7 @@ window.onload = function() {
             let threeD = document.getElementById('r3d');
             camera.canvas = {
                 width: threeD.clientWidth,
-                height: threeD.clientHeight
+                height: threeD.clientHeight,
             };
             camera.fitBox(2);
 
@@ -643,7 +648,7 @@ window.onload = function() {
           ${Math.round(stack2._segmentationLUT[number][2] * 255)},
           ${Math.round(stack2._segmentationLUT[number][3] * 255)},
           1)`,
-                value: number
+                value: number,
             };
         }
 
@@ -674,10 +679,12 @@ window.onload = function() {
         uniformsLayer1.uNumberOfChannels.value = stack2.numberOfChannels;
         uniformsLayer1.uPixelType.value = stack2.pixelType;
         uniformsLayer1.uBitsAllocated.value = stack2.bitsAllocated;
+        uniformsLayer1.uPackedPerPixel.value = stack2.packedPerPixel;
         uniformsLayer1.uWindowCenterWidth.value = [stack2.windowCenter, stack2.windowWidth];
         uniformsLayer1.uRescaleSlopeIntercept.value = [stack2.rescaleSlope, stack2.rescaleIntercept];
         uniformsLayer1.uDataDimensions.value = [stack2.dimensionsIJK.x, stack2.dimensionsIJK.y, stack2.dimensionsIJK.z];
         uniformsLayer1.uInterpolation.value = 0;
+        uniformsLayer1.uLowerUpperThreshold.value = [...stack2.minMax];
 
         // generate shaders on-demand!
         let fs = new ShadersDataFragment(uniformsLayer1);
@@ -707,7 +714,7 @@ window.onload = function() {
             uniforms: uniformsLayerMix,
             vertexShader: vls.compute(),
             fragmentShader: fls.compute(),
-            transparent: true
+            transparent: true,
         });
 
         // add mesh in this scene with right shaders...
@@ -730,7 +737,7 @@ window.onload = function() {
         // init and zoom
         let canvas = {
             width: threeD.clientWidth,
-            height: threeD.clientHeight
+            height: threeD.clientHeight,
         };
         camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
         camera.box = box;
@@ -1062,7 +1069,7 @@ window.onload = function() {
         '000295.dcm',
         '000296.dcm',
         '000297.dcm',
-        '000298.dcm'
+        '000298.dcm',
     ];
 
     let files = filenames.map(function(v) {
@@ -1082,6 +1089,12 @@ window.onload = function() {
             addListeners();
             setupGUI();
             setupEditor();
+            // force 1st render
+            render();
+            // notify puppeteer to take screenshot
+            const puppetDiv = document.createElement('div');
+            puppetDiv.setAttribute('id', 'puppeteer');
+            document.body.appendChild(puppetDiv);
         })
         .catch(function(error) {
             window.console.log('oops... something went wrong...');

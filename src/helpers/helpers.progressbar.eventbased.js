@@ -43,7 +43,7 @@ export default class HelpersProgressBarEventBased {
     const self = this;
 
     this._emitter.on('load-start', function(event) {
-      const totalFiles = event.totalFiles;
+      const totalFiles = event.files.length;
       self.totalFile = totalFiles;
       self._domTotalFile.innerHTML = totalFiles;
     });
