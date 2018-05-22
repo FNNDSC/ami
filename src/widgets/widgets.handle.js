@@ -134,10 +134,8 @@ export default class WidgetsHandle extends WidgetsBase {
       return;
     }
 
-    // unselect if go up without moving
     if (!this._dragged && this._active) {
-      // change state if was not dragging
-      this._selected = !this._selected;
+      this._selected = !this._selected; // change state if there was no dragging
     }
 
     this._active = false;

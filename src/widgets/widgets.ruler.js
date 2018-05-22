@@ -20,6 +20,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._lastEvent = null;
     this._moving = false;
     this._domHovered = false;
+    this._hovered = false;
     this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
 
     // mesh stuff
@@ -189,6 +190,11 @@ export default class WidgetsRuler extends WidgetsBase {
     }
 
     // State of ruler widget
+    if (!this._dragged && this._active) {
+      this._selected = !this._selected; // change state if there was no dragging
+      this._handles[0].selected = this._selected;
+      this._handles[1].selected = this._selected;
+    }
     this._active = this._handles[0].active || this._handles[1].active;
     this.update();
   }

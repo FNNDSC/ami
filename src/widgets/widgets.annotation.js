@@ -42,7 +42,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._labelmoved = false; // bool that turns true once the label is moved by the user (at least once)
 
     this._labelhovered = false;
-    this._domHovered = false;
     this._hovered = true;
     this._manuallabeldisplay = false; // Make true to force the label to be displayed
 
@@ -162,7 +161,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._handles[0].onStart(evt);
     this._handles[1].onStart(evt);
 
-    this._active = this._handles[0].active || this._handles[1].active;
+    this._active = this._handles[0].active || this._handles[1].active || this._labelhovered;
 
     this.update();
   }
@@ -179,15 +178,13 @@ export default class WidgetsAnnotation extends WidgetsBase {
   }
 
   displaylabel() {
-    if (typeof this._labeltext === 'string' && this._labeltext.length > 0) { // avoid error
-      this._label.innerHTML = this._labeltext;
-      // show the label (in css an empty string is used to revert display=none)
-      this._label.style.display = '';
-      this._dashline.style.display = '';
-      this._label.style.transform = `translate3D(${this._labelpositionx}px,${this._labelpositiony}px, 0)`;
-    } else { // empty string is passed or Cancel is pressed
-      this.free();
-    }
+    this._label.innerHTML = typeof this._labeltext === 'string' && this._labeltext.length > 0 // avoid error
+      ? this._labeltext
+      : ''; // empty string is passed or Cancel is pressed
+    // show the label (in css an empty string is used to revert display=none)
+    this._label.style.display = '';
+    this._dashline.style.display = '';
+    this._label.style.transform = `translate3D(${this._labelpositionx}px,${this._labelpositiony}px, 0)`;
   }
 
 
@@ -209,6 +206,11 @@ export default class WidgetsAnnotation extends WidgetsBase {
     }
 
     // State of annotation widget
+    if (!this._dragged && this._active) {
+        this._selected = !this._selected; // change state if there was no dragging
+        this._handles[0].selected = this._selected;
+        this._handles[1].selected = this._selected;
+    }
     this._active = this._handles[0].active || this._handles[1].active;
     this.update();
   }
@@ -227,8 +229,8 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this.updateMeshPosition();
 
     // DOM stuff
-    this.updateDOMPosition();
     this.updateDOMColor();
+    this.updateDOMPosition();
   }
 
   createMesh() {
@@ -346,8 +348,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     let y;
 
     if (!this._labelmoved) { // if the user hasnt moved the label, the position is defined by the position of the arrow
-        let transform2 = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
-        this._label.style.transform = transform2;
+        this._label.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
         this._labelpositionx = Math.round(x0);
         this._labelpositiony = Math.round(posY0);
     }
