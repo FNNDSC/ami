@@ -1,9 +1,9 @@
 
 import WidgetsBase from './widgets.base';
 import GeometriesVoxel from '../geometries/geometries.voxel';
-import ModelsStack from '../models/models.stack';
 import ModelsVoxel from '../models/models.voxel';
 import CoreIntersections from '../core/core.intersections';
+import CoreUtils from '../core/core.utils';
 
 import {Vector2, Vector3} from 'three';
 
@@ -77,8 +77,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._dom.addEventListener('mouseenter', this.onHover);
     this._dom.addEventListener('mouseleave', this.onHover);
 
-    this._container.addEventListener('mousewheel', this.onMove);
-    this._container.addEventListener('DOMMouseScroll', this.onMove);
+    this._container.addEventListener('wheel', this.onMove);
 
     this._controls.addEventListener('end', this.onEndControl);
   }
@@ -87,8 +86,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._dom.removeEventListener('mouseenter', this.onHover);
     this._dom.removeEventListener('mouseleave', this.onHover);
 
-    this._container.removeEventListener('mousewheel', this.onMove);
-    this._container.removeEventListener('DOMMouseScroll', this.onMove);
+    this._container.removeEventListener('wheel', this.onMove);
 
     this._controls.removeEventListener('end', this.onEndControl);
   }
@@ -352,16 +350,16 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._voxel.worldCoordinates = worldCoordinates;
 
     // update data coordinates
-    this._voxel.dataCoordinates = ModelsStack.worldToData(
+    this._voxel.dataCoordinates = CoreUtils.worldToData(
                   this._stack,
                   this._voxel.worldCoordinates);
 
     // update value
-    let value = ModelsStack.value(
+    let value = CoreUtils.value(
       this._stack,
       this._voxel.dataCoordinates);
 
-    this._voxel.value = ModelsStack.valueRescaleSlopeIntercept(
+    this._voxel.value = CoreUtils.rescaleSlopeIntercept(
       value,
       this._stack.rescaleSlope,
       this._stack.rescaleIntercept);
@@ -386,9 +384,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       removeEventListener('mousemove', this.onMouseMoveHandler, false);
 
     this._container.
-      removeEventListener('mousewheel', this.onMouseMoveHandler, false);
-    this._container.
-      removeEventListener('DOMMouseScroll', this.onMouseMoveHandler, false);
+      removeEventListener('wheel', this.onMouseMoveHandler, false);
 
     this._voxel.removeTest();
     this.remove(this._voxel);

@@ -94,8 +94,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._label.addEventListener('mousedown', this.movelabel);
     this._container.addEventListener('mouseup', this.notmovelabel);
 
-    this._container.addEventListener('mousewheel', this.onMove);
-    this._container.addEventListener('DOMMouseScroll', this.onMove);
+    this._container.addEventListener('wheel', this.onMove);
   }
 
   movelabel() { // function called when mousedown

@@ -20,10 +20,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._lastEvent = null;
     this._moving = false;
     this._domHovered = false;
-    this._worldPosition = new Vector3();
-    if (this._targetMesh !== null) {
-      this._worldPosition = this._targetMesh.position;
-    }
+    this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
 
     // mesh stuff
     this._material = null;
@@ -64,6 +61,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this.imoveHandle.hovered = true;
     this.add(this.imoveHandle);
     this._handles.push(this.imoveHandle);
+    this.imoveHandle.hide();
 
     this.fmoveHandle =
        new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
@@ -71,6 +69,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this.fmoveHandle.hovered = true;
     this.add(this.fmoveHandle);
     this._handles.push(this.fmoveHandle);
+    this.fmoveHandle.hide();
 
     // Create ruler
     this.create();
@@ -83,8 +82,7 @@ export default class WidgetsRuler extends WidgetsBase {
   }
 
   addEventListeners() {
-    this._container.addEventListener('mousewheel', this.onMove);
-    this._container.addEventListener('DOMMouseScroll', this.onMove);
+    this._container.addEventListener('wheel', this.onMove);
 
     this._controls.addEventListener('end', this.onEndControl);
 
@@ -95,8 +93,7 @@ export default class WidgetsRuler extends WidgetsBase {
   }
 
   removeEventListeners() {
-    this._container.removeEventListener('mousewheel', this.onMove);
-    this._container.removeEventListener('DOMMouseScroll', this.onMove);
+    this._container.removeEventListener('wheel', this.onMove);
 
     this._controls.removeEventListener('end', this.onEndControl);
 
@@ -132,23 +129,20 @@ export default class WidgetsRuler extends WidgetsBase {
     this._dragged = true;
 
     if (this._active) {
-      this.fmoveHandle.active = true;
-      this.fmoveHandle.onMove(evt);
-      this.fmoveHandle.active = false;
-      this.fmoveHandle.hide();
+      this.fmoveHandle.onMove(evt, true);
 
       if (this._moving) {
-        for (let index in this._handles.slice(0, -2)) {
-          this._handles[index].worldPosition.x = this._handles[index].worldPosition.x + (this.fmoveHandle.worldPosition.x - this.imoveHandle.worldPosition.x);
-          this._handles[index].worldPosition.y = this._handles[index].worldPosition.y + (this.fmoveHandle.worldPosition.y - this.imoveHandle.worldPosition.y);
-          this._handles[index].worldPosition.z = this._handles[index].worldPosition.z + (this.fmoveHandle.worldPosition.z - this.imoveHandle.worldPosition.z);
-        }
+        this._handles.slice(0, -2).forEach(function (elem, ind) {
+          this._handles[ind].worldPosition.x = elem.worldPosition.x
+            + (this.fmoveHandle.worldPosition.x - this.imoveHandle.worldPosition.x);
+          this._handles[ind].worldPosition.y = elem.worldPosition.y
+            + (this.fmoveHandle.worldPosition.y - this.imoveHandle.worldPosition.y);
+          this._handles[ind].worldPosition.z = elem.worldPosition.z
+            + (this.fmoveHandle.worldPosition.z - this.imoveHandle.worldPosition.z);
+        }, this);
       }
 
-      this.imoveHandle.active = true;
-      this.imoveHandle.onMove(evt);
-      this.imoveHandle.active = false;
-      this.imoveHandle.hide();
+      this.imoveHandle.onMove(evt, true);
     }
 
     this._handles[0].onMove(evt);
@@ -163,10 +157,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._lastEvent = evt;
     this._dragged = false;
 
-    this.imoveHandle.active = true;
-    this.imoveHandle.onMove(evt);
-    this.imoveHandle.active = false;
-    this.imoveHandle.hide();
+    this.imoveHandle.onMove(evt, true);
 
     this._handles[0].onStart(evt);
     this._handles[1].onStart(evt);
@@ -175,6 +166,7 @@ export default class WidgetsRuler extends WidgetsBase {
 
     if (this._domHovered) {
       this._moving = true;
+      this._controls.enabled = false;
     }
 
     this.update();
@@ -186,7 +178,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._handles[0].onEnd(evt);
 
     this._moving = false;
-    // window.console.log(this);
+    this._controls.enabled = true;
 
     // Second Handle
     if (this._dragged || !this._handles[1].tracking) {
@@ -378,8 +370,7 @@ export default class WidgetsRuler extends WidgetsBase {
   }
 
   free() {
-    this._container.removeEventListener('mousewheel', this.onMove);
-    this._container.removeEventListener('DOMMouseScroll', this.onMove);
+    this._container.removeEventListener('wheel', this.onMove);
 
     this._handles.forEach((h) => {
       h.free();

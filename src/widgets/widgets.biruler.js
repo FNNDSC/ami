@@ -82,8 +82,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     addEventListeners() {
-        this._container.addEventListener('mousewheel', this.onMove);
-        this._container.addEventListener('DOMMouseScroll', this.onMove);
+        this._container.addEventListener('wheel', this.onMove);
     }
 
     onMove(evt) {

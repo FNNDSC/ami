@@ -71,8 +71,7 @@ export default class WidgetsHandle extends WidgetsBase {
     this._dom.addEventListener('mouseenter', this.onHover);
     this._dom.addEventListener('mouseleave', this.onHover);
 
-    this._container.addEventListener('mousewheel', this.onMove);
-    this._container.addEventListener('DOMMouseScroll', this.onMove);
+    this._container.addEventListener('wheel', this.onMove);
 
     this._controls.addEventListener('end', this.onEndControl);
   }
@@ -81,8 +80,7 @@ export default class WidgetsHandle extends WidgetsBase {
     this._dom.removeEventListener('mouseenter', this.onHover);
     this._dom.removeEventListener('mouseleave', this.onHover);
 
-    this._container.removeEventListener('mousewheel', this.onMove);
-    this._container.removeEventListener('DOMMouseScroll', this.onMove);
+    this._container.removeEventListener('wheel', this.onMove);
 
     this._controls.removeEventListener('end', this.onEndControl);
   }
@@ -163,7 +161,7 @@ export default class WidgetsHandle extends WidgetsBase {
    *
    *
    */
-  onMove(evt) {
+  onMove(evt, forced) {
     this._lastEvent = evt;
     evt.preventDefault();
 
@@ -175,7 +173,7 @@ export default class WidgetsHandle extends WidgetsBase {
     this._raycaster.setFromCamera(this._mouse, this._camera);
     this._raycaster.ray.position = this._raycaster.ray.origin;
 
-    if (this._active) {
+    if (this._active || forced) {
       this._dragged = true;
 
       if (this._targetMesh !== null) {
