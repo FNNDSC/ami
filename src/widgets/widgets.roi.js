@@ -93,10 +93,10 @@ export default class WidgetsRoi extends WidgetsBase {
 
         let hovered = false;
 
-        for (let index in this._handles) {
-            this._handles[index].onMove(evt);
-            hovered = hovered || this._handles[index].hovered;
-        }
+        this._handles.forEach(function(elem) {
+            elem.onMove(evt);
+            hovered = hovered || elem.hovered;
+        });
 
         this._hovered = hovered;
 
@@ -112,10 +112,10 @@ export default class WidgetsRoi extends WidgetsBase {
 
         let active = false;
 
-        for (let index in this._handles) {
-            this._handles[index].onStart(evt);
-            active = active || this._handles[index].active;
-        }
+        this._handles.forEach(function(elem) {
+            elem.onStart(evt);
+            active = active || elem.active;
+        });
 
         this._active = active;
         this.update();
@@ -124,10 +124,10 @@ export default class WidgetsRoi extends WidgetsBase {
     onEnd(evt) {
         // First Handle
         let active = false;
-        for (let index in this._handles.slice(0, this._handles.length-2)) {
-            this._handles[index].onEnd(evt);
-            active = active || this._handles[index].active;
-        }
+        this._handles.slice(0, this._handles.length-2).forEach(function(elem) {
+            elem.onEnd(evt);
+            active = active || elem.active;
+        });
 
         // Second Handle
         if (this._dragged || !this._handles[this._handles.length-1].tracking) {
@@ -165,23 +165,23 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     hideDOM() {
-        for (let index in this._handles) {
-            this._handles[index].hideDOM();
-        }
+        this._handles.forEach(function(elem) {
+            elem.hideDOM();
+        });
 
-        for (let index in this._lines) {
-            this._lines[index].style.display = 'none';
-        }
+        this._lines.forEach(function(elem) {
+            elem.style.display = 'none';
+        });
     }
 
     showDOM() {
-        for (let index in this._handles) {
-            this._handles[index].showDOM();
-        }
+        this._handles.forEach(function(elem) {
+            elem.showDOM();
+        });
 
-        for (let index in this._lines) {
-            this._lines[index].style.display = '';
-        }
+        this._lines.forEach(function(elem) {
+            elem.style.display = '';
+        });
     }
 
     hideMesh() {
@@ -205,9 +205,9 @@ export default class WidgetsRoi extends WidgetsBase {
     update() {
         this.updateColor();
 
-        for (let index in this._handles) {
-            this._handles[index].update();
-        }
+        this._handles.forEach(function(elem) {
+            elem.update();
+        });
 
         // mesh stuff
         this.updateMeshColor();
@@ -222,9 +222,9 @@ export default class WidgetsRoi extends WidgetsBase {
         // geometry
 
         var points = [];
-        for (let index in this._handles) {
-            points.push(this._handles[index].worldPosition);
-        }
+        this._handles.forEach(function(elem) {
+            points.push(elem.worldPosition);
+        });
 
         var center = AMI.SliceGeometry.centerOfMass(points);
         var side1 = new THREE.Vector3(0, 0, 0);
@@ -376,17 +376,17 @@ export default class WidgetsRoi extends WidgetsBase {
 
     updateDOMPosition() {
         if (this._handles.length >= 2) {
-            for (let index in this._lines) {
-                this.updateLineDOM(index, index, parseInt(index) + 1 == this._handles.length ? 0 : parseInt(index) + 1);
-            }
+            this._lines.forEach(function(elem, ind) {
+                this.updateLineDOM(ind, ind, ind + 1 === this._handles.length ? 0 : ind + 1);
+            }, this);
         }
     }
 
     updateDOMColor() {
         if (this._handles.length >= 2) {
-            for (let index in this._lines) {
-                this._lines[index].style.backgroundColor = `${this._color}`;
-            }
+            this._lines.forEach(function(elem) {
+                elem.style.backgroundColor = `${this._color}`;
+            }, this);
         }
     }
 
@@ -404,9 +404,9 @@ export default class WidgetsRoi extends WidgetsBase {
     set worldPosition(worldPosition) {
         this._worldPosition = worldPosition;
 
-        for (let index in this._handles) {
-            this._handles[index]._worldPosition = this._worldPosition;
-        }
+        this._handles.forEach(function(elem) {
+            elem._worldPosition = this._worldPosition;
+        }, this);
 
         this.update();
     }

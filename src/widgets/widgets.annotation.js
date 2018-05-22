@@ -470,18 +470,18 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._line.style.display = 'none';
     this._dashline.style.display = 'none';
     this._label.style.display = 'none';
-    for (let index in this._handles) {
-      this._handles[index].hideDOM();
-    }
+    this._handles.forEach(function(elem) {
+      elem.hideDOM();
+    });
   }
 
   showDOM() {
     this._line.style.display = '';
     this._dashline.style.display = '';
     this._label.style.display = '';
-    for (let index in this._handles) {
-      this._handles[index].showDOM();
-    }
+    this._handles.forEach(function(elem) {
+      elem.showDOM();
+    });
   }
 
   hideMesh() {

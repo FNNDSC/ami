@@ -134,7 +134,7 @@ export default class WidgetsAngle extends WidgetsBase {
             this.fmoveHandle.onMove(evt, true);
 
             if (this._moving) {
-                this._handles.slice(0, -2).forEach(function (elem, ind) {
+                this._handles.slice(0, -2).forEach(function(elem, ind) {
                     this._handles[ind].worldPosition.x = elem.worldPosition.x
                         + (this.fmoveHandle.worldPosition.x - this.imoveHandle.worldPosition.x);
                     this._handles[ind].worldPosition.y = elem.worldPosition.y
@@ -206,9 +206,9 @@ export default class WidgetsAngle extends WidgetsBase {
         this._distance.style.display = 'none';
         this._line2.style.display = 'none';
 
-        for (let index in this._handles) {
-          this._handles[index].hideDOM();
-        }
+        this._handles.forEach(function(elem) {
+          elem.hideDOM();
+        });
 
         this._dashline.style.display = 'none';
     }
@@ -218,9 +218,9 @@ export default class WidgetsAngle extends WidgetsBase {
         this._distance.style.display = '';
         this._line2.style.display = '';
 
-        for (let index in this._handles) {
-          this._handles[index].showDOM();
-        }
+        this._handles.forEach(function(elem) {
+            elem.showDOM();
+        });
 
         this._dashline.style.display = '';
     }

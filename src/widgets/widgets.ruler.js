@@ -132,7 +132,7 @@ export default class WidgetsRuler extends WidgetsBase {
       this.fmoveHandle.onMove(evt, true);
 
       if (this._moving) {
-        this._handles.slice(0, -2).forEach(function (elem, ind) {
+        this._handles.slice(0, -2).forEach(function(elem, ind) {
           this._handles[ind].worldPosition.x = elem.worldPosition.x
             + (this.fmoveHandle.worldPosition.x - this.imoveHandle.worldPosition.x);
           this._handles[ind].worldPosition.y = elem.worldPosition.y
@@ -211,17 +211,17 @@ export default class WidgetsRuler extends WidgetsBase {
   hideDOM() {
     this._line.style.display = 'none';
     this._distance.style.display = 'none';
-    for (let index in this._handles) {
-      this._handles[index].hideDOM();
-    }
+    this._handles.forEach(function(elem) {
+      elem.hideDOM();
+    });
   }
 
   showDOM() {
     this._line.style.display = '';
     this._distance.style.display = '';
-    for (let index in this._handles) {
-      this._handles[index].showDOM();
-    }
+    this._handles.forEach(function(elem) {
+      elem.showDOM();
+    });
   }
 
   hideMesh() {

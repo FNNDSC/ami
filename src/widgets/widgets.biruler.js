@@ -142,9 +142,9 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._line2.style.display = 'none';
         this._distance2.style.display = 'none';
 
-        for (let index in this._handles) {
-          this._handles[index].hideDOM();
-        }
+        this._handles.forEach(function(elem) {
+            elem.hideDOM();
+        });
 
         this._dashline.style.display = 'none';
     }
@@ -155,9 +155,9 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._line2.style.display = '';
         this._distance2.style.display = '';
 
-        for (let index in this._handles) {
-          this._handles[index].showDOM();
-        }
+        this._handles.forEach(function(elem) {
+            elem.showDOM();
+        });
 
         this._dashline.style.display = '';
     }
