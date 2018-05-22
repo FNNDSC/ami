@@ -370,7 +370,7 @@ export default class WidgetsRuler extends WidgetsBase {
   }
 
   free() {
-    this._container.removeEventListener('wheel', this.onMove);
+    this.removeEventListeners();
 
     this._handles.forEach((h) => {
       h.free();

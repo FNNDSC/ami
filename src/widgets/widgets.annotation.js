@@ -27,12 +27,13 @@ export default class WidgetsAnnotation extends WidgetsBase {
     // mesh stuff
     this._material = null;
     this._geometry = null;
-    this._mesh = null;
+    this._meshline = null;
+    this._cone = null;
 
     // dom stuff
     this._line = null;
+    this._dashline = null;
     this._label = null;
-    this._cone = null;
     this._labeltext = null;
 
     // booleans
@@ -73,7 +74,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._handles.push(secondHandle);
 
     // Create annotation
-
     this.create();
 
     this.onEnd = this.onEnd.bind(this);
@@ -92,9 +92,21 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._label.addEventListener('mouseleave', this.notonHoverlabel);
     this._label.addEventListener('dblclick', this.changelabeltext);
     this._label.addEventListener('mousedown', this.movelabel);
+
     this._container.addEventListener('mouseup', this.notmovelabel);
 
     this._container.addEventListener('wheel', this.onMove);
+  }
+
+  removeEventListeners() {
+    this._label.removeEventListener('mouseenter', this.onHoverlabel);
+    this._label.removeEventListener('mouseleave', this.notonHoverlabel);
+    this._label.removeEventListener('dblclick', this.changelabeltext);
+    this._label.removeEventListener('mousedown', this.movelabel);
+
+    this._container.removeEventListener('mouseup', this.notmovelabel);
+
+    this._container.removeEventListener('wheel', this.onMove);
   }
 
   movelabel() { // function called when mousedown
@@ -156,42 +168,25 @@ export default class WidgetsAnnotation extends WidgetsBase {
   }
 
 
-  setlabeltext() {
-    this._labeltext = prompt('Please enter the name of the label', ''); // this function is called when the user creates a new arrow
-    if (typeof this._labeltext == 'string') { // avoid error
-      if (this._labeltext.length > 0) {
-        this._label.innerHTML = this._labeltext;
-        this._label.style.display = ''; // in css an empty string is used to revert display=none. Show the label once we know the content
-        this._dashline.style.display = ''; // in css an empty string is used to revert display=none. Show the label once we know the content
-      } else {
-        this._label.innerHTML = this._labeltext;
-        this._label.style.display = 'none'; // hide the label
-        this._dashline.style.display = 'none'; // hide the label
-      }
-    }
+  setlabeltext() { // this function is called when the user creates a new arrow
+    this._labeltext = prompt('Please enter the name of the label', '');
+    this.displaylabel();
   }
 
   changelabeltext() { // this function is called when the user does double click in the label
     this._labeltext = prompt('Please enter new name of the label', this._label.innerHTML);
-    if (typeof this._labeltext == 'string') { // avoid error
-      if (this._labeltext.length > 0) {
-        this._label.innerHTML = this._labeltext;
-        this._label.style.display = ''; // in css an empty string is used to revert display=none. Show the label
-        this._dashline.style.display = ''; // in css an empty string is used to revert display=none. Show the label
-      } else { // if the length is 0 the user pressed Cancel
-        this._label.innerHTML = this._labeltext;
-        this._label.style.display = 'none'; // hide the label
-        this._dashline.style.display = 'none'; // hide the label
-      }
-    }
+    this.displaylabel();
   }
 
   displaylabel() {
-    if (typeof this._labeltext == 'string') { // avoid error
+    if (typeof this._labeltext === 'string' && this._labeltext.length > 0) { // avoid error
       this._label.innerHTML = this._labeltext;
-      this._label.style.display = ''; // in css an empty string is used to revert display=none. Show the label
-      this._dashline.style.display = ''; // in css an empty string is used to revert display=none. Show the label
+      // show the label (in css an empty string is used to revert display=none)
+      this._label.style.display = '';
+      this._dashline.style.display = '';
       this._label.style.transform = `translate3D(${this._labelpositionx}px,${this._labelpositiony}px, 0)`;
+    } else { // empty string is passed or Cancel is pressed
+      this.free();
     }
   }
 
@@ -314,7 +309,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
 
     this.updateDOMColor();
   }
-
 
   updateDOMPosition() {
     // update annotation lines and text!
@@ -452,6 +446,25 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._line.style.backgroundColor = `${this._color}`;
     this._dashline.style.borderTop = '2.5px dashed ' + `${this._color}`;
     this._label.style.borderColor = `${this._color}`;
+  }
+
+  free() {
+    this.removeEventListeners();
+
+    this._handles.forEach((h) => {
+      h.free();
+    });
+
+    this._handles = [];
+
+    this._container.removeChild(this._line);
+    this._container.removeChild(this._dashline);
+    this._container.removeChild(this._label);
+
+    this.remove(this._meshline);
+    this.remove(this._cone);
+
+    super.free();
   }
 
   get worldPosition() {

@@ -248,8 +248,8 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   createMesh() {
-    const dataCoordinates = ModelsStack.worldToData(
-      this._stack,
+    const dataCoordinates = CoreUtils.worldToData(
+      this._stack.lps2IJK,
       this._worldPosition);
 
     this._geometry = new GeometriesVoxel(dataCoordinates);
@@ -351,18 +351,20 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
     // update data coordinates
     this._voxel.dataCoordinates = CoreUtils.worldToData(
-                  this._stack,
-                  this._voxel.worldCoordinates);
+      this._stack.lps2IJK,
+      this._voxel.worldCoordinates);
 
     // update value
-    let value = CoreUtils.value(
+    let value = CoreUtils.getPixelData(
       this._stack,
       this._voxel.dataCoordinates);
 
-    this._voxel.value = CoreUtils.rescaleSlopeIntercept(
-      value,
-      this._stack.rescaleSlope,
-      this._stack.rescaleIntercept);
+    this._voxel.value = value
+      ? CoreUtils.rescaleSlopeIntercept(
+        value,
+        this._stack.rescaleSlope,
+        this._stack.rescaleIntercept)
+      : 'Undefined';
   }
 
   updateDOMPosition() {
@@ -386,7 +388,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._container.
       removeEventListener('wheel', this.onMouseMoveHandler, false);
 
-    this._voxel.removeTest();
     this.remove(this._voxel);
     this._voxel = null;
 
