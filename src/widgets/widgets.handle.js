@@ -330,10 +330,24 @@ export default class WidgetsHandle extends WidgetsBase {
   }
 
   free() {
+    // events
+    this.removeEventListeners();
     // dom
     this._container.removeChild(this._dom);
-    // event
-    this.removeEventListeners();
+    // mesh, geometry, material
+    this.remove(this._mesh);
+    this._mesh.geometry.dispose();
+    this._mesh.geometry = null;
+    this._mesh.material.dispose();
+    this._mesh.material = null;
+    this._mesh = null;
+    this._geometry.dispose();
+    this._geometry = null;
+    this._material.vertexShader = null;
+    this._material.fragmentShader = null;
+    this._material.uniforms = null;
+    this._material.dispose();
+    this._material = null;
 
     super.free();
   }

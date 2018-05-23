@@ -27,12 +27,18 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         // mesh stuff
         this._material = null;
+        this._material2 = null;
         this._geometry = null;
+        this._geometry2 = null;
         this._mesh = null;
+        this._mesh2 = null;
 
         // dom stuff
         this._line = null;
         this._distance = null;
+        this._line2 = null;
+        this._distance2 = null;
+        this._dashline = null;
 
         // add handles
         this._handles = [];
@@ -85,6 +91,10 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._container.addEventListener('wheel', this.onMove);
     }
 
+    removeEventListeners() {
+        this._container.removeEventListener('wheel', this.onMove);
+    }
+
     onMove(evt) {
         this._dragged = true;
 
@@ -111,12 +121,9 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     onEnd(evt) {
-        // First Handle
         this._handles[0].onEnd(evt);
         this._handles[2].onEnd(evt);
         this._handles[3].onEnd(evt);
-
-        window.console.log(this);
 
         // Second Handle
         if (this._dragged || !this._handles[1].tracking) {
@@ -126,7 +133,13 @@ export default class WidgetsBiRuler extends WidgetsBase {
             this._handles[1].tracking = false;
         }
 
-        // State of ruler widget
+        // State of widget
+        if (!this._dragged && this._active) {
+            this._selected = !this._selected; // change state if there was no dragging
+            this._handles.forEach(function(elem) {
+                elem.selected = this._selected;
+            });
+        }
         this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active;
         this.update();
     }
@@ -198,8 +211,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this.updateMeshPosition();
 
         // DOM stuff
-        this.updateDOMPosition();
         this.updateDOMColor();
+        this.updateDOMPosition();
     }
 
     createMesh() {
@@ -347,8 +360,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight/2;
         x0 -= this._distance.offsetWidth/2;
 
-        let transform2 = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
-        this._distance.style.transform = transform2;
+        this._distance.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
 
         // update rulers lines 2 and text!
         let x3 = this._handles[2].screenPosition.x;
@@ -388,11 +400,9 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let posY02 = y02 - this._container.offsetHeight - this._distance2.offsetHeight/2;
         x02 -= this._distance2.offsetWidth/2;
 
-        transform2 = `translate3D(${Math.round(x02)}px,${Math.round(posY02)}px, 0)`;
-        this._distance2.style.transform = transform2;
+        this._distance2.style.transform = `translate3D(${Math.round(x02)}px,${Math.round(posY02)}px, 0)`;
 
         // update dash line
-
         let l1center = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.5);
         let l2center = this.getPointInBetweenByPerc(this._handles[2].worldPosition, this._handles[3].worldPosition, 0.5);
 
@@ -423,6 +433,51 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         this._line2.style.backgroundColor = `${this._color}`;
         this._distance2.style.borderColor = `${this._color}`;
+    }
+
+    free() {
+        this.removeEventListeners();
+
+        this._handles.forEach((h) => {
+            h.free();
+        });
+        this._handles = [];
+
+        this._container.removeChild(this._line);
+        this._container.removeChild(this._distance);
+        this._container.removeChild(this._line2);
+        this._container.removeChild(this._distance2);
+        this._container.removeChild(this._dashline);
+
+        // mesh, geometry, material
+        this.remove(this._mesh);
+        this._mesh.geometry.dispose();
+        this._mesh.geometry = null;
+        this._mesh.material.dispose();
+        this._mesh.material = null;
+        this._mesh = null;
+        this._geometry.dispose();
+        this._geometry = null;
+        this._material.vertexShader = null;
+        this._material.fragmentShader = null;
+        this._material.uniforms = null;
+        this._material.dispose();
+        this._material = null;
+        this.remove(this._mesh2);
+        this._mesh2.geometry.dispose();
+        this._mesh2.geometry = null;
+        this._mesh2.material.dispose();
+        this._mesh2.material = null;
+        this._mesh2 = null;
+        this._geometry2.dispose();
+        this._geometry2 = null;
+        this._material2.vertexShader = null;
+        this._material2.fragmentShader = null;
+        this._material2.uniforms = null;
+        this._material2.dispose();
+        this._material2 = null;
+
+        super.free();
     }
 
     getPointInBetweenByPerc(pointA, pointB, percentage) {

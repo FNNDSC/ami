@@ -380,15 +380,25 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   free() {
-    this._container.
-      removeEventListener('mouseup', this.onMouseUpHandler, false);
-    this._container.
-      removeEventListener('mousemove', this.onMouseMoveHandler, false);
+    // events
+    this.removeEventListeners();
+    // dom
+    this._container.removeChild(this._dom);
+    // mesh, geometry, material
+    this.remove(this._mesh);
+    this._mesh.geometry.dispose();
+    this._mesh.geometry = null;
+    this._mesh.material.dispose();
+    this._mesh.material = null;
+    this._mesh = null;
+    this._geometry.dispose();
+    this._geometry = null;
+    this._material.vertexShader = null;
+    this._material.fragmentShader = null;
+    this._material.uniforms = null;
+    this._material.dispose();
+    this._material = null;
 
-    this._container.
-      removeEventListener('wheel', this.onMouseMoveHandler, false);
-
-    this.remove(this._voxel);
     this._voxel = null;
 
     super.free();

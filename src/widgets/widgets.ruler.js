@@ -381,13 +381,25 @@ export default class WidgetsRuler extends WidgetsBase {
     this._handles.forEach((h) => {
       h.free();
     });
-
     this._handles = [];
 
     this._container.removeChild(this._line);
     this._container.removeChild(this._distance);
 
+    // mesh, geometry, material
     this.remove(this._mesh);
+    this._mesh.geometry.dispose();
+    this._mesh.geometry = null;
+    this._mesh.material.dispose();
+    this._mesh.material = null;
+    this._mesh = null;
+    this._geometry.dispose();
+    this._geometry = null;
+    this._material.vertexShader = null;
+    this._material.fragmentShader = null;
+    this._material.uniforms = null;
+    this._material.dispose();
+    this._material = null;
 
     super.free();
   }

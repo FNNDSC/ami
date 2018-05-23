@@ -59,6 +59,10 @@ export default class WidgetsRoi extends WidgetsBase {
         this._container.addEventListener('wheel', this.onMove);
     }
 
+    removeEventListeners() {
+        this._container.removeEventListener('wheel', this.onMove);
+    }
+
     onMove(evt) {
         this._dragged = true;
         let numHandles = this._handles.length;
@@ -122,14 +126,19 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     onEnd(evt) {
-        // First Handle
+        if (this._handles.length < 3) {
+            this.free();
+
+            return;
+        }
+
         let active = false;
         this._handles.slice(0, this._handles.length-2).forEach(function(elem) {
             elem.onEnd(evt);
             active = active || elem.active;
         });
 
-        // Second Handle
+        // Last Handle
         if (this._dragged || !this._handles[this._handles.length-1].tracking) {
             this._handles[this._handles.length-1].tracking = false;
             this._handles[this._handles.length-1].onEnd(evt);
@@ -137,9 +146,14 @@ export default class WidgetsRoi extends WidgetsBase {
             this._handles[this._handles.length-1].tracking = false;
         }
 
-        active = active || this._handles[this._handles.length-1].active;
-        // State of ruler widget
-        this._active = active;
+        // State of widget
+        if (!this._dragged && this._active) {
+            this._selected = !this._selected; // change state if there was no dragging
+            this._handles.forEach(function(elem) {
+                elem.selected = this._selected;
+            });
+        }
+        this._active = active || this._handles[this._handles.length-1].active;
 
         if (this._lines.length < this._handles.length) {
             let newLine = document.createElement('div');
@@ -214,24 +228,26 @@ export default class WidgetsRoi extends WidgetsBase {
         this.updateMeshPosition();
 
         // DOM stuff
-        this.updateDOMPosition();
         this.updateDOMColor();
+        this.updateDOMPosition();
     }
 
-    updateMesh() {
-        // geometry
+    updateMesh() { // geometry
+        if (this._mesh) {
+            this.remove(this._mesh);
+        }
 
-        var points = [];
+        let points = [];
         this._handles.forEach(function(elem) {
             points.push(elem.worldPosition);
         });
 
-        var center = AMI.SliceGeometry.centerOfMass(points);
-        var side1 = new THREE.Vector3(0, 0, 0);
-        var side2 = new THREE.Vector3(0, 0, 0);
+        let center = AMI.SliceGeometry.centerOfMass(points);
+        let side1 = new THREE.Vector3(0, 0, 0);
+        let side2 = new THREE.Vector3(0, 0, 0);
         side1.subVectors(points[0], center);
         side2.subVectors(points[1], center);
-        var direction = new THREE.Vector3(0, 0, 0);
+        let direction = new THREE.Vector3(0, 0, 0);
         direction.crossVectors(side1, side2);
 
         let reference = center;
@@ -262,27 +278,20 @@ export default class WidgetsRoi extends WidgetsBase {
             let x = referenceDirection.dot(point.direction);
             let y = base.dot(point.direction);
             point.xy = {x, y};
-
-            let theta = Math.atan2(y, x) * (180 / Math.PI);
-            point.angle = theta;
+            point.angle = Math.atan2(y, x) * (180 / Math.PI);
 
             orderedpoints.push(point);
         }
 
         let sliceShape = AMI.SliceGeometry.shape(orderedpoints);
 
-        var shape = new THREE.Shape(orderedpoints);
-
         this._geometry = new THREE.ShapeGeometry(sliceShape);
-
         this._geometry.vertices = orderedpoints;
         this._geometry.verticesNeedUpdate = true;
         this._geometry.elementsNeedUpdate = true;
 
         this._mesh = new THREE.Mesh(this._geometry, new THREE.MeshBasicMaterial({color: 0x00ff00}));
-
         this._mesh.visible = true;
-        // add it!
         this.add(this._mesh);
     }
 
@@ -390,11 +399,35 @@ export default class WidgetsRoi extends WidgetsBase {
         }
     }
 
-    getPointInBetweenByPerc(pointA, pointB, percentage) {
-        let dir = pointB.clone().sub(pointA);
-        let len = dir.length();
-        dir = dir.normalize().multiplyScalar(len*percentage);
-        return pointA.clone().add(dir);
+    free() {
+        this.removeEventListeners();
+
+        this._handles.forEach((h) => {
+            h.free();
+        });
+        this._handles = [];
+        this._lines.forEach(function(elem) {
+            this._container.removeChild(elem);
+        });
+        this._lines = [];
+
+        if (this._mesh) {// mesh, geometry, material
+            this.remove(this._mesh);
+            this._mesh.geometry.dispose();
+            this._mesh.geometry = null;
+            this._mesh.material.dispose();
+            this._mesh.material = null;
+            this._mesh = null;
+            this._geometry.dispose();
+            this._geometry = null;
+            this._material.vertexShader = null;
+            this._material.fragmentShader = null;
+            this._material.uniforms = null;
+            this._material.dispose();
+            this._material = null;
+        }
+
+        super.free();
     }
 
     get worldPosition() {

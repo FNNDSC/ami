@@ -455,15 +455,34 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._handles.forEach((h) => {
       h.free();
     });
-
     this._handles = [];
 
     this._container.removeChild(this._line);
     this._container.removeChild(this._dashline);
     this._container.removeChild(this._label);
 
+    // mesh, geometry, material
     this.remove(this._meshline);
+    this._meshline.geometry.dispose();
+    this._meshline.geometry = null;
+    this._meshline.material.dispose();
+    this._meshline.material = null;
+    this._meshline = null;
+    this._geometry.dispose();
+    this._geometry = null;
+    this._material.vertexShader = null;
+    this._material.fragmentShader = null;
+    this._material.uniforms = null;
+    this._material.dispose();
+    this._material = null;
     this.remove(this._cone);
+    this._cone.geometry.dispose();
+    this._cone.geometry = null;
+    this._cone.material.dispose();
+    this._cone.material = null;
+    this._cone = null;
+    this._conegeometry.dispose();
+    this._conegeometry = null;
 
     super.free();
   }
