@@ -20,7 +20,12 @@ export default class WidgetsRuler extends WidgetsBase {
     this._lastEvent = null;
     this._moving = false;
     this._domHovered = false;
-    this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
+
+    if (this._targetMesh !== null) {
+      this._worldPosition.copy(this._targetMesh.position);
+    } else {
+      this._worldPosition = new Vector3();
+    }
 
     // mesh stuff
     this._material = null;
@@ -290,13 +295,12 @@ export default class WidgetsRuler extends WidgetsBase {
     this._distance = document.createElement('div');
     this._distance.setAttribute('class', 'widgets handle distance');
     this._distance.style.border = '2px solid';
-    this._distance.style.backgroundColor = '#F9F9F9';
+    this._distance.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
     // this._distance.style.opacity = '0.5';
-    this._distance.style.color = '#353535';
+    this._distance.style.color = '#222';
     this._distance.style.padding = '4px';
     this._distance.style.position = 'absolute';
     this._distance.style.transformOrigin = '0 100%';
-    this._distance.innerHTML = 'Hello, world!';
     this._container.appendChild(this._distance);
 
     this.updateDOMColor();

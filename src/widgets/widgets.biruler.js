@@ -20,7 +20,11 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._active = true;
         this._initOrtho = false;
 
-        this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
+        if (this._targetMesh !== null) {
+            this._worldPosition.copy(this._targetMesh.position);
+        } else {
+            this._worldPosition = new Vector3();
+        }
 
         // mesh stuff
         this._material = null;
@@ -246,13 +250,12 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._distance = document.createElement('div');
         this._distance.setAttribute('class', 'widgets handle distance');
         this._distance.style.border = '2px solid';
-        this._distance.style.backgroundColor = '#F9F9F9';
+        this._distance.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
         // this._distance.style.opacity = '0.5';
-        this._distance.style.color = '#353535';
+        this._distance.style.color = '#222';
         this._distance.style.padding = '4px';
         this._distance.style.position = 'absolute';
         this._distance.style.transformOrigin = '0 100%';
-        this._distance.innerHTML = 'Hello, world!';
         this._container.appendChild(this._distance);
 
         // add line!
@@ -268,14 +271,13 @@ export default class WidgetsBiRuler extends WidgetsBase {
         // add distance!
         this._distance2 = document.createElement('div');
         this._distance2.setAttribute('class', 'widgets handle distance');
-        this._distance.style.border = '2px solid';
-        this._distance.style.backgroundColor = '#F9F9F9';
+        this._distance2.style.border = '2px solid';
+        this._distance2.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
         // this._distance2.style.opacity = '0.5';
-        this._distance2.style.color = '#353535';
+        this._distance2.style.color = '#222';
         this._distance2.style.padding = '4px';
         this._distance2.style.position = 'absolute';
         this._distance2.style.transformOrigin = '0 100%';
-        this._distance2.innerHTML = 'Hello, world!';
         this._container.appendChild(this._distance2);
 
         // add dash line

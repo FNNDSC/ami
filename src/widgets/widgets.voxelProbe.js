@@ -34,7 +34,11 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._lastEvent = null;
 
     // world (LPS) position of the center
-    this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
+    if (this._targetMesh !== null) {
+      this._worldPosition.copy(this._targetMesh.position);
+    } else {
+      this._worldPosition = new Vector3();
+    }
 
     // screen position of the center
     this._screenPosition = new Vector2();
@@ -265,8 +269,8 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._dom.setAttribute('id', this.uuid);
     this._dom.setAttribute('class', 'AMI Widget VoxelProbe');
     this._dom.style.border = '2px solid #000';
-    this._dom.style.backgroundColor = 'rgb(249, 249, 249)';
-    this._dom.style.color = '#212121';
+    this._dom.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
+    this._dom.style.color = '#222';
     this._dom.style.position = 'absolute';
     this._dom.style.transformOrigin = '0px 100% 0px';
 

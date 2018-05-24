@@ -19,7 +19,11 @@ export default class WidgetsAnnotation extends WidgetsBase {
 
     this._active = true;
 
-    this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
+    if (this._targetMesh !== null) {
+      this._worldPosition.copy(this._targetMesh.position);
+    } else {
+      this._worldPosition = new Vector3();
+    }
 
     // mesh stuff
     this._material = null;
@@ -268,14 +272,13 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._label = document.createElement('div');
     this._label.setAttribute('id', this.uuid);
     this._label.setAttribute('class', 'widgets handle label');
-    this._label.style.border = '2px solid #F9F9F9';
+    this._label.style.border = '2px solid';
     this._label.style.backgroundColor = '#F9F9F9';
     // this._label.style.opacity = '0.5';
-    this._label.style.color = '#353535';
+    this._label.style.color = '#222';
     this._label.style.padding = '4px';
     this._label.style.position = 'absolute';
     this._label.style.transformOrigin = '0 100%';
-    this._label.innerHTML = 'Hello, world!';
     this._label.style.display = 'none';
     this._container.appendChild(this._label);
 

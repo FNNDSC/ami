@@ -21,7 +21,11 @@ export default class WidgetsAngle extends WidgetsBase {
         this._moving = false;
         this._domHovered = false;
 
-        this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
+        if (this._targetMesh !== null) {
+            this._worldPosition.copy(this._targetMesh.position);
+        } else {
+            this._worldPosition = new Vector3();
+        }
 
         // mesh stuff
         this._material = null;
@@ -324,13 +328,12 @@ export default class WidgetsAngle extends WidgetsBase {
         this._angle.setAttribute('class', 'widgets handle angle');
         this._angle.setAttribute('selectable', 'true');
         this._angle.style.border = '2px solid';
-        this._angle.style.backgroundColor = '#F9F9F9';
+        this._angle.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
         // this._angle.style.opacity = '0.5';
-        this._angle.style.color = '#353535';
+        this._angle.style.color = '#222';
         this._angle.style.padding = '4px';
         this._angle.style.position = 'absolute';
         this._angle.style.transformOrigin = '0 100%';
-        this._angle.innerHTML = 'Hello, world!';
         this._container.appendChild(this._angle);
 
         this.updateDOMColor();
@@ -371,7 +374,9 @@ export default class WidgetsAngle extends WidgetsBase {
             p12 = this._handles[1].worldPosition.distanceTo(this._handles[2].worldPosition),
             p02 = this._handles[0].worldPosition.distanceTo(this._handles[2].worldPosition);
 
-        let a0102 = Math.acos((p10*p10 + p12*p12 - p02*p02)/(2 * p10 * p12));
+        let a0102 = p10 > 0 && p12 > 0
+                ? Math.acos((p10*p10 + p12*p12 - p02*p02)/(2 * p10 * p12))
+                : 0.0;
         this._opangle = this._defaultAngle ? a0102*180/Math.PI : 360-(a0102*180/Math.PI);
         this._angle.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
