@@ -151,6 +151,94 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this.createDOM();
     }
 
+    createMesh() {
+        // geometry
+        this._geometry = new THREE.Geometry();
+        this._geometry.vertices.push(this._handles[0].worldPosition);
+        this._geometry.vertices.push(this._handles[1].worldPosition);
+
+        // geometry
+        this._geometry2 = new THREE.Geometry();
+        this._geometry2.vertices.push(this._handles[2].worldPosition);
+        this._geometry2.vertices.push(this._handles[3].worldPosition);
+
+        // material
+        this._material = new THREE.LineBasicMaterial();
+        this._material2 = new THREE.LineBasicMaterial();
+        this.updateMeshColor();
+
+        // mesh
+        this._mesh = new THREE.Line(this._geometry, this._material);
+        this._mesh.visible = true;
+        this._mesh2 = new THREE.Line(this._geometry2, this._material2);
+        this._mesh2.visible = true;
+
+        // add it!
+        this.add(this._mesh);
+        this.add(this._mesh2);
+    }
+
+    createDOM() {
+        // add line!
+        this._line = document.createElement('div');
+        this._line.setAttribute('class', 'widgets handle line');
+        this._line.style.position = 'absolute';
+        this._line.style.transformOrigin = '0 100%';
+        this._line.style.marginTop = '-1px';
+        this._line.style.height = '2px';
+        this._line.style.width = '3px';
+        this._container.appendChild(this._line);
+
+        // add distance!
+        this._distance = document.createElement('div');
+        this._distance.setAttribute('class', 'widgets handle distance');
+        this._distance.style.border = '2px solid';
+        this._distance.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
+        // this._distance.style.opacity = '0.5';
+        this._distance.style.color = '#222';
+        this._distance.style.padding = '4px';
+        this._distance.style.position = 'absolute';
+        this._distance.style.transformOrigin = '0 100%';
+        this._distance.style.zIndex = '3';
+        this._container.appendChild(this._distance);
+
+        // add line!
+        this._line2 = document.createElement('div');
+        this._line2.setAttribute('class', 'widgets handle line');
+        this._line2.style.position = 'absolute';
+        this._line2.style.transformOrigin = '0 100%';
+        this._line2.style.marginTop = '-1px';
+        this._line2.style.height = '2px';
+        this._line2.style.width = '3px';
+        this._container.appendChild(this._line2);
+
+        // add distance!
+        this._distance2 = document.createElement('div');
+        this._distance2.setAttribute('class', 'widgets handle distance');
+        this._distance2.style.border = '2px solid';
+        this._distance2.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
+        // this._distance2.style.opacity = '0.5';
+        this._distance2.style.color = '#222';
+        this._distance2.style.padding = '4px';
+        this._distance2.style.position = 'absolute';
+        this._distance2.style.transformOrigin = '0 100%';
+        this._distance2.style.zIndex = '3';
+        this._container.appendChild(this._distance2);
+
+        // add dash line
+        this._dashline = document.createElement('div');
+        this._dashline.setAttribute('class', 'widgets handle dashline');
+        this._dashline.style.position = 'absolute';
+        this._dashline.style.border = 'none';
+        this._dashline.style.borderTop = '2.5px dashed #F9F9F9';
+        this._dashline.style.transformOrigin = '0 100%';
+        this._dashline.style.height = '1px';
+        this._dashline.style.width = '50%';
+        this._container.appendChild(this._dashline);
+
+        this.updateDOMColor();
+    }
+
     hideDOM() {
         this._line.style.display = 'none';
         this._distance.style.display = 'none';
@@ -180,6 +268,12 @@ export default class WidgetsBiRuler extends WidgetsBase {
     update() {
         this.updateColor();
 
+        // update handles
+        this._handles[0].update();
+        this._handles[1].update();
+        this._handles[2].update();
+        this._handles[3].update();
+
         // mesh stuff
         this.updateMeshColor();
         this.updateMeshPosition();
@@ -187,33 +281,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         // DOM stuff
         this.updateDOMColor();
         this.updateDOMPosition();
-    }
-
-    createMesh() {
-        // geometry
-        this._geometry = new THREE.Geometry();
-        this._geometry.vertices.push(this._handles[0].worldPosition);
-        this._geometry.vertices.push(this._handles[1].worldPosition);
-
-        // geometry
-        this._geometry2 = new THREE.Geometry();
-        this._geometry2.vertices.push(this._handles[2].worldPosition);
-        this._geometry2.vertices.push(this._handles[3].worldPosition);
-
-        // material
-        this._material = new THREE.LineBasicMaterial();
-        this._material2 = new THREE.LineBasicMaterial();
-        this.updateMeshColor();
-
-        // mesh
-        this._mesh = new THREE.Line(this._geometry, this._material);
-        this._mesh.visible = true;
-        this._mesh2 = new THREE.Line(this._geometry2, this._material2);
-        this._mesh2.visible = true;
-
-        // add it!
-        this.add(this._mesh);
-        this.add(this._mesh2);
     }
 
     updateMeshColor() {
@@ -232,65 +299,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         if (this._geometry2) {
             this._geometry2.verticesNeedUpdate = true;
         }
-    }
-
-    createDOM() {
-        // add line!
-        this._line = document.createElement('div');
-        this._line.setAttribute('class', 'widgets handle line');
-        this._line.style.position = 'absolute';
-        this._line.style.transformOrigin = '0 100%';
-        this._line.style.marginTop = '-1px';
-        this._line.style.height = '2px';
-        this._line.style.width = '3px';
-        this._container.appendChild(this._line);
-
-        // add distance!
-        this._distance = document.createElement('div');
-        this._distance.setAttribute('class', 'widgets handle distance');
-        this._distance.style.border = '2px solid';
-        this._distance.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
-        // this._distance.style.opacity = '0.5';
-        this._distance.style.color = '#222';
-        this._distance.style.padding = '4px';
-        this._distance.style.position = 'absolute';
-        this._distance.style.transformOrigin = '0 100%';
-        this._container.appendChild(this._distance);
-
-        // add line!
-        this._line2 = document.createElement('div');
-        this._line2.setAttribute('class', 'widgets handle line');
-        this._line2.style.position = 'absolute';
-        this._line2.style.transformOrigin = '0 100%';
-        this._line2.style.marginTop = '-1px';
-        this._line2.style.height = '2px';
-        this._line2.style.width = '3px';
-        this._container.appendChild(this._line2);
-
-        // add distance!
-        this._distance2 = document.createElement('div');
-        this._distance2.setAttribute('class', 'widgets handle distance');
-        this._distance2.style.border = '2px solid';
-        this._distance2.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
-        // this._distance2.style.opacity = '0.5';
-        this._distance2.style.color = '#222';
-        this._distance2.style.padding = '4px';
-        this._distance2.style.position = 'absolute';
-        this._distance2.style.transformOrigin = '0 100%';
-        this._container.appendChild(this._distance2);
-
-        // add dash line
-        this._dashline = document.createElement('div');
-        this._dashline.setAttribute('class', 'widgets handle dashline');
-        this._dashline.style.position = 'absolute';
-        this._dashline.style.border = 'none';
-        this._dashline.style.borderTop = '2.5px dashed #F9F9F9';
-        this._dashline.style.transformOrigin = '0 100%';
-        this._dashline.style.height = '1px';
-        this._dashline.style.width = '50%';
-        this._container.appendChild(this._dashline);
-
-        this.updateDOMColor();
     }
 
     updateDOMPosition() {

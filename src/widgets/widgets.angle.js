@@ -222,6 +222,68 @@ export default class WidgetsAngle extends WidgetsBase {
         this.createDOM();
     }
 
+    createMesh() {
+        // geometry
+        this._geometry = new THREE.Geometry();
+        this._geometry.vertices.push(this._handles[0].worldPosition);
+        this._geometry.vertices.push(this._handles[1].worldPosition);
+
+        // geometry
+        this._geometry2 = new THREE.Geometry();
+        this._geometry2.vertices.push(this._handles[1].worldPosition);
+        this._geometry2.vertices.push(this._handles[2].worldPosition);
+
+        // material
+        this._material = new THREE.LineBasicMaterial();
+        this._material2 = new THREE.LineBasicMaterial();
+        this.updateMeshColor();
+
+        // mesh
+        this._mesh = new THREE.Line(this._geometry, this._material);
+        this._mesh.visible = true;
+        this._mesh2 = new THREE.Line(this._geometry2, this._material2);
+        this._mesh2.visible = true;
+
+        // add it!
+        this.add(this._mesh);
+        this.add(this._mesh2);
+    }
+
+    createDOM() {
+        this._line = document.createElement('div');
+        this._line.setAttribute('class', 'widgets handle line');
+        this._line.style.position = 'absolute';
+        this._line.style.transformOrigin = '0 100%';
+        this._line.style.marginTop = '-1px';
+        this._line.style.height = '2px';
+        this._line.style.width = '3px';
+        this._container.appendChild(this._line);
+
+        this._line2 = document.createElement('div');
+        this._line2.setAttribute('class', 'widgets handle line');
+        this._line2.style.position = 'absolute';
+        this._line2.style.transformOrigin = '0 100%';
+        this._line2.style.marginTop = '-1px';
+        this._line2.style.height = '2px';
+        this._line2.style.width = '3px';
+        this._container.appendChild(this._line2);
+
+        this._angle = document.createElement('div');
+        this._angle.setAttribute('class', 'widgets handle angle');
+        this._angle.setAttribute('selectable', 'true');
+        this._angle.style.border = '2px solid';
+        this._angle.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
+        // this._angle.style.opacity = '0.5';
+        this._angle.style.color = '#222';
+        this._angle.style.padding = '4px';
+        this._angle.style.position = 'absolute';
+        this._angle.style.transformOrigin = '0 100%';
+        this._angle.style.zIndex = '3';
+        this._container.appendChild(this._angle);
+
+        this.updateDOMColor();
+    }
+
     hideDOM() {
         this._line.style.display = 'none';
         this._line2.style.display = 'none';
@@ -259,33 +321,6 @@ export default class WidgetsAngle extends WidgetsBase {
         this.updateDOMPosition();
     }
 
-    createMesh() {
-        // geometry
-        this._geometry = new THREE.Geometry();
-        this._geometry.vertices.push(this._handles[0].worldPosition);
-        this._geometry.vertices.push(this._handles[1].worldPosition);
-
-        // geometry
-        this._geometry2 = new THREE.Geometry();
-        this._geometry2.vertices.push(this._handles[1].worldPosition);
-        this._geometry2.vertices.push(this._handles[2].worldPosition);
-
-        // material
-        this._material = new THREE.LineBasicMaterial();
-        this._material2 = new THREE.LineBasicMaterial();
-        this.updateMeshColor();
-
-        // mesh
-        this._mesh = new THREE.Line(this._geometry, this._material);
-        this._mesh.visible = true;
-        this._mesh2 = new THREE.Line(this._geometry2, this._material2);
-        this._mesh2.visible = true;
-
-        // add it!
-        this.add(this._mesh);
-        this.add(this._mesh2);
-    }
-
     updateMeshColor() {
         if (this._material) {
             this._material.color.set(this._color);
@@ -302,40 +337,6 @@ export default class WidgetsAngle extends WidgetsBase {
         if (this._geometry2) {
             this._geometry2.verticesNeedUpdate = true;
         }
-    }
-
-    createDOM() {
-        this._line = document.createElement('div');
-        this._line.setAttribute('class', 'widgets handle line');
-        this._line.style.position = 'absolute';
-        this._line.style.transformOrigin = '0 100%';
-        this._line.style.marginTop = '-1px';
-        this._line.style.height = '2px';
-        this._line.style.width = '3px';
-        this._container.appendChild(this._line);
-
-        this._line2 = document.createElement('div');
-        this._line2.setAttribute('class', 'widgets handle line');
-        this._line2.style.position = 'absolute';
-        this._line2.style.transformOrigin = '0 100%';
-        this._line2.style.marginTop = '-1px';
-        this._line2.style.height = '2px';
-        this._line2.style.width = '3px';
-        this._container.appendChild(this._line2);
-
-        this._angle = document.createElement('div');
-        this._angle.setAttribute('class', 'widgets handle angle');
-        this._angle.setAttribute('selectable', 'true');
-        this._angle.style.border = '2px solid';
-        this._angle.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
-        // this._angle.style.opacity = '0.5';
-        this._angle.style.color = '#222';
-        this._angle.style.padding = '4px';
-        this._angle.style.position = 'absolute';
-        this._angle.style.transformOrigin = '0 100%';
-        this._container.appendChild(this._angle);
-
-        this.updateDOMColor();
     }
 
     updateDOMPosition() {
@@ -380,9 +381,9 @@ export default class WidgetsAngle extends WidgetsBase {
         this._angle.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
         let x0 = x2 - this._angle.offsetWidth/2,
-            y0 = y1 >= y2 ? y2 - 30 : y2 + 30;
+            y0 = y2 - this._container.offsetHeight - this._distance.offsetHeight/2;
 
-        y0 -= this._container.offsetHeight - this._angle.offsetHeight/2;
+        y0 += y1 >= y2 ? -30 : 30;
 
         this._angle.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(y0)}px, 0)`;
     }

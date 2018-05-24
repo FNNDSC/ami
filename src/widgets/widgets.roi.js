@@ -221,6 +221,7 @@ export default class WidgetsRoi extends WidgetsBase {
     update() {
         this.updateColor();
 
+        // update handles
         this._handles.forEach(function(elem) {
             elem.update();
         });

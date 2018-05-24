@@ -67,6 +67,8 @@ export default class WidgetsAnnotation extends WidgetsBase {
     let secondHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
     secondHandle.worldPosition.copy(this._worldPosition);
     secondHandle.hovered = true;
+    secondHandle.active = true;
+    secondHandle.tracking = true;
     this.add(secondHandle);
 
     this._handles.push(secondHandle);
@@ -279,6 +281,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._label.style.position = 'absolute';
     this._label.style.transformOrigin = '0 100%';
     this._label.style.display = 'none';
+    this._label.style.zIndex = '3';
     this._container.appendChild(this._label);
 
     this.updateDOMColor();
@@ -286,6 +289,10 @@ export default class WidgetsAnnotation extends WidgetsBase {
 
   update() {
     this.updateColor();
+
+    // update handles
+    this._handles[0].update();
+    this._handles[1].update();
 
     // mesh stuff
     this.updateMeshColor();

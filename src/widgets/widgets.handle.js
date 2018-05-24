@@ -300,6 +300,7 @@ export default class WidgetsHandle extends WidgetsBase {
     this._dom.style.margin = '-6px';
     this._dom.style.borderRadius = '50%';
     this._dom.style.transformOrigin = '0 100%';
+    this._dom.style.zIndex = '2';
 
     let posY = this._screenPosition.y - this._container.offsetHeight;
     this._dom.style.transform =

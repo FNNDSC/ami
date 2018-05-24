@@ -272,6 +272,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._dom.style.color = '#222';
     this._dom.style.position = 'absolute';
     this._dom.style.transformOrigin = '0px 100% 0px';
+    this._dom.style.zIndex = '3';
 
     // measurenents
     let measurementsContainer = document.createElement('div');

@@ -300,6 +300,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._distance.style.padding = '4px';
     this._distance.style.position = 'absolute';
     this._distance.style.transformOrigin = '0 100%';
+    this._distance.style.zIndex = '3';
     this._container.appendChild(this._distance);
 
     this.updateDOMColor();
@@ -326,9 +327,9 @@ export default class WidgetsRuler extends WidgetsBase {
       `${this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition).toFixed(2)} mm`;
 
     let x0 = x2 - this._distance.offsetWidth/2,
-      y0 = y1 >= y2 ? y2 - 30 : y2 + 30;
+      y0 = y2 - this._container.offsetHeight - this._distance.offsetHeight/2;
 
-    y0 -= this._container.offsetHeight - this._distance.offsetHeight/2;
+    y0 += y1 >= y2 ? -30 : 30;
 
     this._distance.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(y0)}px, 0)`;
   }
