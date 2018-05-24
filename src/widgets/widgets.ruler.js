@@ -125,11 +125,30 @@ export default class WidgetsRuler extends WidgetsBase {
       this._domHovered = (evt.type === 'mouseenter');
   }
 
+  onStart(evt) {
+    this._lastEvent = evt;
+
+    this.imoveHandle.onMove(evt, true);
+
+    this._handles[0].onStart(evt);
+    this._handles[1].onStart(evt);
+
+    this._active = this._handles[0].active || this._handles[1].active || this._domHovered;
+
+    if (this._domHovered) {
+      this._moving = true;
+      this._controls.enabled = false;
+    }
+
+    this.update();
+  }
+
   onMove(evt) {
     this._lastEvent = evt;
-    this._dragged = true;
 
     if (this._active) {
+      this._dragged = true;
+
       this.fmoveHandle.onMove(evt, true);
 
       if (this._moving) {
@@ -150,25 +169,6 @@ export default class WidgetsRuler extends WidgetsBase {
     this._handles[1].onMove(evt);
 
     this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._domHovered;
-
-    this.update();
-  }
-
-  onStart(evt) {
-    this._lastEvent = evt;
-    this._dragged = false;
-
-    this.imoveHandle.onMove(evt, true);
-
-    this._handles[0].onStart(evt);
-    this._handles[1].onStart(evt);
-
-    this._active = this._handles[0].active || this._handles[1].active || this._domHovered;
-
-    if (this._domHovered) {
-      this._moving = true;
-      this._controls.enabled = false;
-    }
 
     this.update();
   }
@@ -196,6 +196,7 @@ export default class WidgetsRuler extends WidgetsBase {
       this._handles[1].selected = this._selected;
     }
     this._active = this._handles[0].active || this._handles[1].active;
+    this._dragged = false;
     this.update();
   }
 
@@ -379,6 +380,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this.removeEventListeners();
 
     this._handles.forEach((h) => {
+      this.remove(h);
       h.free();
     });
     this._handles = [];

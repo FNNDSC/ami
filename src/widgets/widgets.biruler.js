@@ -82,9 +82,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         this.onMove = this.onMove.bind(this);
         this.addEventListeners();
-
-        this._orientation = null;
-        this._slice = null;
     }
 
     addEventListeners() {
@@ -95,8 +92,20 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._container.removeEventListener('wheel', this.onMove);
     }
 
+    onStart(evt) {
+        this._handles[0].onStart(evt);
+        this._handles[1].onStart(evt);
+        this._handles[2].onStart(evt);
+        this._handles[3].onStart(evt);
+
+        this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active;
+        this.update();
+    }
+
     onMove(evt) {
-        this._dragged = true;
+        if (this._active) {
+            this._dragged = true;
+        }
 
         this._handles[0].onMove(evt);
         this._handles[1].onMove(evt);
@@ -105,18 +114,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._handles[2].hovered || this._handles[3].hovered;
 
-        this.update();
-    }
-
-    onStart(evt) {
-        this._dragged = false;
-
-        this._handles[0].onStart(evt);
-        this._handles[1].onStart(evt);
-        this._handles[2].onStart(evt);
-        this._handles[3].onStart(evt);
-
-        this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active;
         this.update();
     }
 
@@ -138,9 +135,10 @@ export default class WidgetsBiRuler extends WidgetsBase {
             this._selected = !this._selected; // change state if there was no dragging
             this._handles.forEach(function(elem) {
                 elem.selected = this._selected;
-            });
+            }, this);
         }
         this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active;
+        this._dragged = false;
         this.update();
     }
 
@@ -439,6 +437,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this.removeEventListeners();
 
         this._handles.forEach((h) => {
+            this.remove(h);
             h.free();
         });
         this._handles = [];

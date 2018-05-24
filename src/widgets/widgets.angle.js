@@ -43,6 +43,7 @@ export default class WidgetsAngle extends WidgetsBase {
 
         this._angle = null;
         this._opangle = null;
+        this._defaultAngle = true;
 
         // add handles
         this._handles = [];
@@ -65,47 +66,25 @@ export default class WidgetsAngle extends WidgetsBase {
         this.add(thirdHandle);
         this._handles.push(thirdHandle);
 
-        this._defaultAngle = true;
-    }
-
-    setPoints(pointsList) {
-        for (var i = 0; i < pointsList.length; i++) {
-            // first handle
-            let newHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-            newHandle.worldPosition = pointsList[i].worldPosition;
-            newHandle.hovered = true;
-            this.add(newHandle);
-
-            this._handles.push(newHandle);
-            pointsList[i].hide();
-        }
-
-        // Create ruler
-        this.create();
-
-        this.onMove = this.onMove.bind(this);
-        this.onHover = this.onHover.bind(this);
-        this.addEventListeners();
-
-        this._orientation = null;
-        this._slice = null;
-
-            // first handle
-        this.imoveHandle =
-            new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+        this.imoveHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
         this.imoveHandle.worldPosition = this._worldPosition;
         this.imoveHandle.hovered = true;
         this.add(this.imoveHandle);
         this._handles.push(this.imoveHandle);
         this.imoveHandle.hide();
 
-        this.fmoveHandle =
-        new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+        this.fmoveHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
         this.fmoveHandle.worldPosition = this._worldPosition;
         this.fmoveHandle.hovered = true;
         this.add(this.fmoveHandle);
         this._handles.push(this.fmoveHandle);
         this.fmoveHandle.hide();
+
+        this.create();
+
+        this.onMove = this.onMove.bind(this);
+        this.onHover = this.onHover.bind(this);
+        this.addEventListeners();
     }
 
     addEventListeners() {
@@ -120,6 +99,8 @@ export default class WidgetsAngle extends WidgetsBase {
     }
 
     removeEventListeners() {
+        this._container.removeEventListener('wheel', this.onMove);
+
         this._line.removeEventListener('mouseenter', this.onHover);
         this._line.removeEventListener('mouseleave', this.onHover);
         this._line2.removeEventListener('mouseenter', this.onHover);
@@ -149,10 +130,27 @@ export default class WidgetsAngle extends WidgetsBase {
         this._domHovered = (evt.type === 'mouseenter');
     }
 
-    onMove(evt) {
-        this._dragged = true;
+    onStart(evt) {
+        this.imoveHandle.onMove(evt, true);
 
+        this._handles[0].onStart(evt);
+        this._handles[1].onStart(evt);
+        this._handles[2].onStart(evt);
+
+        this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._domHovered;
+
+        if (this._domHovered) {
+            this._moving = true;
+            this._controls.enabled = false;
+        }
+
+        this.update();
+    }
+
+    onMove(evt) {
         if (this._active) {
+            this._dragged = true;
+
             this.fmoveHandle.onMove(evt, true);
 
             if (this._moving) {
@@ -174,25 +172,6 @@ export default class WidgetsAngle extends WidgetsBase {
         this._handles[2].onMove(evt);
 
         this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._handles[2].hovered || this._meshHovered || this._domHovered;
-
-        this.update();
-    }
-
-    onStart(evt) {
-        this._dragged = false;
-
-        this.imoveHandle.onMove(evt, true);
-
-        this._handles[0].onStart(evt);
-        this._handles[1].onStart(evt);
-        this._handles[2].onStart(evt);
-
-        this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._domHovered;
-
-        if (this._domHovered) {
-            this._moving = true;
-            this._controls.enabled = false;
-        }
 
         this.update();
     }
@@ -221,6 +200,7 @@ export default class WidgetsAngle extends WidgetsBase {
             this._handles[2].selected = this._selected;
         }
         this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active;
+        this._dragged = false;
         this.update();
     }
 
@@ -499,6 +479,7 @@ export default class WidgetsAngle extends WidgetsBase {
         this.removeEventListeners();
 
         this._handles.forEach((h) => {
+            this.remove(h);
             h.free();
         });
         this._handles = [];

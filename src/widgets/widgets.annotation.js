@@ -139,25 +139,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._labelhovered = false;
   }
 
-  onMove(evt) {
-    if (this._movinglabel) {
-      this._handles[0]._controls.enabled = false;
-      this._handles[1]._controls.enabled = false;
-    }
-
-    this._dragged = true;
-
-    this._handles[0].onMove(evt);
-    this._handles[1].onMove(evt);
-
-    this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._labelhovered;
-
-    this.update();
-  }
-
   onStart(evt) {
-    this._dragged = false;
-
     this._handles[0].onStart(evt);
     this._handles[1].onStart(evt);
 
@@ -166,27 +148,23 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this.update();
   }
 
+  onMove(evt) {
+    if (this._movinglabel) {
+      this._handles[0]._controls.enabled = false;
+      this._handles[1]._controls.enabled = false;
+    }
 
-  setlabeltext() { // this function is called when the user creates a new arrow
-    this._labeltext = prompt('Please enter the name of the label', '');
-    this.displaylabel();
+    if (this._active) {
+      this._dragged = true;
+    }
+
+    this._handles[0].onMove(evt);
+    this._handles[1].onMove(evt);
+
+    this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._labelhovered;
+
+    this.update();
   }
-
-  changelabeltext() { // this function is called when the user does double click in the label
-    this._labeltext = prompt('Please enter new name of the label', this._label.innerHTML);
-    this.displaylabel();
-  }
-
-  displaylabel() {
-    this._label.innerHTML = typeof this._labeltext === 'string' && this._labeltext.length > 0 // avoid error
-      ? this._labeltext
-      : ''; // empty string is passed or Cancel is pressed
-    // show the label (in css an empty string is used to revert display=none)
-    this._label.style.display = '';
-    this._dashline.style.display = '';
-    this._label.style.transform = `translate3D(${this._labelpositionx}px,${this._labelpositiony}px, 0)`;
-  }
-
 
   onEnd(evt) {
     // First Handle
@@ -212,9 +190,29 @@ export default class WidgetsAnnotation extends WidgetsBase {
         this._handles[1].selected = this._selected;
     }
     this._active = this._handles[0].active || this._handles[1].active;
+    this._dragged = false;
     this.update();
   }
 
+  setlabeltext() { // this function is called when the user creates a new arrow
+    this._labeltext = prompt('Please enter the name of the label', '');
+    this.displaylabel();
+  }
+
+  changelabeltext() { // this function is called when the user does double click in the label
+    this._labeltext = prompt('Please enter new name of the label', this._label.innerHTML);
+    this.displaylabel();
+  }
+
+  displaylabel() {
+    this._label.innerHTML = typeof this._labeltext === 'string' && this._labeltext.length > 0 // avoid error
+      ? this._labeltext
+      : ''; // empty string is passed or Cancel is pressed
+    // show the label (in css an empty string is used to revert display=none)
+    this._label.style.display = '';
+    this._dashline.style.display = '';
+    this._label.style.transform = `translate3D(${this._labelpositionx}px,${this._labelpositiony}px, 0)`;
+  }
 
   create() {
     this.createMesh();
@@ -453,6 +451,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this.removeEventListeners();
 
     this._handles.forEach((h) => {
+      this.remove(h);
       h.free();
     });
     this._handles = [];

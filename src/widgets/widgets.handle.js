@@ -125,39 +125,9 @@ export default class WidgetsHandle extends WidgetsBase {
     }
   }
 
-  onEnd(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
-    // stay active and keep controls disabled
-    if (this._tracking === true) {
-      return;
-    }
-
-    if (!this._dragged && this._active) {
-      this._selected = !this._selected; // change state if there was no dragging
-    }
-
-    this._active = false;
-    this._dragged = false;
-    this._controls.enabled = true;
-
-    this.update();
-  }
-
-  onEndControl() {
-    if (!this._lastEvent) {
-      return;
-    }
-
-    window.requestAnimationFrame(() => {
-      this.onMove(this._lastEvent);
-    });
-  }
-
   /**
-   *
-   *
+   * @param {Object} evt - Browser event
+   * @param {Boolean} forced - true to move inactive handles
    */
   onMove(evt, forced) {
     this._lastEvent = evt;
@@ -198,6 +168,35 @@ export default class WidgetsHandle extends WidgetsBase {
     }
 
     this.update();
+  }
+
+  onEnd(evt) {
+    this._lastEvent = evt;
+    evt.preventDefault();
+
+    if (this._tracking === true) { // stay active and keep controls disabled
+      return;
+    }
+
+    if (!this._dragged && this._active) {
+      this._selected = !this._selected; // change state if there was no dragging
+    }
+
+    this._active = false;
+    this._dragged = false;
+    this._controls.enabled = true;
+
+    this.update();
+  }
+
+  onEndControl() {
+    if (!this._lastEvent) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      this.onMove(this._lastEvent);
+    });
   }
 
   onHover(evt) {

@@ -30,8 +30,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._offset = new Vector3();
     this._raycaster = new THREE.Raycaster();
 
-    this._tracking = false;
-
     this._mouse = new Vector2();
     this._lastEvent = null;
 
@@ -126,38 +124,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     }
   }
 
-  onEnd(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
-    // stay active and keep controls disabled
-    if (this._tracking === true) {
-      return;
-    }
-
-    // unselect if go up without moving
-    if (!this._dragged && this._active) {
-      // change state if was not dragging
-      this._selected = !this._selected;
-    }
-
-    this._active = false;
-    this._dragged = false;
-    this._controls.enabled = true;
-
-    this.update();
-  }
-
-  onEndControl() {
-    if (!this._lastEvent) {
-      return;
-    }
-
-    window.requestAnimationFrame(() => {
-      this.onMove(this._lastEvent);
-    });
-  }
-
   onMove(evt) {
     this._lastEvent = evt;
     evt.preventDefault();
@@ -197,6 +163,31 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     }
 
     this.update();
+  }
+
+  onEnd(evt) {
+    this._lastEvent = evt;
+    evt.preventDefault();
+
+    if (!this._dragged && this._active) {
+      this._selected = !this._selected; // change state if there was no dragging
+    }
+
+    this._active = false;
+    this._dragged = false;
+    this._controls.enabled = true;
+
+    this.update();
+  }
+
+  onEndControl() {
+    if (!this._lastEvent) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      this.onMove(this._lastEvent);
+    });
   }
 
   onHover(evt) {

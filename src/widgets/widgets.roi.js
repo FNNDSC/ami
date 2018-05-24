@@ -50,9 +50,6 @@ export default class WidgetsRoi extends WidgetsBase {
 
         this.onMove = this.onMove.bind(this);
         this.addEventListeners();
-
-        this._orientation = null;
-        this._slice = null;
     }
 
     addEventListeners() {
@@ -63,8 +60,19 @@ export default class WidgetsRoi extends WidgetsBase {
         this._container.removeEventListener('wheel', this.onMove);
     }
 
+    onStart(evt) {
+        let active = false;
+
+        this._handles.forEach(function(elem) {
+            elem.onStart(evt);
+            active = active || elem.active;
+        });
+
+        this._active = active;
+        this.update();
+    }
+
     onMove(evt) {
-        this._dragged = true;
         let numHandles = this._handles.length;
 
         if (this.active && !this._init) {
@@ -104,46 +112,36 @@ export default class WidgetsRoi extends WidgetsBase {
 
         this._hovered = hovered;
 
-        if (this.active && numHandles > 2) {
-            this.pushPopHandle();
+        if (this.active) {
+            this._dragged = true;
+            if (numHandles > 3) {
+                this.pushPopHandle();
+            }
         }
 
-        this.update();
-    }
-
-    onStart(evt) {
-        this._dragged = false;
-
-        let active = false;
-
-        this._handles.forEach(function(elem) {
-            elem.onStart(evt);
-            active = active || elem.active;
-        });
-
-        this._active = active;
         this.update();
     }
 
     onEnd(evt) {
-        if (this._handles.length < 3) {
-            this.free();
+        let numHandles = this._handles.length;
 
+        if (numHandles < 3) {
             return;
         }
 
         let active = false;
-        this._handles.slice(0, this._handles.length-2).forEach(function(elem) {
+
+        this._handles.slice(0, numHandles-1).forEach(function(elem) {
             elem.onEnd(evt);
             active = active || elem.active;
         });
 
         // Last Handle
-        if (this._dragged || !this._handles[this._handles.length-1].tracking) {
-            this._handles[this._handles.length-1].tracking = false;
-            this._handles[this._handles.length-1].onEnd(evt);
+        if (this._dragged || !this._handles[numHandles-1].tracking) {
+            this._handles[numHandles-1].tracking = false;
+            this._handles[numHandles-1].onEnd(evt);
         } else {
-            this._handles[this._handles.length-1].tracking = false;
+            this._handles[numHandles-1].tracking = false;
         }
 
         // State of widget
@@ -151,11 +149,12 @@ export default class WidgetsRoi extends WidgetsBase {
             this._selected = !this._selected; // change state if there was no dragging
             this._handles.forEach(function(elem) {
                 elem.selected = this._selected;
-            });
+            }, this);
         }
-        this._active = active || this._handles[this._handles.length-1].active;
+        this._active = active || this._handles[numHandles-1].active;
+        this._dragged = false;
 
-        if (this._lines.length < this._handles.length) {
+        if (this._lines.length < numHandles) {
             let newLine = document.createElement('div');
             newLine.setAttribute('class', 'widgets handle line');
             newLine.style.position = 'absolute';
@@ -175,7 +174,28 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     create() {
+        this.createMaterial();
         this.createDOM();
+    }
+
+    createMaterial() {
+        this._material = new THREE.MeshBasicMaterial();
+        this._material.transparent = true;
+        this._material.opacity = 0.2;
+    }
+
+    createDOM() {
+        // add line!
+        this._line = document.createElement('div');
+        this._line.setAttribute('class', 'widgets handle line');
+        this._line.style.position = 'absolute';
+        this._line.style.transformOrigin = '0 100%';
+        this._line.style.marginTop = '-1px';
+        this._line.style.height = '2px';
+        this._line.style.width = '3px';
+        this._container.appendChild(this._line);
+
+        this.updateDOMColor();
     }
 
     hideDOM() {
@@ -290,7 +310,9 @@ export default class WidgetsRoi extends WidgetsBase {
         this._geometry.verticesNeedUpdate = true;
         this._geometry.elementsNeedUpdate = true;
 
-        this._mesh = new THREE.Mesh(this._geometry, new THREE.MeshBasicMaterial({color: 0x00ff00}));
+        this.updateMeshColor();
+
+        this._mesh = new THREE.Mesh(this._geometry, this._material);
         this._mesh.visible = true;
         this.add(this._mesh);
     }
@@ -305,20 +327,6 @@ export default class WidgetsRoi extends WidgetsBase {
         if (this._geometry) {
             this._geometry.verticesNeedUpdate = true;
         }
-    }
-
-    createDOM() {
-        // add line!
-        this._line = document.createElement('div');
-        this._line.setAttribute('class', 'widgets handle line');
-        this._line.style.position = 'absolute';
-        this._line.style.transformOrigin = '0 100%';
-        this._line.style.marginTop = '-1px';
-        this._line.style.height = '2px';
-        this._line.style.width = '3px';
-        this._container.appendChild(this._line);
-
-        this.updateDOMColor();
     }
 
     isPointOnLine(pointA, pointB, pointToCheck) {
@@ -340,8 +348,8 @@ export default class WidgetsRoi extends WidgetsBase {
         var interpointdist = Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z));
 
         if (isOnLine || interpointdist < 3) {
-            handle1._dom.style.display = 'none';
             this.remove(handle1);
+            handle1.free();
 
             this._handles[this._handles.length-2] = newhandle;
             this._handles.pop();
@@ -403,12 +411,13 @@ export default class WidgetsRoi extends WidgetsBase {
         this.removeEventListeners();
 
         this._handles.forEach((h) => {
+            this.remove(h);
             h.free();
         });
         this._handles = [];
         this._lines.forEach(function(elem) {
             this._container.removeChild(elem);
-        });
+        }, this);
         this._lines = [];
 
         if (this._mesh) {// mesh, geometry, material
