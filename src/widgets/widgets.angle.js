@@ -20,12 +20,8 @@ export default class WidgetsAngle extends WidgetsBase {
         this._active = true;
         this._moving = false;
         this._domHovered = false;
-        this._hovered = false;
 
-        this._worldPosition = new Vector3();
-        if (this._targetMesh !== null) {
-            this._worldPosition = this._targetMesh.position;
-        }
+        this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
 
         // mesh stuff
         this._material = null;
@@ -37,11 +33,9 @@ export default class WidgetsAngle extends WidgetsBase {
 
         // dom stuff
         this._line = null;
-        this._distance = null;
         this._line2 = null;
-        this._dashline = null;
-
         this._angle = null;
+
         this._opangle = null;
         this._defaultAngle = true;
 
@@ -49,32 +43,36 @@ export default class WidgetsAngle extends WidgetsBase {
         this._handles = [];
 
         let firstHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-        firstHandle.worldPosition = this._worldPosition;
+        firstHandle.worldPosition.copy(this._worldPosition);
         firstHandle.hovered = true;
         this.add(firstHandle);
         this._handles.push(firstHandle);
 
         let secondHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-        secondHandle.worldPosition = this._worldPosition;
+        secondHandle.worldPosition.copy(this._worldPosition);
         secondHandle.hovered = true;
+        secondHandle.active = true;
+        secondHandle.tracking = true;
         this.add(secondHandle);
         this._handles.push(secondHandle);
 
         let thirdHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-        thirdHandle.worldPosition = this._worldPosition;
+        thirdHandle.worldPosition.copy(this._worldPosition);
         thirdHandle.hovered = true;
+        thirdHandle.active = true;
+        thirdHandle.tracking = true;
         this.add(thirdHandle);
         this._handles.push(thirdHandle);
 
         this.imoveHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-        this.imoveHandle.worldPosition = this._worldPosition;
+        this.imoveHandle.worldPosition.copy(this._worldPosition);
         this.imoveHandle.hovered = true;
         this.add(this.imoveHandle);
         this._handles.push(this.imoveHandle);
         this.imoveHandle.hide();
 
         this.fmoveHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-        this.fmoveHandle.worldPosition = this._worldPosition;
+        this.fmoveHandle.worldPosition.copy(this._worldPosition);
         this.fmoveHandle.hovered = true;
         this.add(this.fmoveHandle);
         this._handles.push(this.fmoveHandle);
@@ -94,8 +92,8 @@ export default class WidgetsAngle extends WidgetsBase {
         this._line.addEventListener('mouseleave', this.onHover);
         this._line2.addEventListener('mouseenter', this.onHover);
         this._line2.addEventListener('mouseleave', this.onHover);
-        this._distance.addEventListener('mouseenter', this.onHover);
-        this._distance.addEventListener('mouseleave', this.onHover);
+        this._angle.addEventListener('mouseenter', this.onHover);
+        this._angle.addEventListener('mouseleave', this.onHover);
     }
 
     removeEventListeners() {
@@ -105,8 +103,8 @@ export default class WidgetsAngle extends WidgetsBase {
         this._line.removeEventListener('mouseleave', this.onHover);
         this._line2.removeEventListener('mouseenter', this.onHover);
         this._line2.removeEventListener('mouseleave', this.onHover);
-        this._distance.removeEventListener('mouseenter', this.onHover);
-        this._distance.removeEventListener('mouseleave', this.onHover);
+        this._angle.removeEventListener('mouseenter', this.onHover);
+        this._angle.removeEventListener('mouseleave', this.onHover);
     }
 
     onHover(evt) {
@@ -119,7 +117,7 @@ export default class WidgetsAngle extends WidgetsBase {
         this.hoverMesh();
 
         this._hovered = this._handles[0].hovered || this._handles[1].hovered ||
-            this._handles[2].hovered || this._meshHovered || this._domHovered;
+            this._handles[2].hovered || this._domHovered;
         this._container.style.cursor = this._hovered ? 'pointer' : 'default';
     }
 
@@ -167,14 +165,14 @@ export default class WidgetsAngle extends WidgetsBase {
             }
 
             this.imoveHandle.onMove(evt, true);
-          }
+        }
 
         this._handles[0].onMove(evt);
         this._handles[1].onMove(evt);
         this._handles[2].onMove(evt);
 
         this._hovered = this._handles[0].hovered || this._handles[1].hovered ||
-            this._handles[2].hovered || this._meshHovered || this._domHovered;
+            this._handles[2].hovered || this._domHovered;
 
         this.update();
     }
@@ -182,10 +180,18 @@ export default class WidgetsAngle extends WidgetsBase {
     onEnd(evt) {
         // First Handle
         this._handles[0].onEnd(evt);
-        this._handles[2].onEnd(evt);
 
-        this._moving = false;
         this._controls.enabled = true;
+
+        // Third Handle
+        if (this._handles[1].active) {
+            this._handles[2].onEnd(evt);
+        } else if (this._dragged || !this._handles[2].tracking) {
+            this._handles[2].tracking = false;
+            this._handles[2].onEnd(evt);
+        } else {
+            this._handles[2].tracking = false;
+        }
 
         // Second Handle
         if (this._dragged || !this._handles[1].tracking) {
@@ -195,7 +201,7 @@ export default class WidgetsAngle extends WidgetsBase {
             this._handles[1].tracking = false;
         }
 
-        // State of angle widget
+        // State of widget
         if (!this._dragged && this._active) {
             this._selected = !this._selected; // change state if there was no dragging
             this._handles[0].selected = this._selected;
@@ -203,7 +209,8 @@ export default class WidgetsAngle extends WidgetsBase {
             this._handles[2].selected = this._selected;
         }
         this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active;
-        this._dragged = false;
+        this._dragged = this._handles[2].tracking;
+        this._moving = false;
         this.update();
     }
 
@@ -214,56 +221,31 @@ export default class WidgetsAngle extends WidgetsBase {
 
     hideDOM() {
         this._line.style.display = 'none';
-        this._distance.style.display = 'none';
         this._line2.style.display = 'none';
+        this._angle.style.display = 'none';
 
         this._handles.forEach(function(elem) {
           elem.hideDOM();
         });
-
-        this._dashline.style.display = 'none';
     }
 
     showDOM() {
         this._line.style.display = '';
-        this._distance.style.display = '';
         this._line2.style.display = '';
+        this._angle.style.display = '';
 
         this._handles.forEach(function(elem) {
             elem.showDOM();
         });
-
-        this._dashline.style.display = '';
-    }
-
-    hideMesh() {
-        this._mesh.visible = false;
-        this._mesh2.visible = false;
-        this._handles[0].visible = false;
-        this._handles[1].visible = false;
-        this._handles[2].visible = false;
-    }
-
-    showMesh() {
-        this._mesh.visible = true;
-        this._mesh2.visible = true;
-        this._handles[0].visible = true;
-        this._handles[1].visible = true;
-        this._handles[2].visible = true;
-    }
-
-    show() {
-        this.showDOM();
-        this.showMesh();
-    }
-
-    hide() {
-        this.hideDOM();
-        this.hideMesh();
     }
 
     update() {
         this.updateColor();
+
+        // update handles
+        this._handles[0].update();
+        this._handles[1].update();
+        this._handles[2].update();
 
         // mesh stuff
         this.updateMeshColor();
@@ -320,7 +302,6 @@ export default class WidgetsAngle extends WidgetsBase {
     }
 
     createDOM() {
-        // add line!
         this._line = document.createElement('div');
         this._line.setAttribute('class', 'widgets handle line');
         this._line.style.position = 'absolute';
@@ -330,21 +311,6 @@ export default class WidgetsAngle extends WidgetsBase {
         this._line.style.width = '3px';
         this._container.appendChild(this._line);
 
-        // add distance!
-        this._distance = document.createElement('div');
-        this._distance.setAttribute('class', 'widgets handle distance');
-        this._distance.setAttribute('selectable', 'true');
-        this._distance.style.border = '2px solid';
-        this._distance.style.backgroundColor = '#F9F9F9';
-        // this._distance.style.opacity = '0.5';
-        this._distance.style.color = '#353535';
-        this._distance.style.padding = '4px';
-        this._distance.style.position = 'absolute';
-        this._distance.style.transformOrigin = '0 100%';
-        this._distance.innerHTML = 'Hello, world!';
-        this._container.appendChild(this._distance);
-
-        // add line!
         this._line2 = document.createElement('div');
         this._line2.setAttribute('class', 'widgets handle line');
         this._line2.style.position = 'absolute';
@@ -354,73 +320,42 @@ export default class WidgetsAngle extends WidgetsBase {
         this._line2.style.width = '3px';
         this._container.appendChild(this._line2);
 
-        // add dash line
-        this._dashline = document.createElement('div');
-        this._dashline.setAttribute('class', 'widgets handle dashline');
-        this._dashline.style.position = 'absolute';
-        this._dashline.style.border = 'none';
-        this._dashline.style.borderTop = '2.5px dashed #F9F9F9';
-        this._dashline.style.transformOrigin = '0 100%';
-        this._dashline.style.height = '1px';
-        this._dashline.style.width = '50%';
-        this._container.appendChild(this._dashline);
+        this._angle = document.createElement('div');
+        this._angle.setAttribute('class', 'widgets handle angle');
+        this._angle.setAttribute('selectable', 'true');
+        this._angle.style.border = '2px solid';
+        this._angle.style.backgroundColor = '#F9F9F9';
+        // this._angle.style.opacity = '0.5';
+        this._angle.style.color = '#353535';
+        this._angle.style.padding = '4px';
+        this._angle.style.position = 'absolute';
+        this._angle.style.transformOrigin = '0 100%';
+        this._angle.innerHTML = 'Hello, world!';
+        this._container.appendChild(this._angle);
 
         this.updateDOMColor();
     }
 
     updateDOMPosition() {
-        // update rulers lines and text!
-        let x1 = this._handles[0].screenPosition.x;
-        let y1 = this._handles[0].screenPosition.y;
-        let x2 = this._handles[1].screenPosition.x;
-        let y2 = this._handles[1].screenPosition.y;
+        // update first line
+        let x1 = this._handles[0].screenPosition.x,
+            y1 = this._handles[0].screenPosition.y,
+            x2 = this._handles[1].screenPosition.x,
+            y2 = this._handles[1].screenPosition.y;
 
-        let x0 = x2;
-        let y0 = y2;
-
-        if (y1 >= y2) {
-            y0 = y2 - 30;
-        } else {
-            y0 = y2 + 30;
-        }
-
-        let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-        let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+        let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)),
+            angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
 
         let posY = y1 - this._container.offsetHeight;
 
-        // update line
-        let transform = `translate3D(${x1}px,${posY}px, 0)`;
-        transform += ` rotate(${angle}deg)`;
-
-        this._line.style.transform = transform;
+        this._line.style.transform = `translate3D(${x1}px,${posY}px, 0)  rotate(${angle}deg)`;
         this._line.style.width = length + 'px';
 
-        // update distance
-        let w0 = this._handles[0].worldPosition;
-        let w1 = this._handles[1].worldPosition;
-        let w2 = this._handles[2].worldPosition;
-
-        let p10 = Math.sqrt((w1.x-w0.x)*(w1.x-w0.x) + (w1.y-w0.y)*(w1.y-w0.y) + (w1.z-w0.z)*(w1.z-w0.z));
-        let p12 = Math.sqrt((w1.x-w2.x)*(w1.x-w2.x) + (w1.y-w2.y)*(w1.y-w2.y) + (w1.z-w2.z)*(w1.z-w2.z));
-        let p02 = Math.sqrt((w0.x-w2.x)*(w0.x-w2.x) + (w0.y-w2.y)*(w0.y-w2.y) + (w0.z-w2.z)*(w0.z-w2.z));
-
-        let a0102 = Math.acos((p10*p10 + p12*p12 - p02*p02)/(2 * p10 * p12));
-        this._opangle = this._defaultAngle ? a0102*180/Math.PI : 360-(a0102*180/Math.PI);
-        this._distance.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
-
-        this._distanceValue =
-            Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2);
-        let posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight/2;
-        x0 -= this._distance.offsetWidth/2;
-
-        this._distance.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
-
-        // update rulers lines 2 and text!
-        let x3 = this._handles[1].screenPosition.x;
-        let y3 = this._handles[1].screenPosition.y;
-        let x4 = this._handles[2].screenPosition.x;
-        let y4 = this._handles[2].screenPosition.y;
+        // update second line
+        let x3 = this._handles[1].screenPosition.x,
+            y3 = this._handles[1].screenPosition.y,
+            x4 = this._handles[2].screenPosition.x,
+            y4 = this._handles[2].screenPosition.y;
 
         length = Math.sqrt((x3-x4)*(x3-x4) + (y3-y4)*(y3-y4));
         angle = Math.atan2(y4 - y3, x4 - x3) * 180 / Math.PI;
@@ -428,44 +363,30 @@ export default class WidgetsAngle extends WidgetsBase {
         posY = y3 - this._container.offsetHeight;
 
         // update line
-        transform = `translate3D(${x3}px,${posY}px, 0)`;
-        transform += ` rotate(${angle}deg)`;
-
-        this._line2.style.transform = transform;
+        this._line2.style.transform = `translate3D(${x3}px,${posY}px, 0) rotate(${angle}deg)`;
         this._line2.style.width = length + 'px';
 
-        // update dash line
-        let l1center = this.getPointInBetweenByPerc(
-            this._handles[0].worldPosition, this._handles[1].worldPosition, 0.75);
-        let l2center = this.getPointInBetweenByPerc(
-            this._handles[1].worldPosition, this._handles[2].worldPosition, 0.25);
+        // update angle
+        let p10 = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition),
+            p12 = this._handles[1].worldPosition.distanceTo(this._handles[2].worldPosition),
+            p02 = this._handles[0].worldPosition.distanceTo(this._handles[2].worldPosition);
 
-        let screen1 = this._handles[0].worldToScreen(l1center, this._camera, this._container);
-        let screen2 = this._handles[0].worldToScreen(l2center, this._camera, this._container);
+        let a0102 = Math.acos((p10*p10 + p12*p12 - p02*p02)/(2 * p10 * p12));
+        this._opangle = this._defaultAngle ? a0102*180/Math.PI : 360-(a0102*180/Math.PI);
+        this._angle.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
-        x1 = screen1.x;
-        y1 = screen1.y;
-        x2 = screen2.x;
-        y2 = screen2.y;
+        let x0 = x2 - this._angle.offsetWidth/2,
+            y0 = y1 >= y2 ? y2 - 30 : y2 + 30;
 
-        length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-        angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+        y0 -= this._container.offsetHeight - this._angle.offsetHeight/2;
 
-        posY = y1 - this._container.offsetHeight;
-
-        // update line
-        transform = `translate3D(${x1}px,${posY}px, 0)`;
-        transform += ` rotate(${angle}deg)`;
-
-        this._dashline.style.transform = transform;
-        this._dashline.style.width = length + 'px';
+        this._angle.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(y0)}px, 0)`;
     }
 
     updateDOMColor() {
         this._line.style.backgroundColor = `${this._color}`;
-        this._distance.style.borderColor = `${this._color}`;
-
         this._line2.style.backgroundColor = `${this._color}`;
+        this._angle.style.borderColor = `${this._color}`;
     }
 
     free() {
@@ -478,9 +399,8 @@ export default class WidgetsAngle extends WidgetsBase {
         this._handles = [];
 
         this._container.removeChild(this._line);
-        this._container.removeChild(this._distance);
         this._container.removeChild(this._line2);
-        this._container.removeChild(this._dashline);
+        this._container.removeChild(this._angle);
 
         // mesh, geometry, material
         this.remove(this._mesh);
@@ -525,7 +445,10 @@ export default class WidgetsAngle extends WidgetsBase {
     }
 
     set worldPosition(worldPosition) {
-        this._worldPosition = worldPosition;
+        this._worldPosition.copy(worldPosition);
+        this._handles[0].worldPosition.copy(worldPosition);
+        this._handles[1].worldPosition.copy(worldPosition);
+        this._handles[2].worldPosition.copy(worldPosition);
 
         this.update();
     }
@@ -536,10 +459,5 @@ export default class WidgetsAngle extends WidgetsBase {
 
     toggleDefaultAngle() {
         this._defaultAngle = !this._defaultAngle;
-        if (this._defaultAngle) {
-            this._dashline.style.borderTop = '2.5px dashed #F9F9F9';
-        } else {
-            this._dashline.style.borderTop = '2.5px dashed #ffa7a7';
-        }
     }
 }

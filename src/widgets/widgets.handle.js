@@ -30,7 +30,7 @@ export default class WidgetsHandle extends WidgetsBase {
     this._lastEvent = null;
 
     // world (LPS) position of this handle
-    this._worldPosition = new Vector3();
+    this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
 
     // screen position of this handle
     this._screenPosition = new Vector2();
@@ -48,10 +48,6 @@ export default class WidgetsHandle extends WidgetsBase {
     this._domDisplayed = true;
     this._domHovered = false;
     this._domStyle = 'circle'; // square, triangle
-
-    if (this._targetMesh !== null) {
-      this._worldPosition.copy(this._targetMesh.position);
-    }
 
     this._screenPosition =
       this.worldToScreen(this._worldPosition, this._camera, this._container);
@@ -238,9 +234,7 @@ export default class WidgetsHandle extends WidgetsBase {
 
   updateMeshPosition() {
     if (this._mesh) {
-      this._mesh.position.x = this._worldPosition.x;
-      this._mesh.position.y = this._worldPosition.y;
-      this._mesh.position.z = this._worldPosition.z;
+      this._mesh.position.copy(this._worldPosition);
     }
   }
 
@@ -279,9 +273,7 @@ export default class WidgetsHandle extends WidgetsBase {
 
     // mesh
     this._mesh = new THREE.Mesh(this._geometry, this._material);
-    this._mesh.position.x = this._worldPosition.x;
-    this._mesh.position.y = this._worldPosition.y;
-    this._mesh.position.z = this._worldPosition.z;
+    this._mesh.position.copy(this._worldPosition);
     this._mesh.visible = true;
 
     this.updateMeshColor();
@@ -396,23 +388,5 @@ export default class WidgetsHandle extends WidgetsBase {
 
   showDOM() {
     this._dom.style.display = '';
-  }
-
-  hideMesh() {
-    this.visible = false;
-  }
-
-  showMesh() {
-    this.visible = true;
-  }
-
-  show() {
-    this.showDOM();
-    this.showMesh();
-  }
-
-  hide() {
-    this.hideDOM();
-    this.hideMesh();
   }
 }

@@ -34,7 +34,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._lastEvent = null;
 
     // world (LPS) position of the center
-    this._worldPosition = new Vector3();
+    this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
 
     // screen position of the center
     this._screenPosition = new Vector2();
@@ -52,10 +52,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._domDisplayed = true;
     this._domHovered = false;
     this._domStyle = 'circle'; // square, triangle
-
-    if (this._targetMesh !== null) {
-      this._worldPosition.copy(this._targetMesh.position);
-    }
 
     this._screenPosition =
       this.worldToScreen(this._worldPosition, this._camera, this._container);
@@ -480,23 +476,5 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
   showDOM() {
     this._dom.style.display = '';
-  }
-
-  hideMesh() {
-    this.visible = false;
-  }
-
-  showMesh() {
-    this.visible = true;
-  }
-
-  show() {
-    this.showDOM();
-    this.showMesh();
-  }
-
-  hide() {
-    this.hideDOM();
-    this.hideMesh();
   }
 }

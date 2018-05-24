@@ -20,10 +20,7 @@ export default class WidgetsRoi extends WidgetsBase {
         this._active = true;
         this._init = false;
 
-        this._worldPosition = new Vector3();
-        if (this._targetMesh !== null) {
-            this._worldPosition = this._targetMesh.position;
-        }
+        this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
 
         // mesh stuff
         this._material = null;
@@ -39,7 +36,7 @@ export default class WidgetsRoi extends WidgetsBase {
 
         // first handle
         let firstHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-        firstHandle.worldPosition = this._worldPosition;
+        firstHandle.worldPosition.copy(this._worldPosition);
         firstHandle.hovered = true;
         this.add(firstHandle);
 
@@ -82,7 +79,7 @@ export default class WidgetsRoi extends WidgetsBase {
             lastHandle.tracking = false;
 
             let nextHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-            nextHandle.worldPosition = this._worldPosition;
+            nextHandle.worldPosition.copy(this._worldPosition);
             nextHandle.hovered = true;
             nextHandle.active = true;
             nextHandle.tracking = true;
@@ -218,24 +215,6 @@ export default class WidgetsRoi extends WidgetsBase {
         });
     }
 
-    hideMesh() {
-        this.visible = false;
-    }
-
-    showMesh() {
-        this.visible = true;
-    }
-
-    show() {
-        this.showDOM();
-        this.showMesh();
-    }
-
-    hide() {
-        this.hideDOM();
-        this.hideMesh();
-    }
-
     update() {
         this.updateColor();
 
@@ -336,18 +315,15 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     pushPopHandle() {
-        let handle0 = this._handles[this._handles.length-3];
-        let handle1 = this._handles[this._handles.length-2];
-        let newhandle = this._handles[this._handles.length-1];
+        let handle0 = this._handles[this._handles.length-3],
+            handle1 = this._handles[this._handles.length-2],
+            newhandle = this._handles[this._handles.length-1];
 
         let isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
 
-        let w0 = handle0;
-        let w1 = newhandle;
+        let interpointdist = handle0.worldPosition.distanceTo(newhandle.worldPosition);
 
-        let interpointdist = Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z));
-
-        if (isOnLine || interpointdist < 3) {
+        if (isOnLine || interpointdist < 3) { // TODO! make 3 configurable
             this.remove(handle1);
             handle1.free();
 
@@ -431,10 +407,10 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     set worldPosition(worldPosition) {
-        this._worldPosition = worldPosition;
+        this._worldPosition.copy(worldPosition);
 
         this._handles.forEach(function(elem) {
-            elem._worldPosition = this._worldPosition;
+            elem._worldPosition.copy(worldPosition);
         }, this);
 
         this.update();

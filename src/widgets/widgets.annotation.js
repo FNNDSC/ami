@@ -19,10 +19,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
 
     this._active = true;
 
-    this._worldPosition = new Vector3();
-    if (this._targetMesh !== null) {
-      this._worldPosition = this._targetMesh.position;
-    }
+    this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
 
     // mesh stuff
     this._material = null;
@@ -58,18 +55,15 @@ export default class WidgetsAnnotation extends WidgetsBase {
 
     // first handle
     let firstHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-    firstHandle.worldPosition = this._worldPosition;
+    firstHandle.worldPosition.copy(this._worldPosition);
     firstHandle.hovered = true;
     this.add(firstHandle);
 
     this._handles.push(firstHandle);
 
     let secondHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-    secondHandle.worldPosition = this._worldPosition;
+    secondHandle.worldPosition.copy(this._worldPosition);
     secondHandle.hovered = true;
-    // active and tracking might be redundant
-    secondHandle.active = true;
-    secondHandle.tracking = true;
     this.add(secondHandle);
 
     this._handles.push(secondHandle);
@@ -221,18 +215,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this.createDOM();
   }
 
-  update() {
-    this.updateColor();
-
-    // mesh stuff
-    this.updateMeshColor();
-    this.updateMeshPosition();
-
-    // DOM stuff
-    this.updateDOMColor();
-    this.updateDOMPosition();
-  }
-
   createMesh() {
     // geometry
     this._geometry = new THREE.Geometry();
@@ -257,18 +239,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._cone = new THREE.Mesh(this._conegeometry, this._material);
     this._cone.visible = true;
     this.add(this._cone);
-  }
-
-  updateMeshColor() {
-    if (this._material) {
-      this._material.color.set(this._color);
-    }
-  }
-
-  updateMeshPosition() {
-    if (this._geometry) {
-      this._geometry.verticesNeedUpdate = true;
-    }
   }
 
   createDOM() {
@@ -312,6 +282,30 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this.updateDOMColor();
   }
 
+  update() {
+    this.updateColor();
+
+    // mesh stuff
+    this.updateMeshColor();
+    this.updateMeshPosition();
+
+    // DOM stuff
+    this.updateDOMColor();
+    this.updateDOMPosition();
+  }
+
+  updateMeshColor() {
+    if (this._material) {
+      this._material.color.set(this._color);
+    }
+  }
+
+  updateMeshPosition() {
+    if (this._geometry) {
+      this._geometry.verticesNeedUpdate = true;
+    }
+  }
+
   updateDOMPosition() {
     // update annotation lines and text!
     let x1 = this._handles[0].screenPosition.x;
@@ -319,28 +313,19 @@ export default class WidgetsAnnotation extends WidgetsBase {
     let x2 = this._handles[1].screenPosition.x;
     let y2 = this._handles[1].screenPosition.y;
 
-    let x0 = x1 + (x2 - x1)/2;
-    let y0 = y1 + (y2 - y1)/2;
-
     let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
     let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI; // result in deg
 
     let posY = y1 - this._container.offsetHeight;
 
     // update line
-    let transform = `translate3D(${x1}px,${posY}px, 0)`;
-    transform += ` rotate(${angle}deg)`;
-
-    this._line.style.transform = transform;
+    this._line.style.transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}deg)`;
     this._line.style.width = length + 'px';
 
 
     // update label position
-    let mousex = 0;
-    let mousey = 0;
-
-    x0 -= this._label.offsetWidth/2;
-    y0 -= this._container.offsetHeight - this._label.offsetHeight/2;
+    let x0 = x1 + (x2 - x1)/2 - this._label.offsetWidth/2;
+    let y0 = y1 + (y2 - y1)/2 - this._container.offsetHeight - this._label.offsetHeight/2;
 
     if (!this._labelmoved) { // if the user hasnt moved the label, the position is defined by the position of the arrow
         this._label.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(y0)}px, 0)`;
@@ -348,6 +333,8 @@ export default class WidgetsAnnotation extends WidgetsBase {
         this._labelpositiony = Math.round(y0);
     }
 
+    let mousex = 0;
+    let mousey = 0;
 
     if (this._movinglabel) { // if the user has moved the label, the position is defined by the mouse
         mousex = event.clientX;
@@ -365,13 +352,9 @@ export default class WidgetsAnnotation extends WidgetsBase {
         this.displaylabel();
     }
 
-    // update cone
-    let w0 = this._handles[0].worldPosition;
-    let w1 = this._handles[1].worldPosition;
-
-    // position and rotation of cone
-    this._cone.position.set(w1.x, w1.y, w1.z);
-    this._cone.lookAt(w0);
+    // update cone position
+    this._cone.position.copy(this._handles[1].worldPosition);
+    this._cone.lookAt(this._handles[0].worldPosition);
 
     // update dash line
 
@@ -493,9 +476,9 @@ export default class WidgetsAnnotation extends WidgetsBase {
   }
 
   set worldPosition(worldPosition) {
-    this._worldPosition = worldPosition;
-    this._handles[0].worldPosition = this._worldPosition;
-    this._handles[1].worldPosition = this._worldPosition;
+    this._worldPosition.copy(worldPosition);
+    this._handles[0].worldPosition.copy(worldPosition);
+    this._handles[1].worldPosition.copy(worldPosition);
 
     this.update();
   }
@@ -516,23 +499,5 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._handles.forEach(function(elem) {
       elem.showDOM();
     });
-  }
-
-  hideMesh() {
-    this.visible = false;
-  }
-
-  showMesh() {
-    this.visible = true;
-  }
-
-  show() {
-    this.showDOM();
-    this.showMesh();
-  }
-
-  hide() {
-    this.hideDOM();
-    this.hideMesh();
   }
 }

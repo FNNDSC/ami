@@ -72,10 +72,6 @@ export default class WidgetsBase extends THREE.Object3D {
     window.console.log('update() should be overloaded!');
   }
 
-  free() {
-    this._container = null;
-  }
-
   updateColor() {
     if (this._active) {
       this._color = this._colors.active;
@@ -86,6 +82,38 @@ export default class WidgetsBase extends THREE.Object3D {
     } else {
       this._color = this._colors.default;
     }
+  }
+
+  show() {
+    this.showDOM();
+    this.showMesh();
+  }
+
+  hide() {
+    this.hideDOM();
+    this.hideMesh();
+  }
+
+  hideDOM() {
+    // to be overloaded
+    window.console.log('hideDOM() should be overloaded!');
+  }
+
+  showDOM() {
+    // to be overloaded
+    window.console.log('showDOM() should be overloaded!');
+  }
+
+  hideMesh() {
+    this.visible = false;
+  }
+
+  showMesh() {
+    this.visible = true;
+  }
+
+  free() {
+    this._container = null;
   }
 
   get enabled() {

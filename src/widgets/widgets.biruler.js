@@ -20,10 +20,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._active = true;
         this._initOrtho = false;
 
-        this._worldPosition = new Vector3();
-        if (this._targetMesh !== null) {
-            this._worldPosition = this._targetMesh.position;
-        }
+        this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
 
         // mesh stuff
         this._material = null;
@@ -45,16 +42,15 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         // first handle
         let firstHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-        firstHandle.worldPosition = this._worldPosition;
+        firstHandle.worldPosition.copy(this._worldPosition);
         firstHandle.hovered = true;
         this.add(firstHandle);
 
         this._handles.push(firstHandle);
 
         let secondHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-        secondHandle.worldPosition = this._worldPosition;
+        secondHandle.worldPosition.copy(this._worldPosition);
         secondHandle.hovered = true;
-        // active and tracking might be redundant
         secondHandle.active = true;
         secondHandle.tracking = true;
         this.add(secondHandle);
@@ -63,16 +59,18 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         // third handle
         let thirdHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-        thirdHandle.worldPosition = this._worldPosition;
+        thirdHandle.worldPosition.copy(this._worldPosition);
         thirdHandle.hovered = true;
+        // active and tracking?
         this.add(thirdHandle);
 
         this._handles.push(thirdHandle);
 
         // fourth handle
         let fourthHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-        fourthHandle.worldPosition = this._worldPosition;
+        fourthHandle.worldPosition.copy(this._worldPosition);
         fourthHandle.hovered = true;
+        // active and tracking?
         this.add(fourthHandle);
 
         this._handles.push(fourthHandle);
@@ -174,34 +172,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         });
 
         this._dashline.style.display = '';
-    }
-
-    hideMesh() {
-        this._mesh.visible = false;
-        this._mesh2.visible = false;
-        this._handles[0].visible = false;
-        this._handles[1].visible = false;
-        this._handles[2].visible = false;
-        this._handles[3].visible = false;
-    }
-
-    showMesh() {
-        this._mesh.visible = true;
-        this._mesh2.visible = true;
-        this._handles[0].visible = true;
-        this._handles[1].visible = true;
-        this._handles[2].visible = true;
-        this._handles[3].visible = true;
-    }
-
-    show() {
-        this.showDOM();
-        this.showMesh();
-    }
-
-    hide() {
-        this.hideDOM();
-        this.hideMesh();
     }
 
     update() {
@@ -353,13 +323,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._line.style.width = length + 'px';
 
         // update distance
-        let w0 = this._handles[0].worldPosition;
-        let w1 = this._handles[1].worldPosition;
-
-        this._distance.innerHTML =
-            `${Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2)} mm`;
-        this._distanceValue =
-            Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2);
+        this._distanceValue = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition).toFixed(2);
+        this._distance.innerHTML = `${this._distanceValue} mm`;
         let posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight/2;
         x0 -= this._distance.offsetWidth/2;
 
@@ -395,12 +360,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._line2.style.width = length + 'px';
 
         // update distance
-        let w02 = this._handles[2].worldPosition;
-        let w12 = this._handles[3].worldPosition;
-
-        this._distance2.innerHTML = `${Math.sqrt((w02.x-w12.x)*(w02.x-w12.x) + (w02.y-w12.y)*(w02.y-w12.y) + (w02.z-w12.z)*(w02.z-w12.z)).toFixed(2)} mm`;
-        this._distance2Value = Math.sqrt((w02.x-w12.x)*(w02.x-w12.x) +
-            (w02.y-w12.y)*(w02.y-w12.y) + (w02.z-w12.z)*(w02.z-w12.z)).toFixed(2);
+        this._distance2Value = this._handles[2].worldPosition.distanceTo(this._handles[3].worldPosition).toFixed(2);
+        this._distance2.innerHTML = `${this._distance2Value} mm`;
         let posY02 = y02 - this._container.offsetHeight - this._distance2.offsetHeight/2;
         x02 -= this._distance2.offsetWidth/2;
 
@@ -519,11 +480,11 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     set worldPosition(worldPosition) {
-        this._worldPosition = worldPosition;
-        this._handles[0].worldPosition = this._worldPosition;
-        this._handles[1].worldPosition = this._worldPosition;
-        this._handles[2].worldPosition = this._worldPosition;
-        this._handles[3].worldPosition = this._worldPosition;
+        this._worldPosition.copy(worldPosition);
+        this._handles[0].worldPosition.copy(worldPosition);
+        this._handles[1].worldPosition.copy(worldPosition);
+        this._handles[2].worldPosition.copy(worldPosition);
+        this._handles[3].worldPosition.copy(worldPosition);
 
         this.update();
     }

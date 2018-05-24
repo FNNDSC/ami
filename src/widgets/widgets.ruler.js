@@ -20,7 +20,6 @@ export default class WidgetsRuler extends WidgetsBase {
     this._lastEvent = null;
     this._moving = false;
     this._domHovered = false;
-    this._hovered = false;
     this._worldPosition = this._targetMesh !== null ? this._targetMesh.position : new Vector3();
 
     // mesh stuff
@@ -38,7 +37,7 @@ export default class WidgetsRuler extends WidgetsBase {
     // first handle
     let firstHandle =
       new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-    firstHandle.worldPosition = this._worldPosition;
+    firstHandle.worldPosition.copy(this._worldPosition);
     firstHandle.hovered = true;
     this.add(firstHandle);
 
@@ -46,9 +45,8 @@ export default class WidgetsRuler extends WidgetsBase {
 
     let secondHandle =
       new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-    secondHandle.worldPosition = this._worldPosition;
+    secondHandle.worldPosition.copy(this._worldPosition);
     secondHandle.hovered = true;
-    // active and tracking might be redundant
     secondHandle.active = true;
     secondHandle.tracking = true;
     this.add(secondHandle);
@@ -58,7 +56,7 @@ export default class WidgetsRuler extends WidgetsBase {
     // first handle
     this.imoveHandle =
         new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-    this.imoveHandle.worldPosition = this._worldPosition;
+    this.imoveHandle.worldPosition.copy(this._worldPosition);
     this.imoveHandle.hovered = true;
     this.add(this.imoveHandle);
     this._handles.push(this.imoveHandle);
@@ -66,7 +64,7 @@ export default class WidgetsRuler extends WidgetsBase {
 
     this.fmoveHandle =
        new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-    this.fmoveHandle.worldPosition = this._worldPosition;
+    this.fmoveHandle.worldPosition.copy(this._worldPosition);
     this.fmoveHandle.hovered = true;
     this.add(this.fmoveHandle);
     this._handles.push(this.fmoveHandle);
@@ -74,7 +72,6 @@ export default class WidgetsRuler extends WidgetsBase {
 
     // Create ruler
     this.create();
-    this.initOffsets();
 
     this.onMove = this.onMove.bind(this);
     this.onEndControl = this.onEndControl.bind(this);
@@ -178,7 +175,6 @@ export default class WidgetsRuler extends WidgetsBase {
     // First Handle
     this._handles[0].onEnd(evt);
 
-    this._moving = false;
     this._controls.enabled = true;
 
     // Second Handle
@@ -189,7 +185,7 @@ export default class WidgetsRuler extends WidgetsBase {
       this._handles[1].tracking = false;
     }
 
-    // State of ruler widget
+    // State of widget
     if (!this._dragged && this._active) {
       this._selected = !this._selected; // change state if there was no dragging
       this._handles[0].selected = this._selected;
@@ -197,6 +193,7 @@ export default class WidgetsRuler extends WidgetsBase {
     }
     this._active = this._handles[0].active || this._handles[1].active;
     this._dragged = false;
+    this._moving = false;
     this.update();
   }
 
@@ -229,24 +226,6 @@ export default class WidgetsRuler extends WidgetsBase {
     this._handles.forEach(function(elem) {
       elem.showDOM();
     });
-  }
-
-  hideMesh() {
-    this.visible = false;
-  }
-
-  showMesh() {
-    this.visible = true;
-  }
-
-  show() {
-    this.showDOM();
-    this.showMesh();
-  }
-
-  hide() {
-    this.hideDOM();
-    this.hideMesh();
   }
 
   update() {
@@ -299,7 +278,7 @@ export default class WidgetsRuler extends WidgetsBase {
     // add line!
     this._line = document.createElement('div');
     this._line.setAttribute('id', this.uuid);
-    this._line.setAttribute('class', 'AMI Widget Ruler');
+    this._line.setAttribute('class', 'widgets handle line');
     this._line.style.position = 'absolute';
     this._line.style.transformOrigin = '0 100%';
     this._line.style.marginTop = '-1px';
@@ -324,49 +303,31 @@ export default class WidgetsRuler extends WidgetsBase {
   }
 
   updateDOMPosition() {
-    // update rulers lines and text!
-    let x1 = this._handles[0].screenPosition.x;
-    let y1 = this._handles[0].screenPosition.y;
-    let x2 = this._handles[1].screenPosition.x;
-    let y2 = this._handles[1].screenPosition.y;
+    // update lines and text!
+    let x1 = this._handles[0].screenPosition.x,
+      y1 = this._handles[0].screenPosition.y,
+      x2 = this._handles[1].screenPosition.x,
+      y2 = this._handles[1].screenPosition.y;
 
-    let x0 = x2;
-    let y0 = y2;
-
-    if (y1 >= y2) {
-      y0 = y2 - 30;
-    } else {
-      y0 = y2 + 30;
-    }
-
-    let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-    let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+    let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)),
+      angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
 
     let posY = y1 - this._container.offsetHeight;
 
     // update line
-    let transform = `translate3D(${x1}px,${posY}px, 0)`;
-    transform += ` rotate(${angle}deg)`;
-
-    this._line.style.transform = transform;
+    this._line.style.transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}deg)`;
     this._line.style.width = length + 'px';
 
     // update distance
-    let w0 = this._handles[0].worldPosition;
-    let w1 = this._handles[1].worldPosition;
-
     this._distance.innerHTML =
-      `${
-        Math.sqrt(
-          (w0.x-w1.x)*(w0.x-w1.x) +
-          (w0.y-w1.y)*(w0.y-w1.y) +
-          (w0.z-w1.z)*(w0.z-w1.z)
-        ).toFixed(2)} mm`;
-    let posY0 =
-      y0 - this._container.offsetHeight - this._distance.offsetHeight/2;
-    x0 -= this._distance.offsetWidth/2;
+      `${this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition).toFixed(2)} mm`;
 
-    this._distance.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
+    let x0 = x2 - this._distance.offsetWidth/2,
+      y0 = y1 >= y2 ? y2 - 30 : y2 + 30;
+
+    y0 -= this._container.offsetHeight - this._distance.offsetHeight/2;
+
+    this._distance.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(y0)}px, 0)`;
   }
 
   updateDOMColor() {
@@ -409,9 +370,9 @@ export default class WidgetsRuler extends WidgetsBase {
   }
 
   set worldPosition(worldPosition) {
-    this._worldPosition = worldPosition;
-    this._handles[0].worldPosition = this._worldPosition;
-    this._handles[1].worldPosition = this._worldPosition;
+    this._worldPosition.copy(worldPosition);
+    this._handles[0].worldPosition.copy(worldPosition);
+    this._handles[1].worldPosition.copy(worldPosition);
 
     this.update();
   }
