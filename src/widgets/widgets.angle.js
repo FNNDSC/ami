@@ -21,10 +21,9 @@ export default class WidgetsAngle extends WidgetsBase {
         this._moving = false;
         this._domHovered = false;
 
+        this._worldPosition = new Vector3();
         if (this._targetMesh !== null) {
             this._worldPosition.copy(this._targetMesh.position);
-        } else {
-            this._worldPosition = new Vector3();
         }
 
         // mesh stuff

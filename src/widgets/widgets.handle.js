@@ -30,11 +30,10 @@ export default class WidgetsHandle extends WidgetsBase {
     this._lastEvent = null;
 
     // world (LPS) position of this handle
-    if (this._targetMesh !== null) {
-      this._worldPosition.copy(this._targetMesh.position);
-    } else {
       this._worldPosition = new Vector3();
-    }
+      if (this._targetMesh !== null) {
+        this._worldPosition.copy(this._targetMesh.position);
+      }
 
     // screen position of this handle
     this._screenPosition = new Vector2();

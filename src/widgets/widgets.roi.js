@@ -20,10 +20,9 @@ export default class WidgetsRoi extends WidgetsBase {
         this._active = true;
         this._init = false;
 
+        this._worldPosition = new Vector3();
         if (this._targetMesh !== null) {
             this._worldPosition.copy(this._targetMesh.position);
-        } else {
-            this._worldPosition = new Vector3();
         }
 
         // mesh stuff
