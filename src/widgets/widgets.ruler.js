@@ -366,9 +366,7 @@ export default class WidgetsRuler extends WidgetsBase {
       y0 - this._container.offsetHeight - this._distance.offsetHeight/2;
     x0 -= this._distance.offsetWidth/2;
 
-    let transform2 =
-      `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
-    this._distance.style.transform = transform2;
+    this._distance.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
   }
 
   updateDOMColor() {

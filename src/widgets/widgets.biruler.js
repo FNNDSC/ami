@@ -98,7 +98,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._handles[2].onStart(evt);
         this._handles[3].onStart(evt);
 
-        this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active;
+        this._active = this._handles[0].active || this._handles[1].active ||
+            this._handles[2].active || this._handles[3].active;
         this.update();
     }
 
@@ -112,7 +113,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._handles[2].onMove(evt);
         this._handles[3].onMove(evt);
 
-        this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._handles[2].hovered || this._handles[3].hovered;
+        this._hovered = this._handles[0].hovered || this._handles[1].hovered ||
+            this._handles[2].hovered || this._handles[3].hovered;
 
         this.update();
     }
@@ -137,7 +139,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
                 elem.selected = this._selected;
             }, this);
         }
-        this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active;
+        this._active = this._handles[0].active || this._handles[1].active ||
+            this._handles[2].active || this._handles[3].active;
         this._dragged = false;
         this.update();
     }
@@ -353,8 +356,10 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let w0 = this._handles[0].worldPosition;
         let w1 = this._handles[1].worldPosition;
 
-        this._distance.innerHTML = `${Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2)} mm`;
-        this._distanceValue = Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2);
+        this._distance.innerHTML =
+            `${Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2)} mm`;
+        this._distanceValue =
+            Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2);
         let posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight/2;
         x0 -= this._distance.offsetWidth/2;
 
@@ -394,15 +399,18 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let w12 = this._handles[3].worldPosition;
 
         this._distance2.innerHTML = `${Math.sqrt((w02.x-w12.x)*(w02.x-w12.x) + (w02.y-w12.y)*(w02.y-w12.y) + (w02.z-w12.z)*(w02.z-w12.z)).toFixed(2)} mm`;
-        this._distance2Value = Math.sqrt((w02.x-w12.x)*(w02.x-w12.x) + (w02.y-w12.y)*(w02.y-w12.y) + (w02.z-w12.z)*(w02.z-w12.z)).toFixed(2);
+        this._distance2Value = Math.sqrt((w02.x-w12.x)*(w02.x-w12.x) +
+            (w02.y-w12.y)*(w02.y-w12.y) + (w02.z-w12.z)*(w02.z-w12.z)).toFixed(2);
         let posY02 = y02 - this._container.offsetHeight - this._distance2.offsetHeight/2;
         x02 -= this._distance2.offsetWidth/2;
 
         this._distance2.style.transform = `translate3D(${Math.round(x02)}px,${Math.round(posY02)}px, 0)`;
 
         // update dash line
-        let l1center = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.5);
-        let l2center = this.getPointInBetweenByPerc(this._handles[2].worldPosition, this._handles[3].worldPosition, 0.5);
+        let l1center = this.getPointInBetweenByPerc(
+            this._handles[0].worldPosition, this._handles[1].worldPosition, 0.5);
+        let l2center = this.getPointInBetweenByPerc(
+            this._handles[2].worldPosition, this._handles[3].worldPosition, 0.5);
 
         let screen1 = this._handles[0].worldToScreen(l1center, this._camera, this._container);
         let screen2 = this._handles[0].worldToScreen(l2center, this._camera, this._container);
@@ -490,14 +498,20 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._initOrtho = true;
 
         let pcenter = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.5);
-        this._handles[2].worldPosition = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.25);
-        this._handles[3].worldPosition = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.75);
+        this._handles[2].worldPosition = this.getPointInBetweenByPerc(
+            this._handles[0].worldPosition, this._handles[1].worldPosition, 0.25);
+        this._handles[3].worldPosition = this.getPointInBetweenByPerc(
+            this._handles[0].worldPosition, this._handles[1].worldPosition, 0.75);
 
-        this._handles[2].worldPosition.x = pcenter.x - Math.sqrt((pcenter.y - this._handles[2].worldPosition.y)*(pcenter.y - this._handles[2].worldPosition.y));
-        this._handles[2].worldPosition.y = pcenter.y + Math.sqrt((pcenter.x - this._handles[2].worldPosition.x)*(pcenter.x - this._handles[2].worldPosition.x));
+        this._handles[2].worldPosition.x = pcenter.x -
+            Math.sqrt((pcenter.y - this._handles[2].worldPosition.y)*(pcenter.y - this._handles[2].worldPosition.y));
+        this._handles[2].worldPosition.y = pcenter.y +
+            Math.sqrt((pcenter.x - this._handles[2].worldPosition.x)*(pcenter.x - this._handles[2].worldPosition.x));
 
-        this._handles[3].worldPosition.x = pcenter.x + Math.sqrt((pcenter.y - this._handles[2].worldPosition.y)*(pcenter.y - this._handles[2].worldPosition.y));
-        this._handles[3].worldPosition.y = pcenter.y - Math.sqrt((pcenter.x - this._handles[2].worldPosition.x)*(pcenter.x - this._handles[2].worldPosition.x));
+        this._handles[3].worldPosition.x = pcenter.x +
+            Math.sqrt((pcenter.y - this._handles[2].worldPosition.y)*(pcenter.y - this._handles[2].worldPosition.y));
+        this._handles[3].worldPosition.y = pcenter.y -
+            Math.sqrt((pcenter.x - this._handles[2].worldPosition.x)*(pcenter.x - this._handles[2].worldPosition.x));
     }
 
     get worldPosition() {

@@ -403,11 +403,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       mouseScreenCoordinates.screenY - this._voxel.voxel.screenCoordinates.y;
     let distance = Math.sqrt(dx * dx + dy * dy);
     this._voxel.distance = distance;
-    if (distance >= 0 && distance < 10) {
-      this._hover = true;
-    } else {
-      this._hover = false;
-    }
+    this._hover = distance >= 0 && distance < 10;
   }
 
   set worldPosition(worldPosition) {

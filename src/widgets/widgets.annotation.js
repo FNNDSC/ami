@@ -46,10 +46,12 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._manuallabeldisplay = false; // Make true to force the label to be displayed
 
     // var
-    this._labelpositionx = null; // position of label (top left corner)
-    this._labelpositiony = null; // position of label (top left corner)
-    this._differencemousecenterlabelx = 0; // difference between mouse position in the label and position of label (top left corner)
-    this._differencemousecenterlabely = 0; // difference between mouse position in the label and position of label (top left corner)
+    // position of label (top left corner)
+    this._labelpositionx = null;
+    this._labelpositiony = null;
+    // difference between mouse position in the label and position of label (top left corner)
+    this._differencemousecenterlabelx = 0;
+    this._differencemousecenterlabely = 0;
 
     // add handles
     this._handles = [];
@@ -114,8 +116,8 @@ export default class WidgetsAnnotation extends WidgetsBase {
       this._labelmoved = true;
       let mousey = -(-event.clientY + this._container.offsetHeight);
       let mousex = event.clientX;
-      // calculate differencemousecenterlabel (difference between ref position of the label (top-left corner) and mouse position in the label)
-       this._differencemousecenterlabelx = Math.abs(Math.abs(mousex) - Math.abs(this._labelpositionx));
+      // calculate difference between ref position of the label (top-left corner) and mouse position in the label
+      this._differencemousecenterlabelx = Math.abs(Math.abs(mousex) - Math.abs(this._labelpositionx));
       this._differencemousecenterlabely = Math.abs(Math.abs(mousey) - Math.abs(this._labelpositiony));
     }
   }
@@ -337,26 +339,23 @@ export default class WidgetsAnnotation extends WidgetsBase {
     let mousex = 0;
     let mousey = 0;
 
-    let posY0;
-
-    posY0 = y0 - this._container.offsetHeight - this._label.offsetHeight/2;
     x0 -= this._label.offsetWidth/2;
-
-    let x;
-    let y;
+    y0 -= this._container.offsetHeight - this._label.offsetHeight/2;
 
     if (!this._labelmoved) { // if the user hasnt moved the label, the position is defined by the position of the arrow
-        this._label.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
+        this._label.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(y0)}px, 0)`;
         this._labelpositionx = Math.round(x0);
-        this._labelpositiony = Math.round(posY0);
+        this._labelpositiony = Math.round(y0);
     }
 
 
     if (this._movinglabel) { // if the user has moved the label, the position is defined by the mouse
         mousex = event.clientX;
         mousey = -(-event.clientY + this._container.offsetHeight);
-        this._label.style.transform = `translate3D(${mousex - this._differencemousecenterlabelx}px,${mousey - this._differencemousecenterlabely}px, 0)`;
-        // we use differencemousecenterlabel to check the difference between the position of the mouse in the label and the reference position of the label (top-left corner)
+        this._label.style.transform = `translate3D(${mousex - this._differencemousecenterlabelx}px,`
+          + `${mousey - this._differencemousecenterlabely}px, 0)`;
+        // we use differencemousecenterlabel to check the difference between the position of the mouse in the label
+        // and the reference position of the label (top-left corner)
         this._labelpositionx = mousex - this._differencemousecenterlabelx;
         this._labelpositiony = mousey - this._differencemousecenterlabely;
     }
@@ -380,7 +379,8 @@ export default class WidgetsAnnotation extends WidgetsBase {
     x1 = this._handles[0].screenPosition.x;
     y1 = this._handles[0].screenPosition.y;
     x2 = this._labelpositionx;
-    y2 = this._labelpositiony + this._container.offsetHeight; // revert the operation in 'mousey' to get the previous eventY
+    // revert the operation in 'mousey' to get the previous eventY
+    y2 = this._labelpositiony + this._container.offsetHeight;
 
     // get the size of the label so we can place the dashed line in the center of it
     let labelheight = this._label.offsetHeight;
@@ -389,7 +389,8 @@ export default class WidgetsAnnotation extends WidgetsBase {
     let centerlabelx = 0;
     let centerlabely = 0;
 
-    if (isFinite(labelwidth) && isFinite(labelheight)) { // if the extraction has been succesfull, we calculate the center of the label with total size
+    if (isFinite(labelwidth) && isFinite(labelheight)) {
+      // if the extraction has been succesfull, we calculate the center of the label with total size
       centerlabelx = labelwidth/2;
       centerlabely = labelheight/2;
     }
@@ -400,7 +401,8 @@ export default class WidgetsAnnotation extends WidgetsBase {
     // calculate the place in the arrow: closest part of the line to place the dashed line
     let x1_tail = this._handles[0].screenPosition.x; // first position: tail of arrow
     let y1_tail = this._handles[0].screenPosition.y;
-    let x1_body = (this._handles[0].screenPosition.x + this._handles[1].screenPosition.x)/2; // second position: center of arrow
+    // second position: center of arrow
+    let x1_body = (this._handles[0].screenPosition.x + this._handles[1].screenPosition.x)/2;
     let y1_body = (this._handles[0].screenPosition.y + this._handles[1].screenPosition.y)/2;
     let x1_nose = this._handles[1].screenPosition.x; // third position: peak of arrow
     let y1_nose = this._handles[1].screenPosition.y;
@@ -414,15 +416,15 @@ export default class WidgetsAnnotation extends WidgetsBase {
     let minlength = Math.min(lengthtaillabel, lengthbodylabel, lengthnoselabel);
     let minlengthindex = lengths.indexOf(minlength);
 
-    if (minlengthindex == 0) {
+    if (minlengthindex === 0) {
       x1 = x1_tail;
       y1 = y1_tail;
     }
-    if (minlengthindex == 1) {
+    if (minlengthindex === 1) {
       x1 = x1_body;
       y1 = y1_body;
     }
-    if (minlengthindex == 2) {
+    if (minlengthindex === 2) {
       x1 = x1_nose;
       y1 = y1_nose;
     }

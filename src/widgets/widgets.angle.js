@@ -118,7 +118,8 @@ export default class WidgetsAngle extends WidgetsBase {
 
         this.hoverMesh();
 
-        this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._handles[2].hovered || this._meshHovered || this._domHovered;
+        this._hovered = this._handles[0].hovered || this._handles[1].hovered ||
+            this._handles[2].hovered || this._meshHovered || this._domHovered;
         this._container.style.cursor = this._hovered ? 'pointer' : 'default';
     }
 
@@ -137,7 +138,8 @@ export default class WidgetsAngle extends WidgetsBase {
         this._handles[1].onStart(evt);
         this._handles[2].onStart(evt);
 
-        this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._domHovered;
+        this._active = this._handles[0].active || this._handles[1].active ||
+            this._handles[2].active || this._domHovered;
 
         if (this._domHovered) {
             this._moving = true;
@@ -171,7 +173,8 @@ export default class WidgetsAngle extends WidgetsBase {
         this._handles[1].onMove(evt);
         this._handles[2].onMove(evt);
 
-        this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._handles[2].hovered || this._meshHovered || this._domHovered;
+        this._hovered = this._handles[0].hovered || this._handles[1].hovered ||
+            this._handles[2].hovered || this._meshHovered || this._domHovered;
 
         this.update();
     }
@@ -406,7 +409,8 @@ export default class WidgetsAngle extends WidgetsBase {
         this._opangle = this._defaultAngle ? a0102*180/Math.PI : 360-(a0102*180/Math.PI);
         this._distance.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
-        this._distanceValue = Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2);
+        this._distanceValue =
+            Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z)).toFixed(2);
         let posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight/2;
         x0 -= this._distance.offsetWidth/2;
 
@@ -417,15 +421,6 @@ export default class WidgetsAngle extends WidgetsBase {
         let y3 = this._handles[1].screenPosition.y;
         let x4 = this._handles[2].screenPosition.x;
         let y4 = this._handles[2].screenPosition.y;
-
-        let x02 = x4;
-        let y02 = y4;
-
-        if (y3 >= y4) {
-            y02 = y4 - 30;
-        } else {
-            y02 = y4 + 30;
-        }
 
         length = Math.sqrt((x3-x4)*(x3-x4) + (y3-y4)*(y3-y4));
         angle = Math.atan2(y4 - y3, x4 - x3) * 180 / Math.PI;
@@ -439,13 +434,11 @@ export default class WidgetsAngle extends WidgetsBase {
         this._line2.style.transform = transform;
         this._line2.style.width = length + 'px';
 
-        // update distance
-        let w02 = this._handles[1].worldPosition;
-        let w12 = this._handles[2].worldPosition;
-
         // update dash line
-        let l1center = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.75);
-        let l2center = this.getPointInBetweenByPerc(this._handles[1].worldPosition, this._handles[2].worldPosition, 0.25);
+        let l1center = this.getPointInBetweenByPerc(
+            this._handles[0].worldPosition, this._handles[1].worldPosition, 0.75);
+        let l2center = this.getPointInBetweenByPerc(
+            this._handles[1].worldPosition, this._handles[2].worldPosition, 0.25);
 
         let screen1 = this._handles[0].worldToScreen(l1center, this._camera, this._container);
         let screen2 = this._handles[0].worldToScreen(l2center, this._camera, this._container);

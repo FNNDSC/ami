@@ -345,7 +345,7 @@ export default class WidgetsRoi extends WidgetsBase {
         let w0 = handle0;
         let w1 = newhandle;
 
-        var interpointdist = Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z));
+        let interpointdist = Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z));
 
         if (isOnLine || interpointdist < 3) {
             this.remove(handle1);
@@ -363,31 +363,18 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     updateLineDOM(lineIndex, handle0Index, handle1Index) {
-        // update rulers lines and text!
-        let x1 = this._handles[handle0Index].screenPosition.x;
-        let y1 = this._handles[handle0Index].screenPosition.y;
-        let x2 = this._handles[handle1Index].screenPosition.x;
-        let y2 = this._handles[handle1Index].screenPosition.y;
+        let x1 = this._handles[handle0Index].screenPosition.x,
+            y1 = this._handles[handle0Index].screenPosition.y,
+            x2 = this._handles[handle1Index].screenPosition.x,
+            y2 = this._handles[handle1Index].screenPosition.y;
 
-        let x0 = x2;
-        let y0 = y2;
-
-        if (y1 >= y2) {
-            y0 = y2 - 30;
-        } else {
-            y0 = y2 + 30;
-        }
-
-        let length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-        let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+        let length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)),
+            angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
 
         let posY = y1 - this._container.offsetHeight;
 
         // update line
-        let transform = `translate3D(${x1}px, ${posY}px, 0)`;
-        transform += ` rotate(${angle}deg)`;
-
-        this._lines[lineIndex].style.transform = transform;
+        this._lines[lineIndex].style.transform = `translate3D(${x1}px, ${posY}px, 0) rotate(${angle}deg)`;
         this._lines[lineIndex].style.width = length + 'px';
     }
 
