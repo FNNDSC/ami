@@ -385,7 +385,7 @@ export default class WidgetsRoi extends WidgetsBase {
         this._lines[lineIndex].style.transform = `translate3D(${x1}px, ${posY}px, 0) rotate(${angle}deg)`;
         this._lines[lineIndex].style.width = length + 'px';
 
-        return [x1, posY];
+        return [x1, y1];
     }
 
     updateDOMPosition() {
@@ -401,19 +401,23 @@ export default class WidgetsRoi extends WidgetsBase {
             }, this);
         }
 
+        if (!this._init) {
+            return;
+        }
+
         // update area
         this._area.innerHTML = `${(AMI.SliceGeometry.shapeGeometryArea(this._geometry)/100).toFixed(2)} cm²`;
         if (this._shapeWarn) {
             this._area.setAttribute('title', 'Area may be incorrect due to triangulation error');
-            this._area.style.color = '#922';
+            this._area.style.color = '#C22';
         } else {
             this._area.removeAttribute('title');
             this._area.style.color = '#222';
         }
 
         lowestXY[0] = Math.round(lowestXY[0] - this._area.offsetWidth/2);
-        lowestXY[1] = Math.round(lowestXY[1] - this._area.offsetHeight/2 + 30);
-        this._angle.style.transform = `translate3D(${lowestXY[0]}px,${lowestXY[1]}px, 0)`;
+        lowestXY[1] = Math.round(lowestXY[1] - this._area.offsetHeight/2 - this._container.offsetHeight + 30);
+        this._area.style.transform = `translate3D(${lowestXY[0]}px,${lowestXY[1]}px, 0)`;
     }
 
     updateDOMColor() {
