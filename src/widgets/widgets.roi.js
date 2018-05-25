@@ -195,6 +195,19 @@ export default class WidgetsRoi extends WidgetsBase {
         this._line.style.width = '3px';
         this._container.appendChild(this._line);
 
+        // add label!
+        this._area = document.createElement('div');
+        this._area.setAttribute('class', 'widgets handle label');
+        this._area.style.border = '2px solid';
+        this._area.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
+        // this._area.style.opacity = '0.5';
+        this._area.style.color = '#222';
+        this._area.style.padding = '4px';
+        this._area.style.position = 'absolute';
+        this._area.style.transformOrigin = '0 100%';
+        this._area.style.zIndex = '3';
+        this._container.appendChild(this._area);
+
         this.updateDOMColor();
     }
 
@@ -206,6 +219,7 @@ export default class WidgetsRoi extends WidgetsBase {
         this._lines.forEach(function(elem) {
             elem.style.display = 'none';
         });
+        this._area.style.display = 'none';
     }
 
     showDOM() {
@@ -216,6 +230,7 @@ export default class WidgetsRoi extends WidgetsBase {
         this._lines.forEach(function(elem) {
             elem.style.display = '';
         });
+        this._area.style.display = '';
     }
 
     update() {
@@ -288,7 +303,20 @@ export default class WidgetsRoi extends WidgetsBase {
 
         let sliceShape = AMI.SliceGeometry.shape(orderedpoints);
 
+        // override to catch console.warn "THREE.ShapeUtils: Unable to triangulate polygon! in triangulate()"
+        this._shapeWarn = false;
+        const oldWarn = console.warn;
+        console.warn = function() {
+            if (arguments[0] === 'THREE.ShapeUtils: Unable to triangulate polygon! in triangulate()') {
+                this._shapeWarn = true;
+            }
+            return oldWarn.apply(console, arguments);
+        }.bind(this);
+
         this._geometry = new THREE.ShapeGeometry(sliceShape);
+
+        console.warn = oldWarn;
+
         this._geometry.vertices = orderedpoints;
         this._geometry.verticesNeedUpdate = true;
         this._geometry.elementsNeedUpdate = true;
@@ -327,7 +355,7 @@ export default class WidgetsRoi extends WidgetsBase {
 
         let interpointdist = handle0.worldPosition.distanceTo(newhandle.worldPosition);
 
-        if (isOnLine || interpointdist < 3) { // TODO! make 3 configurable
+        if (isOnLine || interpointdist < 10) { // TODO! make 10 configurable
             this.remove(handle1);
             handle1.free();
 
@@ -356,14 +384,36 @@ export default class WidgetsRoi extends WidgetsBase {
         // update line
         this._lines[lineIndex].style.transform = `translate3D(${x1}px, ${posY}px, 0) rotate(${angle}deg)`;
         this._lines[lineIndex].style.width = length + 'px';
+
+        return [x1, posY];
     }
 
     updateDOMPosition() {
+        // update lines and get coordinates of lowest handle
+        let lowestXY = [0, 0];
+
         if (this._handles.length >= 2) {
             this._lines.forEach(function(elem, ind) {
-                this.updateLineDOM(ind, ind, ind + 1 === this._handles.length ? 0 : ind + 1);
+                let xy = this.updateLineDOM(ind, ind, ind + 1 === this._handles.length ? 0 : ind + 1);
+                if (xy[1] > lowestXY[1]) {
+                    lowestXY = xy;
+                }
             }, this);
         }
+
+        // update area
+        this._area.innerHTML = `${(AMI.SliceGeometry.shapeGeometryArea(this._geometry)/100).toFixed(2)} cm²`;
+        if (this._shapeWarn) {
+            this._area.setAttribute('title', 'Area may be incorrect due to triangulation error');
+            this._area.style.color = '#922';
+        } else {
+            this._area.removeAttribute('title');
+            this._area.style.color = '#222';
+        }
+
+        lowestXY[0] = Math.round(lowestXY[0] - this._area.offsetWidth/2);
+        lowestXY[1] = Math.round(lowestXY[1] - this._area.offsetHeight/2 + 30);
+        this._angle.style.transform = `translate3D(${lowestXY[0]}px,${lowestXY[1]}px, 0)`;
     }
 
     updateDOMColor() {
@@ -372,6 +422,7 @@ export default class WidgetsRoi extends WidgetsBase {
                 elem.style.backgroundColor = `${this._color}`;
             }, this);
         }
+        this._area.style.borderColor = `${this._color}`;
     }
 
     free() {
@@ -382,10 +433,12 @@ export default class WidgetsRoi extends WidgetsBase {
             h.free();
         });
         this._handles = [];
+
         this._lines.forEach(function(elem) {
             this._container.removeChild(elem);
         }, this);
         this._lines = [];
+        this._container.removeChild(this._area);
 
         if (this._mesh) {// mesh, geometry, material
             this.remove(this._mesh);

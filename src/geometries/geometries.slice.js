@@ -43,69 +43,91 @@ import {Matrix4, Vector3} from 'three';
  */
 
 export default class GeometriesSlice extends THREE.ShapeGeometry {
-    constructor(halfDimensions, center, position, direction, toAABB = new Matrix4()) {
-      //
-      // prepare data for the shape!
-      //
-      let aabb = {
-        halfDimensions,
-        center,
-        toAABB,
-      };
+  constructor(halfDimensions, center, position, direction, toAABB = new Matrix4()) {
+    //
+    // prepare data for the shape!
+    //
+    let aabb = {
+      halfDimensions,
+      center,
+      toAABB,
+    };
 
-      let plane = {
-        position,
-        direction,
-      };
+    let plane = {
+      position,
+      direction,
+    };
 
-      // BOOM!
-      let intersections = coreIntersections.aabbPlane(aabb, plane);
+    // BOOM!
+    let intersections = coreIntersections.aabbPlane(aabb, plane);
 
-      // can not exist before calling the constructor
-      if (intersections.length < 3) {
-        window.console.log('WARNING: Less than 3 intersections between AABB and Plane.');
-        window.console.log('AABB');
-        window.console.log(aabb);
-        window.console.log('Plane');
-        window.console.log(plane);
-        window.console.log('exiting...');
-        const err = new Error('geometries.slice has less than 3 intersections, can not create a valid geometry.');
-        throw err;
-      }
-
-      let orderedIntersections = GeometriesSlice.orderIntersections(intersections, direction);
-      let sliceShape = GeometriesSlice.shape(orderedIntersections);
-
-      //
-      // Generate Geometry from shape
-      // It does triangulation for us!
-      //
-      super(sliceShape);
-      this.type = 'SliceGeometry';
-
-      // update real position of each vertex! (not in 2d)
-      this.vertices = orderedIntersections;
-      this.verticesNeedUpdate = true;
+    // can not exist before calling the constructor
+    if (intersections.length < 3) {
+      window.console.log('WARNING: Less than 3 intersections between AABB and Plane.');
+      window.console.log('AABB');
+      window.console.log(aabb);
+      window.console.log('Plane');
+      window.console.log(plane);
+      window.console.log('exiting...');
+      const err = new Error('geometries.slice has less than 3 intersections, can not create a valid geometry.');
+      throw err;
     }
 
-    static shape(points) {
-      //
-      // Create Shape
-      //
-      let shape = new THREE.Shape();
-      // move to first point!
-      shape.moveTo(points[0].xy.x, points[0].xy.y);
+    let orderedIntersections = GeometriesSlice.orderIntersections(intersections, direction);
+    let sliceShape = GeometriesSlice.shape(orderedIntersections);
 
-      // loop through all points!
-      for (let l = 1; l < points.length; l++) {
-        // project each on plane!
-        shape.lineTo(points[l].xy.x, points[l].xy.y);
-      }
+    //
+    // Generate Geometry from shape
+    // It does triangulation for us!
+    //
+    super(sliceShape);
+    this.type = 'SliceGeometry';
 
-      // close the shape!
-      shape.lineTo(points[0].xy.x, points[0].xy.y);
-      return shape;
+    // update real position of each vertex! (not in 2d)
+    this.vertices = orderedIntersections;
+    this.verticesNeedUpdate = true;
+  }
+
+  static shape(points) {
+    //
+    // Create Shape
+    //
+    let shape = new THREE.Shape();
+    // move to first point!
+    shape.moveTo(points[0].xy.x, points[0].xy.y);
+
+    // loop through all points!
+    for (let l = 1; l < points.length; l++) {
+      // project each on plane!
+      shape.lineTo(points[l].xy.x, points[l].xy.y);
     }
+
+    // close the shape!
+    shape.lineTo(points[0].xy.x, points[0].xy.y);
+    return shape;
+  }
+
+  /**
+   * Calculate shape area (sum of triangle polygons area).
+   *
+   * @param {THREE.ShapeGeometry} geometry
+   *
+   * @returns {Number}
+   */
+  static shapeGeometryArea(geometry) {
+    if (geometry.faces.length < 1) {
+      return 0.0;
+    }
+
+    let area = 0.0,
+        vertices = geometry.vertices;
+
+    geometry.faces.forEach(function(elem) {
+      area += new THREE.Triangle(vertices[elem.a], vertices[elem.b], vertices[elem.c]).area();
+    });
+
+    return area;
+  }
 
  /**
   *

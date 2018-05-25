@@ -68,7 +68,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     secondHandle.worldPosition.copy(this._worldPosition);
     secondHandle.hovered = true;
     secondHandle.active = true;
-    secondHandle.tracking = true;
     this.add(secondHandle);
 
     this._handles.push(secondHandle);

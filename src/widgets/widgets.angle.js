@@ -381,7 +381,7 @@ export default class WidgetsAngle extends WidgetsBase {
         this._angle.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
         let x0 = x2 - this._angle.offsetWidth/2,
-            y0 = y2 - this._container.offsetHeight - this._distance.offsetHeight/2;
+            y0 = y2 - this._container.offsetHeight - this._angle.offsetHeight/2;
 
         y0 += y1 >= y2 ? -30 : 30;
 
