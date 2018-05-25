@@ -261,22 +261,22 @@ export default class WidgetsRoi extends WidgetsBase {
         });
 
         let center = AMI.SliceGeometry.centerOfMass(points);
-        let side1 = new THREE.Vector3(0, 0, 0);
-        let side2 = new THREE.Vector3(0, 0, 0);
+        let side1 = new Vector3();
+        let side2 = new Vector3();
         side1.subVectors(points[0], center);
         side2.subVectors(points[1], center);
-        let direction = new THREE.Vector3(0, 0, 0);
+        let direction = new Vector3();
         direction.crossVectors(side1, side2);
 
         let reference = center;
         // direction from first point to reference
-        let referenceDirection = new THREE.Vector3(
+        let referenceDirection = new Vector3(
             points[0].x - reference.x,
             points[0].y - reference.y,
             points[0].z - reference.z
         ).normalize();
 
-        let base = new THREE.Vector3(0, 0, 0)
+        let base = new Vector3()
             .crossVectors(referenceDirection, direction)
             .normalize();
 
@@ -284,11 +284,11 @@ export default class WidgetsRoi extends WidgetsBase {
 
         // other lines // if inter, return location + angle
         for (let j = 0; j < points.length; j++) {
-            let point = new THREE.Vector3(
+            let point = new Vector3(
                 points[j].x,
                 points[j].y,
                 points[j].z);
-            point.direction = new THREE.Vector3(
+            point.direction = new Vector3(
                 points[j].x - reference.x,
                 points[j].y - reference.y,
                 points[j].z - reference.z).normalize();
@@ -384,19 +384,17 @@ export default class WidgetsRoi extends WidgetsBase {
         // update line
         this._lines[lineIndex].style.transform = `translate3D(${x1}px, ${posY}px, 0) rotate(${angle}deg)`;
         this._lines[lineIndex].style.width = length + 'px';
-
-        return [x1, y1];
     }
 
     updateDOMPosition() {
         // update lines and get coordinates of lowest handle
-        let lowestXY = [0, 0];
+        let labelPosition = new Vector3();
 
         if (this._handles.length >= 2) {
             this._lines.forEach(function(elem, ind) {
-                let xy = this.updateLineDOM(ind, ind, ind + 1 === this._handles.length ? 0 : ind + 1);
-                if (xy[1] > lowestXY[1]) {
-                    lowestXY = xy;
+                this.updateLineDOM(ind, ind, ind + 1 === this._handles.length ? 0 : ind + 1);
+                if (labelPosition.y < this._handles[ind].screenPosition.y) {
+                    labelPosition.copy(this._handles[ind].screenPosition);
                 }
             }, this);
         }
@@ -415,9 +413,9 @@ export default class WidgetsRoi extends WidgetsBase {
             this._area.style.color = '#222';
         }
 
-        lowestXY[0] = Math.round(lowestXY[0] - this._area.offsetWidth/2);
-        lowestXY[1] = Math.round(lowestXY[1] - this._area.offsetHeight/2 - this._container.offsetHeight + 30);
-        this._area.style.transform = `translate3D(${lowestXY[0]}px,${lowestXY[1]}px, 0)`;
+        labelPosition.x = Math.round(labelPosition.x - this._area.offsetWidth/2);
+        labelPosition.y = Math.round(labelPosition.y - this._area.offsetHeight/2 - this._container.offsetHeight + 30);
+        this._area.style.transform = `translate3D(${labelPosition.x}px,${labelPosition.y}px, 0)`;
     }
 
     updateDOMColor() {
