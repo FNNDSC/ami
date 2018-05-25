@@ -108,56 +108,52 @@ void main(void) {
     ${shadersInterpolation(this, 'currentVoxel', 'dataValue', 'gradient')}
   }
 
-  float intensity = dataValue.r;
-
-  // rescale/slope
-  intensity =
-    intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
-
-  float isInferior = 1. - step(uLowerUpperThreshold[0], intensity);
-  float isSuperior = step(uLowerUpperThreshold[1], intensity);
-
-  // > 0. could lead to incorrect thresholding due to floating point precision
-  if (intensity < uLowerUpperThreshold[0] || intensity > uLowerUpperThreshold[1]) {
-    discard;
-  }
-
   if(uNumberOfChannels == 1){
+    // rescale/slope
+    float realIntensity = dataValue.r * uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
+  
+    // threshold
+    if (realIntensity < uLowerUpperThreshold[0] || realIntensity > uLowerUpperThreshold[1]) {
+      discard;
+    }
+  
+    // normalize
     float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
     float normalizedIntensity =
-      ( intensity - windowMin ) / uWindowCenterWidth[1];
-
+      ( realIntensity - windowMin ) / uWindowCenterWidth[1];
     dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;
     dataValue.a = 1.;
-  }
 
-  if(uLut == 1){
-    // should opacity be grabbed there?
-    dataValue = texture2D( uTextureLUT, vec2( dataValue.r , 1.0) );
-  }
-
-  if(uLutSegmentation == 1){
-    // should opacity be grabbed there?
-    //
-    float textureWidth = 256.;
-    float textureHeight = 128.;
-    float min = 0.;
-    // start at 0!
-    int adjustedIntensity = int(floor(intensity + 0.5));
-
-    // Get row and column in the texture
-    int colIndex = int(mod(float(adjustedIntensity), textureWidth));
-    int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));
-
-    float texWidth = 1./textureWidth;
-    float texHeight = 1./textureHeight;
+    // apply LUT
+    if(uLut == 1){
+      // should opacity be grabbed there?
+      dataValue = texture2D( uTextureLUT, vec2( normalizedIntensity , 1.0) );
+    }
   
-    // Map row and column to uv
-    vec2 uv = vec2(0,0);
-    uv.x = 0.5 * texWidth + (texWidth * float(colIndex));
-    uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);
-
-    dataValue = texture2D( uTextureLUTSegmentation, uv );
+    // apply segmentation
+    if(uLutSegmentation == 1){
+      // should opacity be grabbed there?
+      //
+      float textureWidth = 256.;
+      float textureHeight = 128.;
+      float min = 0.;
+      // start at 0!
+      int adjustedIntensity = int(floor(normalizedIntensity + 0.5));
+  
+      // Get row and column in the texture
+      int colIndex = int(mod(float(adjustedIntensity), textureWidth));
+      int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));
+  
+      float texWidth = 1./textureWidth;
+      float texHeight = 1./textureHeight;
+    
+      // Map row and column to uv
+      vec2 uv = vec2(0,0);
+      uv.x = 0.5 * texWidth + (texWidth * float(colIndex));
+      uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);
+  
+      dataValue = texture2D( uTextureLUTSegmentation, uv );
+    }
   }
 
   if(uInvert == 1){
