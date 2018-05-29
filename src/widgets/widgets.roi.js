@@ -4,26 +4,13 @@ import WidgetsHandle from './widgets.handle';
 import {Vector3} from 'three';
 
 /**
- * @module widgets/handle
- *
+ * @module widgets/roi
  */
-
 export default class WidgetsRoi extends WidgetsBase {
-    constructor(targetMesh, controls, camera, container) {
-        super();
+    constructor(targetMesh, camera) {
+        super(targetMesh, camera);
 
-        this._targetMesh = targetMesh;
-        this._controls = controls;
-        this._camera = camera;
-        this._container = container;
-
-        this._active = true;
         this._init = false;
-
-        this._worldPosition = new Vector3();
-        if (this._targetMesh !== null) {
-            this._worldPosition.copy(this._targetMesh.position);
-        }
 
         // mesh stuff
         this._material = null;
@@ -42,7 +29,6 @@ export default class WidgetsRoi extends WidgetsBase {
         firstHandle.worldPosition.copy(this._worldPosition);
         firstHandle.hovered = true;
         this.add(firstHandle);
-
         this._handles.push(firstHandle);
 
         // Create ruler
@@ -185,7 +171,6 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     createDOM() {
-        // add line!
         this._line = document.createElement('div');
         this._line.setAttribute('class', 'widgets handle line');
         this._line.style.position = 'absolute';
@@ -261,37 +246,20 @@ export default class WidgetsRoi extends WidgetsBase {
         });
 
         let center = AMI.SliceGeometry.centerOfMass(points);
-        let side1 = new Vector3();
-        let side2 = new Vector3();
-        side1.subVectors(points[0], center);
-        side2.subVectors(points[1], center);
-        let direction = new Vector3();
-        direction.crossVectors(side1, side2);
+        let direction = new Vector3().crossVectors(
+            new Vector3().subVectors(points[0], center), // side 1
+            new Vector3().subVectors(points[1], center) // side 2
+        );
 
-        let reference = center;
-        // direction from first point to reference
-        let referenceDirection = new Vector3(
-            points[0].x - reference.x,
-            points[0].y - reference.y,
-            points[0].z - reference.z
-        ).normalize();
-
-        let base = new Vector3()
-            .crossVectors(referenceDirection, direction)
-            .normalize();
-
+        // direction from first point to center
+        let referenceDirection = new Vector3().subVectors(points[0], center).normalize();
+        let base = new Vector3().crossVectors(referenceDirection, direction).normalize();
         let orderedpoints = [];
 
         // other lines // if inter, return location + angle
         for (let j = 0; j < points.length; j++) {
-            let point = new Vector3(
-                points[j].x,
-                points[j].y,
-                points[j].z);
-            point.direction = new Vector3(
-                points[j].x - reference.x,
-                points[j].y - reference.y,
-                points[j].z - reference.z).normalize();
+            let point = new Vector3(points[j].x, points[j].y, points[j].z);
+            point.direction = new Vector3().subVectors(points[j], center).normalize();
 
             let x = referenceDirection.dot(point.direction);
             let y = base.dot(point.direction);
@@ -461,13 +429,8 @@ export default class WidgetsRoi extends WidgetsBase {
         super.free();
     }
 
-    get worldPosition() {
-        return this._worldPosition;
-    }
-
     set worldPosition(worldPosition) {
         this._worldPosition.copy(worldPosition);
-
         this._handles.forEach(function(elem) {
             elem._worldPosition.copy(worldPosition);
         }, this);

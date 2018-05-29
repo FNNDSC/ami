@@ -1,28 +1,12 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 
-import {Vector3} from 'three';
-
 /**
- * @module widgets/handle
- *
+ * @module widgets/annotation
  */
-
 export default class WidgetsAnnotation extends WidgetsBase {
-  constructor(targetMesh, controls, camera, container) {
-    super();
-
-    this._targetMesh = targetMesh;
-    this._controls = controls;
-    this._camera = camera;
-    this._container = container;
-
-    this._active = true;
-
-    this._worldPosition = new Vector3();
-    if (this._targetMesh !== null) {
-      this._worldPosition.copy(this._targetMesh.position);
-    }
+  constructor(targetMesh, camera) {
+    super(targetMesh, camera);
 
     // mesh stuff
     this._material = null;
@@ -40,9 +24,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._alreadycreated = null; // bool that turns true when the user enter the name of the label
     this._movinglabel = null; // bool that turns true when the label is moving with the mouse
     this._labelmoved = false; // bool that turns true once the label is moved by the user (at least once)
-
     this._labelhovered = false;
-    this._hovered = true;
     this._manuallabeldisplay = false; // Make true to force the label to be displayed
 
     // var
@@ -61,7 +43,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     firstHandle.worldPosition.copy(this._worldPosition);
     firstHandle.hovered = true;
     this.add(firstHandle);
-
     this._handles.push(firstHandle);
 
     let secondHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
@@ -69,7 +50,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     secondHandle.hovered = true;
     secondHandle.active = true;
     this.add(secondHandle);
-
     this._handles.push(secondHandle);
 
     // Create annotation
@@ -246,7 +226,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
   }
 
   createDOM() {
-    // add line!
     this._line = document.createElement('div');
     this._line.setAttribute('class', 'widgets handle line');
     this._line.style.position = 'absolute';
@@ -256,7 +235,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._line.style.width = '3px';
     this._container.appendChild(this._line);
 
-    // add dash line
     this._dashline = document.createElement('div');
     this._dashline.setAttribute('class', 'widgets handle dashline');
     this._dashline.style.position = 'absolute';
@@ -268,9 +246,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._dashline.style.display = 'none';
     this._container.appendChild(this._dashline);
 
-    // add label!
     this._label = document.createElement('div');
-    this._label.setAttribute('id', this.uuid);
     this._label.setAttribute('class', 'widgets handle label');
     this._label.style.border = '2px solid';
     this._label.style.backgroundColor = '#F9F9F9';
@@ -332,13 +308,13 @@ export default class WidgetsAnnotation extends WidgetsBase {
 
 
     // update label position
-    let x0 = x1 + (x2 - x1)/2 - this._label.offsetWidth/2;
-    let y0 = y1 + (y2 - y1)/2 - this._container.offsetHeight - this._label.offsetHeight/2;
+    let x0 = Math.round(x1 + (x2 - x1)/2 - this._label.offsetWidth/2);
+    let y0 = Math.round(y1 + (y2 - y1)/2 - this._container.offsetHeight - this._label.offsetHeight/2);
 
     if (!this._labelmoved) { // if the user hasnt moved the label, the position is defined by the position of the arrow
-        this._label.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(y0)}px, 0)`;
-        this._labelpositionx = Math.round(x0);
-        this._labelpositiony = Math.round(y0);
+        this._label.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
+        this._labelpositionx = x0;
+        this._labelpositiony = y0;
     }
 
     let mousex = 0;
@@ -477,10 +453,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._conegeometry = null;
 
     super.free();
-  }
-
-  get worldPosition() {
-    return this._worldPosition;
   }
 
   set worldPosition(worldPosition) {

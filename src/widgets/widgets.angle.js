@@ -1,30 +1,15 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 
-import {Vector3} from 'three';
-
 /**
  * @module widgets/angle
- *
  */
-
 export default class WidgetsAngle extends WidgetsBase {
-    constructor(targetMesh, controls, camera, container) {
-        super();
+    constructor(targetMesh, camera) {
+        super(targetMesh, camera);
 
-        this._targetMesh = targetMesh;
-        this._controls = controls;
-        this._camera = camera;
-        this._container = container;
-
-        this._active = true;
         this._moving = false;
         this._domHovered = false;
-
-        this._worldPosition = new Vector3();
-        if (this._targetMesh !== null) {
-            this._worldPosition.copy(this._targetMesh.position);
-        }
 
         // mesh stuff
         this._material = null;
@@ -270,7 +255,6 @@ export default class WidgetsAngle extends WidgetsBase {
 
         this._angle = document.createElement('div');
         this._angle.setAttribute('class', 'widgets handle angle');
-        this._angle.setAttribute('selectable', 'true');
         this._angle.style.border = '2px solid';
         this._angle.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
         // this._angle.style.opacity = '0.5';
@@ -380,12 +364,12 @@ export default class WidgetsAngle extends WidgetsBase {
         this._opangle = this._defaultAngle ? a0102*180/Math.PI : 360-(a0102*180/Math.PI);
         this._angle.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
-        let x0 = x2 - this._angle.offsetWidth/2,
-            y0 = y2 - this._container.offsetHeight - this._angle.offsetHeight/2;
+        let x0 = Math.round(x2 - this._angle.offsetWidth/2),
+            y0 = Math.round(y2 - this._container.offsetHeight - this._angle.offsetHeight/2);
 
         y0 += y1 >= y2 ? -30 : 30;
 
-        this._angle.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(y0)}px, 0)`;
+        this._angle.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
     }
 
     updateDOMColor() {
@@ -438,15 +422,8 @@ export default class WidgetsAngle extends WidgetsBase {
         super.free();
     }
 
-    getPointInBetweenByPerc(pointA, pointB, percentage) {
-        let dir = pointB.clone().sub(pointA);
-        let len = dir.length();
-        dir = dir.normalize().multiplyScalar(len*percentage);
-        return pointA.clone().add(dir);
-    }
-
-    get worldPosition() {
-        return this._worldPosition;
+    toggleDefaultAngle() {
+        this._defaultAngle = !this._defaultAngle;
     }
 
     set worldPosition(worldPosition) {
@@ -460,9 +437,5 @@ export default class WidgetsAngle extends WidgetsBase {
 
     get angle() {
         return this._opangle;
-    }
-
-    toggleDefaultAngle() {
-        this._defaultAngle = !this._defaultAngle;
     }
 }

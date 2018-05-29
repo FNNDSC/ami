@@ -5,16 +5,10 @@ import {Vector2, Vector3} from 'three';
 
 /**
  * @module widgets/handle
- *
  */
-
 export default class WidgetsHandle extends WidgetsBase {
-  constructor(targetMesh, controls, camera, container) {
-    super(container);
-
-    this._targetMesh = targetMesh;
-    this._controls = controls;
-    this._camera = camera;
+  constructor(targetMesh, camera) {
+    super(targetMesh, camera);
 
     // if no target mesh, use plane for FREE dragging.
     this._plane = {
@@ -28,12 +22,6 @@ export default class WidgetsHandle extends WidgetsBase {
 
     this._mouse = new Vector2();
     this._lastEvent = null;
-
-    // world (LPS) position of this handle
-      this._worldPosition = new Vector3();
-      if (this._targetMesh !== null) {
-        this._worldPosition.copy(this._targetMesh.position);
-      }
 
     // screen position of this handle
     this._screenPosition = new Vector2();
@@ -52,8 +40,7 @@ export default class WidgetsHandle extends WidgetsBase {
     this._domHovered = false;
     this._domStyle = 'circle'; // square, triangle
 
-    this._screenPosition =
-      this.worldToScreen(this._worldPosition, this._camera, this._container);
+    this._screenPosition = this.worldToScreen(this._worldPosition);
 
     // create handle
     this.create();
@@ -82,11 +69,6 @@ export default class WidgetsHandle extends WidgetsBase {
     this._container.removeEventListener('wheel', this.onMove);
 
     this._controls.removeEventListener('end', this.onEndControl);
-  }
-
-  create() {
-    this.createMesh();
-    this.createDOM();
   }
 
   onStart(evt) {
@@ -211,13 +193,61 @@ export default class WidgetsHandle extends WidgetsBase {
     this._container.style.cursor = this._hovered ? 'pointer' : 'default';
   }
 
+  create() {
+    this.createMesh();
+    this.createDOM();
+  }
+
+  createMesh() {
+    // geometry
+    this._geometry = new THREE.SphereGeometry(1, 16, 16);
+
+    // material
+    this._material = new THREE.MeshBasicMaterial({
+        wireframe: true,
+        wireframeLinewidth: 2,
+      });
+
+    // mesh
+    this._mesh = new THREE.Mesh(this._geometry, this._material);
+    this._mesh.position.copy(this._worldPosition);
+    this._mesh.visible = true;
+
+    this.updateMeshColor();
+
+    // add it!
+    this.add(this._mesh);
+  }
+
+  createDOM() {
+    this._dom = document.createElement('div');
+    this._dom.setAttribute('class', 'AMI Widget Handle');
+    this._dom.style.border = '2px solid';
+    this._dom.style.backgroundColor = '#F9F9F9';
+    this._dom.style.color = '#F9F9F9';
+    this._dom.style.position = 'absolute';
+    this._dom.style.width = '12px';
+    this._dom.style.height = '12px';
+    this._dom.style.margin = '-6px';
+    this._dom.style.borderRadius = '50%';
+    this._dom.style.transformOrigin = '0 100%';
+    this._dom.style.zIndex = '2';
+
+    let posY = this._screenPosition.y - this._container.offsetHeight;
+    this._dom.style.transform =
+      `translate3D(${this._screenPosition.x}px, ${posY}px, 0)`;
+
+    this.updateDOMColor();
+
+    this._container.appendChild(this._dom);
+  }
+
   update() {
     // general update
     this.updateColor();
 
     // update screen position of handle
-    this._screenPosition =
-      this.worldToScreen(this._worldPosition, this._camera, this._container);
+    this._screenPosition = this.worldToScreen(this._worldPosition);
 
     // mesh stuff
     this.updateMeshColor();
@@ -249,67 +279,6 @@ export default class WidgetsHandle extends WidgetsBase {
 
   hoverDom(evt) {
     this._domHovered = (evt.type === 'mouseenter');
-  }
-
-  worldToScreen(worldCoordinate, camera, canvas) {
-    let screenCoordinates = worldCoordinate.clone();
-    screenCoordinates.project(camera);
-
-    screenCoordinates.x =
-      Math.round((screenCoordinates.x + 1) * canvas.offsetWidth / 2);
-    screenCoordinates.y =
-      Math.round((-screenCoordinates.y + 1) * canvas.offsetHeight / 2);
-    screenCoordinates.z = 0;
-
-    return screenCoordinates;
-  }
-
-  createMesh() {
-    // geometry
-    this._geometry = new THREE.SphereGeometry(1, 16, 16);
-
-    // material
-    this._material = new THREE.MeshBasicMaterial({
-        wireframe: true,
-        wireframeLinewidth: 2,
-      });
-
-    // mesh
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
-    this._mesh.position.copy(this._worldPosition);
-    this._mesh.visible = true;
-
-    this.updateMeshColor();
-
-    // add it!
-    this.add(this._mesh);
-  }
-
-
-  createDOM() {
-    // dom
-    this._dom = document.createElement('div');
-    this._dom.setAttribute('id', this.uuid);
-    this._dom.setAttribute('class', 'AMI Widget Handle');
-    this._dom.style.border = '2px solid';
-    this._dom.style.backgroundColor = '#F9F9F9';
-    this._dom.style.color = '#F9F9F9';
-    this._dom.style.position = 'absolute';
-    this._dom.style.width = '12px';
-    this._dom.style.height = '12px';
-    this._dom.style.margin = '-6px';
-    this._dom.style.borderRadius = '50%';
-    this._dom.style.transformOrigin = '0 100%';
-    this._dom.style.zIndex = '2';
-
-    let posY = this._screenPosition.y - this._container.offsetHeight;
-    this._dom.style.transform =
-      `translate3D(${this._screenPosition.x}px, ${posY}px, 0)`;
-
-    this.updateDOMColor();
-
-    // add it!
-    this._container.appendChild(this._dom);
   }
 
   updateDOMPosition() {
@@ -347,14 +316,17 @@ export default class WidgetsHandle extends WidgetsBase {
     super.free();
   }
 
-  set worldPosition(worldPosition) {
-    this._worldPosition.copy(worldPosition);
-
-    this.update();
+  hideDOM() {
+    this._dom.style.display = 'none';
   }
 
-  get worldPosition() {
-    return this._worldPosition;
+  showDOM() {
+    this._dom.style.display = '';
+  }
+
+  set worldPosition(worldPosition) {
+    this._worldPosition.copy(worldPosition);
+    this.update();
   }
 
   set screenPosition(screenPosition) {
@@ -384,13 +356,5 @@ export default class WidgetsHandle extends WidgetsBase {
   set tracking(tracking) {
     this._tracking = tracking;
     this.update();
-  }
-
-  hideDOM() {
-    this._dom.style.display = 'none';
-  }
-
-  showDOM() {
-    this._dom.style.display = '';
   }
 }

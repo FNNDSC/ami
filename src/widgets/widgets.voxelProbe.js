@@ -1,4 +1,3 @@
-
 import WidgetsBase from './widgets.base';
 import GeometriesVoxel from '../geometries/geometries.voxel';
 import ModelsVoxel from '../models/models.voxel';
@@ -10,16 +9,11 @@ import {Vector2, Vector3} from 'three';
 /**
  * @module widgets/voxelProbe
  */
-
 export default class WidgetsVoxelProbe extends WidgetsBase {
-  constructor(stack, targetMesh, controls, camera, container) {
-    super(container);
+  constructor(targetMesh, camera, stack) {
+    super(targetMesh, camera);
 
     this._stack = stack;
-
-    this._targetMesh = targetMesh;
-    this._controls = controls;
-    this._camera = camera;
 
     // if no target mesh, use plane for FREE dragging.
     this._plane = {
@@ -32,12 +26,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
     this._mouse = new Vector2();
     this._lastEvent = null;
-
-    // world (LPS) position of the center
-    this._worldPosition = new Vector3();
-    if (this._targetMesh !== null) {
-      this._worldPosition.copy(this._targetMesh.position);
-    }
 
     // screen position of the center
     this._screenPosition = new Vector2();
@@ -56,8 +44,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._domHovered = false;
     this._domStyle = 'circle'; // square, triangle
 
-    this._screenPosition =
-      this.worldToScreen(this._worldPosition, this._camera, this._container);
+    this._screenPosition = this.worldToScreen(this._worldPosition);
 
     // create handle
     this.create();
@@ -212,19 +199,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._domHovered = (evt.type === 'mouseenter');
   }
 
-  worldToScreen(worldCoordinate, camera, canvas) {
-    let screenCoordinates = worldCoordinate.clone();
-    screenCoordinates.project(camera);
-
-    screenCoordinates.x =
-      Math.round((screenCoordinates.x + 1) * canvas.offsetWidth / 2);
-    screenCoordinates.y =
-      Math.round((-screenCoordinates.y + 1) * canvas.offsetHeight / 2);
-    screenCoordinates.z = 0;
-
-    return screenCoordinates;
-  }
-
   create() {
     this.createVoxel();
     this.createMesh();
@@ -256,20 +230,13 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this.add(this._mesh);
   }
 
-  updateMeshColor() {
-    if (this._material) {
-      this._material.color.set(this._color);
-    }
-  }
-
   createDOM() {
-    // dom
     this._dom = document.createElement('div');
-    this._dom.setAttribute('id', this.uuid);
     this._dom.setAttribute('class', 'AMI Widget VoxelProbe');
-    this._dom.style.border = '2px solid #000';
+    this._dom.style.border = '2px solid';
     this._dom.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
     this._dom.style.color = '#222';
+    this._dom.style.padding = '4px';
     this._dom.style.position = 'absolute';
     this._dom.style.transformOrigin = '0px 100% 0px';
     this._dom.style.zIndex = '3';
@@ -292,32 +259,13 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this.updateDOMColor();
     this._dom.appendChild(measurementsContainer);
 
-    // add it!
     this._container.appendChild(this._dom);
-  }
-
-  updateDOMContent() {
-    const rasContainer = this._dom.querySelector('#lpsPosition');
-    rasContainer.innerHTML = `LPS: 
-      ${this._voxel.worldCoordinates.x.toFixed(2)} :
-      ${this._voxel.worldCoordinates.y.toFixed(2)} :
-      ${this._voxel.worldCoordinates.z.toFixed(2)}`;
-
-    const ijkContainer = this._dom.querySelector('#ijkPosition');
-    ijkContainer.innerHTML = `IJK: 
-      ${this._voxel.dataCoordinates.x} :
-      ${this._voxel.dataCoordinates.y} :
-      ${this._voxel.dataCoordinates.z}`;
-
-    const valueContainer = this._dom.querySelector('#value');
-    valueContainer.innerHTML = `Value: ${this._voxel.value}`;
   }
 
   update() {
     // general update
     this.updateColor();
-    this._screenPosition =
-      this.worldToScreen(this._worldPosition, this._camera, this._container);
+    this._screenPosition = this.worldToScreen(this._worldPosition);
 
     // set data coordinates && value
     this.updateVoxel(this._worldPosition);
@@ -334,7 +282,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this.updateDOMColor();
     this.updateDOMPosition();
   }
-
 
   updateVoxel(worldCoordinates) {
     // update world coordinates
@@ -356,6 +303,29 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
         this._stack.rescaleSlope,
         this._stack.rescaleIntercept)
       : 'Undefined';
+  }
+
+  updateMeshColor() {
+    if (this._material) {
+      this._material.color.set(this._color);
+    }
+  }
+
+  updateDOMContent() {
+    const rasContainer = this._dom.querySelector('#lpsPosition');
+    rasContainer.innerHTML = `LPS: 
+      ${this._voxel.worldCoordinates.x.toFixed(2)} :
+      ${this._voxel.worldCoordinates.y.toFixed(2)} :
+      ${this._voxel.worldCoordinates.z.toFixed(2)}`;
+
+    const ijkContainer = this._dom.querySelector('#ijkPosition');
+    ijkContainer.innerHTML = `IJK: 
+      ${this._voxel.dataCoordinates.x} :
+      ${this._voxel.dataCoordinates.y} :
+      ${this._voxel.dataCoordinates.z}`;
+
+    const valueContainer = this._dom.querySelector('#value');
+    valueContainer.innerHTML = `Value: ${this._voxel.value}`;
   }
 
   updateDOMPosition() {
@@ -395,6 +365,14 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     super.free();
   }
 
+  hideDOM() {
+    this._dom.style.display = 'none';
+  }
+
+  showDOM() {
+    this._dom.style.display = '';
+  }
+
   hoverVoxel(mouseScreenCoordinates, currentDataCoordinates) {
     // update distance mouse/this._voxel
     let dx =
@@ -409,42 +387,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   set worldPosition(worldPosition) {
     this._worldPosition.copy(worldPosition);
     this.update();
-  }
-
-  set defaultColor(defaultColor) {
-    this._defaultColor = defaultColor;
-    this.update();
-  }
-
-  get defaultColor() {
-    return this._defaultColor;
-  }
-
-  set activeColor(activeColor) {
-    this._activeColor = activeColor;
-    this.update();
-  }
-
-  get activeColor() {
-    return this._activeColor;
-  }
-
-  set hoverColor(hoverColor) {
-    this._hoverColor = hoverColor;
-    this.update();
-  }
-
-  get hoverColor() {
-    return this._hoverColor;
-  }
-
-  set selectedColor(selectedColor) {
-    this._selectedColor = selectedColor;
-    this.update();
-  }
-
-  get selectedColor() {
-    return this._selectedColor;
   }
 
   set showVoxel(showVoxel) {
@@ -472,13 +414,5 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
   get showDomMeasurements() {
     return this._showDomMeasurements;
-  }
-
-  hideDOM() {
-    this._dom.style.display = 'none';
-  }
-
-  showDOM() {
-    this._dom.style.display = '';
   }
 }

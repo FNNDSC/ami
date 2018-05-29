@@ -1,29 +1,14 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 
-import {Vector3} from 'three';
-
 /**
- * @module widgets/handle
- *
+ * @module widgets/biruler
  */
-
 export default class WidgetsBiRuler extends WidgetsBase {
-    constructor(targetMesh, controls, camera, container) {
-        super();
+    constructor(targetMesh, camera) {
+        super(targetMesh, camera);
 
-        this._targetMesh = targetMesh;
-        this._controls = controls;
-        this._camera = camera;
-        this._container = container;
-
-        this._active = true;
         this._initOrtho = false;
-
-        this._worldPosition = new Vector3();
-        if (this._targetMesh !== null) {
-            this._worldPosition.copy(this._targetMesh.position);
-        }
 
         // mesh stuff
         this._material = null;
@@ -48,7 +33,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         firstHandle.worldPosition.copy(this._worldPosition);
         firstHandle.hovered = true;
         this.add(firstHandle);
-
         this._handles.push(firstHandle);
 
         let secondHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
@@ -57,7 +41,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         secondHandle.active = true;
         secondHandle.tracking = true;
         this.add(secondHandle);
-
         this._handles.push(secondHandle);
 
         // third handle
@@ -66,7 +49,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         thirdHandle.hovered = true;
         // active and tracking?
         this.add(thirdHandle);
-
         this._handles.push(thirdHandle);
 
         // fourth handle
@@ -75,7 +57,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         fourthHandle.hovered = true;
         // active and tracking?
         this.add(fourthHandle);
-
         this._handles.push(fourthHandle);
 
         // Create ruler
@@ -179,7 +160,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     createDOM() {
-        // add line!
         this._line = document.createElement('div');
         this._line.setAttribute('class', 'widgets handle line');
         this._line.style.position = 'absolute';
@@ -189,7 +169,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._line.style.width = '3px';
         this._container.appendChild(this._line);
 
-        // add distance!
         this._distance = document.createElement('div');
         this._distance.setAttribute('class', 'widgets handle distance');
         this._distance.style.border = '2px solid';
@@ -202,7 +181,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._distance.style.zIndex = '3';
         this._container.appendChild(this._distance);
 
-        // add line!
         this._line2 = document.createElement('div');
         this._line2.setAttribute('class', 'widgets handle line');
         this._line2.style.position = 'absolute';
@@ -212,7 +190,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._line2.style.width = '3px';
         this._container.appendChild(this._line2);
 
-        // add distance!
         this._distance2 = document.createElement('div');
         this._distance2.setAttribute('class', 'widgets handle distance');
         this._distance2.style.border = '2px solid';
@@ -225,7 +202,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._distance2.style.zIndex = '3';
         this._container.appendChild(this._distance2);
 
-        // add dash line
         this._dashline = document.createElement('div');
         this._dashline.setAttribute('class', 'widgets handle dashline');
         this._dashline.style.position = 'absolute';
@@ -308,17 +284,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let x2 = this._handles[1].screenPosition.x;
         let y2 = this._handles[1].screenPosition.y;
 
-        // let x0 = x1 + (x2 - x1)/2;
-        // let y0 = y1 + (y2 - y1)/2;
-        let x0 = x2;
-        let y0 = y2;
-
-        if (y1 >= y2) {
-            y0 = y2 - 30;
-        } else {
-            y0 = y2 + 30;
-        }
-
         let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
         let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
 
@@ -334,27 +299,19 @@ export default class WidgetsBiRuler extends WidgetsBase {
         // update distance
         this._distanceValue = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition).toFixed(2);
         this._distance.innerHTML = `${this._distanceValue} mm`;
-        let posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight/2;
-        x0 -= this._distance.offsetWidth/2;
 
-        this._distance.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
+        let x0 = Math.round(x2 - this._distance.offsetWidth/2);
+        let y0 = Math.round(y2 - this._container.offsetHeight - this._distance.offsetHeight/2);
+
+        y0 += y1 >= y2 ? -30 : 30;
+
+        this._distance.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
 
         // update rulers lines 2 and text!
         let x3 = this._handles[2].screenPosition.x;
         let y3 = this._handles[2].screenPosition.y;
         let x4 = this._handles[3].screenPosition.x;
         let y4 = this._handles[3].screenPosition.y;
-
-        // let x0 = x1 + (x2 - x1)/2;
-        // let y0 = y1 + (y2 - y1)/2;
-        let x02 = x4;
-        let y02 = y4;
-
-        if (y3 >= y4) {
-            y02 = y4 - 30;
-        } else {
-            y02 = y4 + 30;
-        }
 
         length = Math.sqrt((x3-x4)*(x3-x4) + (y3-y4)*(y3-y4));
         angle = Math.atan2(y4 - y3, x4 - x3) * 180 / Math.PI;
@@ -371,10 +328,13 @@ export default class WidgetsBiRuler extends WidgetsBase {
         // update distance
         this._distance2Value = this._handles[2].worldPosition.distanceTo(this._handles[3].worldPosition).toFixed(2);
         this._distance2.innerHTML = `${this._distance2Value} mm`;
-        let posY02 = y02 - this._container.offsetHeight - this._distance2.offsetHeight/2;
-        x02 -= this._distance2.offsetWidth/2;
 
-        this._distance2.style.transform = `translate3D(${Math.round(x02)}px,${Math.round(posY02)}px, 0)`;
+        let x02 = Math.round(x4 - this._distance.offsetWidth/2);
+        let y02 = Math.round(y4 - this._container.offsetHeight - this._distance.offsetHeight/2);
+
+        y02 += y3 >= y4 ? -30 : 30;
+
+        this._distance2.style.transform = `translate3D(${x02}px,${y02}px, 0)`;
 
         // update dash line
         let l1center = this.getPointInBetweenByPerc(
@@ -382,8 +342,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let l2center = this.getPointInBetweenByPerc(
             this._handles[2].worldPosition, this._handles[3].worldPosition, 0.5);
 
-        let screen1 = this._handles[0].worldToScreen(l1center, this._camera, this._container);
-        let screen2 = this._handles[0].worldToScreen(l2center, this._camera, this._container);
+        let screen1 = this.worldToScreen(l1center);
+        let screen2 = this.worldToScreen(l2center);
 
         x1 = screen1.x;
         y1 = screen1.y;
@@ -459,8 +419,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
     getPointInBetweenByPerc(pointA, pointB, percentage) {
         let dir = pointB.clone().sub(pointA);
-        let len = dir.length();
-        dir = dir.normalize().multiplyScalar(len*percentage);
+        dir = dir.normalize().multiplyScalar(dir.length() * percentage);
+
         return pointA.clone().add(dir);
     }
 
@@ -482,10 +442,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
             Math.sqrt((pcenter.y - this._handles[2].worldPosition.y)*(pcenter.y - this._handles[2].worldPosition.y));
         this._handles[3].worldPosition.y = pcenter.y -
             Math.sqrt((pcenter.x - this._handles[2].worldPosition.x)*(pcenter.x - this._handles[2].worldPosition.x));
-    }
-
-    get worldPosition() {
-        return this._worldPosition;
     }
 
     set worldPosition(worldPosition) {

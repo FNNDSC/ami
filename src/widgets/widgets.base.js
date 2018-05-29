@@ -1,8 +1,10 @@
+import {Vector3} from "three";
+
 /**
- *
+ * @module Abstract Widget
  */
 export default class WidgetsBase extends THREE.Object3D {
-  constructor(container) {
+  constructor(targetMesh, camera) {
     // init THREE Object 3D
     super();
 
@@ -27,7 +29,15 @@ export default class WidgetsBase extends THREE.Object3D {
     // can not call it visible because it conflicts with THREE.Object3D
     this._displayed = true;
 
-    this._container = container;
+    this._targetMesh = targetMesh;
+    this._camera = camera;
+    this._controls = camera.controls;
+    this._container = camera.controls.domElement;
+
+    this._worldPosition = new Vector3(); // LPS position
+    if (this._targetMesh !== null) {
+        this._worldPosition.copy(this._targetMesh.position);
+    }
   }
 
   initOffsets() {
@@ -43,18 +53,10 @@ export default class WidgetsBase extends THREE.Object3D {
     const clientTop = docEl.clientTop || body.clientTop || 0;
     const clientLeft = docEl.clientLeft || body.clientLeft || 0;
 
-    const top = box.top + scrollTop - clientTop;
-    const left = box.left + scrollLeft - clientLeft;
-
     this._offsets = {
-      top: Math.round(top),
-      left: Math.round(left),
+      top: Math.round(box.top + scrollTop - clientTop),
+      left: Math.round(box.left + scrollLeft - clientLeft),
     };
-  }
-
-  offsetChanged() {
-    this.initOffsets();
-    this.update();
   }
 
   getMouseOffsets(event, container) {
@@ -65,6 +67,19 @@ export default class WidgetsBase extends THREE.Object3D {
       screenX: event.clientX - this._offsets.left,
       screenY: event.clientY - this._offsets.top,
     };
+  }
+
+  worldToScreen(worldCoordinate) {
+    let screenCoordinates = worldCoordinate.clone();
+    screenCoordinates.project(this._camera);
+
+    screenCoordinates.x = Math.round((screenCoordinates.x + 1)
+        * this._container.offsetWidth / 2);
+    screenCoordinates.y = Math.round((-screenCoordinates.y + 1)
+        * this._container.offsetHeight / 2);
+    screenCoordinates.z = 0;
+
+    return screenCoordinates;
   }
 
   update() {
@@ -114,6 +129,10 @@ export default class WidgetsBase extends THREE.Object3D {
 
   free() {
     this._container = null;
+  }
+
+  get worldPosition() {
+    return this._worldPosition;
   }
 
   get enabled() {

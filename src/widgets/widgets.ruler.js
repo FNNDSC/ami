@@ -1,30 +1,16 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 
-import {Vector3} from 'three';
-
 /**
- * @module widgets/handle
- *
+ * @module widgets/ruler
  */
-
 export default class WidgetsRuler extends WidgetsBase {
-  constructor(targetMesh, controls, camera, container) {
-    super(container);
+  constructor(targetMesh, camera) {
+    super(targetMesh, camera);
 
-    this._targetMesh = targetMesh;
-    this._controls = controls;
-    this._camera = camera;
-
-    this._active = true;
     this._lastEvent = null;
     this._moving = false;
     this._domHovered = false;
-
-    this._worldPosition = new Vector3();
-    if (this._targetMesh !== null) {
-      this._worldPosition.copy(this._targetMesh.position);
-    }
 
     // mesh stuff
     this._material = null;
@@ -38,13 +24,11 @@ export default class WidgetsRuler extends WidgetsBase {
     // add handles
     this._handles = [];
 
-    // first handle
     let firstHandle =
       new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
     firstHandle.worldPosition.copy(this._worldPosition);
     firstHandle.hovered = true;
     this.add(firstHandle);
-
     this._handles.push(firstHandle);
 
     let secondHandle =
@@ -54,10 +38,9 @@ export default class WidgetsRuler extends WidgetsBase {
     secondHandle.active = true;
     secondHandle.tracking = true;
     this.add(secondHandle);
-
     this._handles.push(secondHandle);
 
-    // first handle
+    // handles to move widget
     this.imoveHandle =
         new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
     this.imoveHandle.worldPosition.copy(this._worldPosition);
@@ -279,9 +262,7 @@ export default class WidgetsRuler extends WidgetsBase {
   }
 
   createDOM() {
-    // add line!
     this._line = document.createElement('div');
-    this._line.setAttribute('id', this.uuid);
     this._line.setAttribute('class', 'widgets handle line');
     this._line.style.position = 'absolute';
     this._line.style.transformOrigin = '0 100%';
@@ -290,7 +271,6 @@ export default class WidgetsRuler extends WidgetsBase {
     this._line.style.width = '3px';
     this._container.appendChild(this._line);
 
-    // add distance!
     this._distance = document.createElement('div');
     this._distance.setAttribute('class', 'widgets handle distance');
     this._distance.style.border = '2px solid';
@@ -326,12 +306,12 @@ export default class WidgetsRuler extends WidgetsBase {
     this._distance.innerHTML =
       `${this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition).toFixed(2)} mm`;
 
-    let x0 = x2 - this._distance.offsetWidth/2,
-      y0 = y2 - this._container.offsetHeight - this._distance.offsetHeight/2;
+    let x0 = Math.round(x2 - this._distance.offsetWidth/2),
+      y0 = Math.round(y2 - this._container.offsetHeight - this._distance.offsetHeight/2);
 
     y0 += y1 >= y2 ? -30 : 30;
 
-    this._distance.style.transform = `translate3D(${Math.round(x0)}px,${Math.round(y0)}px, 0)`;
+    this._distance.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
   }
 
   updateDOMColor() {
@@ -367,10 +347,6 @@ export default class WidgetsRuler extends WidgetsBase {
     this._material = null;
 
     super.free();
-  }
-
-  get worldPosition() {
-    return this._worldPosition;
   }
 
   set worldPosition(worldPosition) {
