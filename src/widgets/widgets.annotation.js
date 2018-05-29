@@ -21,7 +21,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._labeltext = null;
 
     // booleans
-    this._alreadycreated = null; // bool that turns true when the user enter the name of the label
+    this._initialized = false; // set to true when the name of the label is entered
     this._movinglabel = null; // bool that turns true when the label is moving with the mouse
     this._labelmoved = false; // bool that turns true once the label is moved by the user (at least once)
     this._labelhovered = false;
@@ -158,17 +158,17 @@ export default class WidgetsAnnotation extends WidgetsBase {
      this._handles[1].tracking = false;
     }
 
-    if (!this._alreadycreated) {
-      this.setlabeltext();
-      this._alreadycreated = true;
-    }
-
-    // State of annotation widget
-    if (!this._dragged && this._active) {
+    if (!this._dragged && this._active && this._initialized) {
         this._selected = !this._selected; // change state if there was no dragging
         this._handles[0].selected = this._selected;
         this._handles[1].selected = this._selected;
     }
+
+    if (!this._initialized) {
+      this.setlabeltext();
+      this._initialized = true;
+    }
+
     this._active = this._handles[0].active || this._handles[1].active;
     this._dragged = false;
     this.update();
@@ -471,6 +471,10 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._conegeometry = null;
 
     super.free();
+  }
+
+  get worldPosition() {
+    return this._worldPosition;
   }
 
   set worldPosition(worldPosition) {

@@ -55,6 +55,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let fourthHandle = new WidgetsHandle(this._targetMesh, this._camera);
         fourthHandle.worldPosition.copy(this._worldPosition);
         fourthHandle.hovered = true;
+        fourthHandle.active = true;
+        fourthHandle.tracking = true;
         // active and tracking?
         this.add(fourthHandle);
         this._handles.push(fourthHandle);
@@ -103,8 +105,34 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
     onEnd(evt) {
         this._handles[0].onEnd(evt);
-        this._handles[2].onEnd(evt);
-        this._handles[3].onEnd(evt);
+
+        if (!this._dragged && this._active && !this._handles[2].tracking && !this._handles[3].tracking) {
+            this._selected = !this._selected; // change state if there was no dragging
+            this._handles[0].selected = this._selected;
+        }
+
+        // Third Handle
+        if (this._handles[3].active) {
+            this._handles[2].onEnd(evt);
+        } else if (this._dragged || !this._handles[2].tracking) {
+            this._handles[2].tracking = false;
+            this._handles[2].onEnd(evt);
+        } else {
+            this._handles[2].tracking = false;
+        }
+        this._handles[2].selected = this._selected;
+
+        // Fourth Handle
+        if (this._handles[1].active) {
+            this._handles[3].onEnd(evt);
+        } else if (this._dragged || !this._handles[3].tracking) {
+            this._handles[3].tracking = false;
+            this._handles[3].onEnd(evt);
+            this._handles[2].tracking = true;
+        } else {
+            this._handles[3].tracking = false;
+        }
+        this._handles[3].selected = this._selected;
 
         // Second Handle
         if (this._dragged || !this._handles[1].tracking) {
@@ -113,14 +141,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         } else {
             this._handles[1].tracking = false;
         }
+        this._handles[1].selected = this._selected;
 
-        // State of widget
-        if (!this._dragged && this._active) {
-            this._selected = !this._selected; // change state if there was no dragging
-            this._handles.forEach(function(elem) {
-                elem.selected = this._selected;
-            }, this);
-        }
         this._active = this._handles[0].active || this._handles[1].active ||
             this._handles[2].active || this._handles[3].active;
         this._dragged = false;
@@ -442,6 +464,10 @@ export default class WidgetsBiRuler extends WidgetsBase {
             Math.sqrt((pcenter.y - this._handles[2].worldPosition.y)*(pcenter.y - this._handles[2].worldPosition.y));
         this._handles[3].worldPosition.y = pcenter.y -
             Math.sqrt((pcenter.x - this._handles[2].worldPosition.x)*(pcenter.x - this._handles[2].worldPosition.x));
+    }
+
+    get worldPosition() {
+        return this._worldPosition;
     }
 
     set worldPosition(worldPosition) {

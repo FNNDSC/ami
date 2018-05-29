@@ -27,8 +27,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._mouse = new Vector2();
     this._lastEvent = null;
 
-    // screen position of the center
-    this._screenPosition = new Vector2();
+    this._initialized = false; // set to true onEnd
 
     // mesh stuff
     this._material = null;
@@ -46,7 +45,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
     this._screenPosition = this.worldToScreen(this._worldPosition);
 
-    // create handle
     this.create();
     this.initOffsets();
 
@@ -155,10 +153,11 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._lastEvent = evt;
     evt.preventDefault();
 
-    if (!this._dragged && this._active) {
+    if (!this._dragged && this._active && this._initialized) {
       this._selected = !this._selected; // change state if there was no dragging
     }
 
+    this._initialized = true;
     this._active = false;
     this._dragged = false;
     this._controls.enabled = true;
@@ -382,6 +381,17 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     let distance = Math.sqrt(dx * dx + dy * dy);
     this._voxel.distance = distance;
     this._hover = distance >= 0 && distance < 10;
+  }
+
+  get active() {
+    return this._active;
+  }
+
+  set active(active) {
+    this._active = active;
+    this._controls.enabled = !this._active;
+
+    this.update();
   }
 
   set showVoxel(showVoxel) {

@@ -10,7 +10,7 @@ export default class WidgetsRoi extends WidgetsBase {
     constructor(targetMesh, camera) {
         super(targetMesh, camera);
 
-        this._init = false;
+        this._initialized = false; // set to true onEnd if number of handles > 2
 
         // mesh stuff
         this._material = null;
@@ -61,7 +61,7 @@ export default class WidgetsRoi extends WidgetsBase {
     onMove(evt) {
         let numHandles = this._handles.length;
 
-        if (this.active && !this._init) {
+        if (this.active && !this._initialized) {
             let lastHandle = this._handles[numHandles-1];
             lastHandle.hovered = false;
             lastHandle.active = false;
@@ -130,7 +130,6 @@ export default class WidgetsRoi extends WidgetsBase {
             this._handles[numHandles-1].tracking = false;
         }
 
-        // State of widget
         if (!this._dragged && this._active) {
             this._selected = !this._selected; // change state if there was no dragging
             this._handles.forEach(function(elem) {
@@ -154,7 +153,7 @@ export default class WidgetsRoi extends WidgetsBase {
             this._container.appendChild(newLine);
         }
 
-        this._init = true;
+        this._initialized = true;
         this.updateMesh();
         this.update();
     }
@@ -367,7 +366,7 @@ export default class WidgetsRoi extends WidgetsBase {
             }, this);
         }
 
-        if (!this._init) {
+        if (!this._initialized) {
             return;
         }
 
@@ -427,6 +426,10 @@ export default class WidgetsRoi extends WidgetsBase {
         }
 
         super.free();
+    }
+
+    get worldPosition() {
+        return this._worldPosition;
     }
 
     set worldPosition(worldPosition) {

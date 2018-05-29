@@ -169,7 +169,10 @@ export default class WidgetsAngle extends WidgetsBase {
         // First Handle
         this._handles[0].onEnd(evt);
 
-        this._controls.enabled = true;
+        if (!this._dragged && this._active && !this._handles[2].tracking) {
+            this._selected = !this._selected; // change state if there was no dragging
+            this._handles[0].selected = this._selected;
+        }
 
         // Third Handle
         if (this._handles[1].active) {
@@ -180,6 +183,7 @@ export default class WidgetsAngle extends WidgetsBase {
         } else {
             this._handles[2].tracking = false;
         }
+        this._handles[2].selected = this._selected;
 
         // Second Handle
         if (this._dragged || !this._handles[1].tracking) {
@@ -188,14 +192,8 @@ export default class WidgetsAngle extends WidgetsBase {
         } else {
             this._handles[1].tracking = false;
         }
+        this._handles[1].selected = this._selected;
 
-        // State of widget
-        if (!this._dragged && this._active) {
-            this._selected = !this._selected; // change state if there was no dragging
-            this._handles[0].selected = this._selected;
-            this._handles[1].selected = this._selected;
-            this._handles[2].selected = this._selected;
-        }
         this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active;
         this._dragged = this._handles[2].tracking;
         this._moving = false;
@@ -424,6 +422,10 @@ export default class WidgetsAngle extends WidgetsBase {
 
     toggleDefaultAngle() {
         this._defaultAngle = !this._defaultAngle;
+    }
+
+    get worldPosition() {
+        return this._worldPosition;
     }
 
     set worldPosition(worldPosition) {

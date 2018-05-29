@@ -158,7 +158,10 @@ export default class WidgetsRuler extends WidgetsBase {
     // First Handle
     this._handles[0].onEnd(evt);
 
-    this._controls.enabled = true;
+    if (!this._dragged && this._active && !this._handles[1].tracking) {
+      this._selected = !this._selected; // change state if there was no dragging
+      this._handles[0].selected = this._selected;
+    }
 
     // Second Handle
     if (this._dragged || !this._handles[1].tracking) {
@@ -167,13 +170,8 @@ export default class WidgetsRuler extends WidgetsBase {
     } else {
       this._handles[1].tracking = false;
     }
+    this._handles[1].selected = this._selected;
 
-    // State of widget
-    if (!this._dragged && this._active) {
-      this._selected = !this._selected; // change state if there was no dragging
-      this._handles[0].selected = this._selected;
-      this._handles[1].selected = this._selected;
-    }
     this._active = this._handles[0].active || this._handles[1].active;
     this._dragged = false;
     this._moving = false;
@@ -343,6 +341,10 @@ export default class WidgetsRuler extends WidgetsBase {
     this._material = null;
 
     super.free();
+  }
+
+  get worldPosition() {
+    return this._worldPosition;
   }
 
   set worldPosition(worldPosition) {

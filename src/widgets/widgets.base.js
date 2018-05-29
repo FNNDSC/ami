@@ -13,8 +13,8 @@ export default class WidgetsBase extends THREE.Object3D {
 
     // STATE, ENUM might be better
     this._selected = false;
-    this._hovered = false;
-    this._active = false;
+    this._hovered = true;
+    this._active = true;
     // thos._state = 'SELECTED';
 
     this._colors = {

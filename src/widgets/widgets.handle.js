@@ -18,13 +18,14 @@ export default class WidgetsHandle extends WidgetsBase {
     this._offset = new Vector3();
     this._raycaster = new THREE.Raycaster();
 
+    this._active = false;
+    this._hovered = false;
     this._tracking = false;
 
     this._mouse = new Vector2();
     this._lastEvent = null;
 
-    // screen position of this handle
-    this._screenPosition = new Vector2();
+    this._initialized = false; // set to true onEnd
 
     // mesh stuff
     this._material = null;
@@ -42,7 +43,6 @@ export default class WidgetsHandle extends WidgetsBase {
 
     this._screenPosition = this.worldToScreen(this._worldPosition);
 
-    // create handle
     this.create();
     this.initOffsets();
 
@@ -159,10 +159,11 @@ export default class WidgetsHandle extends WidgetsBase {
       return;
     }
 
-    if (!this._dragged && this._active) {
+    if (!this._dragged && this._active && this._initialized) {
       this._selected = !this._selected; // change state if there was no dragging
     }
 
+    this._initialized = true;
     this._active = false;
     this._dragged = false;
     this._controls.enabled = true;
@@ -324,12 +325,12 @@ export default class WidgetsHandle extends WidgetsBase {
     this._dom.style.display = '';
   }
 
-  set screenPosition(screenPosition) {
-    this._screenPosition = screenPosition;
-  }
-
   get screenPosition() {
     return this._screenPosition;
+  }
+
+  set screenPosition(screenPosition) {
+    this._screenPosition = screenPosition;
   }
 
   get active() {
