@@ -25,7 +25,7 @@ export default class WidgetsRoi extends WidgetsBase {
         this._handles = [];
 
         // first handle
-        let firstHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+        let firstHandle = new WidgetsHandle(this._targetMesh, this._camera);
         firstHandle.worldPosition.copy(this._worldPosition);
         firstHandle.hovered = true;
         this.add(firstHandle);
@@ -67,7 +67,7 @@ export default class WidgetsRoi extends WidgetsBase {
             lastHandle.active = false;
             lastHandle.tracking = false;
 
-            let nextHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+            let nextHandle = new WidgetsHandle(this._targetMesh, this._camera);
             nextHandle.worldPosition.copy(this._worldPosition);
             nextHandle.hovered = true;
             nextHandle.active = true;

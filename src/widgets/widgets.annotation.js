@@ -39,13 +39,13 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._handles = [];
 
     // first handle
-    let firstHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+    let firstHandle = new WidgetsHandle(this._targetMesh, this._camera);
     firstHandle.worldPosition.copy(this._worldPosition);
     firstHandle.hovered = true;
     this.add(firstHandle);
     this._handles.push(firstHandle);
 
-    let secondHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+    let secondHandle = new WidgetsHandle(this._targetMesh, this._camera);
     secondHandle.worldPosition.copy(this._worldPosition);
     secondHandle.hovered = true;
     secondHandle.active = true;

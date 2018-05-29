@@ -30,13 +30,13 @@ export default class WidgetsAngle extends WidgetsBase {
         // add handles
         this._handles = [];
 
-        let firstHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+        let firstHandle = new WidgetsHandle(this._targetMesh, this._camera);
         firstHandle.worldPosition.copy(this._worldPosition);
         firstHandle.hovered = true;
         this.add(firstHandle);
         this._handles.push(firstHandle);
 
-        let secondHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+        let secondHandle = new WidgetsHandle(this._targetMesh, this._camera);
         secondHandle.worldPosition.copy(this._worldPosition);
         secondHandle.hovered = true;
         secondHandle.active = true;
@@ -44,7 +44,7 @@ export default class WidgetsAngle extends WidgetsBase {
         this.add(secondHandle);
         this._handles.push(secondHandle);
 
-        let thirdHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+        let thirdHandle = new WidgetsHandle(this._targetMesh, this._camera);
         thirdHandle.worldPosition.copy(this._worldPosition);
         thirdHandle.hovered = true;
         thirdHandle.active = true;
@@ -52,14 +52,14 @@ export default class WidgetsAngle extends WidgetsBase {
         this.add(thirdHandle);
         this._handles.push(thirdHandle);
 
-        this.imoveHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+        this.imoveHandle = new WidgetsHandle(this._targetMesh, this._camera);
         this.imoveHandle.worldPosition.copy(this._worldPosition);
         this.imoveHandle.hovered = true;
         this.add(this.imoveHandle);
         this._handles.push(this.imoveHandle);
         this.imoveHandle.hide();
 
-        this.fmoveHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+        this.fmoveHandle = new WidgetsHandle(this._targetMesh, this._camera);
         this.fmoveHandle.worldPosition.copy(this._worldPosition);
         this.fmoveHandle.hovered = true;
         this.add(this.fmoveHandle);
