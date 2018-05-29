@@ -37,6 +37,8 @@ export default class WidgetsRoi extends WidgetsBase {
         // add handles
         this._handles = [];
         for (let i = 0; i <= 4; i++) {
+            // Handle 0 corresponds to the origin
+            // Handles 1-4 are top, right, bottom, left handles
             let handle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
             handle.worldPosition = this._worldPosition;
             this.add(handle);
@@ -120,8 +122,8 @@ export default class WidgetsRoi extends WidgetsBase {
 
         if (intersectsTarget.length > 0) {
             switch (handleIdx) {
-                case 1:
-                case 3:
+                case 1: // Top handle
+                case 3: // Bottom handle
                     offsets.x = this._handles[3]._mouse.x;
                     this.updateHandlePosition(handleIdx, offsets);
                     h = Math.abs((this._handles[3]._mouse.y - this._handles[1]._mouse.y) / 2);
@@ -130,8 +132,8 @@ export default class WidgetsRoi extends WidgetsBase {
                     this.updateHandlePosition(0, {x: this._handles[0]._mouse.x, y: this._handles[1]._mouse.y - h});
                     break;
 
-                case 2:
-                case 4:
+                case 2: // Right handle
+                case 4: // Left handle
                     offsets.y = this._handles[2]._mouse.y;
                     this.updateHandlePosition(handleIdx, offsets);
                     h = Math.abs((this._handles[4]._mouse.x - this._handles[2]._mouse.x) / 2);
@@ -326,23 +328,6 @@ export default class WidgetsRoi extends WidgetsBase {
         this.add(this._mesh);
     }
 
-/*
-    createMesh_ellipse() {
-        //geometry
-        let ellipse = new THREE.EllipseCurve(0, 0, 1, 5, 0, 2.0 * Math.PI, false);
-        let ellipsePath = new THREE.CurvePath();
-        ellipsePath.add(ellipse);
-        this._geometry = ellipsePath.createPointsGeometry(100);
-        // this._geometry.computeTangents();
-
-        // material
-        this._material = new THREE.LineBasicMaterial();
-        this.updateMeshColor();
-        this._mesh= new THREE.Line(this._geometry, this._material);
-        this._mesh.visible = true;
-        this.add(this._mesh);
-    }
-*/
     updateMeshColor() {
         if (this._material) {
             this._material.color.set(this._color);
