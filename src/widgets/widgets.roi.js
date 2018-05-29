@@ -433,7 +433,7 @@ export default class WidgetsRoi extends WidgetsBase {
         this._handles.forEach(function(elem) {
             elem._worldPosition.copy(worldPosition);
         }, this);
-
-        super.worldPosition = worldPosition;
+        this._worldPosition.copy(worldPosition);
+        this.update();
     }
 }

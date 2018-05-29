@@ -348,7 +348,7 @@ export default class WidgetsRuler extends WidgetsBase {
   set worldPosition(worldPosition) {
     this._handles[0].worldPosition.copy(worldPosition);
     this._handles[1].worldPosition.copy(worldPosition);
-
-    super.worldPosition = worldPosition;
+    this._worldPosition.copy(worldPosition);
+    this.update();
   }
 }

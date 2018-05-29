@@ -449,8 +449,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._handles[1].worldPosition.copy(worldPosition);
         this._handles[2].worldPosition.copy(worldPosition);
         this._handles[3].worldPosition.copy(worldPosition);
-
-        super.worldPosition = worldPosition;
+        this._worldPosition.copy(worldPosition);
+        this.update();
     }
 
     get shotestDistance() {
