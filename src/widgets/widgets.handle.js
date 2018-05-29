@@ -324,11 +324,6 @@ export default class WidgetsHandle extends WidgetsBase {
     this._dom.style.display = '';
   }
 
-  set worldPosition(worldPosition) {
-    this._worldPosition.copy(worldPosition);
-    this.update();
-  }
-
   set screenPosition(screenPosition) {
     this._screenPosition = screenPosition;
   }

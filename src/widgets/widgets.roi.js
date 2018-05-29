@@ -430,11 +430,10 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     set worldPosition(worldPosition) {
-        this._worldPosition.copy(worldPosition);
         this._handles.forEach(function(elem) {
             elem._worldPosition.copy(worldPosition);
         }, this);
 
-        this.update();
+        super.worldPosition = worldPosition;
     }
 }

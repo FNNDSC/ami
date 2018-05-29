@@ -384,11 +384,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._hover = distance >= 0 && distance < 10;
   }
 
-  set worldPosition(worldPosition) {
-    this._worldPosition.copy(worldPosition);
-    this.update();
-  }
-
   set showVoxel(showVoxel) {
     this._showVoxel = showVoxel;
     this.update();

@@ -325,7 +325,7 @@ export default class WidgetsRectangle extends WidgetsBase {
     }
 
     updateDOMColor() {
-        this._rectangle.style.backgroundColor = `${this._color}`;
+        this._rectangle.style.borderColor = `${this._color}`;
         this._label.style.borderColor = `${this._color}`;
     }
 
@@ -360,10 +360,9 @@ export default class WidgetsRectangle extends WidgetsBase {
     }
 
     set worldPosition(worldPosition) {
-        this._worldPosition.copy(worldPosition);
         this._handles[0].worldPosition.copy(worldPosition);
         this._handles[1].worldPosition.copy(worldPosition);
 
-        this.update();
+        super.worldPosition = worldPosition;
     }
 }

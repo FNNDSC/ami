@@ -416,6 +416,24 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._label.style.borderColor = `${this._color}`;
   }
 
+  hideDOM() {
+    this._line.style.display = 'none';
+    this._dashline.style.display = 'none';
+    this._label.style.display = 'none';
+    this._handles.forEach(function(elem) {
+      elem.hideDOM();
+    });
+  }
+
+  showDOM() {
+    this._line.style.display = '';
+    this._dashline.style.display = '';
+    this._label.style.display = '';
+    this._handles.forEach(function(elem) {
+      elem.showDOM();
+    });
+  }
+
   free() {
     this.removeEventListeners();
 
@@ -456,28 +474,9 @@ export default class WidgetsAnnotation extends WidgetsBase {
   }
 
   set worldPosition(worldPosition) {
-    this._worldPosition.copy(worldPosition);
     this._handles[0].worldPosition.copy(worldPosition);
     this._handles[1].worldPosition.copy(worldPosition);
 
-    this.update();
-  }
-
-  hideDOM() {
-    this._line.style.display = 'none';
-    this._dashline.style.display = 'none';
-    this._label.style.display = 'none';
-    this._handles.forEach(function(elem) {
-      elem.hideDOM();
-    });
-  }
-
-  showDOM() {
-    this._line.style.display = '';
-    this._dashline.style.display = '';
-    this._label.style.display = '';
-    this._handles.forEach(function(elem) {
-      elem.showDOM();
-    });
+    super.worldPosition = worldPosition;
   }
 }

@@ -24,15 +24,13 @@ export default class WidgetsRuler extends WidgetsBase {
     // add handles
     this._handles = [];
 
-    let firstHandle =
-      new WidgetsHandle(this._targetMesh, this._camera);
+    let firstHandle = new WidgetsHandle(this._targetMesh, this._camera);
     firstHandle.worldPosition.copy(this._worldPosition);
     firstHandle.hovered = true;
     this.add(firstHandle);
     this._handles.push(firstHandle);
 
-    let secondHandle =
-      new WidgetsHandle(this._targetMesh, this._camera);
+    let secondHandle = new WidgetsHandle(this._targetMesh, this._camera);
     secondHandle.worldPosition.copy(this._worldPosition);
     secondHandle.hovered = true;
     secondHandle.active = true;
@@ -41,16 +39,14 @@ export default class WidgetsRuler extends WidgetsBase {
     this._handles.push(secondHandle);
 
     // handles to move widget
-    this.imoveHandle =
-        new WidgetsHandle(this._targetMesh, this._camera);
+    this.imoveHandle = new WidgetsHandle(this._targetMesh, this._camera);
     this.imoveHandle.worldPosition.copy(this._worldPosition);
     this.imoveHandle.hovered = true;
     this.add(this.imoveHandle);
     this._handles.push(this.imoveHandle);
     this.imoveHandle.hide();
 
-    this.fmoveHandle =
-       new WidgetsHandle(this._targetMesh, this._camera);
+    this.fmoveHandle = new WidgetsHandle(this._targetMesh, this._camera);
     this.fmoveHandle.worldPosition.copy(this._worldPosition);
     this.fmoveHandle.hovered = true;
     this.add(this.fmoveHandle);
@@ -350,10 +346,9 @@ export default class WidgetsRuler extends WidgetsBase {
   }
 
   set worldPosition(worldPosition) {
-    this._worldPosition.copy(worldPosition);
     this._handles[0].worldPosition.copy(worldPosition);
     this._handles[1].worldPosition.copy(worldPosition);
 
-    this.update();
+    super.worldPosition = worldPosition;
   }
 }

@@ -135,6 +135,11 @@ export default class WidgetsBase extends THREE.Object3D {
     return this._worldPosition;
   }
 
+  set worldPosition(worldPosition) {
+    this._worldPosition.copy(worldPosition);
+    this.update();
+  }
+
   get enabled() {
     return this._enabled;
   }
