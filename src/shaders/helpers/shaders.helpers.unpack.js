@@ -61,7 +61,7 @@ class Unpack extends ShadersBase {
           break;
 
         default:
-          content = this.upackDefault();
+          content = this.upackIdentity();
           break;
       }
     } else {
@@ -82,7 +82,11 @@ ${content}
 
     return `
 uInt8(
-  packedData.r,
+  step( abs( float(offset - 0) ), 0.0 ) * packedData.r +
+  step( abs( float(offset - 1) ), 0.0 ) * packedData.g +
+  step( abs( float(offset - 2) ), 0.0 ) * packedData.b +
+  step( abs( float(offset - 3) ), 0.0 ) * packedData.a
+  ,
   unpackedData.x);
     `;
   }

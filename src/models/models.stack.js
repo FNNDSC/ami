@@ -199,14 +199,7 @@ export default class ModelsStack extends ModelsBase {
       this.prepareSegmentation();
     }
 
-    // we need at least 1 frame
-    if (this._frame && this._frame.length > 0) {
-      this._numberOfFrames = this._frame.length;
-    } else {
-      window.console.log('_frame doesn\'t contain anything....');
-      window.console.log(this._frame);
-      return false;
-    }
+    this.computeNumberOfFrames();
 
     // pass parameters from frame to stack
     this._rows = this._frame[0].rows;
@@ -225,7 +218,9 @@ export default class ModelsStack extends ModelsBase {
     this.computeCosines();
 
     // order the frames
-    this.orderFrames();
+    if (this._numberOfFrames > 1) {
+      this.orderFrames();
+    }
 
     // compute/guess spacing
     this.computeSpacing();
@@ -264,13 +259,11 @@ export default class ModelsStack extends ModelsBase {
       this._rescaleSlope,
       this._rescaleIntercept);
 
-    let width =
-      middleFrame.windowWidth * this._rescaleSlope || this._minMax[1] - this._minMax[0];
-    this._windowWidth = width + this._rescaleIntercept;
+    this._windowWidth =
+      middleFrame.windowWidth || this._minMax[1] - this._minMax[0];
 
-    let center =
-      middleFrame.windowCenter * this._rescaleSlope || this._minMax[0] + width / 2;
-    this._windowCenter = center + this._rescaleIntercept;
+    this._windowCenter =
+      middleFrame.windowCenter || this._minMax[0] + this._windowWidth / 2;
 
     this._bitsAllocated = middleFrame.bitsAllocated;
     this._prepared = true;
@@ -301,6 +294,17 @@ export default class ModelsStack extends ModelsBase {
     );
   }
 
+  computeNumberOfFrames() {
+    // we need at least 1 frame
+    if (this._frame && this._frame.length > 0) {
+      this._numberOfFrames = this._frame.length;
+    } else {
+      window.console.warn('_frame doesn\'t contain anything....');
+      window.console.warn(this._frame);
+      return false;
+    }
+  }
+
   // frame.cosines - returns array [x, y, z]
   computeCosines() {
     if (this._frame &&
@@ -315,10 +319,10 @@ export default class ModelsStack extends ModelsBase {
   orderFrames() {
     // order the frames based on theirs dimension indices
     // first index is the most important.
-    // 1,1,1,1 willl be first
+    // 1,1,1,1 will be first
     // 1,1,2,1 will be next
     // 1,1,2,3 will be next
-    // 1,1,3,1 wil be next
+    // 1,1,3,1 will be next
     if (this._frame[0].dimensionIndexValues) {
       this._frame.sort(this._orderFrameOnDimensionIndicesArraySort);
 
@@ -342,18 +346,7 @@ export default class ModelsStack extends ModelsBase {
       this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
       this._frame.sort(this._sortSopInstanceUIDArraySort);
     } else {
-      // window.console.log(this._frame[0]);
-      // window.console.log(this._frame[1]);
-      // window.console.log(this._frame[0].instanceNumber !== null && true);
-      // window.console.log(
-      // this._frame[0].instanceNumber !== this._frame[1].instanceNumber);
-      window.console.log('do not know how to order the frames...');
-      // else slice location
-      // image number
-      // ORDERING BASED ON instance number
-      // _ordering = 'instance_number';
-      // first_image.sort(function(a,b){
-      // return a["instance_number"]-b["instance_number"]});
+      window.console.warn('do not know how to order the frames...');
     }
   }
 
@@ -464,7 +457,13 @@ export default class ModelsStack extends ModelsBase {
    */
   merge(stack) {
     // also make sure x/y/z cosines are a match!
-    if (this._stackID === stack.stackID) {
+    if (this._stackID === stack.stackID &&
+        this._numberOfFrames === 1 && stack._numberOfFrames === 1 &&
+        this._frame[0].columns === stack.frame[0].columns &&
+        this._frame[0].rows === stack.frame[0].rows &&
+        this._xCosine.equals(stack.xCosine) &&
+        this._yCosine.equals(stack.yCosine) &&
+        this._zCosine.equals(stack.zCosine)) {
       return this.mergeModels(this._frame, stack.frame);
     } else {
       return false;
@@ -480,6 +479,10 @@ export default class ModelsStack extends ModelsBase {
       this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
 
     // Packing style
+    if (this._bitsAllocated === 8 && this._numberOfChannels === 1 || this._bitsAllocated === 1) {
+      this._packedPerPixel = 4;
+    }
+
     if (this._bitsAllocated === 16 && this._numberOfChannels === 1) {
       this._packedPerPixel = 2;
     }
@@ -545,19 +548,23 @@ export default class ModelsStack extends ModelsBase {
     const frameDimension = frame[0].rows * frame[0].columns;
 
     if (bitsAllocated === 8 && channels === 1 || bitsAllocated === 1) {
-      let data = new Uint8Array(textureSize * textureSize * 1);
+      let data = new Uint8Array(textureSize * textureSize * 4);
+      let coordinate = 0;
+      let channelOffset = 0;
       for (let i = startVoxel; i < stopVoxel; i++) {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
 
-        let raw = frame[frameIndex].pixelData[inFrameIndex] += offset;
+        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
         if (!Number.isNaN(raw)) {
-          data[packIndex] = raw;
+          data[4 * coordinate + channelOffset] = raw;
         }
 
         packIndex++;
+        coordinate = Math.floor(packIndex / 4);
+        channelOffset = packIndex % 4;
       }
-      packed.textureType = THREE.LuminanceFormat;
+      packed.textureType = THREE.RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 16 && channels === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -750,9 +757,9 @@ export default class ModelsStack extends ModelsBase {
         }
       }
     } else {
-      window.console.log('One of the frames doesn\'t have a dimensionIndexValues array.');
-      window.console.log(a);
-      window.console.log(b);
+      window.console.warn('One of the frames doesn\'t have a dimensionIndexValues array.');
+      window.console.warn(a);
+      window.console.warn(b);
     }
 
     return 0;
@@ -1060,7 +1067,7 @@ export default class ModelsStack extends ModelsBase {
    * @return {*}
    */
   static value(stack, coordinate) {
-    console.warn(
+    window.console.warn(
       `models.stack.value is deprecated.
        Please use core.utils.value instead.`);
     return CoreUtils.value(stack, coordinate);
@@ -1078,7 +1085,7 @@ export default class ModelsStack extends ModelsBase {
    * @return {*}
    */
   static valueRescaleSlopeIntercept(value, slope, intercept) {
-    console.warn(
+    window.console.warn(
       `models.stack.valueRescaleSlopeIntercept is deprecated.
        Please use core.utils.rescaleSlopeIntercept instead.`);
     return CoreUtils.rescaleSlopeIntercept(
@@ -1096,7 +1103,7 @@ export default class ModelsStack extends ModelsBase {
    * @return {*}
    */
   static worldToData(stack, worldCoordinates) {
-    console.warn(
+    window.console.warn(
       `models.stack.worldToData is deprecated.
        Please use core.utils.worldToData instead.`);
 

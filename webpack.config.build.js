@@ -20,8 +20,8 @@ var config = {
         modules: [path.resolve(__dirname, 'src'), 'node_modules'],
         extensions: ['.js', '.jsx', '.css', '.html', '.scss', '.json'],
         alias: {
-            base: path.resolve(__dirname, 'src')
-        }
+            base: path.resolve(__dirname, 'src'),
+        },
     },
     module: {
         rules: [
@@ -76,8 +76,10 @@ if (process.env.NODE_WEBPACK_TARGET) {
         );
     }
 
+    const dataPath = path.resolve(__dirname, 'data');
+
     config.devServer = {
-        contentBase: [workPath, path.resolve(__dirname, 'build')],
+        contentBase: [dataPath, workPath, path.resolve(__dirname, 'build')],
         historyApiFallback: true
     };
 } else if (!debug) {

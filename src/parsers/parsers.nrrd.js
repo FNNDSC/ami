@@ -32,8 +32,6 @@ export default class ParsersNifti extends ParsersVolume {
     } catch (error) {
       window.console.log('ooops... :(');
     }
-
-    window.console.log(this._dataSet);
   }
 
   /**
@@ -166,14 +164,14 @@ export default class ParsersNifti extends ParsersVolume {
    */
   pixelSpacing(frameIndex = 0) {
     const x = new Vector3(
+      this._dataSet.spaceDirections[0][0],
+      this._dataSet.spaceDirections[0][1],
+      this._dataSet.spaceDirections[0][2]);
+
+    const y = new Vector3(
       this._dataSet.spaceDirections[1][0],
       this._dataSet.spaceDirections[1][1],
       this._dataSet.spaceDirections[1][2]);
-
-    const y = new Vector3(
-      this._dataSet.spaceDirections[2][0],
-      this._dataSet.spaceDirections[2][1],
-      this._dataSet.spaceDirections[2][2]);
 
     const z = new Vector3(
       this._dataSet.spaceDirections[2][0],
@@ -267,10 +265,8 @@ export default class ParsersNifti extends ParsersVolume {
 
     if (this._dataSet.type === 'int8' ||
        this._dataSet.type === 'char') {
-      frameOffset = frameOffset;
       return new Int8Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.type === 'uint8') {
-      frameOffset = frameOffset;
       return new Uint8Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.type === 'int16' ||
        this._dataSet.type === 'short') {

@@ -77,6 +77,11 @@ function init() {
 }
 
 window.onload = function() {
+  // notify puppeteer to take screenshot
+  const puppetDiv = document.createElement('div');
+  puppetDiv.setAttribute('id', 'puppeteer');
+  document.body.appendChild(puppetDiv);
+
   // hookup load button
   document.getElementById('buttoninput').onclick = function() {
     document.getElementById('filesinput').click();
@@ -117,6 +122,12 @@ window.onload = function() {
       .step(1).listen();
     stackFolder.add(
       stackHelper.slice, 'windowCenter', stack.minMax[0], stack.minMax[1])
+      .step(1).listen();
+    stackFolder.add(
+      stackHelper.slice, 'lowerThreshold', stack.minMax[0], stack.minMax[1])
+      .step(1).listen();
+    stackFolder.add(
+      stackHelper.slice, 'upperThreshold', stack.minMax[0], stack.minMax[1])
       .step(1).listen();
     stackFolder.add(stackHelper.slice, 'intensityAuto').listen();
     stackFolder.add(stackHelper.slice, 'invert');
@@ -300,8 +311,6 @@ window.onload = function() {
     stackHelper.border.visible = false;
     scene.add(stackHelper);
 
-    console.log(stackHelper.stack);
-
     // set camera
     let worldbb = stack.worldBoundingBox();
     let lpsDims = new THREE.Vector3(
@@ -430,7 +439,8 @@ window.onload = function() {
     for (let i = 0; i < evt.target.files.length; i++) {
       let dataUrl = CoreUtils.parseUrl(evt.target.files[i].name);
       if (dataUrl.extension.toUpperCase() === 'MHD' ||
-          dataUrl.extension.toUpperCase() === 'RAW') {
+          dataUrl.extension.toUpperCase() === 'RAW' ||
+          dataUrl.extension.toUpperCase() === 'ZRAW') {
         dataGroups.push(
           {
             file: evt.target.files[i],
@@ -446,8 +456,10 @@ window.onload = function() {
       // if raw/mhd pair
       const mhdFile = dataGroups.filter(_filterByExtension.bind(null, 'MHD'));
       const rawFile = dataGroups.filter(_filterByExtension.bind(null, 'RAW'));
+      const zrawFile = dataGroups.filter(_filterByExtension.bind(null, 'ZRAW'));
       if (mhdFile.length === 1 &&
-          rawFile.length === 1) {
+          (rawFile.length === 1 ||
+            zrawFile.length === 1)) {
       loadSequenceContainer.push(
         loadSequenceGroup(dataGroups)
       );

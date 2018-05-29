@@ -245,7 +245,7 @@ export default class CoreUtils {
    * @return {*}
    */
   static value(stack, coordinate) {
-    console.warn('value is deprecated, please use getPixelData instead');
+    window.console.warn('value is deprecated, please use getPixelData instead');
     this.getPixelData(stack, coordinate);
   }
 

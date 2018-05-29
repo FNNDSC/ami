@@ -55,8 +55,8 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
    * Initialize orthographic camera variables
    */
   init(xCosine, yCosine, zCosine, controls, box, canvas) {
-    // DEPRECATED
-    console.warn(
+    // DEPRECATION NOTICE
+    window.console.warn(
       `cameras.orthographic.init(...) is deprecated.
       Use .cosines, .controls, .box and .canvas instead.`);
 
@@ -190,7 +190,7 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
               break;
 
             default:
-              console.warn(
+              window.console.warn(
                 `"${this._orientation}" orientation is not valid.
                 (choices: axial, coronal, sagittal)`);
               break;
@@ -250,13 +250,13 @@ export default class CamerasOrthographic extends THREE.OrthographicCamera {
               break;
 
             default:
-              console.warn(
+              window.console.warn(
                 `"${this._orientation}" orientation is not valid.
                 (choices: axial, coronal, sagittal)`);
               break;
           }
       } else {
-        console.warn(
+        window.console.warn(
           `${this._convention} is not valid (choices: radio, neuro)`);
       }
     }

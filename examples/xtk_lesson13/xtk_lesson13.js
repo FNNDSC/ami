@@ -96,6 +96,11 @@ window.onload = function() {
       volume._zSlice, 'index', 0, volume._zSlice.orientationMaxIndex)
       .step(1).listen();
     volume._zSlice.index = Math.floor(volume._zSlice.orientationMaxIndex/2);
+
+    // notify puppeteer to take screenshot
+    const puppetDiv = document.createElement('div');
+    puppetDiv.setAttribute('id', 'puppeteer');
+    document.body.appendChild(puppetDiv);
   }).catch((error) => {
     console.log('ERROR: something went wrong with the volume load.', error);
   });

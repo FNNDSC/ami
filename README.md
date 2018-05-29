@@ -47,7 +47,7 @@ Please submit pull request, open issues or contact us for any question, feature 
 
 1. [Hello AMI](#hello-ami)
 2. [Features](#features)
-3. [Usage](#npm)
+3. [Usage](#yarn)
 4. [Developer corner](#developer-corner)
 5. [Change log](#change-log)
 6. [Credits](#credits)
@@ -222,9 +222,9 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 |--------------------|--------------|------------------|------------------------|
 | ✅ 2D Visulization  | ✅ Dicom     | ✅ VTK (THREEJS) | 🔶 Handle (2D/3D)       |
 | ✅ 3D Visualization | ✅ NRRD      | ✅ STL (THREEJS) | 🔶 Probe (2D/3D)        |
-| ✅ Volume Rendering | ✅ Nifti     | 🔶 TRK           | 🔶 Ruler (2D/3D)        |
-| ✅ Lookup Tables    | ✅  MHD/RAW   | ❌ FSM           | 🔶 Orientation (2D/3D)  |
-| 🔶 Label Maps       | ❌ MGH/MGZ   | ❌ CURV          | 🔶 Angle (2D/3D)        |
+| ✅ Volume Rendering | ✅ Nifti     | ✅  TRK           | 🔶 Ruler (2D/3D)        |
+| ✅ Lookup Tables    | ✅  MHD/(Z)RAW   | ✅  FSM           | 🔶 Orientation (2D/3D)  |
+| 🔶 Label Maps       | ✅  MGH/MGZ   | ❌ CURV          | 🔶 Angle (2D/3D)        |
 |                    | ❌ JPEG      |                  |                         |
 
 ## Usage
@@ -240,7 +240,7 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 
 ```
 
-### NPM
+### Yarn
 
 ```bash
 
@@ -272,7 +272,7 @@ Add AMI in your index.html **after** THREEJS.
 <script src="app.js"></script>
 
 #app.js
-const AMI = AMI.default;
+const AMI = AMI;
 window.console.log('Ready to rock!!');
 
 ```
@@ -402,6 +402,7 @@ AMI would not exist without them:
 
 # Citations
 ### 2017
+- [From brain imaging to weather imaging - McCaie - informaticslab, Met Office (blog post)](http://www.informaticslab.co.uk/side-projects/weather/3d/visualisations/2017/04/04/from-brain-imaging-to-weather-imaging.html)
 - [Medical imaging in the browser with the A* Medical Imaging (AMI) toolkit. - Rannou et al. - ESMRMB 2017 (poster)](http://epostersonline.com/esmrmb2017/node/3443)
 - [Reusable Client-Side JavaScript Modules for Immersive Web-Based Real-Time Collaborative Neuroimage Visualization - Bernal-Rusiel et al. - Frontiers in Neuroinformatics 2017 (article)](http://journal.frontiersin.org/article/10.3389/fninf.2017.00032/full)
 ### 2016

@@ -30,6 +30,13 @@ window.onload = function() {
     xVolume.load().then((volume) => {
         renderer.add(volume);
         renderer.center(volume.centerLPS);
+
+        // force first render
+        renderer.render();
+        // notify puppeteer to take screenshot
+        const puppetDiv = document.createElement('div');
+        puppetDiv.setAttribute('id', 'puppeteer');
+        document.body.appendChild(puppetDiv);
     }).catch((error) =>
       console.log('ERROR: something went wrong with the volume load.', error));
 };

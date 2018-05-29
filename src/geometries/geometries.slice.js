@@ -69,8 +69,8 @@ export default class GeometriesSlice extends THREE.ShapeGeometry {
         window.console.log('Plane');
         window.console.log(plane);
         window.console.log('exiting...');
-        // or throw error?
-        throw 'geometries.slice has less than 3 intersections, can not create a valid geometry.';
+        const err = new Error('geometries.slice has less than 3 intersections, can not create a valid geometry.');
+        throw err;
       }
 
       let orderedIntersections = GeometriesSlice.orderIntersections(intersections, direction);

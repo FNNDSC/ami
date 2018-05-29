@@ -20,6 +20,7 @@ let wheel = null;
 let wheelTO = null;
 
 let myStack = {
+  algorithm: 'ray marching',
   lut: 'random',
   opacity: 'random',
   steps: 256,
@@ -31,34 +32,46 @@ let myStack = {
 
 function onStart(event) {
   if (vrHelper && vrHelper.uniforms && !wheel) {
-    vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
-    vrHelper.interpolation = 0;
+    renderer.setPixelRatio(.1 * window.devicePixelRatio);
+    renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
     modified = true;
   }
 }
 
 function onEnd(event) {
   if (vrHelper && vrHelper.uniforms && !wheel) {
-    vrHelper.uniforms.uSteps.value = myStack.steps;
-    vrHelper.interpolation = myStack.interpolation;
+    renderer.setPixelRatio(.5 * window.devicePixelRatio);
+    renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
     modified = true;
+
+    setTimeout(function() {
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+      modified = true;
+    }, 100);
   }
 }
 
 function onWheel() {
   if (!wheel) {
-    vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
-    vrHelper.interpolation = 0;
+    renderer.setPixelRatio(.1 * window.devicePixelRatio);
+    renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
     wheel = Date.now();
   }
 
   if (Date.now() - wheel < 300) {
     clearTimeout(wheelTO);
     wheelTO = setTimeout(function() {
-      vrHelper.uniforms.uSteps.value = myStack.steps;
-      vrHelper.interpolation = myStack.interpolation;
-      wheel = null;
+      renderer.setPixelRatio(.5 * window.devicePixelRatio);
+      renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
       modified = true;
+
+      setTimeout(function() {
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+        wheel = null;
+        modified = true;
+      }, 100);
     }, 300);
   }
 
@@ -84,6 +97,12 @@ function buildGUI() {
   customContainer.appendChild(gui.domElement);
 
   let stackFolder = gui.addFolder('Settings');
+  let algorithmUpdate = stackFolder.add(myStack, 'algorithm', ['ray marching', 'mip']);
+  algorithmUpdate.onChange(function(value) {
+    vrHelper.algorithm = value === 'mip' ? 1 : 0;
+    modified = true;
+  });
+
   let lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
   lutUpdate.onChange(function(value) {
       lut.lut = value;
@@ -127,21 +146,39 @@ function buildGUI() {
     }
   });
 
+  let shadingUpdate = stackFolder.add(vrHelper, 'shading', 0, 1).step(1);
+  shadingUpdate.onChange(function(value) {
+    if (vrHelper.uniforms) {
+      modified = true;
+    }
+  });
+
+  let shininessUpdate = stackFolder.add(vrHelper, 'shininess', 0, 20).step(.1);
+  shininessUpdate.onChange(function(value) {
+    if (vrHelper.uniforms) {
+      modified = true;
+    }
+  });
+
   stackFolder.open();
+}
+
+function render() {
+  // render
+  controls.update();
+
+  if (ready && modified) {
+    renderer.render(scene, camera);
+    modified = false;
+  }
+
+  stats.update();
 }
 
 function init() {
   // this function is executed on each animation frame
   function animate() {
-    // render
-    controls.update();
-
-    if (ready && modified) {
-      renderer.render(scene, camera);
-      modified = false;
-    }
-
-    stats.update();
+    render();
 
     // request new frame
     requestAnimationFrame(function() {
@@ -155,6 +192,7 @@ function init() {
     alpha: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
   threeD.appendChild(renderer.domElement);
 
   // scene
@@ -195,11 +233,12 @@ window.onload = function() {
   init();
 
   let filename = 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz';
+  let files = [filename];
 
   // load sequence for each file
   // instantiate the loader
   let loader = new LoadersVolume(threeD);
-  loader.load(filename)
+  loader.load(files)
   .then(() => {
     let series = loader.data[0].mergeSeries(loader.data)[0];
     loader.free();
@@ -245,6 +284,13 @@ window.onload = function() {
     // good to go
     ready = true;
     modified = true;
+
+    // force first render
+    render();
+    // notify puppeteer to take screenshot
+    const puppetDiv = document.createElement('div');
+    puppetDiv.setAttribute('id', 'puppeteer');
+    document.body.appendChild(puppetDiv);
   })
   .catch((error) => window.console.log(error));
 };

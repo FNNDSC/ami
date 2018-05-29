@@ -90,7 +90,7 @@ const r3 = {
 let dataInfo = [
     ['adi1', {
         location:
-          'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/mesh.stl',
+          'https://rawgit.com/FNNDSC/data/master/fsm/lh.orig',
         label: 'Left',
         loaded: false,
         material: null,
@@ -100,11 +100,11 @@ let dataInfo = [
         meshFront: null,
         meshBack: null,
         color: 0xe91e63,
-        opacity: 0.7,
+        opacity: 0.8,
     }],
     ['adi2', {
         location:
-          'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/mesh2.stl',
+          'https://rawgit.com/FNNDSC/data/master/fsm/rh.orig',
         label: 'Right',
         loaded: false,
         material: null,
@@ -263,6 +263,70 @@ function initHelpersLocalizer(rendererObj, stack, referencePlane, localizers) {
     rendererObj.localizerScene.add(rendererObj.localizerHelper);
 }
 
+function render() {
+  // we are ready when both meshes have been loaded
+  if (ready) {
+    // render
+    r0.controls.update();
+    r1.controls.update();
+    r2.controls.update();
+    r3.controls.update();
+
+    r0.light.position.copy(r0.camera.position);
+    r0.renderer.render(r0.scene, r0.camera);
+
+    // r1
+    r1.renderer.clear();
+    r1.renderer.render(r1.scene, r1.camera);
+    // mesh
+    r1.renderer.clearDepth();
+    data.forEach(function(object, key) {
+      object.materialFront.clippingPlanes = [clipPlane1];
+      object.materialBack.clippingPlanes = [clipPlane1];
+      r1.renderer.render(object.scene, r1.camera, redTextureTarget, true);
+      r1.renderer.clearDepth();
+      redContourHelper.contourWidth = object.selected ? 3 : 2;
+      redContourHelper.contourOpacity = object.selected ? 1 : .8;
+      r1.renderer.render(redContourScene, r1.camera);
+      r1.renderer.clearDepth();
+    });
+
+    // localizer
+    r1.renderer.clearDepth();
+    r1.renderer.render(r1.localizerScene, r1.camera);
+
+    // r2
+    r2.renderer.clear();
+    r2.renderer.render(r2.scene, r2.camera);
+    // mesh
+    r2.renderer.clearDepth();
+    data.forEach(function(object, key) {
+      object.materialFront.clippingPlanes = [clipPlane2];
+      object.materialBack.clippingPlanes = [clipPlane2];
+    });
+    r2.renderer.render(sceneClip, r2.camera);
+    // localizer
+    r2.renderer.clearDepth();
+    r2.renderer.render(r2.localizerScene, r2.camera);
+
+    // r3
+    r3.renderer.clear();
+    r3.renderer.render(r3.scene, r3.camera);
+    // mesh
+    r3.renderer.clearDepth();
+    data.forEach(function(object, key) {
+      object.materialFront.clippingPlanes = [clipPlane3];
+      object.materialBack.clippingPlanes = [clipPlane3];
+    });
+    r3.renderer.render(sceneClip, r3.camera);
+    // localizer
+    r3.renderer.clearDepth();
+    r3.renderer.render(r3.localizerScene, r3.camera);
+  }
+
+  stats.update();
+}
+
 /**
  * Init the quadview
  */
@@ -271,66 +335,7 @@ function init() {
    * Called on each animation frame
    */
   function animate() {
-    // we are ready when both meshes have been loaded
-    if (ready) {
-      // render
-      r0.controls.update();
-      r1.controls.update();
-      r2.controls.update();
-      r3.controls.update();
-
-      r0.light.position.copy(r0.camera.position);
-      r0.renderer.render(r0.scene, r0.camera);
-
-      // r1
-      r1.renderer.clear();
-      r1.renderer.render(r1.scene, r1.camera);
-      // mesh
-      r1.renderer.clearDepth();
-      data.forEach(function(object, key) {
-        object.materialFront.clippingPlanes = [clipPlane1];
-        object.materialBack.clippingPlanes = [clipPlane1];
-        r1.renderer.render(object.scene, r1.camera, redTextureTarget, true);
-        r1.renderer.clearDepth();
-        redContourHelper.contourWidth = object.selected ? 2 : 1;
-        r1.renderer.render(redContourScene, r1.camera);
-        r1.renderer.clearDepth();
-      });
-
-      // localizer
-      r1.renderer.clearDepth();
-      r1.renderer.render(r1.localizerScene, r1.camera);
-
-      // r2
-      r2.renderer.clear();
-      r2.renderer.render(r2.scene, r2.camera);
-      // mesh
-      r2.renderer.clearDepth();
-      data.forEach(function(object, key) {
-        object.materialFront.clippingPlanes = [clipPlane2];
-        object.materialBack.clippingPlanes = [clipPlane2];
-      });
-      r2.renderer.render(sceneClip, r2.camera);
-      // localizer
-      r2.renderer.clearDepth();
-      r2.renderer.render(r2.localizerScene, r2.camera);
-
-      // r3
-      r3.renderer.clear();
-      r3.renderer.render(r3.scene, r3.camera);
-      // mesh
-      r3.renderer.clearDepth();
-      data.forEach(function(object, key) {
-        object.materialFront.clippingPlanes = [clipPlane3];
-        object.materialBack.clippingPlanes = [clipPlane3];
-      });
-      r3.renderer.render(sceneClip, r3.camera);
-      // localizer
-      r3.renderer.clearDepth();
-      r3.renderer.render(r3.localizerScene, r3.camera);
-    }
-
-    stats.update();
+    render();
 
     // request new frame
     requestAnimationFrame(function() {
@@ -352,23 +357,7 @@ window.onload = function() {
   // init threeJS
   init();
 
-  let t2 = [
-    '36444280', '36444294', '36444308', '36444322', '36444336',
-    '36444350', '36444364', '36444378', '36444392', '36444406',
-    '36444490', '36444504', '36444518', '36444532', '36746856',
-    '36746870', '36746884', '36746898', '36746912', '36746926',
-    '36746940', '36746954', '36746968', '36746982', '36746996',
-    '36747010', '36747024', '36748200', '36748214', '36748228',
-    '36748270', '36748284', '36748298', '36748312', '36748326',
-    '36748340', '36748354', '36748368', '36748382', '36748396',
-    '36748410', '36748424', '36748438', '36748452', '36748466',
-    '36748480', '36748494', '36748508', '36748522', '36748242',
-    '36748256', '36444434', '36444448', '36444462', '36444476',
-  ];
-
-  let files = t2.map(function(v) {
-    return 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/' + v;
-  });
+  let files = ['https://rawgit.com/FNNDSC/data/master/mgh/orig.mgz'];
 
   // load sequence for each file
   // instantiate the loader
@@ -754,8 +743,9 @@ window.onload = function() {
     // load meshes on the stack is all set
     let meshesLoaded = 0;
     function loadSTLObject(object) {
-      const stlLoader = new THREE.STLLoader();
+      const stlLoader = new THREE.FreeSurferLoader();
       stlLoader.load(object.location, function(geometry) {
+        geometry.computeVertexNormals();
           // 3D mesh
           object.material = new THREE.MeshLambertMaterial({
             opacity: object.opacity,
@@ -765,12 +755,15 @@ window.onload = function() {
           });
           object.mesh = new THREE.Mesh(geometry, object.material);
           object.mesh.objRef = object;
-          const RASToLPS = new THREE.Matrix4();
-          RASToLPS.set(-1, 0, 0, 0,
-                        0, -1, 0, 0,
-                        0, 0, 1, 0,
+          const array = r1.stackHelper.stack.lps2IJK.toArray();
+
+          let RASToLPS = new THREE.Matrix4();
+          const worldCenter = r1.stackHelper.stack.worldCenter();
+          RASToLPS.set(-1, 0, 0, worldCenter.x,
+                        0, -1, 0, worldCenter.y,
+                        0, 0, 1, worldCenter.z,
                         0, 0, 0, 1);
-          // object.mesh.applyMatrix(RASToLPS);
+          object.mesh.applyMatrix(RASToLPS);
           r0.scene.add(object.mesh);
 
           object.scene = new THREE.Scene();
@@ -786,7 +779,7 @@ window.onload = function() {
           });
 
           object.meshFront = new THREE.Mesh(geometry, object.materialFront);
-          // object.meshFront.applyMatrix(RASToLPS);
+          object.meshFront.applyMatrix(RASToLPS);
           object.scene.add(object.meshFront);
 
           // back
@@ -800,7 +793,7 @@ window.onload = function() {
           });
 
           object.meshBack = new THREE.Mesh(geometry, object.materialBack);
-          // object.meshBack.applyMatrix(RASToLPS);
+          object.meshBack.applyMatrix(RASToLPS);
           object.scene.add(object.meshBack);
           sceneClip.add(object.scene);
 
@@ -813,6 +806,13 @@ window.onload = function() {
           // good to go
           if (meshesLoaded === data.size) {
             ready = true;
+
+            // force 1st render
+            render();
+            // notify puppeteer to take screenshot
+            const puppetDiv = document.createElement('div');
+            puppetDiv.setAttribute('id', 'puppeteer');
+            document.body.appendChild(puppetDiv);
           }
         });
     }

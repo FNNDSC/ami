@@ -10,6 +10,10 @@ export default class ParsersVolume {
     return 0;
   }
 
+  pixelPaddingValue(frameIndex = 0) {
+    return null;
+  }
+
   modality() {
     return 'unknown';
   }
@@ -65,6 +69,10 @@ export default class ParsersVolume {
 
   rescaleIntercept(frameIndex = 0) {
     return 0;
+  }
+
+  frameTime(frameIndex = 0) {
+    return null;
   }
 
   _decompressUncompressed() {

@@ -1,6 +1,6 @@
 {
     "name": "ami.js",
-    "version": "0.0.22",
+    "version": "0.0.23-dev",
     "main": "build/ami.js",
     "keywords": [
         "ami",
@@ -29,7 +29,7 @@
         "url": "https://fnndsc.github.io/ami"
     },
     "config": {
-        "threeVersion": "87",
+        "threeVersion": "92",
         "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js",
         "gaKey": "UA-39303022-3",
         "babel": "--module-bind js=babel-loader --colors --display-error-details"
@@ -42,20 +42,20 @@
         "nifti-reader-js": "v0.5.3",
         "nrrd-js": "^0.2.1",
         "pako": "1.0.1",
-        "three": "0.87.0"
+        "three": "0.92.0"
     },
     "scripts": {
         "build:ami": "webpack --config webpack.config.build.js",
-        "build:ami:prod": "cross-env NODE_ENV=production npm run build:ami",
+        "build:ami:prod": "cross-env NODE_ENV=production yarn build:ami",
         "build:clean": "rimraf -rf build/*",
         "build:clean:hot": "rimraf -rf build/*.hot-update.*",
         "dev:ami": "webpack --config webpack.config.build.js --hot --watch --colors",
-        "dist:ami": "npm run build:clean && npm run build:ami && npm run build:ami:prod && npm run doc",
+        "dist:ami": "yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc",
         "dist:examples": "node ./scripts/buildDist.js && node ./scripts/router.js examples deploy",
         "dist:clean": "rimraf -rf dist/*",
-        "analyze:ami": "cross-env NODE_WEBPACK_ANALYZE=true npm run build:ami",
-        "analyze:ami:prod": "cross-env NODE_WEBPACK_ANALYZE=true npm run build:ami:prod",
-        "clean": "npm run build:clean && npm run dist:clean",
+        "analyze:ami": "cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami",
+        "analyze:ami:prod": "cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod",
+        "clean": "yarn build:clean && yarn dist:clean",
         "example": "node ./scripts/router.js examples",
         "lesson": "node ./scripts/router.js lessons",
         "gen:index:examples": "node ./scripts/genIndexFiles.js examples",
@@ -63,11 +63,11 @@
         "gen:index:lessons": "node ./scripts/genIndexFiles.js lessons",
         "gen:index:lessons:cdn": "node ./scripts/genIndexFiles.js lessons cdn",
         "test": "karma start",
+        "testExamples": "yarn dist:clean && yarn dist:examples && echo 'hi'",
         "lint": "eslint src/**/*.js",
         "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src",
-        "ami": "npm run lint && npm run dist:ami && npm run test",
-        "deploy":
-            "npm run dist:clean && npm run build:clean && npm run dist:ami && npm run dist:examples && gh-pages -d dist"
+        "ami": "yarn lint && yarn dist:ami && yarn test",
+        "deploy": "yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"
     },
     "devDependencies": {
         "babel-cli": "latest",
@@ -83,14 +83,15 @@
         "glslify": "5.1.0",
         "jasmine-core": "latest",
         "jsdoc": "jsdoc3/jsdoc#master",
-        "karma": "latest",
+        "karma": "^2.0.2",
+        "karma-chrome-launcher": "^2.2.0",
         "karma-jasmine": "latest",
-        "karma-phantomjs-launcher": "1.0.4",
         "karma-sinon": "^1.0.5",
         "karma-spec-reporter": "latest",
         "karma-webpack": "^2.0.4",
         "live-server": "^1.1.0",
-        "phantomjs-prebuilt": "2.1.14",
+        "node-pre-gyp": "^0.10.0",
+        "puppeteer": "^0.13.0",
         "rimraf": "^2.6.1",
         "rollup-plugin-node-builtins": "^2.1.2",
         "shelljs": "latest",

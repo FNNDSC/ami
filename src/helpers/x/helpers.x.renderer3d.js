@@ -49,9 +49,13 @@ export default class {
       worldPosition.z);
   }
 
-  animate() {
+  render() {
     this._controls.update();
     this._renderer.render(this._scene, this._camera);
+  }
+
+  animate() {
+    this.render();
 
     // request new frame
     requestAnimationFrame(this.animate.bind(this));

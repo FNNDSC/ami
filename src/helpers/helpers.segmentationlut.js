@@ -6,7 +6,7 @@ let defaultSegmentation = {
 };
 
 export default class HelpersSegmentationLut {
-  constructor(domTarget, segID = 'Freesurfer', segmentation = defaultSegmentation) {
+  constructor(domTarget, segmentation = defaultSegmentation) {
     if (CoreUtils.isString(domTarget)) {
       this._dom = document.getElementById(domTarget);
     } else {
