@@ -27,13 +27,13 @@ export default class WidgetsEllipse extends WidgetsBase {
         // add handles
         this._handles = [];
 
-        let firstHandle = new WidgetsHandle(this._targetMesh, this._camera);
+        let firstHandle = new WidgetsHandle(targetMesh, controls);
         firstHandle.worldPosition.copy(this._worldPosition);
         firstHandle.hovered = true;
         this.add(firstHandle);
         this._handles.push(firstHandle);
 
-        let secondHandle = new WidgetsHandle(this._targetMesh, this._camera);
+        let secondHandle = new WidgetsHandle(targetMesh, controls);
         secondHandle.worldPosition.copy(this._worldPosition);
         secondHandle.hovered = true;
         secondHandle.active = true;
@@ -42,14 +42,14 @@ export default class WidgetsEllipse extends WidgetsBase {
         this._handles.push(secondHandle);
 
         // handles to move widget
-        this.imoveHandle = new WidgetsHandle(this._targetMesh, this._camera);
+        this.imoveHandle = new WidgetsHandle(targetMesh, controls);
         this.imoveHandle.worldPosition.copy(this._worldPosition);
         this.imoveHandle.hovered = true;
         this.add(this.imoveHandle);
         this._handles.push(this.imoveHandle);
         this.imoveHandle.hide();
 
-        this.fmoveHandle = new WidgetsHandle(this._targetMesh, this._camera);
+        this.fmoveHandle = new WidgetsHandle(targetMesh, controls);
         this.fmoveHandle.worldPosition.copy(this._worldPosition);
         this.fmoveHandle.hovered = true;
         this.add(this.fmoveHandle);
@@ -285,24 +285,22 @@ export default class WidgetsEllipse extends WidgetsBase {
         }
 
         const direction = new Vector3();
-        this._targetMesh.getWorldDirection(direction);
+        this._camera.getWorldDirection(direction);
         const vec01 = new Vector3().subVectors(this._handles[1].worldPosition, this._handles[0].worldPosition),
-            height = vec01.clone().projectOnVector(this._targetMesh.up),
-            width = vec01.clone().projectOnVector(this._targetMesh.up.clone().applyAxisAngle(direction, Math.PI / 2));
+            height = vec01.clone().projectOnVector(this._camera.up).length(),
+            width = vec01.clone().projectOnVector(direction.cross(this._camera.up)).length();
 
-        // let sliceShape = AMI.SliceGeometry.shape(orderedpoints);
-        // this._geometry = new THREE.ShapeGeometry(sliceShape);
-        // this._geometry.vertices = orderedpoints;
-        // this._geometry.verticesNeedUpdate = true;
-        // this._geometry.elementsNeedUpdate = true;
-// TODO!
-        this._geometry = new THREE.BufferGeometry().setFromPoints(
-            new THREE.EllipseCurve(0, 0, width.length(), height.length(), 0, 2 * Math.PI, false).getPoints(50) // TODO! 50?
-        );
+        if (width === 0 || height === 0) {
+            return;
+        }
+
+        this._geometry = new THREE.ShapeGeometry(new THREE.Shape(
+            new THREE.EllipseCurve(0, 0, width / 2, height / 2, 0, 2 * Math.PI, false).getPoints(50)
+        ));
 
         this._mesh = new THREE.Mesh(this._geometry, this._material);
-        this._mesh.position.copy(vec01.clone().multiplyScalar(0.5).addVector(this._handles[0].worldPosition));
-        this._mesh.rotation.copy(direction);
+        this._mesh.position.copy(this._handles[0].worldPosition.clone().add(vec01.multiplyScalar(0.5)));
+        this._mesh.rotation.copy(this._camera.rotation);
         this._mesh.visible = true;
         this.add(this._mesh);
     }
@@ -328,7 +326,8 @@ export default class WidgetsEllipse extends WidgetsBase {
         this._ellipse.style.height = height + 'px';
 
         // update label
-        this._label.innerHTML = `${(AMI.SliceGeometry.shapeGeometryArea(this._geometry)/100).toFixed(2)} cm²`;
+        const area = this._geometry ? (AMI.SliceGeometry.shapeGeometryArea(this._geometry) / 100).toFixed(2) : 0.0;
+        this._label.innerHTML = `${area} cm²`;
 
         let x0 = Math.round(x2 - this._label.offsetWidth/2),
             y0 = Math.round(y2 - this._container.offsetHeight - this._label.offsetHeight/2);
@@ -358,14 +357,18 @@ export default class WidgetsEllipse extends WidgetsBase {
         this._container.removeChild(this._label);
 
         // mesh, geometry, material
-        this.remove(this._mesh);
-        this._mesh.geometry.dispose();
-        this._mesh.geometry = null;
-        this._mesh.material.dispose();
-        this._mesh.material = null;
-        this._mesh = null;
-        this._geometry.dispose();
-        this._geometry = null;
+        if (this._mesh) {
+            this.remove(this._mesh);
+            this._mesh.geometry.dispose();
+            this._mesh.geometry = null;
+            this._mesh.material.dispose();
+            this._mesh.material = null;
+            this._mesh = null;
+        }
+        if (this._geometry) {
+            this._geometry.dispose();
+            this._geometry = null;
+        }
         this._material.vertexShader = null;
         this._material.fragmentShader = null;
         this._material.uniforms = null;

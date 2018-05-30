@@ -25,7 +25,7 @@ export default class WidgetsRoi extends WidgetsBase {
         this._handles = [];
 
         // first handle
-        let firstHandle = new WidgetsHandle(this._targetMesh, this._camera);
+        let firstHandle = new WidgetsHandle(targetMesh, controls);
         firstHandle.worldPosition.copy(this._worldPosition);
         firstHandle.hovered = true;
         this.add(firstHandle);
@@ -67,7 +67,7 @@ export default class WidgetsRoi extends WidgetsBase {
             lastHandle.active = false;
             lastHandle.tracking = false;
 
-            let nextHandle = new WidgetsHandle(this._targetMesh, this._camera);
+            let nextHandle = new WidgetsHandle(this._targetMesh, this._controls);
             nextHandle.worldPosition.copy(this._worldPosition);
             nextHandle.hovered = true;
             nextHandle.active = true;
@@ -409,21 +409,24 @@ export default class WidgetsRoi extends WidgetsBase {
         this._lines = [];
         this._container.removeChild(this._area);
 
-        if (this._mesh) {// mesh, geometry, material
+        // mesh, geometry, material
+        if (this._mesh) {
             this.remove(this._mesh);
             this._mesh.geometry.dispose();
             this._mesh.geometry = null;
             this._mesh.material.dispose();
             this._mesh.material = null;
             this._mesh = null;
+        }
+        if (this._geometry) {
             this._geometry.dispose();
             this._geometry = null;
-            this._material.vertexShader = null;
-            this._material.fragmentShader = null;
-            this._material.uniforms = null;
-            this._material.dispose();
-            this._material = null;
         }
+        this._material.vertexShader = null;
+        this._material.fragmentShader = null;
+        this._material.uniforms = null;
+        this._material.dispose();
+        this._material = null;
 
         super.free();
     }

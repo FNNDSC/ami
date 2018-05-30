@@ -29,13 +29,13 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._handles = [];
 
         // first handle
-        let firstHandle = new WidgetsHandle(this._targetMesh, this._camera);
+        let firstHandle = new WidgetsHandle(targetMesh, controls);
         firstHandle.worldPosition.copy(this._worldPosition);
         firstHandle.hovered = true;
         this.add(firstHandle);
         this._handles.push(firstHandle);
 
-        let secondHandle = new WidgetsHandle(this._targetMesh, this._camera);
+        let secondHandle = new WidgetsHandle(targetMesh, controls);
         secondHandle.worldPosition.copy(this._worldPosition);
         secondHandle.hovered = true;
         secondHandle.active = true;
@@ -44,7 +44,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._handles.push(secondHandle);
 
         // third handle
-        let thirdHandle = new WidgetsHandle(this._targetMesh, this._camera);
+        let thirdHandle = new WidgetsHandle(targetMesh, controls);
         thirdHandle.worldPosition.copy(this._worldPosition);
         thirdHandle.hovered = true;
         // active and tracking?
@@ -52,7 +52,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._handles.push(thirdHandle);
 
         // fourth handle
-        let fourthHandle = new WidgetsHandle(this._targetMesh, this._camera);
+        let fourthHandle = new WidgetsHandle(targetMesh, controls);
         fourthHandle.worldPosition.copy(this._worldPosition);
         fourthHandle.hovered = true;
         fourthHandle.active = true;

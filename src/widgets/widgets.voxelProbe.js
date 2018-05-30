@@ -8,7 +8,6 @@ import {Vector2, Vector3} from 'three';
 
 /**
  * @module widgets/voxelProbe
- * @todo! value for RGB
  */
 export default class WidgetsVoxelProbe extends WidgetsBase {
   constructor(targetMesh, controls, stack) {
@@ -298,12 +297,12 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       this._stack,
       this._voxel.dataCoordinates);
 
-    this._voxel.value = value
-      ? CoreUtils.rescaleSlopeIntercept(
+    this._voxel.value = value === null || this._stack.numberOfChannels > 1
+      ? 'NA' // coordinates are outside of image or RGB
+      : CoreUtils.rescaleSlopeIntercept(
         value,
         this._stack.rescaleSlope,
-        this._stack.rescaleIntercept)
-      : 'Undefined';
+        this._stack.rescaleIntercept).toFixed();
   }
 
   updateMeshColor() {
@@ -326,7 +325,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       ${this._voxel.dataCoordinates.z}`;
 
     const valueContainer = this._dom.querySelector('#value');
-    valueContainer.innerHTML = `Value: ${this._voxel.value.toFixed(2)}`;
+    valueContainer.innerHTML = `Value: ${this._voxel.value}`;
   }
 
   updateDOMPosition() {

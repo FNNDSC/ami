@@ -26,13 +26,13 @@ export default class WidgetsRectangle extends WidgetsBase {
         // add handles
         this._handles = [];
 
-        let firstHandle = new WidgetsHandle(this._targetMesh, this._camera);
+        let firstHandle = new WidgetsHandle(targetMesh, controls);
         firstHandle.worldPosition.copy(this._worldPosition);
         firstHandle.hovered = true;
         this.add(firstHandle);
         this._handles.push(firstHandle);
 
-        let secondHandle = new WidgetsHandle(this._targetMesh, this._camera);
+        let secondHandle = new WidgetsHandle(targetMesh, controls);
         secondHandle.worldPosition.copy(this._worldPosition);
         secondHandle.hovered = true;
         secondHandle.active = true;
@@ -41,14 +41,14 @@ export default class WidgetsRectangle extends WidgetsBase {
         this._handles.push(secondHandle);
 
         // handles to move widget
-        this.imoveHandle = new WidgetsHandle(this._targetMesh, this._camera);
+        this.imoveHandle = new WidgetsHandle(targetMesh, controls);
         this.imoveHandle.worldPosition.copy(this._worldPosition);
         this.imoveHandle.hovered = true;
         this.add(this.imoveHandle);
         this._handles.push(this.imoveHandle);
         this.imoveHandle.hide();
 
-        this.fmoveHandle = new WidgetsHandle(this._targetMesh, this._camera);
+        this.fmoveHandle = new WidgetsHandle(targetMesh, controls);
         this.fmoveHandle.worldPosition.copy(this._worldPosition);
         this.fmoveHandle.hovered = true;
         this.add(this.fmoveHandle);
@@ -215,7 +215,7 @@ export default class WidgetsRectangle extends WidgetsBase {
     createMesh() {
         this._geometry = new THREE.PlaneGeometry(1, 1);
 
-        this._material = new THREE.MeshBasicMaterial();
+        this._material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide});
         this._material.transparent = true;
         this._material.opacity = 0.2;
         this.updateMeshColor();
@@ -274,22 +274,12 @@ export default class WidgetsRectangle extends WidgetsBase {
         if (this._geometry) {
             const progection = new Vector3()
                     .subVectors(this._handles[1].worldPosition, this._handles[0].worldPosition)
-                    .projectOnVector(this._targetMesh.up),
-                pointB = new Vector3().addVectors(this._handles[0].worldPosition, progection),
-                pointD = new Vector3().subVectors(this._handles[1].worldPosition, progection);
+                    .projectOnVector(this._camera.up);
 
-            if ((pointB.x >= pointD.x && pointB.y >= pointD.y && pointB.z >= pointD.z) ||
-                (pointB.x <= pointD.x && pointB.y <= pointD.y && pointB.z <= pointD.z)) {
-                this._geometry.vertices[0].copy(this._handles[0].worldPosition);
-                this._geometry.vertices[1].copy(pointB);
-                this._geometry.vertices[2].copy(pointD);
-                this._geometry.vertices[3].copy(this._handles[1].worldPosition);
-            } else {
-                this._geometry.vertices[0].copy(pointB);
-                this._geometry.vertices[1].copy(this._handles[0].worldPosition);
-                this._geometry.vertices[2].copy(this._handles[1].worldPosition);
-                this._geometry.vertices[3].copy(pointD);
-            }
+            this._geometry.vertices[0].copy(this._handles[0].worldPosition);
+            this._geometry.vertices[1].copy(new Vector3().addVectors(this._handles[0].worldPosition, progection));
+            this._geometry.vertices[2].copy(new Vector3().subVectors(this._handles[1].worldPosition, progection));
+            this._geometry.vertices[3].copy(this._handles[1].worldPosition);
 
             this._geometry.verticesNeedUpdate = true;
         }
