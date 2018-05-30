@@ -371,7 +371,7 @@ export default class ModelsStack extends ModelsBase {
       } else {
         // if distances are different (frames must be ordered)
         if (this._frame[1].dist !== this._frame[0].dist) {
-          this._spacing.z = Math.abs(this._frame[1].dist - this._frame[0].dist);
+          this._spacing.z = this._frame[1].dist - this._frame[0].dist;
         } else if (this._spacingBetweenSlices) {
           this._spacing.z = this._spacingBetweenSlices;
         } else if (this._frame[0].sliceThickness) {
