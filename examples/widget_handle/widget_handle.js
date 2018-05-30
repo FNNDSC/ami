@@ -156,37 +156,37 @@ window.onload = function() {
       switch (guiObjects.type) {
         case 'Handle':
           widget =
-            new WidgetsHandle(stackHelper.slice.mesh, camera);
+            new WidgetsHandle(stackHelper.slice.mesh, controls);
           widget.worldPosition = intersects[0].point;
           break;
         case 'Ruler':
           widget =
-            new WidgetsRuler(stackHelper.slice.mesh, camera);
+            new WidgetsRuler(stackHelper.slice.mesh, controls);
           widget.worldPosition = intersects[0].point;
           break;
         case 'VoxelProbe':
           widget =
-            new WidgetsVoxelProbe(stackHelper.slice.mesh, camera, stack);
+            new WidgetsVoxelProbe(stackHelper.slice.mesh, controls, stack);
           widget.worldPosition = intersects[0].point;
           break;
         case 'Annotation':
           widget =
-            new WidgetsAnnotation(stackHelper.slice.mesh, camera);
+            new WidgetsAnnotation(stackHelper.slice.mesh, controls);
           widget.worldPosition = intersects[0].point;
           break;
         case 'RoiWidget':
           widget =
-            new WidgetsRoiWidget(stackHelper.slice.mesh, camera);
+            new WidgetsRoiWidget(stackHelper.slice.mesh, controls);
           widget.worldPosition = intersects[0].point;
           break;
         case 'Biruler':
           widget =
-            new WidgetsBiruler(stackHelper.slice.mesh, camera);
+            new WidgetsBiruler(stackHelper.slice.mesh, controls);
           widget.worldPosition = intersects[0].point;
           break;
         default:
           widget =
-            new WidgetsHandle(stackHelper.slice.mesh, camera);
+            new WidgetsHandle(stackHelper.slice.mesh, controls);
           widget.worldPosition = intersects[0].point;
           break;
       }

@@ -4,7 +4,7 @@ import {Vector3} from "three";
  * @module Abstract Widget
  */
 export default class WidgetsBase extends THREE.Object3D {
-  constructor(targetMesh, camera) {
+  constructor(targetMesh, controls) {
     // init THREE Object 3D
     super();
 
@@ -30,9 +30,9 @@ export default class WidgetsBase extends THREE.Object3D {
     this._displayed = true;
 
     this._targetMesh = targetMesh;
-    this._camera = camera;
-    this._controls = camera.controls;
-    this._container = camera.controls.domElement;
+    this._controls = controls;
+    this._camera = controls.object;
+    this._container = controls.domElement;
 
     this._worldPosition = new Vector3(); // LPS position
     if (this._targetMesh !== null) {

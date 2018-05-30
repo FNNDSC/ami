@@ -5,8 +5,8 @@ import WidgetsHandle from './widgets.handle';
  * @module widgets/annotation
  */
 export default class WidgetsAnnotation extends WidgetsBase {
-  constructor(targetMesh, camera) {
-    super(targetMesh, camera);
+  constructor(targetMesh, controls) {
+    super(targetMesh, controls);
 
     // mesh stuff
     this._material = null;

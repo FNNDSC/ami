@@ -8,10 +8,11 @@ import {Vector2, Vector3} from 'three';
 
 /**
  * @module widgets/voxelProbe
+ * @todo! value for RGB
  */
 export default class WidgetsVoxelProbe extends WidgetsBase {
-  constructor(targetMesh, camera, stack) {
-    super(targetMesh, camera);
+  constructor(targetMesh, controls, stack) {
+    super(targetMesh, controls);
 
     this._stack = stack;
 
@@ -26,6 +27,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
     this._mouse = new Vector2();
     this._lastEvent = null;
+    this._controls.enabled = false;
 
     this._initialized = false; // set to true onEnd
 
@@ -324,7 +326,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       ${this._voxel.dataCoordinates.z}`;
 
     const valueContainer = this._dom.querySelector('#value');
-    valueContainer.innerHTML = `Value: ${this._voxel.value}`;
+    valueContainer.innerHTML = `Value: ${this._voxel.value.toFixed(2)}`;
   }
 
   updateDOMPosition() {

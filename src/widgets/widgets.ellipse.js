@@ -4,9 +4,9 @@ import WidgetsHandle from './widgets.handle';
 import {Vector3} from 'three';
 
 /**
- * @module widgets/rectangle
+ * @module widgets/ellipse
  */
-export default class WidgetsRectangle extends WidgetsBase {
+export default class WidgetsEllipse extends WidgetsBase {
     constructor(targetMesh, controls) {
         super(targetMesh, controls);
 
@@ -21,6 +21,7 @@ export default class WidgetsRectangle extends WidgetsBase {
 
         // dom stuff
         this._rectangle = null;
+        this._ellipse = null;
         this._label = null;
 
         // add handles
@@ -70,6 +71,8 @@ export default class WidgetsRectangle extends WidgetsBase {
 
         this._rectangle.addEventListener('mouseenter', this.onHover);
         this._rectangle.addEventListener('mouseleave', this.onHover);
+        this._ellipse.addEventListener('mouseenter', this.onHover);
+        this._ellipse.addEventListener('mouseleave', this.onHover);
         this._label.addEventListener('mouseenter', this.onHover);
         this._label.addEventListener('mouseleave', this.onHover);
     }
@@ -81,6 +84,8 @@ export default class WidgetsRectangle extends WidgetsBase {
 
         this._rectangle.removeEventListener('mouseenter', this.onHover);
         this._rectangle.removeEventListener('mouseleave', this.onHover);
+        this._ellipse.removeEventListener('mouseenter', this.onHover);
+        this._ellipse.removeEventListener('mouseleave', this.onHover);
         this._label.removeEventListener('mouseenter', this.onHover);
         this._label.removeEventListener('mouseleave', this.onHover);
     }
@@ -195,6 +200,7 @@ export default class WidgetsRectangle extends WidgetsBase {
         });
 
         this._rectangle.style.display = 'none';
+        this._ellipse.style.display = 'none';
         this._label.style.display = 'none';
     }
 
@@ -204,34 +210,37 @@ export default class WidgetsRectangle extends WidgetsBase {
         });
 
         this._rectangle.style.display = '';
+        this._ellipse.style.display = '';
         this._label.style.display = '';
     }
 
     create() {
-        this.createMesh();
+        this.createMaterial();
         this.createDOM();
     }
 
-    createMesh() {
-        this._geometry = new THREE.PlaneGeometry(1, 1);
-
+    createMaterial() {
         this._material = new THREE.MeshBasicMaterial();
         this._material.transparent = true;
         this._material.opacity = 0.2;
-        this.updateMeshColor();
-
-        this._mesh = new THREE.Mesh(this._geometry, this._material);
-        this._mesh.visible = true;
-        this.add(this._mesh);
     }
 
     createDOM() {
         this._rectangle = document.createElement('div');
         this._rectangle.setAttribute('class', 'widgets handle rectangle');
-        this._rectangle.style.border = '2px solid';
+        this._rectangle.style.border = '2px dashed';
         this._rectangle.style.position = 'absolute';
         this._rectangle.style.transformOrigin = '0 100%';
         this._container.appendChild(this._rectangle);
+
+        this._ellipse = document.createElement('div');
+        this._ellipse.setAttribute('class', 'widgets handle ellipse');
+        this._ellipse.style.border = '2px solid';
+        this._ellipse.style.borderRadius = '50%';
+        this._ellipse.style.position = 'absolute';
+        this._ellipse.style.transformOrigin = '0 100%';
+        this._ellipse.style.zIndex = '2';
+        this._container.appendChild(this._ellipse);
 
         this._label = document.createElement('div');
         this._label.setAttribute('class', 'widgets handle label');
@@ -271,28 +280,31 @@ export default class WidgetsRectangle extends WidgetsBase {
     }
 
     updateMeshPosition() {
-        if (this._geometry) {
-            const progection = new Vector3()
-                    .subVectors(this._handles[1].worldPosition, this._handles[0].worldPosition)
-                    .projectOnVector(this._targetMesh.up),
-                pointB = new Vector3().addVectors(this._handles[0].worldPosition, progection),
-                pointD = new Vector3().subVectors(this._handles[1].worldPosition, progection);
-
-            if ((pointB.x >= pointD.x && pointB.y >= pointD.y && pointB.z >= pointD.z) ||
-                (pointB.x <= pointD.x && pointB.y <= pointD.y && pointB.z <= pointD.z)) {
-                this._geometry.vertices[0].copy(this._handles[0].worldPosition);
-                this._geometry.vertices[1].copy(pointB);
-                this._geometry.vertices[2].copy(pointD);
-                this._geometry.vertices[3].copy(this._handles[1].worldPosition);
-            } else {
-                this._geometry.vertices[0].copy(pointB);
-                this._geometry.vertices[1].copy(this._handles[0].worldPosition);
-                this._geometry.vertices[2].copy(this._handles[1].worldPosition);
-                this._geometry.vertices[3].copy(pointD);
-            }
-
-            this._geometry.verticesNeedUpdate = true;
+        if (this._mesh) {
+            this.remove(this._mesh);
         }
+
+        const direction = new Vector3();
+        this._targetMesh.getWorldDirection(direction);
+        const vec01 = new Vector3().subVectors(this._handles[1].worldPosition, this._handles[0].worldPosition),
+            height = vec01.clone().projectOnVector(this._targetMesh.up),
+            width = vec01.clone().projectOnVector(this._targetMesh.up.clone().applyAxisAngle(direction, Math.PI / 2));
+
+        // let sliceShape = AMI.SliceGeometry.shape(orderedpoints);
+        // this._geometry = new THREE.ShapeGeometry(sliceShape);
+        // this._geometry.vertices = orderedpoints;
+        // this._geometry.verticesNeedUpdate = true;
+        // this._geometry.elementsNeedUpdate = true;
+// TODO!
+        this._geometry = new THREE.BufferGeometry().setFromPoints(
+            new THREE.EllipseCurve(0, 0, width.length(), height.length(), 0, 2 * Math.PI, false).getPoints(50) // TODO! 50?
+        );
+
+        this._mesh = new THREE.Mesh(this._geometry, this._material);
+        this._mesh.position.copy(vec01.clone().multiplyScalar(0.5).addVector(this._handles[0].worldPosition));
+        this._mesh.rotation.copy(direction);
+        this._mesh.visible = true;
+        this.add(this._mesh);
     }
 
     updateDOMPosition() {
@@ -301,15 +313,19 @@ export default class WidgetsRectangle extends WidgetsBase {
             x2 = this._handles[1].screenPosition.x,
             y2 = this._handles[1].screenPosition.y;
 
-        let width = Math.abs(x2 - x1),
+        let transform = `translate3D(${Math.min(x1, x2)}px,${Math.min(y1, y2) - this._container.offsetHeight}px, 0)`,
+            width = Math.abs(x2 - x1),
             height = Math.abs(y2 - y1);
 
-        let posY = Math.min(y1, y2) - this._container.offsetHeight;
-
         // update rectangle
-        this._rectangle.style.transform = `translate3D(${Math.min(x1, x2)}px,${posY}px, 0)`;
+        this._rectangle.style.transform = transform;
         this._rectangle.style.width = width + 'px';
         this._rectangle.style.height = height + 'px';
+
+        // update ellipse
+        this._ellipse.style.transform = transform;
+        this._ellipse.style.width = width + 'px';
+        this._ellipse.style.height = height + 'px';
 
         // update label
         this._label.innerHTML = `${(AMI.SliceGeometry.shapeGeometryArea(this._geometry)/100).toFixed(2)} cm²`;
@@ -324,6 +340,7 @@ export default class WidgetsRectangle extends WidgetsBase {
 
     updateDOMColor() {
         this._rectangle.style.borderColor = `${this._color}`;
+        this._ellipse.style.borderColor = `${this._color}`;
         this._label.style.borderColor = `${this._color}`;
     }
 
@@ -337,6 +354,7 @@ export default class WidgetsRectangle extends WidgetsBase {
         this._handles = [];
 
         this._container.removeChild(this._rectangle);
+        this._container.removeChild(this._ellipse);
         this._container.removeChild(this._label);
 
         // mesh, geometry, material

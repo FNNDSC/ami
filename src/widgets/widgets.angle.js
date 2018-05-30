@@ -5,8 +5,8 @@ import WidgetsHandle from './widgets.handle';
  * @module widgets/angle
  */
 export default class WidgetsAngle extends WidgetsBase {
-    constructor(targetMesh, camera) {
-        super(targetMesh, camera);
+    constructor(targetMesh, controls) {
+        super(targetMesh, controls);
 
         this._moving = false;
         this._domHovered = false;

@@ -7,8 +7,8 @@ import {Vector3} from 'three';
  * @module widgets/roi
  */
 export default class WidgetsRoi extends WidgetsBase {
-    constructor(targetMesh, camera) {
-        super(targetMesh, camera);
+    constructor(targetMesh, controls) {
+        super(targetMesh, controls);
 
         this._initialized = false; // set to true onEnd if number of handles > 2
 

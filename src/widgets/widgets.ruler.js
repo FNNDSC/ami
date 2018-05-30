@@ -5,8 +5,8 @@ import WidgetsHandle from './widgets.handle';
  * @module widgets/ruler
  */
 export default class WidgetsRuler extends WidgetsBase {
-  constructor(targetMesh, camera) {
-    super(targetMesh, camera);
+  constructor(targetMesh, controls) {
+    super(targetMesh, controls);
 
     this._lastEvent = null;
     this._moving = false;

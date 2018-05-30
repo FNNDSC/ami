@@ -5,8 +5,8 @@ import WidgetsHandle from './widgets.handle';
  * @module widgets/biruler
  */
 export default class WidgetsBiRuler extends WidgetsBase {
-    constructor(targetMesh, camera) {
-        super(targetMesh, camera);
+    constructor(targetMesh, controls) {
+        super(targetMesh, controls);
 
         this._initOrtho = false;
 

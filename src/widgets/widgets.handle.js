@@ -7,8 +7,8 @@ import {Vector2, Vector3} from 'three';
  * @module widgets/handle
  */
 export default class WidgetsHandle extends WidgetsBase {
-  constructor(targetMesh, camera) {
-    super(targetMesh, camera);
+  constructor(targetMesh, controls) {
+    super(targetMesh, controls);
 
     // if no target mesh, use plane for FREE dragging.
     this._plane = {
@@ -259,7 +259,6 @@ export default class WidgetsHandle extends WidgetsBase {
     this.updateDOMPosition();
   }
 
-  //
   updateMeshColor() {
     if (this._material) {
       this._material.color.set(this._color);
