@@ -154,8 +154,8 @@ export default class HelpersStack extends THREE.Object3D {
     this._computeOrientationMaxIndex();
 
     this._computeOrientationSpacing();
-    this._slice.spacing = this._orientationSpacing;
-    this._slice.thickness = this._orientationSpacing;
+    this._slice.spacing = Math.abs(this._orientationSpacing);
+    this._slice.thickness = this._slice.spacing;
 
     this._slice.planeDirection = this._prepareDirection(this._orientation);
 

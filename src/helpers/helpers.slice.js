@@ -40,8 +40,8 @@ export default class HelpersSlice extends HelpersMaterialMixin(THREE.Object3D) {
     this._windowCenter = null;
     this._rescaleSlope = null;
     this._rescaleIntercept = null;
-    this._spacing = this._stack.orientationSpacing;
-    this._thickness = this._stack.orientationSpacing;
+    this._spacing = Math.abs(this._stack.orientationSpacing);
+    this._thickness = this._spacing;
     this._thicknessMethod = 0; // default to MIP (Maximum Intensity Projection); 1 - Mean; 2 - MinIP
 
     // threshold
