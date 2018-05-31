@@ -300,7 +300,7 @@ export default class WidgetsRuler extends WidgetsBase {
     // update distance
     const distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition).toFixed(2),
         units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
-        title = units === 'units' ? 'Calibration is required to display the area in mm' : '';
+        title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
 
     if (title !== '') {
       this._distance.setAttribute('title', title);

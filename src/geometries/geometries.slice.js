@@ -110,11 +110,11 @@ export default class GeometriesSlice extends THREE.ShapeGeometry {
   /**
    * Calculate shape area (sum of triangle polygons area).
    *
-   * @param {THREE.ShapeGeometry} geometry
+   * @param {THREE.Geometry} geometry
    *
    * @returns {Number}
    */
-  static shapeGeometryArea(geometry) {
+  static getGeometryArea(geometry) {
     if (geometry.faces.length < 1) {
       return 0.0;
     }
@@ -123,7 +123,7 @@ export default class GeometriesSlice extends THREE.ShapeGeometry {
         vertices = geometry.vertices;
 
     geometry.faces.forEach(function(elem) {
-      area += new THREE.Triangle(vertices[elem.a], vertices[elem.b], vertices[elem.c]).getArea();
+      area += new THREE.Triangle(vertices[elem.a], vertices[elem.b], vertices[elem.c]).area();
     });
 
     return area;

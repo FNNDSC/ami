@@ -319,7 +319,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         // update distance
         const units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
-            title = units === 'units' ? 'Calibration is required to display the area in mm' : '';
+            title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
 
         this._distanceValue = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition).toFixed(2);
         this._distance.innerHTML = `${this._distanceValue} ${units}`;

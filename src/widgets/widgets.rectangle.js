@@ -313,7 +313,7 @@ export default class WidgetsRectangle extends WidgetsBase {
             this._label.removeAttribute('title');
             this._label.style.color = '#222';
         }
-        this._label.innerHTML = `${(AMI.SliceGeometry.shapeGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+        this._label.innerHTML = `${(AMI.SliceGeometry.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
 
         let x0 = Math.round(x2 - this._label.offsetWidth/2),
             y0 = Math.round(y2 - this._container.offsetHeight - this._label.offsetHeight/2);

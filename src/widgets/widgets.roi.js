@@ -386,7 +386,7 @@ export default class WidgetsRoi extends WidgetsBase {
             this._area.removeAttribute('title');
             this._area.style.color = '#222';
         }
-        this._area.innerHTML = `${(AMI.SliceGeometry.shapeGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+        this._area.innerHTML = `${(AMI.SliceGeometry.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
 
         labelPosition.x = Math.round(labelPosition.x - this._area.offsetWidth/2);
         labelPosition.y = Math.round(labelPosition.y - this._area.offsetHeight/2 - this._container.offsetHeight + 30);

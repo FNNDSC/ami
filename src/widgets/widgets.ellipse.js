@@ -327,7 +327,7 @@ export default class WidgetsEllipse extends WidgetsBase {
         this._ellipse.style.height = height + 'px';
 
         // update label
-        const area = this._geometry ? (AMI.SliceGeometry.shapeGeometryArea(this._geometry) / 100).toFixed(2) : 0.0,
+        const area = this._geometry ? (AMI.SliceGeometry.getGeometryArea(this._geometry) / 100).toFixed(2) : 0.0,
             units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
             title = units === 'units' ? 'Calibration is required to display the area in cm²' : '';
 

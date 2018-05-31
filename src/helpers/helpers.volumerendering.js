@@ -23,6 +23,7 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
     this._uniforms = ShadersUniform.uniforms();
     this._material = null;
     this._geometry = null;
+    this._mesh = null;
 
     this._algorithm = 0; // ray marching
     this._alphaCorrection = 0.5; // default
@@ -102,6 +103,14 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
       worldBBox[5] - worldBBox[4]);
     this._geometry.applyMatrix(new Matrix4().makeTranslation(
       centerLPS.x, centerLPS.y, centerLPS.z));
+  }
+
+  set mesh(mesh) {
+    this._mesh = mesh;
+  }
+
+  get mesh() {
+    return this._mesh;
   }
 
   get uniforms() {
