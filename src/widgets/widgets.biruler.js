@@ -5,8 +5,10 @@ import WidgetsHandle from './widgets.handle';
  * @module widgets/biruler
  */
 export default class WidgetsBiRuler extends WidgetsBase {
-    constructor(targetMesh, controls) {
+    constructor(targetMesh, controls, stack) {
         super(targetMesh, controls);
+
+        this._stack = stack;
 
         this._initOrtho = false;
 
@@ -242,12 +244,11 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._distance.style.display = 'none';
         this._line2.style.display = 'none';
         this._distance2.style.display = 'none';
+        this._dashline.style.display = 'none';
 
         this._handles.forEach(function(elem) {
             elem.hideDOM();
         });
-
-        this._dashline.style.display = 'none';
     }
 
     showDOM() {
@@ -255,12 +256,11 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._distance.style.display = '';
         this._line2.style.display = '';
         this._distance2.style.display = '';
+        this._dashline.style.display = '';
 
         this._handles.forEach(function(elem) {
             elem.showDOM();
         });
-
-        this._dashline.style.display = '';
     }
 
     update() {
@@ -312,15 +312,24 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let posY = y1 - this._container.offsetHeight;
 
         // update line
-        let transform = `translate3D(${x1}px,${posY}px, 0)`;
-        transform += ` rotate(${angle}deg)`;
+        let transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}deg)`;
 
         this._line.style.transform = transform;
         this._line.style.width = length + 'px';
 
         // update distance
+        const units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
+            title = units === 'units' ? 'Calibration is required to display the area in mm' : '';
+
         this._distanceValue = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition).toFixed(2);
-        this._distance.innerHTML = `${this._distanceValue} mm`;
+        this._distance.innerHTML = `${this._distanceValue} ${units}`;
+        if (title !== '') {
+            this._distance.setAttribute('title', title);
+            this._distance.style.color = '#C22';
+        } else {
+            this._distance.removeAttribute('title');
+            this._distance.style.color = '#222';
+        }
 
         let x0 = Math.round(x2 - this._distance.offsetWidth/2);
         let y0 = Math.round(y2 - this._container.offsetHeight - this._distance.offsetHeight/2);
@@ -349,7 +358,14 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         // update distance
         this._distance2Value = this._handles[2].worldPosition.distanceTo(this._handles[3].worldPosition).toFixed(2);
-        this._distance2.innerHTML = `${this._distance2Value} mm`;
+        this._distance2.innerHTML = `${this._distance2Value} ${units}`;
+        if (title !== '') {
+            this._distance2.setAttribute('title', title);
+            this._distance2.style.color = '#C22';
+        } else {
+            this._distance2.removeAttribute('title');
+            this._distance2.style.color = '#222';
+        }
 
         let x02 = Math.round(x4 - this._distance.offsetWidth/2);
         let y02 = Math.round(y4 - this._container.offsetHeight - this._distance.offsetHeight/2);
@@ -464,6 +480,18 @@ export default class WidgetsBiRuler extends WidgetsBase {
             Math.sqrt((pcenter.y - this._handles[2].worldPosition.y)*(pcenter.y - this._handles[2].worldPosition.y));
         this._handles[3].worldPosition.y = pcenter.y -
             Math.sqrt((pcenter.x - this._handles[2].worldPosition.x)*(pcenter.x - this._handles[2].worldPosition.x));
+    }
+
+    get targetMesh() {
+        return this._targetMesh;
+    }
+
+    set targetMesh(targetMesh) {
+        this._targetMesh = targetMesh;
+        this._handles.forEach(function(elem) {
+            elem.targetMesh = targetMesh;
+        });
+        this.update();
     }
 
     get worldPosition() {

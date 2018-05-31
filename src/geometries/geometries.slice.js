@@ -123,7 +123,7 @@ export default class GeometriesSlice extends THREE.ShapeGeometry {
         vertices = geometry.vertices;
 
     geometry.faces.forEach(function(elem) {
-      area += new THREE.Triangle(vertices[elem.a], vertices[elem.b], vertices[elem.c]).area();
+      area += new THREE.Triangle(vertices[elem.a], vertices[elem.b], vertices[elem.c]).getArea();
     });
 
     return area;

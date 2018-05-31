@@ -5,8 +5,10 @@ import WidgetsHandle from './widgets.handle';
  * @module widgets/ruler
  */
 export default class WidgetsRuler extends WidgetsBase {
-  constructor(targetMesh, controls) {
+  constructor(targetMesh, controls, stack) {
     super(targetMesh, controls);
+
+    this._stack = stack;
 
     this._lastEvent = null;
     this._moving = false;
@@ -204,9 +206,8 @@ export default class WidgetsRuler extends WidgetsBase {
   showDOM() {
     this._line.style.display = '';
     this._distance.style.display = '';
-    this._handles.forEach(function(elem) {
-      elem.showDOM();
-    });
+    this._handles[0].showDOM();
+    this._handles[1].showDOM();
   }
 
   update() {
@@ -297,8 +298,18 @@ export default class WidgetsRuler extends WidgetsBase {
     this._line.style.width = length + 'px';
 
     // update distance
-    this._distance.innerHTML =
-      `${this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition).toFixed(2)} mm`;
+    const distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition).toFixed(2),
+        units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
+        title = units === 'units' ? 'Calibration is required to display the area in mm' : '';
+
+    if (title !== '') {
+      this._distance.setAttribute('title', title);
+      this._distance.style.color = '#C22';
+    } else {
+      this._distance.removeAttribute('title');
+      this._distance.style.color = '#222';
+    }
+    this._distance.innerHTML = `${distance} ${units}`;
 
     let x0 = Math.round(x2 - this._distance.offsetWidth/2),
       y0 = Math.round(y2 - this._container.offsetHeight - this._distance.offsetHeight/2);
@@ -341,6 +352,18 @@ export default class WidgetsRuler extends WidgetsBase {
     this._material = null;
 
     super.free();
+  }
+
+  get targetMesh() {
+    return this._targetMesh;
+  }
+
+  set targetMesh(targetMesh) {
+    this._targetMesh = targetMesh;
+    this._handles.forEach(function(elem) {
+      elem.targetMesh = targetMesh;
+    });
+    this.update();
   }
 
   get worldPosition() {

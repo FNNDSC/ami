@@ -7,8 +7,10 @@ import {Vector3} from 'three';
  * @module widgets/ellipse
  */
 export default class WidgetsEllipse extends WidgetsBase {
-    constructor(targetMesh, controls) {
+    constructor(targetMesh, controls, stack) {
         super(targetMesh, controls);
+
+        this._stack = stack;
 
         this._lastEvent = null;// TODO! is it needed?
         this._moving = false;
@@ -205,9 +207,8 @@ export default class WidgetsEllipse extends WidgetsBase {
     }
 
     showDOM() {
-        this._handles.forEach(function(elem) {
-            elem.showDOM();
-        });
+        this._handles[0].showDOM();
+        this._handles[1].showDOM();
 
         this._rectangle.style.display = '';
         this._ellipse.style.display = '';
@@ -326,8 +327,18 @@ export default class WidgetsEllipse extends WidgetsBase {
         this._ellipse.style.height = height + 'px';
 
         // update label
-        const area = this._geometry ? (AMI.SliceGeometry.shapeGeometryArea(this._geometry) / 100).toFixed(2) : 0.0;
-        this._label.innerHTML = `${area} cm²`;
+        const area = this._geometry ? (AMI.SliceGeometry.shapeGeometryArea(this._geometry) / 100).toFixed(2) : 0.0,
+            units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
+            title = units === 'units' ? 'Calibration is required to display the area in cm²' : '';
+
+        if (title !== '') {
+            this._label.setAttribute('title', title);
+            this._label.style.color = '#C22';
+        } else {
+            this._label.removeAttribute('title');
+            this._label.style.color = '#222';
+        }
+        this._label.innerHTML = `${area} ${units}`;
 
         let x0 = Math.round(x2 - this._label.offsetWidth/2),
             y0 = Math.round(y2 - this._container.offsetHeight - this._label.offsetHeight/2);
@@ -376,6 +387,18 @@ export default class WidgetsEllipse extends WidgetsBase {
         this._material = null;
 
         super.free();
+    }
+
+    get targetMesh() {
+        return this._targetMesh;
+    }
+
+    set targetMesh(targetMesh) {
+        this._targetMesh = targetMesh;
+        this._handles.forEach(function(elem) {
+            elem.targetMesh = targetMesh;
+        });
+        this.update();
     }
 
     get worldPosition() {

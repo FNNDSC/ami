@@ -7,8 +7,10 @@ import {Vector3} from 'three';
  * @module widgets/roi
  */
 export default class WidgetsRoi extends WidgetsBase {
-    constructor(targetMesh, controls) {
+    constructor(targetMesh, controls, stack) {
         super(targetMesh, controls);
+
+        this._stack = stack;
 
         this._initialized = false; // set to true onEnd if number of handles > 2
 
@@ -371,14 +373,20 @@ export default class WidgetsRoi extends WidgetsBase {
         }
 
         // update area
-        this._area.innerHTML = `${(AMI.SliceGeometry.shapeGeometryArea(this._geometry)/100).toFixed(2)} cm²`;
+        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
+            title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+
         if (this._shapeWarn) {
-            this._area.setAttribute('title', 'Area may be incorrect due to triangulation error');
+            title += 'Area may be incorrect due to triangulation error.';
+        }
+        if (title !== '') {
+            this._area.setAttribute('title', title);
             this._area.style.color = '#C22';
         } else {
             this._area.removeAttribute('title');
             this._area.style.color = '#222';
         }
+        this._area.innerHTML = `${(AMI.SliceGeometry.shapeGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
 
         labelPosition.x = Math.round(labelPosition.x - this._area.offsetWidth/2);
         labelPosition.y = Math.round(labelPosition.y - this._area.offsetHeight/2 - this._container.offsetHeight + 30);
@@ -429,6 +437,19 @@ export default class WidgetsRoi extends WidgetsBase {
         this._material = null;
 
         super.free();
+    }
+
+
+    get targetMesh() {
+        return this._targetMesh;
+    }
+
+    set targetMesh(targetMesh) {
+        this._targetMesh = targetMesh;
+        this._handles.forEach(function(elem) {
+            elem.targetMesh = targetMesh;
+        });
+        this.update();
     }
 
     get worldPosition() {

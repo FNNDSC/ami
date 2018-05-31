@@ -281,9 +281,9 @@ export default class WidgetsAngle extends WidgetsBase {
         this._line2.style.display = '';
         this._angle.style.display = '';
 
-        this._handles.forEach(function(elem) {
-            elem.showDOM();
-        });
+        this._handles[0].showDOM();
+        this._handles[1].showDOM();
+        this._handles[2].showDOM();
     }
 
     update() {
@@ -422,6 +422,18 @@ export default class WidgetsAngle extends WidgetsBase {
 
     toggleDefaultAngle() {
         this._defaultAngle = !this._defaultAngle;
+    }
+
+    get targetMesh() {
+        return this._targetMesh;
+    }
+
+    set targetMesh(targetMesh) {
+        this._targetMesh = targetMesh;
+        this._handles.forEach(function(elem) {
+            elem.targetMesh = targetMesh;
+        });
+        this.update();
     }
 
     get worldPosition() {

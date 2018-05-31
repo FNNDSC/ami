@@ -131,6 +131,15 @@ export default class WidgetsBase extends THREE.Object3D {
     this._container = null;
   }
 
+  get targetMesh() {
+    return this._targetMesh;
+  }
+
+  set targetMesh(targetMesh) {
+    this._targetMesh = targetMesh;
+    this.update();
+  }
+
   get worldPosition() {
     return this._worldPosition;
   }

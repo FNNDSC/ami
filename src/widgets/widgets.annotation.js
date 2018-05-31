@@ -473,6 +473,18 @@ export default class WidgetsAnnotation extends WidgetsBase {
     super.free();
   }
 
+  get targetMesh() {
+    return this._targetMesh;
+  }
+
+  set targetMesh(targetMesh) {
+    this._targetMesh = targetMesh;
+    this._handles.forEach(function(elem) {
+      elem.targetMesh = targetMesh;
+    });
+    this.update();
+  }
+
   get worldPosition() {
     return this._worldPosition;
   }

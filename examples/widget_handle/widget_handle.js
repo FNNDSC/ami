@@ -167,22 +167,22 @@ window.onload = function() {
           widget = new WidgetsVoxelProbe(stackHelper.slice.mesh, controls, stack);
           break;
         case 'Ruler':
-          widget = new WidgetsRuler(stackHelper.slice.mesh, controls);
+          widget = new WidgetsRuler(stackHelper.slice.mesh, controls, stack);
           break;
         case 'Biruler':
-          widget = new WidgetsBiruler(stackHelper.slice.mesh, controls);
+          widget = new WidgetsBiruler(stackHelper.slice.mesh, controls, stack);
           break;
         case 'Angle':
           widget = new WidgetsAngle(stackHelper.slice.mesh, controls);
           break;
         case 'Rectangle':
-          widget = new WidgetsRectangle(stackHelper.slice.mesh, controls);
+          widget = new WidgetsRectangle(stackHelper.slice.mesh, controls, stack);
           break;
         case 'Ellipse':
-          widget = new WidgetsEllipse(stackHelper.slice.mesh, controls);
+          widget = new WidgetsEllipse(stackHelper.slice.mesh, controls, stack);
           break;
         case 'RoiWidget':
-          widget = new WidgetsRoiWidget(stackHelper.slice.mesh, controls);
+          widget = new WidgetsRoiWidget(stackHelper.slice.mesh, controls, stack);
           break;
         case 'Annotation':
           widget = new WidgetsAnnotation(stackHelper.slice.mesh, controls);
