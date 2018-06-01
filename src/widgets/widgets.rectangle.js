@@ -228,14 +228,14 @@ export default class WidgetsRectangle extends WidgetsBase {
 
     createDOM() {
         this._rectangle = document.createElement('div');
-        this._rectangle.setAttribute('class', 'widgets handle rectangle');
+        this._rectangle.setAttribute('class', 'widgets-rectangle');
         this._rectangle.style.border = '2px solid';
         this._rectangle.style.position = 'absolute';
         this._rectangle.style.transformOrigin = '0 100%';
         this._container.appendChild(this._rectangle);
 
         this._label = document.createElement('div');
-        this._label.setAttribute('class', 'widgets handle label');
+        this._label.setAttribute('class', 'widgets-label');
         this._label.style.border = '2px solid';
         this._label.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
         // this._label.style.opacity = '0.5';

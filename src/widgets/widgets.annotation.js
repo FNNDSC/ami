@@ -38,7 +38,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     // add handles
     this._handles = [];
 
-    // first handle
     let firstHandle = new WidgetsHandle(targetMesh, controls);
     firstHandle.worldPosition.copy(this._worldPosition);
     firstHandle.hovered = true;
@@ -52,7 +51,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this.add(secondHandle);
     this._handles.push(secondHandle);
 
-    // Create annotation
     this.create();
 
     this.onEnd = this.onEnd.bind(this);
@@ -227,7 +225,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
 
   createDOM() {
     this._line = document.createElement('div');
-    this._line.setAttribute('class', 'widgets handle line');
+    this._line.setAttribute('class', 'widgets-line');
     this._line.style.position = 'absolute';
     this._line.style.transformOrigin = '0 100%';
     this._line.style.marginTop = '-1px';
@@ -236,7 +234,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._container.appendChild(this._line);
 
     this._dashline = document.createElement('div');
-    this._dashline.setAttribute('class', 'widgets handle dashline');
+    this._dashline.setAttribute('class', 'widgets-dashline');
     this._dashline.style.position = 'absolute';
     this._dashline.style.border = 'none';
     this._dashline.style.borderTop = '2.5px dashed #F9F9F9';
@@ -247,7 +245,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._container.appendChild(this._dashline);
 
     this._label = document.createElement('div');
-    this._label.setAttribute('class', 'widgets handle label');
+    this._label.setAttribute('class', 'widgets-label');
     this._label.style.border = '2px solid';
     this._label.style.backgroundColor = '#F9F9F9';
     // this._label.style.opacity = '0.5';
@@ -298,12 +296,12 @@ export default class WidgetsAnnotation extends WidgetsBase {
     let y2 = this._handles[1].screenPosition.y;
 
     let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-    let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI; // result in deg
+    let angle = Math.atan2(y2 - y1, x2 - x1);
 
     let posY = y1 - this._container.offsetHeight;
 
     // update line
-    this._line.style.transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}deg)`;
+    this._line.style.transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}rad)`;
     this._line.style.width = length + 'px';
 
 
@@ -398,13 +396,13 @@ export default class WidgetsAnnotation extends WidgetsBase {
 
     // Once we found the closest point to the label, we create the dashed line from that point
     let lengthdashline = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-    let angledashline = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI; // result in deg
+    let angledashline = Math.atan2(y2 - y1, x2 - x1);
 
     let posYdashline = y1 - this._container.offsetHeight;
 
     // update dashed line
     let transformdashline = `translate3D(${x1}px,${posYdashline}px, 0)`;
-    transformdashline += ` rotate(${angledashline}deg)`;
+    transformdashline += ` rotate(${angledashline}rad)`;
 
     this._dashline.style.transform = transformdashline;
     this._dashline.style.width = lengthdashline + 'px';

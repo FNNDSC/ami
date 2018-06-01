@@ -228,14 +228,14 @@ export default class WidgetsEllipse extends WidgetsBase {
 
     createDOM() {
         this._rectangle = document.createElement('div');
-        this._rectangle.setAttribute('class', 'widgets handle rectangle');
+        this._rectangle.setAttribute('class', 'widgets-rectangle');
         this._rectangle.style.border = '2px dashed';
         this._rectangle.style.position = 'absolute';
         this._rectangle.style.transformOrigin = '0 100%';
         this._container.appendChild(this._rectangle);
 
         this._ellipse = document.createElement('div');
-        this._ellipse.setAttribute('class', 'widgets handle ellipse');
+        this._ellipse.setAttribute('class', 'widgets-ellipse');
         this._ellipse.style.border = '2px solid';
         this._ellipse.style.borderRadius = '50%';
         this._ellipse.style.position = 'absolute';
@@ -244,7 +244,7 @@ export default class WidgetsEllipse extends WidgetsBase {
         this._container.appendChild(this._ellipse);
 
         this._label = document.createElement('div');
-        this._label.setAttribute('class', 'widgets handle label');
+        this._label.setAttribute('class', 'widgets-label');
         this._label.style.border = '2px solid';
         this._label.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
         // this._label.style.opacity = '0.5';

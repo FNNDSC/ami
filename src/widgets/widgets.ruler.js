@@ -55,7 +55,6 @@ export default class WidgetsRuler extends WidgetsBase {
     this._handles.push(this.fmoveHandle);
     this.fmoveHandle.hide();
 
-    // Create ruler
     this.create();
 
     this.onMove = this.onMove.bind(this);
@@ -258,7 +257,7 @@ export default class WidgetsRuler extends WidgetsBase {
 
   createDOM() {
     this._line = document.createElement('div');
-    this._line.setAttribute('class', 'widgets handle line');
+    this._line.setAttribute('class', 'widgets-line');
     this._line.style.position = 'absolute';
     this._line.style.transformOrigin = '0 100%';
     this._line.style.marginTop = '-1px';
@@ -267,7 +266,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._container.appendChild(this._line);
 
     this._distance = document.createElement('div');
-    this._distance.setAttribute('class', 'widgets handle distance');
+    this._distance.setAttribute('class', 'widgets-label');
     this._distance.style.border = '2px solid';
     this._distance.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
     // this._distance.style.opacity = '0.5';
@@ -289,12 +288,12 @@ export default class WidgetsRuler extends WidgetsBase {
       y2 = this._handles[1].screenPosition.y;
 
     let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)),
-      angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+      angle = Math.atan2(y2 - y1, x2 - x1);
 
     let posY = y1 - this._container.offsetHeight;
 
     // update line
-    this._line.style.transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}deg)`;
+    this._line.style.transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}rad)`;
     this._line.style.width = length + 'px';
 
     // update distance

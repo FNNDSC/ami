@@ -7,9 +7,10 @@ import WidgetsAnnotation from 'base/widgets/widgets.annotation';
 import WidgetsAngle from 'base/widgets/widgets.angle';
 import WidgetsBiruler from 'base/widgets/widgets.biruler';
 import WidgetsEllipse from 'base/widgets/widgets.ellipse';
+import WidgetsFreehand from 'base/widgets/widgets.freehand';
 import WidgetsHandle from 'base/widgets/widgets.handle';
+import WidgetsPolygon from 'base/widgets/widgets.polygon';
 import WidgetsRectangle from 'base/widgets/widgets.rectangle';
-import WidgetsRoiWidget from 'base/widgets/widgets.roi';
 import WidgetsRuler from 'base/widgets/widgets.ruler';
 import WidgetsVoxelProbe from 'base/widgets/widgets.voxelProbe';
 
@@ -30,7 +31,8 @@ const widgetsAvailable = [
   'Angle',
   'Rectangle',
   'Ellipse',
-  'RoiWidget',
+  'Polygon',
+  'Freehand',
   'Annotation',
 ];
 const guiObjects = {
@@ -181,8 +183,11 @@ window.onload = function() {
         case 'Ellipse':
           widget = new WidgetsEllipse(stackHelper.slice.mesh, controls, stack);
           break;
-        case 'RoiWidget':
-          widget = new WidgetsRoiWidget(stackHelper.slice.mesh, controls, stack);
+        case 'Polygon':
+          widget = new WidgetsPolygon(stackHelper.slice.mesh, controls, stack);
+          break;
+        case 'Freehand':
+          widget = new WidgetsFreehand(stackHelper.slice.mesh, controls, stack);
           break;
         case 'Annotation':
           widget = new WidgetsAnnotation(stackHelper.slice.mesh, controls);

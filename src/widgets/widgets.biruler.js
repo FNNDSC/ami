@@ -30,7 +30,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         // add handles
         this._handles = [];
 
-        // first handle
         let firstHandle = new WidgetsHandle(targetMesh, controls);
         firstHandle.worldPosition.copy(this._worldPosition);
         firstHandle.hovered = true;
@@ -45,7 +44,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this.add(secondHandle);
         this._handles.push(secondHandle);
 
-        // third handle
         let thirdHandle = new WidgetsHandle(targetMesh, controls);
         thirdHandle.worldPosition.copy(this._worldPosition);
         thirdHandle.hovered = true;
@@ -53,7 +51,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this.add(thirdHandle);
         this._handles.push(thirdHandle);
 
-        // fourth handle
         let fourthHandle = new WidgetsHandle(targetMesh, controls);
         fourthHandle.worldPosition.copy(this._worldPosition);
         fourthHandle.hovered = true;
@@ -63,7 +60,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this.add(fourthHandle);
         this._handles.push(fourthHandle);
 
-        // Create ruler
         this.create();
 
         this.onMove = this.onMove.bind(this);
@@ -185,7 +181,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
     createDOM() {
         this._line = document.createElement('div');
-        this._line.setAttribute('class', 'widgets handle line');
+        this._line.setAttribute('class', 'widgets-line');
         this._line.style.position = 'absolute';
         this._line.style.transformOrigin = '0 100%';
         this._line.style.marginTop = '-1px';
@@ -194,7 +190,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._container.appendChild(this._line);
 
         this._distance = document.createElement('div');
-        this._distance.setAttribute('class', 'widgets handle distance');
+        this._distance.setAttribute('class', 'widgets-label');
         this._distance.style.border = '2px solid';
         this._distance.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
         // this._distance.style.opacity = '0.5';
@@ -206,7 +202,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._container.appendChild(this._distance);
 
         this._line2 = document.createElement('div');
-        this._line2.setAttribute('class', 'widgets handle line');
+        this._line2.setAttribute('class', 'widgets-line');
         this._line2.style.position = 'absolute';
         this._line2.style.transformOrigin = '0 100%';
         this._line2.style.marginTop = '-1px';
@@ -215,7 +211,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._container.appendChild(this._line2);
 
         this._distance2 = document.createElement('div');
-        this._distance2.setAttribute('class', 'widgets handle distance');
+        this._distance2.setAttribute('class', 'widgets-label');
         this._distance2.style.border = '2px solid';
         this._distance2.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
         // this._distance2.style.opacity = '0.5';
@@ -227,7 +223,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._container.appendChild(this._distance2);
 
         this._dashline = document.createElement('div');
-        this._dashline.setAttribute('class', 'widgets handle dashline');
+        this._dashline.setAttribute('class', 'widgets-dashline');
         this._dashline.style.position = 'absolute';
         this._dashline.style.border = 'none';
         this._dashline.style.borderTop = '2.5px dashed #F9F9F9';
@@ -307,12 +303,12 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let y2 = this._handles[1].screenPosition.y;
 
         let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-        let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+        let angle = Math.atan2(y2 - y1, x2 - x1);
 
         let posY = y1 - this._container.offsetHeight;
 
         // update line
-        let transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}deg)`;
+        let transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}rad)`;
 
         this._line.style.transform = transform;
         this._line.style.width = length + 'px';
@@ -345,13 +341,12 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let y4 = this._handles[3].screenPosition.y;
 
         length = Math.sqrt((x3-x4)*(x3-x4) + (y3-y4)*(y3-y4));
-        angle = Math.atan2(y4 - y3, x4 - x3) * 180 / Math.PI;
+        angle = Math.atan2(y4 - y3, x4 - x3);
 
         posY = y3 - this._container.offsetHeight;
 
         // update line
-        transform = `translate3D(${x3}px,${posY}px, 0)`;
-        transform += ` rotate(${angle}deg)`;
+        transform = `translate3D(${x3}px,${posY}px, 0) rotate(${angle}rad)`;
 
         this._line2.style.transform = transform;
         this._line2.style.width = length + 'px';
@@ -389,13 +384,12 @@ export default class WidgetsBiRuler extends WidgetsBase {
         y2 = screen2.y;
 
         length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-        angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+        angle = Math.atan2(y2 - y1, x2 - x1);
 
         posY = y1 - this._container.offsetHeight;
 
         // update line
-        transform = `translate3D(${x1}px,${posY}px, 0)`;
-        transform += ` rotate(${angle}deg)`;
+        transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}rad)`;
 
         this._dashline.style.transform = transform;
         this._dashline.style.width = length + 'px';

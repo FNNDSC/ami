@@ -52,6 +52,7 @@ export default class WidgetsAngle extends WidgetsBase {
         this.add(thirdHandle);
         this._handles.push(thirdHandle);
 
+        // handles to move widget
         this.imoveHandle = new WidgetsHandle(targetMesh, controls);
         this.imoveHandle.worldPosition.copy(this._worldPosition);
         this.imoveHandle.hovered = true;
@@ -234,7 +235,7 @@ export default class WidgetsAngle extends WidgetsBase {
 
     createDOM() {
         this._line = document.createElement('div');
-        this._line.setAttribute('class', 'widgets handle line');
+        this._line.setAttribute('class', 'widgets-line');
         this._line.style.position = 'absolute';
         this._line.style.transformOrigin = '0 100%';
         this._line.style.marginTop = '-1px';
@@ -243,7 +244,7 @@ export default class WidgetsAngle extends WidgetsBase {
         this._container.appendChild(this._line);
 
         this._line2 = document.createElement('div');
-        this._line2.setAttribute('class', 'widgets handle line');
+        this._line2.setAttribute('class', 'widgets-line');
         this._line2.style.position = 'absolute';
         this._line2.style.transformOrigin = '0 100%';
         this._line2.style.marginTop = '-1px';
@@ -252,7 +253,7 @@ export default class WidgetsAngle extends WidgetsBase {
         this._container.appendChild(this._line2);
 
         this._angle = document.createElement('div');
-        this._angle.setAttribute('class', 'widgets handle angle');
+        this._angle.setAttribute('class', 'widgets-label');
         this._angle.style.border = '2px solid';
         this._angle.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
         // this._angle.style.opacity = '0.5';
@@ -329,11 +330,11 @@ export default class WidgetsAngle extends WidgetsBase {
             y2 = this._handles[1].screenPosition.y;
 
         let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)),
-            angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+            angle = Math.atan2(y2 - y1, x2 - x1);
 
         let posY = y1 - this._container.offsetHeight;
 
-        this._line.style.transform = `translate3D(${x1}px,${posY}px, 0)  rotate(${angle}deg)`;
+        this._line.style.transform = `translate3D(${x1}px,${posY}px, 0)  rotate(${angle}rad)`;
         this._line.style.width = length + 'px';
 
         // update second line
@@ -343,12 +344,12 @@ export default class WidgetsAngle extends WidgetsBase {
             y4 = this._handles[2].screenPosition.y;
 
         length = Math.sqrt((x3-x4)*(x3-x4) + (y3-y4)*(y3-y4));
-        angle = Math.atan2(y4 - y3, x4 - x3) * 180 / Math.PI;
+        angle = Math.atan2(y4 - y3, x4 - x3);
 
         posY = y3 - this._container.offsetHeight;
 
         // update line
-        this._line2.style.transform = `translate3D(${x3}px,${posY}px, 0) rotate(${angle}deg)`;
+        this._line2.style.transform = `translate3D(${x3}px,${posY}px, 0) rotate(${angle}rad)`;
         this._line2.style.width = length + 'px';
 
         // update angle

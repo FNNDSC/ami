@@ -4,9 +4,9 @@ import WidgetsHandle from './widgets.handle';
 import {Vector3} from 'three';
 
 /**
- * @module widgets/roi
+ * @module widgets/freehand
  */
-export default class WidgetsRoi extends WidgetsBase {
+export default class WidgetsFreehand extends WidgetsBase {
     constructor(targetMesh, controls, stack) {
         super(targetMesh, controls);
 
@@ -21,19 +21,17 @@ export default class WidgetsRoi extends WidgetsBase {
 
         // dom stuff
         this._lines = [];
-        this._area = null;
+        this._label = null;
 
         // add handles
         this._handles = [];
 
-        // first handle
         let firstHandle = new WidgetsHandle(targetMesh, controls);
         firstHandle.worldPosition.copy(this._worldPosition);
         firstHandle.hovered = true;
         this.add(firstHandle);
         this._handles.push(firstHandle);
 
-        // Create ruler
         this.create();
 
         this.onMove = this.onMove.bind(this);
@@ -64,6 +62,7 @@ export default class WidgetsRoi extends WidgetsBase {
         let numHandles = this._handles.length;
 
         if (this.active && !this._initialized) {
+            // TODO! create new handle only if !isOnLine && interpointdist > 10
             let lastHandle = this._handles[numHandles-1];
             lastHandle.hovered = false;
             lastHandle.active = false;
@@ -78,17 +77,7 @@ export default class WidgetsRoi extends WidgetsBase {
 
             this._handles.push(nextHandle);
 
-            let newLine = document.createElement('div');
-            newLine.setAttribute('class', 'widgets handle line');
-            newLine.style.position = 'absolute';
-            newLine.style.transformOrigin = '0 100%';
-            newLine.style.marginTop = '-1px';
-            newLine.style.height = '2px';
-            newLine.style.width = '3px';
-            newLine.style.backgroundColor = '#F9F9F9';
-
-            this._lines.push(newLine);
-            this._container.appendChild(newLine);
+            this.createLine();
         }
 
         let hovered = false;
@@ -142,17 +131,7 @@ export default class WidgetsRoi extends WidgetsBase {
         this._dragged = false;
 
         if (this._lines.length < numHandles) {
-            let newLine = document.createElement('div');
-            newLine.setAttribute('class', 'widgets handle line');
-            newLine.style.position = 'absolute';
-            newLine.style.transformOrigin = '0 100%';
-            newLine.style.marginTop = '-1px';
-            newLine.style.height = '2px';
-            newLine.style.width = '3px';
-            newLine.style.backgroundColor = '#F9F9F9';
-
-            this._lines.push(newLine);
-            this._container.appendChild(newLine);
+            this.createLine();
         }
 
         this._initialized = true;
@@ -172,29 +151,33 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     createDOM() {
-        this._line = document.createElement('div');
-        this._line.setAttribute('class', 'widgets handle line');
-        this._line.style.position = 'absolute';
-        this._line.style.transformOrigin = '0 100%';
-        this._line.style.marginTop = '-1px';
-        this._line.style.height = '2px';
-        this._line.style.width = '3px';
-        this._container.appendChild(this._line);
+        this.createLine();
 
-        // add label!
-        this._area = document.createElement('div');
-        this._area.setAttribute('class', 'widgets handle label');
-        this._area.style.border = '2px solid';
-        this._area.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
-        // this._area.style.opacity = '0.5';
-        this._area.style.color = '#222';
-        this._area.style.padding = '4px';
-        this._area.style.position = 'absolute';
-        this._area.style.transformOrigin = '0 100%';
-        this._area.style.zIndex = '3';
-        this._container.appendChild(this._area);
+        this._label = document.createElement('div');
+        this._label.setAttribute('class', 'widgets-label');
+        this._label.style.border = '2px solid';
+        this._label.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
+        // this._label.style.opacity = '0.5';
+        this._label.style.color = '#222';
+        this._label.style.padding = '4px';
+        this._label.style.position = 'absolute';
+        this._label.style.transformOrigin = '0 100%';
+        this._label.style.zIndex = '3';
+        this._container.appendChild(this._label);
 
         this.updateDOMColor();
+    }
+
+    createLine() {
+        const line = document.createElement('div');
+        line.setAttribute('class', 'widgets-line');
+        line.style.position = 'absolute';
+        line.style.transformOrigin = '0 100%';
+        line.style.marginTop = '-1px';
+        line.style.height = '2px';
+        line.style.width = '3px';
+        this._lines.push(line);
+        this._container.appendChild(line);
     }
 
     hideDOM() {
@@ -205,7 +188,7 @@ export default class WidgetsRoi extends WidgetsBase {
         this._lines.forEach(function(elem) {
             elem.style.display = 'none';
         });
-        this._area.style.display = 'none';
+        this._label.style.display = 'none';
     }
 
     showDOM() {
@@ -216,7 +199,7 @@ export default class WidgetsRoi extends WidgetsBase {
         this._lines.forEach(function(elem) {
             elem.style.display = '';
         });
-        this._area.style.display = '';
+        this._label.style.display = '';
     }
 
     update() {
@@ -270,8 +253,6 @@ export default class WidgetsRoi extends WidgetsBase {
             orderedpoints.push(point);
         }
 
-        let sliceShape = AMI.SliceGeometry.shape(orderedpoints);
-
         // override to catch console.warn "THREE.ShapeUtils: Unable to triangulate polygon! in triangulate()"
         this._shapeWarn = false;
         const oldWarn = console.warn;
@@ -282,7 +263,7 @@ export default class WidgetsRoi extends WidgetsBase {
             return oldWarn.apply(console, arguments);
         }.bind(this);
 
-        this._geometry = new THREE.ShapeGeometry(sliceShape);
+        this._geometry = new THREE.ShapeGeometry(AMI.SliceGeometry.shape(orderedpoints));
 
         console.warn = oldWarn;
 
@@ -346,12 +327,12 @@ export default class WidgetsRoi extends WidgetsBase {
             y2 = this._handles[handle1Index].screenPosition.y;
 
         let length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)),
-            angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+            angle = Math.atan2(y2 - y1, x2 - x1);
 
         let posY = y1 - this._container.offsetHeight;
 
         // update line
-        this._lines[lineIndex].style.transform = `translate3D(${x1}px, ${posY}px, 0) rotate(${angle}deg)`;
+        this._lines[lineIndex].style.transform = `translate3D(${x1}px, ${posY}px, 0) rotate(${angle}rad)`;
         this._lines[lineIndex].style.width = length + 'px';
     }
 
@@ -372,7 +353,7 @@ export default class WidgetsRoi extends WidgetsBase {
             return;
         }
 
-        // update area
+        // update label
         let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
             title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
@@ -380,17 +361,17 @@ export default class WidgetsRoi extends WidgetsBase {
             title += 'Area may be incorrect due to triangulation error.';
         }
         if (title !== '') {
-            this._area.setAttribute('title', title);
-            this._area.style.color = '#C22';
+            this._label.setAttribute('title', title);
+            this._label.style.color = '#C22';
         } else {
-            this._area.removeAttribute('title');
-            this._area.style.color = '#222';
+            this._label.removeAttribute('title');
+            this._label.style.color = '#222';
         }
-        this._area.innerHTML = `${(AMI.SliceGeometry.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+        this._label.innerHTML = `${(AMI.SliceGeometry.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
 
-        labelPosition.x = Math.round(labelPosition.x - this._area.offsetWidth/2);
-        labelPosition.y = Math.round(labelPosition.y - this._area.offsetHeight/2 - this._container.offsetHeight + 30);
-        this._area.style.transform = `translate3D(${labelPosition.x}px,${labelPosition.y}px, 0)`;
+        labelPosition.x = Math.round(labelPosition.x - this._label.offsetWidth/2);
+        labelPosition.y = Math.round(labelPosition.y - this._label.offsetHeight/2 - this._container.offsetHeight + 30);
+        this._label.style.transform = `translate3D(${labelPosition.x}px,${labelPosition.y}px, 0)`;
     }
 
     updateDOMColor() {
@@ -399,7 +380,7 @@ export default class WidgetsRoi extends WidgetsBase {
                 elem.style.backgroundColor = `${this._color}`;
             }, this);
         }
-        this._area.style.borderColor = `${this._color}`;
+        this._label.style.borderColor = `${this._color}`;
     }
 
     free() {
@@ -415,7 +396,7 @@ export default class WidgetsRoi extends WidgetsBase {
             this._container.removeChild(elem);
         }, this);
         this._lines = [];
-        this._container.removeChild(this._area);
+        this._container.removeChild(this._label);
 
         // mesh, geometry, material
         if (this._mesh) {

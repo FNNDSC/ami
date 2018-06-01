@@ -5,11 +5,9 @@ import {Vector3} from "three";
  */
 export default class WidgetsBase extends THREE.Object3D {
   constructor(targetMesh, controls) {
-    // init THREE Object 3D
-    super();
+    super(); // init THREE Object 3D
 
-    // is widget enabled?
-    this._enabled = true;
+    this._enabled = true; // is widget enabled?
 
     // STATE, ENUM might be better
     this._selected = false;
