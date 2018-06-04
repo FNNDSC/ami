@@ -3,6 +3,7 @@ import WidgetsHandle from './widgets.handle';
 
 /**
  * @module widgets/annotation
+ * @todo: add option to show only label (without mesh, dots and lines)
  */
 export default class WidgetsAnnotation extends WidgetsBase {
   constructor(targetMesh, controls) {

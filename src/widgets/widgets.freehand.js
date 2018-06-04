@@ -62,11 +62,9 @@ export default class WidgetsFreehand extends WidgetsBase {
         let numHandles = this._handles.length;
 
         if (this.active && !this._initialized) {
-            // TODO! create new handle only if !isOnLine && interpointdist > 10
-            let lastHandle = this._handles[numHandles-1];
-            lastHandle.hovered = false;
-            lastHandle.active = false;
-            lastHandle.tracking = false;
+            this._handles[numHandles-1].hovered = false;
+            this._handles[numHandles-1].active = false;
+            this._handles[numHandles-1].tracking = false;
 
             let nextHandle = new WidgetsHandle(this._targetMesh, this._controls);
             nextHandle.worldPosition.copy(this._worldPosition);
@@ -74,7 +72,6 @@ export default class WidgetsFreehand extends WidgetsBase {
             nextHandle.active = true;
             nextHandle.tracking = true;
             this.add(nextHandle);
-
             this._handles.push(nextHandle);
 
             this.createLine();
@@ -145,7 +142,7 @@ export default class WidgetsFreehand extends WidgetsBase {
     }
 
     createMaterial() {
-        this._material = new THREE.MeshBasicMaterial();
+        this._material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide});
         this._material.transparent = true;
         this._material.opacity = 0.2;
     }
@@ -305,7 +302,7 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         let interpointdist = handle0.worldPosition.distanceTo(newhandle.worldPosition);
 
-        if (isOnLine || interpointdist < 10) { // TODO! make 10 configurable
+        if (isOnLine || interpointdist < 20) { // TODO! make number configurable
             this.remove(handle1);
             handle1.free();
 

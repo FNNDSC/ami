@@ -13,7 +13,7 @@ export default class WidgetsPolygon extends WidgetsBase {
         this._stack = stack;
 
         this._initialized = false; // set to true onDblClick if number of handles > 2
-        this._newHandle = false; // should handle be created onMove?
+        this._newHandleRequired = true; // should handle be created onMove?
 
         // mesh stuff
         this._material = null;
@@ -32,14 +32,6 @@ export default class WidgetsPolygon extends WidgetsBase {
         firstHandle.hovered = true;
         this.add(firstHandle);
         this._handles.push(firstHandle);
-
-        let secondHandle = new WidgetsHandle(targetMesh, controls);
-        secondHandle.worldPosition.copy(this._worldPosition);
-        secondHandle.hovered = true;
-        secondHandle.active = true;
-        secondHandle.tracking = true;
-        this.add(secondHandle);
-        this._handles.push(secondHandle);
 
         this.create();
 
@@ -66,8 +58,14 @@ export default class WidgetsPolygon extends WidgetsBase {
             active = active || elem.active;
         });
 
+        if (!this._initialized) {
+            this._newHandleRequired = true;
+
+            return;
+        }
+
         this._active = active;
-        this._newHandle = true;
+
         this.update();
     }
 
@@ -78,7 +76,7 @@ export default class WidgetsPolygon extends WidgetsBase {
         if (this.active) {
             this._dragged = true;
 
-            if (!this._initialized && this._newHandle) {
+            if (this._newHandleRequired && !this._initialized) {
                 this._handles[numHandles-1].hovered = false;
                 this._handles[numHandles-1].active = false;
                 this._handles[numHandles-1].tracking = false;
@@ -92,7 +90,7 @@ export default class WidgetsPolygon extends WidgetsBase {
                 this._handles.push(handle);
 
                 this.createLine();
-                this._newHandle = false;
+                this._newHandleRequired = false;
             }
         }
 
@@ -107,21 +105,19 @@ export default class WidgetsPolygon extends WidgetsBase {
     }
 
     onEnd(evt) {
-console.log('onEnd');
-        let numHandles = this._handles.length;
+        let numHandles = this._handles.length,
+            active = false;
 
-        this._newHandle = true;
-        if (numHandles < 3) {
-            return;
-        }
-
-        let active = false;
-
-        this._handles.slice(0, numHandles-1).forEach(function(elem) {
+        this._handles.forEach(function(elem) {
             elem.onEnd(evt);
             active = active || elem.active;
         });
 
+        if (!this._initialized) {
+            this._newHandleRequired = true;
+
+            return;
+        }
 
         if (!this._dragged && this._active) {
             this._selected = !this._selected; // change state if there was no dragging
@@ -132,29 +128,28 @@ console.log('onEnd');
         this._active = active || this._handles[numHandles-1].active;
         this._dragged = false;
 
-        if (this._lines.length < numHandles) {
-            this.createLine();
-        }
-
         this.updateMesh();
         this.update();
     }
 
-    onDoubleClick(evt) { // TODO! evt?
-console.log('Am DblClick working?');
-        if (this._handles.length < 3) {
+    onDoubleClick(evt) {
+        let numHandles = this._handles.length;
+
+        if (numHandles < 3 || this._initialized) {
             return;
         }
 
+        this._handles[numHandles-1].tracking = false;
+        this._handles.forEach(function(elem) {
+            elem.onEnd(evt);
+        });
+
+        this._active = false;
+        this._dragged = false;
         this._initialized = true;
 
-        // Last Handle
-        if (this._dragged || !this._handles[numHandles-1].tracking) {
-            this._handles[numHandles-1].tracking = false;
-            this._handles[numHandles-1].onEnd(evt);
-        } else {
-            this._handles[numHandles-1].tracking = false;
-        }
+        this.updateMesh();
+        this.update();
     }
 
     create() {
@@ -163,7 +158,7 @@ console.log('Am DblClick working?');
     }
 
     createMaterial() {
-        this._material = new THREE.MeshBasicMaterial();
+        this._material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide});
         this._material.transparent = true;
         this._material.opacity = 0.2;
     }
@@ -349,19 +344,13 @@ console.log('Am DblClick working?');
         let x1 = this._handles[handle0Index].screenPosition.x,
             y1 = this._handles[handle0Index].screenPosition.y,
             x2 = this._handles[handle1Index].screenPosition.x,
-            y2 = this._handles[handle1Index].screenPosition.y;
-
-        let length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)),
+            y2 = this._handles[handle1Index].screenPosition.y,
             angle = Math.atan2(y2 - y1, x2 - x1);
-console.log('length manual: ' + length);
-console.log('length three: ' + this._handles[handle0Index].screenPosition.distanceTo(this._handles[handle1Index].screenPosition));
-console.log('angle manual: ' + angle);
-console.log('angle three: ' + this._handles[handle0Index].screenPosition.angleTo(this._handles[handle1Index].screenPosition));
-        let posY = y1 - this._container.offsetHeight;
 
         // update line
-        this._lines[lineIndex].style.transform = `translate3D(${x1}px, ${posY}px, 0) rotate(${angle}rad)`;
-        this._lines[lineIndex].style.width = length + 'px';
+        this._lines[lineIndex].style.transform =
+            `translate3D(${x1}px, ${y1 - this._container.offsetHeight}px, 0) rotate(${angle}rad)`;
+        this._lines[lineIndex].style.width = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) + 'px';
     }
 
     updateDOMColor() {
