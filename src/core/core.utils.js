@@ -294,8 +294,9 @@ export default class CoreUtils {
   static getRoI(mesh, camera, stack) {
     mesh.geometry.computeBoundingBox();
 
-    const min = mesh.geometry.boundingBox.min.clone().project(camera),
-      max = mesh.geometry.boundingBox.max.clone().project(camera),
+    const bbox = new THREE.Box3().setFromObject(mesh),
+      min = bbox.min.clone().project(camera),
+      max = bbox.max.clone().project(camera),
       offsetWidth = camera.controls.domElement.offsetWidth,
       offsetHeight = camera.controls.domElement.offsetHeight,
       rayCaster = new THREE.Raycaster(),

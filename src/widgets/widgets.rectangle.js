@@ -136,6 +136,8 @@ export default class WidgetsRectangle extends WidgetsBase {
             }
 
             this.imoveHandle.onMove(evt, true);
+
+            this.updateRoI(true);
         }
 
         this._handles[0].onMove(evt);
@@ -167,6 +169,8 @@ export default class WidgetsRectangle extends WidgetsBase {
         this._active = this._handles[0].active || this._handles[1].active;
         this._dragged = false;
         this._moving = false;
+
+        this.updateRoI();
         this.update();
     }
 
@@ -281,12 +285,35 @@ export default class WidgetsRectangle extends WidgetsBase {
             this._geometry.vertices[3].copy(this._handles[1].worldPosition);
 
             this._geometry.verticesNeedUpdate = true;
+            this._geometry.computeBoundingSphere();
         }
     }
 
     updateDOMColor() {
         this._rectangle.style.borderColor = `${this._color}`;
         this._label.style.borderColor = `${this._color}`;
+    }
+
+    updateRoI(clear) {
+        const meanSDContainer = this._label.querySelector('.mean-sd'),
+            maxMinContainer = this._label.querySelector('.max-min');
+
+        if (clear) {
+            meanSDContainer.innerHTML = '';
+            maxMinContainer.innerHTML = '';
+
+            return;
+        }
+
+        const roi = CoreUtils.getRoI(this._mesh, this._camera, this._stack);
+
+        if (roi !== null) {
+            meanSDContainer.innerHTML = `Mean: ${roi.mean.toFixed(1)} / SD: ${roi.sd.toFixed(1)}`;
+            maxMinContainer.innerHTML = `Max: ${roi.max.toFixed()} / Min: ${roi.min.toFixed()}`;
+        } else {
+            meanSDContainer.innerHTML = '';
+            maxMinContainer.innerHTML = '';
+        }
     }
 
     updateDOMContent() {
@@ -300,20 +327,8 @@ export default class WidgetsRectangle extends WidgetsBase {
             this._label.removeAttribute('title');
             this._label.style.color = '#222';
         }
-
-        const roi = CoreUtils.getRoI(this._mesh, this._camera, this._stack),
-            meanSDContainer = this._label.querySelector('.mean-sd'),
-            maxMinContainer = this._label.querySelector('.max-min'),
-            areaContainer = this._label.querySelector('.area');
-
-        if (roi !== null) {
-            meanSDContainer.innerHTML = `Mean: ${roi.mean.toFixed(1)} / SD: ${roi.sd.toFixed(1)}`;
-            maxMinContainer.innerHTML = `Max: ${roi.max.toFixed()} / Min: ${roi.min.toFixed()}`;
-        } else {
-            meanSDContainer.innerHTML = '';
-            maxMinContainer.innerHTML = '';
-        }
-        areaContainer.innerHTML = `Area: ${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+        this._label.querySelector('.area').innerHTML =
+            `Area: ${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
     }
 
     updateDOMPosition() {
