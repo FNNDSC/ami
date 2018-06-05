@@ -135,6 +135,7 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         this._initialized = true;
         this.updateMesh();
+        this.updateDOMContent();
         this.update();
     }
 
@@ -233,7 +234,6 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         // DOM stuff
         this.updateDOMColor();
-        this.updateDOMContent();
         this.updateDOMPosition();
     }
 
@@ -363,9 +363,9 @@ export default class WidgetsFreehand extends WidgetsBase {
         }
 
         const roi = CoreUtils.getRoI(this._mesh, this._camera, this._stack),
-            meanSDContainer = this._dom.querySelector('.mean-sd'),
-            maxMinContainer = this._dom.querySelector('.max-min'),
-            areaContainer = this._dom.querySelector('.area');
+            meanSDContainer = this._label.querySelector('.mean-sd'),
+            maxMinContainer = this._label.querySelector('.max-min'),
+            areaContainer = this._label.querySelector('.area');
 
         if (roi !== null) {
             meanSDContainer.innerHTML = `Mean: ${roi.mean.toFixed(1)} / SD: ${roi.sd.toFixed(1)}`;
@@ -395,8 +395,18 @@ export default class WidgetsFreehand extends WidgetsBase {
         }
 
         // update label
+        let offset = 30;
+
+        if (this._label.querySelector('.mean-sd').innerHTML !== '') {
+            offset += 10;
+        }
+        if (this._label.querySelector('.max-min').innerHTML !== '') {
+            offset += 10;
+        }
         labelPosition.x = Math.round(labelPosition.x - this._label.offsetWidth/2);
-        labelPosition.y = Math.round(labelPosition.y - this._label.offsetHeight/2 - this._container.offsetHeight + 30);
+        labelPosition.y = Math.round(
+            labelPosition.y - this._label.offsetHeight/2 - this._container.offsetHeight + offset
+        );
         this._label.style.transform = `translate3D(${labelPosition.x}px,${labelPosition.y}px, 0)`;
     }
 
