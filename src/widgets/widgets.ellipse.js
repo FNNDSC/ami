@@ -204,7 +204,7 @@ export default class WidgetsEllipse extends WidgetsBase {
     }
 
     createMaterial() {
-        this._material = new THREE.MeshBasicMaterial(); // TODO! double?
+        this._material = new THREE.MeshBasicMaterial();
         this._material.transparent = true;
         this._material.opacity = 0.2;
     }
