@@ -1,5 +1,7 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
+import GeometriesSlice from '../geometries/geometries.slice';
+import CoreUtils from '../core/core.utils';
 
 import {Vector3} from 'three';
 
@@ -96,7 +98,7 @@ export default class WidgetsFreehand extends WidgetsBase {
         this.update();
     }
 
-    onEnd(evt) {
+    onEnd() {
         let numHandles = this._handles.length;
 
         if (numHandles < 3) {
@@ -106,14 +108,14 @@ export default class WidgetsFreehand extends WidgetsBase {
         let active = false;
 
         this._handles.slice(0, numHandles-1).forEach(function(elem) {
-            elem.onEnd(evt);
+            elem.onEnd();
             active = active || elem.active;
         });
 
         // Last Handle
         if (this._dragged || !this._handles[numHandles-1].tracking) {
             this._handles[numHandles-1].tracking = false;
-            this._handles[numHandles-1].onEnd(evt);
+            this._handles[numHandles-1].onEnd();
         } else {
             this._handles[numHandles-1].tracking = false;
         }
@@ -160,6 +162,24 @@ export default class WidgetsFreehand extends WidgetsBase {
         this._label.style.position = 'absolute';
         this._label.style.transformOrigin = '0 100%';
         this._label.style.zIndex = '3';
+
+        // measurenents
+        const measurementsContainer = document.createElement('div');
+        // Mean / SD
+        let meanSDContainer = document.createElement('div');
+        meanSDContainer.setAttribute('class', 'mean-sd');
+        measurementsContainer.appendChild(meanSDContainer);
+        // Max / Min
+        let maxMinContainer = document.createElement('div');
+        maxMinContainer.setAttribute('class', 'max-min');
+        measurementsContainer.appendChild(maxMinContainer);
+        // Area
+        let areaContainer = document.createElement('div');
+        areaContainer.setAttribute('class', 'area');
+        measurementsContainer.appendChild(areaContainer);
+
+        this._label.appendChild(measurementsContainer);
+
         this._container.appendChild(this._label);
 
         this.updateDOMColor();
@@ -213,6 +233,7 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         // DOM stuff
         this.updateDOMColor();
+        this.updateDOMContent();
         this.updateDOMPosition();
     }
 
@@ -226,7 +247,7 @@ export default class WidgetsFreehand extends WidgetsBase {
             points.push(elem.worldPosition);
         });
 
-        let center = AMI.SliceGeometry.centerOfMass(points);
+        let center = GeometriesSlice.centerOfMass(points);
         let direction = new Vector3().crossVectors(
             new Vector3().subVectors(points[0], center), // side 1
             new Vector3().subVectors(points[1], center) // side 2
@@ -260,7 +281,7 @@ export default class WidgetsFreehand extends WidgetsBase {
             return oldWarn.apply(console, arguments);
         }.bind(this);
 
-        this._geometry = new THREE.ShapeGeometry(AMI.SliceGeometry.shape(orderedpoints));
+        this._geometry = new THREE.ShapeGeometry(GeometriesSlice.shape(orderedpoints));
 
         console.warn = oldWarn;
 
@@ -317,20 +338,43 @@ export default class WidgetsFreehand extends WidgetsBase {
         return isOnLine;
     }
 
-    updateLineDOM(lineIndex, handle0Index, handle1Index) {
-        let x1 = this._handles[handle0Index].screenPosition.x,
-            y1 = this._handles[handle0Index].screenPosition.y,
-            x2 = this._handles[handle1Index].screenPosition.x,
-            y2 = this._handles[handle1Index].screenPosition.y;
+    updateDOMColor() {
+        if (this._handles.length >= 2) {
+            this._lines.forEach(function(elem) {
+                elem.style.backgroundColor = `${this._color}`;
+            }, this);
+        }
+        this._label.style.borderColor = `${this._color}`;
+    }
 
-        let length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)),
-            angle = Math.atan2(y2 - y1, x2 - x1);
+    updateDOMContent() {
+        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
+            title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
-        let posY = y1 - this._container.offsetHeight;
+        if (this._shapeWarn) {
+            title += 'Values may be incorrect due to triangulation error.';
+        }
+        if (title !== '') {
+            this._label.setAttribute('title', title);
+            this._label.style.color = '#C22';
+        } else {
+            this._label.removeAttribute('title');
+            this._label.style.color = '#222';
+        }
 
-        // update line
-        this._lines[lineIndex].style.transform = `translate3D(${x1}px, ${posY}px, 0) rotate(${angle}rad)`;
-        this._lines[lineIndex].style.width = length + 'px';
+        const roi = CoreUtils.getRoI(this._mesh, this._camera, this._stack),
+            meanSDContainer = this._dom.querySelector('.mean-sd'),
+            maxMinContainer = this._dom.querySelector('.max-min'),
+            areaContainer = this._dom.querySelector('.area');
+
+        if (roi !== null) {
+            meanSDContainer.innerHTML = `Mean: ${roi.mean.toFixed(1)} / SD: ${roi.sd.toFixed(1)}`;
+            maxMinContainer.innerHTML = `Max: ${roi.max.toFixed()} / Min: ${roi.min.toFixed()}`;
+        } else {
+            meanSDContainer.innerHTML = '';
+            maxMinContainer.innerHTML = '';
+        }
+        areaContainer.innerHTML = `Area: ${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
     }
 
     updateDOMPosition() {
@@ -351,33 +395,25 @@ export default class WidgetsFreehand extends WidgetsBase {
         }
 
         // update label
-        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
-            title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
-
-        if (this._shapeWarn) {
-            title += 'Area may be incorrect due to triangulation error.';
-        }
-        if (title !== '') {
-            this._label.setAttribute('title', title);
-            this._label.style.color = '#C22';
-        } else {
-            this._label.removeAttribute('title');
-            this._label.style.color = '#222';
-        }
-        this._label.innerHTML = `${(AMI.SliceGeometry.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
-
         labelPosition.x = Math.round(labelPosition.x - this._label.offsetWidth/2);
         labelPosition.y = Math.round(labelPosition.y - this._label.offsetHeight/2 - this._container.offsetHeight + 30);
         this._label.style.transform = `translate3D(${labelPosition.x}px,${labelPosition.y}px, 0)`;
     }
 
-    updateDOMColor() {
-        if (this._handles.length >= 2) {
-            this._lines.forEach(function(elem) {
-                elem.style.backgroundColor = `${this._color}`;
-            }, this);
-        }
-        this._label.style.borderColor = `${this._color}`;
+    updateLineDOM(lineIndex, handle0Index, handle1Index) {
+        let x1 = this._handles[handle0Index].screenPosition.x,
+            y1 = this._handles[handle0Index].screenPosition.y,
+            x2 = this._handles[handle1Index].screenPosition.x,
+            y2 = this._handles[handle1Index].screenPosition.y;
+
+        let length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)),
+            angle = Math.atan2(y2 - y1, x2 - x1);
+
+        let posY = y1 - this._container.offsetHeight;
+
+        // update line
+        this._lines[lineIndex].style.transform = `translate3D(${x1}px, ${posY}px, 0) rotate(${angle}rad)`;
+        this._lines[lineIndex].style.width = length + 'px';
     }
 
     free() {

@@ -1,5 +1,6 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
+import GeometriesSlice from '../geometries/geometries.slice';
 
 import {Vector3} from 'three';
 
@@ -104,12 +105,12 @@ export default class WidgetsPolygon extends WidgetsBase {
         this.update();
     }
 
-    onEnd(evt) {
+    onEnd() {
         let numHandles = this._handles.length,
             active = false;
 
         this._handles.forEach(function(elem) {
-            elem.onEnd(evt);
+            elem.onEnd();
             active = active || elem.active;
         });
 
@@ -132,7 +133,7 @@ export default class WidgetsPolygon extends WidgetsBase {
         this.update();
     }
 
-    onDoubleClick(evt) {
+    onDoubleClick() {
         let numHandles = this._handles.length;
 
         if (numHandles < 3 || this._initialized) {
@@ -141,7 +142,7 @@ export default class WidgetsPolygon extends WidgetsBase {
 
         this._handles[numHandles-1].tracking = false;
         this._handles.forEach(function(elem) {
-            elem.onEnd(evt);
+            elem.onEnd();
         });
 
         this._active = false;
@@ -242,7 +243,7 @@ export default class WidgetsPolygon extends WidgetsBase {
             points.push(elem.worldPosition);
         });
 
-        let center = AMI.SliceGeometry.centerOfMass(points),
+        let center = GeometriesSlice.centerOfMass(points),
             // direction from first point to center
             referenceDirection = new Vector3().subVectors(points[0], center).normalize(),
             direction = new Vector3().crossVectors(
@@ -277,7 +278,7 @@ export default class WidgetsPolygon extends WidgetsBase {
             return oldWarn.apply(console, arguments);
         }.bind(this);
 
-        this._geometry = new THREE.ShapeGeometry(AMI.SliceGeometry.shape(orderedpoints));
+        this._geometry = new THREE.ShapeGeometry(GeometriesSlice.shape(orderedpoints));
 
         console.warn = oldWarn;
 
@@ -302,6 +303,13 @@ export default class WidgetsPolygon extends WidgetsBase {
         if (this._geometry) {
             this._geometry.verticesNeedUpdate = true;
         }
+    }
+
+    updateDOMColor() {
+        this._lines.forEach(function(elem) {
+            elem.style.backgroundColor = `${this._color}`;
+        }, this);
+        this._label.style.borderColor = `${this._color}`;
     }
 
     updateDOMPosition() {
@@ -333,7 +341,7 @@ export default class WidgetsPolygon extends WidgetsBase {
             this._label.removeAttribute('title');
             this._label.style.color = '#222';
         }
-        this._label.innerHTML = `${(AMI.SliceGeometry.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+        this._label.innerHTML = `${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
 
         labelPosition.x = Math.round(labelPosition.x - this._label.offsetWidth/2);
         labelPosition.y = Math.round(labelPosition.y - this._label.offsetHeight/2 - this._container.offsetHeight + 30);
@@ -351,13 +359,6 @@ export default class WidgetsPolygon extends WidgetsBase {
         this._lines[lineIndex].style.transform =
             `translate3D(${x1}px, ${y1 - this._container.offsetHeight}px, 0) rotate(${angle}rad)`;
         this._lines[lineIndex].style.width = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) + 'px';
-    }
-
-    updateDOMColor() {
-        this._lines.forEach(function(elem) {
-            elem.style.backgroundColor = `${this._color}`;
-        }, this);
-        this._label.style.borderColor = `${this._color}`;
     }
 
     free() {

@@ -10,7 +10,6 @@ export default class WidgetsRuler extends WidgetsBase {
 
     this._stack = stack;
 
-    this._lastEvent = null;
     this._moving = false;
     this._domHovered = false;
 
@@ -58,15 +57,12 @@ export default class WidgetsRuler extends WidgetsBase {
     this.create();
 
     this.onMove = this.onMove.bind(this);
-    this.onEndControl = this.onEndControl.bind(this);
     this.onHover = this.onHover.bind(this);
     this.addEventListeners();
   }
 
   addEventListeners() {
     this._container.addEventListener('wheel', this.onMove);
-
-    this._controls.addEventListener('end', this.onEndControl);
 
     this._line.addEventListener('mouseenter', this.onHover);
     this._line.addEventListener('mouseleave', this.onHover);
@@ -77,8 +73,6 @@ export default class WidgetsRuler extends WidgetsBase {
   removeEventListeners() {
     this._container.removeEventListener('wheel', this.onMove);
 
-    this._controls.removeEventListener('end', this.onEndControl);
-
     this._line.removeEventListener('mouseenter', this.onHover);
     this._line.removeEventListener('mouseleave', this.onHover);
     this._distance.removeEventListener('mouseenter', this.onHover);
@@ -87,8 +81,6 @@ export default class WidgetsRuler extends WidgetsBase {
 
   onHover(evt) {
       if (evt) {
-        this._lastEvent = evt;
-        evt.preventDefault();
         this.hoverDom(evt);
       }
 
@@ -107,8 +99,6 @@ export default class WidgetsRuler extends WidgetsBase {
   }
 
   onStart(evt) {
-    this._lastEvent = evt;
-
     this.imoveHandle.onMove(evt, true);
 
     this._handles[0].onStart(evt);
@@ -125,8 +115,6 @@ export default class WidgetsRuler extends WidgetsBase {
   }
 
   onMove(evt) {
-    this._lastEvent = evt;
-
     if (this._active) {
       this._dragged = true;
 
@@ -154,10 +142,9 @@ export default class WidgetsRuler extends WidgetsBase {
     this.update();
   }
 
-  onEnd(evt) {
-    this._lastEvent = evt;
+  onEnd() {
     // First Handle
-    this._handles[0].onEnd(evt);
+    this._handles[0].onEnd();
 
     if (!this._dragged && this._active && !this._handles[1].tracking) {
       this._selected = !this._selected; // change state if there was no dragging
@@ -167,7 +154,7 @@ export default class WidgetsRuler extends WidgetsBase {
     // Second Handle
     if (this._dragged || !this._handles[1].tracking) {
       this._handles[1].tracking = false;
-      this._handles[1].onEnd(evt);
+      this._handles[1].onEnd();
     } else {
       this._handles[1].tracking = false;
     }
@@ -177,16 +164,6 @@ export default class WidgetsRuler extends WidgetsBase {
     this._dragged = false;
     this._moving = false;
     this.update();
-  }
-
-  onEndControl() {
-    if (!this._lastEvent) {
-      return;
-    }
-
-    window.requestAnimationFrame(() => {
-      this.onMove(this._lastEvent);
-    });
   }
 
   create() {

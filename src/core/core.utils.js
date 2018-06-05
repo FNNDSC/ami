@@ -225,7 +225,7 @@ export default class CoreUtils {
    *
    * @return {*}
    */
-    static worldToData(lps2IJK, worldCoordinates) {
+  static worldToData(lps2IJK, worldCoordinates) {
     let dataCoordinate = new Vector3()
       .copy(worldCoordinates)
       .applyMatrix4(lps2IJK);
@@ -280,5 +280,69 @@ export default class CoreUtils {
    */
   static rescaleSlopeIntercept(value, slope, intercept) {
     return value * slope + intercept;
+  }
+
+  /**
+   * Get min, max, mean and sd of voxel values behind the mesh
+   *
+   * @param {THREE.Mesh}  mesh    Region of Interest
+   * @param {*}           camera  Tested on CamerasOrthographic
+   * @param {ModelsStack} stack
+   *
+   * @return {Object|null}
+   */
+  static getRoI(mesh, camera, stack) {
+    mesh.geometry.computeBoundingBox();
+
+    const min = mesh.geometry.boundingBox.min.clone().project(camera),
+      max = mesh.geometry.boundingBox.max.clone().project(camera),
+      offsetWidth = camera.controls.domElement.offsetWidth,
+      offsetHeight = camera.controls.domElement.offsetHeight,
+      rayCaster = new THREE.Raycaster(),
+      values = [];
+
+    min.x = Math.round((min.x + 1) * offsetWidth / 2);
+    min.y = Math.round((-min.y + 1) * offsetHeight / 2);
+    max.x = Math.round((max.x + 1) * offsetWidth / 2);
+    max.y = Math.round((-max.y + 1) * offsetHeight / 2);
+    [min.x, max.x] = [Math.min(min.x, max.x), Math.max(min.x, max.x)];
+    [min.y, max.y] = [Math.min(min.y, max.y), Math.max(min.y, max.y)];
+
+    let intersect = [],
+      value = null;
+
+    for (let x = min.x; x <= max.x; x++) {
+      for (let y = min.y; y <= max.y; y++) {
+        rayCaster.setFromCamera({
+          x: (x / offsetWidth) * 2 - 1,
+          y: -(y / offsetHeight) * 2 + 1
+        }, camera);
+        intersect = rayCaster.intersectObject(mesh);
+
+        if (intersect.length === 0) {
+          continue;
+        }
+
+        value = CoreUtils.getPixelData(stack, CoreUtils.worldToData(stack.lps2IJK, intersect[0].point));
+
+        // the image isn't RGB and coordinates are inside it
+        if (value !== null && stack.numberOfChannels === 1) {
+          values.push(CoreUtils.rescaleSlopeIntercept(value, stack.rescaleSlope, stack.rescaleIntercept));
+        }
+      }
+    }
+
+    if (values.length === 0) {
+      return null;
+    }
+
+    const avg = values.reduce((sum, val) => sum + val, 0) / values.length;
+
+    return {
+      min: Math.min.apply(null, values),
+      max: Math.max.apply(null, values),
+      mean: avg,
+      sd: Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - avg, 2)) / values.length)
+    }
   }
 }

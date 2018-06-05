@@ -98,8 +98,6 @@ export default class WidgetsAngle extends WidgetsBase {
 
     onHover(evt) {
         if (evt) {
-          this._lastEvent = evt;
-          evt.preventDefault();
           this.hoverDom(evt);
         }
 
@@ -166,9 +164,9 @@ export default class WidgetsAngle extends WidgetsBase {
         this.update();
     }
 
-    onEnd(evt) {
+    onEnd() {
         // First Handle
-        this._handles[0].onEnd(evt);
+        this._handles[0].onEnd();
 
         if (!this._dragged && this._active && !this._handles[2].tracking) {
             this._selected = !this._selected; // change state if there was no dragging
@@ -177,10 +175,10 @@ export default class WidgetsAngle extends WidgetsBase {
 
         // Third Handle
         if (this._handles[1].active) {
-            this._handles[2].onEnd(evt);
+            this._handles[2].onEnd();
         } else if (this._dragged || !this._handles[2].tracking) {
             this._handles[2].tracking = false;
-            this._handles[2].onEnd(evt);
+            this._handles[2].onEnd();
         } else {
             this._handles[2].tracking = false;
         }
@@ -189,7 +187,7 @@ export default class WidgetsAngle extends WidgetsBase {
         // Second Handle
         if (this._dragged || !this._handles[1].tracking) {
             this._handles[1].tracking = false;
-            this._handles[1].onEnd(evt);
+            this._handles[1].onEnd();
         } else {
             this._handles[1].tracking = false;
         }

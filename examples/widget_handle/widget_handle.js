@@ -110,11 +110,11 @@ window.onload = function() {
 
     scene.add(stackHelper);
 
-    threeD.addEventListener('mouseup', function(evt) {
+    threeD.addEventListener('mouseup', function() {
       // if something hovered, exit
       for (let widget of widgets) {
         if (widget.active) {
-          widget.onEnd(evt);
+          widget.onEnd();
           return;
         }
       }

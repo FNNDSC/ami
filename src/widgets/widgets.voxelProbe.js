@@ -25,7 +25,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._raycaster = new THREE.Raycaster();
 
     this._mouse = new Vector2();
-    this._lastEvent = null;
     this._controls.enabled = false;
 
     this._initialized = false; // set to true onEnd
@@ -52,7 +51,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     // event listeners
     this.onMove = this.onMove.bind(this);
     this.onHover = this.onHover.bind(this);
-    this.onEndControl = this.onEndControl.bind(this);
     this.addEventListeners();
   }
 
@@ -61,8 +59,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._dom.addEventListener('mouseleave', this.onHover);
 
     this._container.addEventListener('wheel', this.onMove);
-
-    this._controls.addEventListener('end', this.onEndControl);
   }
 
   removeEventListeners() {
@@ -70,14 +66,9 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._dom.removeEventListener('mouseleave', this.onHover);
 
     this._container.removeEventListener('wheel', this.onMove);
-
-    this._controls.removeEventListener('end', this.onEndControl);
   }
 
   onStart(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
     const offsets = this.getMouseOffsets(evt, this._container);
     this._mouse.set(offsets.x, offsets.y);
 
@@ -110,9 +101,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   onMove(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
     const offsets = this.getMouseOffsets(evt, this._container);
     this._mouse.set(offsets.x, offsets.y);
 
@@ -150,10 +138,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this.update();
   }
 
-  onEnd(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
+  onEnd() {
     if (!this._dragged && this._active && this._initialized) {
       this._selected = !this._selected; // change state if there was no dragging
     }
@@ -166,20 +151,8 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this.update();
   }
 
-  onEndControl() {
-    if (!this._lastEvent) {
-      return;
-    }
-
-    window.requestAnimationFrame(() => {
-      this.onMove(this._lastEvent);
-    });
-  }
-
   onHover(evt) {
     if (evt) {
-      this._lastEvent = evt;
-      evt.preventDefault();
       this.hoverDom(evt);
     }
 
@@ -298,7 +271,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       this._voxel.dataCoordinates);
 
     this._voxel.value = value === null || this._stack.numberOfChannels > 1
-      ? 'NA' // coordinates are outside of image or RGB
+      ? 'NA' // coordinates are outside the image or RGB
       : CoreUtils.rescaleSlopeIntercept(
         value,
         this._stack.rescaleSlope,

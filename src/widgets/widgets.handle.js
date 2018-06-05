@@ -23,7 +23,6 @@ export default class WidgetsHandle extends WidgetsBase {
     this._tracking = false;
 
     this._mouse = new Vector2();
-    this._lastEvent = null;
 
     this._initialized = false; // set to true onEnd
 
@@ -49,7 +48,6 @@ export default class WidgetsHandle extends WidgetsBase {
     // event listeners
     this.onMove = this.onMove.bind(this);
     this.onHover = this.onHover.bind(this);
-    this.onEndControl = this.onEndControl.bind(this);
     this.addEventListeners();
   }
 
@@ -58,8 +56,6 @@ export default class WidgetsHandle extends WidgetsBase {
     this._dom.addEventListener('mouseleave', this.onHover);
 
     this._container.addEventListener('wheel', this.onMove);
-
-    this._controls.addEventListener('end', this.onEndControl);
   }
 
   removeEventListeners() {
@@ -67,14 +63,9 @@ export default class WidgetsHandle extends WidgetsBase {
     this._dom.removeEventListener('mouseleave', this.onHover);
 
     this._container.removeEventListener('wheel', this.onMove);
-
-    this._controls.removeEventListener('end', this.onEndControl);
   }
 
   onStart(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
     const offsets = this.getMouseOffsets(evt, this._container);
     this._mouse.set(offsets.x, offsets.y);
 
@@ -111,9 +102,6 @@ export default class WidgetsHandle extends WidgetsBase {
    * @param {Boolean} forced - true to move inactive handles
    */
   onMove(evt, forced) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
     const offsets = this.getMouseOffsets(evt, this._container);
     this._mouse.set(offsets.x, offsets.y);
 
@@ -151,10 +139,7 @@ export default class WidgetsHandle extends WidgetsBase {
     this.update();
   }
 
-  onEnd(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
+  onEnd() {
     if (this._tracking === true) { // stay active and keep controls disabled
       return;
     }
@@ -171,20 +156,8 @@ export default class WidgetsHandle extends WidgetsBase {
     this.update();
   }
 
-  onEndControl() {
-    if (!this._lastEvent) {
-      return;
-    }
-
-    window.requestAnimationFrame(() => {
-      this.onMove(this._lastEvent);
-    });
-  }
-
   onHover(evt) {
     if (evt) {
-      this._lastEvent = evt;
-      evt.preventDefault();
       this.hoverDom(evt);
     }
 

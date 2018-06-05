@@ -101,8 +101,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this.update();
     }
 
-    onEnd(evt) {
-        this._handles[0].onEnd(evt);
+    onEnd() {
+        this._handles[0].onEnd();
 
         if (!this._dragged && this._active && !this._handles[2].tracking && !this._handles[3].tracking) {
             this._selected = !this._selected; // change state if there was no dragging
@@ -111,10 +111,10 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         // Third Handle
         if (this._handles[3].active) {
-            this._handles[2].onEnd(evt);
+            this._handles[2].onEnd();
         } else if (this._dragged || !this._handles[2].tracking) {
             this._handles[2].tracking = false;
-            this._handles[2].onEnd(evt);
+            this._handles[2].onEnd();
         } else {
             this._handles[2].tracking = false;
         }
@@ -122,10 +122,10 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         // Fourth Handle
         if (this._handles[1].active) {
-            this._handles[3].onEnd(evt);
+            this._handles[3].onEnd();
         } else if (this._dragged || !this._handles[3].tracking) {
             this._handles[3].tracking = false;
-            this._handles[3].onEnd(evt);
+            this._handles[3].onEnd();
             this._handles[2].tracking = true;
         } else {
             this._handles[3].tracking = false;
@@ -135,7 +135,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         // Second Handle
         if (this._dragged || !this._handles[1].tracking) {
             this._handles[1].tracking = false;
-            this._handles[1].onEnd(evt);
+            this._handles[1].onEnd();
         } else {
             this._handles[1].tracking = false;
         }

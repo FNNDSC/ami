@@ -145,14 +145,14 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this.update();
   }
 
-  onEnd(evt) {
+  onEnd() {
     // First Handle
-    this._handles[0].onEnd(evt);
+    this._handles[0].onEnd();
 
     // Second Handle
     if (this._dragged || !this._handles[1].tracking) {
       this._handles[1].tracking = false;
-      this._handles[1].onEnd(evt);
+      this._handles[1].onEnd();
     } else {
      this._handles[1].tracking = false;
     }
