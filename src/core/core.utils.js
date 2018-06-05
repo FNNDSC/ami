@@ -336,11 +336,11 @@ export default class CoreUtils {
       return null;
     }
 
-    const avg = values.reduce((sum, val) => sum + val, 0) / values.length;
+    const avg = values.reduce((sum, val) => sum + val) / values.length;
 
     return {
-      min: Math.min.apply(null, values),
-      max: Math.max.apply(null, values),
+      min: values.reduce((prev, val) => prev < val ? prev : val),
+      max: values.reduce((prev, val) => prev > val ? prev : val),
       mean: avg,
       sd: Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - avg, 2)) / values.length)
     }

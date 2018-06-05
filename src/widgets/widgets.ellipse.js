@@ -1,6 +1,7 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 import GeometriesSlice from '../geometries/geometries.slice';
+import CoreUtils from "../core/core.utils";
 
 import {Vector3} from 'three';
 
@@ -231,6 +232,24 @@ export default class WidgetsEllipse extends WidgetsBase {
         this._label.style.position = 'absolute';
         this._label.style.transformOrigin = '0 100%';
         this._label.style.zIndex = '3';
+
+        // measurenents
+        const measurementsContainer = document.createElement('div');
+        // Mean / SD
+        let meanSDContainer = document.createElement('div');
+        meanSDContainer.setAttribute('class', 'mean-sd');
+        measurementsContainer.appendChild(meanSDContainer);
+        // Max / Min
+        let maxMinContainer = document.createElement('div');
+        maxMinContainer.setAttribute('class', 'max-min');
+        measurementsContainer.appendChild(maxMinContainer);
+        // Area
+        let areaContainer = document.createElement('div');
+        areaContainer.setAttribute('class', 'area');
+        measurementsContainer.appendChild(areaContainer);
+
+        this._label.appendChild(measurementsContainer);
+
         this._container.appendChild(this._label);
 
         this.updateDOMColor();
@@ -249,6 +268,7 @@ export default class WidgetsEllipse extends WidgetsBase {
 
         // DOM stuff
         this.updateDOMColor();
+        this.updateDOMContent();
         this.updateDOMPosition();
     }
 
@@ -284,6 +304,43 @@ export default class WidgetsEllipse extends WidgetsBase {
         this.add(this._mesh);
     }
 
+    updateDOMColor() {
+        this._rectangle.style.borderColor = `${this._color}`;
+        this._ellipse.style.borderColor = `${this._color}`;
+        this._label.style.borderColor = `${this._color}`;
+    }
+
+    updateDOMContent() {
+        if (!this._geometry) {
+            return;
+        }
+
+        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
+            title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+
+        if (title !== '') {
+            this._label.setAttribute('title', title);
+            this._label.style.color = '#C22';
+        } else {
+            this._label.removeAttribute('title');
+            this._label.style.color = '#222';
+        }
+
+        const roi = CoreUtils.getRoI(this._mesh, this._camera, this._stack),
+            meanSDContainer = this._label.querySelector('.mean-sd'),
+            maxMinContainer = this._label.querySelector('.max-min'),
+            areaContainer = this._label.querySelector('.area');
+
+        if (roi !== null) {
+            meanSDContainer.innerHTML = `Mean: ${roi.mean.toFixed(1)} / SD: ${roi.sd.toFixed(1)}`;
+            maxMinContainer.innerHTML = `Max: ${roi.max.toFixed()} / Min: ${roi.min.toFixed()}`;
+        } else {
+            meanSDContainer.innerHTML = '';
+            maxMinContainer.innerHTML = '';
+        }
+        areaContainer.innerHTML = `Area: ${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+    }
+
     updateDOMPosition() {
         let x1 = this._handles[0].screenPosition.x,
             y1 = this._handles[0].screenPosition.y,
@@ -305,31 +362,18 @@ export default class WidgetsEllipse extends WidgetsBase {
         this._ellipse.style.height = height + 'px';
 
         // update label
-        const area = this._geometry ? (GeometriesSlice.getGeometryArea(this._geometry) / 100).toFixed(2) : 0.0,
-            units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
-            title = units === 'units' ? 'Calibration is required to display the area in cm²' : '';
-
-        if (title !== '') {
-            this._label.setAttribute('title', title);
-            this._label.style.color = '#C22';
-        } else {
-            this._label.removeAttribute('title');
-            this._label.style.color = '#222';
-        }
-        this._label.innerHTML = `${area} ${units}`;
-
         let x0 = Math.round(x2 - this._label.offsetWidth/2),
-            y0 = Math.round(y2 - this._container.offsetHeight - this._label.offsetHeight/2);
+            y0 = Math.round(y2 - this._container.offsetHeight - this._label.offsetHeight/2),
+            offset = 30;
 
-        y0 += y1 >= y2 ? -30 : 30;
-
+        if (this._label.querySelector('.mean-sd').innerHTML !== '') {
+            offset += 10;
+        }
+        if (this._label.querySelector('.max-min').innerHTML !== '') {
+            offset += 10;
+        }
+        y0 += y1 >= y2 ? -offset : offset;
         this._label.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
-    }
-
-    updateDOMColor() {
-        this._rectangle.style.borderColor = `${this._color}`;
-        this._ellipse.style.borderColor = `${this._color}`;
-        this._label.style.borderColor = `${this._color}`;
     }
 
     free() {

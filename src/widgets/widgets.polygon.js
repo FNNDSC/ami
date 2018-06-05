@@ -1,11 +1,13 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 import GeometriesSlice from '../geometries/geometries.slice';
+import CoreUtils from "../core/core.utils";
 
 import {Vector3} from 'three';
 
 /**
  * @module widgets/polygon
+ * @todo drag by label or mesh
  */
 export default class WidgetsPolygon extends WidgetsBase {
     constructor(targetMesh, controls, stack) {
@@ -130,6 +132,7 @@ export default class WidgetsPolygon extends WidgetsBase {
         this._dragged = false;
 
         this.updateMesh();
+        this.updateDOMContent();
         this.update();
     }
 
@@ -150,6 +153,7 @@ export default class WidgetsPolygon extends WidgetsBase {
         this._initialized = true;
 
         this.updateMesh();
+        this.updateDOMContent();
         this.update();
     }
 
@@ -177,6 +181,24 @@ export default class WidgetsPolygon extends WidgetsBase {
         this._label.style.position = 'absolute';
         this._label.style.transformOrigin = '0 100%';
         this._label.style.zIndex = '3';
+
+        // measurenents
+        const measurementsContainer = document.createElement('div');
+        // Mean / SD
+        let meanSDContainer = document.createElement('div');
+        meanSDContainer.setAttribute('class', 'mean-sd');
+        measurementsContainer.appendChild(meanSDContainer);
+        // Max / Min
+        let maxMinContainer = document.createElement('div');
+        maxMinContainer.setAttribute('class', 'max-min');
+        measurementsContainer.appendChild(maxMinContainer);
+        // Area
+        let areaContainer = document.createElement('div');
+        areaContainer.setAttribute('class', 'area');
+        measurementsContainer.appendChild(areaContainer);
+
+        this._label.appendChild(measurementsContainer);
+
         this._container.appendChild(this._label);
 
         this.updateDOMColor();
@@ -312,6 +334,36 @@ export default class WidgetsPolygon extends WidgetsBase {
         this._label.style.borderColor = `${this._color}`;
     }
 
+    updateDOMContent() {
+        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
+            title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+
+        if (this._shapeWarn) {
+            title += 'Values may be incorrect due to triangulation error.';
+        }
+        if (title !== '') {
+            this._label.setAttribute('title', title);
+            this._label.style.color = '#C22';
+        } else {
+            this._label.removeAttribute('title');
+            this._label.style.color = '#222';
+        }
+
+        const roi = CoreUtils.getRoI(this._mesh, this._camera, this._stack),
+            meanSDContainer = this._label.querySelector('.mean-sd'),
+            maxMinContainer = this._label.querySelector('.max-min'),
+            areaContainer = this._label.querySelector('.area');
+
+        if (roi !== null) {
+            meanSDContainer.innerHTML = `Mean: ${roi.mean.toFixed(1)} / SD: ${roi.sd.toFixed(1)}`;
+            maxMinContainer.innerHTML = `Max: ${roi.max.toFixed()} / Min: ${roi.min.toFixed()}`;
+        } else {
+            meanSDContainer.innerHTML = '';
+            maxMinContainer.innerHTML = '';
+        }
+        areaContainer.innerHTML = `Area: ${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+    }
+
     updateDOMPosition() {
         // update lines and get coordinates of lowest handle
         let labelPosition = new Vector3();
@@ -328,23 +380,18 @@ export default class WidgetsPolygon extends WidgetsBase {
         }
 
         // update label
-        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
-            title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+        let offset = 30;
 
-        if (this._shapeWarn) {
-            title += 'Area may be incorrect due to triangulation error.';
+        if (this._label.querySelector('.mean-sd').innerHTML !== '') {
+            offset += 10;
         }
-        if (title !== '') {
-            this._label.setAttribute('title', title);
-            this._label.style.color = '#C22';
-        } else {
-            this._label.removeAttribute('title');
-            this._label.style.color = '#222';
+        if (this._label.querySelector('.max-min').innerHTML !== '') {
+            offset += 10;
         }
-        this._label.innerHTML = `${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
-
         labelPosition.x = Math.round(labelPosition.x - this._label.offsetWidth/2);
-        labelPosition.y = Math.round(labelPosition.y - this._label.offsetHeight/2 - this._container.offsetHeight + 30);
+        labelPosition.y = Math.round(
+            labelPosition.y - this._label.offsetHeight/2 - this._container.offsetHeight + offset
+        );
         this._label.style.transform = `translate3D(${labelPosition.x}px,${labelPosition.y}px, 0)`;
     }
 
