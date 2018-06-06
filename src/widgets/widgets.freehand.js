@@ -396,7 +396,7 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         let interpointdist = handle0.worldPosition.distanceTo(newhandle.worldPosition);
 
-        if (isOnLine || interpointdist < 20) { // TODO! make number configurable
+        if (isOnLine || interpointdist < 30 / this._camera.zoom) {
             this.remove(handle1);
             handle1.free();
 
@@ -461,13 +461,13 @@ export default class WidgetsFreehand extends WidgetsBase {
 
     updateDOMPosition() {
         // update lines and get coordinates of lowest handle
-        let labelPosition = new Vector3();
+        let labelPosition = null;
 
         if (this._handles.length >= 2) {
             this._lines.forEach(function(elem, ind) {
                 this.updateLineDOM(ind, ind, ind + 1 === this._handles.length ? 0 : ind + 1);
-                if (labelPosition.y < this._handles[ind].screenPosition.y) {
-                    labelPosition.copy(this._handles[ind].screenPosition);
+                if (labelPosition === null || labelPosition.y < this._handles[ind].screenPosition.y) {
+                    labelPosition = this._handles[ind].screenPosition.clone();
                 }
             }, this);
         }

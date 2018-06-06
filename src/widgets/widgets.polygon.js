@@ -448,12 +448,12 @@ export default class WidgetsPolygon extends WidgetsBase {
 
     updateDOMPosition() {
         // update lines and get coordinates of lowest handle
-        let labelPosition = new Vector3();
+        let labelPosition = null;
 
         this._lines.forEach(function(elem, ind) {
             this.updateLineDOM(ind, ind, ind + 1 === this._handles.length ? 0 : ind + 1);
-            if (labelPosition.y < this._handles[ind].screenPosition.y) {
-                labelPosition.copy(this._handles[ind].screenPosition);
+            if (labelPosition === null || labelPosition.y < this._handles[ind].screenPosition.y) {
+                labelPosition = this._handles[ind].screenPosition.clone();
             }
         }, this);
 
