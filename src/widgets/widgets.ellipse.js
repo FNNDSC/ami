@@ -1,7 +1,7 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 import GeometriesSlice from '../geometries/geometries.slice';
-import CoreUtils from "../core/core.utils";
+import CoreUtils from '../core/core.utils';
 
 import {Vector3} from 'three';
 
@@ -100,7 +100,7 @@ export default class WidgetsEllipse extends WidgetsBase {
     }
 
     hoverMesh() {
-        // check raycast intersection, do we want to hover on mesh or just css?
+        // check raycast intersection, if we want to hover on mesh instead of just css
     }
 
     hoverDom(evt) {
@@ -385,10 +385,10 @@ export default class WidgetsEllipse extends WidgetsBase {
             offset = 30;
 
         if (this._label.querySelector('.mean-sd').innerHTML !== '') {
-            offset += 10;
+            offset += 9;
         }
         if (this._label.querySelector('.max-min').innerHTML !== '') {
-            offset += 10;
+            offset += 9;
         }
         y0 += y1 >= y2 ? -offset : offset;
         this._label.style.transform = `translate3D(${x0}px,${y0}px, 0)`;

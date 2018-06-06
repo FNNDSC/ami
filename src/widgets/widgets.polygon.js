@@ -1,7 +1,7 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 import GeometriesSlice from '../geometries/geometries.slice';
-import CoreUtils from "../core/core.utils";
+import CoreUtils from '../core/core.utils';
 
 import {Vector3} from 'three';
 
@@ -17,6 +17,8 @@ export default class WidgetsPolygon extends WidgetsBase {
 
         this._initialized = false; // set to true onDblClick if number of handles > 2
         this._newHandleRequired = true; // should handle be created onMove?
+        this._moving = false;
+        this._domHovered = false;
 
         // mesh stuff
         this._material = null;
@@ -29,12 +31,23 @@ export default class WidgetsPolygon extends WidgetsBase {
 
         // add handles
         this._handles = [];
+        this._moveHandles = [];
 
-        let firstHandle = new WidgetsHandle(targetMesh, controls);
-        firstHandle.worldPosition.copy(this._worldPosition);
-        firstHandle.hovered = true;
-        this.add(firstHandle);
-        this._handles.push(firstHandle);
+        let handle = new WidgetsHandle(targetMesh, controls);
+        handle.worldPosition.copy(this._worldPosition);
+        handle.hovered = true;
+        this.add(handle);
+        this._handles.push(handle);
+
+        // handles to move widget
+        for (let i = 0; i < 2; i++) {
+            handle = new WidgetsHandle(targetMesh, controls);
+            handle.worldPosition.copy(this._worldPosition);
+            handle.hovered = true;
+            this.add(handle);
+            this._moveHandles.push(handle);
+            handle.hide();
+        }
 
         this.create();
 
@@ -46,16 +59,48 @@ export default class WidgetsPolygon extends WidgetsBase {
     addEventListeners() {
         this._container.addEventListener('dblclick', this.onDoubleClick);
         this._container.addEventListener('wheel', this.onMove);
+
+        this._label.addEventListener('mouseenter', this.onHover);
+        this._label.addEventListener('mouseleave', this.onHover);
     }
 
     removeEventListeners() {
         this._container.removeEventListener('dblclick', this.onDoubleClick);
         this._container.removeEventListener('wheel', this.onMove);
+
+        this._label.removeEventListener('mouseenter', this.onHover);
+        this._label.removeEventListener('mouseleave', this.onHover);
+    }
+
+    onHover(evt) {
+        if (evt) {
+            this.hoverDom(evt);
+        }
+
+        this.hoverMesh();
+
+        let hovered = false;
+
+        this._handles.forEach(function(elem) {
+            hovered = hovered || elem.hovered;
+        });
+
+        this._hovered = hovered || this._domHovered;
+        this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+    }
+
+    hoverMesh() {
+        // check raycast intersection, if we want to hover on mesh instead of just css
+    }
+
+    hoverDom(evt) {
+        this._domHovered = (evt.type === 'mouseenter');
     }
 
     onStart(evt) {
         let active = false;
 
+        this._moveHandles[0].onMove(evt, true);
         this._handles.forEach(function(elem) {
             elem.onStart(evt);
             active = active || elem.active;
@@ -67,7 +112,12 @@ export default class WidgetsPolygon extends WidgetsBase {
             return;
         }
 
-        this._active = active;
+        this._active = active || this._domHovered;
+
+        if (this._domHovered) {
+            this._moving = true;
+            this._controls.enabled = false;
+        }
 
         this.update();
     }
@@ -94,6 +144,26 @@ export default class WidgetsPolygon extends WidgetsBase {
 
                 this.createLine();
                 this._newHandleRequired = false;
+            } else {
+                if (this._mesh) {
+                    this.remove(this._mesh);
+                }
+                this.updateDOMContent(true);
+
+                this._moveHandles[1].onMove(evt, true);
+
+                if (this._moving) {
+                    this._handles.forEach(function(elem, ind) {
+                        this._handles[ind].worldPosition.x = elem.worldPosition.x
+                            + (this._moveHandles[1].worldPosition.x - this._moveHandles[0].worldPosition.x);
+                        this._handles[ind].worldPosition.y = elem.worldPosition.y
+                            + (this._moveHandles[1].worldPosition.y - this._moveHandles[0].worldPosition.y);
+                        this._handles[ind].worldPosition.z = elem.worldPosition.z
+                            + (this._moveHandles[1].worldPosition.z - this._moveHandles[0].worldPosition.z);
+                    }, this);
+                }
+
+                this._moveHandles[0].onMove(evt, true);
             }
         }
 
@@ -102,7 +172,7 @@ export default class WidgetsPolygon extends WidgetsBase {
             hovered = hovered || elem.hovered;
         });
 
-        this._hovered = hovered;
+        this._hovered = hovered || this._domHovered;
 
         this.update();
     }
@@ -130,6 +200,7 @@ export default class WidgetsPolygon extends WidgetsBase {
         }
         this._active = active || this._handles[numHandles-1].active;
         this._dragged = false;
+        this._moving = false;
 
         this.updateMesh();
         this.updateDOMContent();
@@ -150,6 +221,7 @@ export default class WidgetsPolygon extends WidgetsBase {
 
         this._active = false;
         this._dragged = false;
+        this._moving = false;
         this._initialized = true;
 
         this.updateMesh();
@@ -293,11 +365,11 @@ export default class WidgetsPolygon extends WidgetsBase {
         // override to catch console.warn "THREE.ShapeUtils: Unable to triangulate polygon! in triangulate()"
         this._shapeWarn = false;
         const oldWarn = console.warn;
-        console.warn = function() {
-            if (arguments[0] === 'THREE.ShapeUtils: Unable to triangulate polygon! in triangulate()') {
+        console.warn = function(...rest) {
+            if (rest[0] === 'THREE.ShapeUtils: Unable to triangulate polygon! in triangulate()') {
                 this._shapeWarn = true;
             }
-            return oldWarn.apply(console, arguments);
+            return oldWarn.apply(console, rest);
         }.bind(this);
 
         this._geometry = new THREE.ShapeGeometry(GeometriesSlice.shape(orderedpoints));
@@ -334,7 +406,19 @@ export default class WidgetsPolygon extends WidgetsBase {
         this._label.style.borderColor = `${this._color}`;
     }
 
-    updateDOMContent() {
+    updateDOMContent(clear) {
+        const meanSDContainer = this._label.querySelector('.mean-sd'),
+            maxMinContainer = this._label.querySelector('.max-min'),
+            areaContainer = this._label.querySelector('.area');
+
+        if (clear) {
+            meanSDContainer.innerHTML = '';
+            maxMinContainer.innerHTML = '';
+            areaContainer.innerHTML = '';
+
+            return;
+        }
+
         let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
             title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
@@ -349,10 +433,7 @@ export default class WidgetsPolygon extends WidgetsBase {
             this._label.style.color = '#222';
         }
 
-        const roi = CoreUtils.getRoI(this._mesh, this._camera, this._stack),
-            meanSDContainer = this._label.querySelector('.mean-sd'),
-            maxMinContainer = this._label.querySelector('.max-min'),
-            areaContainer = this._label.querySelector('.area');
+        const roi = CoreUtils.getRoI(this._mesh, this._camera, this._stack);
 
         if (roi !== null) {
             meanSDContainer.innerHTML = `Mean: ${roi.mean.toFixed(1)} / SD: ${roi.sd.toFixed(1)}`;
@@ -383,10 +464,10 @@ export default class WidgetsPolygon extends WidgetsBase {
         let offset = 30;
 
         if (this._label.querySelector('.mean-sd').innerHTML !== '') {
-            offset += 10;
+            offset += 9;
         }
         if (this._label.querySelector('.max-min').innerHTML !== '') {
-            offset += 10;
+            offset += 9;
         }
         labelPosition.x = Math.round(labelPosition.x - this._label.offsetWidth/2);
         labelPosition.y = Math.round(
@@ -416,6 +497,11 @@ export default class WidgetsPolygon extends WidgetsBase {
             h.free();
         });
         this._handles = [];
+        this._moveHandles.forEach((h) => {
+            this.remove(h);
+            h.free();
+        });
+        this._moveHandles = [];
 
         this._lines.forEach(function(elem) {
             this._container.removeChild(elem);
@@ -453,6 +539,9 @@ export default class WidgetsPolygon extends WidgetsBase {
     set targetMesh(targetMesh) {
         this._targetMesh = targetMesh;
         this._handles.forEach(function(elem) {
+            elem.targetMesh = targetMesh;
+        });
+        this._moveHandles.forEach(function(elem) {
             elem.targetMesh = targetMesh;
         });
         this.update();

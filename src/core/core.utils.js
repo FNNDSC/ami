@@ -236,19 +236,18 @@ export default class CoreUtils {
     return dataCoordinate;
   }
 
-  /**
-   * Get and set voxel value
-   *
-   * @param {*} stack
-   * @param {*} coordinate
-   * @param {*} value
-   * @return {*}
-   */
   static value(stack, coordinate) {
     window.console.warn('value is deprecated, please use getPixelData instead');
     this.getPixelData(stack, coordinate);
   }
 
+  /**
+   * Get voxel value
+   *
+   * @param {ModelsStack} stack
+   * @param {Vector3} coordinate
+   * @return {*}
+   */
   static getPixelData(stack, coordinate) {
     if (coordinate.z >= 0 &&
         coordinate.z < stack._frame.length) {
@@ -259,6 +258,14 @@ export default class CoreUtils {
     }
   }
 
+  /**
+   * Set voxel value
+   *
+   * @param {ModelsStack} stack
+   * @param {Vector3} coordinate
+   * @param {Number} value
+   * @return {*}
+   */
   static setPixelData(stack, coordinate, value) {
     if (coordinate.z >= 0 &&
         coordinate.z < stack._frame.length) {
@@ -316,7 +323,7 @@ export default class CoreUtils {
       for (let y = min.y; y <= max.y; y++) {
         rayCaster.setFromCamera({
           x: (x / offsetWidth) * 2 - 1,
-          y: -(y / offsetHeight) * 2 + 1
+          y: -(y / offsetHeight) * 2 + 1,
         }, camera);
         intersect = rayCaster.intersectObject(mesh);
 
@@ -343,7 +350,7 @@ export default class CoreUtils {
       min: values.reduce((prev, val) => prev < val ? prev : val),
       max: values.reduce((prev, val) => prev > val ? prev : val),
       mean: avg,
-      sd: Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - avg, 2)) / values.length)
-    }
+      sd: Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - avg, 2)) / values.length),
+    };
   }
 }
