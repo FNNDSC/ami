@@ -7,7 +7,6 @@ import {Vector3} from 'three';
 
 /**
  * @module widgets/polygon
- * @todo drag by label or mesh
  */
 export default class WidgetsPolygon extends WidgetsBase {
     constructor(targetMesh, controls, stack) {

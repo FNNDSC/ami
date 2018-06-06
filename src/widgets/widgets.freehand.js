@@ -7,7 +7,6 @@ import {Vector3} from 'three';
 
 /**
  * @module widgets/freehand
- * @todo drag by label or mesh
  */
 export default class WidgetsFreehand extends WidgetsBase {
     constructor(targetMesh, controls, stack) {
