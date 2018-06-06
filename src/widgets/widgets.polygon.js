@@ -51,8 +51,9 @@ export default class WidgetsPolygon extends WidgetsBase {
 
         this.create();
 
-        this.onMove = this.onMove.bind(this);
         this.onDoubleClick = this.onDoubleClick.bind(this);
+        this.onMove = this.onMove.bind(this);
+        this.onHover = this.onHover.bind(this);
         this.addEventListeners();
     }
 

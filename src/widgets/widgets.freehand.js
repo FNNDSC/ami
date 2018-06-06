@@ -51,6 +51,7 @@ export default class WidgetsFreehand extends WidgetsBase {
         this.create();
 
         this.onMove = this.onMove.bind(this);
+        this.onHover = this.onHover.bind(this);
         this.addEventListeners();
     }
 
@@ -130,10 +131,6 @@ export default class WidgetsFreehand extends WidgetsBase {
                 this._handles.push(nextHandle);
 
                 this.createLine();
-
-                if (this._handles.length > 2) {
-                    this.pushPopHandle();
-                }
             } else {
                 if (this._mesh) {
                     this.remove(this._mesh);
@@ -165,6 +162,10 @@ export default class WidgetsFreehand extends WidgetsBase {
         });
 
         this._hovered = hovered || this._domHovered;
+
+        if (this.active && this._handles.length > 2) {
+            this.pushPopHandle();
+        }
 
         this.update();
     }
