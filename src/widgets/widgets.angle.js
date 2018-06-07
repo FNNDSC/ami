@@ -22,7 +22,7 @@ export default class WidgetsAngle extends WidgetsBase {
         // dom stuff
         this._line = null;
         this._line2 = null;
-        this._angle = null;
+        this._label = null;
 
         this._opangle = null;
         this._defaultAngle = true;
@@ -81,8 +81,8 @@ export default class WidgetsAngle extends WidgetsBase {
         this._line.addEventListener('mouseleave', this.onHover);
         this._line2.addEventListener('mouseenter', this.onHover);
         this._line2.addEventListener('mouseleave', this.onHover);
-        this._angle.addEventListener('mouseenter', this.onHover);
-        this._angle.addEventListener('mouseleave', this.onHover);
+        this._label.addEventListener('mouseenter', this.onHover);
+        this._label.addEventListener('mouseleave', this.onHover);
     }
 
     removeEventListeners() {
@@ -92,8 +92,8 @@ export default class WidgetsAngle extends WidgetsBase {
         this._line.removeEventListener('mouseleave', this.onHover);
         this._line2.removeEventListener('mouseenter', this.onHover);
         this._line2.removeEventListener('mouseleave', this.onHover);
-        this._angle.removeEventListener('mouseenter', this.onHover);
-        this._angle.removeEventListener('mouseleave', this.onHover);
+        this._label.removeEventListener('mouseenter', this.onHover);
+        this._label.removeEventListener('mouseleave', this.onHover);
     }
 
     onHover(evt) {
@@ -165,8 +165,15 @@ export default class WidgetsAngle extends WidgetsBase {
     }
 
     onEnd() {
-        // First Handle
-        this._handles[0].onEnd();
+        this._handles[0].onEnd(); // First Handle
+
+        if ((this._handles[1].tracking &&
+                this._handles[0].worldPosition.equals(this._handles[1].worldPosition)) ||
+            (!this._handles[1].tracking && this._handles[2].tracking &&
+                this._handles[0].worldPosition.equals(this._handles[1].worldPosition))
+        ) {
+            return;
+        }
 
         if (!this._dragged && this._active && !this._handles[2].tracking) {
             this._selected = !this._selected; // change state if there was no dragging
@@ -218,6 +225,7 @@ export default class WidgetsAngle extends WidgetsBase {
         // material
         this._material = new THREE.LineBasicMaterial();
         this._material2 = new THREE.LineBasicMaterial();
+
         this.updateMeshColor();
 
         // mesh
@@ -226,7 +234,6 @@ export default class WidgetsAngle extends WidgetsBase {
         this._mesh2 = new THREE.Line(this._geometry2, this._material2);
         this._mesh2.visible = true;
 
-        // add it!
         this.add(this._mesh);
         this.add(this._mesh2);
     }
@@ -250,17 +257,17 @@ export default class WidgetsAngle extends WidgetsBase {
         this._line2.style.width = '3px';
         this._container.appendChild(this._line2);
 
-        this._angle = document.createElement('div');
-        this._angle.setAttribute('class', 'widgets-label');
-        this._angle.style.border = '2px solid';
-        this._angle.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
-        // this._angle.style.opacity = '0.5';
-        this._angle.style.color = '#222';
-        this._angle.style.padding = '4px';
-        this._angle.style.position = 'absolute';
-        this._angle.style.transformOrigin = '0 100%';
-        this._angle.style.zIndex = '3';
-        this._container.appendChild(this._angle);
+        this._label = document.createElement('div');
+        this._label.setAttribute('class', 'widgets-label');
+        this._label.style.border = '2px solid';
+        this._label.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
+        // this._label.style.opacity = '0.5';
+        this._label.style.color = '#222';
+        this._label.style.padding = '4px';
+        this._label.style.position = 'absolute';
+        this._label.style.transformOrigin = '0 100%';
+        this._label.style.zIndex = '3';
+        this._container.appendChild(this._label);
 
         this.updateDOMColor();
     }
@@ -268,7 +275,7 @@ export default class WidgetsAngle extends WidgetsBase {
     hideDOM() {
         this._line.style.display = 'none';
         this._line2.style.display = 'none';
-        this._angle.style.display = 'none';
+        this._label.style.display = 'none';
 
         this._handles.forEach(function(elem) {
           elem.hideDOM();
@@ -278,7 +285,7 @@ export default class WidgetsAngle extends WidgetsBase {
     showDOM() {
         this._line.style.display = '';
         this._line2.style.display = '';
-        this._angle.style.display = '';
+        this._label.style.display = '';
 
         this._handles[0].showDOM();
         this._handles[1].showDOM();
@@ -359,20 +366,20 @@ export default class WidgetsAngle extends WidgetsBase {
                 ? Math.acos((p10*p10 + p12*p12 - p02*p02)/(2 * p10 * p12))
                 : 0.0;
         this._opangle = this._defaultAngle ? a0102*180/Math.PI : 360-(a0102*180/Math.PI);
-        this._angle.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
+        this._label.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
-        let x0 = Math.round(x2 - this._angle.offsetWidth/2),
-            y0 = Math.round(y2 - this._container.offsetHeight - this._angle.offsetHeight/2);
+        let x0 = Math.round(x2 - this._label.offsetWidth/2),
+            y0 = Math.round(y2 - this._container.offsetHeight - this._label.offsetHeight/2);
 
         y0 += y1 >= y2 ? -30 : 30;
 
-        this._angle.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
+        this._label.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
     }
 
     updateDOMColor() {
         this._line.style.backgroundColor = `${this._color}`;
         this._line2.style.backgroundColor = `${this._color}`;
-        this._angle.style.borderColor = `${this._color}`;
+        this._label.style.borderColor = `${this._color}`;
     }
 
     free() {
@@ -386,7 +393,7 @@ export default class WidgetsAngle extends WidgetsBase {
 
         this._container.removeChild(this._line);
         this._container.removeChild(this._line2);
-        this._container.removeChild(this._angle);
+        this._container.removeChild(this._label);
 
         // mesh, geometry, material
         this.remove(this._mesh);

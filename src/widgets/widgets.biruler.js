@@ -166,6 +166,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         // material
         this._material = new THREE.LineBasicMaterial();
         this._material2 = new THREE.LineBasicMaterial();
+
         this.updateMeshColor();
 
         // mesh
@@ -174,7 +175,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._mesh2 = new THREE.Line(this._geometry2, this._material2);
         this._mesh2.visible = true;
 
-        // add it!
         this.add(this._mesh);
         this.add(this._mesh2);
     }

@@ -154,8 +154,11 @@ export default class WidgetsEllipse extends WidgetsBase {
     }
 
     onEnd() {
-        // First Handle
-        this._handles[0].onEnd();
+        this._handles[0].onEnd(); // First Handle
+
+        if (this._handles[0].worldPosition.equals(this._handles[1].worldPosition)) {
+            return;
+        }
 
         if (!this._dragged && this._active && !this._handles[1].tracking) {
             this._selected = !this._selected; // change state if there was no dragging

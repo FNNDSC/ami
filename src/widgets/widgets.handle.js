@@ -182,20 +182,19 @@ export default class WidgetsHandle extends WidgetsBase {
         wireframeLinewidth: 2,
       });
 
+    this.updateMeshColor();
+
     // mesh
     this._mesh = new THREE.Mesh(this._geometry, this._material);
     this._mesh.position.copy(this._worldPosition);
     this._mesh.visible = true;
 
-    this.updateMeshColor();
-
-    // add it!
     this.add(this._mesh);
   }
 
   createDOM() {
     this._dom = document.createElement('div');
-    this._dom.setAttribute('class', 'AMI Widget Handle');
+    this._dom.setAttribute('class', 'widgets-handle');
     this._dom.style.border = '2px solid';
     this._dom.style.backgroundColor = '#F9F9F9';
     this._dom.style.color = '#F9F9F9';
@@ -205,7 +204,7 @@ export default class WidgetsHandle extends WidgetsBase {
     this._dom.style.margin = '-6px';
     this._dom.style.borderRadius = '50%';
     this._dom.style.transformOrigin = '0 100%';
-    this._dom.style.zIndex = '2';
+    this._dom.style.zIndex = '3';
 
     let posY = this._screenPosition.y - this._container.offsetHeight;
     this._dom.style.transform =

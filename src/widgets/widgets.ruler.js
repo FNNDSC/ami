@@ -20,6 +20,8 @@ export default class WidgetsRuler extends WidgetsBase {
 
     // dom stuff
     this._line = null;
+    this._label = null;
+
     this._distance = null;
 
     // add handles
@@ -66,8 +68,8 @@ export default class WidgetsRuler extends WidgetsBase {
 
     this._line.addEventListener('mouseenter', this.onHover);
     this._line.addEventListener('mouseleave', this.onHover);
-    this._distance.addEventListener('mouseenter', this.onHover);
-    this._distance.addEventListener('mouseleave', this.onHover);
+    this._label.addEventListener('mouseenter', this.onHover);
+    this._label.addEventListener('mouseleave', this.onHover);
   }
 
   removeEventListeners() {
@@ -75,8 +77,8 @@ export default class WidgetsRuler extends WidgetsBase {
 
     this._line.removeEventListener('mouseenter', this.onHover);
     this._line.removeEventListener('mouseleave', this.onHover);
-    this._distance.removeEventListener('mouseenter', this.onHover);
-    this._distance.removeEventListener('mouseleave', this.onHover);
+    this._label.removeEventListener('mouseenter', this.onHover);
+    this._label.removeEventListener('mouseleave', this.onHover);
   }
 
   onHover(evt) {
@@ -143,8 +145,11 @@ export default class WidgetsRuler extends WidgetsBase {
   }
 
   onEnd() {
-    // First Handle
-    this._handles[0].onEnd();
+    this._handles[0].onEnd(); // First Handle
+
+    if (this._handles[0].worldPosition.equals(this._handles[1].worldPosition)) {
+      return;
+    }
 
     if (!this._dragged && this._active && !this._handles[1].tracking) {
       this._selected = !this._selected; // change state if there was no dragging
@@ -173,7 +178,7 @@ export default class WidgetsRuler extends WidgetsBase {
 
   hideDOM() {
     this._line.style.display = 'none';
-    this._distance.style.display = 'none';
+    this._label.style.display = 'none';
     this._handles.forEach(function(elem) {
       elem.hideDOM();
     });
@@ -181,7 +186,7 @@ export default class WidgetsRuler extends WidgetsBase {
 
   showDOM() {
     this._line.style.display = '';
-    this._distance.style.display = '';
+    this._label.style.display = '';
     this._handles[0].showDOM();
     this._handles[1].showDOM();
   }
@@ -210,13 +215,13 @@ export default class WidgetsRuler extends WidgetsBase {
 
     // material
     this._material = new THREE.LineBasicMaterial();
+
     this.updateMeshColor();
 
     // mesh
     this._mesh = new THREE.Line(this._geometry, this._material);
     this._mesh.visible = true;
 
-    // add it!
     this.add(this._mesh);
   }
 
@@ -242,17 +247,17 @@ export default class WidgetsRuler extends WidgetsBase {
     this._line.style.width = '3px';
     this._container.appendChild(this._line);
 
-    this._distance = document.createElement('div');
-    this._distance.setAttribute('class', 'widgets-label');
-    this._distance.style.border = '2px solid';
-    this._distance.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
-    // this._distance.style.opacity = '0.5';
-    this._distance.style.color = '#222';
-    this._distance.style.padding = '4px';
-    this._distance.style.position = 'absolute';
-    this._distance.style.transformOrigin = '0 100%';
-    this._distance.style.zIndex = '3';
-    this._container.appendChild(this._distance);
+    this._label = document.createElement('div');
+    this._label.setAttribute('class', 'widgets-label');
+    this._label.style.border = '2px solid';
+    this._label.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
+    // this._label.style.opacity = '0.5';
+    this._label.style.color = '#222';
+    this._label.style.padding = '4px';
+    this._label.style.position = 'absolute';
+    this._label.style.transformOrigin = '0 100%';
+    this._label.style.zIndex = '3';
+    this._container.appendChild(this._label);
 
     this.updateDOMColor();
   }
@@ -274,30 +279,31 @@ export default class WidgetsRuler extends WidgetsBase {
     this._line.style.width = length + 'px';
 
     // update distance
-    const distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition).toFixed(2),
-        units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
-        title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
+    this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
+
+    const units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
+      title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
 
     if (title !== '') {
-      this._distance.setAttribute('title', title);
-      this._distance.style.color = '#C22';
+      this._label.setAttribute('title', title);
+      this._label.style.color = '#C22';
     } else {
-      this._distance.removeAttribute('title');
-      this._distance.style.color = '#222';
+      this._label.removeAttribute('title');
+      this._label.style.color = '#222';
     }
-    this._distance.innerHTML = `${distance} ${units}`;
+    this._label.innerHTML = `${this._distance.toFixed(2)} ${units}`;
 
-    let x0 = Math.round(x2 - this._distance.offsetWidth/2),
-      y0 = Math.round(y2 - this._container.offsetHeight - this._distance.offsetHeight/2);
+    let x0 = Math.round(x2 - this._label.offsetWidth/2),
+      y0 = Math.round(y2 - this._container.offsetHeight - this._label.offsetHeight/2);
 
     y0 += y1 >= y2 ? -30 : 30;
 
-    this._distance.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
+    this._label.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
   }
 
   updateDOMColor() {
     this._line.style.backgroundColor = `${this._color}`;
-    this._distance.style.borderColor = `${this._color}`;
+    this._label.style.borderColor = `${this._color}`;
   }
 
   free() {
@@ -310,7 +316,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._handles = [];
 
     this._container.removeChild(this._line);
-    this._container.removeChild(this._distance);
+    this._container.removeChild(this._label);
 
     // mesh, geometry, material
     this.remove(this._mesh);

@@ -149,8 +149,11 @@ export default class WidgetsRectangle extends WidgetsBase {
     }
 
     onEnd() {
-        // First Handle
-        this._handles[0].onEnd();
+        this._handles[0].onEnd(); // First Handle
+
+        if (this._handles[0].worldPosition.equals(this._handles[1].worldPosition)) {
+            return;
+        }
 
         if (!this._dragged && this._active && !this._handles[1].tracking) {
             this._selected = !this._selected; // change state if there was no dragging
@@ -202,10 +205,12 @@ export default class WidgetsRectangle extends WidgetsBase {
         this._material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide});
         this._material.transparent = true;
         this._material.opacity = 0.2;
+
         this.updateMeshColor();
 
         this._mesh = new THREE.Mesh(this._geometry, this._material);
         this._mesh.visible = true;
+
         this.add(this._mesh);
     }
 

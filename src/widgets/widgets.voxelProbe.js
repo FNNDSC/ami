@@ -190,22 +190,24 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       this._worldPosition);
 
     this._geometry = new GeometriesVoxel(dataCoordinates);
+
     this._material = new THREE.MeshBasicMaterial({
-        wireframe: true,
-        wireframeLinewidth: 1,
-      });
+      wireframe: true,
+      wireframeLinewidth: 1,
+    });
+
+    this.updateMeshColor();
+
     this._mesh = new THREE.Mesh(this._geometry, this._material);
     this._mesh.applyMatrix(this._stack.ijk2LPS);
     this._mesh.visible = true;
-
-    this.updateMeshColor();
 
     this.add(this._mesh);
   }
 
   createDOM() {
     this._dom = document.createElement('div');
-    this._dom.setAttribute('class', 'AMI Widget VoxelProbe');
+    this._dom.setAttribute('class', 'widgets-label');
     this._dom.style.border = '2px solid';
     this._dom.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
     this._dom.style.color = '#222';

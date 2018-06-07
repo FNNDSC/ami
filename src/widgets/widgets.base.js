@@ -100,6 +100,7 @@ export default class WidgetsBase extends THREE.Object3D {
   show() {
     this.showDOM();
     this.showMesh();
+    this.update();
   }
 
   hide() {
