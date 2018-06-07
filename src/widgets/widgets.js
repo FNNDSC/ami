@@ -1,3 +1,5 @@
+import Css from './widgets.css';
+
 import Angle from './widgets.angle';
 import Annotation from './widgets.annotation';
 import BiRuler from './widgets.biruler';
@@ -10,6 +12,7 @@ import Ruler from './widgets.ruler';
 import VoxelProbe from './widgets.voxelProbe';
 
 export {
+    Css as WidgetsCss,
     Angle as AngleWidget,
     Annotation as AnnotationWidget,
     BiRuler as BiRulerWidget,

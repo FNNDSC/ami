@@ -10,5 +10,10 @@ export * from './presets/presets';
 export * from './shaders/shaders';
 export * from './widgets/widgets';
 
-const pckg = require('../package.json');
-window.console.log(`AMI ${pckg.version} ( ThreeJS ${pckg.config.threeVersion})`);
+const pckg = require('../package.json'),
+    styleEl = document.createElement('style');
+
+styleEl.innerHTML = WidgetsCss.code;
+document.head.appendChild(styleEl);
+
+window.console.log(`AMI ${pckg.version} (ThreeJS ${pckg.config.threeVersion})`);
