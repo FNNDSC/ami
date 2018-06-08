@@ -217,21 +217,10 @@ export default class WidgetsRectangle extends WidgetsBase {
     createDOM() {
         this._rectangle = document.createElement('div');
         this._rectangle.setAttribute('class', 'widgets-rectangle');
-        this._rectangle.style.border = '2px solid';
-        this._rectangle.style.position = 'absolute';
-        this._rectangle.style.transformOrigin = '0 100%';
         this._container.appendChild(this._rectangle);
 
         this._label = document.createElement('div');
         this._label.setAttribute('class', 'widgets-label');
-        this._label.style.border = '2px solid';
-        this._label.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
-        // this._label.style.opacity = '0.5';
-        this._label.style.color = '#222';
-        this._label.style.padding = '4px';
-        this._label.style.position = 'absolute';
-        this._label.style.transformOrigin = '0 100%';
-        this._label.style.zIndex = '3';
 
         // measurenents
         const measurementsContainer = document.createElement('div');
@@ -295,8 +284,8 @@ export default class WidgetsRectangle extends WidgetsBase {
     }
 
     updateDOMColor() {
-        this._rectangle.style.borderColor = `${this._color}`;
-        this._label.style.borderColor = `${this._color}`;
+        this._rectangle.style.borderColor = this._color;
+        this._label.style.borderColor = this._color;
     }
 
     updateRoI(clear) {
@@ -327,10 +316,10 @@ export default class WidgetsRectangle extends WidgetsBase {
 
         if (title !== '') {
             this._label.setAttribute('title', title);
-            this._label.style.color = '#C22';
+            this._label.style.color = this._colors.error;
         } else {
             this._label.removeAttribute('title');
-            this._label.style.color = '#222';
+            this._label.style.color = this._colors.text;
         }
         this._label.querySelector('.area').innerHTML =
             `Area: ${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;

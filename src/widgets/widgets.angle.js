@@ -241,32 +241,14 @@ export default class WidgetsAngle extends WidgetsBase {
     createDOM() {
         this._line = document.createElement('div');
         this._line.setAttribute('class', 'widgets-line');
-        this._line.style.position = 'absolute';
-        this._line.style.transformOrigin = '0 100%';
-        this._line.style.marginTop = '-1px';
-        this._line.style.height = '2px';
-        this._line.style.width = '3px';
         this._container.appendChild(this._line);
 
         this._line2 = document.createElement('div');
         this._line2.setAttribute('class', 'widgets-line');
-        this._line2.style.position = 'absolute';
-        this._line2.style.transformOrigin = '0 100%';
-        this._line2.style.marginTop = '-1px';
-        this._line2.style.height = '2px';
-        this._line2.style.width = '3px';
         this._container.appendChild(this._line2);
 
         this._label = document.createElement('div');
         this._label.setAttribute('class', 'widgets-label');
-        this._label.style.border = '2px solid';
-        this._label.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
-        // this._label.style.opacity = '0.5';
-        this._label.style.color = '#222';
-        this._label.style.padding = '4px';
-        this._label.style.position = 'absolute';
-        this._label.style.transformOrigin = '0 100%';
-        this._label.style.zIndex = '3';
         this._container.appendChild(this._label);
 
         this.updateDOMColor();
@@ -334,7 +316,7 @@ export default class WidgetsAngle extends WidgetsBase {
             x2 = this._handles[1].screenPosition.x,
             y2 = this._handles[1].screenPosition.y;
 
-        let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)),
+        let length = this._handles[1].screenPosition.distanceTo(this._handles[0].screenPosition),
             angle = Math.atan2(y2 - y1, x2 - x1);
 
         let posY = y1 - this._container.offsetHeight;
@@ -348,7 +330,7 @@ export default class WidgetsAngle extends WidgetsBase {
             x4 = this._handles[2].screenPosition.x,
             y4 = this._handles[2].screenPosition.y;
 
-        length = Math.sqrt((x3-x4)*(x3-x4) + (y3-y4)*(y3-y4));
+        length = this._handles[2].screenPosition.distanceTo(this._handles[1].screenPosition);
         angle = Math.atan2(y4 - y3, x4 - x3);
 
         posY = y3 - this._container.offsetHeight;
@@ -377,9 +359,9 @@ export default class WidgetsAngle extends WidgetsBase {
     }
 
     updateDOMColor() {
-        this._line.style.backgroundColor = `${this._color}`;
-        this._line2.style.backgroundColor = `${this._color}`;
-        this._label.style.borderColor = `${this._color}`;
+        this._line.style.backgroundColor = this._color;
+        this._line2.style.backgroundColor = this._color;
+        this._label.style.borderColor = this._color;
     }
 
     free() {

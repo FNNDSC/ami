@@ -226,35 +226,16 @@ export default class WidgetsAnnotation extends WidgetsBase {
   createDOM() {
     this._line = document.createElement('div');
     this._line.setAttribute('class', 'widgets-line');
-    this._line.style.position = 'absolute';
-    this._line.style.transformOrigin = '0 100%';
-    this._line.style.marginTop = '-1px';
-    this._line.style.height = '2px';
-    this._line.style.width = '3px';
     this._container.appendChild(this._line);
 
     this._dashline = document.createElement('div');
     this._dashline.setAttribute('class', 'widgets-dashline');
-    this._dashline.style.position = 'absolute';
-    this._dashline.style.border = 'none';
-    this._dashline.style.borderTop = '2.5px dashed #F9F9F9';
-    this._dashline.style.transformOrigin = '0 100%';
-    this._dashline.style.height = '1px';
-    this._dashline.style.width = '50%';
     this._dashline.style.display = 'none';
     this._container.appendChild(this._dashline);
 
     this._label = document.createElement('div');
     this._label.setAttribute('class', 'widgets-label');
-    this._label.style.border = '2px solid';
-    this._label.style.backgroundColor = '#F9F9F9';
-    // this._label.style.opacity = '0.5';
-    this._label.style.color = '#222';
-    this._label.style.padding = '4px';
-    this._label.style.position = 'absolute';
-    this._label.style.transformOrigin = '0 100%';
     this._label.style.display = 'none';
-    this._label.style.zIndex = '3';
     this._container.appendChild(this._label);
 
     this.updateDOMColor();
@@ -295,8 +276,8 @@ export default class WidgetsAnnotation extends WidgetsBase {
     let x2 = this._handles[1].screenPosition.x;
     let y2 = this._handles[1].screenPosition.y;
 
-    let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-    let angle = Math.atan2(y2 - y1, x2 - x1);
+    let length = this._handles[1].screenPosition.distanceTo(this._handles[0].screenPosition),
+      angle = Math.atan2(y2 - y1, x2 - x1);
 
     let posY = y1 - this._container.offsetHeight;
 
@@ -409,9 +390,9 @@ export default class WidgetsAnnotation extends WidgetsBase {
   }
 
   updateDOMColor() {
-    this._line.style.backgroundColor = `${this._color}`;
-    this._dashline.style.borderTop = '2.5px dashed ' + `${this._color}`;
-    this._label.style.borderColor = `${this._color}`;
+    this._line.style.backgroundColor = this._color;
+    this._dashline.style.borderTop = '2px dashed ' + this._color;
+    this._label.style.borderColor = this._color;
   }
 
   hideDOM() {

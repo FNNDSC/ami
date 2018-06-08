@@ -208,13 +208,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   createDOM() {
     this._dom = document.createElement('div');
     this._dom.setAttribute('class', 'widgets-label');
-    this._dom.style.border = '2px solid';
-    this._dom.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
-    this._dom.style.color = '#222';
-    this._dom.style.padding = '4px';
-    this._dom.style.position = 'absolute';
-    this._dom.style.transformOrigin = '0px 100% 0px';
-    this._dom.style.zIndex = '3';
 
     // measurenents
     let measurementsContainer = document.createElement('div');
@@ -312,7 +305,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   updateDOMColor() {
-    this._dom.style.borderColor = `${this._color}`;
+    this._dom.style.borderColor = this._color;
   }
 
   free() {

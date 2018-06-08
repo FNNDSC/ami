@@ -195,20 +195,10 @@ export default class WidgetsHandle extends WidgetsBase {
   createDOM() {
     this._dom = document.createElement('div');
     this._dom.setAttribute('class', 'widgets-handle');
-    this._dom.style.border = '2px solid';
-    this._dom.style.backgroundColor = '#F9F9F9';
-    this._dom.style.color = '#F9F9F9';
-    this._dom.style.position = 'absolute';
-    this._dom.style.width = '12px';
-    this._dom.style.height = '12px';
-    this._dom.style.margin = '-6px';
-    this._dom.style.borderRadius = '50%';
-    this._dom.style.transformOrigin = '0 100%';
-    this._dom.style.zIndex = '3';
 
-    let posY = this._screenPosition.y - this._container.offsetHeight;
-    this._dom.style.transform =
-      `translate3D(${this._screenPosition.x}px, ${posY}px, 0)`;
+    this._dom.style.transform =`translate3D(
+      ${this._screenPosition.x}px,
+      ${this._screenPosition.y - this._container.offsetHeight}px, 0)`;
 
     this.updateDOMColor();
 
@@ -255,14 +245,14 @@ export default class WidgetsHandle extends WidgetsBase {
 
   updateDOMPosition() {
     if (this._dom) {
-      let posY = this._screenPosition.y - this._container.offsetHeight;
-      this._dom.style.transform =
-        `translate3D(${this._screenPosition.x}px, ${posY}px, 0)`;
+      this._dom.style.transform = `translate3D(
+        ${this._screenPosition.x}px,
+        ${this._screenPosition.y - this._container.offsetHeight}px, 0)`;
     }
   }
 
   updateDOMColor() {
-    this._dom.style.borderColor = `${this._color}`;
+    this._dom.style.borderColor = this._color;
   }
 
   free() {

@@ -1,6 +1,8 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 
+import {Vector3} from 'three';
+
 /**
  * @module widgets/ruler
  */
@@ -240,45 +242,30 @@ export default class WidgetsRuler extends WidgetsBase {
   createDOM() {
     this._line = document.createElement('div');
     this._line.setAttribute('class', 'widgets-line');
-    this._line.style.position = 'absolute';
-    this._line.style.transformOrigin = '0 100%';
-    this._line.style.marginTop = '-1px';
-    this._line.style.height = '2px';
-    this._line.style.width = '3px';
     this._container.appendChild(this._line);
 
     this._label = document.createElement('div');
     this._label.setAttribute('class', 'widgets-label');
-    this._label.style.border = '2px solid';
-    this._label.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
-    // this._label.style.opacity = '0.5';
-    this._label.style.color = '#222';
-    this._label.style.padding = '4px';
-    this._label.style.position = 'absolute';
-    this._label.style.transformOrigin = '0 100%';
-    this._label.style.zIndex = '3';
     this._container.appendChild(this._label);
 
     this.updateDOMColor();
   }
 
   updateDOMPosition() {
-    // update lines and text!
-    let x1 = this._handles[0].screenPosition.x,
-      y1 = this._handles[0].screenPosition.y,
-      x2 = this._handles[1].screenPosition.x,
-      y2 = this._handles[1].screenPosition.y;
-
-    let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)),
-      angle = Math.atan2(y2 - y1, x2 - x1);
-
-    let posY = y1 - this._container.offsetHeight;
-
     // update line
-    this._line.style.transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}rad)`;
+    let line = this._handles[1].screenPosition.clone().sub(this._handles[0].screenPosition),
+      center = this._handles[1].screenPosition.clone().add(this._handles[0].screenPosition).multiplyScalar(0.5),
+      length = line.length(),
+      angle = line.angleTo(new Vector3(1, 0, 0));
+
+    if (this._handles[1].screenPosition.y < this._handles[0].screenPosition.y) {
+      angle = -angle;
+    }
+
+    this._line.style.transform = 'translate3D(' + (center.x - length / 2) + 'px,' + (center.y - this._container.offsetHeight) + 'px, 0) rotate(' + angle + 'rad)';
     this._line.style.width = length + 'px';
 
-    // update distance
+    // update label
     this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
 
     const units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
@@ -286,24 +273,34 @@ export default class WidgetsRuler extends WidgetsBase {
 
     if (title !== '') {
       this._label.setAttribute('title', title);
-      this._label.style.color = '#C22';
+      this._label.style.color = this._colors.error;
     } else {
       this._label.removeAttribute('title');
-      this._label.style.color = '#222';
+      this._label.style.color = this._colors.text;
     }
     this._label.innerHTML = `${this._distance.toFixed(2)} ${units}`;
 
-    let x0 = Math.round(x2 - this._label.offsetWidth/2),
-      y0 = Math.round(y2 - this._container.offsetHeight - this._label.offsetHeight/2);
+    angle = Math.abs(angle);
+    if (angle > Math.PI / 2) {
+      angle = Math.PI - angle;
+    }
 
-    y0 += y1 >= y2 ? -30 : 30;
+    const labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth
+        ? (this._label.offsetWidth / 2) / Math.cos(angle) + 15 // 5px for each handle + padding
+        : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle) + 15,
+      paddingVector = line.normalize().multiplyScalar(labelPadding),
+      paddingPoint = length > labelPadding * 2
+        ? this._handles[1].screenPosition.clone().sub(paddingVector)
+        : this._handles[1].screenPosition.clone().add(paddingVector),
+      x0 = Math.round(paddingPoint.x - this._label.offsetWidth / 2),
+      y0 = Math.round(paddingPoint.y - this._label.offsetHeight / 2) - this._container.offsetHeight;
 
     this._label.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
   }
 
   updateDOMColor() {
-    this._line.style.backgroundColor = `${this._color}`;
-    this._label.style.borderColor = `${this._color}`;
+    this._line.style.backgroundColor = this._color;
+    this._label.style.borderColor = this._color;
   }
 
   free() {

@@ -182,54 +182,22 @@ export default class WidgetsBiRuler extends WidgetsBase {
     createDOM() {
         this._line = document.createElement('div');
         this._line.setAttribute('class', 'widgets-line');
-        this._line.style.position = 'absolute';
-        this._line.style.transformOrigin = '0 100%';
-        this._line.style.marginTop = '-1px';
-        this._line.style.height = '2px';
-        this._line.style.width = '3px';
         this._container.appendChild(this._line);
 
         this._distance = document.createElement('div');
         this._distance.setAttribute('class', 'widgets-label');
-        this._distance.style.border = '2px solid';
-        this._distance.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
-        // this._distance.style.opacity = '0.5';
-        this._distance.style.color = '#222';
-        this._distance.style.padding = '4px';
-        this._distance.style.position = 'absolute';
-        this._distance.style.transformOrigin = '0 100%';
-        this._distance.style.zIndex = '3';
         this._container.appendChild(this._distance);
 
         this._line2 = document.createElement('div');
         this._line2.setAttribute('class', 'widgets-line');
-        this._line2.style.position = 'absolute';
-        this._line2.style.transformOrigin = '0 100%';
-        this._line2.style.marginTop = '-1px';
-        this._line2.style.height = '2px';
-        this._line2.style.width = '3px';
         this._container.appendChild(this._line2);
 
         this._distance2 = document.createElement('div');
         this._distance2.setAttribute('class', 'widgets-label');
-        this._distance2.style.border = '2px solid';
-        this._distance2.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
-        // this._distance2.style.opacity = '0.5';
-        this._distance2.style.color = '#222';
-        this._distance2.style.padding = '4px';
-        this._distance2.style.position = 'absolute';
-        this._distance2.style.transformOrigin = '0 100%';
-        this._distance2.style.zIndex = '3';
         this._container.appendChild(this._distance2);
 
         this._dashline = document.createElement('div');
         this._dashline.setAttribute('class', 'widgets-dashline');
-        this._dashline.style.position = 'absolute';
-        this._dashline.style.border = 'none';
-        this._dashline.style.borderTop = '2.5px dashed #F9F9F9';
-        this._dashline.style.transformOrigin = '0 100%';
-        this._dashline.style.height = '1px';
-        this._dashline.style.width = '50%';
         this._container.appendChild(this._dashline);
 
         this.updateDOMColor();
@@ -302,8 +270,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let x2 = this._handles[1].screenPosition.x;
         let y2 = this._handles[1].screenPosition.y;
 
-        let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-        let angle = Math.atan2(y2 - y1, x2 - x1);
+        let length = this._handles[1].screenPosition.distanceTo(this._handles[0].screenPosition);
+            angle = Math.atan2(y2 - y1, x2 - x1);
 
         let posY = y1 - this._container.offsetHeight;
 
@@ -321,10 +289,10 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._distance.innerHTML = `${this._distanceValue} ${units}`;
         if (title !== '') {
             this._distance.setAttribute('title', title);
-            this._distance.style.color = '#C22';
+            this._distance.style.color = this._colors.error;
         } else {
             this._distance.removeAttribute('title');
-            this._distance.style.color = '#222';
+            this._distance.style.color = this._colors.text;
         }
 
         let x0 = Math.round(x2 - this._distance.offsetWidth/2);
@@ -340,7 +308,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         let x4 = this._handles[3].screenPosition.x;
         let y4 = this._handles[3].screenPosition.y;
 
-        length = Math.sqrt((x3-x4)*(x3-x4) + (y3-y4)*(y3-y4));
+        length = this._handles[3].screenPosition.distanceTo(this._handles[2].screenPosition);
         angle = Math.atan2(y4 - y3, x4 - x3);
 
         posY = y3 - this._container.offsetHeight;
@@ -356,10 +324,10 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._distance2.innerHTML = `${this._distance2Value} ${units}`;
         if (title !== '') {
             this._distance2.setAttribute('title', title);
-            this._distance2.style.color = '#C22';
+            this._distance2.style.color = this._colors.error;
         } else {
             this._distance2.removeAttribute('title');
-            this._distance2.style.color = '#222';
+            this._distance2.style.color = this._colors.text;
         }
 
         let x02 = Math.round(x4 - this._distance.offsetWidth/2);
@@ -383,7 +351,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         x2 = screen2.x;
         y2 = screen2.y;
 
-        length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+        length = screen2.distanceTo(screen1);
         angle = Math.atan2(y2 - y1, x2 - x1);
 
         posY = y1 - this._container.offsetHeight;
@@ -396,11 +364,11 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     updateDOMColor() {
-        this._line.style.backgroundColor = `${this._color}`;
-        this._distance.style.borderColor = `${this._color}`;
+        this._line.style.backgroundColor = this._color;
+        this._distance.style.borderColor = this._color;
 
-        this._line2.style.backgroundColor = `${this._color}`;
-        this._distance2.style.borderColor = `${this._color}`;
+        this._line2.style.backgroundColor = this._color;
+        this._distance2.style.borderColor = this._color;
     }
 
     free() {

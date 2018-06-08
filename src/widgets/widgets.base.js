@@ -1,3 +1,5 @@
+import WidgetsCss from "./widgets.css";
+
 import {Vector3} from 'three';
 
 /**
@@ -6,6 +8,14 @@ import {Vector3} from 'three';
 export default class WidgetsBase extends THREE.Object3D {
   constructor(targetMesh, controls) {
     super(); // init THREE Object 3D
+
+    const elementStyle = document.getElementById('ami-widgets');
+    if (elementStyle === null) {
+      const styleEl = document.createElement('style');
+      styleEl.setAttribute("id", 'ami-widgets');
+      styleEl.innerHTML = WidgetsCss.code;
+      document.head.appendChild(styleEl);
+    }
 
     this._enabled = true; // is widget enabled?
 
@@ -20,6 +30,8 @@ export default class WidgetsBase extends THREE.Object3D {
       active: '#FFEB3B',
       hover: '#F50057',
       select: '#76FF03',
+      text: '#FFF',
+      error: '#F77',
     };
     this._color = this._colors.default;
 
@@ -34,7 +46,7 @@ export default class WidgetsBase extends THREE.Object3D {
 
     this._worldPosition = new Vector3(); // LPS position
     if (this._targetMesh !== null) {
-        this._worldPosition.copy(this._targetMesh.position);
+      this._worldPosition.copy(this._targetMesh.position);
     }
   }
 

@@ -227,14 +227,6 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         this._label = document.createElement('div');
         this._label.setAttribute('class', 'widgets-label');
-        this._label.style.border = '2px solid';
-        this._label.style.backgroundColor = 'rgba(250, 250, 250, 0.8)';
-        // this._label.style.opacity = '0.5';
-        this._label.style.color = '#222';
-        this._label.style.padding = '4px';
-        this._label.style.position = 'absolute';
-        this._label.style.transformOrigin = '0 100%';
-        this._label.style.zIndex = '3';
 
         // measurenents
         const measurementsContainer = document.createElement('div');
@@ -413,10 +405,10 @@ export default class WidgetsFreehand extends WidgetsBase {
     updateDOMColor() {
         if (this._handles.length >= 2) {
             this._lines.forEach(function(elem) {
-                elem.style.backgroundColor = `${this._color}`;
+                elem.style.backgroundColor = this._color;
             }, this);
         }
-        this._label.style.borderColor = `${this._color}`;
+        this._label.style.borderColor = this._color;
     }
 
     updateDOMContent(clear) {
@@ -440,10 +432,10 @@ export default class WidgetsFreehand extends WidgetsBase {
         }
         if (title !== '') {
             this._label.setAttribute('title', title);
-            this._label.style.color = '#C22';
+            this._label.style.color = this._colors.error;
         } else {
             this._label.removeAttribute('title');
-            this._label.style.color = '#222';
+            this._label.style.color = this._colors.text;
         }
 
         const roi = CoreUtils.getRoI(this._mesh, this._camera, this._stack);
@@ -497,7 +489,7 @@ export default class WidgetsFreehand extends WidgetsBase {
             x2 = this._handles[handle1Index].screenPosition.x,
             y2 = this._handles[handle1Index].screenPosition.y;
 
-        let length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)),
+        let length = this._handles[handle1Index].screenPosition.distanceTo(this._handles[handle0Index].screenPosition),
             angle = Math.atan2(y2 - y1, x2 - x1);
 
         let posY = y1 - this._container.offsetHeight;
