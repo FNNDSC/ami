@@ -1,6 +1,8 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 
+import {Vector3} from "three";
+
 /**
  * @module widgets/angle
  */
@@ -311,51 +313,39 @@ export default class WidgetsAngle extends WidgetsBase {
 
     updateDOMPosition() {
         // update first line
-        let x1 = this._handles[0].screenPosition.x,
-            y1 = this._handles[0].screenPosition.y,
-            x2 = this._handles[1].screenPosition.x,
-            y2 = this._handles[1].screenPosition.y;
+        const lineData = this.getLineData(this._handles[1].screenPosition, this._handles[0].screenPosition);
 
-        let length = this._handles[1].screenPosition.distanceTo(this._handles[0].screenPosition),
-            angle = Math.atan2(y2 - y1, x2 - x1);
-
-        let posY = y1 - this._container.offsetHeight;
-
-        this._line.style.transform = `translate3D(${x1}px,${posY}px, 0)  rotate(${angle}rad)`;
-        this._line.style.width = length + 'px';
+        this._line.style.transform =`translate3D(${lineData.transformX}px, ${lineData.transformY}px, 0)
+            rotate(${lineData.transformAngle}rad)`;
+        this._line.style.width = lineData.length + 'px';
 
         // update second line
-        let x3 = this._handles[1].screenPosition.x,
-            y3 = this._handles[1].screenPosition.y,
-            x4 = this._handles[2].screenPosition.x,
-            y4 = this._handles[2].screenPosition.y;
+        const line2Data = this.getLineData(this._handles[1].screenPosition, this._handles[2].screenPosition);
 
-        length = this._handles[2].screenPosition.distanceTo(this._handles[1].screenPosition);
-        angle = Math.atan2(y4 - y3, x4 - x3);
+        this._line2.style.transform =`translate3D(${line2Data.transformX}px, ${line2Data.transformY}px, 0)
+            rotate(${line2Data.transformAngle}rad)`;
+        this._line2.style.width = line2Data.length + 'px';
 
-        posY = y3 - this._container.offsetHeight;
+        // update angle and label
+        this._opangle = lineData.line.angleTo(line2Data.line) * 180 / Math.PI || 0.0;
+        this._opangle = this._defaultAngle ? this._opangle : 360 - this._opangle;
 
-        // update line
-        this._line2.style.transform = `translate3D(${x3}px,${posY}px, 0) rotate(${angle}rad)`;
-        this._line2.style.width = length + 'px';
-
-        // update angle
-        let p10 = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition),
-            p12 = this._handles[1].worldPosition.distanceTo(this._handles[2].worldPosition),
-            p02 = this._handles[0].worldPosition.distanceTo(this._handles[2].worldPosition);
-
-        let a0102 = p10 > 0 && p12 > 0
-                ? Math.acos((p10*p10 + p12*p12 - p02*p02)/(2 * p10 * p12))
-                : 0.0;
-        this._opangle = this._defaultAngle ? a0102*180/Math.PI : 360-(a0102*180/Math.PI);
         this._label.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
-        let x0 = Math.round(x2 - this._label.offsetWidth/2),
-            y0 = Math.round(y2 - this._container.offsetHeight - this._label.offsetHeight/2);
+        let paddingNormVector = lineData.line.colne().add(line2Data.line).normalize().negate(),
+            normAngle = paddingNormVector.angleTo(new Vector3(1, 0, 0));
 
-        y0 += y1 >= y2 ? -30 : 30;
+        if (normAngle > Math.PI / 2) {
+            normAngle = Math.PI - normAngle;
+        }
 
-        this._label.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
+        const labelPadding = Math.tan(normAngle) < this._label.offsetHeight / this._label.offsetWidth
+                ? (this._label.offsetWidth / 2) / Math.cos(normAngle) + 15 // 15px padding
+                : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - normAngle) + 15,
+            paddingPoint = this._handles[1].screenPosition.clone().add(paddingNormVector.multiplyScalar(labelPadding));
+
+        this._label.style.transform = `translate3D(${Math.round(paddingPoint.x - this._label.offsetWidth / 2)}px,
+            ${Math.round(paddingPoint.y - this._label.offsetHeight / 2) - this._container.offsetHeight}px, 0)`;
     }
 
     updateDOMColor() {

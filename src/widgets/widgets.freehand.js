@@ -253,11 +253,6 @@ export default class WidgetsFreehand extends WidgetsBase {
     createLine() {
         const line = document.createElement('div');
         line.setAttribute('class', 'widgets-line');
-        line.style.position = 'absolute';
-        line.style.transformOrigin = '0 100%';
-        line.style.marginTop = '-1px';
-        line.style.height = '2px';
-        line.style.width = '3px';
         this._lines.push(line);
         this._container.appendChild(line);
     }

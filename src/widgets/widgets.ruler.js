@@ -253,17 +253,11 @@ export default class WidgetsRuler extends WidgetsBase {
 
   updateDOMPosition() {
     // update line
-    let line = this._handles[1].screenPosition.clone().sub(this._handles[0].screenPosition),
-      center = this._handles[1].screenPosition.clone().add(this._handles[0].screenPosition).multiplyScalar(0.5),
-      length = line.length(),
-      angle = line.angleTo(new Vector3(1, 0, 0));
+    const lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 
-    if (this._handles[1].screenPosition.y < this._handles[0].screenPosition.y) {
-      angle = -angle;
-    }
-
-    this._line.style.transform = 'translate3D(' + (center.x - length / 2) + 'px,' + (center.y - this._container.offsetHeight) + 'px, 0) rotate(' + angle + 'rad)';
-    this._line.style.width = length + 'px';
+    this._line.style.transform =`translate3D(${lineData.transformX}px, ${lineData.transformY}px, 0)
+      rotate(${lineData.transformAngle}rad)`;
+    this._line.style.width = lineData.length + 'px';
 
     // update label
     this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
@@ -280,7 +274,7 @@ export default class WidgetsRuler extends WidgetsBase {
     }
     this._label.innerHTML = `${this._distance.toFixed(2)} ${units}`;
 
-    angle = Math.abs(angle);
+    let angle = Math.abs(lineData.angle);
     if (angle > Math.PI / 2) {
       angle = Math.PI - angle;
     }
@@ -288,14 +282,13 @@ export default class WidgetsRuler extends WidgetsBase {
     const labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth
         ? (this._label.offsetWidth / 2) / Math.cos(angle) + 15 // 5px for each handle + padding
         : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle) + 15,
-      paddingVector = line.normalize().multiplyScalar(labelPadding),
-      paddingPoint = length > labelPadding * 2
+      paddingVector = lineData.line.normalize().multiplyScalar(labelPadding),
+      paddingPoint = lineData.length > labelPadding * 2
         ? this._handles[1].screenPosition.clone().sub(paddingVector)
-        : this._handles[1].screenPosition.clone().add(paddingVector),
-      x0 = Math.round(paddingPoint.x - this._label.offsetWidth / 2),
-      y0 = Math.round(paddingPoint.y - this._label.offsetHeight / 2) - this._container.offsetHeight;
+        : this._handles[1].screenPosition.clone().add(paddingVector);
 
-    this._label.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
+    this._label.style.transform = `translate3D(${Math.round(paddingPoint.x - this._label.offsetWidth / 2)}px,
+      ${Math.round(paddingPoint.y - this._label.offsetHeight / 2) - this._container.offsetHeight}px, 0)`;
   }
 
   updateDOMColor() {

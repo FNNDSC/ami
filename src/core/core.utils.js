@@ -350,7 +350,7 @@ export default class CoreUtils {
       min: values.reduce((prev, val) => prev < val ? prev : val),
       max: values.reduce((prev, val) => prev > val ? prev : val),
       mean: avg,
-      sd: Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - avg, 2)) / values.length),
+      sd: Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / values.length),
     };
   }
 }

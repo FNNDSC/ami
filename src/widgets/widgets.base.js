@@ -79,6 +79,21 @@ export default class WidgetsBase extends THREE.Object3D {
     };
   }
 
+  getLineData(pointA, pointB) {
+    const line = pointB.clone().sub(pointA),
+      center = pointB.clone().add(pointA).multiplyScalar(0.5),
+      length = line.length(),
+      angle = line.angleTo(new Vector3(1, 0, 0));
+
+    return {
+      line: line,
+      length: length,
+      transformX: center.x - length / 2,
+      transformY: center.y - this._container.offsetHeight,
+      transformAngle: pointA.y < pointB.y ? angle : -angle,
+    };
+  }
+
   worldToScreen(worldCoordinate) {
     let screenCoordinates = worldCoordinate.clone();
     screenCoordinates.project(this._camera);

@@ -214,8 +214,7 @@ export default class WidgetsEllipse extends WidgetsBase {
 
     createDOM() {
         this._rectangle = document.createElement('div');
-        this._rectangle.setAttribute('class', 'widgets-rectangle');
-        this._rectangle.style.border = '1.5px dashed';
+        this._rectangle.setAttribute('class', 'widgets-rectangle-helper');
         this._container.appendChild(this._rectangle);
 
         this._ellipse = document.createElement('div');

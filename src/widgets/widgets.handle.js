@@ -245,8 +245,7 @@ export default class WidgetsHandle extends WidgetsBase {
 
   updateDOMPosition() {
     if (this._dom) {
-      this._dom.style.transform = `translate3D(
-        ${this._screenPosition.x}px,
+      this._dom.style.transform = `translate3D(${this._screenPosition.x}px,
         ${this._screenPosition.y - this._container.offsetHeight}px, 0)`;
     }
   }
