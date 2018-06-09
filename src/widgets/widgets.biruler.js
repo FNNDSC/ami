@@ -22,9 +22,9 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         // dom stuff
         this._line = null;
-        this._distance = null;
+        this._label = null;
         this._line2 = null;
-        this._distance2 = null;
+        this._label2 = null;
         this._dashline = null;
 
         // add handles
@@ -184,17 +184,17 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._line.setAttribute('class', 'widgets-line');
         this._container.appendChild(this._line);
 
-        this._distance = document.createElement('div');
-        this._distance.setAttribute('class', 'widgets-label');
-        this._container.appendChild(this._distance);
+        this._label = document.createElement('div');
+        this._label.setAttribute('class', 'widgets-label');
+        this._container.appendChild(this._label);
 
         this._line2 = document.createElement('div');
         this._line2.setAttribute('class', 'widgets-line');
         this._container.appendChild(this._line2);
 
-        this._distance2 = document.createElement('div');
-        this._distance2.setAttribute('class', 'widgets-label');
-        this._container.appendChild(this._distance2);
+        this._label2 = document.createElement('div');
+        this._label2.setAttribute('class', 'widgets-label');
+        this._container.appendChild(this._label2);
 
         this._dashline = document.createElement('div');
         this._dashline.setAttribute('class', 'widgets-dashline');
@@ -205,9 +205,9 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
     hideDOM() {
         this._line.style.display = 'none';
-        this._distance.style.display = 'none';
+        this._label.style.display = 'none';
         this._line2.style.display = 'none';
-        this._distance2.style.display = 'none';
+        this._label2.style.display = 'none';
         this._dashline.style.display = 'none';
 
         this._handles.forEach(function(elem) {
@@ -217,9 +217,9 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
     showDOM() {
         this._line.style.display = '';
-        this._distance.style.display = '';
+        this._label.style.display = '';
         this._line2.style.display = '';
-        this._distance2.style.display = '';
+        this._label2.style.display = '';
         this._dashline.style.display = '';
 
         this._handles.forEach(function(elem) {
@@ -264,111 +264,92 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     updateDOMPosition() {
-        // update rulers lines and text!
-        let x1 = this._handles[0].screenPosition.x;
-        let y1 = this._handles[0].screenPosition.y;
-        let x2 = this._handles[1].screenPosition.x;
-        let y2 = this._handles[1].screenPosition.y;
+        // update first line
+        const lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 
-        let length = this._handles[1].screenPosition.distanceTo(this._handles[0].screenPosition);
-            angle = Math.atan2(y2 - y1, x2 - x1);
+        this._line.style.transform =`translate3D(${lineData.transformX}px, ${lineData.transformY}px, 0)
+            rotate(${lineData.transformAngle}rad)`;
+        this._line.style.width = lineData.length + 'px';
 
-        let posY = y1 - this._container.offsetHeight;
+        // update second line
+        const line2Data = this.getLineData(this._handles[2].screenPosition, this._handles[3].screenPosition);
 
-        // update line
-        let transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}rad)`;
+        this._line2.style.transform =`translate3D(${line2Data.transformX}px, ${line2Data.transformY}px, 0)
+            rotate(${line2Data.transformAngle}rad)`;
+        this._line2.style.width = line2Data.length + 'px';
 
-        this._line.style.transform = transform;
-        this._line.style.width = length + 'px';
+        // update dash line
+        const line1Center = this.getPointInBetweenByPerc(
+                this._handles[0].worldPosition, this._handles[1].worldPosition, 0.5),
+            line2Center = this.getPointInBetweenByPerc(
+                this._handles[2].worldPosition, this._handles[3].worldPosition, 0.5),
+            dashLineData = this.getLineData(this.worldToScreen(line1Center), this.worldToScreen(line2Center));
 
-        // update distance
+        this._dashline.style.transform =`translate3D(${dashLineData.transformX}px, ${dashLineData.transformY}px, 0)
+            rotate(${dashLineData.transformAngle}rad)`;
+        this._dashline.style.width = dashLineData.length + 'px';
+
+        // update labels
         const units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
             title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
 
-        this._distanceValue = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition).toFixed(2);
-        this._distance.innerHTML = `${this._distanceValue} ${units}`;
+        this._distance = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition);
+        this._distance2 = this._handles[2].worldPosition.distanceTo(this._handles[3].worldPosition);
+
+        this._label.innerHTML = `${this._distance.toFixed(2)} ${units}`;
+        this._label2.innerHTML = `${this._distance2.toFixed(2)} ${units}`;
+
         if (title !== '') {
-            this._distance.setAttribute('title', title);
-            this._distance.style.color = this._colors.error;
+            this._label.setAttribute('title', title);
+            this._label.style.color = this._colors.error;
+            this._label2.setAttribute('title', title);
+            this._label2.style.color = this._colors.error;
         } else {
-            this._distance.removeAttribute('title');
-            this._distance.style.color = this._colors.text;
+            this._label.removeAttribute('title');
+            this._label.style.color = this._colors.text;
+            this._label2.removeAttribute('title');
+            this._label2.style.color = this._colors.text;
         }
 
-        let x0 = Math.round(x2 - this._distance.offsetWidth/2);
-        let y0 = Math.round(y2 - this._container.offsetHeight - this._distance.offsetHeight/2);
-
-        y0 += y1 >= y2 ? -30 : 30;
-
-        this._distance.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
-
-        // update rulers lines 2 and text!
-        let x3 = this._handles[2].screenPosition.x;
-        let y3 = this._handles[2].screenPosition.y;
-        let x4 = this._handles[3].screenPosition.x;
-        let y4 = this._handles[3].screenPosition.y;
-
-        length = this._handles[3].screenPosition.distanceTo(this._handles[2].screenPosition);
-        angle = Math.atan2(y4 - y3, x4 - x3);
-
-        posY = y3 - this._container.offsetHeight;
-
-        // update line
-        transform = `translate3D(${x3}px,${posY}px, 0) rotate(${angle}rad)`;
-
-        this._line2.style.transform = transform;
-        this._line2.style.width = length + 'px';
-
-        // update distance
-        this._distance2Value = this._handles[2].worldPosition.distanceTo(this._handles[3].worldPosition).toFixed(2);
-        this._distance2.innerHTML = `${this._distance2Value} ${units}`;
-        if (title !== '') {
-            this._distance2.setAttribute('title', title);
-            this._distance2.style.color = this._colors.error;
-        } else {
-            this._distance2.removeAttribute('title');
-            this._distance2.style.color = this._colors.text;
+        let angle = Math.abs(lineData.transformAngle);
+        if (angle > Math.PI / 2) {
+            angle = Math.PI - angle;
         }
 
-        let x02 = Math.round(x4 - this._distance.offsetWidth/2);
-        let y02 = Math.round(y4 - this._container.offsetHeight - this._distance.offsetHeight/2);
+        const labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth
+                ? (this._label.offsetWidth / 2) / Math.cos(angle) + 15 // 5px for each handle + padding
+                : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle) + 15,
+            paddingVector = lineData.line.normalize().multiplyScalar(labelPadding),
+            paddingPoint = lineData.length > labelPadding * 2
+                ? this._handles[1].screenPosition.clone().sub(paddingVector)
+                : this._handles[1].screenPosition.clone().add(paddingVector),
+            transform = this.adjustLabelTransform(this._label, paddingPoint);
 
-        y02 += y3 >= y4 ? -30 : 30;
+        this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
 
-        this._distance2.style.transform = `translate3D(${x02}px,${y02}px, 0)`;
+        let angle2 = Math.abs(line2Data.transformAngle);
+        if (angle2 > Math.PI / 2) {
+            angle2 = Math.PI - angle2;
+        }
 
-        // update dash line
-        let l1center = this.getPointInBetweenByPerc(
-            this._handles[0].worldPosition, this._handles[1].worldPosition, 0.5);
-        let l2center = this.getPointInBetweenByPerc(
-            this._handles[2].worldPosition, this._handles[3].worldPosition, 0.5);
+        const label2Padding = Math.tan(angle2) < this._label2.offsetHeight / this._label2.offsetWidth
+            ? (this._label2.offsetWidth / 2) / Math.cos(angle2) + 15 // 5px for each handle + padding
+            : (this._label2.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle2) + 15,
+            paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding),
+            paddingPoint2 = line2Data.length > label2Padding * 2
+                ? this._handles[3].screenPosition.clone().sub(paddingVector2)
+                : this._handles[3].screenPosition.clone().add(paddingVector2),
+            transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
 
-        let screen1 = this.worldToScreen(l1center);
-        let screen2 = this.worldToScreen(l2center);
-
-        x1 = screen1.x;
-        y1 = screen1.y;
-        x2 = screen2.x;
-        y2 = screen2.y;
-
-        length = screen2.distanceTo(screen1);
-        angle = Math.atan2(y2 - y1, x2 - x1);
-
-        posY = y1 - this._container.offsetHeight;
-
-        // update line
-        transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}rad)`;
-
-        this._dashline.style.transform = transform;
-        this._dashline.style.width = length + 'px';
+        this._label2.style.transform = `translate3D(${transform2.x}px, ${transform2.y}px, 0)`;
     }
 
     updateDOMColor() {
         this._line.style.backgroundColor = this._color;
-        this._distance.style.borderColor = this._color;
+        this._label.style.borderColor = this._color;
 
         this._line2.style.backgroundColor = this._color;
-        this._distance2.style.borderColor = this._color;
+        this._label2.style.borderColor = this._color;
     }
 
     free() {
@@ -381,9 +362,9 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._handles = [];
 
         this._container.removeChild(this._line);
-        this._container.removeChild(this._distance);
+        this._container.removeChild(this._label);
         this._container.removeChild(this._line2);
-        this._container.removeChild(this._distance2);
+        this._container.removeChild(this._label2);
         this._container.removeChild(this._dashline);
 
         // mesh, geometry, material
@@ -470,10 +451,10 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     get shotestDistance() {
-        return ((this._distanceValue < this._distance2Value) ? this._distanceValue : this._distance2Value);
+        return ((this._distance < this._distance2) ? this._distance : this._distance2);
     }
 
     get longestDistance() {
-        return ((this._distanceValue > this._distance2Value) ? this._distanceValue : this._distance2Value);
+        return ((this._distance > this._distance2) ? this._distance : this._distance2);
     }
 }

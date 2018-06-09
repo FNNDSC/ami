@@ -274,7 +274,7 @@ export default class WidgetsRuler extends WidgetsBase {
     }
     this._label.innerHTML = `${this._distance.toFixed(2)} ${units}`;
 
-    let angle = Math.abs(lineData.angle);
+    let angle = Math.abs(lineData.transformAngle);
     if (angle > Math.PI / 2) {
       angle = Math.PI - angle;
     }
@@ -285,10 +285,10 @@ export default class WidgetsRuler extends WidgetsBase {
       paddingVector = lineData.line.normalize().multiplyScalar(labelPadding),
       paddingPoint = lineData.length > labelPadding * 2
         ? this._handles[1].screenPosition.clone().sub(paddingVector)
-        : this._handles[1].screenPosition.clone().add(paddingVector);
+        : this._handles[1].screenPosition.clone().add(paddingVector),
+      transform = this.adjustLabelTransform(this._label, paddingPoint);
 
-    this._label.style.transform = `translate3D(${Math.round(paddingPoint.x - this._label.offsetWidth / 2)}px,
-      ${Math.round(paddingPoint.y - this._label.offsetHeight / 2) - this._container.offsetHeight}px, 0)`;
+    this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
   }
 
   updateDOMColor() {

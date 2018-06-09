@@ -94,6 +94,32 @@ export default class WidgetsBase extends THREE.Object3D {
     };
   }
 
+  adjustLabelTransform(label, point) {
+    let x = Math.round(point.x - label.offsetWidth / 2),
+      y = Math.round(point.y - label.offsetHeight / 2) - this._container.offsetHeight;
+
+    if (x < 0) {
+      x = x > -label.offsetWidth ? 0 : x + label.offsetWidth;
+    } else if (x > this._container.offsetWidth - label.offsetWidth) {
+      x = x < this._container.offsetWidth
+        ? this._container.offsetWidth - label.offsetWidth
+        : x - label.offsetWidth;
+    }
+
+    if (y < -this._container.offsetHeight) {
+      y = y > -this._container.offsetHeight - label.offsetHeight
+        ? -this._container.offsetHeight
+        : y + label.offsetHeight;
+    } else if (y > 0 - label.offsetWidth) {
+      y = y < 0 ? 0 - label.offsetWidth : y - label.offsetWidth;
+    }
+
+    return {
+      x: x,
+      y: y,
+    };
+  }
+
   worldToScreen(worldCoordinate) {
     let screenCoordinates = worldCoordinate.clone();
     screenCoordinates.project(this._camera);
