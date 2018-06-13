@@ -345,7 +345,7 @@ export default class ModelsStack extends ModelsBase {
       this._frame[1] && this._frame[1].sopInstanceUID &&
       this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
       this._frame.sort(this._sortSopInstanceUIDArraySort);
-    } else if (!this._frame[0].imagePosition){
+    } else if (!this._frame[0].imagePosition) {
       // cancel warning if you have set null imagePosition on purpose (?)
     } else {
       window.console.warn('do not know how to order the frames...');
