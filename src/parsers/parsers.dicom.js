@@ -686,7 +686,7 @@ export default class ParsersDicom extends ParsersVolume {
 
   _findStringInSequence(sequenceTag, tag, index) {
    const sequence = this._dataSet.elements[sequenceTag];
-   
+
    let targetString;
    if (sequence) {
      targetString = sequence.items[0].dataSet.string(tag);
