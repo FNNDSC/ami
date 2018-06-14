@@ -1,4 +1,4 @@
-import WidgetsCss from "./widgets.css";
+import WidgetsCss from './widgets.css';
 
 import {Vector2, Vector3} from 'three';
 
@@ -12,7 +12,7 @@ export default class WidgetsBase extends THREE.Object3D {
     const elementStyle = document.getElementById('ami-widgets');
     if (elementStyle === null) {
       const styleEl = document.createElement('style');
-      styleEl.setAttribute("id", 'ami-widgets');
+      styleEl.setAttribute('id', 'ami-widgets');
       styleEl.innerHTML = WidgetsCss.code;
       document.head.appendChild(styleEl);
     }
@@ -91,7 +91,7 @@ export default class WidgetsBase extends THREE.Object3D {
       transformX: center.x - length / 2,
       transformY: center.y - this._container.offsetHeight,
       transformAngle: pointA.y < pointB.y ? angle : -angle,
-      center: center
+      center: center,
     };
   }
 

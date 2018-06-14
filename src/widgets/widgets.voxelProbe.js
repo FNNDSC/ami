@@ -1,5 +1,5 @@
 import WidgetsBase from './widgets.base';
-import WidgetsHandle from "./widgets.handle";
+import WidgetsHandle from './widgets.handle';
 import ModelsVoxel from '../models/models.voxel';
 import CoreUtils from '../core/core.utils';
 
