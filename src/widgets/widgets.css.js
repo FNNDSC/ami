@@ -22,7 +22,7 @@ export default class WidgetsCss {
         .widgets-dashline {
             position: absolute;
             border-top: 1.5px dashed;
-            margin: -1.5px; /* border */
+            margin-top: -1.5px; /* border */
         }
         .widgets-rectangle {
             position: absolute;

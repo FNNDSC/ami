@@ -116,7 +116,7 @@ export default class WidgetsRectangle extends WidgetsBase {
             this._moveHandle.onMove(evt, true);
 
             if (this._moving) {
-                this._handles.slice(0, -2).forEach(function(elem, ind) {
+                this._handles.slice(0, -1).forEach(function(elem, ind) {
                     this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
                 }, this);
             }
