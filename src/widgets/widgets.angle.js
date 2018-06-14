@@ -33,7 +33,7 @@ export default class WidgetsAngle extends WidgetsBase {
         this._handles = [];
 
         let handle;
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 3; i++) {
             handle = new WidgetsHandle(targetMesh, controls);
             handle.worldPosition.copy(this._worldPosition);
             handle.hovered = true;
