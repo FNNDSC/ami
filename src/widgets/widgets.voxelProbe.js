@@ -1,6 +1,7 @@
 import WidgetsBase from './widgets.base';
-import GeometriesVoxel from '../geometries/geometries.voxel';
+import WidgetsHandle from "./widgets.handle";
 import ModelsVoxel from '../models/models.voxel';
+import GeometriesVoxel from '../geometries/geometries.voxel';
 import CoreIntersections from '../core/core.intersections';
 import CoreUtils from '../core/core.utils';
 
@@ -15,19 +16,16 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
     this._stack = stack;
 
-    // if no target mesh, use plane for FREE dragging.
-    this._plane = {
+    this._controls.enabled = false;
+    this._initialized = false; // set to true onEnd
+    this._mouse = new Vector2();
+    this._offset = new Vector3();
+    this._plane = { // if no target mesh, use plane for FREE dragging
         position: new Vector3(),
         direction: new Vector3(),
     };
-
-    this._offset = new Vector3();
     this._raycaster = new THREE.Raycaster();
-
-    this._mouse = new Vector2();
-    this._controls.enabled = false;
-
-    this._initialized = false; // set to true onEnd
+    this._screenPosition = this.worldToScreen(this._worldPosition); // TODO! useless if handle
 
     // mesh stuff
     this._material = null;
@@ -35,15 +33,18 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._mesh = null;
     this._meshDisplayed = true;
     this._meshHovered = false;
-    this._meshStyle = 'sphere'; // cube, etc.
+    this._meshStyle = 'sphere'; // cube, etc. // TODO! remove mesh at all if handle is added
 
     // dom stuff
-    this._dom = null;
+    this._label = null;
     this._domDisplayed = true;
     this._domHovered = false;
-    this._domStyle = 'circle'; // square, triangle
 
-    this._screenPosition = this.worldToScreen(this._worldPosition);
+    // handle (represent voxel)
+    this._handle = new WidgetsHandle(targetMesh, controls);
+    this._handle.worldPosition.copy(this._worldPosition);
+    this._handle.hovered = true;
+    this.add(this._handle);
 
     this.create();
     this.initOffsets();
@@ -55,20 +56,22 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   addEventListeners() {
-    this._dom.addEventListener('mouseenter', this.onHover);
-    this._dom.addEventListener('mouseleave', this.onHover);
+    this._label.addEventListener('mouseenter', this.onHover);
+    this._label.addEventListener('mouseleave', this.onHover);
 
     this._container.addEventListener('wheel', this.onMove);
   }
 
   removeEventListeners() {
-    this._dom.removeEventListener('mouseenter', this.onHover);
-    this._dom.removeEventListener('mouseleave', this.onHover);
+    this._label.removeEventListener('mouseenter', this.onHover);
+    this._label.removeEventListener('mouseleave', this.onHover);
 
     this._container.removeEventListener('wheel', this.onMove);
   }
 
   onStart(evt) {
+    this._handle.onStart(evt);
+
     const offsets = this.getMouseOffsets(evt, this._container);
     this._mouse.set(offsets.x, offsets.y);
 
@@ -81,16 +84,14 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       this._controls.enabled = false;
 
       if (this._targetMesh) {
-        let intersectsTarget =
-          this._raycaster.intersectObject(this._targetMesh);
+        let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
         if (intersectsTarget.length > 0) {
           this._offset.copy(intersectsTarget[0].point).sub(this._worldPosition);
         }
       } else {
         this._plane.position.copy(this._worldPosition);
         this._plane.direction.copy(this._camera.getWorldDirection());
-        let intersection =
-          CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
+        let intersection = CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
         if (intersection !== null) {
           this._offset.copy(intersection).sub(this._plane.position);
         }
@@ -101,6 +102,8 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   onMove(evt) {
+    this._handle.onMove(evt);
+
     const offsets = this.getMouseOffsets(evt, this._container);
     this._mouse.set(offsets.x, offsets.y);
 
@@ -113,8 +116,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       this._dragged = true;
 
       if (this._targetMesh !== null) {
-        let intersectsTarget =
-          this._raycaster.intersectObject(this._targetMesh);
+        let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
         if (intersectsTarget.length > 0) {
           this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
         }
@@ -125,8 +127,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
           this._plane.direction.copy(this._camera.getWorldDirection());
          }
 
-        let intersection =
-          CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
+        let intersection = CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
         if (intersection !== null) {
           this._worldPosition.copy(intersection.sub(this._offset));
         }
@@ -139,6 +140,8 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   onEnd() {
+    this._handle.onEnd();
+
     if (!this._dragged && this._active && this._initialized) {
       this._selected = !this._selected; // change state if there was no dragging
     }
@@ -158,8 +161,17 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
     this.hoverMesh();
 
-    this._hovered = this._meshHovered || this._domHovered;
+    this._hovered = this._handle.hovered || this._meshHovered || this._domHovered;
     this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+  }
+
+  hoverVoxel(evt) { // alternative to hoverMesh
+    const offsets = this.getMouseOffsets(evt, this._container),
+      dx = offsets.screenX - this._voxel.screenCoordinates.x,
+      dy = offsets.screenY - this._voxel.screenCoordinates.y,
+      distance = Math.sqrt(dx * dx + dy * dy);
+
+    this._hovered = distance >= 0 && distance < 10;
   }
 
   hoverMesh() {
@@ -185,11 +197,9 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   createMesh() {
-    const dataCoordinates = CoreUtils.worldToData(
-      this._stack.lps2IJK,
-      this._worldPosition);
 
-    this._geometry = new GeometriesVoxel(dataCoordinates);
+    this._geometry = new GeometriesVoxel(
+        CoreUtils.worldToData(this._stack.lps2IJK, this._worldPosition));
 
     this._material = new THREE.MeshBasicMaterial({
       wireframe: true,
@@ -206,8 +216,8 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   createDOM() {
-    this._dom = document.createElement('div');
-    this._dom.setAttribute('class', 'widgets-label');
+    this._label = document.createElement('div');
+    this._label.setAttribute('class', 'widgets-label');
 
     // measurenents
     let measurementsContainer = document.createElement('div');
@@ -224,10 +234,11 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     valueContainer.setAttribute('id', 'value');
     measurementsContainer.appendChild(valueContainer);
 
-    this.updateDOMColor();
-    this._dom.appendChild(measurementsContainer);
+    this._label.appendChild(measurementsContainer);
 
-    this._container.appendChild(this._dom);
+    this._container.appendChild(this._label);
+
+    this.updateDOMColor();
   }
 
   update() {
@@ -245,6 +256,8 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       this._mesh.updateMatrix();
     }
 
+    this._handle.update();
+
     // update dom
     this.updateDOMContent();
     this.updateDOMColor();
@@ -261,9 +274,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       this._voxel.worldCoordinates);
 
     // update value
-    let value = CoreUtils.getPixelData(
-      this._stack,
-      this._voxel.dataCoordinates);
+    let value = CoreUtils.getPixelData(this._stack, this._voxel.dataCoordinates);
 
     this._voxel.value = value === null || this._stack.numberOfChannels > 1
       ? 'NA' // coordinates are outside the image or RGB
@@ -280,39 +291,43 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   updateDOMContent() {
-    const rasContainer = this._dom.querySelector('#lpsPosition');
+    const rasContainer = this._label.querySelector('#lpsPosition'),
+      ijkContainer = this._label.querySelector('#ijkPosition'),
+      valueContainer = this._label.querySelector('#value');
+
     rasContainer.innerHTML = `LPS: 
       ${this._voxel.worldCoordinates.x.toFixed(2)} :
       ${this._voxel.worldCoordinates.y.toFixed(2)} :
       ${this._voxel.worldCoordinates.z.toFixed(2)}`;
-
-    const ijkContainer = this._dom.querySelector('#ijkPosition');
     ijkContainer.innerHTML = `IJK: 
       ${this._voxel.dataCoordinates.x} :
       ${this._voxel.dataCoordinates.y} :
       ${this._voxel.dataCoordinates.z}`;
-
-    const valueContainer = this._dom.querySelector('#value');
     valueContainer.innerHTML = `Value: ${this._voxel.value}`;
   }
 
   updateDOMPosition() {
-    if (this._dom) {
-      let posY = this._screenPosition.y - this._container.offsetHeight;
-      this._dom.style.transform =
-        `translate3D(${this._screenPosition.x}px, ${posY}px, 0)`;
+    if (this._label) { // TODO or from handle worldPosition?
+      const transform = this.adjustLabelTransform(this._label, this._screenPosition); // TODO!
+      this._label.style.transform = `translate3D(
+        ${this._screenPosition.x}px,
+        ${this._screenPosition.y - this._container.offsetHeight}px, 0)`;
     }
   }
 
   updateDOMColor() {
-    this._dom.style.borderColor = this._color;
+    this._label.style.borderColor = this._color;
   }
 
   free() {
-    // events
     this.removeEventListeners();
-    // dom
-    this._container.removeChild(this._dom);
+
+    this.remove(this._handle);
+    this._handle.free();
+    this._handle = null;
+
+    this._container.removeChild(this._label);
+
     // mesh, geometry, material
     this.remove(this._mesh);
     this._mesh.geometry.dispose();
@@ -334,22 +349,13 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   hideDOM() {
-    this._dom.style.display = 'none';
+    this._label.style.display = 'none';
+    this._handle.hideDOM();
   }
 
   showDOM() {
-    this._dom.style.display = '';
-  }
-
-  hoverVoxel(mouseScreenCoordinates, currentDataCoordinates) {
-    // update distance mouse/this._voxel
-    let dx =
-      mouseScreenCoordinates.screenX - this._voxel.voxel.screenCoordinates.x;
-    let dy =
-      mouseScreenCoordinates.screenY - this._voxel.voxel.screenCoordinates.y;
-    let distance = Math.sqrt(dx * dx + dy * dy);
-    this._voxel.distance = distance;
-    this._hover = distance >= 0 && distance < 10;
+    this._label.style.display = '';
+    this._handle.showDOM();
   }
 
   get active() {

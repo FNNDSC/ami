@@ -95,7 +95,21 @@ export default class WidgetsBase extends THREE.Object3D {
     };
   }
 
-  adjustLabelTransform(label, point) {
+  getRectData(pointA, pointB) {
+    const line = pointB.clone().sub(pointA),
+      vertical = line.projectOnVector(new Vector3(0, 1, 0)),
+      min = pointA.clone().min(pointB); // coordinates of the top left corner
+
+    return {
+      width: line.projectOnVector(new Vector3(1, 0, 0)).length(),
+      height: vertical.length(),
+      transformX: min.x,
+      transformY: min.y - this._container.offsetHeight,
+      paddingVector: vertical.normalize(),
+    };
+  }
+
+  adjustLabelTransform(label, point) { // by default point is the center of the label
     let x = Math.round(point.x - label.offsetWidth / 2),
       y = Math.round(point.y - label.offsetHeight / 2) - this._container.offsetHeight;
 
@@ -111,8 +125,8 @@ export default class WidgetsBase extends THREE.Object3D {
       y = y > -this._container.offsetHeight - label.offsetHeight
         ? -this._container.offsetHeight
         : y + label.offsetHeight;
-    } else if (y > 0 - label.offsetWidth) {
-      y = y < 0 ? 0 - label.offsetWidth : y - label.offsetWidth;
+    } else if (y > -label.offsetHeight) {
+      y = y < 0 ? -label.offsetHeight : y - label.offsetHeight;
     }
 
     return new Vector2(x, y);

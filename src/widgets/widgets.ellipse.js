@@ -347,38 +347,22 @@ export default class WidgetsEllipse extends WidgetsBase {
     }
 
     updateDOMPosition() {
-        let x1 = this._handles[0].screenPosition.x,// TODO!
-            y1 = this._handles[0].screenPosition.y,
-            x2 = this._handles[1].screenPosition.x,
-            y2 = this._handles[1].screenPosition.y;
-
-        let transform = `translate3D(${Math.min(x1, x2)}px,${Math.min(y1, y2) - this._container.offsetHeight}px, 0)`,
-            width = Math.abs(x2 - x1),
-            height = Math.abs(y2 - y1);
+        const rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition),
+            labelTransform = this.adjustLabelTransform(this._label,
+                rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2));
 
         // update rectangle
-        this._rectangle.style.transform = transform;
-        this._rectangle.style.width = width + 'px';
-        this._rectangle.style.height = height + 'px';
+        this._rectangle.style.transform = `translate3D(${rectData.transformX}px, ${rectData.transformY}px, 0)`;
+        this._rectangle.style.width = rectData.width + 'px';
+        this._rectangle.style.height = rectData.height + 'px';
 
         // update ellipse
-        this._ellipse.style.transform = transform;
-        this._ellipse.style.width = width + 'px';
-        this._ellipse.style.height = height + 'px';
+        this._ellipse.style.transform = `translate3D(${rectData.transformX}px, ${rectData.transformY}px, 0)`;
+        this._ellipse.style.width = rectData.width + 'px';
+        this._ellipse.style.height = rectData.height + 'px';
 
         // update label
-        let x0 = Math.round(x2 - this._label.offsetWidth/2),
-            y0 = Math.round(y2 - this._container.offsetHeight - this._label.offsetHeight/2),
-            offset = 30;
-
-        if (this._label.querySelector('.mean-sd').innerHTML !== '') {
-            offset += 9;
-        }
-        if (this._label.querySelector('.max-min').innerHTML !== '') {
-            offset += 9;
-        }
-        y0 += y1 >= y2 ? -offset : offset;
-        this._label.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
+        this._label.style.transform = 'translate3D(' + labelTransform.x + 'px,' + labelTransform.y + 'px, 0)';
     }
 
     free() {

@@ -454,15 +454,7 @@ export default class WidgetsPolygon extends WidgetsBase {
         }
 
         // update label
-        let offset = 30;
-
-        if (this._label.querySelector('.mean-sd').innerHTML !== '') {
-            offset += 9;
-        }
-        if (this._label.querySelector('.max-min').innerHTML !== '') {
-            offset += 9;
-        }
-        labelPosition.y += offset;
+        labelPosition.y += 15 + this._label.offsetHeight / 2;
         labelPosition = this.adjustLabelTransform(this._label, labelPosition);
 
         this._label.style.transform = `translate3D(${labelPosition.x}px, ${labelPosition.y}px, 0)`;

@@ -78,16 +78,14 @@ export default class WidgetsHandle extends WidgetsBase {
       this._controls.enabled = false;
 
       if (this._targetMesh) {
-        let intersectsTarget =
-          this._raycaster.intersectObject(this._targetMesh);
+        let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
         if (intersectsTarget.length > 0) {
           this._offset.copy(intersectsTarget[0].point).sub(this._worldPosition);
         }
       } else {
         this._plane.position.copy(this._worldPosition);
         this._plane.direction.copy(this._camera.getWorldDirection());
-        let intersection =
-          CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
+        let intersection = CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
         if (intersection !== null) {
           this._offset.copy(intersection).sub(this._plane.position);
         }
@@ -114,8 +112,7 @@ export default class WidgetsHandle extends WidgetsBase {
       this._dragged = true;
 
       if (this._targetMesh !== null) {
-        let intersectsTarget =
-          this._raycaster.intersectObject(this._targetMesh);
+        let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
         if (intersectsTarget.length > 0) {
           this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
         }
@@ -126,8 +123,7 @@ export default class WidgetsHandle extends WidgetsBase {
           this._plane.direction.copy(this._camera.getWorldDirection());
          }
 
-        let intersection =
-          CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
+        let intersection = CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
         if (intersection !== null) {
           this._worldPosition.copy(intersection.sub(this._offset));
         }

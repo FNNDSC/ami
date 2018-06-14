@@ -58,8 +58,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this.onHoverlabel = this.onHoverlabel.bind(this);
     this.notonHoverlabel = this.notonHoverlabel.bind(this);
     this.changelabeltext = this.changelabeltext.bind(this);
-    this.movelabel = this.movelabel.bind(this);
-    this.notmovelabel = this.notmovelabel.bind(this);
 
     this.addEventListeners();
   }
@@ -68,9 +66,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._label.addEventListener('mouseenter', this.onHoverlabel);
     this._label.addEventListener('mouseleave', this.notonHoverlabel);
     this._label.addEventListener('dblclick', this.changelabeltext);
-    this._label.addEventListener('mousedown', this.movelabel);
-
-    this._container.addEventListener('mouseup', this.notmovelabel);
 
     this._container.addEventListener('wheel', this.onMove);
   }
@@ -79,20 +74,15 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._label.removeEventListener('mouseenter', this.onHoverlabel);
     this._label.removeEventListener('mouseleave', this.notonHoverlabel);
     this._label.removeEventListener('dblclick', this.changelabeltext);
-    this._label.removeEventListener('mousedown', this.movelabel);
-
-    this._container.removeEventListener('mouseup', this.notmovelabel);
 
     this._container.removeEventListener('wheel', this.onMove);
   }
 
-  onHoverlabel() {
-    // this function is called when mouse enters the label with "mouseenter" event
+  onHoverlabel() { // this function is called when mouse enters the label with "mouseenter" event
     this._labelhovered = true;
   }
 
-  notonHoverlabel() {
-    // this function is called when mouse leaves the label with "mouseleave" event
+  notonHoverlabel() { // this function is called when mouse leaves the label with "mouseleave" event
     this._labelhovered = false;
   }
 

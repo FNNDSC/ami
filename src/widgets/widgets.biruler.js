@@ -344,6 +344,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         this._line2.style.backgroundColor = this._color;
         this._label2.style.borderColor = this._color;
+
+        this._dashline.style.borderTop = '1.5px dashed ' + this._color;
     }
 
     free() {

@@ -1,8 +1,6 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 
-import {Vector3} from 'three';
-
 /**
  * @module widgets/ruler
  */
