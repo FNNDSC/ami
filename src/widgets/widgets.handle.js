@@ -129,7 +129,7 @@ export default class WidgetsHandle extends WidgetsBase {
         }
       }
     } else {
-      this.onHover(null);
+      this.onHover(null); // TODO! else?
     }
 
     this.update();

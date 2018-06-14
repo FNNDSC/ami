@@ -160,9 +160,7 @@ export default class WidgetsAngle extends WidgetsBase {
         this._handles[1].onMove(evt);
         this._handles[2].onMove(evt);
 
-        this._hovered = this._handles[0].hovered || this._handles[1].hovered ||
-            this._handles[2].hovered || this._domHovered;
-
+        this.onHover(null);
         this.update();
     }
 

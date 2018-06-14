@@ -109,9 +109,14 @@ export default class WidgetsBase extends THREE.Object3D {
     };
   }
 
-  adjustLabelTransform(label, point) { // by default point is the center of the label
-    let x = Math.round(point.x - label.offsetWidth / 2),
-      y = Math.round(point.y - label.offsetHeight / 2) - this._container.offsetHeight;
+  /**
+   * @param {HTMLElement} label
+   * @param {Vector3}     point  label's center coordinates (default)
+   * @param {Boolean}     corner if true, then point is the label's top left corner coordinates
+   */
+  adjustLabelTransform(label, point, corner) { //
+    let x = Math.round(point.x - (corner ? label.offsetWidth / 2 : 0)),
+      y = Math.round(point.y - (corner ? label.offsetHeight / 2 : 0)) - this._container.offsetHeight;
 
     if (x < 0) {
       x = x > -label.offsetWidth ? 0 : x + label.offsetWidth;

@@ -173,6 +173,7 @@ export default class WidgetsPolygon extends WidgetsBase {
         });
 
         this._hovered = hovered || this._domHovered;
+        this._container.style.cursor = this._hovered ? 'pointer' : 'default';
 
         this.update();
     }

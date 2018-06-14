@@ -1,11 +1,7 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from "./widgets.handle";
 import ModelsVoxel from '../models/models.voxel';
-import GeometriesVoxel from '../geometries/geometries.voxel';
-import CoreIntersections from '../core/core.intersections';
 import CoreUtils from '../core/core.utils';
-
-import {Vector2, Vector3} from 'three';
 
 /**
  * @module widgets/voxelProbe
@@ -16,24 +12,9 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
     this._stack = stack;
 
-    this._controls.enabled = false;
+    this._controls.enabled = false; // TODO! may be useless
     this._initialized = false; // set to true onEnd
-    this._mouse = new Vector2();
-    this._offset = new Vector3();
-    this._plane = { // if no target mesh, use plane for FREE dragging
-        position: new Vector3(),
-        direction: new Vector3(),
-    };
-    this._raycaster = new THREE.Raycaster();
-    this._screenPosition = this.worldToScreen(this._worldPosition); // TODO! useless if handle
-
-    // mesh stuff
-    this._material = null;
-    this._geometry = null;
-    this._mesh = null;
-    this._meshDisplayed = true;
-    this._meshHovered = false;
-    this._meshStyle = 'sphere'; // cube, etc. // TODO! remove mesh at all if handle is added
+    this._moving = false;
 
     // dom stuff
     this._label = null;
@@ -45,6 +26,12 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._handle.worldPosition.copy(this._worldPosition);
     this._handle.hovered = true;
     this.add(this._handle);
+
+    this._moveHandle = new WidgetsHandle(targetMesh, controls);
+    this._moveHandle.worldPosition.copy(this._worldPosition);
+    this._moveHandle.hovered = true;
+    this.add(this._moveHandle);
+    this._moveHandle.hide();
 
     this.create();
     this.initOffsets();
@@ -70,71 +57,34 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   onStart(evt) {
+    this._moveHandle.onMove(evt, true);
     this._handle.onStart(evt);
 
-    const offsets = this.getMouseOffsets(evt, this._container);
-    this._mouse.set(offsets.x, offsets.y);
+    this._active = this._handle.active || this._domHovered;
 
-    // update raycaster
-    this._raycaster.setFromCamera(this._mouse, this._camera);
-    this._raycaster.ray.position = this._raycaster.ray.origin;
-
-    if (this._hovered) {
-      this._active = true;
+    if (this._domHovered) {
+      this._moving = true;
       this._controls.enabled = false;
-
-      if (this._targetMesh) {
-        let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
-        if (intersectsTarget.length > 0) {
-          this._offset.copy(intersectsTarget[0].point).sub(this._worldPosition);
-        }
-      } else {
-        this._plane.position.copy(this._worldPosition);
-        this._plane.direction.copy(this._camera.getWorldDirection());
-        let intersection = CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
-        if (intersection !== null) {
-          this._offset.copy(intersection).sub(this._plane.position);
-        }
-      }
-
-      this.update();
     }
+
+    this.update();
   }
 
   onMove(evt) {
-    this._handle.onMove(evt);
-
-    const offsets = this.getMouseOffsets(evt, this._container);
-    this._mouse.set(offsets.x, offsets.y);
-
-    // update raycaster
-    // set ray.position to satisfy CoreIntersections::rayPlane API
-    this._raycaster.setFromCamera(this._mouse, this._camera);
-    this._raycaster.ray.position = this._raycaster.ray.origin;
-
     if (this._active) {
+      const prevPosition = this._moveHandle.worldPosition;
+
       this._dragged = true;
+      this._moveHandle.onMove(evt, true);
 
-      if (this._targetMesh !== null) {
-        let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
-        if (intersectsTarget.length > 0) {
-          this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
-        }
-      } else {
-        if (this._plane.direction.length() === 0) {
-          // free mode!this._targetMesh
-          this._plane.position.copy(this._worldPosition);
-          this._plane.direction.copy(this._camera.getWorldDirection());
-         }
-
-        let intersection = CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
-        if (intersection !== null) {
-          this._worldPosition.copy(intersection.sub(this._offset));
-        }
+      if (this._moving) {
+        this._handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
       }
     } else {
-      this.onHover(null);
+      this.onHover(null); // TODO! else?
     }
+
+    this._handle.onMove(evt);
 
     this.update();
   }
@@ -144,12 +94,13 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
     if (!this._dragged && this._active && this._initialized) {
       this._selected = !this._selected; // change state if there was no dragging
+      this._handle.selected = this._selected;
     }
 
     this._initialized = true;
-    this._active = false;
+    this._active = this._handle.active;
     this._dragged = false;
-    this._controls.enabled = true;
+    this._moving = false;
 
     this.update();
   }
@@ -159,25 +110,8 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
       this.hoverDom(evt);
     }
 
-    this.hoverMesh();
-
-    this._hovered = this._handle.hovered || this._meshHovered || this._domHovered;
+    this._hovered = this._handle.hovered || this._domHovered;
     this._container.style.cursor = this._hovered ? 'pointer' : 'default';
-  }
-
-  hoverVoxel(evt) { // alternative to hoverMesh
-    const offsets = this.getMouseOffsets(evt, this._container),
-      dx = offsets.screenX - this._voxel.screenCoordinates.x,
-      dy = offsets.screenY - this._voxel.screenCoordinates.y,
-      distance = Math.sqrt(dx * dx + dy * dy);
-
-    this._hovered = distance >= 0 && distance < 10;
-  }
-
-  hoverMesh() {
-    // check raycast intersection, do we want to hover on mesh or just css?
-    let intersectsHandle = this._raycaster.intersectObject(this._mesh);
-    this._meshHovered = (intersectsHandle.length > 0);
   }
 
   hoverDom(evt) {
@@ -186,33 +120,13 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
   create() {
     this.createVoxel();
-    this.createMesh();
     this.createDOM();
   }
 
   createVoxel() {
     this._voxel = new ModelsVoxel();
     this._voxel.id = this.id;
-    this._voxel.worldCoordinates = this._worldCoordinates;
-  }
-
-  createMesh() {
-
-    this._geometry = new GeometriesVoxel(
-        CoreUtils.worldToData(this._stack.lps2IJK, this._worldPosition));
-
-    this._material = new THREE.MeshBasicMaterial({
-      wireframe: true,
-      wireframeLinewidth: 1,
-    });
-
-    this.updateMeshColor();
-
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
-    this._mesh.applyMatrix(this._stack.ijk2LPS);
-    this._mesh.visible = true;
-
-    this.add(this._mesh);
+    this._voxel.worldCoordinates = this._handle.worldPosition;
   }
 
   createDOM() {
@@ -244,17 +158,9 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   update() {
     // general update
     this.updateColor();
-    this._screenPosition = this.worldToScreen(this._worldPosition);
 
     // set data coordinates && value
     this.updateVoxel(this._worldPosition);
-
-    // update mesh position
-    this.updateMeshColor();
-    if (this._mesh && this._mesh.geometry) {
-      this._mesh.geometry.location = this._voxel.dataCoordinates;
-      this._mesh.updateMatrix();
-    }
 
     this._handle.update();
 
@@ -265,29 +171,18 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   updateVoxel(worldCoordinates) {
-    // update world coordinates
     this._voxel.worldCoordinates = worldCoordinates;
-
-    // update data coordinates
-    this._voxel.dataCoordinates = CoreUtils.worldToData(
-      this._stack.lps2IJK,
-      this._voxel.worldCoordinates);
+    this._voxel.dataCoordinates = CoreUtils.worldToData(this._stack.lps2IJK, worldCoordinates);
 
     // update value
     let value = CoreUtils.getPixelData(this._stack, this._voxel.dataCoordinates);
 
     this._voxel.value = value === null || this._stack.numberOfChannels > 1
-      ? 'NA' // coordinates are outside the image or RGB
+      ? 'NA' // coordinates outside the image or RGB
       : CoreUtils.rescaleSlopeIntercept(
         value,
         this._stack.rescaleSlope,
         this._stack.rescaleIntercept).toFixed();
-  }
-
-  updateMeshColor() {
-    if (this._material) {
-      this._material.color.set(this._color);
-    }
   }
 
   updateDOMContent() {
@@ -307,12 +202,9 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   updateDOMPosition() {
-    if (this._label) { // TODO or from handle worldPosition?
-      const transform = this.adjustLabelTransform(this._label, this._screenPosition); // TODO!
-      this._label.style.transform = `translate3D(
-        ${this._screenPosition.x}px,
-        ${this._screenPosition.y - this._container.offsetHeight}px, 0)`;
-    }
+    const transform = this.adjustLabelTransform(this._label, this._handle.screenPosition, true);
+
+    this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
   }
 
   updateDOMColor() {
@@ -325,23 +217,11 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this.remove(this._handle);
     this._handle.free();
     this._handle = null;
+    this.remove(this._moveHandle);
+    this._moveHandle.free();
+    this._moveHandle = null;
 
     this._container.removeChild(this._label);
-
-    // mesh, geometry, material
-    this.remove(this._mesh);
-    this._mesh.geometry.dispose();
-    this._mesh.geometry = null;
-    this._mesh.material.dispose();
-    this._mesh.material = null;
-    this._mesh = null;
-    this._geometry.dispose();
-    this._geometry = null;
-    this._material.vertexShader = null;
-    this._material.fragmentShader = null;
-    this._material.uniforms = null;
-    this._material.dispose();
-    this._material = null;
 
     this._voxel = null;
 
@@ -356,6 +236,27 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   showDOM() {
     this._label.style.display = '';
     this._handle.showDOM();
+  }
+
+  get targetMesh() {
+    return this._targetMesh;
+  }
+
+  set targetMesh(targetMesh) {
+    this._targetMesh = targetMesh;
+    this._handle.targetMesh = targetMesh;
+    this._moveHandle.targetMesh = targetMesh;
+    this.update();
+  }
+
+  get worldPosition() {
+    return this._worldPosition;
+  }
+
+  set worldPosition(worldPosition) {
+    this._handle.worldPosition.copy(worldPosition);
+    this._worldPosition.copy(worldPosition);
+    this.update();
   }
 
   get active() {

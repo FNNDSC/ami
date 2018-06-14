@@ -42,7 +42,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._handles.push(secondHandle);
 
     // handles to move widget
-    this.imoveHandle = new WidgetsHandle(targetMesh, controls);
+    this.imoveHandle = new WidgetsHandle(targetMesh, controls); // TODO! use only one?
     this.imoveHandle.worldPosition.copy(this._worldPosition);
     this.imoveHandle.hovered = true;
     this.add(this.imoveHandle);
@@ -139,8 +139,7 @@ export default class WidgetsRuler extends WidgetsBase {
     this._handles[0].onMove(evt);
     this._handles[1].onMove(evt);
 
-    this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._domHovered;
-
+    this.onHover(null);
     this.update();
   }
 

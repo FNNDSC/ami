@@ -161,6 +161,7 @@ export default class WidgetsFreehand extends WidgetsBase {
         });
 
         this._hovered = hovered || this._domHovered;
+        this._container.style.cursor = this._hovered ? 'pointer' : 'default';
 
         if (this.active && this._handles.length > 2) {
             this.pushPopHandle();
