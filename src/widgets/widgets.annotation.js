@@ -1,6 +1,8 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 
+import {Vector3} from "three";
+
 /**
  * @module widgets/annotation
  * @todo: add option to show only label (without mesh, dots and lines)
@@ -29,12 +31,8 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._manuallabeldisplay = false; // Make true to force the label to be displayed
 
     // var
-    // position of label (top left corner)
-    this._labelpositionx = null;
-    this._labelpositiony = null;
-    // difference between mouse position in the label and position of label (top left corner)
-    this._differencemousecenterlabelx = 0;
-    this._differencemousecenterlabely = 0;
+    this._labelOffset = new Vector3(); // difference between label center and second handle
+    this._mouseLabelOffset = new Vector3(); // difference between mouse coordinates and label center
 
     // add handles
     this._handles = [];
@@ -53,6 +51,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._handles.push(secondHandle);
 
     this.create();
+    this.initOffsets();
 
     this.onEnd = this.onEnd.bind(this);
     this.onMove = this.onMove.bind(this);
@@ -87,27 +86,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._container.removeEventListener('wheel', this.onMove);
   }
 
-  movelabel() { // function called when mousedown
-    if (this._labelhovered) { // if label hobered we will move the label
-      this._movinglabel = true;
-      this._labelmoved = true;
-      let mousey = -(-event.clientY + this._container.offsetHeight);
-      let mousex = event.clientX;
-      // calculate difference between ref position of the label (top-left corner) and mouse position in the label
-      this._differencemousecenterlabelx = Math.abs(Math.abs(mousex) - Math.abs(this._labelpositionx));
-      this._differencemousecenterlabely = Math.abs(Math.abs(mousey) - Math.abs(this._labelpositiony));
-    }
-  }
-
-  notmovelabel() {
-    // this function is called when mouseup
-    this._movinglabel = false;
-    this._handles[0]._controls.enabled = true; // move the camera when mousedown and mousedown again
-    this._handles[1]._controls.enabled = true;
-    this._differencemousecenterlabelx = 0; // restart the value of differencemousecenterlabel. Necessary?
-    this._differencemousecenterlabely = 0;
-  }
-
   onHoverlabel() {
     // this function is called when mouse enters the label with "mouseenter" event
     this._labelhovered = true;
@@ -119,6 +97,16 @@ export default class WidgetsAnnotation extends WidgetsBase {
   }
 
   onStart(evt) {
+    if (this._labelhovered) { // if label hovered then it should be moved
+      // save mouse coordinates offset from label center
+      const offsets = this.getMouseOffsets(evt, this._container),
+        paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelOffset);
+
+      this._mouseLabelOffset = new Vector3(offsets.screenX - paddingPoint.x, offsets.screenY - paddingPoint.y, 0);
+      this._movinglabel = true;
+      this._labelmoved = true;
+    }
+
     this._handles[0].onStart(evt);
     this._handles[1].onStart(evt);
 
@@ -129,8 +117,12 @@ export default class WidgetsAnnotation extends WidgetsBase {
 
   onMove(evt) {
     if (this._movinglabel) {
-      this._handles[0]._controls.enabled = false;
-      this._handles[1]._controls.enabled = false;
+      const offsets = this.getMouseOffsets(evt, this._container);
+
+      this._labelOffset = new Vector3(
+        this._handles[1].screenPosition.x - offsets.screenX + this._mouseLabelOffset.x,
+        this._handles[1].screenPosition.y - offsets.screenY + this._mouseLabelOffset.y, 0);
+      this._controls.enabled = false;
     }
 
     if (this._active) {
@@ -163,12 +155,16 @@ export default class WidgetsAnnotation extends WidgetsBase {
     }
 
     if (!this._initialized) {
+      this._labelOffset =
+          this._handles[1].screenPosition.clone().sub(this._handles[0].screenPosition).multiplyScalar(0.5);
       this.setlabeltext();
       this._initialized = true;
     }
 
     this._active = this._handles[0].active || this._handles[1].active;
     this._dragged = false;
+    this._movinglabel = false;
+    this._controls.enabled = true;
     this.update();
   }
 
@@ -189,7 +185,10 @@ export default class WidgetsAnnotation extends WidgetsBase {
     // show the label (in css an empty string is used to revert display=none)
     this._label.style.display = '';
     this._dashline.style.display = '';
-    this._label.style.transform = `translate3D(${this._labelpositionx}px,${this._labelpositiony}px, 0)`;
+    this._label.style.transform = `translate3D(
+      ${this._handles[1].screenPosition.x - this._labelOffset.x - this._label.offsetWidth/2}px,
+      ${this._handles[1].screenPosition.y - this._labelOffset.y - this._label.offsetHeight/2
+        - this._container.offsetHeight}px, 0)`;
   }
 
   create() {
@@ -198,28 +197,31 @@ export default class WidgetsAnnotation extends WidgetsBase {
   }
 
   createMesh() {
-    // geometry
+    // material
+    this._material = new THREE.LineBasicMaterial();
+
+    this.updateMeshColor();
+
+    // line geometry
     this._geometry = new THREE.Geometry();
     this._geometry.vertices.push(this._handles[0].worldPosition);
     this._geometry.vertices.push(this._handles[1].worldPosition);
 
-    // material
-    this._material = new THREE.LineBasicMaterial();
-    this.updateMeshColor();
-
-    // mesh
+    // line mesh
     this._meshline = new THREE.Line(this._geometry, this._material);
     this._meshline.visible = true;
 
-    // add it!
     this.add(this._meshline);
 
-    // create cone and add it
+    // cone geometry
     this._conegeometry = new THREE.CylinderGeometry(0, 2, 10);
     this._conegeometry.translate(0, -5, 0);
     this._conegeometry.rotateX(- Math.PI / 2);
+
+    // cone mesh
     this._cone = new THREE.Mesh(this._conegeometry, this._material);
     this._cone.visible = true;
+
     this.add(this._cone);
   }
 
@@ -267,131 +269,55 @@ export default class WidgetsAnnotation extends WidgetsBase {
     if (this._geometry) {
       this._geometry.verticesNeedUpdate = true;
     }
+
+    if (this._cone) {
+        this._cone.position.copy(this._handles[1].worldPosition);
+        this._cone.lookAt(this._handles[0].worldPosition);
+    }
   }
 
   updateDOMPosition() {
-    // update annotation lines and text!
-    let x1 = this._handles[0].screenPosition.x;
-    let y1 = this._handles[0].screenPosition.y;
-    let x2 = this._handles[1].screenPosition.x;
-    let y2 = this._handles[1].screenPosition.y;
-
-    let length = this._handles[1].screenPosition.distanceTo(this._handles[0].screenPosition),
-      angle = Math.atan2(y2 - y1, x2 - x1);
-
-    let posY = y1 - this._container.offsetHeight;
-
     // update line
-    this._line.style.transform = `translate3D(${x1}px,${posY}px, 0) rotate(${angle}rad)`;
-    this._line.style.width = length + 'px';
+    const lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 
+    this._line.style.transform =`translate3D(${lineData.transformX}px, ${lineData.transformY}px, 0)
+      rotate(${lineData.transformAngle}rad)`;
+    this._line.style.width = lineData.length + 'px';
 
-    // update label position
-    let x0 = Math.round(x1 + (x2 - x1)/2 - this._label.offsetWidth/2);
-    let y0 = Math.round(y1 + (y2 - y1)/2 - this._container.offsetHeight - this._label.offsetHeight/2);
+    // update label
+    const paddingVector = lineData.line.multiplyScalar(0.5),
+      paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelmoved
+        ? this._labelOffset // if the label is moved, then its position is defined by labelOffset
+        : paddingVector), // otherwise it's placed in the center of the line
+      labelPosition = this.adjustLabelTransform(this._label, paddingPoint);
 
-    if (!this._labelmoved) { // if the user hasnt moved the label, the position is defined by the position of the arrow
-        this._label.style.transform = `translate3D(${x0}px,${y0}px, 0)`;
-        this._labelpositionx = x0;
-        this._labelpositiony = y0;
-    }
+    this._label.style.transform = `translate3D(${labelPosition.x}px, ${labelPosition.y}px, 0)`;
 
-    let mousex = 0;
-    let mousey = 0;
-
-    if (this._movinglabel) { // if the user has moved the label, the position is defined by the mouse
-        mousex = event.clientX;
-        mousey = -(-event.clientY + this._container.offsetHeight);
-        this._label.style.transform = `translate3D(${mousex - this._differencemousecenterlabelx}px,`
-          + `${mousey - this._differencemousecenterlabely}px, 0)`;
-        // we use differencemousecenterlabel to check the difference between the position of the mouse in the label
-        // and the reference position of the label (top-left corner)
-        this._labelpositionx = mousex - this._differencemousecenterlabelx;
-        this._labelpositiony = mousey - this._differencemousecenterlabely;
-    }
-
-    // create the label without the interaction of the user. Useful when we need to create the label manually.
+    // create the label without the interaction of the user. Useful when we need to create the label manually
     if (this._manuallabeldisplay) {
         this.displaylabel();
     }
 
-    // update cone position
-    this._cone.position.copy(this._handles[1].worldPosition);
-    this._cone.lookAt(this._handles[0].worldPosition);
-
     // update dash line
+    let minLine = this.getLineData(this._handles[0].screenPosition, paddingPoint),
+      lineCL = this.getLineData(lineData.center, paddingPoint),
+      line1L = this.getLineData(this._handles[1].screenPosition, paddingPoint);
 
-    // calculate the place in the label: center of the label
-    x1 = this._handles[0].screenPosition.x;
-    y1 = this._handles[0].screenPosition.y;
-    x2 = this._labelpositionx;
-    // revert the operation in 'mousey' to get the previous eventY
-    y2 = this._labelpositiony + this._container.offsetHeight;
-
-    // get the size of the label so we can place the dashed line in the center of it
-    let labelheight = this._label.offsetHeight;
-    let labelwidth = this._label.offsetWidth;
-
-    let centerlabelx = 0;
-    let centerlabely = 0;
-
-    if (isFinite(labelwidth) && isFinite(labelheight)) {
-      // if the extraction has been succesfull, we calculate the center of the label with total size
-      centerlabelx = labelwidth/2;
-      centerlabely = labelheight/2;
+    if (minLine.length > lineCL.length) {
+        minLine = lineCL;
+    }
+    if (minLine.length > line1L.length) {
+        minLine = line1L;
     }
 
-    x2 += centerlabelx;
-    y2 += centerlabely;
-
-    // calculate the place in the arrow: closest part of the line to place the dashed line
-    let x1_tail = this._handles[0].screenPosition.x; // first position: tail of arrow
-    let y1_tail = this._handles[0].screenPosition.y;
-    // second position: center of arrow
-    let x1_body = (this._handles[0].screenPosition.x + this._handles[1].screenPosition.x)/2;
-    let y1_body = (this._handles[0].screenPosition.y + this._handles[1].screenPosition.y)/2;
-    let x1_nose = this._handles[1].screenPosition.x; // third position: peak of arrow
-    let y1_nose = this._handles[1].screenPosition.y;
-
-    // calculate all the lengths to the label, so we can choose the min
-    let lengthtaillabel = Math.sqrt((x1_tail-x2)*(x1_tail-x2) + (y1_tail-y2)*(y1_tail-y2));
-    let lengthbodylabel = Math.sqrt((x1_body-x2)*(x1_body-x2) + (y1_body-y2)*(y1_body-y2));
-    let lengthnoselabel = Math.sqrt((x1_nose-x2)*(x1_nose-x2) + (y1_nose-y2)*(y1_nose-y2));
-
-    let lengths = [lengthtaillabel, lengthbodylabel, lengthnoselabel];
-    let minlength = Math.min(lengthtaillabel, lengthbodylabel, lengthnoselabel);
-    let minlengthindex = lengths.indexOf(minlength);
-
-    if (minlengthindex === 0) {
-      x1 = x1_tail;
-      y1 = y1_tail;
-    }
-    if (minlengthindex === 1) {
-      x1 = x1_body;
-      y1 = y1_body;
-    }
-    if (minlengthindex === 2) {
-      x1 = x1_nose;
-      y1 = y1_nose;
-    }
-
-    // Once we found the closest point to the label, we create the dashed line from that point
-    let lengthdashline = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-    let angledashline = Math.atan2(y2 - y1, x2 - x1);
-
-    let posYdashline = y1 - this._container.offsetHeight;
-
-    // update dashed line
-    let transformdashline = `translate3D(${x1}px,${posYdashline}px, 0)`;
-    transformdashline += ` rotate(${angledashline}rad)`;
-
-    this._dashline.style.transform = transformdashline;
-    this._dashline.style.width = lengthdashline + 'px';
+    this._dashline.style.transform =`translate3D(${minLine.transformX}px, ${minLine.transformY}px, 0)
+      rotate(${minLine.transformAngle}rad)`;
+    this._dashline.style.width = minLine.length + 'px';
   }
 
   updateDOMColor() {
     this._line.style.backgroundColor = this._color;
-    this._dashline.style.borderTop = '2px dashed ' + this._color;
+    this._dashline.style.borderTop = '1.5px dashed ' + this._color;
     this._label.style.borderColor = this._color;
   }
 

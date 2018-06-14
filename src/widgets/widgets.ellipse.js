@@ -347,7 +347,7 @@ export default class WidgetsEllipse extends WidgetsBase {
     }
 
     updateDOMPosition() {
-        let x1 = this._handles[0].screenPosition.x,
+        let x1 = this._handles[0].screenPosition.x,// TODO!
             y1 = this._handles[0].screenPosition.y,
             x2 = this._handles[1].screenPosition.x,
             y2 = this._handles[1].screenPosition.y;

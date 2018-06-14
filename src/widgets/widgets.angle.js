@@ -172,7 +172,7 @@ export default class WidgetsAngle extends WidgetsBase {
         if ((this._handles[1].tracking &&
                 this._handles[0].worldPosition.equals(this._handles[1].worldPosition)) ||
             (!this._handles[1].tracking && this._handles[2].tracking &&
-                this._handles[0].worldPosition.equals(this._handles[1].worldPosition))
+                this._handles[0].worldPosition.equals(this._handles[2].worldPosition))
         ) {
             return;
         }

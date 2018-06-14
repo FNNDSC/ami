@@ -103,22 +103,17 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
     onEnd() {
         this._handles[0].onEnd();
+        this._handles[2].onEnd();
+
+        if ((this._handles[1].tracking && this._handles[0].worldPosition.equals(this._handles[1].worldPosition))) {
+            return;
+        }
 
         if (!this._dragged && this._active && !this._handles[2].tracking && !this._handles[3].tracking) {
             this._selected = !this._selected; // change state if there was no dragging
             this._handles[0].selected = this._selected;
+            this._handles[2].selected = this._selected;
         }
-
-        // Third Handle
-        if (this._handles[3].active) {
-            this._handles[2].onEnd();
-        } else if (this._dragged || !this._handles[2].tracking) {
-            this._handles[2].tracking = false;
-            this._handles[2].onEnd();
-        } else {
-            this._handles[2].tracking = false;
-        }
-        this._handles[2].selected = this._selected;
 
         // Fourth Handle
         if (this._handles[1].active) {
@@ -126,7 +121,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         } else if (this._dragged || !this._handles[3].tracking) {
             this._handles[3].tracking = false;
             this._handles[3].onEnd();
-            this._handles[2].tracking = true;
         } else {
             this._handles[3].tracking = false;
         }
@@ -399,10 +393,10 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     getPointInBetweenByPerc(pointA, pointB, percentage) {
-        let dir = pointB.clone().sub(pointA);
-        dir = dir.normalize().multiplyScalar(dir.length() * percentage);
+        const dir = pointB.clone().sub(pointA),
+            length = dir.length() * percentage;
 
-        return pointA.clone().add(dir);
+        return pointA.clone().add(dir.normalize().multiplyScalar(length));
     }
 
     initOrtho() {

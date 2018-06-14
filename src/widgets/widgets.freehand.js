@@ -446,17 +446,24 @@ export default class WidgetsFreehand extends WidgetsBase {
     }
 
     updateDOMPosition() {
+        if (this._handles.length < 2) {
+            return;
+        }
         // update lines and get coordinates of lowest handle
         let labelPosition = null;
 
-        if (this._handles.length >= 2) {
-            this._lines.forEach(function(elem, ind) {
-                this.updateLineDOM(ind, ind, ind + 1 === this._handles.length ? 0 : ind + 1);
-                if (labelPosition === null || labelPosition.y < this._handles[ind].screenPosition.y) {
-                    labelPosition = this._handles[ind].screenPosition.clone();
-                }
-            }, this);
-        }
+        this._lines.forEach(function(elem, ind) {
+            const lineData = this.getLineData(this._handles[ind].screenPosition,
+                    this._handles[ind + 1 === this._handles.length ? 0 : ind + 1].screenPosition);
+
+            elem.style.transform =`translate3D(${lineData.transformX}px, ${lineData.transformY}px, 0)
+                rotate(${lineData.transformAngle}rad)`;
+            elem.style.width = lineData.length + 'px';
+
+            if (labelPosition === null || labelPosition.y < this._handles[ind].screenPosition.y) {
+                labelPosition = this._handles[ind].screenPosition.clone();
+            }
+        }, this);
 
         if (!this._initialized) {
             return;
@@ -471,27 +478,10 @@ export default class WidgetsFreehand extends WidgetsBase {
         if (this._label.querySelector('.max-min').innerHTML !== '') {
             offset += 9;
         }
-        labelPosition.x = Math.round(labelPosition.x - this._label.offsetWidth/2);
-        labelPosition.y = Math.round(
-            labelPosition.y - this._label.offsetHeight/2 - this._container.offsetHeight + offset
-        );
-        this._label.style.transform = `translate3D(${labelPosition.x}px,${labelPosition.y}px, 0)`;
-    }
+        labelPosition.y += offset;
+        labelPosition = this.adjustLabelTransform(this._label, labelPosition);
 
-    updateLineDOM(lineIndex, handle0Index, handle1Index) {
-        let x1 = this._handles[handle0Index].screenPosition.x,
-            y1 = this._handles[handle0Index].screenPosition.y,
-            x2 = this._handles[handle1Index].screenPosition.x,
-            y2 = this._handles[handle1Index].screenPosition.y;
-
-        let length = this._handles[handle1Index].screenPosition.distanceTo(this._handles[handle0Index].screenPosition),
-            angle = Math.atan2(y2 - y1, x2 - x1);
-
-        let posY = y1 - this._container.offsetHeight;
-
-        // update line
-        this._lines[lineIndex].style.transform = `translate3D(${x1}px, ${posY}px, 0) rotate(${angle}rad)`;
-        this._lines[lineIndex].style.width = length + 'px';
+        this._label.style.transform = `translate3D(${labelPosition.x}px, ${labelPosition.y}px, 0)`;
     }
 
     free() {

@@ -21,29 +21,23 @@ export default class WidgetsCss {
         }
         .widgets-dashline {
             position: absolute;
-            border: none;
-            border-top: 2px dashed #F9F9F9;
-            transform-origin: 0 100%; // TODO!
-            width: 50%;
-            height: 1px;
+            border-top: 1.5px dashed;
+            margin: -1.5px; /* border */
         }
         .widgets-rectangle {
             position: absolute;
             border: 2px solid;
-            transform-origin: 0 100%; // TODO!
             margin: -2px; /* border */
         }
         .widgets-rectangle-helper {
             position: absolute;
             border: 1.5px dashed;
-            transform-origin: 0 100%; // TODO!
             margin: -1.5px; /* border */
         }
         .widgets-ellipse {
             position: absolute;
             border: 2px solid;
             border-radius: 50%;
-            transform-origin: 0 100%; // TODO!
             margin: -2px; /* border */
             z-index: 2;
         }

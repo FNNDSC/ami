@@ -437,7 +437,13 @@ export default class WidgetsPolygon extends WidgetsBase {
         let labelPosition = null;
 
         this._lines.forEach(function(elem, ind) {
-            this.updateLineDOM(ind, ind, ind + 1 === this._handles.length ? 0 : ind + 1);
+            const lineData = this.getLineData(this._handles[ind].screenPosition,
+                this._handles[ind + 1 === this._handles.length ? 0 : ind + 1].screenPosition);
+
+            elem.style.transform =`translate3D(${lineData.transformX}px, ${lineData.transformY}px, 0)
+                    rotate(${lineData.transformAngle}rad)`;
+            elem.style.width = lineData.length + 'px';
+
             if (labelPosition === null || labelPosition.y < this._handles[ind].screenPosition.y) {
                 labelPosition = this._handles[ind].screenPosition.clone();
             }
@@ -456,24 +462,10 @@ export default class WidgetsPolygon extends WidgetsBase {
         if (this._label.querySelector('.max-min').innerHTML !== '') {
             offset += 9;
         }
-        labelPosition.x = Math.round(labelPosition.x - this._label.offsetWidth/2);
-        labelPosition.y = Math.round(
-            labelPosition.y - this._label.offsetHeight/2 - this._container.offsetHeight + offset
-        );
-        this._label.style.transform = `translate3D(${labelPosition.x}px,${labelPosition.y}px, 0)`;
-    }
+        labelPosition.y += offset;
+        labelPosition = this.adjustLabelTransform(this._label, labelPosition);
 
-    updateLineDOM(lineIndex, handle0Index, handle1Index) {
-        let x1 = this._handles[handle0Index].screenPosition.x,
-            y1 = this._handles[handle0Index].screenPosition.y,
-            x2 = this._handles[handle1Index].screenPosition.x,
-            y2 = this._handles[handle1Index].screenPosition.y,
-            angle = Math.atan2(y2 - y1, x2 - x1);
-
-        // update line
-        this._lines[lineIndex].style.transform =
-            `translate3D(${x1}px, ${y1 - this._container.offsetHeight}px, 0) rotate(${angle}rad)`;
-        this._lines[lineIndex].style.width = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) + 'px';
+        this._label.style.transform = `translate3D(${labelPosition.x}px, ${labelPosition.y}px, 0)`;
     }
 
     free() {

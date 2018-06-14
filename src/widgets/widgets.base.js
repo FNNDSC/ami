@@ -1,6 +1,6 @@
 import WidgetsCss from "./widgets.css";
 
-import {Vector3} from 'three';
+import {Vector2, Vector3} from 'three';
 
 /**
  * @module Abstract Widget
@@ -91,6 +91,7 @@ export default class WidgetsBase extends THREE.Object3D {
       transformX: center.x - length / 2,
       transformY: center.y - this._container.offsetHeight,
       transformAngle: pointA.y < pointB.y ? angle : -angle,
+      center: center
     };
   }
 
@@ -114,10 +115,7 @@ export default class WidgetsBase extends THREE.Object3D {
       y = y < 0 ? 0 - label.offsetWidth : y - label.offsetWidth;
     }
 
-    return {
-      x: x,
-      y: y,
-    };
+    return new Vector2(x, y);
   }
 
   worldToScreen(worldCoordinate) {
