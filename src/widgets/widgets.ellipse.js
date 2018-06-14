@@ -332,8 +332,8 @@ export default class WidgetsEllipse extends WidgetsBase {
 
     updateDOMPosition() {
         const rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition),
-            labelTransform = this.adjustLabelTransform(this._label,
-                rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2));
+            labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(
+                rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));
 
         // update rectangle
         this._rectangle.style.transform = `translate3D(${rectData.transformX}px, ${rectData.transformY}px, 0)`;
