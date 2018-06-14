@@ -30,35 +30,18 @@ export default class WidgetsBiRuler extends WidgetsBase {
         // add handles
         this._handles = [];
 
-        let firstHandle = new WidgetsHandle(targetMesh, controls);
-        firstHandle.worldPosition.copy(this._worldPosition);
-        firstHandle.hovered = true;
-        this.add(firstHandle);
-        this._handles.push(firstHandle);
-
-        let secondHandle = new WidgetsHandle(targetMesh, controls);
-        secondHandle.worldPosition.copy(this._worldPosition);
-        secondHandle.hovered = true;
-        secondHandle.active = true;
-        secondHandle.tracking = true;
-        this.add(secondHandle);
-        this._handles.push(secondHandle);
-
-        let thirdHandle = new WidgetsHandle(targetMesh, controls);
-        thirdHandle.worldPosition.copy(this._worldPosition);
-        thirdHandle.hovered = true;
-        // active and tracking?
-        this.add(thirdHandle);
-        this._handles.push(thirdHandle);
-
-        let fourthHandle = new WidgetsHandle(targetMesh, controls);
-        fourthHandle.worldPosition.copy(this._worldPosition);
-        fourthHandle.hovered = true;
-        fourthHandle.active = true;
-        fourthHandle.tracking = true;
-        // active and tracking?
-        this.add(fourthHandle);
-        this._handles.push(fourthHandle);
+        let handle;
+        for (let i = 0; i < 2; i++) {
+            handle = new WidgetsHandle(targetMesh, controls);
+            handle.worldPosition.copy(this._worldPosition);
+            handle.hovered = true;
+            this.add(handle);
+            this._handles.push(handle);
+        }
+        this._handles[1].active = true;
+        this._handles[1].tracking = true;
+        this._handles[3].active = true;
+        this._handles[3].tracking = true;
 
         this.create();
 
@@ -88,15 +71,16 @@ export default class WidgetsBiRuler extends WidgetsBase {
     onMove(evt) {
         if (this._active) {
             this._dragged = true;
+        } else {
+            this._hovered = this._handles[0].hovered || this._handles[1].hovered ||
+                this._handles[2].hovered || this._handles[3].hovered;
+            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
         }
 
         this._handles[0].onMove(evt);
         this._handles[1].onMove(evt);
         this._handles[2].onMove(evt);
         this._handles[3].onMove(evt);
-
-        this._hovered = this._handles[0].hovered || this._handles[1].hovered ||
-            this._handles[2].hovered || this._handles[3].hovered;
 
         this.update();
     }

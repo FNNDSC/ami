@@ -30,34 +30,24 @@ export default class WidgetsEllipse extends WidgetsBase {
         // add handles
         this._handles = [];
 
-        let firstHandle = new WidgetsHandle(targetMesh, controls);
-        firstHandle.worldPosition.copy(this._worldPosition);
-        firstHandle.hovered = true;
-        this.add(firstHandle);
-        this._handles.push(firstHandle);
-
-        let secondHandle = new WidgetsHandle(targetMesh, controls);
-        secondHandle.worldPosition.copy(this._worldPosition);
-        secondHandle.hovered = true;
-        secondHandle.active = true;
-        secondHandle.tracking = true;
-        this.add(secondHandle);
-        this._handles.push(secondHandle);
+        let handle;
+        for (let i = 0; i < 2; i++) {
+            handle = new WidgetsHandle(targetMesh, controls);
+            handle.worldPosition.copy(this._worldPosition);
+            handle.hovered = true;
+            this.add(handle);
+            this._handles.push(handle);
+        }
+        this._handles[1].active = true;
+        this._handles[1].tracking = true;
 
         // handles to move widget
-        this.imoveHandle = new WidgetsHandle(targetMesh, controls);
-        this.imoveHandle.worldPosition.copy(this._worldPosition);
-        this.imoveHandle.hovered = true;
-        this.add(this.imoveHandle);
-        this._handles.push(this.imoveHandle);
-        this.imoveHandle.hide();
-
-        this.fmoveHandle = new WidgetsHandle(targetMesh, controls);
-        this.fmoveHandle.worldPosition.copy(this._worldPosition);
-        this.fmoveHandle.hovered = true;
-        this.add(this.fmoveHandle);
-        this._handles.push(this.fmoveHandle);
-        this.fmoveHandle.hide();
+        this._moveHandle = new WidgetsHandle(targetMesh, controls);
+        this._moveHandle.worldPosition.copy(this._worldPosition);
+        this._moveHandle.hovered = true;
+        this.add(this._moveHandle);
+        this._handles.push(this._moveHandle);
+        this._moveHandle.hide();
 
         this.create();
 
@@ -108,7 +98,7 @@ export default class WidgetsEllipse extends WidgetsBase {
     }
 
     onStart(evt) {
-        this.imoveHandle.onMove(evt, true);
+        this._moveHandle.onMove(evt, true);
 
         this._handles[0].onStart(evt);
         this._handles[1].onStart(evt);
@@ -125,30 +115,25 @@ export default class WidgetsEllipse extends WidgetsBase {
 
     onMove(evt) {
         if (this._active) {
-            this._dragged = true;
+            const prevPosition = this._moveHandle.worldPosition.clone();
 
-            this.fmoveHandle.onMove(evt, true);
+            this._dragged = true;
+            this._moveHandle.onMove(evt, true);
 
             if (this._moving) {
                 this._handles.slice(0, -2).forEach(function(elem, ind) {
-                    this._handles[ind].worldPosition.x = elem.worldPosition.x
-                        + (this.fmoveHandle.worldPosition.x - this.imoveHandle.worldPosition.x);
-                    this._handles[ind].worldPosition.y = elem.worldPosition.y
-                        + (this.fmoveHandle.worldPosition.y - this.imoveHandle.worldPosition.y);
-                    this._handles[ind].worldPosition.z = elem.worldPosition.z
-                        + (this.fmoveHandle.worldPosition.z - this.imoveHandle.worldPosition.z);
+                    this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
                 }, this);
             }
 
-            this.imoveHandle.onMove(evt, true);
-
             this.updateRoI(true);
+        } else {
+            this.onHover(null);
         }
 
         this._handles[0].onMove(evt);
         this._handles[1].onMove(evt);
 
-        this.onHover(null);
         this.update();
     }
 

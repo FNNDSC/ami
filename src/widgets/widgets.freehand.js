@@ -29,7 +29,6 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         // add handles
         this._handles = [];
-        this._moveHandles = [];
 
         let handle = new WidgetsHandle(targetMesh, controls);
         handle.worldPosition.copy(this._worldPosition);
@@ -37,15 +36,11 @@ export default class WidgetsFreehand extends WidgetsBase {
         this.add(handle);
         this._handles.push(handle);
 
-        // handles to move widget
-        for (let i = 0; i < 2; i++) {
-            handle = new WidgetsHandle(targetMesh, controls);
-            handle.worldPosition.copy(this._worldPosition);
-            handle.hovered = true;
-            this.add(handle);
-            this._moveHandles.push(handle);
-            handle.hide();
-        }
+        this._moveHandle = new WidgetsHandle(targetMesh, controls);
+        this._moveHandle.worldPosition.copy(this._worldPosition);
+        this._moveHandle.hovered = true;
+        this.add(this._moveHandle);
+        this._moveHandle.hide();
 
         this.create();
 
@@ -96,7 +91,7 @@ export default class WidgetsFreehand extends WidgetsBase {
     onStart(evt) {
         let active = false;
 
-        this._moveHandles[0].onMove(evt, true);
+        this._moveHandle.onMove(evt, true);
         this._handles.forEach(function(elem) {
             elem.onStart(evt);
             active = active || elem.active;
@@ -131,25 +126,20 @@ export default class WidgetsFreehand extends WidgetsBase {
 
                 this.createLine();
             } else {
+                const prevPosition = this._moveHandle.worldPosition.clone();
+
                 if (this._mesh) {
                     this.remove(this._mesh);
                 }
                 this.updateDOMContent(true);
 
-                this._moveHandles[1].onMove(evt, true);
+                this._moveHandle.onMove(evt, true);
 
                 if (this._moving) {
                     this._handles.forEach(function(elem, ind) {
-                        this._handles[ind].worldPosition.x = elem.worldPosition.x
-                            + (this._moveHandles[1].worldPosition.x - this._moveHandles[0].worldPosition.x);
-                        this._handles[ind].worldPosition.y = elem.worldPosition.y
-                            + (this._moveHandles[1].worldPosition.y - this._moveHandles[0].worldPosition.y);
-                        this._handles[ind].worldPosition.z = elem.worldPosition.z
-                            + (this._moveHandles[1].worldPosition.z - this._moveHandles[0].worldPosition.z);
+                        this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
                     }, this);
                 }
-
-                this._moveHandles[0].onMove(evt, true);
             }
         }
 
@@ -485,11 +475,10 @@ export default class WidgetsFreehand extends WidgetsBase {
             h.free();
         });
         this._handles = [];
-        this._moveHandles.forEach((h) => {
-            this.remove(h);
-            h.free();
-        });
-        this._moveHandles = [];
+
+        this.remove(this._moveHandle);
+        this._moveHandle.free();
+        this._moveHandle = null;
 
         this._lines.forEach(function(elem) {
             this._container.removeChild(elem);
@@ -529,9 +518,7 @@ export default class WidgetsFreehand extends WidgetsBase {
         this._handles.forEach(function(elem) {
             elem.targetMesh = targetMesh;
         });
-        this._moveHandles.forEach(function(elem) {
-            elem.targetMesh = targetMesh;
-        });
+        this._moveHandle.targetMesh = targetMesh;
         this.update();
     }
 

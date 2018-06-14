@@ -129,7 +129,7 @@ export default class WidgetsHandle extends WidgetsBase {
         }
       }
     } else {
-      this.onHover(null); // TODO! else?
+      this.onHover(null);
     }
 
     this.update();
@@ -161,6 +161,16 @@ export default class WidgetsHandle extends WidgetsBase {
 
     this._hovered = this._meshHovered || this._domHovered;
     this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+  }
+
+  hoverMesh() {
+    // check raycast intersection, do we want to hover on mesh or just css?
+    let intersectsHandle = this._raycaster.intersectObject(this._mesh);
+    this._meshHovered = (intersectsHandle.length > 0);
+  }
+
+  hoverDom(evt) {
+    this._domHovered = (evt.type === 'mouseenter');
   }
 
   create() {
@@ -227,16 +237,6 @@ export default class WidgetsHandle extends WidgetsBase {
     if (this._mesh) {
       this._mesh.position.copy(this._worldPosition);
     }
-  }
-
-  hoverMesh() {
-    // check raycast intersection, do we want to hover on mesh or just css?
-    let intersectsHandle = this._raycaster.intersectObject(this._mesh);
-    this._meshHovered = (intersectsHandle.length > 0);
-  }
-
-  hoverDom(evt) {
-    this._domHovered = (evt.type === 'mouseenter');
   }
 
   updateDOMPosition() {

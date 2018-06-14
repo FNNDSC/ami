@@ -97,15 +97,15 @@ export default class WidgetsBase extends THREE.Object3D {
 
   getRectData(pointA, pointB) {
     const line = pointB.clone().sub(pointA),
-      vertical = line.projectOnVector(new Vector3(0, 1, 0)),
+      vertical = line.clone().projectOnVector(new Vector3(0, 1, 0)),
       min = pointA.clone().min(pointB); // coordinates of the top left corner
 
     return {
-      width: line.projectOnVector(new Vector3(1, 0, 0)).length(),
+      width: line.clone().projectOnVector(new Vector3(1, 0, 0)).length(),
       height: vertical.length(),
       transformX: min.x,
       transformY: min.y - this._container.offsetHeight,
-      paddingVector: vertical.normalize(),
+      paddingVector: vertical.clone().normalize(),
     };
   }
 
@@ -114,9 +114,9 @@ export default class WidgetsBase extends THREE.Object3D {
    * @param {Vector3}     point  label's center coordinates (default)
    * @param {Boolean}     corner if true, then point is the label's top left corner coordinates
    */
-  adjustLabelTransform(label, point, corner) { //
-    let x = Math.round(point.x - (corner ? label.offsetWidth / 2 : 0)),
-      y = Math.round(point.y - (corner ? label.offsetHeight / 2 : 0)) - this._container.offsetHeight;
+  adjustLabelTransform(label, point, corner) {
+    let x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2)),
+      y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
 
     if (x < 0) {
       x = x > -label.offsetWidth ? 0 : x + label.offsetWidth;

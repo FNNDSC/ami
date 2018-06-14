@@ -12,7 +12,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
     this._stack = stack;
 
-    this._controls.enabled = false; // TODO! may be useless
+    this._controls.enabled = false; // controls should be disabled for widgets with a single handle
     this._initialized = false; // set to true onEnd
     this._moving = false;
 
@@ -72,7 +72,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
   onMove(evt) {
     if (this._active) {
-      const prevPosition = this._moveHandle.worldPosition;
+      const prevPosition = this._moveHandle.worldPosition.clone();
 
       this._dragged = true;
       this._moveHandle.onMove(evt, true);
@@ -81,7 +81,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
         this._handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
       }
     } else {
-      this.onHover(null); // TODO! else?
+      this.onHover(null);
     }
 
     this._handle.onMove(evt);
@@ -126,7 +126,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   createVoxel() {
     this._voxel = new ModelsVoxel();
     this._voxel.id = this.id;
-    this._voxel.worldCoordinates = this._handle.worldPosition;
   }
 
   createDOM() {
@@ -156,13 +155,12 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   }
 
   update() {
-    // general update
     this.updateColor();
 
-    // set data coordinates && value
-    this.updateVoxel(this._worldPosition);
-
     this._handle.update();
+    this._worldPosition.copy(this._handle.worldPosition);
+
+    this.updateVoxel(); // set data coordinates && value
 
     // update dom
     this.updateDOMContent();
@@ -170,9 +168,9 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this.updateDOMPosition();
   }
 
-  updateVoxel(worldCoordinates) {
-    this._voxel.worldCoordinates = worldCoordinates;
-    this._voxel.dataCoordinates = CoreUtils.worldToData(this._stack.lps2IJK, worldCoordinates);
+  updateVoxel() {
+    this._voxel.worldCoordinates = this._worldPosition;
+    this._voxel.dataCoordinates = CoreUtils.worldToData(this._stack.lps2IJK, this._worldPosition);
 
     // update value
     let value = CoreUtils.getPixelData(this._stack, this._voxel.dataCoordinates);

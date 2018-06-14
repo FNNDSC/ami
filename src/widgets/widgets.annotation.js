@@ -37,18 +37,15 @@ export default class WidgetsAnnotation extends WidgetsBase {
     // add handles
     this._handles = [];
 
-    let firstHandle = new WidgetsHandle(targetMesh, controls);
-    firstHandle.worldPosition.copy(this._worldPosition);
-    firstHandle.hovered = true;
-    this.add(firstHandle);
-    this._handles.push(firstHandle);
-
-    let secondHandle = new WidgetsHandle(targetMesh, controls);
-    secondHandle.worldPosition.copy(this._worldPosition);
-    secondHandle.hovered = true;
-    secondHandle.active = true;
-    this.add(secondHandle);
-    this._handles.push(secondHandle);
+    let handle;
+    for (let i = 0; i < 2; i++) {
+      handle = new WidgetsHandle(targetMesh, controls);
+      handle.worldPosition.copy(this._worldPosition);
+      handle.hovered = true;
+      this.add(handle);
+      this._handles.push(handle);
+    }
+    this._handles[1].active = true;
 
     this.create();
     this.initOffsets();
@@ -80,10 +77,12 @@ export default class WidgetsAnnotation extends WidgetsBase {
 
   onHoverlabel() { // this function is called when mouse enters the label with "mouseenter" event
     this._labelhovered = true;
+    this._container.style.cursor = 'pointer';
   }
 
   notonHoverlabel() { // this function is called when mouse leaves the label with "mouseleave" event
     this._labelhovered = false;
+    this._container.style.cursor = 'default';
   }
 
   onStart(evt) {
@@ -154,7 +153,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._active = this._handles[0].active || this._handles[1].active;
     this._dragged = false;
     this._movinglabel = false;
-    this._controls.enabled = true;
     this.update();
   }
 
