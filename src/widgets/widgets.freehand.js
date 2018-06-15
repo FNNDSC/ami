@@ -42,10 +42,11 @@ export default class WidgetsFreehand extends WidgetsBase {
         this.add(this._moveHandle);
         this._moveHandle.hide();
 
-        this.create();
-
         this.onMove = this.onMove.bind(this);
         this.onHover = this.onHover.bind(this);
+
+        this.create();
+
         this.addEventListeners();
     }
 
