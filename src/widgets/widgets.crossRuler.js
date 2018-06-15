@@ -2,9 +2,9 @@ import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 
 /**
- * @module widgets/biruler
+ * @module widgets/crossRuler
  */
-export default class WidgetsBiRuler extends WidgetsBase {
+export default class WidgetsCrossRuler extends WidgetsBase {
     constructor(targetMesh, controls, stack) {
         super(targetMesh, controls);
 
@@ -22,10 +22,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         // dom stuff
         this._line = null;
-        this._label = null;
         this._line2 = null;
-        this._label2 = null;
-        this._dashline = null;
 
         // add handles
         this._handles = [];
@@ -40,8 +37,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         }
         this._handles[1].active = true;
         this._handles[1].tracking = true;
-        this._handles[3].active = true;
-        this._handles[3].tracking = true;
 
         this.create();
 
@@ -65,6 +60,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         this._active = this._handles[0].active || this._handles[1].active ||
             this._handles[2].active || this._handles[3].active;
+
         this.update();
     }
 
@@ -88,27 +84,18 @@ export default class WidgetsBiRuler extends WidgetsBase {
     onEnd() {
         this._handles[0].onEnd();
         this._handles[2].onEnd();
+        this._handles[3].onEnd();
 
         if (this._handles[1].tracking && this._handles[0].worldPosition.equals(this._handles[1].worldPosition)) {
             return;
         }
 
-        if (!this._dragged && this._active && !this._handles[3].tracking) {
+        if (!this._dragged && this._active && !this._handles[1].tracking) {
             this._selected = !this._selected; // change state if there was no dragging
             this._handles[0].selected = this._selected;
             this._handles[2].selected = this._selected;
+            this._handles[3].selected = this._selected;
         }
-
-        // Fourth Handle
-        if (this._handles[1].active) {
-            this._handles[3].onEnd();
-        } else if (this._dragged || !this._handles[3].tracking) {
-            this._handles[3].tracking = false;
-            this._handles[3].onEnd();
-        } else {
-            this._handles[3].tracking = false;
-        }
-        this._handles[3].selected = this._selected;
 
         // Second Handle
         if (this._dragged || !this._handles[1].tracking) {
@@ -122,6 +109,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._active = this._handles[0].active || this._handles[1].active ||
             this._handles[2].active || this._handles[3].active;
         this._dragged = false;
+
+        this.initOrtho();
         this.update();
     }
 
@@ -162,31 +151,16 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._line.setAttribute('class', 'widgets-line');
         this._container.appendChild(this._line);
 
-        this._label = document.createElement('div');
-        this._label.setAttribute('class', 'widgets-label');
-        this._container.appendChild(this._label);
-
         this._line2 = document.createElement('div');
         this._line2.setAttribute('class', 'widgets-line');
         this._container.appendChild(this._line2);
-
-        this._label2 = document.createElement('div');
-        this._label2.setAttribute('class', 'widgets-label');
-        this._container.appendChild(this._label2);
-
-        this._dashline = document.createElement('div');
-        this._dashline.setAttribute('class', 'widgets-dashline');
-        this._container.appendChild(this._dashline);
 
         this.updateDOMColor();
     }
 
     hideDOM() {
         this._line.style.display = 'none';
-        this._label.style.display = 'none';
         this._line2.style.display = 'none';
-        this._label2.style.display = 'none';
-        this._dashline.style.display = 'none';
 
         this._handles.forEach(function(elem) {
             elem.hideDOM();
@@ -195,10 +169,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
     showDOM() {
         this._line.style.display = '';
-        this._label.style.display = '';
         this._line2.style.display = '';
-        this._label2.style.display = '';
-        this._dashline.style.display = '';
 
         this._handles.forEach(function(elem) {
             elem.showDOM();
@@ -255,81 +226,11 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._line2.style.transform =`translate3D(${line2Data.transformX}px, ${line2Data.transformY}px, 0)
             rotate(${line2Data.transformAngle}rad)`;
         this._line2.style.width = line2Data.length + 'px';
-
-        // update dash line
-        const line1Center = this.getPointInBetweenByPerc(
-                this._handles[0].worldPosition, this._handles[1].worldPosition, 0.5),
-            line2Center = this.getPointInBetweenByPerc(
-                this._handles[2].worldPosition, this._handles[3].worldPosition, 0.5),
-            dashLineData = this.getLineData(this.worldToScreen(line1Center), this.worldToScreen(line2Center));
-
-        this._dashline.style.transform =`translate3D(${dashLineData.transformX}px, ${dashLineData.transformY}px, 0)
-            rotate(${dashLineData.transformAngle}rad)`;
-        this._dashline.style.width = dashLineData.length + 'px';
-
-        // update labels
-        const units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
-            title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
-
-        this._distance = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition);
-        this._distance2 = this._handles[2].worldPosition.distanceTo(this._handles[3].worldPosition);
-
-        this._label.innerHTML = `${this._distance.toFixed(2)} ${units}`;
-        this._label2.innerHTML = `${this._distance2.toFixed(2)} ${units}`;
-
-        if (title !== '') {
-            this._label.setAttribute('title', title);
-            this._label.style.color = this._colors.error;
-            this._label2.setAttribute('title', title);
-            this._label2.style.color = this._colors.error;
-        } else {
-            this._label.removeAttribute('title');
-            this._label.style.color = this._colors.text;
-            this._label2.removeAttribute('title');
-            this._label2.style.color = this._colors.text;
-        }
-
-        let angle = Math.abs(lineData.transformAngle);
-        if (angle > Math.PI / 2) {
-            angle = Math.PI - angle;
-        }
-
-        const labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth
-                ? (this._label.offsetWidth / 2) / Math.cos(angle) + 15 // 5px for each handle + padding
-                : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle) + 15,
-            paddingVector = lineData.line.normalize().multiplyScalar(labelPadding),
-            paddingPoint = lineData.length > labelPadding * 2
-                ? this._handles[1].screenPosition.clone().sub(paddingVector)
-                : this._handles[1].screenPosition.clone().add(paddingVector),
-            transform = this.adjustLabelTransform(this._label, paddingPoint);
-
-        this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
-
-        let angle2 = Math.abs(line2Data.transformAngle);
-        if (angle2 > Math.PI / 2) {
-            angle2 = Math.PI - angle2;
-        }
-
-        const label2Padding = Math.tan(angle2) < this._label2.offsetHeight / this._label2.offsetWidth
-            ? (this._label2.offsetWidth / 2) / Math.cos(angle2) + 15 // 5px for each handle + padding
-            : (this._label2.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle2) + 15,
-            paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding),
-            paddingPoint2 = line2Data.length > label2Padding * 2
-                ? this._handles[3].screenPosition.clone().sub(paddingVector2)
-                : this._handles[3].screenPosition.clone().add(paddingVector2),
-            transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
-
-        this._label2.style.transform = `translate3D(${transform2.x}px, ${transform2.y}px, 0)`;
     }
 
     updateDOMColor() {
         this._line.style.backgroundColor = this._color;
-        this._label.style.borderColor = this._color;
-
         this._line2.style.backgroundColor = this._color;
-        this._label2.style.borderColor = this._color;
-
-        this._dashline.style.borderTop = '1.5px dashed ' + this._color;
     }
 
     free() {
@@ -342,10 +243,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._handles = [];
 
         this._container.removeChild(this._line);
-        this._container.removeChild(this._label);
         this._container.removeChild(this._line2);
-        this._container.removeChild(this._label2);
-        this._container.removeChild(this._dashline);
 
         // mesh, geometry, material
         this.remove(this._mesh);
@@ -378,13 +276,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         super.free();
     }
 
-    getPointInBetweenByPerc(pointA, pointB, percentage) {
-        const dir = pointB.clone().sub(pointA),
-            length = dir.length() * percentage;
-
-        return pointA.clone().add(dir.normalize().multiplyScalar(length));
-    }
-
     initOrtho() {
         this._initOrtho = true;
 
@@ -403,6 +294,13 @@ export default class WidgetsBiRuler extends WidgetsBase {
             Math.sqrt((pcenter.y - this._handles[2].worldPosition.y)*(pcenter.y - this._handles[2].worldPosition.y));
         this._handles[3].worldPosition.y = pcenter.y -
             Math.sqrt((pcenter.x - this._handles[2].worldPosition.x)*(pcenter.x - this._handles[2].worldPosition.x));
+    }
+
+    getPointInBetweenByPerc(pointA, pointB, percentage) {
+        const dir = pointB.clone().sub(pointA),
+            length = dir.length() * percentage;
+
+        return pointA.clone().add(dir.normalize().multiplyScalar(length));
     }
 
     get targetMesh() {
@@ -428,13 +326,5 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._handles[3].worldPosition.copy(worldPosition);
         this._worldPosition.copy(worldPosition);
         this.update();
-    }
-
-    get shotestDistance() {
-        return ((this._distance < this._distance2) ? this._distance : this._distance2);
-    }
-
-    get longestDistance() {
-        return ((this._distance > this._distance2) ? this._distance : this._distance2);
     }
 }

@@ -215,8 +215,6 @@ export default class WidgetsFreehand extends WidgetsBase {
     }
 
     createDOM() {
-        this.createLine();
-
         this._label = document.createElement('div');
         this._label.setAttribute('class', 'widgets-label');
 

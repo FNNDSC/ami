@@ -3,6 +3,7 @@ import Css from './widgets.css';
 import Angle from './widgets.angle';
 import Annotation from './widgets.annotation';
 import BiRuler from './widgets.biruler';
+import CrossRuler from './widgets.crossRuler';
 import Ellipse from './widgets.ellipse';
 import Freehand from './widgets.freehand';
 import Handle from './widgets.handle';
@@ -16,6 +17,7 @@ export {
     Angle as AngleWidget,
     Annotation as AnnotationWidget,
     BiRuler as BiRulerWidget,
+    CrossRuler as CrossRulerWidget,
     Ellipse as EllipseWidget,
     Freehand as FreehandWidget,
     Handle as HandleWidget,
