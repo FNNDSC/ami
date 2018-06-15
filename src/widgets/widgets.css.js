@@ -19,6 +19,14 @@ export default class WidgetsCss {
             height: 1.5px;
             margin-top: -0.75px; /* height / 2 */
         }
+        .widgets-line:before { /* for dragging */
+            content: " ";
+            position: absolute;
+            height: 11.5px;
+            left: 0;
+            right: 0;
+            margin-top: -5px;
+        }
         .widgets-dashline {
             position: absolute;
             border-top: 1.5px dashed;

@@ -243,7 +243,10 @@ export default class WidgetsFreehand extends WidgetsBase {
 
     createLine() {
         const line = document.createElement('div');
+
         line.setAttribute('class', 'widgets-line');
+        line.addEventListener('mouseenter', this.onHover);
+        line.addEventListener('mouseleave', this.onHover);
         this._lines.push(line);
         this._container.appendChild(line);
     }
@@ -481,6 +484,8 @@ export default class WidgetsFreehand extends WidgetsBase {
         this._moveHandle = null;
 
         this._lines.forEach(function(elem) {
+            elem.removeEventListener('mouseenter', this.onHover);
+            elem.removeEventListener('mouseleave', this.onHover);
             this._container.removeChild(elem);
         }, this);
         this._lines = [];

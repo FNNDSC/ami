@@ -46,12 +46,15 @@ export default class WidgetsHandle extends WidgetsBase {
     this.initOffsets();
 
     // event listeners
+    this.onResize = this.onResize.bind(this);
     this.onMove = this.onMove.bind(this);
     this.onHover = this.onHover.bind(this);
     this.addEventListeners();
   }
 
   addEventListeners() {
+    window.addEventListener('resize', this.onResize);
+
     this._dom.addEventListener('mouseenter', this.onHover);
     this._dom.addEventListener('mouseleave', this.onHover);
 
@@ -59,10 +62,37 @@ export default class WidgetsHandle extends WidgetsBase {
   }
 
   removeEventListeners() {
+    window.removeEventListener('resize', this.onResize);
+
     this._dom.removeEventListener('mouseenter', this.onHover);
     this._dom.removeEventListener('mouseleave', this.onHover);
 
     this._container.removeEventListener('wheel', this.onMove);
+  }
+
+  onResize() {
+    this.initOffsets();
+  }
+
+  onHover(evt) {
+    if (evt) {
+      this.hoverDom(evt);
+    }
+
+    this.hoverMesh();
+
+    this._hovered = this._meshHovered || this._domHovered;
+    this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+  }
+
+  hoverMesh() {
+    // check raycast intersection, do we want to hover on mesh or just css?
+    let intersectsHandle = this._raycaster.intersectObject(this._mesh);
+    this._meshHovered = (intersectsHandle.length > 0);
+  }
+
+  hoverDom(evt) {
+    this._domHovered = (evt.type === 'mouseenter');
   }
 
   onStart(evt) {
@@ -150,27 +180,6 @@ export default class WidgetsHandle extends WidgetsBase {
     this._controls.enabled = true;
 
     this.update();
-  }
-
-  onHover(evt) {
-    if (evt) {
-      this.hoverDom(evt);
-    }
-
-    this.hoverMesh();
-
-    this._hovered = this._meshHovered || this._domHovered;
-    this._container.style.cursor = this._hovered ? 'pointer' : 'default';
-  }
-
-  hoverMesh() {
-    // check raycast intersection, do we want to hover on mesh or just css?
-    let intersectsHandle = this._raycaster.intersectObject(this._mesh);
-    this._meshHovered = (intersectsHandle.length > 0);
-  }
-
-  hoverDom(evt) {
-    this._domHovered = (evt.type === 'mouseenter');
   }
 
   create() {

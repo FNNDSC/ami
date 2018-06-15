@@ -50,7 +50,7 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this.create();
     this.initOffsets();
 
-    this.onEnd = this.onEnd.bind(this);
+    this.onResize = this.onResize.bind(this);
     this.onMove = this.onMove.bind(this);
     this.onHoverlabel = this.onHoverlabel.bind(this);
     this.notonHoverlabel = this.notonHoverlabel.bind(this);
@@ -60,6 +60,8 @@ export default class WidgetsAnnotation extends WidgetsBase {
   }
 
   addEventListeners() {
+    window.addEventListener('resize', this.onResize);
+
     this._label.addEventListener('mouseenter', this.onHoverlabel);
     this._label.addEventListener('mouseleave', this.notonHoverlabel);
     this._label.addEventListener('dblclick', this.changelabeltext);
@@ -68,11 +70,17 @@ export default class WidgetsAnnotation extends WidgetsBase {
   }
 
   removeEventListeners() {
+    window.removeEventListener('resize', this.onResize);
+
     this._label.removeEventListener('mouseenter', this.onHoverlabel);
     this._label.removeEventListener('mouseleave', this.notonHoverlabel);
     this._label.removeEventListener('dblclick', this.changelabeltext);
 
     this._container.removeEventListener('wheel', this.onMove);
+  }
+
+  onResize() {
+    this.initOffsets();
   }
 
   onHoverlabel() { // this function is called when mouse enters the label with "mouseenter" event

@@ -34,7 +34,6 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._moveHandle.hide();
 
     this.create();
-    this.initOffsets();
 
     // event listeners
     this.onMove = this.onMove.bind(this);
