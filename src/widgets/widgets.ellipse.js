@@ -3,8 +3,6 @@ import WidgetsHandle from './widgets.handle';
 import GeometriesSlice from '../geometries/geometries.slice';
 import CoreUtils from '../core/core.utils';
 
-import {Vector3} from 'three';
-
 /**
  * @module widgets/ellipse
  */
@@ -41,7 +39,6 @@ export default class WidgetsEllipse extends WidgetsBase {
         this._handles[1].active = true;
         this._handles[1].tracking = true;
 
-        // handles to move widget
         this._moveHandle = new WidgetsHandle(targetMesh, controls);
         this._moveHandle.worldPosition.copy(this._worldPosition);
         this._moveHandle.hovered = true;
@@ -258,11 +255,9 @@ export default class WidgetsEllipse extends WidgetsBase {
             this.remove(this._mesh);
         }
 
-        const direction = new Vector3();
-        this._camera.getWorldDirection(direction);
-        const vec01 = new Vector3().subVectors(this._handles[1].worldPosition, this._handles[0].worldPosition),
+        const vec01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition),
             height = vec01.clone().projectOnVector(this._camera.up).length(),
-            width = vec01.clone().projectOnVector(direction.cross(this._camera.up)).length();
+            width = vec01.clone().projectOnVector(this._camera._right).length();
 
         if (width === 0 || height === 0) {
             return;

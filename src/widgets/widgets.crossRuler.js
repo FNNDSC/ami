@@ -1,6 +1,8 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 
+import {Vector3} from "three";
+
 /**
  * @module widgets/crossRuler
  */
@@ -10,7 +12,12 @@ export default class WidgetsCrossRuler extends WidgetsBase {
 
         this._stack = stack;
 
-        this._initOrtho = false;
+        this._domHovered = false;
+        this._moving = false;
+
+        this._distances = null; // from intersection point to handles
+        this._line01 = null; // vector from 0 to 1st handle
+        this._normal = null; // normal vector to line01
 
         // mesh stuff
         this._material = null;
@@ -38,46 +45,104 @@ export default class WidgetsCrossRuler extends WidgetsBase {
         this._handles[1].active = true;
         this._handles[1].tracking = true;
 
+        this._moveHandle = new WidgetsHandle(targetMesh, controls);
+        this._moveHandle.worldPosition.copy(this._worldPosition);
+        this._moveHandle.hovered = true;
+        this.add(this._moveHandle);
+        this._handles.push(this._moveHandle);
+        this._moveHandle.hide();
+
+        this.onHover = this.onHover.bind(this);
+        this.onMove = this.onMove.bind(this);
+
         this.create();
 
-        this.onMove = this.onMove.bind(this);
         this.addEventListeners();
     }
 
     addEventListeners() {
+        this._line.addEventListener('mouseenter', this.onHover);
+        this._line.addEventListener('mouseleave', this.onHover);
+        this._line2.addEventListener('mouseenter', this.onHover);
+        this._line2.addEventListener('mouseleave', this.onHover);
+
         this._container.addEventListener('wheel', this.onMove);
     }
 
     removeEventListeners() {
+        this._line.removeEventListener('mouseenter', this.onHover);
+        this._line.removeEventListener('mouseleave', this.onHover);
+        this._line2.removeEventListener('mouseenter', this.onHover);
+        this._line2.removeEventListener('mouseleave', this.onHover);
+
         this._container.removeEventListener('wheel', this.onMove);
     }
 
+    onHover(evt) {
+        if (evt) {
+            this.hoverDom(evt);
+        }
+
+        this.hoverMesh();
+
+        this._hovered = this._handles[0].hovered || this._handles[1].hovered ||
+            this._handles[2].hovered || this._domHovered;
+        this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+    }
+
+    hoverMesh() {
+        // check raycast intersection, do we want to hover on mesh or just css?
+    }
+
+    hoverDom(evt) {
+        this._domHovered = (evt.type === 'mouseenter');
+    }
+
     onStart(evt) {
-        this._handles[0].onStart(evt);
-        this._handles[1].onStart(evt);
-        this._handles[2].onStart(evt);
-        this._handles[3].onStart(evt);
+        this._moveHandle.onMove(evt, true);
+
+        this._handles.slice(0, -1).forEach(function(elem) {
+            elem.onStart(evt);
+        });
 
         this._active = this._handles[0].active || this._handles[1].active ||
-            this._handles[2].active || this._handles[3].active;
+            this._handles[2].active || this._handles[3].active || this._domHovered;
+
+        if (this._domHovered) {
+            this._moving = true;
+            this._controls.enabled = false;
+        }
 
         this.update();
     }
 
     onMove(evt) {
         if (this._active) {
+            const prevPosition = this._moveHandle.worldPosition.clone();
+
             this._dragged = true;
+            this._moveHandle.onMove(evt, true);
+
+            if (this._moving) {
+                this._handles.slice(0, -1).forEach(function(elem, ind) {
+                    this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                }, this);
+            }
         } else {
-            this._hovered = this._handles[0].hovered || this._handles[1].hovered ||
-                this._handles[2].hovered || this._handles[3].hovered;
-            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+            this.onHover(null);
         }
 
-        this._handles[0].onMove(evt);
-        this._handles[1].onMove(evt);
-        this._handles[2].onMove(evt);
-        this._handles[3].onMove(evt);
+        this._handles.slice(0, -1).forEach(function(elem) {
+            elem.onMove(evt);
+        });
 
+        if (this._distances) {
+            if (this._handles[0].active || this._handles[1].active) {
+                this.repositionOrtho(); // change worldPosition of 2nd and 3rd handle
+            } else if (this._handles[2].active || this._handles[3].active) {
+                this.recalculateOrtho();
+            }
+        }
         this.update();
     }
 
@@ -109,8 +174,11 @@ export default class WidgetsCrossRuler extends WidgetsBase {
         this._active = this._handles[0].active || this._handles[1].active ||
             this._handles[2].active || this._handles[3].active;
         this._dragged = false;
+        this._moving = false;
 
-        this.initOrtho();
+        if (!this._distances) {
+            this.initOrtho();
+        }
         this.update();
     }
 
@@ -162,7 +230,7 @@ export default class WidgetsCrossRuler extends WidgetsBase {
         this._line.style.display = 'none';
         this._line2.style.display = 'none';
 
-        this._handles.forEach(function(elem) {
+        this._handles.slice(0, -1).forEach(function(elem) {
             elem.hideDOM();
         });
     }
@@ -171,7 +239,7 @@ export default class WidgetsCrossRuler extends WidgetsBase {
         this._line.style.display = '';
         this._line2.style.display = '';
 
-        this._handles.forEach(function(elem) {
+        this._handles.slice(0, -1).forEach(function(elem) {
             elem.showDOM();
         });
     }
@@ -180,10 +248,9 @@ export default class WidgetsCrossRuler extends WidgetsBase {
         this.updateColor();
 
         // update handles
-        this._handles[0].update();
-        this._handles[1].update();
-        this._handles[2].update();
-        this._handles[3].update();
+        this._handles.slice(0, -1).forEach(function(elem) {
+            elem.update();
+        });
 
         // mesh stuff
         this.updateMeshColor();
@@ -276,31 +343,62 @@ export default class WidgetsCrossRuler extends WidgetsBase {
         super.free();
     }
 
-    initOrtho() {
-        this._initOrtho = true;
+    initOrtho() { // called onEnd if distances are null
+        this._line01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition);
+        this._normal = this._line01.clone().cross(this._camera._direction).normalize();
 
-        let pcenter = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.5);
-        this._handles[2].worldPosition = this.getPointInBetweenByPerc(
-            this._handles[0].worldPosition, this._handles[1].worldPosition, 0.25);
-        this._handles[3].worldPosition = this.getPointInBetweenByPerc(
-            this._handles[0].worldPosition, this._handles[1].worldPosition, 0.75);
+        const center = this._handles[1].worldPosition.clone().add(this._handles[0].worldPosition).multiplyScalar(0.5),
+            halfLength = this._line01.length() / 2,
+            normLine = this._normal.multiplyScalar(halfLength);
 
-        this._handles[2].worldPosition.x = pcenter.x -
-            Math.sqrt((pcenter.y - this._handles[2].worldPosition.y)*(pcenter.y - this._handles[2].worldPosition.y));
-        this._handles[2].worldPosition.y = pcenter.y +
-            Math.sqrt((pcenter.x - this._handles[2].worldPosition.x)*(pcenter.x - this._handles[2].worldPosition.x));
+        this._handles[2].worldPosition.copy(center.clone().add(normLine));
+        this._handles[3].worldPosition.copy(center.clone().sub(normLine));
 
-        this._handles[3].worldPosition.x = pcenter.x +
-            Math.sqrt((pcenter.y - this._handles[2].worldPosition.y)*(pcenter.y - this._handles[2].worldPosition.y));
-        this._handles[3].worldPosition.y = pcenter.y -
-            Math.sqrt((pcenter.x - this._handles[2].worldPosition.x)*(pcenter.x - this._handles[2].worldPosition.x));
+        this._distances = [halfLength, halfLength, halfLength, halfLength];
     }
 
-    getPointInBetweenByPerc(pointA, pointB, percentage) {
-        const dir = pointB.clone().sub(pointA),
-            length = dir.length() * percentage;
+    repositionOrtho() { // called onMove if 0 or 1st handle is active
+        this._line01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition);
+        this._normal = this._line01.clone().cross(this._camera._direction).normalize();
 
-        return pointA.clone().add(dir.normalize().multiplyScalar(length));
+        const intersect = this._handles[0].worldPosition.clone()
+                .add(this._line01.clone().normalize().multiplyScalar(this._distances[0]));
+
+        this._handles[2].worldPosition.copy(intersect.clone().add(this._normal.multiplyScalar(this._distances[2])));
+        this._handles[3].worldPosition.copy(intersect.clone().sub(this._normal.multiplyScalar(this._distances[3])));
+        // distances don't change
+    }
+
+    recalculateOrtho() { // called onMove if 2nd or 3rd handle is active
+        const activeInd = this._handles[2].active ? 2 : 3,
+            lines = [],
+            intersect = new Vector3();
+
+        lines[2] = this._handles[2].worldPosition.clone().sub(this._handles[0].worldPosition);
+        lines[3] = this._handles[3].worldPosition.clone().sub(this._handles[0].worldPosition);
+        new THREE.Ray(this._handles[0].worldPosition, this._line01.clone().normalize())
+            .closestPointToPoint(this._handles[activeInd].worldPosition, intersect);
+
+        const isOutside = intersect.clone().sub(this._handles[0].worldPosition).length() > this._line01.length();
+        // if intersection is outside of the line01 then change worldPosition of active handle
+        if (isOutside || intersect.equal(this._handles[0].worldPosition)) {
+            if (isOutside) {
+                intersect.copy(this._handles[1].worldPosition);
+            }
+
+            this._handles[activeInd].worldPosition
+                .copy(intersect.clone().add(lines[activeInd].clone().projectOnVector(this._normal))); // TODO! add or sub?
+        }
+
+        // iа 2nd and 3rd handles are on the same side from line01 then change worldPosition of active handle
+        if (lines[3].angleTo(lines[2]) < lines[3].angleTo(this._line01) + lines[2].angleTo(this._line01)) {
+            this._handles[activeInd].worldPosition.copy(intersect);
+        }
+
+        this._handles[5 - activeInd].worldPosition
+            .copy(intersect.clone().sub(this._normal.multiplyScalar(this._distances[5 - activeInd]))); // TODO! sub or add
+
+        this._distances[activeInd] = intersect.sub(this._handles[activeInd].worldPosition).length();
     }
 
     get targetMesh() {
@@ -320,10 +418,9 @@ export default class WidgetsCrossRuler extends WidgetsBase {
     }
 
     set worldPosition(worldPosition) {
-        this._handles[0].worldPosition.copy(worldPosition);
-        this._handles[1].worldPosition.copy(worldPosition);
-        this._handles[2].worldPosition.copy(worldPosition);
-        this._handles[3].worldPosition.copy(worldPosition);
+        this._handles.slice(0, -1).forEach(function(elem) {
+            elem.worldPosition.copy(worldPosition);
+        });
         this._worldPosition.copy(worldPosition);
         this.update();
     }

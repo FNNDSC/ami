@@ -10,8 +10,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         this._stack = stack;
 
-        this._initOrtho = false;
-
         // mesh stuff
         this._material = null;
         this._material2 = null;
@@ -58,10 +56,9 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     onStart(evt) {
-        this._handles[0].onStart(evt);
-        this._handles[1].onStart(evt);
-        this._handles[2].onStart(evt);
-        this._handles[3].onStart(evt);
+        this._handles.forEach(function(elem) {
+            elem.onStart(evt);
+        });
 
         this._active = this._handles[0].active || this._handles[1].active ||
             this._handles[2].active || this._handles[3].active;
@@ -77,10 +74,9 @@ export default class WidgetsBiRuler extends WidgetsBase {
             this._container.style.cursor = this._hovered ? 'pointer' : 'default';
         }
 
-        this._handles[0].onMove(evt);
-        this._handles[1].onMove(evt);
-        this._handles[2].onMove(evt);
-        this._handles[3].onMove(evt);
+        this._handles.forEach(function(elem) {
+            elem.onMove(evt);
+        });
 
         this.update();
     }
@@ -209,10 +205,9 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this.updateColor();
 
         // update handles
-        this._handles[0].update();
-        this._handles[1].update();
-        this._handles[2].update();
-        this._handles[3].update();
+        this._handles.forEach(function(elem) {
+            elem.update();
+        });
 
         // mesh stuff
         this.updateMeshColor();
@@ -257,10 +252,10 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._line2.style.width = line2Data.length + 'px';
 
         // update dash line
-        const line1Center = this.getPointInBetweenByPerc(
-                this._handles[0].worldPosition, this._handles[1].worldPosition, 0.5),
-            line2Center = this.getPointInBetweenByPerc(
-                this._handles[2].worldPosition, this._handles[3].worldPosition, 0.5),
+        const line1Center = this._handles[0].worldPosition.clone()
+                .add(this._handles[1].worldPosition).multiplyScalar(0.5),
+            line2Center = this._handles[2].worldPosition.clone()
+                .add(this._handles[3].worldPosition).multiplyScalar(0.5),
             dashLineData = this.getLineData(this.worldToScreen(line1Center), this.worldToScreen(line2Center));
 
         this._dashline.style.transform =`translate3D(${dashLineData.transformX}px, ${dashLineData.transformY}px, 0)
@@ -378,33 +373,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         super.free();
     }
 
-    getPointInBetweenByPerc(pointA, pointB, percentage) {
-        const dir = pointB.clone().sub(pointA),
-            length = dir.length() * percentage;
-
-        return pointA.clone().add(dir.normalize().multiplyScalar(length));
-    }
-
-    initOrtho() {
-        this._initOrtho = true;
-
-        let pcenter = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.5);
-        this._handles[2].worldPosition = this.getPointInBetweenByPerc(
-            this._handles[0].worldPosition, this._handles[1].worldPosition, 0.25);
-        this._handles[3].worldPosition = this.getPointInBetweenByPerc(
-            this._handles[0].worldPosition, this._handles[1].worldPosition, 0.75);
-
-        this._handles[2].worldPosition.x = pcenter.x -
-            Math.sqrt((pcenter.y - this._handles[2].worldPosition.y)*(pcenter.y - this._handles[2].worldPosition.y));
-        this._handles[2].worldPosition.y = pcenter.y +
-            Math.sqrt((pcenter.x - this._handles[2].worldPosition.x)*(pcenter.x - this._handles[2].worldPosition.x));
-
-        this._handles[3].worldPosition.x = pcenter.x +
-            Math.sqrt((pcenter.y - this._handles[2].worldPosition.y)*(pcenter.y - this._handles[2].worldPosition.y));
-        this._handles[3].worldPosition.y = pcenter.y -
-            Math.sqrt((pcenter.x - this._handles[2].worldPosition.x)*(pcenter.x - this._handles[2].worldPosition.x));
-    }
-
     get targetMesh() {
         return this._targetMesh;
     }
@@ -422,10 +390,9 @@ export default class WidgetsBiRuler extends WidgetsBase {
     }
 
     set worldPosition(worldPosition) {
-        this._handles[0].worldPosition.copy(worldPosition);
-        this._handles[1].worldPosition.copy(worldPosition);
-        this._handles[2].worldPosition.copy(worldPosition);
-        this._handles[3].worldPosition.copy(worldPosition);
+        this._handles.forEach(function(elem) {
+            elem.worldPosition.copy(worldPosition);
+        });
         this._worldPosition.copy(worldPosition);
         this.update();
     }

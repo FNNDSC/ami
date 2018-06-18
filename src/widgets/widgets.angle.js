@@ -45,7 +45,6 @@ export default class WidgetsAngle extends WidgetsBase {
         this._handles[2].active = true;
         this._handles[2].tracking = true;
 
-        // handles to move widget
         this._moveHandle = new WidgetsHandle(targetMesh, controls);
         this._moveHandle.worldPosition.copy(this._worldPosition);
         this._moveHandle.hovered = true;
