@@ -4,6 +4,7 @@ import GeometriesSlice from '../geometries/geometries.slice';
 import CoreUtils from '../core/core.utils';
 
 import {Vector3} from 'three';
+import WidgetsEllipse from "./widgets.ellipse";
 
 /**
  * @module widgets/polygon
@@ -14,6 +15,7 @@ export default class WidgetsPolygon extends WidgetsBase {
 
         this._stack = stack;
 
+        this._widgetType = 'Polygon';
         this._initialized = false; // set to true onDblClick if number of handles > 2
         this._newHandleRequired = true; // should handle be created onMove?
         this._moving = false;

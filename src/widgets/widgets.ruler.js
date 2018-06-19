@@ -1,5 +1,6 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
+import WidgetsVoxelProbe from "./widgets.voxelProbe";
 
 /**
  * @module widgets/ruler
@@ -10,6 +11,7 @@ export default class WidgetsRuler extends WidgetsBase {
 
     this._stack = stack;
 
+    this._widgetType = 'Ruler';
     this._moving = false;
     this._domHovered = false;
 

@@ -14,6 +14,7 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         this._stack = stack;
 
+        this._widgetType = 'Freehand';
         this._initialized = false; // set to true onEnd if number of handles > 2
         this._moving = false;
         this._domHovered = false;

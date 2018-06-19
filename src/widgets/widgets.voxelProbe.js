@@ -12,6 +12,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
 
     this._stack = stack;
 
+    this._widgetType = 'VoxelProbe';
     this._controls.enabled = false; // controls should be disabled for widgets with a single handle
     this._initialized = false; // set to true onEnd
     this._moving = false;

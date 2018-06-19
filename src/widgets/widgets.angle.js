@@ -10,6 +10,7 @@ export default class WidgetsAngle extends WidgetsBase {
     constructor(targetMesh, controls) {
         super(targetMesh, controls);
 
+        this._widgetType = 'Angle';
         this._moving = false;
         this._domHovered = false;
 

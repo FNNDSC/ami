@@ -12,6 +12,7 @@ export default class WidgetsCrossRuler extends WidgetsBase {
 
         this._stack = stack;
 
+        this._widgetType = 'CrossRuler';
         this._domHovered = false;
         this._moving = false;
 

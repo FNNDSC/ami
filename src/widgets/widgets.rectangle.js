@@ -14,6 +14,7 @@ export default class WidgetsRectangle extends WidgetsBase {
 
         this._stack = stack;
 
+        this._widgetType = 'Rectangle';
         this._moving = false;
         this._domHovered = false;
 

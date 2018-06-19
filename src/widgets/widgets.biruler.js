@@ -10,6 +10,8 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         this._stack = stack;
 
+        this._widgetType = 'BiRuler';
+
         // mesh stuff
         this._material = null;
         this._material2 = null;

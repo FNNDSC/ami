@@ -11,6 +11,13 @@ export default class WidgetsAnnotation extends WidgetsBase {
   constructor(targetMesh, controls) {
     super(targetMesh, controls);
 
+    this._widgetType = 'Annotation';
+    this._initialized = false; // set to true when the name of the label is entered
+    this._movinglabel = null; // bool that turns true when the label is moving with the mouse
+    this._labelmoved = false; // bool that turns true once the label is moved by the user (at least once)
+    this._labelhovered = false;
+    this._manuallabeldisplay = false; // Make true to force the label to be displayed
+
     // mesh stuff
     this._material = null;
     this._geometry = null;
@@ -22,13 +29,6 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this._dashline = null;
     this._label = null;
     this._labeltext = null;
-
-    // booleans
-    this._initialized = false; // set to true when the name of the label is entered
-    this._movinglabel = null; // bool that turns true when the label is moving with the mouse
-    this._labelmoved = false; // bool that turns true once the label is moved by the user (at least once)
-    this._labelhovered = false;
-    this._manuallabeldisplay = false; // Make true to force the label to be displayed
 
     // var
     this._labelOffset = new Vector3(); // difference between label center and second handle

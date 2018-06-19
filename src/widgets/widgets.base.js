@@ -9,6 +9,8 @@ export default class WidgetsBase extends THREE.Object3D {
   constructor(targetMesh, controls) {
     super(); // init THREE Object 3D
 
+    this._widgetType = 'Base';
+
     const elementStyle = document.getElementById('ami-widgets');
     if (elementStyle === null) {
       const styleEl = document.createElement('style');
@@ -198,6 +200,10 @@ export default class WidgetsBase extends THREE.Object3D {
 
   free() {
     this._container = null;
+  }
+
+  get widgetType() {
+    return this._widgetType;
   }
 
   get targetMesh() {

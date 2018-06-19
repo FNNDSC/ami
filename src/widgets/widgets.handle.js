@@ -10,6 +10,7 @@ export default class WidgetsHandle extends WidgetsBase {
   constructor(targetMesh, controls) {
     super(targetMesh, controls);
 
+    this._widgetType = 'Handle';
     // if no target mesh, use plane for FREE dragging.
     this._plane = {
         position: new Vector3(),

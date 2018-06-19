@@ -2,6 +2,7 @@ import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 import GeometriesSlice from '../geometries/geometries.slice';
 import CoreUtils from '../core/core.utils';
+import WidgetsRectangle from "./widgets.rectangle";
 
 /**
  * @module widgets/ellipse
@@ -12,6 +13,7 @@ export default class WidgetsEllipse extends WidgetsBase {
 
         this._stack = stack;
 
+        this._widgetType = 'Ellipse';
         this._moving = false;
         this._domHovered = false;
 
