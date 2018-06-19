@@ -98,21 +98,19 @@ export default class WidgetsPolygon extends WidgetsBase {
     onStart(evt) {
         let active = false;
 
-        this._moveHandle.onMove(evt, true);
         this._handles.forEach(function(elem) {
             elem.onStart(evt);
             active = active || elem.active;
         });
 
         if (!this._initialized) {
-            this._newHandleRequired = true;
-
             return;
         }
 
+        this._moveHandle.onMove(evt, true);
         this._active = active || this._domHovered;
 
-        if (this._domHovered) {
+        if (this._domHovered && this._initialized) {
             this._moving = true;
             this._controls.enabled = false;
         }
@@ -174,6 +172,12 @@ export default class WidgetsPolygon extends WidgetsBase {
     onEnd() {
         let numHandles = this._handles.length,
             active = false;
+
+        if (!this._initialized && numHandles > 1 &&
+            this._handles[numHandles-2].screenPosition.distanceTo(this._handles[numHandles - 1].screenPosition) < 10
+        ) {
+            return;
+        }
 
         this._handles.forEach(function(elem) {
             elem.onEnd();

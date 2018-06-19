@@ -164,13 +164,15 @@ export default class WidgetsAnnotation extends WidgetsBase {
     this.update();
   }
 
-  setlabeltext() { // this function is called when the user creates a new arrow
-    this._labeltext = prompt('Please enter the name of the label', '');
+  setlabeltext() { // called when the user creates a new arrow
+    while(!this._labeltext) {
+      this._labeltext = prompt('Please enter the annotation text', '');
+    }
     this.displaylabel();
   }
 
-  changelabeltext() { // this function is called when the user does double click in the label
-    this._labeltext = prompt('Please enter new name of the label', this._label.innerHTML);
+  changelabeltext() { // called when the user does double click in the label
+    this._labeltext = prompt('Please enter a new annotation text', this._label.innerHTML);
     this.displaylabel();
   }
 

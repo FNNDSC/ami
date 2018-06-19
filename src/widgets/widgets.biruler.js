@@ -64,6 +64,7 @@ export default class WidgetsBiRuler extends WidgetsBase {
 
         this._active = this._handles[0].active || this._handles[1].active ||
             this._handles[2].active || this._handles[3].active;
+
         this.update();
     }
 
@@ -87,7 +88,9 @@ export default class WidgetsBiRuler extends WidgetsBase {
         this._handles[0].onEnd();
         this._handles[2].onEnd();
 
-        if (this._handles[1].tracking && this._handles[0].worldPosition.equals(this._handles[1].worldPosition)) {
+        if (this._handles[1].tracking &&
+            this._handles[0].screenPosition.distanceTo(this._handles[1].screenPosition) < 10
+        ) {
             return;
         }
 

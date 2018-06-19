@@ -101,7 +101,7 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         this._active = active || this._domHovered;
 
-        if (this._domHovered) {
+        if (this._domHovered && this._initialized) {
             this._moving = true;
             this._controls.enabled = false;
         }
@@ -374,9 +374,7 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         let isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
 
-        let interpointdist = handle0.worldPosition.distanceTo(newhandle.worldPosition);
-
-        if (isOnLine || interpointdist < 30 / this._camera.zoom) {
+        if (isOnLine || handle0.screenPosition.distanceTo(newhandle.screenPosition) < 20) {
             this.remove(handle1);
             handle1.free();
 

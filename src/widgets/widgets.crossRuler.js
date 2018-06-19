@@ -109,7 +109,7 @@ export default class WidgetsCrossRuler extends WidgetsBase {
         this._active = this._handles[0].active || this._handles[1].active ||
             this._handles[2].active || this._handles[3].active || this._domHovered;
 
-        if (this._domHovered) {
+        if (this._domHovered && this._distances) {
             this._moving = true;
             this._controls.enabled = false;
         }
@@ -152,7 +152,9 @@ export default class WidgetsCrossRuler extends WidgetsBase {
         this._handles[2].onEnd();
         this._handles[3].onEnd();
 
-        if (this._handles[1].tracking && this._handles[0].worldPosition.equals(this._handles[1].worldPosition)) {
+        if (this._handles[1].tracking &&
+            this._handles[0].screenPosition.distanceTo(this._handles[1].screenPosition) < 10
+        ) {
             return;
         }
 

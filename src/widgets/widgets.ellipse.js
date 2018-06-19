@@ -104,7 +104,7 @@ export default class WidgetsEllipse extends WidgetsBase {
 
         this._active = this._handles[0].active || this._handles[1].active || this._domHovered;
 
-        if (this._domHovered) {
+        if (this._domHovered && !this._handles[1].tracking) {
             this._moving = true;
             this._controls.enabled = false;
         }
@@ -139,7 +139,9 @@ export default class WidgetsEllipse extends WidgetsBase {
     onEnd() {
         this._handles[0].onEnd(); // First Handle
 
-        if (this._handles[0].worldPosition.equals(this._handles[1].worldPosition)) {
+        if (this._handles[1].tracking &&
+            this._handles[0].screenPosition.distanceTo(this._handles[1].screenPosition) < 10
+        ) {
             return;
         }
 
