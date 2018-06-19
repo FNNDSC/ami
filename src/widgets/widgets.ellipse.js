@@ -34,7 +34,6 @@ export default class WidgetsEllipse extends WidgetsBase {
         for (let i = 0; i < 2; i++) {
             handle = new WidgetsHandle(targetMesh, controls);
             handle.worldPosition.copy(this._worldPosition);
-            handle.hovered = true;
             this.add(handle);
             this._handles.push(handle);
         }
@@ -43,7 +42,6 @@ export default class WidgetsEllipse extends WidgetsBase {
 
         this._moveHandle = new WidgetsHandle(targetMesh, controls);
         this._moveHandle.worldPosition.copy(this._worldPosition);
-        this._moveHandle.hovered = true;
         this.add(this._moveHandle);
         this._handles.push(this._moveHandle);
         this._moveHandle.hide();

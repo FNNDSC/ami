@@ -25,12 +25,10 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     // handle (represent voxel)
     this._handle = new WidgetsHandle(targetMesh, controls);
     this._handle.worldPosition.copy(this._worldPosition);
-    this._handle.hovered = true;
     this.add(this._handle);
 
     this._moveHandle = new WidgetsHandle(targetMesh, controls);
     this._moveHandle.worldPosition.copy(this._worldPosition);
-    this._moveHandle.hovered = true;
     this.add(this._moveHandle);
     this._moveHandle.hide();
 

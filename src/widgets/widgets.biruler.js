@@ -34,7 +34,6 @@ export default class WidgetsBiRuler extends WidgetsBase {
         for (let i = 0; i < 4; i++) {
             handle = new WidgetsHandle(targetMesh, controls);
             handle.worldPosition.copy(this._worldPosition);
-            handle.hovered = true;
             this.add(handle);
             this._handles.push(handle);
         }

@@ -33,13 +33,11 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         let handle = new WidgetsHandle(targetMesh, controls);
         handle.worldPosition.copy(this._worldPosition);
-        handle.hovered = true;
         this.add(handle);
         this._handles.push(handle);
 
         this._moveHandle = new WidgetsHandle(targetMesh, controls);
         this._moveHandle.worldPosition.copy(this._worldPosition);
-        this._moveHandle.hovered = true;
         this.add(this._moveHandle);
         this._moveHandle.hide();
 
@@ -110,21 +108,24 @@ export default class WidgetsFreehand extends WidgetsBase {
     }
 
     onMove(evt) {
+        let numHandles = this._handles.length,
+            hovered = false;
+
         if (this.active) {
             this._dragged = true;
 
             if (!this._initialized) {
-                this._handles[this._handles.length - 1].hovered = false;
-                this._handles[this._handles.length - 1].active = false;
-                this._handles[this._handles.length - 1].tracking = false;
+                this._handles[numHandles - 1].hovered = false;
+                this._handles[numHandles - 1].active = false;
+                this._handles[numHandles - 1].tracking = false;
 
-                let nextHandle = new WidgetsHandle(this._targetMesh, this._controls);
-                nextHandle.worldPosition.copy(this._worldPosition);
-                nextHandle.hovered = true;
-                nextHandle.active = true;
-                nextHandle.tracking = true;
-                this.add(nextHandle);
-                this._handles.push(nextHandle);
+                let handle = new WidgetsHandle(this._targetMesh, this._controls);
+                handle.worldPosition.copy(this._worldPosition);
+                handle.hovered = true;
+                handle.active = true;
+                handle.tracking = true;
+                this.add(handle);
+                this._handles.push(handle);
 
                 this.createLine();
             } else {
@@ -144,8 +145,6 @@ export default class WidgetsFreehand extends WidgetsBase {
                 }
             }
         }
-
-        let hovered = false;
 
         this._handles.forEach(function(elem) {
             elem.onMove(evt);

@@ -35,13 +35,11 @@ export default class WidgetsPolygon extends WidgetsBase {
 
         let handle = new WidgetsHandle(targetMesh, controls);
         handle.worldPosition.copy(this._worldPosition);
-        handle.hovered = true;
         this.add(handle);
         this._handles.push(handle);
 
         this._moveHandle = new WidgetsHandle(targetMesh, controls);
         this._moveHandle.worldPosition.copy(this._worldPosition);
-        this._moveHandle.hovered = true;
         this.add(this._moveHandle);
         this._moveHandle.hide();
 
@@ -208,7 +206,9 @@ export default class WidgetsPolygon extends WidgetsBase {
     onDoubleClick() {
         let numHandles = this._handles.length;
 
-        if (numHandles < 3 || this._initialized) {
+        if (numHandles < 3 || this._initialized || (numHandles > 1 &&
+            this._handles[numHandles-2].screenPosition.distanceTo(this._handles[numHandles - 1].screenPosition) < 10)
+        ) {
             return;
         }
 
