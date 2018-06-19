@@ -441,35 +441,35 @@ export default class WidgetsCrossRuler extends WidgetsBase {
      * @param {Vector3} fourth  The end of the second line
      */
     initCoordinates(first, second, third, fourth) {
-        this._handles[0].worldPosition.copy(first);
-        this._handles[1].worldPosition.copy(second);
-        this._handles[2].worldPosition.copy(third);
-        this._handles[3].worldPosition.copy(fourth);
-
-        this.initLineAndNormal();
-
         const intersectR = new Vector3(),
-            intersectS = new Vector3();
+            intersectS = new Vector3(),
+            ray = new THREE.Ray(first);
 
-        new THREE.Ray(this._handles[0].worldPosition, this._line01.clone().normalize()).distanceSqToSegment(
-            this._handles[2].worldPosition, this._handles[3].worldPosition, intersectR, intersectS);
+        ray.lookAt(second);
+        ray.distanceSqToSegment(third, fourth, intersectR, intersectS);
 
-        if (intersectR.distanceTo(intersectS) > 0.01) {
-            window.console.warn('Provided');
+        if (intersectR.distanceTo(intersectS) > 0.01 &&
+            intersectR.clone().sub(first).length() > second.clone().sub(first).length() + 0.01
+        ) {
+            window.console.warn('Lines do not intersect');
 
             return;
         }
 
-        this._distances = [
-            intersectR.clone().sub(this._handles[0].worldPosition).length(),
-            intersectR.clone().sub(this._handles[1].worldPosition).length(),
-            intersectR.clone().sub(this._handles[2].worldPosition).length(),
-            intersectR.clone().sub(this._handles[3].worldPosition).length(),
-        ];
-
+        this._handles[0].worldPosition.copy(first);
+        this._handles[1].worldPosition.copy(second);
+        this._handles[2].worldPosition.copy(third);
+        this._handles[3].worldPosition.copy(fourth);
         this._handles[1].active = false;
         this._handles[1].tracking = false;
+        this._distances = [
+            intersectR.clone().sub(first).length(),
+            intersectR.clone().sub(second).length(),
+            intersectR.clone().sub(third).length(),
+            intersectR.clone().sub(fourth).length(),
+        ];
 
+        this.initLineAndNormal();
         this.update();
     }
 
