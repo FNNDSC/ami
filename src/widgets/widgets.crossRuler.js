@@ -346,9 +346,13 @@ export default class WidgetsCrossRuler extends WidgetsBase {
         super.free();
     }
 
-    initOrtho() { // called onEnd if distances are null
+    initLineAndNormal() {
         this._line01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition);
         this._normal = this._line01.clone().cross(this._camera._direction).normalize();
+    }
+
+    initOrtho() { // called onEnd if distances are null
+        this.initLineAndNormal();
 
         const center = this._handles[1].worldPosition.clone().add(this._handles[0].worldPosition).multiplyScalar(0.5),
             halfLength = this._line01.length() / 2,
@@ -362,8 +366,7 @@ export default class WidgetsCrossRuler extends WidgetsBase {
     }
 
     repositionOrtho() { // called onMove if 0 or 1st handle is active
-        this._line01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition);
-        this._normal = this._line01.clone().cross(this._camera._direction).normalize();
+        this.initLineAndNormal();
         this._distances[0] *= this._line01.length() / (this._distances[0] + this._distances[1]);
         this._distances[1] = this._line01.length() - this._distances[0];
 
@@ -415,6 +418,11 @@ export default class WidgetsCrossRuler extends WidgetsBase {
         this._distances[1] = intersect.clone().sub(this._handles[1].worldPosition).length();
     }
 
+    /**
+     * Get CrossRuler handles position
+     *
+     * @return {Array.<Vector3>} First begin, first end, second begin, second end
+     */
     getCoordinates() {
         return [
             this._handles[0].worldPosition,
@@ -422,6 +430,47 @@ export default class WidgetsCrossRuler extends WidgetsBase {
             this._handles[2].worldPosition,
             this._handles[3].worldPosition,
         ];
+    }
+
+    /**
+     * Set CrossRuler handles position
+     *
+     * @param {Vector3} first   The beginning of the first line
+     * @param {Vector3} second  The end of the first line
+     * @param {Vector3} third   The beginning of the second line (clockwise relative to the first line)
+     * @param {Vector3} fourth  The end of the second line
+     */
+    initCoordinates(first, second, third, fourth) {
+        this._handles[0].worldPosition.copy(first);
+        this._handles[1].worldPosition.copy(second);
+        this._handles[2].worldPosition.copy(third);
+        this._handles[3].worldPosition.copy(fourth);
+
+        this.initLineAndNormal();
+
+        const intersectR = new Vector3(),
+            intersectS = new Vector3();
+
+        new THREE.Ray(this._handles[0].worldPosition, this._line01.clone().normalize()).distanceSqToSegment(
+            this._handles[2].worldPosition, this._handles[3].worldPosition, intersectR, intersectS);
+
+        if (intersectR.distanceTo(intersectS) > 0.01) {
+            window.console.warn('Provided');
+
+            return;
+        }
+
+        this._distances = [
+            intersectR.clone().sub(this._handles[0].worldPosition).length(),
+            intersectR.clone().sub(this._handles[1].worldPosition).length(),
+            intersectR.clone().sub(this._handles[2].worldPosition).length(),
+            intersectR.clone().sub(this._handles[3].worldPosition).length(),
+        ];
+
+        this._handles[1].active = false;
+        this._handles[1].tracking = false;
+
+        this.update();
     }
 
     get targetMesh() {
