@@ -86,7 +86,7 @@ export default class WidgetsCrossRuler extends WidgetsBase {
         this.hoverMesh();
 
         this._hovered = this._handles[0].hovered || this._handles[1].hovered ||
-            this._handles[2].hovered || this._domHovered;
+            this._handles[2].hovered || this._handles[3].hovered || this._domHovered;
         this._container.style.cursor = this._hovered ? 'pointer' : 'default';
     }
 
@@ -349,24 +349,28 @@ export default class WidgetsCrossRuler extends WidgetsBase {
 
         const center = this._handles[1].worldPosition.clone().add(this._handles[0].worldPosition).multiplyScalar(0.5),
             halfLength = this._line01.length() / 2,
-            normLine = this._normal.multiplyScalar(halfLength);
+            normLine = this._normal.clone().multiplyScalar(halfLength * 0.8),
+            normLength = normLine.length();
 
         this._handles[2].worldPosition.copy(center.clone().add(normLine));
         this._handles[3].worldPosition.copy(center.clone().sub(normLine));
 
-        this._distances = [halfLength, halfLength, halfLength, halfLength];
+        this._distances = [halfLength, halfLength, normLength, normLength];
     }
 
     repositionOrtho() { // called onMove if 0 or 1st handle is active
         this._line01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition);
         this._normal = this._line01.clone().cross(this._camera._direction).normalize();
+        this._distances[0] *= this._line01.length() / (this._distances[0] + this._distances[1]);
+        this._distances[1] = this._line01.length() - this._distances[0];
 
         const intersect = this._handles[0].worldPosition.clone()
                 .add(this._line01.clone().normalize().multiplyScalar(this._distances[0]));
 
-        this._handles[2].worldPosition.copy(intersect.clone().add(this._normal.multiplyScalar(this._distances[2])));
-        this._handles[3].worldPosition.copy(intersect.clone().sub(this._normal.multiplyScalar(this._distances[3])));
-        // distances don't change
+        this._handles[2].worldPosition
+            .copy(intersect.clone().add(this._normal.clone().multiplyScalar(this._distances[2])));
+        this._handles[3].worldPosition
+            .copy(intersect.clone().sub(this._normal.clone().multiplyScalar(this._distances[3])));
     }
 
     recalculateOrtho() { // called onMove if 2nd or 3rd handle is active
@@ -381,24 +385,40 @@ export default class WidgetsCrossRuler extends WidgetsBase {
 
         const isOutside = intersect.clone().sub(this._handles[0].worldPosition).length() > this._line01.length();
         // if intersection is outside of the line01 then change worldPosition of active handle
-        if (isOutside || intersect.equal(this._handles[0].worldPosition)) {
+        if (isOutside || intersect.equals(this._handles[0].worldPosition)) {
             if (isOutside) {
                 intersect.copy(this._handles[1].worldPosition);
             }
 
             this._handles[activeInd].worldPosition
-                .copy(intersect.clone().add(lines[activeInd].clone().projectOnVector(this._normal))); // TODO! add or sub?
+                .copy(intersect.clone().add(lines[activeInd].clone().projectOnVector(this._normal)));
         }
 
-        // iа 2nd and 3rd handles are on the same side from line01 then change worldPosition of active handle
-        if (lines[3].angleTo(lines[2]) < lines[3].angleTo(this._line01) + lines[2].angleTo(this._line01)) {
-            this._handles[activeInd].worldPosition.copy(intersect);
+        if (lines[2].cross(this._line01).angleTo(this._camera._direction) > 0.01) {
+            this._handles[2].worldPosition.copy(intersect); // 2nd handle should always be above line01
+        }
+        if (lines[3].cross(this._line01).angleTo(this._camera._direction) < Math.PI - 0.01) {
+            this._handles[3].worldPosition.copy(intersect); // 3nd handle should always be below line01
         }
 
-        this._handles[5 - activeInd].worldPosition
-            .copy(intersect.clone().sub(this._normal.multiplyScalar(this._distances[5 - activeInd]))); // TODO! sub or add
+        lines[0] = this._normal.clone().multiplyScalar(this._distances[5 - activeInd]);
+        if (activeInd === 2) {
+            lines[0].negate();
+        }
+        this._handles[5 - activeInd].worldPosition.copy(intersect.clone().add(lines[0]));
 
-        this._distances[activeInd] = intersect.sub(this._handles[activeInd].worldPosition).length();
+        this._distances[activeInd] = intersect.clone().sub(this._handles[activeInd].worldPosition).length();
+        this._distances[0] = intersect.clone().sub(this._handles[0].worldPosition).length();
+        this._distances[1] = intersect.clone().sub(this._handles[1].worldPosition).length();
+    }
+
+    getCoordinates() {
+        return [
+            this._handles[0].worldPosition,
+            this._handles[1].worldPosition,
+            this._handles[2].worldPosition,
+            this._handles[3].worldPosition,
+        ];
     }
 
     get targetMesh() {
