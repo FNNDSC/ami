@@ -92,18 +92,45 @@ export default class ModelsFrame extends ModelsBase {
       return false;
     }
 
-    if (this._compareArrays(
-          this._dimensionIndexValues, frame.dimensionIndexValues) &&
-        this._compareArrays(
-          this._imageOrientation, frame.imageOrientation) &&
-        this._compareArrays(
-          this._imagePosition, frame.imagePosition) &&
-        this._instanceNumber === frame.instanceNumber &&
-        this._sopInstanceUID === frame.sopInstanceUID) {
+    if (this._compareArrays(this._dimensionIndexValues, frame.dimensionIndexValues) &&
+        this._compareArrays(this._imageOrientation, frame.imageOrientation) &&
+        this._compareArrays(this._imagePosition, frame.imagePosition) &&
+        this.instanceDifference(frame) === 0) {
       return true;
     } else {
       return false;
     }
+  }
+
+  /**
+   * Calculate the difference of instances of this frame and provided one.
+   *
+   * @param {ModelsFrame} frame
+   *
+   * @return {Number|null} Difference of instanceNumbers or sopInstanceUIDs.
+   *                       0 - frames belong to the same instance.
+   *                       Null - calculation is impossible.
+   */
+  instanceDifference(frame) {
+    if (this.instanceNumber !== null && frame.instanceNumber !== null &&
+      this.instanceNumber !== frame.instanceNumber
+    ) {
+      return this.instanceNumber - frame.instanceNumber;
+    }
+
+    if (this.sopInstanceUID !== null && frame.sopInstanceUID !== null &&
+      this.sopInstanceUID !== frame.sopInstanceUID
+    ) {
+      return this.sopInstanceUID - frame.sopInstanceUID;
+    }
+
+    if (this.instanceNumber === frame.instanceNumber &&
+      this.sopInstanceUID === frame.sopInstanceUID
+    ) {
+      return 0;
+    }
+
+    return null;
   }
 
   /**
