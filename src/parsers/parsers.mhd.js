@@ -75,6 +75,8 @@ export default class ParsersMHD extends ParsersVolume {
   }
 
   pixelType(frameIndex = 0) {
+    // 0 - int
+    // 1 - float
     let type = 0;
     if (this._header.ElementType === 'MET_UFLOAT' ||
         this._header.ElementType === 'MET_FLOAT') {
