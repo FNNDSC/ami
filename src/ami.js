@@ -33,6 +33,7 @@ export const bootstrap = (three) => {
     window.console.log(`Bootstraping three v${three.VERSION} over v${window.THREE.VERSION}`);
   }
   window.THREE = three;
+  THREE = three;
 };
 
 export * from './cameras/cameras';
