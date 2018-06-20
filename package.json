@@ -29,7 +29,7 @@
         "url": "https://fnndsc.github.io/ami"
     },
     "config": {
-        "threeVersion": "92",
+        "threeVersion": "93",
         "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js",
         "gaKey": "UA-39303022-3",
         "babel": "--module-bind js=babel-loader --colors --display-error-details"
