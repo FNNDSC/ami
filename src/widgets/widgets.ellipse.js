@@ -2,7 +2,6 @@ import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
 import GeometriesSlice from '../geometries/geometries.slice';
 import CoreUtils from '../core/core.utils';
-import WidgetsRectangle from "./widgets.rectangle";
 
 /**
  * @module widgets/ellipse

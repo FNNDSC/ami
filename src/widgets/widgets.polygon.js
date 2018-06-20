@@ -4,7 +4,6 @@ import GeometriesSlice from '../geometries/geometries.slice';
 import CoreUtils from '../core/core.utils';
 
 import {Vector3} from 'three';
-import WidgetsEllipse from "./widgets.ellipse";
 
 /**
  * @module widgets/polygon

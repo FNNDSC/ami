@@ -373,7 +373,7 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         let isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
 
-        if (isOnLine || handle0.screenPosition.distanceTo(newhandle.screenPosition) < 20) {
+        if (isOnLine || handle0.screenPosition.distanceTo(newhandle.screenPosition) < 25) {
             this.remove(handle1);
             handle1.free();
 

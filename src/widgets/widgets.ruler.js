@@ -1,6 +1,5 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
-import WidgetsVoxelProbe from "./widgets.voxelProbe";
 
 /**
  * @module widgets/ruler
