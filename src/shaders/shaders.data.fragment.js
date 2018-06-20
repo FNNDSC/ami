@@ -103,7 +103,7 @@ void main(void) {
       float textureHeight = 128.;
       float min = 0.;
       // start at 0!
-      int adjustedIntensity = int(floor(normalizedIntensity + 0.5));
+      int adjustedIntensity = int(floor(realIntensity + 0.5));
   
       // Get row and column in the texture
       int colIndex = int(mod(float(adjustedIntensity), textureWidth));
