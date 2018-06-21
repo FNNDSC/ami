@@ -49,6 +49,8 @@ export default class WidgetsBase extends THREE.Object3D {
     this._offsets = {
       top: Math.round(top),
       left: Math.round(left),
+      width: box.width,
+      height: box.height,
     };
   }
 
@@ -58,13 +60,46 @@ export default class WidgetsBase extends THREE.Object3D {
   }
 
   getMouseOffsets(event, container) {
+    const ndc = this.screen2NDC(event.clientX, event.clientY, container);
     return {
-      x: (event.clientX - this._offsets.left) / container.offsetWidth * 2 - 1,
-      y: -((event.clientY - this._offsets.top) / container.offsetHeight)
-        * 2 + 1,
+      x: ndc.x,
+      y: ndc.y,
       screenX: event.clientX - this._offsets.left,
       screenY: event.clientY - this._offsets.top,
     };
+  }
+
+  /**
+   * Converts between viewport based coordinates to NDC (Normalized Device Coordinates)
+   * @param {int} x x offset relative to the viewport
+   * @param {int} y y offset relative to the viewport
+   * @param {DOMElement} container the widget element container
+   */
+  screen2NDC(x, y, container) {
+      const ndc = {
+        x: ((x - this._offsets.left) / container.offsetWidth) * 2 - 1,
+        y: -((y - this._offsets.top) / container.offsetHeight) * 2 + 1,
+      };
+
+      return ndc;
+  }
+
+  ndc2world(x, y) {
+
+      let w = null;
+
+      let raycaster = new THREE.Raycaster();
+
+      raycaster.setFromCamera({x: x, y: y}, this._camera);
+      raycaster.ray.position = raycaster.ray.origin;
+
+      let intersectsTarget = raycaster.intersectObject(this._targetMesh);
+
+      if (intersectsTarget.length > 0) {
+        w = intersectsTarget[0].point;
+      }
+
+      return w;
   }
 
   update() {

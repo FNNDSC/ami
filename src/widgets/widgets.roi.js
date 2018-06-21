@@ -1,5 +1,6 @@
 import WidgetsBase from './widgets.base';
 import WidgetsHandle from './widgets.handle';
+import CoreUtils from '../core/core.utils';
 
 import {Vector3} from 'three';
 
@@ -7,18 +8,21 @@ import {Vector3} from 'three';
  * @module widgets/handle
  *
  */
-
 export default class WidgetsRoi extends WidgetsBase {
-    constructor(targetMesh, controls, camera, container) {
+    constructor(stack, targetMesh, controls, camera, container) {
         super();
 
+        this._stack = stack;
         this._targetMesh = targetMesh;
         this._controls = controls;
         this._camera = camera;
         this._container = container;
 
-        this._active = true;
-        this._init = false;
+        this._active = false;
+        this._dragged = false;
+        this._resizeHandleIdx = null;
+        this.roiWidth = 60;
+        this.roiHeight = 60;
 
         this._worldPosition = new Vector3();
         if (this._targetMesh !== null) {
@@ -30,135 +34,226 @@ export default class WidgetsRoi extends WidgetsBase {
         this._geometry = null;
         this._mesh = null;
 
-        // dom stuff
-        this._lines = [];
-        this._area = null;
-
         // add handles
         this._handles = [];
+        for (let i = 0; i <= 4; i++) {
+            // Handle 0 corresponds to the origin
+            // Handles 1-4 are top, right, bottom, left handles
+            let handle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
+            handle.worldPosition = this._worldPosition;
+            this.add(handle);
+            this._handles.push(handle);
+        }
 
-        // first handle
-        let firstHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-        firstHandle.worldPosition = this._worldPosition;
-        firstHandle.hovered = true;
-        this.add(firstHandle);
-
-        this._handles.push(firstHandle);
-
-        // Create ruler
         this.create();
+        this.initOffsets();
 
         this.onMove = this.onMove.bind(this);
+        this.onMousedown = this.onMousedown.bind(this);
+        this.onMouseup = this.onMouseup.bind(this);
+
         this.addEventListeners();
 
-        this._orientation = null;
-        this._slice = null;
     }
 
     addEventListeners() {
-        this._container.addEventListener('mousewheel', this.onMove);
-        this._container.addEventListener('DOMMouseScroll', this.onMove);
+        this._container.addEventListener('mousedown', this.onMousedown);
+        this._container.addEventListener('mouseup', this.onMouseup);
+        this._container.addEventListener('mousemove', this.onMove);
+    }
+
+    removeEventListeners() {
+        this._container.removeEventListener('mousedown', this.onMousedown);
+        this._container.removeEventListener('mouseup', this.onMouseup);
+        this._container.removeEventListener('mousemove', this.onMove);
+    }
+
+    onMousedown(evt) {
+
+        if (evt.target == this._handles[0]._dom) {
+            this._active = true;
+            this._dragged = true;
+        }
+        else {
+            for (let idx = 1; idx < this._handles.length; idx++) {
+                if (evt.target == this._handles[idx]._dom) {
+                    this._active = true;
+                    this._resizeHandleIdx = idx;
+                    break;
+                }
+            }
+        }
+    }
+
+    onMouseup(evt) {
+        this._active = false;
+        this._dragged = false;
+        this._resizeHandleIdx = null;
     }
 
     onMove(evt) {
-        this._dragged = true;
-        let numHandles = this._handles.length;
+        if (this._active) {
+            if (this._dragged) {
+                this.updateHandles(evt);
+            }
+            else if (this._resizeHandleIdx) {
+                this.resize(this._resizeHandleIdx, evt.clientX, evt.clientY);
+            }
 
-        if (this.active && !this._init) {
-            let lastHandle = this._handles[numHandles-1];
-            lastHandle.hovered = false;
-            lastHandle.active = false;
-            lastHandle.tracking = false;
-
-            let nextHandle = new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-            nextHandle.worldPosition = this._worldPosition;
-            nextHandle.hovered = true;
-            nextHandle.active = true;
-            nextHandle.tracking = true;
-            this.add(nextHandle);
-
-            this._handles.push(nextHandle);
-
-            let newLine = document.createElement('div');
-            newLine.setAttribute('class', 'widgets handle line');
-            newLine.style.position = 'absolute';
-            newLine.style.transformOrigin = '0 100%';
-            newLine.style.marginTop = '-1px';
-            newLine.style.height = '2px';
-            newLine.style.width = '3px';
-            newLine.style.backgroundColor = '#F9F9F9';
-
-            this._lines.push(newLine);
-            this._container.appendChild(newLine);
+            this.update();
+          
+            evt.stopPropagation();
         }
 
-        let hovered = false;
+    }
 
-        for (let index in this._handles) {
-            this._handles[index].onMove(evt);
-            hovered = hovered || this._handles[index].hovered;
+    resize(handleIdx, x, y) {
+
+        // Check intersection with mesh
+        const offsets = this.screen2NDC(x, y, this._container);
+
+        let h = 0;
+
+        let raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(offsets, this._camera);
+        raycaster.ray.position = raycaster.ray.origin;
+
+        let intersectsTarget = raycaster.intersectObject(this._targetMesh);
+
+        if (intersectsTarget.length > 0) {
+            switch (handleIdx) {
+                case 1: // Top handle
+                case 3: // Bottom handle
+                    offsets.x = this._handles[3]._mouse.x;
+                    this.updateHandlePosition(handleIdx, offsets);
+                    h = Math.abs((this._handles[3]._mouse.y - this._handles[1]._mouse.y) / 2);
+                    this.updateHandlePosition(2, {x: this._handles[2]._mouse.x, y: this._handles[1]._mouse.y - h});
+                    this.updateHandlePosition(4, {x: this._handles[4]._mouse.x, y: this._handles[1]._mouse.y - h});
+                    this.updateHandlePosition(0, {x: this._handles[0]._mouse.x, y: this._handles[1]._mouse.y - h});
+                    break;
+
+                case 2: // Right handle
+                case 4: // Left handle
+                    offsets.y = this._handles[2]._mouse.y;
+                    this.updateHandlePosition(handleIdx, offsets);
+                    h = Math.abs((this._handles[4]._mouse.x - this._handles[2]._mouse.x) / 2);
+                    this.updateHandlePosition(1, {x: this._handles[2]._mouse.x - h, y: this._handles[1]._mouse.y});
+                    this.updateHandlePosition(3, {x: this._handles[2]._mouse.x - h, y: this._handles[3]._mouse.y});
+                    this.updateHandlePosition(0, {x: this._handles[2]._mouse.x - h, y: this._handles[0]._mouse.y});
+                    break;
+            }
+
+            this.roiWidth = Math.abs(this._handles[2].screenPosition.x - this._handles[4].screenPosition.x);
+            this.roiHeight = Math.abs(this._handles[3].screenPosition.y - this._handles[1].screenPosition.y);
         }
-
-        this._hovered = hovered;
-
-        if (this.active && numHandles > 2) {
-            this.pushPopHandle();
-        }
-
-        this.update();
     }
 
     onStart(evt) {
-        this._dragged = false;
+        this._handles.forEach((h) => h.onStart(evt));
+        this.updateHandles(evt);
 
-        let active = false;
-
-        for (let index in this._handles) {
-            this._handles[index].onStart(evt);
-            active = active || this._handles[index].active;
-        }
-
-        this._active = active;
         this.update();
     }
 
-    onEnd(evt) {
-        // First Handle
-        let active = false;
-        for (let index in this._handles.slice(0, this._handles.length-2)) {
-            this._handles[index].onEnd(evt);
-            active = active || this._handles[index].active;
+    updateHandles(evt) {
+
+        const halfWidth = Math.round(this.roiWidth / 2);
+        const halfHeight = Math.round(this.roiHeight / 2);
+
+        const ndcs = [
+            this.screen2NDC(evt.clientX, evt.clientY, this._container), // origin
+            this.screen2NDC(evt.clientX, evt.clientY - halfHeight, this._container), // top
+            this.screen2NDC(evt.clientX + halfWidth, evt.clientY, this._container), // right
+            this.screen2NDC(evt.clientX, evt.clientY + halfHeight, this._container), // bottom
+            this.screen2NDC(evt.clientX - halfWidth, evt.clientY, this._container),  // left
+        ];
+
+        let allIntersects = ndcs.every((ndc) => {
+
+            let raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(ndc, this._camera);
+            raycaster.ray.position = raycaster.ray.origin;
+
+            let intersectsTarget = raycaster.intersectObject(this._targetMesh);
+
+            return intersectsTarget.length > 0;
+        });
+
+        if (allIntersects) {
+            ndcs.forEach((ndc, idx) => this.updateHandlePosition(idx, ndc));
         }
 
-        // Second Handle
-        if (this._dragged || !this._handles[this._handles.length-1].tracking) {
-            this._handles[this._handles.length-1].tracking = false;
-            this._handles[this._handles.length-1].onEnd(evt);
-        } else {
-            this._handles[this._handles.length-1].tracking = false;
+    }
+
+    updateHandlePosition(idx, offsets) {
+        this._handles[idx].move(offsets);
+    }
+
+    updateValues() {
+        const wp1 = this._handles[1].worldPosition;
+        const wp2 = this._handles[2].worldPosition;
+        const wp3 = this._handles[3].worldPosition;
+        const wp4 = this._handles[4].worldPosition;
+
+        const ijk1 = CoreUtils.worldToData(this._stack.lps2IJK, wp1);
+        const ijk2 = CoreUtils.worldToData(this._stack.lps2IJK, wp2);
+        const ijk3 = CoreUtils.worldToData(this._stack.lps2IJK, wp3);
+        const ijk4 = CoreUtils.worldToData(this._stack.lps2IJK, wp4);
+
+        let max = null;
+        let min = null;
+        let values = [];
+
+        for (let x = ijk4.x; x <= ijk2.x; x++) {
+            for (let y = ijk3.y; y <= ijk1.y; y++) {
+                let value = CoreUtils.getPixelData(
+                    this._stack,
+                    new Vector3(x, y, ijk1.z)
+                );
+
+                let rescaledValue = CoreUtils.rescaleSlopeIntercept(
+                    value,
+                    this._stack.rescaleSlope,
+                    this._stack.rescaleIntercept
+                );
+
+                if (rescaledValue > max || max == null) {
+                    max = rescaledValue;
+                }
+
+                if (rescaledValue < min || min == null) {
+                    min = rescaledValue;
+                }
+
+                values.push(rescaledValue);
+            }
         }
 
-        active = active || this._handles[this._handles.length-1].active;
-        // State of ruler widget
-        this._active = active;
+        if (values.length > 0) {
+            const width = Math.sqrt(
+                (wp4.x - wp2.x) * (wp4.x - wp2.x) +
+                (wp4.y - wp2.y) * (wp4.y - wp2.y) +
+                (wp4.z - wp2.z) * (wp4.z - wp2.z)
+            ).toFixed(1);
 
-        if (this._lines.length < this._handles.length) {
-            let newLine = document.createElement('div');
-            newLine.setAttribute('class', 'widgets handle line');
-            newLine.style.position = 'absolute';
-            newLine.style.transformOrigin = '0 100%';
-            newLine.style.marginTop = '-1px';
-            newLine.style.height = '2px';
-            newLine.style.width = '3px';
-            newLine.style.backgroundColor = '#F9F9F9';
+            const height = Math.sqrt(
+                (wp1.x - wp3.x) * (wp1.x - wp3.x) +
+                (wp1.y - wp3.y) * (wp1.y - wp3.y) +
+                (wp1.z - wp3.z) * (wp1.z - wp3.z)
+            ).toFixed(1);
 
-            this._lines.push(newLine);
-            this._container.appendChild(newLine);
+            const avg = (values.reduce((sum, v1) => v1 + sum) / values.length).toFixed(1);
+            const sd = Math.sqrt(values.reduce((sum, v1) => (v1 - avg) * (v1 - avg) + sum) / values.length).toFixed(1);
+
+            this.updateDOMContent({
+                width,
+                height,
+                avg,
+                sd,
+                max,
+                min,
+            });
         }
-
-        this._init = true;
-        this.updateMesh();
-        this.update();
     }
 
     create() {
@@ -166,23 +261,15 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     hideDOM() {
-        for (let index in this._handles) {
-            this._handles[index].hideDOM();
-        }
-
-        for (let index in this._lines) {
-            this._lines[index].style.display = 'none';
-        }
+        this._handles.forEach((h) => {
+           h.hideDOM();
+        });
     }
 
     showDOM() {
-        for (let index in this._handles) {
-            this._handles[index].showDOM();
-        }
-
-        for (let index in this._lines) {
-            this._lines[index].style.display = '';
-        }
+        this._handles.forEach((h) => {
+            h.showDOM();
+        });
     }
 
     hideMesh() {
@@ -204,28 +291,29 @@ export default class WidgetsRoi extends WidgetsBase {
     }
 
     update() {
-        this.updateColor();
+        // this.updateColor();
 
-        for (let index in this._handles) {
-            this._handles[index].update();
-        }
+        this._handles.forEach((h) => {
+            h.update();
+        });
 
         // mesh stuff
         this.updateMeshColor();
         this.updateMeshPosition();
 
         // DOM stuff
+        this.updateValues();
         this.updateDOMPosition();
-        this.updateDOMColor();
     }
 
     updateMesh() {
         // geometry
+        this._geometry = new THREE.Geometry();
 
-        var points = [];
-        for (let index in this._handles) {
-            points.push(this._handles[index].worldPosition);
+        for (let index = 1; index <= 4; index++) {
+            this._geometry.vertices.push(this._handles[index].worldPosition);
         }
+        this._geometry.vertices.push(this._handles[1].worldPosition);
 
         var center = AMI.SliceGeometry.centerOfMass(points);
         var side1 = new THREE.Vector3(0, 0, 0);
@@ -295,107 +383,93 @@ export default class WidgetsRoi extends WidgetsBase {
 
     updateMeshPosition() {
         if (this._geometry) {
+            let v1 = this.ndc2world(this._handles[4]._mouse.x, this._handles[1]._mouse.y);
+            let v2 = this.ndc2world(this._handles[2]._mouse.x, this._handles[1]._mouse.y);
+            let v3 = this.ndc2world(this._handles[2]._mouse.x, this._handles[3]._mouse.y);
+            let v4 = this.ndc2world(this._handles[4]._mouse.x, this._handles[3]._mouse.y);
+
+            this._geometry.vertices[0] = v1;
+            this._geometry.vertices[1] = v2;
+            this._geometry.vertices[2] = v3;
+            this._geometry.vertices[3] = v4;
+            this._geometry.vertices[4] = v1;
+
             this._geometry.verticesNeedUpdate = true;
         }
     }
 
     createDOM() {
-        // add line!
-        this._line = document.createElement('div');
-        this._line.setAttribute('class', 'widgets handle line');
-        this._line.style.position = 'absolute';
-        this._line.style.transformOrigin = '0 100%';
-        this._line.style.marginTop = '-1px';
-        this._line.style.height = '2px';
-        this._line.style.width = '3px';
-        this._container.appendChild(this._line);
+        this._dom = document.createElement('div');
+        this._dom.classList.add('roi-data');
+        this._dom.style.position = 'absolute';
+        this._dom.style.top = 0;
+        this._dom.style.left = 0;
+        this._dom.style.lineHeight = '1.5';
+        this._dom.style.padding = '.2rem .5rem';
+        this._dom.style.border = '1px solid #ccc';
+        this._dom.style.color = '#fff';
+        this._dom.style.backgroundColor = 'rgba(0, 0, 0, .8)';
+        this._container.appendChild(this._dom);
 
-        this.updateDOMColor();
+        this.updateDOMContent(0, 0, 0);
     }
 
-    isPointOnLine(pointA, pointB, pointToCheck) {
-        let c = new Vector3();
-        c.crossVectors(pointA.clone().sub(pointToCheck), pointB.clone().sub(pointToCheck));
-        return !c.length();
-    }
+    updateDOMContent(roiData) {
+        const area = (roiData.width * roiData.height).toFixed(2);
 
-    pushPopHandle() {
-        let handle0 = this._handles[this._handles.length-3];
-        let handle1 = this._handles[this._handles.length-2];
-        let newhandle = this._handles[this._handles.length-1];
-
-        let isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
-
-        let w0 = handle0;
-        let w1 = newhandle;
-
-        var interpointdist = Math.sqrt((w0.x-w1.x)*(w0.x-w1.x) + (w0.y-w1.y)*(w0.y-w1.y) + (w0.z-w1.z)*(w0.z-w1.z));
-
-        if (isOnLine || interpointdist < 3) {
-            handle1._dom.style.display = 'none';
-            this.remove(handle1);
-
-            this._handles[this._handles.length-2] = newhandle;
-            this._handles.pop();
-
-            let tempLine = this._lines.pop();
-            tempLine.style.display = 'none';
-            this._container.removeChild(tempLine);
-        }
-
-        return isOnLine;
-    }
-
-    updateLineDOM(lineIndex, handle0Index, handle1Index) {
-        // update rulers lines and text!
-        let x1 = this._handles[handle0Index].screenPosition.x;
-        let y1 = this._handles[handle0Index].screenPosition.y;
-        let x2 = this._handles[handle1Index].screenPosition.x;
-        let y2 = this._handles[handle1Index].screenPosition.y;
-
-        let x0 = x2;
-        let y0 = y2;
-
-        if (y1 >= y2) {
-            y0 = y2 - 30;
-        } else {
-            y0 = y2 + 30;
-        }
-
-        let length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-        let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-
-        let posY = y1 - this._container.offsetHeight;
-
-        // update line
-        let transform = `translate3D(${x1}px, ${posY}px, 0)`;
-        transform += ` rotate(${angle}deg)`;
-
-        this._lines[lineIndex].style.transform = transform;
-        this._lines[lineIndex].style.width = length + 'px';
+        this._dom.innerHTML = `<div>area: ${area}mm<sup>2</sup> (${roiData.width}mm x ${roiData.height}mm)</div>
+            <div>avg/sd: ${roiData.avg} / ${roiData.sd} HU</div>
+            <div>min/max: ${roiData.min} / ${roiData.max} HU</div>`;
     }
 
     updateDOMPosition() {
-        if (this._handles.length >= 2) {
-            for (let index in this._lines) {
-                this.updateLineDOM(index, index, parseInt(index) + 1 == this._handles.length ? 0 : parseInt(index) + 1);
-            }
+        let sp0 = this._handles[0].screenPosition;
+        let sp2 = this._handles[2].screenPosition;
+        let sp4 = this._handles[4].screenPosition;
+
+        let x = 0;
+        let y = 0;
+      
+        const rect = this._dom.getBoundingClientRect();
+
+        if (rect.width < sp4.x) {
+            // Element left of the roi element
+            x = (sp4.x - rect.width - 10);
+        } else if (sp2.x + rect.width < this._offsets.width) {
+            // Element right of the roi element
+            x = (sp2.x + 10);
+        } else {
+            x = (sp0.x - rect.width - 10);
         }
+
+        if (sp4.y + rect.height < this._offsets.height) {
+            // Element below the lower half of the roi element
+            y = (sp4.y + 10);
+        } else if (rect.height < sp4.y) {
+            // Element above the lower half of the roi element
+            y = (sp4.y - rect.height - 10);
+        } else {
+            y = (sp0.y - rect.height - 10);
+        }
+
+        this._dom.style.transform = 'translate(' + x + 'px,' + y + 'px)';
     }
 
-    updateDOMColor() {
-        if (this._handles.length >= 2) {
-            for (let index in this._lines) {
-                this._lines[index].style.backgroundColor = `${this._color}`;
-            }
-        }
-    }
+    free() {
+        this._handles.forEach((h) => {
+            h.free();
+        });
 
-    getPointInBetweenByPerc(pointA, pointB, percentage) {
-        let dir = pointB.clone().sub(pointA);
-        let len = dir.length();
-        dir = dir.normalize().multiplyScalar(len*percentage);
-        return pointA.clone().add(dir);
+        this._container.removeChild(this._dom);
+
+        // event
+        this.removeEventListeners();
+
+        this.remove(this._mesh);
+        this._mesh = null;
+        this._geometry = null;
+
+        super.free();
     }
 
     get worldPosition() {
@@ -405,10 +479,24 @@ export default class WidgetsRoi extends WidgetsBase {
     set worldPosition(worldPosition) {
         this._worldPosition = worldPosition;
 
-        for (let index in this._handles) {
-            this._handles[index]._worldPosition = this._worldPosition;
-        }
+        this._handles.forEach((h) => {
+            h.worldPosition = this._worldPosition;
+        });
 
         this.update();
+    }
+
+    set targetMesh(targetMesh) {
+        this._targetMesh = targetMesh;
+
+        this._handles.forEach((h) => {
+            h.targetMesh = targetMesh;
+        });
+
+        // this.update();
+    }
+
+    get targetMesh() {
+        return this._targetMesh;
     }
 }

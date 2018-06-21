@@ -164,39 +164,13 @@ export default class WidgetsHandle extends WidgetsBase {
    *
    */
   onMove(evt) {
+
     this._lastEvent = evt;
     evt.preventDefault();
 
-    const offsets = this.getMouseOffsets(evt, this._container);
-    this._mouse.set(offsets.x, offsets.y);
-
-    // update raycaster
-    // set ray.position to satisfy CoreIntersections::rayPlane API
-    this._raycaster.setFromCamera(this._mouse, this._camera);
-    this._raycaster.ray.position = this._raycaster.ray.origin;
-
     if (this._active) {
       this._dragged = true;
-
-      if (this._targetMesh !== null) {
-        let intersectsTarget =
-          this._raycaster.intersectObject(this._targetMesh);
-        if (intersectsTarget.length > 0) {
-          this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
-        }
-      } else {
-        if (this._plane.direction.length() === 0) {
-          // free mode!this._targetMesh
-          this._plane.position.copy(this._worldPosition);
-          this._plane.direction.copy(this._camera.getWorldDirection());
-         }
-
-        let intersection =
-          CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
-        if (intersection !== null) {
-          this._worldPosition.copy(intersection.sub(this._offset));
-        }
-      }
+      this.move(this.screen2NDC(evt.clientX, evt.clientY, this._container));
     } else {
       this.onHover(null);
     }
@@ -212,9 +186,38 @@ export default class WidgetsHandle extends WidgetsBase {
     }
 
     this.hoverMesh();
-
     this._hovered = this._meshHovered || this._domHovered;
     this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+  }
+
+  move(ndc) {
+    // const offsets = this.getMouseOffsets(evt, this._container);
+    this._mouse.set(ndc.x, ndc.y);
+
+    // update raycaster
+    // set ray.position to satisfy CoreIntersections::rayPlane API
+    this._raycaster.setFromCamera(this._mouse, this._camera);
+    this._raycaster.ray.position = this._raycaster.ray.origin;
+
+    if (this._targetMesh !== null) {
+
+      let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+      if (intersectsTarget.length > 0) {
+        this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
+      }
+    } else {
+      if (this._plane.direction.length() === 0) {
+        // free mode!this._targetMesh
+        this._plane.position.copy(this._worldPosition);
+        this._plane.direction.copy(this._camera.getWorldDirection());
+      }
+
+      let intersection = CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
+      if (intersection !== null) {
+        this._worldPosition.copy(intersection.sub(this._offset));
+      }
+    }
+
   }
 
   update() {
@@ -301,6 +304,7 @@ export default class WidgetsHandle extends WidgetsBase {
     this._dom = document.createElement('div');
     this._dom.setAttribute('id', this.uuid);
     this._dom.setAttribute('class', 'AMI Widget Handle');
+    this._dom.classList.add('ami-widget-handle');
     this._dom.style.border = '2px solid';
     this._dom.style.backgroundColor = '#F9F9F9';
     this._dom.style.color = '#F9F9F9';
@@ -324,6 +328,7 @@ export default class WidgetsHandle extends WidgetsBase {
   updateDOMPosition() {
     if (this._dom) {
       let posY = this._screenPosition.y - this._container.offsetHeight;
+
       this._dom.style.transform =
         `translate3D(${this._screenPosition.x}px, ${posY}px, 0)`;
     }
