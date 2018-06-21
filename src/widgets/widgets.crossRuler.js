@@ -454,12 +454,16 @@ export default class WidgetsCrossRuler extends WidgetsBase {
             return;
         }
 
+        this.active = false;
+        this.hovered = false;
+        this.setDefaultColor('#198');
+        this._worldPosition.copy(first);
         this._handles[0].worldPosition.copy(first);
         this._handles[1].worldPosition.copy(second);
-        this._handles[2].worldPosition.copy(third);
-        this._handles[3].worldPosition.copy(fourth);
         this._handles[1].active = false;
         this._handles[1].tracking = false;
+        this._handles[2].worldPosition.copy(third);
+        this._handles[3].worldPosition.copy(fourth);
         this._distances = [
             intersectR.clone().sub(first).length(),
             intersectR.clone().sub(second).length(),
@@ -469,6 +473,13 @@ export default class WidgetsCrossRuler extends WidgetsBase {
 
         this.initLineAndNormal();
         this.update();
+    }
+
+    setDefaultColor(color) {
+        this._colors.default = color;
+        this._handles.forEach(function(elem) {
+            elem._colors.default = color;
+        });
     }
 
     get targetMesh() {
