@@ -281,4 +281,88 @@ export default class CoreUtils {
   static rescaleSlopeIntercept(value, slope, intercept) {
     return value * slope + intercept;
   }
+
+  /**
+  *
+  * Convenience function to extract center of mass from list of points.
+  *
+  * @private
+  *
+  * @param {Array<Vector3>} points - Set of points from which we want to extract the center of mass.
+  *
+  * @returns {Vector3} Center of mass from given points.
+  */
+  static centerOfMass(points) {
+    let centerOfMass = new Vector3(0, 0, 0);
+    for (let i = 0; i < points.length; i++) {
+      centerOfMass.x += points[i].x;
+      centerOfMass.y += points[i].y;
+      centerOfMass.z += points[i].z;
+    }
+    centerOfMass.divideScalar(points.length);
+
+    return centerOfMass;
+  }
+
+   /**
+  *
+  * Order 3D planar points around a refence point.
+  *
+  * @private
+  *
+  * @param {Array<Vector3>} points - Set of planar 3D points to be ordered.
+  * @param {Vector3} direction - Direction of the plane in which points and reference are sitting.
+  *
+  * @returns {Array<Object>} Set of object representing the ordered points.
+  */
+  static orderIntersections(points, direction) {
+    let reference = this.centerOfMass(points);
+    // direction from first point to reference
+    let referenceDirection = new Vector3(
+      points[0].x - reference.x,
+      points[0].y - reference.y,
+      points[0].z - reference.z
+      ).normalize();
+
+    let base = new Vector3(0, 0, 0)
+        .crossVectors(referenceDirection, direction)
+        .normalize();
+
+    let orderedpoints = [];
+
+    // other lines // if inter, return location + angle
+    for (let j = 0; j < points.length; j++) {
+      let point = new Vector3(
+        points[j].x,
+        points[j].y,
+        points[j].z);
+      point.direction = new Vector3(
+        points[j].x - reference.x,
+        points[j].y - reference.y,
+        points[j].z - reference.z).normalize();
+
+      let x = referenceDirection.dot(point.direction);
+      let y = base.dot(point.direction);
+      point.xy = {x, y};
+
+      let theta = Math.atan2(y, x) * (180 / Math.PI);
+      point.angle = theta;
+
+      orderedpoints.push(point);
+    }
+
+    orderedpoints.sort(function(a, b) {
+      return a.angle - b.angle;
+    });
+
+    let noDups = [orderedpoints[0]];
+    let epsilon = 0.0001;
+    for (let i=1; i<orderedpoints.length; i++) {
+      if (Math.abs(orderedpoints[i-1].angle - orderedpoints[i].angle) > epsilon) {
+        noDups.push(orderedpoints[i]);
+      }
+    }
+
+    return noDups;
+  }
 }

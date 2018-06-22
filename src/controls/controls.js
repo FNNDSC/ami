@@ -5,5 +5,5 @@ export {
   ControlsTrackball as TrackballControl,
   trackball as trackballControlFactory,
   TrackballOrtho as TrackballOrthoControl,
-  trackballOrtho as TrackballOrthoControlFactory,
+  trackballOrtho as trackballOrthoControlFactory,
 };
