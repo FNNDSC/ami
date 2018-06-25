@@ -10,7 +10,7 @@ import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
  * @module helpers/slice
  */
 
-const helpersSlice = (three = THREE) => {
+const helpersSlice = (three = window.THREE) => {
   const Constructor = helpersMaterialMixin(three);
   return class extends Constructor {
     constructor(stack,

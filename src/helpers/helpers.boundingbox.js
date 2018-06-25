@@ -2,7 +2,7 @@
  * @module helpers/boundingbox
  */
 
- const helpersBoundingBox = (three = THREE) => {
+ const helpersBoundingBox = (three = window.THREE) => {
    const Constructor = three.Object3D;
    return class extends Constructor {
     constructor(stack) {

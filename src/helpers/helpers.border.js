@@ -2,7 +2,7 @@
  * @module helpers/border
  */
 
-const helpersBorder = (three = THREE) => {
+const helpersBorder = (three = window.THREE) => {
   const Constructor = three.Object3D;
   return class extends Constructor {
     constructor(helpersSlice) {

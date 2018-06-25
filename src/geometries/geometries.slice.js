@@ -42,7 +42,7 @@ import coreUtils from '../core/core.utils';
  *  scene.add(slice);
  */
 
- const geometriesSlice = (three = THREE) => {
+ const geometriesSlice = (three = window.THREE) => {
   const Constructor = three.ShapeGeometry;
   return class extends Constructor {
     constructor(halfDimensions, center, position, direction, toAABB = new three.Matrix4()) {

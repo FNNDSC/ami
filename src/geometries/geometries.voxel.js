@@ -3,7 +3,7 @@
  * @module geometries/voxel
  */
 
- const geometriesVoxel = (three = THREE) => {
+ const geometriesVoxel = (three = window.THREE) => {
    const Constructor = three.BoxGeometry;
    return class extends Constructor {
     constructor(dataPosition) {

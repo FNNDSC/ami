@@ -9,7 +9,7 @@ import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
  * @module helpers/volumerendering
  */
 
- const helpersVolumeRendering = (three = THREE) => {
+ const helpersVolumeRendering = (three = window.THREE) => {
   const Constructor = helpersMaterialMixin(three);
   return class extends Constructor {
     constructor(stack) {

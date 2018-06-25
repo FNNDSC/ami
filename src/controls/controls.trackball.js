@@ -6,7 +6,7 @@
  * @author Luca Antiga  / http://lantiga.github.io
  */
 
-const trackball = (three = THREE) => {
+const trackball = (three = window.THREE) => {
   const Constructor = three.EventDispatcher;
   return class extends Constructor {
     constructor(object, domElement) {

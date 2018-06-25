@@ -5,7 +5,7 @@
  * @author Max Smolens / https://github.com/msmolens
  */
 
-const trackballOrtho = (three = THREE) => {
+const trackballOrtho = (three = window.THREE) => {
   const Constructor = three.EventDispatcher;
   return class extends Constructor {
     constructor(object, domElement, state = {NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5}) {

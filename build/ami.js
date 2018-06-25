@@ -53062,7 +53062,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  */
 
 var geometriesSlice = function geometriesSlice() {
-  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : THREE;
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
   var Constructor = three.ShapeGeometry;
   return function (_Constructor) {
@@ -53162,7 +53162,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  */
 
 var geometriesVoxel = function geometriesVoxel() {
-  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : THREE;
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
   var Constructor = three.BoxGeometry;
   return function (_Constructor) {
@@ -53244,7 +53244,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  */
 
 var helpersBorder = function helpersBorder() {
-  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : THREE;
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
   var Constructor = three.Object3D;
   return function (_Constructor) {
@@ -53378,7 +53378,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  */
 
 var helpersBoundingBox = function helpersBoundingBox() {
-  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : THREE;
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
   var Constructor = three.Object3D;
   return function (_Constructor) {
@@ -54008,7 +54008,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  */
 
 var helpersSlice = function helpersSlice() {
-  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : THREE;
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
   var Constructor = Object(__WEBPACK_IMPORTED_MODULE_4__helpers_helpers_material_mixin__["a" /* helpersMaterialMixin */])(three);
   return function (_Constructor) {
@@ -66472,7 +66472,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  */
 
 var trackball = function trackball() {
-  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : THREE;
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
   var Constructor = three.EventDispatcher;
   return function (_Constructor) {
@@ -67158,7 +67158,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  */
 
 var trackballOrtho = function trackballOrtho() {
-  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : THREE;
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
   var Constructor = three.EventDispatcher;
   return function (_Constructor) {
@@ -68977,7 +68977,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * @module helpers/stack
  */
 var helpersStack = function helpersStack() {
-  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : THREE;
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
   var Constructor = three.Object3D;
   return function (_Constructor) {
@@ -69469,7 +69469,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  */
 
 var helpersVolumeRendering = function helpersVolumeRendering() {
-  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : THREE;
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
   var Constructor = Object(__WEBPACK_IMPORTED_MODULE_3__helpers_helpers_material_mixin__["a" /* helpersMaterialMixin */])(three);
   return function (_Constructor) {

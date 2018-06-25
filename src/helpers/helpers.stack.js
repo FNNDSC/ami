@@ -34,7 +34,7 @@ import {helpersSlice} from '../helpers/helpers.slice';
  *
  * @module helpers/stack
  */
-const helpersStack = (three = THREE) => {
+const helpersStack = (three = window.THREE) => {
   const Constructor = three.Object3D;
   return class extends Constructor {
     constructor(stack) {
