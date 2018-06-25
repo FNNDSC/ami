@@ -106,6 +106,28 @@ import coreUtils from '../core/core.utils';
       this.vertices = points;
       this.verticesNeedUpdate = true;
     }
+
+    /**
+     * Calculate shape area (sum of triangle polygons area).
+     *
+     * @param {THREE.Geometry} geometry
+     *
+     * @returns {Number}
+     */
+    static getGeometryArea(geometry) {
+      if (geometry.faces.length < 1) {
+        return 0.0;
+      }
+
+      let area = 0.0;
+      let vertices = geometry.vertices;
+
+      geometry.faces.forEach(function(elem) {
+        area += new three.Triangle(vertices[elem.a], vertices[elem.b], vertices[elem.c]).area();
+      });
+
+      return area;
+    }
   };
 };
 

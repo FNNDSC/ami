@@ -225,7 +225,7 @@ export default class CoreUtils {
    *
    * @return {*}
    */
-    static worldToData(lps2IJK, worldCoordinates) {
+  static worldToData(lps2IJK, worldCoordinates) {
     let dataCoordinate = new Vector3()
       .copy(worldCoordinates)
       .applyMatrix4(lps2IJK);
@@ -236,19 +236,18 @@ export default class CoreUtils {
     return dataCoordinate;
   }
 
-  /**
-   * Get and set voxel value
-   *
-   * @param {*} stack
-   * @param {*} coordinate
-   * @param {*} value
-   * @return {*}
-   */
   static value(stack, coordinate) {
     window.console.warn('value is deprecated, please use getPixelData instead');
     this.getPixelData(stack, coordinate);
   }
 
+  /**
+   * Get voxel value
+   *
+   * @param {ModelsStack} stack
+   * @param {Vector3} coordinate
+   * @return {*}
+   */
   static getPixelData(stack, coordinate) {
     if (coordinate.z >= 0 &&
         coordinate.z < stack._frame.length) {
@@ -259,6 +258,14 @@ export default class CoreUtils {
     }
   }
 
+  /**
+   * Set voxel value
+   *
+   * @param {ModelsStack} stack
+   * @param {Vector3} coordinate
+   * @param {Number} value
+   * @return {*}
+   */
   static setPixelData(stack, coordinate, value) {
     if (coordinate.z >= 0 &&
         coordinate.z < stack._frame.length) {
@@ -283,6 +290,7 @@ export default class CoreUtils {
   }
 
   /**
+  * 
   *
   * Convenience function to extract center of mass from list of points.
   *
@@ -304,7 +312,7 @@ export default class CoreUtils {
     return centerOfMass;
   }
 
-   /**
+  /**
   *
   * Order 3D planar points around a refence point.
   *
@@ -364,5 +372,70 @@ export default class CoreUtils {
     }
 
     return noDups;
+  }
+
+  /**
+   * Get min, max, mean and sd of voxel values behind the mesh
+   *
+   * @param {THREE.Mesh}  mesh    Region of Interest
+   * @param {*}           camera  Tested on CamerasOrthographic
+   * @param {ModelsStack} stack
+   *
+   * @return {Object|null}
+   */
+  static getRoI(mesh, camera, stack) {
+    mesh.geometry.computeBoundingBox();
+
+    const bbox = new THREE.Box3().setFromObject(mesh);
+    const min = bbox.min.clone().project(camera);
+    const max = bbox.max.clone().project(camera);
+    const offsetWidth = camera.controls.domElement.offsetWidth;
+    const offsetHeight = camera.controls.domElement.offsetHeight;
+    const rayCaster = new THREE.Raycaster();
+    const values = [];
+
+    min.x = Math.round((min.x + 1) * offsetWidth / 2);
+    min.y = Math.round((-min.y + 1) * offsetHeight / 2);
+    max.x = Math.round((max.x + 1) * offsetWidth / 2);
+    max.y = Math.round((-max.y + 1) * offsetHeight / 2);
+    [min.x, max.x] = [Math.min(min.x, max.x), Math.max(min.x, max.x)];
+    [min.y, max.y] = [Math.min(min.y, max.y), Math.max(min.y, max.y)];
+
+    let intersect = [];
+    let value = null;
+
+    for (let x = min.x; x <= max.x; x++) {
+      for (let y = min.y; y <= max.y; y++) {
+        rayCaster.setFromCamera({
+          x: (x / offsetWidth) * 2 - 1,
+          y: -(y / offsetHeight) * 2 + 1,
+        }, camera);
+        intersect = rayCaster.intersectObject(mesh);
+
+        if (intersect.length === 0) {
+          continue;
+        }
+
+        value = CoreUtils.getPixelData(stack, CoreUtils.worldToData(stack.lps2IJK, intersect[0].point));
+
+        // the image isn't RGB and coordinates are inside it
+        if (value !== null && stack.numberOfChannels === 1) {
+          values.push(CoreUtils.rescaleSlopeIntercept(value, stack.rescaleSlope, stack.rescaleIntercept));
+        }
+      }
+    }
+
+    if (values.length === 0) {
+      return null;
+    }
+
+    const avg = values.reduce((sum, val) => sum + val) / values.length;
+
+    return {
+      min: values.reduce((prev, val) => prev < val ? prev : val),
+      max: values.reduce((prev, val) => prev > val ? prev : val),
+      mean: avg,
+      sd: Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / values.length),
+    };
   }
 }

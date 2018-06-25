@@ -1,14 +1,18 @@
 /* globals Stats, dat*/
 
+import ControlsTrackball from 'base/controls/controls.trackball';
 import HelpersStack from 'base/helpers/helpers.stack';
 import LoadersVolume from 'base/loaders/loaders.volume';
+import WidgetsAnnotation from 'base/widgets/widgets.annotation';
+import WidgetsAngle from 'base/widgets/widgets.angle';
+import WidgetsBiruler from 'base/widgets/widgets.biruler';
+import WidgetsEllipse from 'base/widgets/widgets.ellipse';
+import WidgetsFreehand from 'base/widgets/widgets.freehand';
 import WidgetsHandle from 'base/widgets/widgets.handle';
+import WidgetsPolygon from 'base/widgets/widgets.polygon';
+import WidgetsRectangle from 'base/widgets/widgets.rectangle';
 import WidgetsRuler from 'base/widgets/widgets.ruler';
 import WidgetsVoxelProbe from 'base/widgets/widgets.voxelProbe';
-import WidgetsAnnotation from 'base/widgets/widgets.annotation';
-import WidgetsRoiWidget from 'base/widgets/widgets.roi';
-import WidgetsBiruler from 'base/widgets/widgets.biruler';
-import ControlsTrackball from 'base/controls/controls.trackball';
 
 // standard global variables
 let controls;
@@ -21,11 +25,15 @@ let offsets;
 let widgets = [];
 const widgetsAvailable = [
   'Handle',
-  'Ruler',
   'VoxelProbe',
-  'Annotation',
-  'RoiWidget',
+  'Ruler',
   'Biruler',
+  'Angle',
+  'Rectangle',
+  'Ellipse',
+  'Polygon',
+  'Freehand',
+  'Annotation',
 ];
 const guiObjects = {
   type: 'Handle',
@@ -102,11 +110,11 @@ window.onload = function() {
 
     scene.add(stackHelper);
 
-    threeD.addEventListener('mouseup', function(evt) {
+    threeD.addEventListener('mouseup', function() {
       // if something hovered, exit
       for (let widget of widgets) {
         if (widget.active) {
-          widget.onEnd(evt);
+          widget.onEnd();
           return;
         }
       }
@@ -155,43 +163,40 @@ window.onload = function() {
       let widget = null;
       switch (guiObjects.type) {
         case 'Handle':
-          widget =
-            new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
-          widget.worldPosition = intersects[0].point;
-          break;
-        case 'Ruler':
-          widget =
-            new WidgetsRuler(stackHelper.slice.mesh, controls, camera, threeD);
-          widget.worldPosition = intersects[0].point;
+          widget = new WidgetsHandle(stackHelper.slice.mesh, controls);
           break;
         case 'VoxelProbe':
-          widget =
-            new WidgetsVoxelProbe(
-              stack, stackHelper.slice.mesh, controls, camera, threeD);
-          widget.worldPosition = intersects[0].point;
+          widget = new WidgetsVoxelProbe(stackHelper.slice.mesh, controls, stack);
           break;
-        case 'Annotation':
-          widget =
-            new WidgetsAnnotation(stackHelper.slice.mesh, controls, camera, threeD);
-          widget.worldPosition = intersects[0].point;
-          break;
-        case 'RoiWidget':
-          widget =
-            new WidgetsRoiWidget(stackHelper.slice.mesh, controls, camera, threeD);
-          widget.worldPosition = intersects[0].point;
+        case 'Ruler':
+          widget = new WidgetsRuler(stackHelper.slice.mesh, controls, stack);
           break;
         case 'Biruler':
-          widget =
-            new WidgetsBiruler(stackHelper.slice.mesh, controls, camera, threeD);
-          widget.worldPosition = intersects[0].point;
+          widget = new WidgetsBiruler(stackHelper.slice.mesh, controls, stack);
+          break;
+        case 'Angle':
+          widget = new WidgetsAngle(stackHelper.slice.mesh, controls);
+          break;
+        case 'Rectangle':
+          widget = new WidgetsRectangle(stackHelper.slice.mesh, controls, stack);
+          break;
+        case 'Ellipse':
+          widget = new WidgetsEllipse(stackHelper.slice.mesh, controls, stack);
+          break;
+        case 'Polygon':
+          widget = new WidgetsPolygon(stackHelper.slice.mesh, controls, stack);
+          break;
+        case 'Freehand':
+          widget = new WidgetsFreehand(stackHelper.slice.mesh, controls, stack);
+          break;
+        case 'Annotation':
+          widget = new WidgetsAnnotation(stackHelper.slice.mesh, controls);
           break;
         default:
-          widget =
-            new WidgetsHandle(stackHelper.slice.mesh, controls, camera, threeD);
-          widget.worldPosition = intersects[0].point;
-          break;
+          widget = new WidgetsHandle(stackHelper.slice.mesh, controls);
       }
 
+      widget.worldPosition = intersects[0].point;
       widgets.push(widget);
       scene.add(widget);
     });

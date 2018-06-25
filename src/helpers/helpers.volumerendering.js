@@ -27,6 +27,7 @@ import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
       this._uniforms = ShadersUniform.uniforms();
       this._material = null;
       this._geometry = null;
+      this._mesh = null;
 
       this._algorithm = 0; // ray marching
       this._alphaCorrection = 0.5; // default
@@ -114,6 +115,14 @@ import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
 
     set uniforms(uniforms) {
       this._uniforms = uniforms;
+    }
+
+    set mesh(mesh) {
+      this._mesh = mesh;
+    }
+
+    get mesh() {
+      return this._mesh;
     }
 
     get stack() {

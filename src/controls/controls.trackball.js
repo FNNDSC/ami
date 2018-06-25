@@ -648,7 +648,7 @@ const trackball = (three = window.THREE) => {
       this.dispose = function() {
         this.domElement.removeEventListener('contextmenu', contextmenu, false);
         this.domElement.removeEventListener('mousedown', mousedown, false);
-        this.domElement.removeEventListener('mousewheel', mousewheel, false);
+        this.domElement.removeEventListener('wheel', mousewheel, false);
   
         this.domElement.removeEventListener('touchstart', touchstart, false);
         this.domElement.removeEventListener('touchend', touchend, false);
@@ -660,7 +660,7 @@ const trackball = (three = window.THREE) => {
   
       this.domElement.addEventListener('contextmenu', contextmenu, false);
       this.domElement.addEventListener('mousedown', mousedown, false);
-      this.domElement.addEventListener('mousewheel', mousewheel, false);
+      this.domElement.addEventListener('wheel', mousewheel, false);
   
       this.domElement.addEventListener('touchstart', touchstart, false);
       this.domElement.addEventListener('touchend', touchend, false);
@@ -681,3 +681,4 @@ const trackball = (three = window.THREE) => {
 export {trackball};
 // default export to
 export default trackball();
+
