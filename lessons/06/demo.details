@@ -5,7 +5,7 @@ name: AMI - Lesson 06
 description: Volume rendering.
 authors:
   - Nicolas Rannou (github)
-js_wrap: onLoad
+js_wrap: l
 ...
 */
 
