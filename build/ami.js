@@ -54704,7 +54704,7 @@ var ShadersFragment = function () {
 
   ShadersFragment.prototype.main = function main() {
     // need to pre-call main to fill up the functions list
-    this._main = '\nvoid main(void) {\n\n  // draw border if slice is cropped\n  // float uBorderDashLength = 10.;\n\n  if( uCanvasWidth > 0. &&\n      ((gl_FragCoord.x > uBorderMargin && (gl_FragCoord.x - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.x < (uCanvasWidth - uBorderMargin) && (gl_FragCoord.x + uBorderMargin) > (uCanvasWidth - uBorderWidth) ))){\n    float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);\n    if( valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  if( uCanvasHeight > 0. &&\n      ((gl_FragCoord.y > uBorderMargin && (gl_FragCoord.y - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.y < (uCanvasHeight - uBorderMargin) && (gl_FragCoord.y + uBorderMargin) > (uCanvasHeight - uBorderWidth) ))){\n    float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);\n    if( valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = dataCoordinates.xyz;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  vec3 gradient = vec3(0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'currentVoxel', 'dataValue', 'gradient') + '\n\n  if(uNumberOfChannels == 1){\n    // rescale/slope\n    float realIntensity = dataValue.r * uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  \n    // threshold\n    if (realIntensity < uLowerUpperThreshold[0] || realIntensity > uLowerUpperThreshold[1]) {\n      discard;\n    }\n  \n    // normalize\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    float normalizedIntensity =\n      ( realIntensity - windowMin ) / uWindowCenterWidth[1];\n    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;\n    dataValue.a = 1.;\n\n    // apply LUT\n    if(uLut == 1){\n      // should opacity be grabbed there?\n      dataValue = texture2D( uTextureLUT, vec2( normalizedIntensity , 1.0) );\n    }\n  \n    // apply segmentation\n    if(uLutSegmentation == 1){\n      // should opacity be grabbed there?\n      //\n      float textureWidth = 256.;\n      float textureHeight = 128.;\n      float min = 0.;\n      // start at 0!\n      int adjustedIntensity = int(floor(normalizedIntensity + 0.5));\n  \n      // Get row and column in the texture\n      int colIndex = int(mod(float(adjustedIntensity), textureWidth));\n      int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));\n  \n      float texWidth = 1./textureWidth;\n      float texHeight = 1./textureHeight;\n    \n      // Map row and column to uv\n      vec2 uv = vec2(0,0);\n      uv.x = 0.5 * texWidth + (texWidth * float(colIndex));\n      uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);\n  \n      dataValue = texture2D( uTextureLUTSegmentation, uv );\n    }\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n}\n   ';
+    this._main = '\nvoid main(void) {\n\n  // draw border if slice is cropped\n  // float uBorderDashLength = 10.;\n\n  if( uCanvasWidth > 0. &&\n      ((gl_FragCoord.x > uBorderMargin && (gl_FragCoord.x - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.x < (uCanvasWidth - uBorderMargin) && (gl_FragCoord.x + uBorderMargin) > (uCanvasWidth - uBorderWidth) ))){\n    float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);\n    if( valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  if( uCanvasHeight > 0. &&\n      ((gl_FragCoord.y > uBorderMargin && (gl_FragCoord.y - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.y < (uCanvasHeight - uBorderMargin) && (gl_FragCoord.y + uBorderMargin) > (uCanvasHeight - uBorderWidth) ))){\n    float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);\n    if( valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = dataCoordinates.xyz;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  vec3 gradient = vec3(0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'currentVoxel', 'dataValue', 'gradient') + '\n\n  if(uNumberOfChannels == 1){\n    // rescale/slope\n    float realIntensity = dataValue.r * uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  \n    // threshold\n    if (realIntensity < uLowerUpperThreshold[0] || realIntensity > uLowerUpperThreshold[1]) {\n      discard;\n    }\n  \n    // normalize\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    float normalizedIntensity =\n      ( realIntensity - windowMin ) / uWindowCenterWidth[1];\n    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;\n    dataValue.a = 1.;\n\n    // apply LUT\n    if(uLut == 1){\n      // should opacity be grabbed there?\n      dataValue = texture2D( uTextureLUT, vec2( normalizedIntensity , 1.0) );\n    }\n  \n    // apply segmentation\n    if(uLutSegmentation == 1){\n      // should opacity be grabbed there?\n      //\n      float textureWidth = 256.;\n      float textureHeight = 128.;\n      float min = 0.;\n      // start at 0!\n      int adjustedIntensity = int(floor(realIntensity + 0.5));\n  \n      // Get row and column in the texture\n      int colIndex = int(mod(float(adjustedIntensity), textureWidth));\n      int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));\n  \n      float texWidth = 1./textureWidth;\n      float texHeight = 1./textureHeight;\n    \n      // Map row and column to uv\n      vec2 uv = vec2(0,0);\n      uv.x = 0.5 * texWidth + (texWidth * float(colIndex));\n      uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);\n  \n      dataValue = texture2D( uTextureLUTSegmentation, uv );\n    }\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n}\n   ';
   };
 
   ShadersFragment.prototype.compute = function compute() {
@@ -64076,6 +64076,7 @@ module.exports = __webpack_require__(85);
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "bootstrap", function() { return bootstrap; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__cameras_cameras__ = __webpack_require__(86);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "OrthographicCamera", function() { return __WEBPACK_IMPORTED_MODULE_0__cameras_cameras__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__controls_controls__ = __webpack_require__(94);
@@ -64139,6 +64140,44 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "RulerWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["f"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VoxelProbeWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["g"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "AngleWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["a"]; });
+// bootstrap target version of three
+// as a global variable
+// that allows the app to use three via npm module
+// but still use the three glbal variables in ami.
+// ideally ami should not use global variables but
+// it seems tricky to export custom classes:
+//
+// slice geometry
+//
+// export default class extends THREE.ShapeGeometry
+// should be
+// export default class extends ShapeGeometryBootstraped
+// where ShapeGeometryBootstraped
+// {ShapeGeometry} from 'three' (in ami)
+// THREE.ShapeGeometry (after bootstrap)
+// 
+// however ShapeGeometryBootstraped can not be changed at runtime (after bootstrap)
+//
+// {ShapeGeometry} from 'three';
+// const bootstrap = () => {
+//   if (THREE.ShapeGeometry) {
+//       return THREE.ShapeGeometry;
+//    } else {
+//      return ShapeGeometry;
+//    }
+// }
+// export default class extends bootstrap() {...}
+//   
+//
+
+var bootstrap = function bootstrap(three) {
+  if (window.THREE && window.THREE.VERSION !== three.VERSION) {
+    window.console.log('Bootstraping three v' + three.VERSION + ' over v' + window.THREE.VERSION);
+  }
+  window.THREE = three;
+  THREE = three;
+};
+
 
 
 
@@ -64152,7 +64191,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 var pckg = __webpack_require__(180);
-window.console.log('AMI ' + pckg.version + ' ( ThreeJS ' + pckg.config.threeVersion + ')');
+window.console.log('ami v' + pckg.version + ' (three v' + pckg.config.threeVersion + ')');
 
 /***/ }),
 /* 86 */
@@ -99447,7 +99486,7 @@ var WidgetsAngle = function (_WidgetsBase) {
 /* 180 */
 /***/ (function(module, exports) {
 
-module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"92","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"dependencies":{"dicom-parser":"1.7.3","image-JPEG2000":"OHIF/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.92.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","lesson":"node ./scripts/router.js lessons","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","gen:index:lessons":"node ./scripts/genIndexFiles.js lessons","gen:index:lessons:cdn":"node ./scripts/genIndexFiles.js lessons cdn","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples && echo 'hi'","lint":"eslint src/**/*.js","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"latest","eslint-config-google":"latest","gh-pages":"latest","glslify":"5.1.0","jasmine-core":"latest","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.2","karma-chrome-launcher":"^2.2.0","karma-jasmine":"latest","karma-sinon":"^1.0.5","karma-spec-reporter":"latest","karma-webpack":"^2.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","puppeteer":"^0.13.0","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"latest","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.0.0-beta.3","webpack":"^3.7.1","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^2.9.1","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}}
+module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"93","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"dependencies":{"dicom-parser":"1.7.3","image-JPEG2000":"OHIF/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.92.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","lesson":"node ./scripts/router.js lessons","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","gen:index:lessons":"node ./scripts/genIndexFiles.js lessons","gen:index:lessons:cdn":"node ./scripts/genIndexFiles.js lessons cdn","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples && echo 'hi'","lint":"eslint src/**/*.js","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"latest","eslint-config-google":"latest","gh-pages":"latest","glslify":"5.1.0","jasmine-core":"latest","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.2","karma-chrome-launcher":"^2.2.0","karma-jasmine":"latest","karma-sinon":"^1.0.5","karma-spec-reporter":"latest","karma-webpack":"^2.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","puppeteer":"^0.13.0","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"latest","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.0.0-beta.3","webpack":"^3.7.1","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^2.9.1","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}}
 
 /***/ })
 /******/ ]);
