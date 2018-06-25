@@ -545,7 +545,7 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   spacingBetweenSlices(frameIndex = 0) {
-    let spacing = this._dataSet.intString('x00180088');
+    let spacing = this._dataSet.floatString('x00180088');
 
     if (typeof spacing === 'undefined') {
       spacing = null;
@@ -673,6 +673,12 @@ export default class ParsersDicom extends ParsersVolume {
   _findStringEverywhere(subsequence, tag, index) {
     let targetString = this._findStringInFrameGroupSequence(subsequence, tag, index);
 
+    // PET MODULE
+    if (targetString === null) {
+      const petModule = 'x00540022';
+      targetString = this._findStringInSequence(petModule, tag);
+    }
+
     if (targetString === null) {
       targetString = this._dataSet.string(tag);
     }
@@ -683,6 +689,21 @@ export default class ParsersDicom extends ParsersVolume {
 
     return targetString;
   }
+
+  _findStringInSequence(sequenceTag, tag, index) {
+   const sequence = this._dataSet.elements[sequenceTag];
+
+   let targetString;
+   if (sequence) {
+     targetString = sequence.items[0].dataSet.string(tag);
+   }
+
+   if (typeof targetString === 'undefined') {
+     targetString = null;
+   }
+
+   return null;
+ }
 
   _findFloatStringInGroupSequence(sequence, subsequence, tag, index) {
     let dataInGroupSequence = this._dataSet.floatString(tag);

@@ -347,6 +347,8 @@ export default class ModelsStack extends ModelsBase {
       this._frame[1] && this._frame[1].sopInstanceUID &&
       this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
       this._frame.sort(this._sortSopInstanceUIDArraySort);
+    } else if (!this._frame[0].imagePosition) {
+      // cancel warning if you have set null imagePosition on purpose (?)
     } else {
       window.console.warn('do not know how to order the frames...');
     }
@@ -687,7 +689,7 @@ export default class ModelsStack extends ModelsBase {
             Math.min(bbox[0], world.x), Math.max(bbox[1], world.x), // x min/max
             Math.min(bbox[2], world.y), Math.max(bbox[3], world.y),
             Math.min(bbox[4], world.z), Math.max(bbox[5], world.z),
-            ];
+          ];
         }
       }
     }
@@ -768,9 +770,11 @@ export default class ModelsStack extends ModelsBase {
   }
 
   _computeDistanceArrayMap(normal, frame) {
-    frame.dist = frame.imagePosition[0] * normal.x +
-      frame.imagePosition[1] * normal.y +
-      frame.imagePosition[2] * normal.z;
+    if (frame.imagePosition) {
+      frame.dist = frame.imagePosition[0] * normal.x +
+        frame.imagePosition[1] * normal.y +
+        frame.imagePosition[2] * normal.z;
+    }
     return frame;
   }
 
