@@ -1,12 +1,18 @@
-import WidgetsBase from './widgets.base';
-import WidgetsHandle from './widgets.handle';
+import {widgetsBase} from './widgets.base';
+import {widgetsHandle as widgetsHandleFactory} from './widgets.handle';
 import ModelsVoxel from '../models/models.voxel';
 import CoreUtils from '../core/core.utils';
 
 /**
  * @module widgets/voxelProbe
  */
-export default class WidgetsVoxelProbe extends WidgetsBase {
+const widgetsVoxelprobe = (three = window.THREE) => {
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
+  }
+
+  const Constructor = widgetsBase(three);
+  return class extends Constructor {
   constructor(targetMesh, controls, stack) {
     super(targetMesh, controls);
 
@@ -23,6 +29,7 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
     this._domHovered = false;
 
     // handle (represent voxel)
+    const WidgetsHandle = widgetsHandleFactory(three);
     this._handle = new WidgetsHandle(targetMesh, controls);
     this._handle.worldPosition.copy(this._worldPosition);
     this.add(this._handle);
@@ -292,4 +299,8 @@ export default class WidgetsVoxelProbe extends WidgetsBase {
   get showDomMeasurements() {
     return this._showDomMeasurements;
   }
-}
+};
+};
+
+export {widgetsVoxelprobe};
+export default widgetsVoxelprobe();

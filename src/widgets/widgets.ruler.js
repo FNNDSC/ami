@@ -1,10 +1,16 @@
-import WidgetsBase from './widgets.base';
-import WidgetsHandle from './widgets.handle';
+import {widgetsBase} from './widgets.base';
+import {widgetsHandle as widgetsHandleFactory} from './widgets.handle';
 
 /**
  * @module widgets/ruler
  */
-export default class WidgetsRuler extends WidgetsBase {
+const widgetsRuler = (three = window.THREE) => {
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
+  }
+
+  const Constructor = widgetsBase(three);
+  return class extends Constructor {
   constructor(targetMesh, controls, stack) {
     super(targetMesh, controls);
 
@@ -27,6 +33,7 @@ export default class WidgetsRuler extends WidgetsBase {
 
     // add handles
     this._handles = [];
+    const WidgetsHandle = widgetsHandleFactory(three);
 
     let handle;
     for (let i = 0; i < 2; i++) {
@@ -162,17 +169,17 @@ export default class WidgetsRuler extends WidgetsBase {
 
   createMesh() {
     // geometry
-    this._geometry = new THREE.Geometry();
+    this._geometry = new three.Geometry();
     this._geometry.vertices.push(this._handles[0].worldPosition);
     this._geometry.vertices.push(this._handles[1].worldPosition);
 
     // material
-    this._material = new THREE.LineBasicMaterial();
+    this._material = new three.LineBasicMaterial();
 
     this.updateMeshColor();
 
     // mesh
-    this._mesh = new THREE.Line(this._geometry, this._material);
+    this._mesh = new three.Line(this._geometry, this._material);
     this._mesh.visible = true;
 
     this.add(this._mesh);
@@ -330,4 +337,8 @@ export default class WidgetsRuler extends WidgetsBase {
     this._worldPosition.copy(worldPosition);
     this.update();
   }
-}
+  };
+};
+
+export {widgetsRuler};
+export default widgetsRuler();

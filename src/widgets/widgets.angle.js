@@ -1,12 +1,16 @@
-import WidgetsBase from './widgets.base';
-import WidgetsHandle from './widgets.handle';
-
-import {Vector3} from 'three';
+import {widgetsBase} from './widgets.base';
+import {widgetsHandle as widgetsHandleFactory} from './widgets.handle';
 
 /**
  * @module widgets/angle
  */
-export default class WidgetsAngle extends WidgetsBase {
+const widgetsAngle = (three = window.THREE) => {
+    if (three === undefined || three.Object3D === undefined) {
+      return null;
+    }
+
+    const Constructor = widgetsBase(three);
+    return class extends Constructor {
     constructor(targetMesh, controls) {
         super(targetMesh, controls);
 
@@ -34,6 +38,7 @@ export default class WidgetsAngle extends WidgetsBase {
         this._handles = [];
 
         let handle;
+        const WidgetsHandle = widgetsHandleFactory(three);
         for (let i = 0; i < 3; i++) {
             handle = new WidgetsHandle(targetMesh, controls);
             handle.worldPosition.copy(this._worldPosition);
@@ -190,25 +195,25 @@ export default class WidgetsAngle extends WidgetsBase {
 
     createMesh() {
         // geometry
-        this._geometry = new THREE.Geometry();
+        this._geometry = new three.Geometry();
         this._geometry.vertices.push(this._handles[0].worldPosition);
         this._geometry.vertices.push(this._handles[1].worldPosition);
 
         // geometry
-        this._geometry2 = new THREE.Geometry();
+        this._geometry2 = new three.Geometry();
         this._geometry2.vertices.push(this._handles[1].worldPosition);
         this._geometry2.vertices.push(this._handles[2].worldPosition);
 
         // material
-        this._material = new THREE.LineBasicMaterial();
-        this._material2 = new THREE.LineBasicMaterial();
+        this._material = new three.LineBasicMaterial();
+        this._material2 = new three.LineBasicMaterial();
 
         this.updateMeshColor();
 
         // mesh
-        this._mesh = new THREE.Line(this._geometry, this._material);
+        this._mesh = new three.Line(this._geometry, this._material);
         this._mesh.visible = true;
-        this._mesh2 = new THREE.Line(this._geometry2, this._material2);
+        this._mesh2 = new three.Line(this._geometry2, this._material2);
         this._mesh2.visible = true;
 
         this.add(this._mesh);
@@ -309,7 +314,7 @@ export default class WidgetsAngle extends WidgetsBase {
         this._label.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
         let paddingNormVector = lineData.line.clone().add(line2Data.line).normalize().negate(),
-            normAngle = paddingNormVector.angleTo(new Vector3(1, 0, 0));
+            normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
 
         if (normAngle > Math.PI / 2) {
             normAngle = Math.PI - normAngle;
@@ -405,4 +410,8 @@ export default class WidgetsAngle extends WidgetsBase {
     get angle() {
         return this._opangle;
     }
-}
+  };
+};
+
+export {widgetsAngle};
+export default widgetsAngle();

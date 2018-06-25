@@ -4,7 +4,7 @@ import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
 import ModelsBase from '../models/models.base';
 
-import {RGBAFormat} from 'three';
+import {RGBFormat, RGBAFormat} from 'three';
 
 const binaryString = require('math-float32-to-binary-string');
 
@@ -648,7 +648,7 @@ export default class ModelsStack extends ModelsBase {
         packIndex++;
       }
 
-      packed.textureType = THREE.RGBFormat;
+      packed.textureType = RGBFormat;
       packed.data = data;
     }
 

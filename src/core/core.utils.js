@@ -1,7 +1,7 @@
 const URL = require('url');
 import Validators from './core.validators';
 
-import {Matrix4, Vector3} from 'three';
+import {Box3, Matrix4, Raycaster, Triangle, Vector3} from 'three';
 
 /**
  * General purpose functions.
@@ -386,12 +386,12 @@ export default class CoreUtils {
   static getRoI(mesh, camera, stack) {
     mesh.geometry.computeBoundingBox();
 
-    const bbox = new THREE.Box3().setFromObject(mesh);
+    const bbox = new Box3().setFromObject(mesh);
     const min = bbox.min.clone().project(camera);
     const max = bbox.max.clone().project(camera);
     const offsetWidth = camera.controls.domElement.offsetWidth;
     const offsetHeight = camera.controls.domElement.offsetHeight;
-    const rayCaster = new THREE.Raycaster();
+    const rayCaster = new Raycaster();
     const values = [];
 
     min.x = Math.round((min.x + 1) * offsetWidth / 2);
@@ -437,5 +437,27 @@ export default class CoreUtils {
       mean: avg,
       sd: Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / values.length),
     };
+  }
+
+  /**
+   * Calculate shape area (sum of triangle polygons area).
+   *
+   * @param {THREE.Geometry} geometry
+   *
+   * @returns {Number}
+   */
+  static getGeometryArea(geometry) {
+    if (geometry.faces.length < 1) {
+      return 0.0;
+    }
+
+    let area = 0.0;
+    let vertices = geometry.vertices;
+
+    geometry.faces.forEach(function(elem) {
+      area += new Triangle(vertices[elem.a], vertices[elem.b], vertices[elem.c]).getArea();
+    });
+
+    return area;
   }
 }

@@ -5,7 +5,8 @@ import HelpersStack from 'base/helpers/helpers.stack';
 import LoadersVolume from 'base/loaders/loaders.volume';
 import WidgetsAnnotation from 'base/widgets/widgets.annotation';
 import WidgetsAngle from 'base/widgets/widgets.angle';
-import WidgetsBiruler from 'base/widgets/widgets.biruler';
+import WidgetsBiRuler from 'base/widgets/widgets.biruler';
+import WidgetsCrossRuler from 'base/widgets/widgets.crossruler';
 import WidgetsEllipse from 'base/widgets/widgets.ellipse';
 import WidgetsFreehand from 'base/widgets/widgets.freehand';
 import WidgetsHandle from 'base/widgets/widgets.handle';
@@ -27,7 +28,8 @@ const widgetsAvailable = [
   'Handle',
   'VoxelProbe',
   'Ruler',
-  'Biruler',
+  'BiRuler',
+  'CrossRuler',
   'Angle',
   'Rectangle',
   'Ellipse',
@@ -89,6 +91,7 @@ function init() {
   controls.panSpeed = 0.8;
   controls.staticMoving = true;
   controls.dynamicDampingFactor = 0.3;
+  camera.controls = controls;
 
   animate();
 }
@@ -171,8 +174,11 @@ window.onload = function() {
         case 'Ruler':
           widget = new WidgetsRuler(stackHelper.slice.mesh, controls, stack);
           break;
-        case 'Biruler':
-          widget = new WidgetsBiruler(stackHelper.slice.mesh, controls, stack);
+        case 'WidgetsCrossRuler':
+          widget = new WidgetsCrossRuler(stackHelper.slice.mesh, controls, stack);
+          break;
+        case 'BiRuler':
+          widget = new WidgetsBiRuler(stackHelper.slice.mesh, controls, stack);
           break;
         case 'Angle':
           widget = new WidgetsAngle(stackHelper.slice.mesh, controls);
