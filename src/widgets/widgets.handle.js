@@ -1,29 +1,33 @@
-import WidgetsBase from './widgets.base';
+import {widgetsBase} from './widgets.base';
 import CoreIntersections from '../core/core.intersections';
-
-import {Vector2, Vector3} from 'three';
 
 /**
  * @module widgets/handle
  */
-export default class WidgetsHandle extends WidgetsBase {
+const widgetsHandle = (three = window.THREE) => {
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
+  }
+
+   const Constructor = widgetsBase(three);
+   return class extends Constructor {
   constructor(targetMesh, controls) {
     super(targetMesh, controls);
 
     this._widgetType = 'Handle';
     // if no target mesh, use plane for FREE dragging.
     this._plane = {
-        position: new Vector3(),
-        direction: new Vector3(),
+        position: new three.Vector3(),
+        direction: new three.Vector3(),
     };
-    this._offset = new Vector3();
-    this._raycaster = new THREE.Raycaster();
+    this._offset = new three.Vector3();
+    this._raycaster = new three.Raycaster();
 
     this._active = false;
     this._hovered = false;
     this._tracking = false;
 
-    this._mouse = new Vector2();
+    this._mouse = new three.Vector2();
 
     this._initialized = false; // set to true onEnd
 
@@ -190,10 +194,10 @@ export default class WidgetsHandle extends WidgetsBase {
 
   createMesh() {
     // geometry
-    this._geometry = new THREE.SphereGeometry(1, 16, 16);
+    this._geometry = new three.SphereGeometry(1, 16, 16);
 
     // material
-    this._material = new THREE.MeshBasicMaterial({
+    this._material = new three.MeshBasicMaterial({
         wireframe: true,
         wireframeLinewidth: 2,
       });
@@ -201,7 +205,7 @@ export default class WidgetsHandle extends WidgetsBase {
     this.updateMeshColor();
 
     // mesh
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
+    this._mesh = new three.Mesh(this._geometry, this._material);
     this._mesh.position.copy(this._worldPosition);
     this._mesh.visible = true;
 
@@ -319,4 +323,8 @@ export default class WidgetsHandle extends WidgetsBase {
     this._tracking = tracking;
     this.update();
   }
-}
+  };
+};
+
+export {widgetsHandle};
+export default widgetsHandle();

@@ -4,6 +4,8 @@ import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
 import ModelsBase from '../models/models.base';
 
+import {RGBFormat, RGBAFormat} from 'three';
+
 const binaryString = require('math-float32-to-binary-string');
 
 /**
@@ -564,7 +566,7 @@ export default class ModelsStack extends ModelsBase {
         coordinate = Math.floor(packIndex / 4);
         channelOffset = packIndex % 4;
       }
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 16 && channels === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -587,7 +589,7 @@ export default class ModelsStack extends ModelsBase {
         channelOffset = packIndex % 2;
       }
 
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 0) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -605,7 +607,7 @@ export default class ModelsStack extends ModelsBase {
 
         packIndex++;
       }
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -628,7 +630,7 @@ export default class ModelsStack extends ModelsBase {
         packIndex++;
       }
 
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 8 && channels === 3) {
       let data = new Uint8Array(textureSize * textureSize * 3);
@@ -646,7 +648,7 @@ export default class ModelsStack extends ModelsBase {
         packIndex++;
       }
 
-      packed.textureType = THREE.RGBFormat;
+      packed.textureType = RGBFormat;
       packed.data = data;
     }
 

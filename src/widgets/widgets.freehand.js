@@ -1,14 +1,17 @@
-import WidgetsBase from './widgets.base';
-import WidgetsHandle from './widgets.handle';
-import GeometriesSlice from '../geometries/geometries.slice';
+import {widgetsBase} from './widgets.base';
+import {widgetsHandle as widgetsHandleFactory} from './widgets.handle';
 import CoreUtils from '../core/core.utils';
-
-import {Vector3} from 'three';
 
 /**
  * @module widgets/freehand
  */
-export default class WidgetsFreehand extends WidgetsBase {
+const widgetsFreehand = (three = window.THREE) => {
+    if (three === undefined || three.Object3D === undefined) {
+      return null;
+    }
+
+    const Constructor = widgetsBase(three);
+    return class extends Constructor {
     constructor(targetMesh, controls, stack) {
         super(targetMesh, controls);
 
@@ -30,6 +33,7 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         // add handles
         this._handles = [];
+        const WidgetsHandle = widgetsHandleFactory(three);
 
         let handle = new WidgetsHandle(targetMesh, controls);
         handle.worldPosition.copy(this._worldPosition);
@@ -119,6 +123,7 @@ export default class WidgetsFreehand extends WidgetsBase {
                 this._handles[numHandles - 1].active = false;
                 this._handles[numHandles - 1].tracking = false;
 
+                const WidgetsHandle = widgetsHandleFactory(three);
                 let handle = new WidgetsHandle(this._targetMesh, this._controls);
                 handle.worldPosition.copy(this._worldPosition);
                 handle.hovered = true;
@@ -209,7 +214,7 @@ export default class WidgetsFreehand extends WidgetsBase {
     }
 
     createMaterial() {
-        this._material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide});
+        this._material = new three.MeshBasicMaterial({side: three.DoubleSide});
         this._material.transparent = true;
         this._material.opacity = 0.2;
     }
@@ -299,21 +304,21 @@ export default class WidgetsFreehand extends WidgetsBase {
             points.push(elem.worldPosition);
         });
 
-        let center = GeometriesSlice.centerOfMass(points);
-        let direction = new Vector3().crossVectors(
-            new Vector3().subVectors(points[0], center), // side 1
-            new Vector3().subVectors(points[1], center) // side 2
+        let center = CoreUtils.centerOfMass(points);
+        let direction = new three.Vector3().crossVectors(
+            new three.Vector3().subVectors(points[0], center), // side 1
+            new three.Vector3().subVectors(points[1], center) // side 2
         );
 
         // direction from first point to center
-        let referenceDirection = new Vector3().subVectors(points[0], center).normalize();
-        let base = new Vector3().crossVectors(referenceDirection, direction).normalize();
+        let referenceDirection = new three.Vector3().subVectors(points[0], center).normalize();
+        let base = new three.Vector3().crossVectors(referenceDirection, direction).normalize();
         let orderedpoints = [];
 
         // other lines // if inter, return location + angle
         for (let j = 0; j < points.length; j++) {
-            let point = new Vector3(points[j].x, points[j].y, points[j].z);
-            point.direction = new Vector3().subVectors(points[j], center).normalize();
+            let point = new three.Vector3(points[j].x, points[j].y, points[j].z);
+            point.direction = new three.Vector3().subVectors(points[j], center).normalize();
 
             let x = referenceDirection.dot(point.direction);
             let y = base.dot(point.direction);
@@ -327,13 +332,27 @@ export default class WidgetsFreehand extends WidgetsBase {
         this._shapeWarn = false;
         const oldWarn = console.warn;
         console.warn = function(...rest) {
-            if (rest[0] === 'THREE.ShapeUtils: Unable to triangulate polygon! in triangulate()') {
+            if (rest[0] === 'three.ShapeUtils: Unable to triangulate polygon! in triangulate()') {
                 this._shapeWarn = true;
             }
             return oldWarn.apply(console, rest);
         }.bind(this);
 
-        this._geometry = new THREE.ShapeGeometry(GeometriesSlice.shape(orderedpoints));
+        // create the shape
+        let shape = new three.Shape();
+        // move to first point!
+        shape.moveTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
+
+        // loop through all points!
+        for (let l = 1; l < orderedpoints.length; l++) {
+            // project each on plane!
+            shape.lineTo(orderedpoints[l].xy.x, orderedpoints[l].xy.y);
+        }
+
+        // close the shape!
+        shape.lineTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
+
+        this._geometry = new three.ShapeGeometry(shape);
 
         console.warn = oldWarn;
 
@@ -343,7 +362,7 @@ export default class WidgetsFreehand extends WidgetsBase {
 
         this.updateMeshColor();
 
-        this._mesh = new THREE.Mesh(this._geometry, this._material);
+        this._mesh = new three.Mesh(this._geometry, this._material);
         this._mesh.visible = true;
         this.add(this._mesh);
     }
@@ -361,7 +380,7 @@ export default class WidgetsFreehand extends WidgetsBase {
     }
 
     isPointOnLine(pointA, pointB, pointToCheck) {
-        let c = new Vector3();
+        let c = new three.Vector3();
         c.crossVectors(pointA.clone().sub(pointToCheck), pointB.clone().sub(pointToCheck));
         return !c.length();
     }
@@ -535,4 +554,8 @@ export default class WidgetsFreehand extends WidgetsBase {
         this._worldPosition.copy(worldPosition);
         this.update();
     }
-}
+  };
+};
+
+export {widgetsFreehand};
+export default widgetsFreehand();

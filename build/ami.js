@@ -78,6 +78,497 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_validators__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(1);
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var URL = __webpack_require__(88);
+
+
+
+
+/**
+ * General purpose functions.
+ *
+ * @module core/utils
+ */
+
+var CoreUtils = function () {
+  function CoreUtils() {
+    _classCallCheck(this, CoreUtils);
+  }
+
+  /**
+   * Generate a bouding box object.
+   * @param {Vector3} center - Center of the box.
+   * @param {Vector3} halfDimensions - Half Dimensions of the box.
+   * @return {Object} The bounding box object. {Object.min} is a {Vector3}
+   * containing the min bounds. {Object.max} is a {Vector3} containing the
+   * max bounds.
+   * @return {boolean} False input NOT valid.
+   * @example
+   * // Returns
+   * //{ min: { x : 0, y : 0,  z : 0 },
+   * //  max: { x : 2, y : 4,  z : 6 }
+   * //}
+   * VJS.Core.Utils.bbox(
+   *   new Vector3(1, 2, 3), new Vector3(1, 2, 3));
+   *
+   * //Returns false
+   * VJS.Core.Utils.bbox(new Vector3(), new Matrix4());
+   *
+   */
+  CoreUtils.bbox = function bbox(center, halfDimensions) {
+    // make sure we have valid inputs
+    if (!(__WEBPACK_IMPORTED_MODULE_0__core_validators__["a" /* default */].vector3(center) && __WEBPACK_IMPORTED_MODULE_0__core_validators__["a" /* default */].vector3(halfDimensions))) {
+      window.console.log('Invalid center or plane halfDimensions.');
+      return false;
+    }
+
+    // make sure half dimensions are >= 0
+    if (!(halfDimensions.x >= 0 && halfDimensions.y >= 0 && halfDimensions.z >= 0)) {
+      window.console.log('halfDimensions must be >= 0.');
+      window.console.log(halfDimensions);
+      return false;
+    }
+
+    // min/max bound
+    var min = center.clone().sub(halfDimensions);
+    var max = center.clone().add(halfDimensions);
+
+    return {
+      min: min,
+      max: max
+    };
+  };
+
+  /**
+   * Find min/max values in an array
+   * @param {Array} data
+   * @return {Array}
+   */
+
+
+  CoreUtils.minMax = function minMax() {
+    var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+    var minMax = [65535, -32768];
+    var numPixels = data.length;
+
+    for (var index = 0; index < numPixels; index++) {
+      var spv = data[index];
+      minMax[0] = Math.min(minMax[0], spv);
+      minMax[1] = Math.max(minMax[1], spv);
+    }
+
+    return minMax;
+  };
+
+  /**
+   * Check HTMLElement
+   * @param {HTMLElement} obj
+   * @return {boolean}
+   */
+
+
+  CoreUtils.isElement = function isElement(obj) {
+    try {
+      // Using W3 DOM2 (works for FF, Opera and Chrom)
+      return obj instanceof HTMLElement;
+    } catch (e) {
+      // Browsers not supporting W3 DOM2 don't have HTMLElement and
+      // an exception is thrown and we end up here. Testing some
+      // properties that all elements have. (works on IE7)
+      return (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object' && obj.nodeType === 1 && _typeof(obj.style) === 'object' && _typeof(obj.ownerDocument) === 'object';
+    }
+  };
+
+  /**
+   * Check string
+   * @param {String} str
+   * @return {Boolean}
+   */
+
+
+  CoreUtils.isString = function isString(str) {
+    return typeof str === 'string' || str instanceof String;
+  };
+
+  /**
+   * Parse url and find out the extension of the exam file.
+   *
+   * @param {*} url - The url to be parsed.
+   * The query string can contain some "special" parameters that can be used to ease the parsing process
+   * when the url doesn't match the exam file name on the filesystem:
+   * - filename: the name of the exam file
+   * - contentType: the mime type of the exam file. Currently only "application/dicom" is recognized, nifti files don't have a standard mime type.
+   * For  example:
+   * http://<hostname>/getExam?id=100&filename=myexam%2Enii%2Egz
+   * http://<hostname>/getExam?id=100&contentType=application%2Fdicom
+   *
+   * @return {Object}
+   */
+
+
+  CoreUtils.parseUrl = function parseUrl(url) {
+    var data = {};
+    data.filename = '';
+    data.extension = '';
+    data.pathname = '';
+    data.query = '';
+
+    var parsedUrl = URL.parse(url);
+
+    data.pathname = parsedUrl.pathname;
+    data.query = parsedUrl.query;
+
+    if (data.query) {
+      // Find "filename" parameter value, if present
+      data.filename = data.query.split('&').reduce(function (acc, fieldval) {
+        var fvPair = fieldval.split('=');
+        if (fvPair.length > 0 && fvPair[0] == 'filename') {
+          acc = fvPair[1];
+        }
+        return acc;
+      });
+    }
+
+    // get file name
+    if (!data.filename) {
+      data.filename = data.pathname.split('/').pop();
+    }
+
+    // find extension
+    var splittedName = data.filename.split('.');
+    if (splittedName.length <= 1) {
+      data.extension = 'dicom';
+    } else {
+      data.extension = data.filename.split('.').pop();
+    }
+
+    if (!isNaN(data.extension)) {
+      data.extension = 'dicom';
+    }
+
+    if (data.query && data.query.includes('contentType=application%2Fdicom')) {
+      data.extension = 'dicom';
+    }
+
+    return data;
+  };
+
+  /**
+   * Compute IJK to LPS tranform.
+   *  http://nipy.org/nibabel/dicom/dicom_orientation.html
+   *
+   * @param {*} xCos
+   * @param {*} yCos
+   * @param {*} zCos
+   * @param {*} spacing
+   * @param {*} origin
+   * @param {*} registrationMatrix
+   *
+   * @return {*}
+   */
+
+
+  CoreUtils.ijk2LPS = function ijk2LPS(xCos, yCos, zCos, spacing, origin) {
+    var registrationMatrix = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : new __WEBPACK_IMPORTED_MODULE_1_three__["b" /* Matrix4 */]();
+
+    var ijk2LPS = new __WEBPACK_IMPORTED_MODULE_1_three__["b" /* Matrix4 */]();
+    ijk2LPS.set(xCos.x * spacing.y, yCos.x * spacing.x, zCos.x * spacing.z, origin.x, xCos.y * spacing.y, yCos.y * spacing.x, zCos.y * spacing.z, origin.y, xCos.z * spacing.y, yCos.z * spacing.x, zCos.z * spacing.z, origin.z, 0, 0, 0, 1);
+    ijk2LPS.premultiply(registrationMatrix);
+
+    return ijk2LPS;
+  };
+
+  /**
+   * Compute AABB to LPS transform.
+   * AABB: Axe Aligned Bounding Box.
+   *
+   * @param {*} xCos
+   * @param {*} yCos
+   * @param {*} zCos
+   * @param {*} origin
+   *
+   * @return {*}
+   */
+
+
+  CoreUtils.aabb2LPS = function aabb2LPS(xCos, yCos, zCos, origin) {
+    var aabb2LPS = new __WEBPACK_IMPORTED_MODULE_1_three__["b" /* Matrix4 */]();
+    aabb2LPS.set(xCos.x, yCos.x, zCos.x, origin.x, xCos.y, yCos.y, zCos.y, origin.y, xCos.z, yCos.z, zCos.z, origin.z, 0, 0, 0, 1);
+
+    return aabb2LPS;
+  };
+
+  /**
+   * Transform coordinates from world coordinate to data
+   *
+   * @param {*} lps2IJK
+   * @param {*} worldCoordinates
+   *
+   * @return {*}
+   */
+
+
+  CoreUtils.worldToData = function worldToData(lps2IJK, worldCoordinates) {
+    var dataCoordinate = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */]().copy(worldCoordinates).applyMatrix4(lps2IJK);
+
+    // same rounding in the shaders
+    dataCoordinate.addScalar(0.5).floor();
+
+    return dataCoordinate;
+  };
+
+  CoreUtils.value = function value(stack, coordinate) {
+    window.console.warn('value is deprecated, please use getPixelData instead');
+    this.getPixelData(stack, coordinate);
+  };
+
+  /**
+   * Get voxel value
+   *
+   * @param {ModelsStack} stack
+   * @param {Vector3} coordinate
+   * @return {*}
+   */
+
+
+  CoreUtils.getPixelData = function getPixelData(stack, coordinate) {
+    if (coordinate.z >= 0 && coordinate.z < stack._frame.length) {
+      return stack._frame[coordinate.z].getPixelData(coordinate.x, coordinate.y);
+    } else {
+      return null;
+    }
+  };
+
+  /**
+   * Set voxel value
+   *
+   * @param {ModelsStack} stack
+   * @param {Vector3} coordinate
+   * @param {Number} value
+   * @return {*}
+   */
+
+
+  CoreUtils.setPixelData = function setPixelData(stack, coordinate, value) {
+    if (coordinate.z >= 0 && coordinate.z < stack._frame.length) {
+      stack._frame[coordinate.z].setPixelData(coordinate.x, coordinate.y, value);
+    } else {
+      return null;
+    }
+  };
+
+  /**
+   * Apply slope/intercept to a value
+   *
+   * @param {*} value
+   * @param {*} slope
+   * @param {*} intercept
+   *
+   * @return {*}
+   */
+
+
+  CoreUtils.rescaleSlopeIntercept = function rescaleSlopeIntercept(value, slope, intercept) {
+    return value * slope + intercept;
+  };
+
+  /**
+  * 
+  *
+  * Convenience function to extract center of mass from list of points.
+  *
+  * @private
+  *
+  * @param {Array<Vector3>} points - Set of points from which we want to extract the center of mass.
+  *
+  * @returns {Vector3} Center of mass from given points.
+  */
+
+
+  CoreUtils.centerOfMass = function centerOfMass(points) {
+    var centerOfMass = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](0, 0, 0);
+    for (var i = 0; i < points.length; i++) {
+      centerOfMass.x += points[i].x;
+      centerOfMass.y += points[i].y;
+      centerOfMass.z += points[i].z;
+    }
+    centerOfMass.divideScalar(points.length);
+
+    return centerOfMass;
+  };
+
+  /**
+  *
+  * Order 3D planar points around a refence point.
+  *
+  * @private
+  *
+  * @param {Array<Vector3>} points - Set of planar 3D points to be ordered.
+  * @param {Vector3} direction - Direction of the plane in which points and reference are sitting.
+  *
+  * @returns {Array<Object>} Set of object representing the ordered points.
+  */
+
+
+  CoreUtils.orderIntersections = function orderIntersections(points, direction) {
+    var reference = this.centerOfMass(points);
+    // direction from first point to reference
+    var referenceDirection = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](points[0].x - reference.x, points[0].y - reference.y, points[0].z - reference.z).normalize();
+
+    var base = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](0, 0, 0).crossVectors(referenceDirection, direction).normalize();
+
+    var orderedpoints = [];
+
+    // other lines // if inter, return location + angle
+    for (var j = 0; j < points.length; j++) {
+      var point = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](points[j].x, points[j].y, points[j].z);
+      point.direction = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](points[j].x - reference.x, points[j].y - reference.y, points[j].z - reference.z).normalize();
+
+      var x = referenceDirection.dot(point.direction);
+      var y = base.dot(point.direction);
+      point.xy = { x: x, y: y };
+
+      var theta = Math.atan2(y, x) * (180 / Math.PI);
+      point.angle = theta;
+
+      orderedpoints.push(point);
+    }
+
+    orderedpoints.sort(function (a, b) {
+      return a.angle - b.angle;
+    });
+
+    var noDups = [orderedpoints[0]];
+    var epsilon = 0.0001;
+    for (var i = 1; i < orderedpoints.length; i++) {
+      if (Math.abs(orderedpoints[i - 1].angle - orderedpoints[i].angle) > epsilon) {
+        noDups.push(orderedpoints[i]);
+      }
+    }
+
+    return noDups;
+  };
+
+  /**
+   * Get min, max, mean and sd of voxel values behind the mesh
+   *
+   * @param {THREE.Mesh}  mesh    Region of Interest
+   * @param {*}           camera  Tested on CamerasOrthographic
+   * @param {ModelsStack} stack
+   *
+   * @return {Object|null}
+   */
+
+
+  CoreUtils.getRoI = function getRoI(mesh, camera, stack) {
+    mesh.geometry.computeBoundingBox();
+
+    var bbox = new __WEBPACK_IMPORTED_MODULE_1_three__["a" /* Box3 */]().setFromObject(mesh);
+    var min = bbox.min.clone().project(camera);
+    var max = bbox.max.clone().project(camera);
+    var offsetWidth = camera.controls.domElement.offsetWidth;
+    var offsetHeight = camera.controls.domElement.offsetHeight;
+    var rayCaster = new __WEBPACK_IMPORTED_MODULE_1_three__["e" /* Raycaster */]();
+    var values = [];
+
+    min.x = Math.round((min.x + 1) * offsetWidth / 2);
+    min.y = Math.round((-min.y + 1) * offsetHeight / 2);
+    max.x = Math.round((max.x + 1) * offsetWidth / 2);
+    max.y = Math.round((-max.y + 1) * offsetHeight / 2);
+    var _ref = [Math.min(min.x, max.x), Math.max(min.x, max.x)];
+    min.x = _ref[0];
+    max.x = _ref[1];
+    var _ref2 = [Math.min(min.y, max.y), Math.max(min.y, max.y)];
+    min.y = _ref2[0];
+    max.y = _ref2[1];
+
+
+    var intersect = [];
+    var value = null;
+
+    for (var x = min.x; x <= max.x; x++) {
+      for (var y = min.y; y <= max.y; y++) {
+        rayCaster.setFromCamera({
+          x: x / offsetWidth * 2 - 1,
+          y: -(y / offsetHeight) * 2 + 1
+        }, camera);
+        intersect = rayCaster.intersectObject(mesh);
+
+        if (intersect.length === 0) {
+          continue;
+        }
+
+        value = CoreUtils.getPixelData(stack, CoreUtils.worldToData(stack.lps2IJK, intersect[0].point));
+
+        // the image isn't RGB and coordinates are inside it
+        if (value !== null && stack.numberOfChannels === 1) {
+          values.push(CoreUtils.rescaleSlopeIntercept(value, stack.rescaleSlope, stack.rescaleIntercept));
+        }
+      }
+    }
+
+    if (values.length === 0) {
+      return null;
+    }
+
+    var avg = values.reduce(function (sum, val) {
+      return sum + val;
+    }) / values.length;
+
+    return {
+      min: values.reduce(function (prev, val) {
+        return prev < val ? prev : val;
+      }),
+      max: values.reduce(function (prev, val) {
+        return prev > val ? prev : val;
+      }),
+      mean: avg,
+      sd: Math.sqrt(values.reduce(function (sum, val) {
+        return sum + Math.pow(val - avg, 2);
+      }, 0) / values.length)
+    };
+  };
+
+  /**
+   * Calculate shape area (sum of triangle polygons area).
+   *
+   * @param {THREE.Geometry} geometry
+   *
+   * @returns {Number}
+   */
+
+
+  CoreUtils.getGeometryArea = function getGeometryArea(geometry) {
+    if (geometry.faces.length < 1) {
+      return 0.0;
+    }
+
+    var area = 0.0;
+    var vertices = geometry.vertices;
+
+    geometry.faces.forEach(function (elem) {
+      area += new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Triangle */](vertices[elem.a], vertices[elem.b], vertices[elem.c]).getArea();
+    });
+
+    return area;
+  };
+
+  return CoreUtils;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (CoreUtils);
+
+/***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* unused harmony export WebGLRenderTargetCube */
 /* unused harmony export WebGLRenderTarget */
 /* unused harmony export WebGLRenderer */
@@ -168,16 +659,16 @@ return /******/ (function(modules) { // webpackBootstrap
 /* unused harmony export InstancedBufferAttribute */
 /* unused harmony export Face3 */
 /* unused harmony export Object3D */
-/* unused harmony export Raycaster */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return Raycaster; });
 /* unused harmony export Layers */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return EventDispatcher; });
+/* unused harmony export EventDispatcher */
 /* unused harmony export Clock */
 /* unused harmony export QuaternionLinearInterpolant */
 /* unused harmony export LinearInterpolant */
 /* unused harmony export DiscreteInterpolant */
 /* unused harmony export CubicInterpolant */
 /* unused harmony export Interpolant */
-/* unused harmony export Triangle */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return Triangle; });
 /* unused harmony export Math */
 /* unused harmony export Spherical */
 /* unused harmony export Cylindrical */
@@ -185,17 +676,17 @@ return /******/ (function(modules) { // webpackBootstrap
 /* unused harmony export Frustum */
 /* unused harmony export Sphere */
 /* unused harmony export Ray */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return Matrix4; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Matrix4; });
 /* unused harmony export Matrix3 */
-/* unused harmony export Box3 */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Box3; });
 /* unused harmony export Box2 */
 /* unused harmony export Line3 */
 /* unused harmony export Euler */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return Vector4; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return Vector3; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return Vector2; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return Quaternion; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Color; });
+/* unused harmony export Vector4 */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return Vector3; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return Vector2; });
+/* unused harmony export Quaternion */
+/* unused harmony export Color */
 /* unused harmony export ImmediateRenderObject */
 /* unused harmony export VertexNormalsHelper */
 /* unused harmony export SpotLightHelper */
@@ -387,8 +878,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* unused harmony export UnsignedShort565Type */
 /* unused harmony export UnsignedInt248Type */
 /* unused harmony export AlphaFormat */
-/* unused harmony export RGBFormat */
-/* unused harmony export RGBAFormat */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return RGBFormat; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return RGBAFormat; });
 /* unused harmony export LuminanceFormat */
 /* unused harmony export LuminanceAlphaFormat */
 /* unused harmony export RGBEFormat */
@@ -46337,7 +46828,686 @@ function LensFlare() {
 
 
 /***/ }),
-/* 1 */
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return widgetsBase; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_css__ = __webpack_require__(83);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+/**
+ * @module Abstract Widget
+ */
+var widgetsBase = function widgetsBase() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
+  }
+
+  var Constructor = three.Object3D;
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
+
+    function _class(targetMesh, controls) {
+      _classCallCheck(this, _class);
+
+      // init THREE Object 3D
+
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this));
+
+      _this._widgetType = 'Base';
+
+      var elementStyle = document.getElementById('ami-widgets');
+      if (elementStyle === null) {
+        var styleEl = document.createElement('style');
+        styleEl.setAttribute('id', 'ami-widgets');
+        styleEl.innerHTML = __WEBPACK_IMPORTED_MODULE_0__widgets_css__["a" /* default */].code;
+        document.head.appendChild(styleEl);
+      }
+
+      _this._enabled = true; // is widget enabled?
+
+      // STATE, ENUM might be better
+      _this._selected = false;
+      _this._hovered = true;
+      _this._active = true;
+      // thos._state = 'SELECTED';
+
+      _this._colors = {
+        default: '#00B0FF',
+        active: '#FFEB3B',
+        hover: '#F50057',
+        select: '#76FF03',
+        text: '#FFF',
+        error: '#F77'
+      };
+      _this._color = _this._colors.default;
+
+      _this._dragged = false;
+      // can not call it visible because it conflicts with THREE.Object3D
+      _this._displayed = true;
+
+      _this._targetMesh = targetMesh;
+      _this._controls = controls;
+      _this._camera = controls.object;
+      _this._container = controls.domElement;
+
+      _this._worldPosition = new three.Vector3(); // LPS position
+      if (_this._targetMesh !== null) {
+        _this._worldPosition.copy(_this._targetMesh.position);
+      }
+      return _this;
+    }
+
+    _class.prototype.initOffsets = function initOffsets() {
+      var box = this._container.getBoundingClientRect();
+
+      var body = document.body;
+      var docEl = document.documentElement;
+
+      var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
+      var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
+
+      var clientTop = docEl.clientTop || body.clientTop || 0;
+      var clientLeft = docEl.clientLeft || body.clientLeft || 0;
+
+      this._offsets = {
+        top: Math.round(box.top + scrollTop - clientTop),
+        left: Math.round(box.left + scrollLeft - clientLeft)
+      };
+    };
+
+    _class.prototype.getMouseOffsets = function getMouseOffsets(event, container) {
+      return {
+        x: (event.clientX - this._offsets.left) / container.offsetWidth * 2 - 1,
+        y: -((event.clientY - this._offsets.top) / container.offsetHeight) * 2 + 1,
+        screenX: event.clientX - this._offsets.left,
+        screenY: event.clientY - this._offsets.top
+      };
+    };
+
+    _class.prototype.getLineData = function getLineData(pointA, pointB) {
+      var line = pointB.clone().sub(pointA),
+          center = pointB.clone().add(pointA).multiplyScalar(0.5),
+          length = line.length(),
+          angle = line.angleTo(new three.Vector3(1, 0, 0));
+
+      return {
+        line: line,
+        length: length,
+        transformX: center.x - length / 2,
+        transformY: center.y - this._container.offsetHeight,
+        transformAngle: pointA.y < pointB.y ? angle : -angle,
+        center: center
+      };
+    };
+
+    _class.prototype.getRectData = function getRectData(pointA, pointB) {
+      var line = pointB.clone().sub(pointA),
+          vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0)),
+          min = pointA.clone().min(pointB); // coordinates of the top left corner
+
+      return {
+        width: line.clone().projectOnVector(new three.Vector3(1, 0, 0)).length(),
+        height: vertical.length(),
+        transformX: min.x,
+        transformY: min.y - this._container.offsetHeight,
+        paddingVector: vertical.clone().normalize()
+      };
+    };
+
+    /**
+     * @param {HTMLElement} label
+     * @param {Vector3}     point  label's center coordinates (default)
+     * @param {Boolean}     corner if true, then point is the label's top left corner coordinates
+     */
+
+
+    _class.prototype.adjustLabelTransform = function adjustLabelTransform(label, point, corner) {
+      var x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2)),
+          y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
+
+      if (x < 0) {
+        x = x > -label.offsetWidth ? 0 : x + label.offsetWidth;
+      } else if (x > this._container.offsetWidth - label.offsetWidth) {
+        x = x < this._container.offsetWidth ? this._container.offsetWidth - label.offsetWidth : x - label.offsetWidth;
+      }
+
+      if (y < -this._container.offsetHeight) {
+        y = y > -this._container.offsetHeight - label.offsetHeight ? -this._container.offsetHeight : y + label.offsetHeight;
+      } else if (y > -label.offsetHeight) {
+        y = y < 0 ? -label.offsetHeight : y - label.offsetHeight;
+      }
+
+      return new three.Vector2(x, y);
+    };
+
+    _class.prototype.worldToScreen = function worldToScreen(worldCoordinate) {
+      var screenCoordinates = worldCoordinate.clone();
+      screenCoordinates.project(this._camera);
+
+      screenCoordinates.x = Math.round((screenCoordinates.x + 1) * this._container.offsetWidth / 2);
+      screenCoordinates.y = Math.round((-screenCoordinates.y + 1) * this._container.offsetHeight / 2);
+      screenCoordinates.z = 0;
+
+      return screenCoordinates;
+    };
+
+    _class.prototype.update = function update() {
+      // to be overloaded
+      window.console.log('update() should be overloaded!');
+    };
+
+    _class.prototype.updateColor = function updateColor() {
+      if (this._active) {
+        this._color = this._colors.active;
+      } else if (this._hovered) {
+        this._color = this._colors.hover;
+      } else if (this._selected) {
+        this._color = this._colors.select;
+      } else {
+        this._color = this._colors.default;
+      }
+    };
+
+    _class.prototype.show = function show() {
+      this.showDOM();
+      this.showMesh();
+      this.update();
+    };
+
+    _class.prototype.hide = function hide() {
+      this.hideDOM();
+      this.hideMesh();
+    };
+
+    _class.prototype.hideDOM = function hideDOM() {
+      // to be overloaded
+      window.console.log('hideDOM() should be overloaded!');
+    };
+
+    _class.prototype.showDOM = function showDOM() {
+      // to be overloaded
+      window.console.log('showDOM() should be overloaded!');
+    };
+
+    _class.prototype.hideMesh = function hideMesh() {
+      this.visible = false;
+    };
+
+    _class.prototype.showMesh = function showMesh() {
+      this.visible = true;
+    };
+
+    _class.prototype.free = function free() {
+      this._container = null;
+    };
+
+    _createClass(_class, [{
+      key: 'widgetType',
+      get: function get() {
+        return this._widgetType;
+      }
+    }, {
+      key: 'targetMesh',
+      get: function get() {
+        return this._targetMesh;
+      },
+      set: function set(targetMesh) {
+        this._targetMesh = targetMesh;
+        this.update();
+      }
+    }, {
+      key: 'worldPosition',
+      get: function get() {
+        return this._worldPosition;
+      },
+      set: function set(worldPosition) {
+        this._worldPosition.copy(worldPosition);
+        this.update();
+      }
+    }, {
+      key: 'enabled',
+      get: function get() {
+        return this._enabled;
+      },
+      set: function set(enabled) {
+        this._enabled = enabled;
+        this.update();
+      }
+    }, {
+      key: 'selected',
+      get: function get() {
+        return this._selected;
+      },
+      set: function set(selected) {
+        this._selected = selected;
+        this.update();
+      }
+    }, {
+      key: 'hovered',
+      get: function get() {
+        return this._hovered;
+      },
+      set: function set(hovered) {
+        this._hovered = hovered;
+        this.update();
+      }
+    }, {
+      key: 'dragged',
+      get: function get() {
+        return this._dragged;
+      },
+      set: function set(dragged) {
+        this._dragged = dragged;
+        this.update();
+      }
+    }, {
+      key: 'displayed',
+      get: function get() {
+        return this._displayed;
+      },
+      set: function set(displayed) {
+        this._displayed = displayed;
+        this.update();
+      }
+    }, {
+      key: 'active',
+      get: function get() {
+        return this._active;
+      },
+      set: function set(active) {
+        this._active = active;
+        this.update();
+      }
+    }, {
+      key: 'color',
+      get: function get() {
+        return this._color;
+      },
+      set: function set(color) {
+        this._color = color;
+        this.update();
+      }
+    }]);
+
+    return _class;
+  }(Constructor);
+};
+
+
+/* unused harmony default export */ var _unused_webpack_default_export = (widgetsBase());
+
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return widgetsHandle; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_core_intersections__ = __webpack_require__(14);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+/**
+ * @module widgets/handle
+ */
+var widgetsHandle = function widgetsHandle() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
+  }
+
+  var Constructor = Object(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* widgetsBase */])(three);
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
+
+    function _class(targetMesh, controls) {
+      _classCallCheck(this, _class);
+
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
+
+      _this._widgetType = 'Handle';
+      // if no target mesh, use plane for FREE dragging.
+      _this._plane = {
+        position: new three.Vector3(),
+        direction: new three.Vector3()
+      };
+      _this._offset = new three.Vector3();
+      _this._raycaster = new three.Raycaster();
+
+      _this._active = false;
+      _this._hovered = false;
+      _this._tracking = false;
+
+      _this._mouse = new three.Vector2();
+
+      _this._initialized = false; // set to true onEnd
+
+      // mesh stuff
+      _this._material = null;
+      _this._geometry = null;
+      _this._mesh = null;
+      _this._meshDisplayed = true;
+      _this._meshHovered = false;
+      _this._meshStyle = 'sphere'; // cube, etc.
+
+      // dom stuff
+      _this._dom = null;
+      _this._domDisplayed = true;
+      _this._domHovered = false;
+      _this._domStyle = 'circle'; // square, triangle
+
+      _this._screenPosition = _this.worldToScreen(_this._worldPosition);
+
+      _this.create();
+      _this.initOffsets();
+
+      // event listeners
+      _this.onResize = _this.onResize.bind(_this);
+      _this.onMove = _this.onMove.bind(_this);
+      _this.onHover = _this.onHover.bind(_this);
+      _this.addEventListeners();
+      return _this;
+    }
+
+    _class.prototype.addEventListeners = function addEventListeners() {
+      window.addEventListener('resize', this.onResize);
+
+      this._dom.addEventListener('mouseenter', this.onHover);
+      this._dom.addEventListener('mouseleave', this.onHover);
+
+      this._container.addEventListener('wheel', this.onMove);
+    };
+
+    _class.prototype.removeEventListeners = function removeEventListeners() {
+      window.removeEventListener('resize', this.onResize);
+
+      this._dom.removeEventListener('mouseenter', this.onHover);
+      this._dom.removeEventListener('mouseleave', this.onHover);
+
+      this._container.removeEventListener('wheel', this.onMove);
+    };
+
+    _class.prototype.onResize = function onResize() {
+      this.initOffsets();
+    };
+
+    _class.prototype.onHover = function onHover(evt) {
+      if (evt) {
+        this.hoverDom(evt);
+      }
+
+      this.hoverMesh();
+
+      this._hovered = this._meshHovered || this._domHovered;
+      this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+    };
+
+    _class.prototype.hoverMesh = function hoverMesh() {
+      // check raycast intersection, do we want to hover on mesh or just css?
+      var intersectsHandle = this._raycaster.intersectObject(this._mesh);
+      this._meshHovered = intersectsHandle.length > 0;
+    };
+
+    _class.prototype.hoverDom = function hoverDom(evt) {
+      this._domHovered = evt.type === 'mouseenter';
+    };
+
+    _class.prototype.onStart = function onStart(evt) {
+      var offsets = this.getMouseOffsets(evt, this._container);
+      this._mouse.set(offsets.x, offsets.y);
+
+      // update raycaster
+      this._raycaster.setFromCamera(this._mouse, this._camera);
+      this._raycaster.ray.position = this._raycaster.ray.origin;
+
+      if (this._hovered) {
+        this._active = true;
+        this._controls.enabled = false;
+
+        if (this._targetMesh) {
+          var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+          if (intersectsTarget.length > 0) {
+            this._offset.copy(intersectsTarget[0].point).sub(this._worldPosition);
+          }
+        } else {
+          this._plane.position.copy(this._worldPosition);
+          this._plane.direction.copy(this._camera.getWorldDirection());
+          var intersection = __WEBPACK_IMPORTED_MODULE_1__core_core_intersections__["a" /* default */].rayPlane(this._raycaster.ray, this._plane);
+          if (intersection !== null) {
+            this._offset.copy(intersection).sub(this._plane.position);
+          }
+        }
+
+        this.update();
+      }
+    };
+
+    /**
+     * @param {Object} evt - Browser event
+     * @param {Boolean} forced - true to move inactive handles
+     */
+
+
+    _class.prototype.onMove = function onMove(evt, forced) {
+      var offsets = this.getMouseOffsets(evt, this._container);
+      this._mouse.set(offsets.x, offsets.y);
+
+      // update raycaster
+      // set ray.position to satisfy CoreIntersections::rayPlane API
+      this._raycaster.setFromCamera(this._mouse, this._camera);
+      this._raycaster.ray.position = this._raycaster.ray.origin;
+
+      if (this._active || forced) {
+        this._dragged = true;
+
+        if (this._targetMesh !== null) {
+          var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+          if (intersectsTarget.length > 0) {
+            this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
+          }
+        } else {
+          if (this._plane.direction.length() === 0) {
+            // free mode!this._targetMesh
+            this._plane.position.copy(this._worldPosition);
+            this._plane.direction.copy(this._camera.getWorldDirection());
+          }
+
+          var intersection = __WEBPACK_IMPORTED_MODULE_1__core_core_intersections__["a" /* default */].rayPlane(this._raycaster.ray, this._plane);
+          if (intersection !== null) {
+            this._worldPosition.copy(intersection.sub(this._offset));
+          }
+        }
+      } else {
+        this.onHover(null);
+      }
+
+      this.update();
+    };
+
+    _class.prototype.onEnd = function onEnd() {
+      if (this._tracking === true) {
+        // stay active and keep controls disabled
+        return;
+      }
+
+      if (!this._dragged && this._active && this._initialized) {
+        this._selected = !this._selected; // change state if there was no dragging
+      }
+
+      this._initialized = true;
+      this._active = false;
+      this._dragged = false;
+      this._controls.enabled = true;
+
+      this.update();
+    };
+
+    _class.prototype.create = function create() {
+      this.createMesh();
+      this.createDOM();
+    };
+
+    _class.prototype.createMesh = function createMesh() {
+      // geometry
+      this._geometry = new three.SphereGeometry(1, 16, 16);
+
+      // material
+      this._material = new three.MeshBasicMaterial({
+        wireframe: true,
+        wireframeLinewidth: 2
+      });
+
+      this.updateMeshColor();
+
+      // mesh
+      this._mesh = new three.Mesh(this._geometry, this._material);
+      this._mesh.position.copy(this._worldPosition);
+      this._mesh.visible = true;
+
+      this.add(this._mesh);
+    };
+
+    _class.prototype.createDOM = function createDOM() {
+      this._dom = document.createElement('div');
+      this._dom.setAttribute('class', 'widgets-handle');
+
+      this._dom.style.transform = 'translate3D(\n      ' + this._screenPosition.x + 'px,\n      ' + (this._screenPosition.y - this._container.offsetHeight) + 'px, 0)';
+
+      this.updateDOMColor();
+
+      this._container.appendChild(this._dom);
+    };
+
+    _class.prototype.update = function update() {
+      // general update
+      this.updateColor();
+
+      // update screen position of handle
+      this._screenPosition = this.worldToScreen(this._worldPosition);
+
+      // mesh stuff
+      this.updateMeshColor();
+      this.updateMeshPosition();
+
+      // DOM stuff
+      this.updateDOMColor();
+      this.updateDOMPosition();
+    };
+
+    _class.prototype.updateMeshColor = function updateMeshColor() {
+      if (this._material) {
+        this._material.color.set(this._color);
+      }
+    };
+
+    _class.prototype.updateMeshPosition = function updateMeshPosition() {
+      if (this._mesh) {
+        this._mesh.position.copy(this._worldPosition);
+      }
+    };
+
+    _class.prototype.updateDOMPosition = function updateDOMPosition() {
+      if (this._dom) {
+        this._dom.style.transform = 'translate3D(' + this._screenPosition.x + 'px,\n        ' + (this._screenPosition.y - this._container.offsetHeight) + 'px, 0)';
+      }
+    };
+
+    _class.prototype.updateDOMColor = function updateDOMColor() {
+      this._dom.style.borderColor = this._color;
+    };
+
+    _class.prototype.free = function free() {
+      // events
+      this.removeEventListeners();
+      // dom
+      this._container.removeChild(this._dom);
+      // mesh, geometry, material
+      this.remove(this._mesh);
+      this._mesh.geometry.dispose();
+      this._mesh.geometry = null;
+      this._mesh.material.dispose();
+      this._mesh.material = null;
+      this._mesh = null;
+      this._geometry.dispose();
+      this._geometry = null;
+      this._material.vertexShader = null;
+      this._material.fragmentShader = null;
+      this._material.uniforms = null;
+      this._material.dispose();
+      this._material = null;
+
+      _Constructor.prototype.free.call(this);
+    };
+
+    _class.prototype.hideDOM = function hideDOM() {
+      this._dom.style.display = 'none';
+    };
+
+    _class.prototype.showDOM = function showDOM() {
+      this._dom.style.display = '';
+    };
+
+    _createClass(_class, [{
+      key: 'screenPosition',
+      get: function get() {
+        return this._screenPosition;
+      },
+      set: function set(screenPosition) {
+        this._screenPosition = screenPosition;
+      }
+    }, {
+      key: 'active',
+      get: function get() {
+        return this._active;
+      },
+      set: function set(active) {
+        this._active = active;
+        // this._tracking = this._active;
+        this._controls.enabled = !this._active;
+
+        this.update();
+      }
+    }, {
+      key: 'tracking',
+      get: function get() {
+        return this._tracking;
+      },
+      set: function set(tracking) {
+        this._tracking = tracking;
+        this.update();
+      }
+    }]);
+
+    return _class;
+  }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["a"] = (widgetsHandle());
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports) {
 
 var g;
@@ -46364,7 +47534,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 2 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46473,308 +47643,7 @@ exports.setTyped(TYPED_OK);
 
 
 /***/ }),
-/* 3 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_validators__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(0);
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var URL = __webpack_require__(88);
-
-
-
-
-/**
- * General purpose functions.
- *
- * @module core/utils
- */
-
-var CoreUtils = function () {
-  function CoreUtils() {
-    _classCallCheck(this, CoreUtils);
-  }
-
-  /**
-   * Generate a bouding box object.
-   * @param {Vector3} center - Center of the box.
-   * @param {Vector3} halfDimensions - Half Dimensions of the box.
-   * @return {Object} The bounding box object. {Object.min} is a {Vector3}
-   * containing the min bounds. {Object.max} is a {Vector3} containing the
-   * max bounds.
-   * @return {boolean} False input NOT valid.
-   * @example
-   * // Returns
-   * //{ min: { x : 0, y : 0,  z : 0 },
-   * //  max: { x : 2, y : 4,  z : 6 }
-   * //}
-   * VJS.Core.Utils.bbox(
-   *   new Vector3(1, 2, 3), new Vector3(1, 2, 3));
-   *
-   * //Returns false
-   * VJS.Core.Utils.bbox(new Vector3(), new Matrix4());
-   *
-   */
-  CoreUtils.bbox = function bbox(center, halfDimensions) {
-    // make sure we have valid inputs
-    if (!(__WEBPACK_IMPORTED_MODULE_0__core_validators__["a" /* default */].vector3(center) && __WEBPACK_IMPORTED_MODULE_0__core_validators__["a" /* default */].vector3(halfDimensions))) {
-      window.console.log('Invalid center or plane halfDimensions.');
-      return false;
-    }
-
-    // make sure half dimensions are >= 0
-    if (!(halfDimensions.x >= 0 && halfDimensions.y >= 0 && halfDimensions.z >= 0)) {
-      window.console.log('halfDimensions must be >= 0.');
-      window.console.log(halfDimensions);
-      return false;
-    }
-
-    // min/max bound
-    var min = center.clone().sub(halfDimensions);
-    var max = center.clone().add(halfDimensions);
-
-    return {
-      min: min,
-      max: max
-    };
-  };
-
-  /**
-   * Find min/max values in an array
-   * @param {Array} data
-   * @return {Array}
-   */
-
-
-  CoreUtils.minMax = function minMax() {
-    var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-
-    var minMax = [65535, -32768];
-    var numPixels = data.length;
-
-    for (var index = 0; index < numPixels; index++) {
-      var spv = data[index];
-      minMax[0] = Math.min(minMax[0], spv);
-      minMax[1] = Math.max(minMax[1], spv);
-    }
-
-    return minMax;
-  };
-
-  /**
-   * Check HTMLElement
-   * @param {HTMLElement} obj
-   * @return {boolean}
-   */
-
-
-  CoreUtils.isElement = function isElement(obj) {
-    try {
-      // Using W3 DOM2 (works for FF, Opera and Chrom)
-      return obj instanceof HTMLElement;
-    } catch (e) {
-      // Browsers not supporting W3 DOM2 don't have HTMLElement and
-      // an exception is thrown and we end up here. Testing some
-      // properties that all elements have. (works on IE7)
-      return (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object' && obj.nodeType === 1 && _typeof(obj.style) === 'object' && _typeof(obj.ownerDocument) === 'object';
-    }
-  };
-
-  /**
-   * Check string
-   * @param {String} str
-   * @return {Boolean}
-   */
-
-
-  CoreUtils.isString = function isString(str) {
-    return typeof str === 'string' || str instanceof String;
-  };
-
-  /**
-   * Parse url and find out the extension of the exam file.
-   *
-   * @param {*} url - The url to be parsed.
-   * The query string can contain some "special" parameters that can be used to ease the parsing process
-   * when the url doesn't match the exam file name on the filesystem:
-   * - filename: the name of the exam file
-   * - contentType: the mime type of the exam file. Currently only "application/dicom" is recognized, nifti files don't have a standard mime type.
-   * For  example:
-   * http://<hostname>/getExam?id=100&filename=myexam%2Enii%2Egz
-   * http://<hostname>/getExam?id=100&contentType=application%2Fdicom
-   *
-   * @return {Object}
-   */
-
-
-  CoreUtils.parseUrl = function parseUrl(url) {
-    var data = {};
-    data.filename = '';
-    data.extension = '';
-    data.pathname = '';
-    data.query = '';
-
-    var parsedUrl = URL.parse(url);
-
-    data.pathname = parsedUrl.pathname;
-    data.query = parsedUrl.query;
-
-    if (data.query) {
-      // Find "filename" parameter value, if present
-      data.filename = data.query.split('&').reduce(function (acc, fieldval) {
-        var fvPair = fieldval.split('=');
-        if (fvPair.length > 0 && fvPair[0] == 'filename') {
-          acc = fvPair[1];
-        }
-        return acc;
-      });
-    }
-
-    // get file name
-    if (!data.filename) {
-      data.filename = data.pathname.split('/').pop();
-    }
-
-    // find extension
-    var splittedName = data.filename.split('.');
-    if (splittedName.length <= 1) {
-      data.extension = 'dicom';
-    } else {
-      data.extension = data.filename.split('.').pop();
-    }
-
-    if (!isNaN(data.extension)) {
-      data.extension = 'dicom';
-    }
-
-    if (data.query && data.query.includes('contentType=application%2Fdicom')) {
-      data.extension = 'dicom';
-    }
-
-    return data;
-  };
-
-  /**
-   * Compute IJK to LPS tranform.
-   *  http://nipy.org/nibabel/dicom/dicom_orientation.html
-   *
-   * @param {*} xCos
-   * @param {*} yCos
-   * @param {*} zCos
-   * @param {*} spacing
-   * @param {*} origin
-   * @param {*} registrationMatrix
-   *
-   * @return {*}
-   */
-
-
-  CoreUtils.ijk2LPS = function ijk2LPS(xCos, yCos, zCos, spacing, origin) {
-    var registrationMatrix = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : new __WEBPACK_IMPORTED_MODULE_1_three__["c" /* Matrix4 */]();
-
-    var ijk2LPS = new __WEBPACK_IMPORTED_MODULE_1_three__["c" /* Matrix4 */]();
-    ijk2LPS.set(xCos.x * spacing.y, yCos.x * spacing.x, zCos.x * spacing.z, origin.x, xCos.y * spacing.y, yCos.y * spacing.x, zCos.y * spacing.z, origin.y, xCos.z * spacing.y, yCos.z * spacing.x, zCos.z * spacing.z, origin.z, 0, 0, 0, 1);
-    ijk2LPS.premultiply(registrationMatrix);
-
-    return ijk2LPS;
-  };
-
-  /**
-   * Compute AABB to LPS transform.
-   * AABB: Axe Aligned Bounding Box.
-   *
-   * @param {*} xCos
-   * @param {*} yCos
-   * @param {*} zCos
-   * @param {*} origin
-   *
-   * @return {*}
-   */
-
-
-  CoreUtils.aabb2LPS = function aabb2LPS(xCos, yCos, zCos, origin) {
-    var aabb2LPS = new __WEBPACK_IMPORTED_MODULE_1_three__["c" /* Matrix4 */]();
-    aabb2LPS.set(xCos.x, yCos.x, zCos.x, origin.x, xCos.y, yCos.y, zCos.y, origin.y, xCos.z, yCos.z, zCos.z, origin.z, 0, 0, 0, 1);
-
-    return aabb2LPS;
-  };
-
-  /**
-   * Transform coordinates from world coordinate to data
-   *
-   * @param {*} lps2IJK
-   * @param {*} worldCoordinates
-   *
-   * @return {*}
-   */
-
-
-  CoreUtils.worldToData = function worldToData(lps2IJK, worldCoordinates) {
-    var dataCoordinate = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */]().copy(worldCoordinates).applyMatrix4(lps2IJK);
-
-    // same rounding in the shaders
-    dataCoordinate.addScalar(0.5).floor();
-
-    return dataCoordinate;
-  };
-
-  /**
-   * Get and set voxel value
-   *
-   * @param {*} stack
-   * @param {*} coordinate
-   * @param {*} value
-   * @return {*}
-   */
-
-
-  CoreUtils.value = function value(stack, coordinate) {
-    window.console.warn('value is deprecated, please use getPixelData instead');
-    this.getPixelData(stack, coordinate);
-  };
-
-  CoreUtils.getPixelData = function getPixelData(stack, coordinate) {
-    if (coordinate.z >= 0 && coordinate.z < stack._frame.length) {
-      return stack._frame[coordinate.z].getPixelData(coordinate.x, coordinate.y);
-    } else {
-      return null;
-    }
-  };
-
-  CoreUtils.setPixelData = function setPixelData(stack, coordinate, value) {
-    if (coordinate.z >= 0 && coordinate.z < stack._frame.length) {
-      stack._frame[coordinate.z].setPixelData(coordinate.x, coordinate.y, value);
-    } else {
-      return null;
-    }
-  };
-
-  /**
-   * Apply slope/intercept to a value
-   *
-   * @param {*} value
-   * @param {*} slope
-   * @param {*} intercept
-   *
-   * @return {*}
-   */
-
-
-  CoreUtils.rescaleSlopeIntercept = function rescaleSlopeIntercept(value, slope, intercept) {
-    return value * slope + intercept;
-  };
-
-  return CoreUtils;
-}();
-
-/* harmony default export */ __webpack_exports__["a"] = (CoreUtils);
-
-/***/ }),
-/* 4 */
+/* 6 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -46964,184 +47833,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 5 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- *
- */
-var WidgetsBase = function (_THREE$Object3D) {
-  _inherits(WidgetsBase, _THREE$Object3D);
-
-  function WidgetsBase(container) {
-    _classCallCheck(this, WidgetsBase);
-
-    // is widget enabled?
-    var _this = _possibleConstructorReturn(this, _THREE$Object3D.call(this));
-    // init THREE Object 3D
-
-
-    _this._enabled = true;
-
-    // STATE, ENUM might be better
-    _this._selected = false;
-    _this._hovered = false;
-    _this._active = false;
-    // thos._state = 'SELECTED';
-
-    _this._colors = {
-      default: '#00B0FF',
-      active: '#FFEB3B',
-      hover: '#F50057',
-      select: '#76FF03'
-    };
-    _this._color = _this._colors.default;
-
-    _this._dragged = false;
-    // can not call it visible because it conflicts with THREE.Object3D
-    _this._displayed = true;
-
-    _this._container = container;
-    return _this;
-  }
-
-  WidgetsBase.prototype.initOffsets = function initOffsets() {
-    var box = this._container.getBoundingClientRect();
-
-    var body = document.body;
-    var docEl = document.documentElement;
-
-    var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
-    var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
-
-    var clientTop = docEl.clientTop || body.clientTop || 0;
-    var clientLeft = docEl.clientLeft || body.clientLeft || 0;
-
-    var top = box.top + scrollTop - clientTop;
-    var left = box.left + scrollLeft - clientLeft;
-
-    this._offsets = {
-      top: Math.round(top),
-      left: Math.round(left)
-    };
-  };
-
-  WidgetsBase.prototype.offsetChanged = function offsetChanged() {
-    this.initOffsets();
-    this.update();
-  };
-
-  WidgetsBase.prototype.getMouseOffsets = function getMouseOffsets(event, container) {
-    return {
-      x: (event.clientX - this._offsets.left) / container.offsetWidth * 2 - 1,
-      y: -((event.clientY - this._offsets.top) / container.offsetHeight) * 2 + 1,
-      screenX: event.clientX - this._offsets.left,
-      screenY: event.clientY - this._offsets.top
-    };
-  };
-
-  WidgetsBase.prototype.update = function update() {
-    // to be overloaded
-    window.console.log('update() should be overloaded!');
-  };
-
-  WidgetsBase.prototype.free = function free() {
-    this._container = null;
-  };
-
-  WidgetsBase.prototype.updateColor = function updateColor() {
-    if (this._active) {
-      this._color = this._colors.active;
-    } else if (this._hovered) {
-      this._color = this._colors.hover;
-    } else if (this._selected) {
-      this._color = this._colors.select;
-    } else {
-      this._color = this._colors.default;
-    }
-  };
-
-  _createClass(WidgetsBase, [{
-    key: 'enabled',
-    get: function get() {
-      return this._enabled;
-    },
-    set: function set(enabled) {
-      this._enabled = enabled;
-      this.update();
-    }
-  }, {
-    key: 'selected',
-    get: function get() {
-      return this._selected;
-    },
-    set: function set(selected) {
-      this._selected = selected;
-      this.update();
-    }
-  }, {
-    key: 'hovered',
-    get: function get() {
-      return this._hovered;
-    },
-    set: function set(hovered) {
-      this._hovered = hovered;
-      this.update();
-    }
-  }, {
-    key: 'dragged',
-    get: function get() {
-      return this._dragged;
-    },
-    set: function set(dragged) {
-      this._dragged = dragged;
-      this.update();
-    }
-  }, {
-    key: 'displayed',
-    get: function get() {
-      return this._displayed;
-    },
-    set: function set(displayed) {
-      this._displayed = displayed;
-      this.update();
-    }
-  }, {
-    key: 'active',
-    get: function get() {
-      return this._active;
-    },
-    set: function set(active) {
-      this._active = active;
-      this.update();
-    }
-  }, {
-    key: 'color',
-    get: function get() {
-      return this._color;
-    },
-    set: function set(color) {
-      this._color = color;
-      this.update();
-    }
-  }]);
-
-  return WidgetsBase;
-}(THREE.Object3D);
-
-/* harmony default export */ __webpack_exports__["a"] = (WidgetsBase);
-
-/***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47155,9 +47847,9 @@ var WidgetsBase = function (_THREE$Object3D) {
 
 
 
-var base64 = __webpack_require__(133)
-var ieee754 = __webpack_require__(134)
-var isArray = __webpack_require__(135)
+var base64 = __webpack_require__(134)
+var ieee754 = __webpack_require__(135)
+var isArray = __webpack_require__(136)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -48935,10 +49627,10 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -48987,12 +49679,12 @@ var objectKeys = Object.keys || function (obj) {
 module.exports = Duplex;
 
 /*<replacement>*/
-var util = __webpack_require__(13);
-util.inherits = __webpack_require__(14);
+var util = __webpack_require__(12);
+util.inherits = __webpack_require__(13);
 /*</replacement>*/
 
-var Readable = __webpack_require__(62);
-var Writable = __webpack_require__(65);
+var Readable = __webpack_require__(61);
+var Writable = __webpack_require__(64);
 
 util.inherits(Duplex, Readable);
 
@@ -49068,7 +49760,7 @@ function forEach(xs, f) {
 }
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -49144,896 +49836,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 9 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_core_intersections__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-
-
-
-
-
-/**
- * @module widgets/handle
- *
- */
-
-var WidgetsHandle = function (_WidgetsBase) {
-  _inherits(WidgetsHandle, _WidgetsBase);
-
-  function WidgetsHandle(targetMesh, controls, camera, container) {
-    _classCallCheck(this, WidgetsHandle);
-
-    var _this = _possibleConstructorReturn(this, _WidgetsBase.call(this, container));
-
-    _this._targetMesh = targetMesh;
-    _this._controls = controls;
-    _this._camera = camera;
-
-    // if no target mesh, use plane for FREE dragging.
-    _this._plane = {
-      position: new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](),
-      direction: new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */]()
-    };
-    _this._offset = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */]();
-    _this._raycaster = new THREE.Raycaster();
-
-    _this._tracking = false;
-
-    _this._mouse = new __WEBPACK_IMPORTED_MODULE_2_three__["e" /* Vector2 */]();
-    _this._lastEvent = null;
-
-    // world (LPS) position of this handle
-    _this._worldPosition = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */]();
-
-    // screen position of this handle
-    _this._screenPosition = new __WEBPACK_IMPORTED_MODULE_2_three__["e" /* Vector2 */]();
-
-    // mesh stuff
-    _this._material = null;
-    _this._geometry = null;
-    _this._mesh = null;
-    _this._meshDisplayed = true;
-    _this._meshHovered = false;
-    _this._meshStyle = 'sphere'; // cube, etc.
-
-    // dom stuff
-    _this._dom = null;
-    _this._domDisplayed = true;
-    _this._domHovered = false;
-    _this._domStyle = 'circle'; // square, triangle
-
-    if (_this._targetMesh !== null) {
-      _this._worldPosition.copy(_this._targetMesh.position);
-    }
-
-    _this._screenPosition = _this.worldToScreen(_this._worldPosition, _this._camera, _this._container);
-
-    // create handle
-    _this.create();
-    _this.initOffsets();
-
-    // event listeners
-    _this.onMove = _this.onMove.bind(_this);
-    _this.onHover = _this.onHover.bind(_this);
-    _this.onEndControl = _this.onEndControl.bind(_this);
-    _this.addEventListeners();
-    return _this;
-  }
-
-  WidgetsHandle.prototype.addEventListeners = function addEventListeners() {
-    this._dom.addEventListener('mouseenter', this.onHover);
-    this._dom.addEventListener('mouseleave', this.onHover);
-
-    this._container.addEventListener('mousewheel', this.onMove);
-    this._container.addEventListener('DOMMouseScroll', this.onMove);
-
-    this._controls.addEventListener('end', this.onEndControl);
-  };
-
-  WidgetsHandle.prototype.removeEventListeners = function removeEventListeners() {
-    this._dom.removeEventListener('mouseenter', this.onHover);
-    this._dom.removeEventListener('mouseleave', this.onHover);
-
-    this._container.removeEventListener('mousewheel', this.onMove);
-    this._container.removeEventListener('DOMMouseScroll', this.onMove);
-
-    this._controls.removeEventListener('end', this.onEndControl);
-  };
-
-  WidgetsHandle.prototype.create = function create() {
-    this.createMesh();
-    this.createDOM();
-  };
-
-  WidgetsHandle.prototype.onStart = function onStart(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
-    var offsets = this.getMouseOffsets(evt, this._container);
-    this._mouse.set(offsets.x, offsets.y);
-
-    // update raycaster
-    this._raycaster.setFromCamera(this._mouse, this._camera);
-    this._raycaster.ray.position = this._raycaster.ray.origin;
-
-    if (this._hovered) {
-      this._active = true;
-      this._controls.enabled = false;
-
-      if (this._targetMesh) {
-        var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
-        if (intersectsTarget.length > 0) {
-          this._offset.copy(intersectsTarget[0].point).sub(this._worldPosition);
-        }
-      } else {
-        this._plane.position.copy(this._worldPosition);
-        this._plane.direction.copy(this._camera.getWorldDirection());
-        var intersection = __WEBPACK_IMPORTED_MODULE_1__core_core_intersections__["a" /* default */].rayPlane(this._raycaster.ray, this._plane);
-        if (intersection !== null) {
-          this._offset.copy(intersection).sub(this._plane.position);
-        }
-      }
-
-      this.update();
-    }
-  };
-
-  WidgetsHandle.prototype.onEnd = function onEnd(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
-    // stay active and keep controls disabled
-    if (this._tracking === true) {
-      return;
-    }
-
-    // unselect if go up without moving
-    if (!this._dragged && this._active) {
-      // change state if was not dragging
-      this._selected = !this._selected;
-    }
-
-    this._active = false;
-    this._dragged = false;
-    this._controls.enabled = true;
-
-    this.update();
-  };
-
-  WidgetsHandle.prototype.onEndControl = function onEndControl() {
-    var _this2 = this;
-
-    if (!this._lastEvent) {
-      return;
-    }
-
-    window.requestAnimationFrame(function () {
-      _this2.onMove(_this2._lastEvent);
-    });
-  };
-
-  /**
-   *
-   *
-   */
-
-
-  WidgetsHandle.prototype.onMove = function onMove(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
-    var offsets = this.getMouseOffsets(evt, this._container);
-    this._mouse.set(offsets.x, offsets.y);
-
-    // update raycaster
-    // set ray.position to satisfy CoreIntersections::rayPlane API
-    this._raycaster.setFromCamera(this._mouse, this._camera);
-    this._raycaster.ray.position = this._raycaster.ray.origin;
-
-    if (this._active) {
-      this._dragged = true;
-
-      if (this._targetMesh !== null) {
-        var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
-        if (intersectsTarget.length > 0) {
-          this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
-        }
-      } else {
-        if (this._plane.direction.length() === 0) {
-          // free mode!this._targetMesh
-          this._plane.position.copy(this._worldPosition);
-          this._plane.direction.copy(this._camera.getWorldDirection());
-        }
-
-        var intersection = __WEBPACK_IMPORTED_MODULE_1__core_core_intersections__["a" /* default */].rayPlane(this._raycaster.ray, this._plane);
-        if (intersection !== null) {
-          this._worldPosition.copy(intersection.sub(this._offset));
-        }
-      }
-    } else {
-      this.onHover(null);
-    }
-
-    this.update();
-  };
-
-  WidgetsHandle.prototype.onHover = function onHover(evt) {
-    if (evt) {
-      this._lastEvent = evt;
-      evt.preventDefault();
-      this.hoverDom(evt);
-    }
-
-    this.hoverMesh();
-
-    this._hovered = this._meshHovered || this._domHovered;
-    this._container.style.cursor = this._hovered ? 'pointer' : 'default';
-  };
-
-  WidgetsHandle.prototype.update = function update() {
-    // general update
-    this.updateColor();
-
-    // update screen position of handle
-    this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
-
-    // mesh stuff
-    this.updateMeshColor();
-    this.updateMeshPosition();
-
-    // DOM stuff
-    this.updateDOMColor();
-    this.updateDOMPosition();
-  };
-
-  //
-
-
-  WidgetsHandle.prototype.updateMeshColor = function updateMeshColor() {
-    if (this._material) {
-      this._material.color.set(this._color);
-    }
-  };
-
-  WidgetsHandle.prototype.updateMeshPosition = function updateMeshPosition() {
-    if (this._mesh) {
-      this._mesh.position.x = this._worldPosition.x;
-      this._mesh.position.y = this._worldPosition.y;
-      this._mesh.position.z = this._worldPosition.z;
-    }
-  };
-
-  WidgetsHandle.prototype.hoverMesh = function hoverMesh() {
-    // check raycast intersection, do we want to hover on mesh or just css?
-    var intersectsHandle = this._raycaster.intersectObject(this._mesh);
-    this._meshHovered = intersectsHandle.length > 0;
-  };
-
-  WidgetsHandle.prototype.hoverDom = function hoverDom(evt) {
-    this._domHovered = evt.type === 'mouseenter';
-  };
-
-  WidgetsHandle.prototype.worldToScreen = function worldToScreen(worldCoordinate, camera, canvas) {
-    var screenCoordinates = worldCoordinate.clone();
-    screenCoordinates.project(camera);
-
-    screenCoordinates.x = Math.round((screenCoordinates.x + 1) * canvas.offsetWidth / 2);
-    screenCoordinates.y = Math.round((-screenCoordinates.y + 1) * canvas.offsetHeight / 2);
-    screenCoordinates.z = 0;
-
-    return screenCoordinates;
-  };
-
-  WidgetsHandle.prototype.createMesh = function createMesh() {
-    // geometry
-    this._geometry = new THREE.SphereGeometry(1, 16, 16);
-
-    // material
-    this._material = new THREE.MeshBasicMaterial({
-      wireframe: true,
-      wireframeLinewidth: 2
-    });
-
-    // mesh
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
-    this._mesh.position.x = this._worldPosition.x;
-    this._mesh.position.y = this._worldPosition.y;
-    this._mesh.position.z = this._worldPosition.z;
-    this._mesh.visible = true;
-
-    this.updateMeshColor();
-
-    // add it!
-    this.add(this._mesh);
-  };
-
-  WidgetsHandle.prototype.createDOM = function createDOM() {
-    // dom
-    this._dom = document.createElement('div');
-    this._dom.setAttribute('id', this.uuid);
-    this._dom.setAttribute('class', 'AMI Widget Handle');
-    this._dom.style.border = '2px solid';
-    this._dom.style.backgroundColor = '#F9F9F9';
-    this._dom.style.color = '#F9F9F9';
-    this._dom.style.position = 'absolute';
-    this._dom.style.width = '12px';
-    this._dom.style.height = '12px';
-    this._dom.style.margin = '-6px';
-    this._dom.style.borderRadius = '50%';
-    this._dom.style.transformOrigin = '0 100%';
-
-    var posY = this._screenPosition.y - this._container.offsetHeight;
-    this._dom.style.transform = 'translate3D(' + this._screenPosition.x + 'px, ' + posY + 'px, 0)';
-
-    this.updateDOMColor();
-
-    // add it!
-    this._container.appendChild(this._dom);
-  };
-
-  WidgetsHandle.prototype.updateDOMPosition = function updateDOMPosition() {
-    if (this._dom) {
-      var posY = this._screenPosition.y - this._container.offsetHeight;
-      this._dom.style.transform = 'translate3D(' + this._screenPosition.x + 'px, ' + posY + 'px, 0)';
-    }
-  };
-
-  WidgetsHandle.prototype.updateDOMColor = function updateDOMColor() {
-    this._dom.style.borderColor = '' + this._color;
-  };
-
-  WidgetsHandle.prototype.free = function free() {
-    // dom
-    this._container.removeChild(this._dom);
-    // event
-    this.removeEventListeners();
-
-    _WidgetsBase.prototype.free.call(this);
-  };
-
-  WidgetsHandle.prototype.hideDOM = function hideDOM() {
-    this._dom.style.display = 'none';
-  };
-
-  WidgetsHandle.prototype.showDOM = function showDOM() {
-    this._dom.style.display = '';
-  };
-
-  WidgetsHandle.prototype.hideMesh = function hideMesh() {
-    this.visible = false;
-  };
-
-  WidgetsHandle.prototype.showMesh = function showMesh() {
-    this.visible = true;
-  };
-
-  WidgetsHandle.prototype.show = function show() {
-    this.showDOM();
-    this.showMesh();
-  };
-
-  WidgetsHandle.prototype.hide = function hide() {
-    this.hideDOM();
-    this.hideMesh();
-  };
-
-  _createClass(WidgetsHandle, [{
-    key: 'worldPosition',
-    set: function set(worldPosition) {
-      this._worldPosition.copy(worldPosition);
-
-      this.update();
-    },
-    get: function get() {
-      return this._worldPosition;
-    }
-  }, {
-    key: 'screenPosition',
-    set: function set(screenPosition) {
-      this._screenPosition = screenPosition;
-    },
-    get: function get() {
-      return this._screenPosition;
-    }
-  }, {
-    key: 'active',
-    get: function get() {
-      return this._active;
-    },
-    set: function set(active) {
-      this._active = active;
-      // this._tracking = this._active;
-      this._controls.enabled = !this._active;
-
-      this.update();
-    }
-  }, {
-    key: 'tracking',
-    get: function get() {
-      return this._tracking;
-    },
-    set: function set(tracking) {
-      this._tracking = tracking;
-      this.update();
-    }
-  }]);
-
-  return WidgetsHandle;
-}(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* default */]);
-
-/* harmony default export */ __webpack_exports__["a"] = (WidgetsHandle);
-
-/***/ }),
 /* 10 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_utils__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_validators__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-
-
-
-
-
-/**
- * Compute/test intersection between different objects.
- *
- * @module core/intersections
- */
-
-var Intersections = function () {
-  function Intersections() {
-    _classCallCheck(this, Intersections);
-  }
-
-  /**
-   * Compute intersection between oriented bounding box and a plane.
-   *
-   * Returns intersection in plane's space.
-   *
-   * Should return at least 3 intersections. If not, the plane and the box do not
-   * intersect.
-   *
-   * @param {Object} aabb - Axe Aligned Bounding Box representation.
-   * @param {Vector3} aabb.halfDimensions - Half dimensions of the box.
-   * @param {Vector3} aabb.center - Center of the box.
-   * @param {Matrix4} aabb.toAABB - Transform to go from plane space to box space.
-   * @param {Object} plane - Plane representation
-   * @param {Vector3} plane.position - position of normal which describes the plane.
-   * @param {Vector3} plane.direction - Direction of normal which describes the plane.
-   *
-   * @returns {Array<Vector3>} List of all intersections in plane's space.
-   * @returns {boolean} false is invalid input provided.
-   *
-   * @example
-   * //Returns array with intersection N intersections
-   * let aabb = {
-   *   center: new Vector3(150, 150, 150),
-   *   halfDimensions: new Vector3(50, 60, 70),
-   *   toAABB: new Matrix4()
-   * }
-   * let plane = {
-   *   position: new Vector3(110, 120, 130),
-   *   direction: new Vector3(1, 0, 0)
-   * }
-   *
-   * let intersections = CoreIntersections.aabbPlane(aabb, plane);
-   * // intersections ==
-   * //[ { x : 110, y : 90,  z : 80 },
-   * //  { x : 110, y : 210, z : 220 },
-   * //  { x : 110, y : 210, z : 80 },
-   * //  { x : 110, y : 90,  z : 220 } ]
-   *
-   * //Returns empty array with 0 intersections
-   * let aabb = {
-   *
-   * }
-   * let plane = {
-   *
-   * }
-   *
-   * let intersections = VJS.Core.Validators.matrix4(new Vector3());
-   *
-   * //Returns false if invalid input?
-   *
-   */
-  Intersections.aabbPlane = function aabbPlane(aabb, plane) {
-    //
-    // obb = { halfDimensions, orientation, center, toAABB }
-    // plane = { position, direction }
-    //
-    //
-    // LOGIC:
-    //
-    // Test intersection of each edge of the Oriented Bounding Box with the Plane
-    //
-    // ALL EDGES
-    //
-    //      .+-------+
-    //    .' |     .'|
-    //   +---+---+'  |
-    //   |   |   |   |
-    //   |  ,+---+---+
-    //   |.'     | .'
-    //   +-------+'
-    //
-    // SPACE ORIENTATION
-    //
-    //       +
-    //     j |
-    //       |
-    //       |   i
-    //   k  ,+-------+
-    //    .'
-    //   +
-    //
-    //
-    // 1- Move Plane position and orientation in IJK space
-    // 2- Test Edges/ IJK Plane intersections
-    // 3- Return intersection Edge/ IJK Plane if it touches the Oriented BBox
-
-    var intersections = [];
-
-    if (!(this.validateAabb(aabb) && this.validatePlane(plane))) {
-      window.console.log('Invalid aabb or plane provided.');
-      return false;
-    }
-
-    // invert space matrix
-    var fromAABB = new __WEBPACK_IMPORTED_MODULE_2_three__["c" /* Matrix4 */]();
-    fromAABB.getInverse(aabb.toAABB);
-
-    var t1 = plane.direction.clone().applyMatrix4(aabb.toAABB);
-    var t0 = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](0, 0, 0).applyMatrix4(aabb.toAABB);
-
-    var planeAABB = this.posdir(plane.position.clone().applyMatrix4(aabb.toAABB), new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](t1.x - t0.x, t1.y - t0.y, t1.z - t0.z).normalize());
-
-    var bbox = __WEBPACK_IMPORTED_MODULE_0__core_utils__["a" /* default */].bbox(aabb.center, aabb.halfDimensions);
-
-    var orientation = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](1, 0, 0), new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](0, 1, 0), new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](0, 0, 1));
-
-    // 12 edges (i.e. ray)/plane intersection tests
-    // RAYS STARTING FROM THE FIRST CORNER (0, 0, 0)
-    //
-    //       +
-    //       |
-    //       |
-    //       |
-    //      ,+---+---+
-    //    .'
-    //   +
-
-    var ray = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](aabb.center.x - aabb.halfDimensions.x, aabb.center.y - aabb.halfDimensions.y, aabb.center.z - aabb.halfDimensions.z), orientation.x);
-    this.rayPlaneInBBox(ray, planeAABB, bbox, intersections);
-
-    ray.direction = orientation.y;
-    this.rayPlaneInBBox(ray, planeAABB, bbox, intersections);
-
-    ray.direction = orientation.z;
-    this.rayPlaneInBBox(ray, planeAABB, bbox, intersections);
-
-    // RAYS STARTING FROM THE LAST CORNER
-    //
-    //               +
-    //             .'
-    //   +-------+'
-    //           |
-    //           |
-    //           |
-    //           +
-    //
-
-    var ray2 = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](aabb.center.x + aabb.halfDimensions.x, aabb.center.y + aabb.halfDimensions.y, aabb.center.z + aabb.halfDimensions.z), orientation.x);
-    this.rayPlaneInBBox(ray2, planeAABB, bbox, intersections);
-
-    ray2.direction = orientation.y;
-    this.rayPlaneInBBox(ray2, planeAABB, bbox, intersections);
-
-    ray2.direction = orientation.z;
-    this.rayPlaneInBBox(ray2, planeAABB, bbox, intersections);
-
-    // RAYS STARTING FROM THE SECOND CORNER
-    //
-    //               +
-    //               |
-    //               |
-    //               |
-    //               +
-    //             .'
-    //           +'
-
-    var ray3 = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](aabb.center.x + aabb.halfDimensions.x, aabb.center.y - aabb.halfDimensions.y, aabb.center.z - aabb.halfDimensions.z), orientation.y);
-    this.rayPlaneInBBox(ray3, planeAABB, bbox, intersections);
-
-    ray3.direction = orientation.z;
-    this.rayPlaneInBBox(ray3, planeAABB, bbox, intersections);
-
-    // RAYS STARTING FROM THE THIRD CORNER
-    //
-    //      .+-------+
-    //    .'
-    //   +
-    //
-    //
-    //
-    //
-
-    var ray4 = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](aabb.center.x - aabb.halfDimensions.x, aabb.center.y + aabb.halfDimensions.y, aabb.center.z - aabb.halfDimensions.z), orientation.x);
-    this.rayPlaneInBBox(ray4, planeAABB, bbox, intersections);
-
-    ray4.direction = orientation.z;
-    this.rayPlaneInBBox(ray4, planeAABB, bbox, intersections);
-
-    // RAYS STARTING FROM THE FOURTH CORNER
-    //
-    //
-    //
-    //   +
-    //   |
-    //   |
-    //   |
-    //   +-------+
-
-    var ray5 = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](aabb.center.x - aabb.halfDimensions.x, aabb.center.y - aabb.halfDimensions.y, aabb.center.z + aabb.halfDimensions.z), orientation.x);
-    this.rayPlaneInBBox(ray5, planeAABB, bbox, intersections);
-
-    ray5.direction = orientation.y;
-    this.rayPlaneInBBox(ray5, planeAABB, bbox, intersections);
-
-    // @todo make sure objects are unique...
-
-    // back to original space
-    intersections.map(function (element) {
-      return element.applyMatrix4(fromAABB);
-    });
-
-    return intersections;
-  };
-
-  /**
-   * Compute intersection between a ray and a plane.
-   *
-   * @memberOf this
-   * @public
-   *
-   * @param {Object} ray - Ray representation.
-   * @param {Vector3} ray.position - position of normal which describes the ray.
-   * @param {Vector3} ray.direction - Direction of normal which describes the ray.
-   * @param {Object} plane - Plane representation
-   * @param {Vector3} plane.position - position of normal which describes the plane.
-   * @param {Vector3} plane.direction - Direction of normal which describes the plane.
-   *
-   * @returns {Vector3|null} Intersection between ray and plane or null.
-   */
-
-
-  Intersections.rayPlane = function rayPlane(ray, plane) {
-    // ray: {position, direction}
-    // plane: {position, direction}
-
-    if (ray.direction.dot(plane.direction) !== 0) {
-      //
-      // not parallel, move forward
-      //
-      // LOGIC:
-      //
-      // Ray equation: P = P0 + tV
-      // P = <Px, Py, Pz>
-      // P0 = <ray.position.x, ray.position.y, ray.position.z>
-      // V = <ray.direction.x, ray.direction.y, ray.direction.z>
-      //
-      // Therefore:
-      // Px = ray.position.x + t*ray.direction.x
-      // Py = ray.position.y + t*ray.direction.y
-      // Pz = ray.position.z + t*ray.direction.z
-      //
-      //
-      //
-      // Plane equation: ax + by + cz + d = 0
-      // a = plane.direction.x
-      // b = plane.direction.y
-      // c = plane.direction.z
-      // d = -( plane.direction.x*plane.position.x +
-      //        plane.direction.y*plane.position.y +
-      //        plane.direction.z*plane.position.z )
-      //
-      //
-      // 1- in the plane equation, we replace x, y and z by Px, Py and Pz
-      // 2- find t
-      // 3- replace t in Px, Py and Pz to get the coordinate of the intersection
-      //
-      var t = (plane.direction.x * (plane.position.x - ray.position.x) + plane.direction.y * (plane.position.y - ray.position.y) + plane.direction.z * (plane.position.z - ray.position.z)) / (plane.direction.x * ray.direction.x + plane.direction.y * ray.direction.y + plane.direction.z * ray.direction.z);
-
-      var intersection = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](ray.position.x + t * ray.direction.x, ray.position.y + t * ray.direction.y, ray.position.z + t * ray.direction.z);
-
-      return intersection;
-    }
-
-    return null;
-  };
-
-  /**
-   * Compute intersection between a ray and a box
-   * @param {Object} ray
-   * @param {Object} box
-   * @return {Array}
-   */
-
-
-  Intersections.rayBox = function rayBox(ray, box) {
-    // should also do the space transforms here
-    // ray: {position, direction}
-    // box: {halfDimensions, center}
-
-    var intersections = [];
-
-    var bbox = __WEBPACK_IMPORTED_MODULE_0__core_utils__["a" /* default */].bbox(box.center, box.halfDimensions);
-
-    // window.console.log(bbox);
-
-    // X min
-    var plane = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](bbox.min.x, box.center.y, box.center.z), new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](-1, 0, 0));
-    this.rayPlaneInBBox(ray, plane, bbox, intersections);
-
-    // X max
-    plane = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](bbox.max.x, box.center.y, box.center.z), new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](1, 0, 0));
-    this.rayPlaneInBBox(ray, plane, bbox, intersections);
-
-    // Y min
-    plane = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](box.center.x, bbox.min.y, box.center.z), new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](0, -1, 0));
-    this.rayPlaneInBBox(ray, plane, bbox, intersections);
-
-    // Y max
-    plane = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](box.center.x, bbox.max.y, box.center.z), new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](0, 1, 0));
-    this.rayPlaneInBBox(ray, plane, bbox, intersections);
-
-    // Z min
-    plane = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](box.center.x, box.center.y, bbox.min.z), new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](0, 0, -1));
-    this.rayPlaneInBBox(ray, plane, bbox, intersections);
-
-    // Z max
-    plane = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](box.center.x, box.center.y, bbox.max.z), new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](0, 0, 1));
-    this.rayPlaneInBBox(ray, plane, bbox, intersections);
-
-    return intersections;
-  };
-
-  /**
-   * Intersection between ray and a plane that are in a box.
-   * @param {*} ray
-   * @param {*} planeAABB
-   * @param {*} bbox
-   * @param {*} intersections
-   */
-
-
-  Intersections.rayPlaneInBBox = function rayPlaneInBBox(ray, planeAABB, bbox, intersections) {
-    var intersection = this.rayPlane(ray, planeAABB);
-    // window.console.log(intersection);
-    if (intersection && this.inBBox(intersection, bbox)) {
-      if (!intersections.find(this.findIntersection(intersection))) {
-        intersections.push(intersection);
-      }
-    }
-  };
-
-  /**
-   * Find intersection in array
-   * @param {*} myintersection
-   */
-
-
-  Intersections.findIntersection = function findIntersection(myintersection) {
-    return function found(element, index, array) {
-      if (myintersection.x === element.x && myintersection.y === element.y && myintersection.z === element.z) {
-        return true;
-      }
-
-      return false;
-    };
-  };
-
-  /**
-   * Is point in box.
-   * @param {Object} point
-   * @param {Object} bbox
-   * @return {Boolean}
-   */
-
-
-  Intersections.inBBox = function inBBox(point, bbox) {
-    //
-    var epsilon = 0.0001;
-    if (point && point.x >= bbox.min.x - epsilon && point.y >= bbox.min.y - epsilon && point.z >= bbox.min.z - epsilon && point.x <= bbox.max.x + epsilon && point.y <= bbox.max.y + epsilon && point.z <= bbox.max.z + epsilon) {
-      return true;
-    }
-    return false;
-  };
-
-  Intersections.posdir = function posdir(position, direction) {
-    return { position: position, direction: direction };
-  };
-
-  Intersections.validatePlane = function validatePlane(plane) {
-    //
-    if (plane === null) {
-      window.console.log('Invalid plane.');
-      window.console.log(plane);
-
-      return false;
-    }
-
-    if (!__WEBPACK_IMPORTED_MODULE_1__core_validators__["a" /* default */].vector3(plane.position)) {
-      window.console.log('Invalid plane.position.');
-      window.console.log(plane.position);
-
-      return false;
-    }
-
-    if (!__WEBPACK_IMPORTED_MODULE_1__core_validators__["a" /* default */].vector3(plane.direction)) {
-      window.console.log('Invalid plane.direction.');
-      window.console.log(plane.direction);
-
-      return false;
-    }
-
-    return true;
-  };
-
-  Intersections.validateAabb = function validateAabb(aabb) {
-    //
-    if (aabb === null) {
-      window.console.log('Invalid aabb.');
-      window.console.log(aabb);
-      return false;
-    }
-
-    if (!__WEBPACK_IMPORTED_MODULE_1__core_validators__["a" /* default */].matrix4(aabb.toAABB)) {
-      window.console.log('Invalid aabb.toAABB: ');
-      window.console.log(aabb.toAABB);
-
-      return false;
-    }
-
-    if (!__WEBPACK_IMPORTED_MODULE_1__core_validators__["a" /* default */].vector3(aabb.center)) {
-      window.console.log('Invalid aabb.center.');
-      window.console.log(aabb.center);
-
-      return false;
-    }
-
-    if (!(__WEBPACK_IMPORTED_MODULE_1__core_validators__["a" /* default */].vector3(aabb.halfDimensions) && aabb.halfDimensions.x >= 0 && aabb.halfDimensions.y >= 0 && aabb.halfDimensions.z >= 0)) {
-      window.console.log('Invalid aabb.halfDimensions.');
-      window.console.log(aabb.halfDimensions);
-
-      return false;
-    }
-
-    return true;
-  };
-
-  return Intersections;
-}();
-
-/* harmony default export */ __webpack_exports__["a"] = (Intersections);
-
-/***/ }),
-/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -50069,7 +49872,7 @@ var ShadersBase = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersBase);
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -50315,7 +50118,7 @@ var ParsersVolume = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ParsersVolume);
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {// Copyright Joyent, Inc. and other Node contributors.
@@ -50426,10 +50229,10 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7).Buffer))
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -50456,6 +50259,463 @@ if (typeof Object.create === 'function') {
   }
 }
 
+
+/***/ }),
+/* 14 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_utils__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_validators__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(1);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+
+
+
+
+
+/**
+ * Compute/test intersection between different objects.
+ *
+ * @module core/intersections
+ */
+
+var Intersections = function () {
+  function Intersections() {
+    _classCallCheck(this, Intersections);
+  }
+
+  /**
+   * Compute intersection between oriented bounding box and a plane.
+   *
+   * Returns intersection in plane's space.
+   *
+   * Should return at least 3 intersections. If not, the plane and the box do not
+   * intersect.
+   *
+   * @param {Object} aabb - Axe Aligned Bounding Box representation.
+   * @param {Vector3} aabb.halfDimensions - Half dimensions of the box.
+   * @param {Vector3} aabb.center - Center of the box.
+   * @param {Matrix4} aabb.toAABB - Transform to go from plane space to box space.
+   * @param {Object} plane - Plane representation
+   * @param {Vector3} plane.position - position of normal which describes the plane.
+   * @param {Vector3} plane.direction - Direction of normal which describes the plane.
+   *
+   * @returns {Array<Vector3>} List of all intersections in plane's space.
+   * @returns {boolean} false is invalid input provided.
+   *
+   * @example
+   * //Returns array with intersection N intersections
+   * let aabb = {
+   *   center: new Vector3(150, 150, 150),
+   *   halfDimensions: new Vector3(50, 60, 70),
+   *   toAABB: new Matrix4()
+   * }
+   * let plane = {
+   *   position: new Vector3(110, 120, 130),
+   *   direction: new Vector3(1, 0, 0)
+   * }
+   *
+   * let intersections = CoreIntersections.aabbPlane(aabb, plane);
+   * // intersections ==
+   * //[ { x : 110, y : 90,  z : 80 },
+   * //  { x : 110, y : 210, z : 220 },
+   * //  { x : 110, y : 210, z : 80 },
+   * //  { x : 110, y : 90,  z : 220 } ]
+   *
+   * //Returns empty array with 0 intersections
+   * let aabb = {
+   *
+   * }
+   * let plane = {
+   *
+   * }
+   *
+   * let intersections = VJS.Core.Validators.matrix4(new Vector3());
+   *
+   * //Returns false if invalid input?
+   *
+   */
+  Intersections.aabbPlane = function aabbPlane(aabb, plane) {
+    //
+    // obb = { halfDimensions, orientation, center, toAABB }
+    // plane = { position, direction }
+    //
+    //
+    // LOGIC:
+    //
+    // Test intersection of each edge of the Oriented Bounding Box with the Plane
+    //
+    // ALL EDGES
+    //
+    //      .+-------+
+    //    .' |     .'|
+    //   +---+---+'  |
+    //   |   |   |   |
+    //   |  ,+---+---+
+    //   |.'     | .'
+    //   +-------+'
+    //
+    // SPACE ORIENTATION
+    //
+    //       +
+    //     j |
+    //       |
+    //       |   i
+    //   k  ,+-------+
+    //    .'
+    //   +
+    //
+    //
+    // 1- Move Plane position and orientation in IJK space
+    // 2- Test Edges/ IJK Plane intersections
+    // 3- Return intersection Edge/ IJK Plane if it touches the Oriented BBox
+
+    var intersections = [];
+
+    if (!(this.validateAabb(aabb) && this.validatePlane(plane))) {
+      window.console.log('Invalid aabb or plane provided.');
+      return false;
+    }
+
+    // invert space matrix
+    var fromAABB = new __WEBPACK_IMPORTED_MODULE_2_three__["b" /* Matrix4 */]();
+    fromAABB.getInverse(aabb.toAABB);
+
+    var t1 = plane.direction.clone().applyMatrix4(aabb.toAABB);
+    var t0 = new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](0, 0, 0).applyMatrix4(aabb.toAABB);
+
+    var planeAABB = this.posdir(plane.position.clone().applyMatrix4(aabb.toAABB), new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](t1.x - t0.x, t1.y - t0.y, t1.z - t0.z).normalize());
+
+    var bbox = __WEBPACK_IMPORTED_MODULE_0__core_utils__["a" /* default */].bbox(aabb.center, aabb.halfDimensions);
+
+    var orientation = new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](1, 0, 0), new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](0, 1, 0), new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](0, 0, 1));
+
+    // 12 edges (i.e. ray)/plane intersection tests
+    // RAYS STARTING FROM THE FIRST CORNER (0, 0, 0)
+    //
+    //       +
+    //       |
+    //       |
+    //       |
+    //      ,+---+---+
+    //    .'
+    //   +
+
+    var ray = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](aabb.center.x - aabb.halfDimensions.x, aabb.center.y - aabb.halfDimensions.y, aabb.center.z - aabb.halfDimensions.z), orientation.x);
+    this.rayPlaneInBBox(ray, planeAABB, bbox, intersections);
+
+    ray.direction = orientation.y;
+    this.rayPlaneInBBox(ray, planeAABB, bbox, intersections);
+
+    ray.direction = orientation.z;
+    this.rayPlaneInBBox(ray, planeAABB, bbox, intersections);
+
+    // RAYS STARTING FROM THE LAST CORNER
+    //
+    //               +
+    //             .'
+    //   +-------+'
+    //           |
+    //           |
+    //           |
+    //           +
+    //
+
+    var ray2 = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](aabb.center.x + aabb.halfDimensions.x, aabb.center.y + aabb.halfDimensions.y, aabb.center.z + aabb.halfDimensions.z), orientation.x);
+    this.rayPlaneInBBox(ray2, planeAABB, bbox, intersections);
+
+    ray2.direction = orientation.y;
+    this.rayPlaneInBBox(ray2, planeAABB, bbox, intersections);
+
+    ray2.direction = orientation.z;
+    this.rayPlaneInBBox(ray2, planeAABB, bbox, intersections);
+
+    // RAYS STARTING FROM THE SECOND CORNER
+    //
+    //               +
+    //               |
+    //               |
+    //               |
+    //               +
+    //             .'
+    //           +'
+
+    var ray3 = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](aabb.center.x + aabb.halfDimensions.x, aabb.center.y - aabb.halfDimensions.y, aabb.center.z - aabb.halfDimensions.z), orientation.y);
+    this.rayPlaneInBBox(ray3, planeAABB, bbox, intersections);
+
+    ray3.direction = orientation.z;
+    this.rayPlaneInBBox(ray3, planeAABB, bbox, intersections);
+
+    // RAYS STARTING FROM THE THIRD CORNER
+    //
+    //      .+-------+
+    //    .'
+    //   +
+    //
+    //
+    //
+    //
+
+    var ray4 = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](aabb.center.x - aabb.halfDimensions.x, aabb.center.y + aabb.halfDimensions.y, aabb.center.z - aabb.halfDimensions.z), orientation.x);
+    this.rayPlaneInBBox(ray4, planeAABB, bbox, intersections);
+
+    ray4.direction = orientation.z;
+    this.rayPlaneInBBox(ray4, planeAABB, bbox, intersections);
+
+    // RAYS STARTING FROM THE FOURTH CORNER
+    //
+    //
+    //
+    //   +
+    //   |
+    //   |
+    //   |
+    //   +-------+
+
+    var ray5 = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](aabb.center.x - aabb.halfDimensions.x, aabb.center.y - aabb.halfDimensions.y, aabb.center.z + aabb.halfDimensions.z), orientation.x);
+    this.rayPlaneInBBox(ray5, planeAABB, bbox, intersections);
+
+    ray5.direction = orientation.y;
+    this.rayPlaneInBBox(ray5, planeAABB, bbox, intersections);
+
+    // @todo make sure objects are unique...
+
+    // back to original space
+    intersections.map(function (element) {
+      return element.applyMatrix4(fromAABB);
+    });
+
+    return intersections;
+  };
+
+  /**
+   * Compute intersection between a ray and a plane.
+   *
+   * @memberOf this
+   * @public
+   *
+   * @param {Object} ray - Ray representation.
+   * @param {Vector3} ray.position - position of normal which describes the ray.
+   * @param {Vector3} ray.direction - Direction of normal which describes the ray.
+   * @param {Object} plane - Plane representation
+   * @param {Vector3} plane.position - position of normal which describes the plane.
+   * @param {Vector3} plane.direction - Direction of normal which describes the plane.
+   *
+   * @returns {Vector3|null} Intersection between ray and plane or null.
+   */
+
+
+  Intersections.rayPlane = function rayPlane(ray, plane) {
+    // ray: {position, direction}
+    // plane: {position, direction}
+
+    if (ray.direction.dot(plane.direction) !== 0) {
+      //
+      // not parallel, move forward
+      //
+      // LOGIC:
+      //
+      // Ray equation: P = P0 + tV
+      // P = <Px, Py, Pz>
+      // P0 = <ray.position.x, ray.position.y, ray.position.z>
+      // V = <ray.direction.x, ray.direction.y, ray.direction.z>
+      //
+      // Therefore:
+      // Px = ray.position.x + t*ray.direction.x
+      // Py = ray.position.y + t*ray.direction.y
+      // Pz = ray.position.z + t*ray.direction.z
+      //
+      //
+      //
+      // Plane equation: ax + by + cz + d = 0
+      // a = plane.direction.x
+      // b = plane.direction.y
+      // c = plane.direction.z
+      // d = -( plane.direction.x*plane.position.x +
+      //        plane.direction.y*plane.position.y +
+      //        plane.direction.z*plane.position.z )
+      //
+      //
+      // 1- in the plane equation, we replace x, y and z by Px, Py and Pz
+      // 2- find t
+      // 3- replace t in Px, Py and Pz to get the coordinate of the intersection
+      //
+      var t = (plane.direction.x * (plane.position.x - ray.position.x) + plane.direction.y * (plane.position.y - ray.position.y) + plane.direction.z * (plane.position.z - ray.position.z)) / (plane.direction.x * ray.direction.x + plane.direction.y * ray.direction.y + plane.direction.z * ray.direction.z);
+
+      var intersection = new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](ray.position.x + t * ray.direction.x, ray.position.y + t * ray.direction.y, ray.position.z + t * ray.direction.z);
+
+      return intersection;
+    }
+
+    return null;
+  };
+
+  /**
+   * Compute intersection between a ray and a box
+   * @param {Object} ray
+   * @param {Object} box
+   * @return {Array}
+   */
+
+
+  Intersections.rayBox = function rayBox(ray, box) {
+    // should also do the space transforms here
+    // ray: {position, direction}
+    // box: {halfDimensions, center}
+
+    var intersections = [];
+
+    var bbox = __WEBPACK_IMPORTED_MODULE_0__core_utils__["a" /* default */].bbox(box.center, box.halfDimensions);
+
+    // window.console.log(bbox);
+
+    // X min
+    var plane = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](bbox.min.x, box.center.y, box.center.z), new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](-1, 0, 0));
+    this.rayPlaneInBBox(ray, plane, bbox, intersections);
+
+    // X max
+    plane = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](bbox.max.x, box.center.y, box.center.z), new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](1, 0, 0));
+    this.rayPlaneInBBox(ray, plane, bbox, intersections);
+
+    // Y min
+    plane = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](box.center.x, bbox.min.y, box.center.z), new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](0, -1, 0));
+    this.rayPlaneInBBox(ray, plane, bbox, intersections);
+
+    // Y max
+    plane = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](box.center.x, bbox.max.y, box.center.z), new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](0, 1, 0));
+    this.rayPlaneInBBox(ray, plane, bbox, intersections);
+
+    // Z min
+    plane = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](box.center.x, box.center.y, bbox.min.z), new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](0, 0, -1));
+    this.rayPlaneInBBox(ray, plane, bbox, intersections);
+
+    // Z max
+    plane = this.posdir(new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](box.center.x, box.center.y, bbox.max.z), new __WEBPACK_IMPORTED_MODULE_2_three__["h" /* Vector3 */](0, 0, 1));
+    this.rayPlaneInBBox(ray, plane, bbox, intersections);
+
+    return intersections;
+  };
+
+  /**
+   * Intersection between ray and a plane that are in a box.
+   * @param {*} ray
+   * @param {*} planeAABB
+   * @param {*} bbox
+   * @param {*} intersections
+   */
+
+
+  Intersections.rayPlaneInBBox = function rayPlaneInBBox(ray, planeAABB, bbox, intersections) {
+    var intersection = this.rayPlane(ray, planeAABB);
+    // window.console.log(intersection);
+    if (intersection && this.inBBox(intersection, bbox)) {
+      if (!intersections.find(this.findIntersection(intersection))) {
+        intersections.push(intersection);
+      }
+    }
+  };
+
+  /**
+   * Find intersection in array
+   * @param {*} myintersection
+   */
+
+
+  Intersections.findIntersection = function findIntersection(myintersection) {
+    return function found(element, index, array) {
+      if (myintersection.x === element.x && myintersection.y === element.y && myintersection.z === element.z) {
+        return true;
+      }
+
+      return false;
+    };
+  };
+
+  /**
+   * Is point in box.
+   * @param {Object} point
+   * @param {Object} bbox
+   * @return {Boolean}
+   */
+
+
+  Intersections.inBBox = function inBBox(point, bbox) {
+    //
+    var epsilon = 0.0001;
+    if (point && point.x >= bbox.min.x - epsilon && point.y >= bbox.min.y - epsilon && point.z >= bbox.min.z - epsilon && point.x <= bbox.max.x + epsilon && point.y <= bbox.max.y + epsilon && point.z <= bbox.max.z + epsilon) {
+      return true;
+    }
+    return false;
+  };
+
+  Intersections.posdir = function posdir(position, direction) {
+    return { position: position, direction: direction };
+  };
+
+  Intersections.validatePlane = function validatePlane(plane) {
+    //
+    if (plane === null) {
+      window.console.log('Invalid plane.');
+      window.console.log(plane);
+
+      return false;
+    }
+
+    if (!__WEBPACK_IMPORTED_MODULE_1__core_validators__["a" /* default */].vector3(plane.position)) {
+      window.console.log('Invalid plane.position.');
+      window.console.log(plane.position);
+
+      return false;
+    }
+
+    if (!__WEBPACK_IMPORTED_MODULE_1__core_validators__["a" /* default */].vector3(plane.direction)) {
+      window.console.log('Invalid plane.direction.');
+      window.console.log(plane.direction);
+
+      return false;
+    }
+
+    return true;
+  };
+
+  Intersections.validateAabb = function validateAabb(aabb) {
+    //
+    if (aabb === null) {
+      window.console.log('Invalid aabb.');
+      window.console.log(aabb);
+      return false;
+    }
+
+    if (!__WEBPACK_IMPORTED_MODULE_1__core_validators__["a" /* default */].matrix4(aabb.toAABB)) {
+      window.console.log('Invalid aabb.toAABB: ');
+      window.console.log(aabb.toAABB);
+
+      return false;
+    }
+
+    if (!__WEBPACK_IMPORTED_MODULE_1__core_validators__["a" /* default */].vector3(aabb.center)) {
+      window.console.log('Invalid aabb.center.');
+      window.console.log(aabb.center);
+
+      return false;
+    }
+
+    if (!(__WEBPACK_IMPORTED_MODULE_1__core_validators__["a" /* default */].vector3(aabb.halfDimensions) && aabb.halfDimensions.x >= 0 && aabb.halfDimensions.y >= 0 && aabb.halfDimensions.z >= 0)) {
+      window.console.log('Invalid aabb.halfDimensions.');
+      window.console.log(aabb.halfDimensions);
+
+      return false;
+    }
+
+    return true;
+  };
+
+  return Intersections;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (Intersections);
 
 /***/ }),
 /* 15 */
@@ -50611,7 +50871,7 @@ function nextTick(fn, arg1, arg2, arg3) {
   }
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }),
 /* 17 */
@@ -50829,11 +51089,11 @@ if ((moduleType !== 'undefined') && module.exports) {
 // Top level file is just a mixin of submodules & constants
 
 
-var assign    = __webpack_require__(2).assign;
+var assign    = __webpack_require__(5).assign;
 
-var deflate   = __webpack_require__(113);
-var inflate   = __webpack_require__(116);
-var constants = __webpack_require__(56);
+var deflate   = __webpack_require__(114);
+var inflate   = __webpack_require__(117);
+var constants = __webpack_require__(54);
 
 var pako = {};
 
@@ -51287,1079 +51547,6 @@ var ModelsBase = function () {
 
 /***/ }),
 /* 23 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_core_colors__ = __webpack_require__(30);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_core_utils__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_models_base__ = __webpack_require__(22);
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/** * Imports ***/
-
-
-
-
-
-var binaryString = __webpack_require__(122);
-
-/**
- * Stack object.
- *
- * @module models/stack
- */
-
-var ModelsStack = function (_ModelsBase) {
-  _inherits(ModelsStack, _ModelsBase);
-
-  /**
-   * Models Stack constructor
-   */
-  function ModelsStack() {
-    _classCallCheck(this, ModelsStack);
-
-    var _this = _possibleConstructorReturn(this, _ModelsBase.call(this));
-
-    _this._uid = null;
-    _this._stackID = -1;
-
-    _this._frame = [];
-    _this._numberOfFrames = 0;
-
-    _this._rows = 0;
-    _this._columns = 0;
-    _this._numberOfChannels = 1;
-    _this._bitsAllocated = 8;
-    _this._pixelType = 0;
-    _this._pixelRepresentation = 0;
-
-    _this._textureSize = 4096;
-    _this._nbTextures = 7;
-    _this._rawData = [];
-
-    _this._windowCenter = 0;
-    _this._windowWidth = 0;
-
-    _this._rescaleSlope = 1;
-    _this._rescaleIntercept = 0;
-
-    _this._minMax = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
-
-    // TRANSFORMATION MATRICES
-    _this._regMatrix = new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* Matrix4 */]();
-
-    _this._ijk2LPS = null;
-    _this._lps2IJK = null;
-
-    _this._aabb2LPS = null;
-    _this._lps2AABB = null;
-
-    //
-    // IJK dimensions
-    _this._dimensionsIJK = null;
-    _this._halfDimensionsIJK = null;
-    _this._spacing = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](1, 1, 1);
-    _this._spacingBetweenSlices = 0;
-    _this._sliceThickness = 0;
-    _this._origin = null;
-    _this._rightHanded = true;
-    _this._xCosine = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](1, 0, 0);
-    _this._yCosine = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](0, 1, 0);
-    _this._zCosine = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](0, 0, 1);
-
-    // convenience vars
-    _this._prepared = false;
-    _this._packed = false;
-    _this._packedPerPixel = 1;
-
-    //
-    _this._modality = 'Modality not set';
-
-    // SEGMENTATION STUFF
-    _this._segmentationType = null;
-    _this._segmentationSegments = [];
-    _this._segmentationDefaultColor = [63, 174, 128];
-    _this._frameSegment = [];
-    _this._segmentationLUT = [];
-    _this._segmentationLUTO = [];
-
-    // photometricInterpretation Monochrome1 VS Monochrome2
-    _this._invert = false;
-    return _this;
-  }
-
-  /**
-   * Prepare segmentation stack.
-   * A segmentation stack can hold x frames that are at the same location
-   * but segmentation specific information:
-   * - Frame X contains voxels for segmentation A.
-   * - Frame Y contains voxels for segmenttation B.
-   * - Frame X and Y are at the same location.
-   *
-   * We currently merge overlaping frames into 1.
-   */
-
-
-  ModelsStack.prototype.prepareSegmentation = function prepareSegmentation() {
-    // store frame and do special pre-processing
-    this._frameSegment = this._frame;
-    var mergedFrames = [];
-
-    // order frames
-    this.computeCosines();
-    this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
-    this._frame.sort(this._sortDistanceArraySort);
-
-    // merge frames
-    var prevIndex = -1;
-    for (var i = 0; i < this._frame.length; i++) {
-      if (!mergedFrames[prevIndex] || mergedFrames[prevIndex]._dist != this._frame[i]._dist) {
-        mergedFrames.push(this._frame[i]);
-        prevIndex++;
-
-        // Scale frame
-        // by default each frame contains binary data about a segmentation.
-        // we scale it by the referenceSegmentNumber in order to have a
-        // segmentation specific voxel value rather than 0 or 1.
-        // That allows us to merge frames later on.
-        // If we merge frames without scaling, then we can not differenciate
-        // voxels from segmentation A or B as the value is 0 or 1 in both cases.
-        for (var k = 0; k < mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
-          mergedFrames[prevIndex]._pixelData[k] *= this._frame[i]._referencedSegmentNumber;
-        }
-      } else {
-        // frame already exsits at this location.
-        // merge data from this segmentation into existing frame
-        for (var _k = 0; _k < mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; _k++) {
-          mergedFrames[prevIndex]._pixelData[_k] += this._frame[i].pixelData[_k] * this._frame[i]._referencedSegmentNumber;
-        }
-      }
-
-      mergedFrames[prevIndex].minMax = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].minMax(mergedFrames[prevIndex]._pixelData);
-    }
-
-    // get information about segments
-    var dict = {};
-    var max = 0;
-    for (var _i = 0; _i < this._segmentationSegments.length; _i++) {
-      max = Math.max(max, parseInt(this._segmentationSegments[_i].segmentNumber, 10));
-
-      var color = this._segmentationSegments[_i].recommendedDisplayCIELab;
-      if (color === null) {
-        dict[this._segmentationSegments[_i].segmentNumber] = this._segmentationDefaultColor;
-      } else {
-        dict[this._segmentationSegments[_i].segmentNumber] = __WEBPACK_IMPORTED_MODULE_1__core_core_colors__["a" /* default */].cielab2RGB.apply(__WEBPACK_IMPORTED_MODULE_1__core_core_colors__["a" /* default */], color);
-      }
-    }
-
-    // generate LUTs
-    for (var _i2 = 0; _i2 <= max; _i2++) {
-      var index = _i2 / max;
-      var opacity = _i2 ? 1 : 0;
-      var rgb = [0, 0, 0];
-      if (dict.hasOwnProperty(_i2.toString())) {
-        rgb = dict[_i2.toString()];
-      }
-
-      rgb[0] /= 255;
-      rgb[1] /= 255;
-      rgb[2] /= 255;
-
-      this._segmentationLUT.push([index].concat(rgb));
-      this._segmentationLUTO.push([index, opacity]);
-    }
-
-    this._frame = mergedFrames;
-  };
-
-  /**
-   * Compute cosines
-   * Order frames
-   * computeSpacing
-   * sanityCheck
-   * init some vars
-   * compute min/max
-   * compute transformation matrices
-   *
-   * @return {*}
-   */
-
-
-  ModelsStack.prototype.prepare = function prepare() {
-    // if segmentation, merge some frames...
-    if (this._modality === 'SEG') {
-      this.prepareSegmentation();
-    }
-
-    this.computeNumberOfFrames();
-
-    // pass parameters from frame to stack
-    this._rows = this._frame[0].rows;
-    this._columns = this._frame[0].columns;
-    this._dimensionsIJK = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](this._columns, this._rows, this._numberOfFrames);
-    this._halfDimensionsIJK = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](this._dimensionsIJK.x / 2, this._dimensionsIJK.y / 2, this._dimensionsIJK.z / 2);
-    this._spacingBetweenSlices = this._frame[0].spacingBetweenSlices;
-    this._sliceThickness = this._frame[0].sliceThickness;
-
-    // compute direction cosines
-    this.computeCosines();
-
-    // order the frames
-    if (this._numberOfFrames > 1) {
-      this.orderFrames();
-    }
-
-    // compute/guess spacing
-    this.computeSpacing();
-    // set extra vars if nulls
-    // do it now because before we would think image position/orientation
-    // are defined and we would use it to compute spacing.
-    if (!this._frame[0].imagePosition) {
-      this._frame[0].imagePosition = [0, 0, 0];
-    }
-    if (!this._frame[0].imageOrientation) {
-      this._frame[0].imageOrientation = [1, 0, 0, 0, 1, 0];
-    }
-
-    this._origin = this._arrayToVector3(this._frame[0].imagePosition, 0);
-
-    // compute transforms
-    this.computeIJK2LPS();
-
-    this.computeLPS2AABB();
-    // this.packEchos();
-
-    var middleFrameIndex = Math.floor(this._frame.length / 2);
-    var middleFrame = this._frame[middleFrameIndex];
-
-    this._rescaleSlope = middleFrame.rescaleSlope || 1;
-    this._rescaleIntercept = middleFrame.rescaleIntercept || 0;
-
-    // rescale/slope min max
-    this.computeMinMaxIntensities();
-    this._minMax[0] = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].rescaleSlopeIntercept(this._minMax[0], this._rescaleSlope, this._rescaleIntercept);
-    this._minMax[1] = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].rescaleSlopeIntercept(this._minMax[1], this._rescaleSlope, this._rescaleIntercept);
-
-    this._windowWidth = middleFrame.windowWidth || this._minMax[1] - this._minMax[0];
-
-    this._windowCenter = middleFrame.windowCenter || this._minMax[0] + this._windowWidth / 2;
-
-    this._bitsAllocated = middleFrame.bitsAllocated;
-    this._prepared = true;
-  };
-
-  ModelsStack.prototype.packEchos = function packEchos() {
-    // 4 echo times...
-    var echos = 4;
-    var packedEcho = [];
-    for (var i = 0; i < this._frame.length; i += echos) {
-      var frame = this._frame[i];
-      for (var k = 0; k < this._rows * this._columns; k++) {
-        for (var j = 1; j < echos; j++) {
-          frame.pixelData[k] += this._frame[i + j].pixelData[k];
-        }
-        frame.pixelData[k] /= echos;
-      }
-      packedEcho.push(frame);
-    }
-    this._frame = packedEcho;
-    this._numberOfFrames = this._frame.length;
-    this._dimensionsIJK = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](this._columns, this._rows, this._numberOfFrames);
-    this._halfDimensionsIJK = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](this._dimensionsIJK.x / 2, this._dimensionsIJK.y / 2, this._dimensionsIJK.z / 2);
-  };
-
-  ModelsStack.prototype.computeNumberOfFrames = function computeNumberOfFrames() {
-    // we need at least 1 frame
-    if (this._frame && this._frame.length > 0) {
-      this._numberOfFrames = this._frame.length;
-    } else {
-      window.console.warn('_frame doesn\'t contain anything....');
-      window.console.warn(this._frame);
-      return false;
-    }
-  };
-
-  // frame.cosines - returns array [x, y, z]
-
-
-  ModelsStack.prototype.computeCosines = function computeCosines() {
-    if (this._frame && this._frame[0]) {
-      var cosines = this._frame[0].cosines();
-      this._xCosine = cosines[0];
-      this._yCosine = cosines[1];
-      this._zCosine = cosines[2];
-    }
-  };
-
-  ModelsStack.prototype.orderFrames = function orderFrames() {
-    // order the frames based on theirs dimension indices
-    // first index is the most important.
-    // 1,1,1,1 will be first
-    // 1,1,2,1 will be next
-    // 1,1,2,3 will be next
-    // 1,1,3,1 will be next
-    if (this._frame[0].dimensionIndexValues) {
-      this._frame.sort(this._orderFrameOnDimensionIndicesArraySort);
-
-      // else order with image position and orientation
-    } else if (this._frame[0].imagePosition && this._frame[0].imageOrientation && this._frame[1] && this._frame[1].imagePosition && this._frame[1].imageOrientation && this._frame[0].imagePosition.join() !== this._frame[1].imagePosition.join()) {
-      // compute and sort by dist in this series
-      this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
-      this._frame.sort(this._sortDistanceArraySort);
-    } else if (this._frame[0].instanceNumber !== null && this._frame[1] && this._frame[1].instanceNumber !== null && this._frame[0].instanceNumber !== this._frame[1].instanceNumber) {
-      this._frame.sort(this._sortInstanceNumberArraySort);
-    } else if (this._frame[0].sopInstanceUID && this._frame[1] && this._frame[1].sopInstanceUID && this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
-      this._frame.sort(this._sortSopInstanceUIDArraySort);
-    } else {
-      window.console.warn('do not know how to order the frames...');
-    }
-  };
-
-  ModelsStack.prototype.computeSpacing = function computeSpacing() {
-    this.xySpacing();
-    this.zSpacing();
-  };
-
-  /**
-   * Compute stack z spacing
-   */
-
-
-  ModelsStack.prototype.zSpacing = function zSpacing() {
-    if (this._numberOfFrames > 1) {
-      if (this._frame[0].pixelSpacing && this._frame[0].pixelSpacing[2]) {
-        this._spacing.z = this._frame[0].pixelSpacing[2];
-      } else {
-        // compute and sort by dist in this series
-        this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
-
-        // if distances are different, re-sort array
-        if (this._frame[1].dist !== this._frame[0].dist) {
-          this._frame.sort(this._sortDistanceArraySort);
-          this._spacing.z = this._frame[1].dist - this._frame[0].dist;
-        } else if (this._spacingBetweenSlices) {
-          this._spacing.z = this._spacingBetweenSlices;
-        } else if (this._frame[0].sliceThickness) {
-          this._spacing.z = this._frame[0].sliceThickness;
-        }
-      }
-    }
-
-    // Spacing
-    // can not be 0 if not matrix can not be inverted.
-    if (this._spacing.z === 0) {
-      this._spacing.z = 1;
-    }
-  };
-
-  /**
-   *  FRAME CAN DO IT
-   */
-
-
-  ModelsStack.prototype.xySpacing = function xySpacing() {
-    if (this._frame && this._frame[0]) {
-      var spacingXY = this._frame[0].spacingXY();
-      this._spacing.x = spacingXY[0];
-      this._spacing.y = spacingXY[1];
-    }
-  };
-
-  /**
-   * Find min and max intensities among all frames.
-   */
-
-
-  ModelsStack.prototype.computeMinMaxIntensities = function computeMinMaxIntensities() {
-    // what about colors!!!!?
-    // we ignore values if NaNs
-    // https://github.com/FNNDSC/ami/issues/185
-    for (var i = 0; i < this._frame.length; i++) {
-      // get min/max
-      var min = this._frame[i].minMax[0];
-      if (!Number.isNaN(min)) {
-        this._minMax[0] = Math.min(this._minMax[0], min);
-      }
-
-      var max = this._frame[i].minMax[1];
-      if (!Number.isNaN(max)) {
-        this._minMax[1] = Math.max(this._minMax[1], max);
-      }
-    }
-  };
-
-  /**
-   * Compute IJK to LPS and invert transforms
-   */
-
-
-  ModelsStack.prototype.computeIJK2LPS = function computeIJK2LPS() {
-    // ijk to lps
-    this._ijk2LPS = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].ijk2LPS(this._xCosine, this._yCosine, this._zCosine, this._spacing, this._origin, this._regMatrix);
-
-    // lps 2 ijk
-    this._lps2IJK = new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* Matrix4 */]();
-    this._lps2IJK.getInverse(this._ijk2LPS);
-  };
-
-  /**
-   * Compute LPS to AABB and invert transforms
-   */
-
-
-  ModelsStack.prototype.computeLPS2AABB = function computeLPS2AABB() {
-    this._aabb2LPS = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].aabb2LPS(this._xCosine, this._yCosine, this._zCosine, this._origin);
-
-    this._lps2AABB = new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* Matrix4 */]();
-    this._lps2AABB.getInverse(this._aabb2LPS);
-  };
-
-  /**
-   * Merge stacks
-   *
-   * @param {*} stack
-   *
-   * @return {*}
-   */
-
-
-  ModelsStack.prototype.merge = function merge(stack) {
-    // also make sure x/y/z cosines are a match!
-    if (this._stackID === stack.stackID && this._numberOfFrames === 1 && stack._numberOfFrames === 1 && this._frame[0].columns === stack.frame[0].columns && this._frame[0].rows === stack.frame[0].rows && this._xCosine.equals(stack.xCosine) && this._yCosine.equals(stack.yCosine) && this._zCosine.equals(stack.zCosine)) {
-      return this.mergeModels(this._frame, stack.frame);
-    } else {
-      return false;
-    }
-  };
-
-  /**
-   * Pack current stack pixel data into 8 bits array buffers
-   */
-
-
-  ModelsStack.prototype.pack = function pack() {
-    // Get total number of voxels
-    var nbVoxels = this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
-
-    // Packing style
-    if (this._bitsAllocated === 8 && this._numberOfChannels === 1 || this._bitsAllocated === 1) {
-      this._packedPerPixel = 4;
-    }
-
-    if (this._bitsAllocated === 16 && this._numberOfChannels === 1) {
-      this._packedPerPixel = 2;
-    }
-
-    // Loop through all the textures we need
-    var textureDimension = this._textureSize * this._textureSize;
-    var requiredTextures = Math.ceil(nbVoxels / (textureDimension * this._packedPerPixel));
-    var voxelIndexStart = 0;
-    var voxelIndexStop = this._packedPerPixel * textureDimension;
-    if (voxelIndexStop > nbVoxels) {
-      voxelIndexStop = nbVoxels;
-    }
-
-    for (var ii = 0; ii < requiredTextures; ii++) {
-      var packed = this._packTo8Bits(this._numberOfChannels, this._frame, this._textureSize, voxelIndexStart, voxelIndexStop);
-      this._textureType = packed.textureType;
-      this._rawData.push(packed.data);
-
-      voxelIndexStart += this._packedPerPixel * textureDimension;
-      voxelIndexStop += this._packedPerPixel * textureDimension;
-      if (voxelIndexStop > nbVoxels) {
-        voxelIndexStop = nbVoxels;
-      }
-    }
-
-    this._packed = true;
-  };
-
-  /**
-   * Pack frame data to 32 bits texture
-   * @param {*} channels
-   * @param {*} frame
-   * @param {*} textureSize
-   * @param {*} startVoxel
-   * @param {*} stopVoxel
-   */
-
-
-  ModelsStack.prototype._packTo8Bits = function _packTo8Bits(channels, frame, textureSize, startVoxel, stopVoxel) {
-    var packed = {
-      textureType: null,
-      data: null
-    };
-
-    var bitsAllocated = frame[0].bitsAllocated;
-    var pixelType = frame[0].pixelType;
-
-    // transform signed to unsigned for convenience
-    var offset = 0;
-    if (this._minMax[0] < 0) {
-      offset -= this._minMax[0];
-    }
-
-    var packIndex = 0;
-    var frameIndex = 0;
-    var inFrameIndex = 0;
-    // frame should return it!
-    var frameDimension = frame[0].rows * frame[0].columns;
-
-    if (bitsAllocated === 8 && channels === 1 || bitsAllocated === 1) {
-      var data = new Uint8Array(textureSize * textureSize * 4);
-      var coordinate = 0;
-      var channelOffset = 0;
-      for (var i = startVoxel; i < stopVoxel; i++) {
-        frameIndex = ~~(i / frameDimension);
-        inFrameIndex = i % frameDimension;
-
-        var raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
-        if (!Number.isNaN(raw)) {
-          data[4 * coordinate + channelOffset] = raw;
-        }
-
-        packIndex++;
-        coordinate = Math.floor(packIndex / 4);
-        channelOffset = packIndex % 4;
-      }
-      packed.textureType = THREE.RGBAFormat;
-      packed.data = data;
-    } else if (bitsAllocated === 16 && channels === 1) {
-      var _data = new Uint8Array(textureSize * textureSize * 4);
-      var _coordinate = 0;
-      var _channelOffset = 0;
-
-      for (var _i3 = startVoxel; _i3 < stopVoxel; _i3++) {
-        frameIndex = ~~(_i3 / frameDimension);
-        inFrameIndex = _i3 % frameDimension;
-
-        var _raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
-        if (!Number.isNaN(_raw)) {
-          _data[4 * _coordinate + 2 * _channelOffset] = _raw & 0x00FF;
-          _data[4 * _coordinate + 2 * _channelOffset + 1] = _raw >>> 8 & 0x00FF;
-        }
-
-        packIndex++;
-        _coordinate = Math.floor(packIndex / 2);
-        _channelOffset = packIndex % 2;
-      }
-
-      packed.textureType = THREE.RGBAFormat;
-      packed.data = _data;
-    } else if (bitsAllocated === 32 && channels === 1 && pixelType === 0) {
-      var _data2 = new Uint8Array(textureSize * textureSize * 4);
-      for (var _i4 = startVoxel; _i4 < stopVoxel; _i4++) {
-        frameIndex = ~~(_i4 / frameDimension);
-        inFrameIndex = _i4 % frameDimension;
-
-        var _raw2 = frame[frameIndex].pixelData[inFrameIndex] + offset;
-        if (!Number.isNaN(_raw2)) {
-          _data2[4 * packIndex] = _raw2 & 0x000000FF;
-          _data2[4 * packIndex + 1] = _raw2 >>> 8 & 0x000000FF;
-          _data2[4 * packIndex + 2] = _raw2 >>> 16 & 0x000000FF;
-          _data2[4 * packIndex + 3] = _raw2 >>> 24 & 0x000000FF;
-        }
-
-        packIndex++;
-      }
-      packed.textureType = THREE.RGBAFormat;
-      packed.data = _data2;
-    } else if (bitsAllocated === 32 && channels === 1 && pixelType === 1) {
-      var _data3 = new Uint8Array(textureSize * textureSize * 4);
-
-      for (var _i5 = startVoxel; _i5 < stopVoxel; _i5++) {
-        frameIndex = ~~(_i5 / frameDimension);
-        inFrameIndex = _i5 % frameDimension;
-
-        var _raw3 = frame[frameIndex].pixelData[inFrameIndex] + offset;
-        if (!Number.isNaN(_raw3)) {
-          var bitString = binaryString(_raw3);
-          var bitStringArray = bitString.match(/.{1,8}/g);
-
-          _data3[4 * packIndex] = parseInt(bitStringArray[0], 2);
-          _data3[4 * packIndex + 1] = parseInt(bitStringArray[1], 2);
-          _data3[4 * packIndex + 2] = parseInt(bitStringArray[2], 2);
-          _data3[4 * packIndex + 3] = parseInt(bitStringArray[3], 2);
-        }
-
-        packIndex++;
-      }
-
-      packed.textureType = THREE.RGBAFormat;
-      packed.data = _data3;
-    } else if (bitsAllocated === 8 && channels === 3) {
-      var _data4 = new Uint8Array(textureSize * textureSize * 3);
-
-      for (var _i6 = startVoxel; _i6 < stopVoxel; _i6++) {
-        frameIndex = ~~(_i6 / frameDimension);
-        inFrameIndex = _i6 % frameDimension;
-
-        _data4[3 * packIndex] = frame[frameIndex].pixelData[3 * inFrameIndex];
-        _data4[3 * packIndex + 1] = frame[frameIndex].pixelData[3 * inFrameIndex + 1];
-        _data4[3 * packIndex + 2] = frame[frameIndex].pixelData[3 * inFrameIndex + 2];
-        packIndex++;
-      }
-
-      packed.textureType = THREE.RGBFormat;
-      packed.data = _data4;
-    }
-
-    return packed;
-  };
-
-  /**
-   * Get the stack world center
-   *
-   *@return {*}
-   */
-
-
-  ModelsStack.prototype.worldCenter = function worldCenter() {
-    var center = this._halfDimensionsIJK.clone().addScalar(-0.5).applyMatrix4(this._ijk2LPS);
-    return center;
-  };
-
-  /**
-   * Get the stack world bounding box
-   * @return {*}
-   */
-
-
-  ModelsStack.prototype.worldBoundingBox = function worldBoundingBox() {
-    var bbox = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
-
-    var dims = this._dimensionsIJK;
-
-    for (var i = 0; i <= dims.x; i += dims.x) {
-      for (var j = 0; j <= dims.y; j += dims.y) {
-        for (var k = 0; k <= dims.z; k += dims.z) {
-          var world = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](i, j, k).applyMatrix4(this._ijk2LPS);
-          bbox = [Math.min(bbox[0], world.x), Math.max(bbox[1], world.x), // x min/max
-          Math.min(bbox[2], world.y), Math.max(bbox[3], world.y), Math.min(bbox[4], world.z), Math.max(bbox[5], world.z)];
-        }
-      }
-    }
-
-    return bbox;
-  };
-
-  /**
-   * Get AABB size in LPS space.
-   *
-   * @return {*}
-   */
-
-
-  ModelsStack.prototype.AABBox = function AABBox() {
-    var world0 = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */]().addScalar(-0.5).applyMatrix4(this._ijk2LPS).applyMatrix4(this._lps2AABB);
-
-    var world7 = this._dimensionsIJK.clone().addScalar(-0.5).applyMatrix4(this._ijk2LPS).applyMatrix4(this._lps2AABB);
-
-    var minBBox = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](Math.abs(world0.x - world7.x), Math.abs(world0.y - world7.y), Math.abs(world0.z - world7.z));
-
-    return minBBox;
-  };
-
-  /**
-   * Get AABB center in LPS space
-   */
-
-
-  ModelsStack.prototype.centerAABBox = function centerAABBox() {
-    var centerBBox = this.worldCenter();
-    centerBBox.applyMatrix4(this._lps2AABB);
-    return centerBBox;
-  };
-
-  ModelsStack.indexInDimensions = function indexInDimensions(index, dimensions) {
-    if (index.x >= 0 && index.y >= 0 && index.z >= 0 && index.x < dimensions.x && index.y < dimensions.y && index.z < dimensions.z) {
-      return true;
-    }
-
-    return false;
-  };
-
-  ModelsStack.prototype._arrayToVector3 = function _arrayToVector3(array, index) {
-    return new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](array[index], array[index + 1], array[index + 2]);
-  };
-
-  ModelsStack.prototype._orderFrameOnDimensionIndicesArraySort = function _orderFrameOnDimensionIndicesArraySort(a, b) {
-    if ('dimensionIndexValues' in a && Object.prototype.toString.call(a.dimensionIndexValues) === '[object Array]' && 'dimensionIndexValues' in b && Object.prototype.toString.call(b.dimensionIndexValues) === '[object Array]') {
-      for (var i = 0; i < a.dimensionIndexValues.length; i++) {
-        if (parseInt(a.dimensionIndexValues[i], 10) > parseInt(b.dimensionIndexValues[i], 10)) {
-          return 1;
-        }
-        if (parseInt(a.dimensionIndexValues[i], 10) < parseInt(b.dimensionIndexValues[i], 10)) {
-          return -1;
-        }
-      }
-    } else {
-      window.console.warn('One of the frames doesn\'t have a dimensionIndexValues array.');
-      window.console.warn(a);
-      window.console.warn(b);
-    }
-
-    return 0;
-  };
-
-  ModelsStack.prototype._computeDistanceArrayMap = function _computeDistanceArrayMap(normal, frame) {
-    frame.dist = frame.imagePosition[0] * normal.x + frame.imagePosition[1] * normal.y + frame.imagePosition[2] * normal.z;
-    return frame;
-  };
-
-  ModelsStack.prototype._sortDistanceArraySort = function _sortDistanceArraySort(a, b) {
-    return a.dist - b.dist;
-  };
-
-  ModelsStack.prototype._sortInstanceNumberArraySort = function _sortInstanceNumberArraySort(a, b) {
-    return a.instanceNumber - b.instanceNumber;
-  };
-
-  ModelsStack.prototype._sortSopInstanceUIDArraySort = function _sortSopInstanceUIDArraySort(a, b) {
-    return a.sopInstanceUID - b.sopInstanceUID;
-  };
-
-  // DEPRECATED FUNCTION
-
-  /**
-   * @deprecated for core.utils.value
-   *
-   * Get voxel value.
-   *
-   * @param {*} stack
-   * @param {*} coordinate
-   *
-   * @return {*}
-   */
-  ModelsStack.value = function value(stack, coordinate) {
-    window.console.warn('models.stack.value is deprecated.\n       Please use core.utils.value instead.');
-    return __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].value(stack, coordinate);
-  };
-
-  /**
-   * @deprecated for core.utils.rescaleSlopeIntercept
-   *
-   * Apply slope/intercept to a value.
-   *
-   * @param {*} value
-   * @param {*} slope
-   * @param {*} intercept
-   *
-   * @return {*}
-   */
-
-
-  ModelsStack.valueRescaleSlopeIntercept = function valueRescaleSlopeIntercept(value, slope, intercept) {
-    window.console.warn('models.stack.valueRescaleSlopeIntercept is deprecated.\n       Please use core.utils.rescaleSlopeIntercept instead.');
-    return __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].rescaleSlopeIntercept(value, slope, intercept);
-  };
-
-  /**
-   * @deprecated for core.utils.worldToData
-   *
-   * Transform coordinates from world coordinate to data
-   *
-   * @param {*} stack
-   * @param {*} worldCoordinates
-   *
-   * @return {*}
-   */
-
-
-  ModelsStack.worldToData = function worldToData(stack, worldCoordinates) {
-    window.console.warn('models.stack.worldToData is deprecated.\n       Please use core.utils.worldToData instead.');
-
-    return __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].worldToData(stack._lps2IJK, worldCoordinates);
-  };
-
-  _createClass(ModelsStack, [{
-    key: 'numberOfChannels',
-    set: function set(numberOfChannels) {
-      this._numberOfChannels = numberOfChannels;
-    },
-    get: function get() {
-      return this._numberOfChannels;
-    }
-  }, {
-    key: 'frame',
-    set: function set(frame) {
-      this._frame = frame;
-    },
-    get: function get() {
-      return this._frame;
-    }
-  }, {
-    key: 'prepared',
-    set: function set(prepared) {
-      this._prepared = prepared;
-    },
-    get: function get() {
-      return this._prepared;
-    }
-  }, {
-    key: 'packed',
-    set: function set(packed) {
-      this._packed = packed;
-    },
-    get: function get() {
-      return this._packed;
-    }
-  }, {
-    key: 'packedPerPixel',
-    set: function set(packedPerPixel) {
-      this._packedPerPixel = packedPerPixel;
-    },
-    get: function get() {
-      return this._packedPerPixel;
-    }
-  }, {
-    key: 'dimensionsIJK',
-    set: function set(dimensionsIJK) {
-      this._dimensionsIJK = dimensionsIJK;
-    },
-    get: function get() {
-      return this._dimensionsIJK;
-    }
-  }, {
-    key: 'halfDimensionsIJK',
-    set: function set(halfDimensionsIJK) {
-      this._halfDimensionsIJK = halfDimensionsIJK;
-    },
-    get: function get() {
-      return this._halfDimensionsIJK;
-    }
-  }, {
-    key: 'regMatrix',
-    set: function set(regMatrix) {
-      this._regMatrix = regMatrix;
-    },
-    get: function get() {
-      return this._regMatrix;
-    }
-  }, {
-    key: 'ijk2LPS',
-    set: function set(ijk2LPS) {
-      this._ijk2LPS = ijk2LPS;
-    },
-    get: function get() {
-      return this._ijk2LPS;
-    }
-  }, {
-    key: 'lps2IJK',
-    set: function set(lps2IJK) {
-      this._lps2IJK = lps2IJK;
-    },
-    get: function get() {
-      return this._lps2IJK;
-    }
-  }, {
-    key: 'lps2AABB',
-    set: function set(lps2AABB) {
-      this._lps2AABB = lps2AABB;
-    },
-    get: function get() {
-      return this._lps2AABB;
-    }
-  }, {
-    key: 'textureSize',
-    set: function set(textureSize) {
-      this._textureSize = textureSize;
-    },
-    get: function get() {
-      return this._textureSize;
-    }
-  }, {
-    key: 'textureType',
-    set: function set(textureType) {
-      this._textureType = textureType;
-    },
-    get: function get() {
-      return this._textureType;
-    }
-  }, {
-    key: 'bitsAllocated',
-    set: function set(bitsAllocated) {
-      this._bitsAllocated = bitsAllocated;
-    },
-    get: function get() {
-      return this._bitsAllocated;
-    }
-  }, {
-    key: 'rawData',
-    set: function set(rawData) {
-      this._rawData = rawData;
-    },
-    get: function get() {
-      return this._rawData;
-    }
-  }, {
-    key: 'windowWidth',
-    get: function get() {
-      return this._windowWidth;
-    },
-    set: function set(windowWidth) {
-      this._windowWidth = windowWidth;
-    }
-  }, {
-    key: 'windowCenter',
-    get: function get() {
-      return this._windowCenter;
-    },
-    set: function set(windowCenter) {
-      this._windowCenter = windowCenter;
-    }
-  }, {
-    key: 'rescaleSlope',
-    get: function get() {
-      return this._rescaleSlope;
-    },
-    set: function set(rescaleSlope) {
-      this._rescaleSlope = rescaleSlope;
-    }
-  }, {
-    key: 'rescaleIntercept',
-    get: function get() {
-      return this._rescaleIntercept;
-    },
-    set: function set(rescaleIntercept) {
-      this._rescaleIntercept = rescaleIntercept;
-    }
-  }, {
-    key: 'xCosine',
-    get: function get() {
-      return this._xCosine;
-    },
-    set: function set(xCosine) {
-      this._xCosine = xCosine;
-    }
-  }, {
-    key: 'yCosine',
-    get: function get() {
-      return this._yCosine;
-    },
-    set: function set(yCosine) {
-      this._yCosine = yCosine;
-    }
-  }, {
-    key: 'zCosine',
-    get: function get() {
-      return this._zCosine;
-    },
-    set: function set(zCosine) {
-      this._zCosine = zCosine;
-    }
-  }, {
-    key: 'minMax',
-    get: function get() {
-      return this._minMax;
-    },
-    set: function set(minMax) {
-      this._minMax = minMax;
-    }
-  }, {
-    key: 'stackID',
-    get: function get() {
-      return this._stackID;
-    },
-    set: function set(stackID) {
-      this._stackID = stackID;
-    }
-  }, {
-    key: 'pixelType',
-    get: function get() {
-      return this._pixelType;
-    },
-    set: function set(pixelType) {
-      this._pixelType = pixelType;
-    }
-  }, {
-    key: 'pixelRepresentation',
-    get: function get() {
-      return this._pixelRepresentation;
-    },
-    set: function set(pixelRepresentation) {
-      this._pixelRepresentation = pixelRepresentation;
-    }
-  }, {
-    key: 'invert',
-    set: function set(invert) {
-      this._invert = invert;
-    },
-    get: function get() {
-      return this._invert;
-    }
-  }, {
-    key: 'modality',
-    set: function set(modality) {
-      this._modality = modality;
-    },
-    get: function get() {
-      return this._modality;
-    }
-  }, {
-    key: 'rightHanded',
-    get: function get() {
-      return this._rightHanded;
-    },
-    set: function set(rightHanded) {
-      this._rightHanded = rightHanded;
-    }
-  }, {
-    key: 'spacingBetweenSlices',
-    get: function get() {
-      return this._spacingBetweenSlices;
-    },
-    set: function set(spacingBetweenSlices) {
-      this._spacingBetweenSlices = spacingBetweenSlices;
-    }
-  }, {
-    key: 'segmentationSegments',
-    set: function set(segmentationSegments) {
-      this._segmentationSegments = segmentationSegments;
-    },
-    get: function get() {
-      return this._segmentationSegments;
-    }
-  }, {
-    key: 'segmentationType',
-    set: function set(segmentationType) {
-      this._segmentationType = segmentationType;
-    },
-    get: function get() {
-      return this._segmentationType;
-    }
-  }, {
-    key: 'segmentationLUT',
-    set: function set(segmentationLUT) {
-      this._segmentationLUT = segmentationLUT;
-    },
-    get: function get() {
-      return this._segmentationLUT;
-    }
-  }, {
-    key: 'segmentationLUTO',
-    set: function set(segmentationLUTO) {
-      this._segmentationLUTO = segmentationLUTO;
-    },
-    get: function get() {
-      return this._segmentationLUTO;
-    }
-  }]);
-
-  return ModelsStack;
-}(__WEBPACK_IMPORTED_MODULE_3__models_models_base__["a" /* default */]);
-
-/* harmony default export */ __webpack_exports__["a"] = (ModelsStack);
-
-/***/ }),
-/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52382,7 +51569,7 @@ module.exports = isString;
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52418,7 +51605,7 @@ module.exports = isString;
 
 // MODULES //
 
-var isInteger = __webpack_require__( 127 );
+var isInteger = __webpack_require__( 128 );
 
 
 // IS NONNEGATIVE INTEGER //
@@ -52441,7 +51628,7 @@ module.exports = isNonNegativeInteger;
 
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52449,8 +51636,8 @@ module.exports = isNonNegativeInteger;
 
 // MODULES //
 
-var isString = __webpack_require__( 24 );
-var isNonNegativeInteger = __webpack_require__( 25 );
+var isString = __webpack_require__( 23 );
+var isNonNegativeInteger = __webpack_require__( 24 );
 
 
 // NOTES //
@@ -52539,11 +51726,11 @@ module.exports = repeat;
 
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* eslint-disable node/no-deprecated-api */
-var buffer = __webpack_require__(6)
+var buffer = __webpack_require__(7)
 var Buffer = buffer.Buffer
 
 // alternative to using Object.keys for old browsers
@@ -52607,7 +51794,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52772,7 +51959,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -52800,7 +51987,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -52928,12 +52115,13 @@ var Colors = function () {
 /* harmony default export */ __webpack_exports__["a"] = (Colors);
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_core_intersections__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(0);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return geometriesSlice; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_core_intersections__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_core_utils__ = __webpack_require__(0);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -52984,243 +52172,97 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  *  scene.add(slice);
  */
 
-var GeometriesSlice = function (_THREE$ShapeGeometry) {
-  _inherits(GeometriesSlice, _THREE$ShapeGeometry);
+var geometriesSlice = function geometriesSlice() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
-  function GeometriesSlice(halfDimensions, center, position, direction) {
-    var toAABB = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : new __WEBPACK_IMPORTED_MODULE_1_three__["c" /* Matrix4 */]();
-
-    _classCallCheck(this, GeometriesSlice);
-
-    //
-    // prepare data for the shape!
-    //
-    var aabb = {
-      halfDimensions: halfDimensions,
-      center: center,
-      toAABB: toAABB
-    };
-
-    var plane = {
-      position: position,
-      direction: direction
-    };
-
-    // BOOM!
-    var intersections = __WEBPACK_IMPORTED_MODULE_0__core_core_intersections__["a" /* default */].aabbPlane(aabb, plane);
-
-    // can not exist before calling the constructor
-    if (intersections.length < 3) {
-      window.console.log('WARNING: Less than 3 intersections between AABB and Plane.');
-      window.console.log('AABB');
-      window.console.log(aabb);
-      window.console.log('Plane');
-      window.console.log(plane);
-      window.console.log('exiting...');
-      var err = new Error('geometries.slice has less than 3 intersections, can not create a valid geometry.');
-      throw err;
-    }
-
-    var orderedIntersections = GeometriesSlice.orderIntersections(intersections, direction);
-    var sliceShape = GeometriesSlice.shape(orderedIntersections);
-
-    //
-    // Generate Geometry from shape
-    // It does triangulation for us!
-    //
-
-    var _this = _possibleConstructorReturn(this, _THREE$ShapeGeometry.call(this, sliceShape));
-
-    _this.type = 'SliceGeometry';
-
-    // update real position of each vertex! (not in 2d)
-    _this.vertices = orderedIntersections;
-    _this.verticesNeedUpdate = true;
-    return _this;
+  if (three === undefined || three.ShapeGeometry === undefined) {
+    return null;
   }
 
-  GeometriesSlice.shape = function shape(points) {
-    //
-    // Create Shape
-    //
-    var shape = new THREE.Shape();
-    // move to first point!
-    shape.moveTo(points[0].xy.x, points[0].xy.y);
+  var Constructor = three.ShapeGeometry;
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
 
-    // loop through all points!
-    for (var l = 1; l < points.length; l++) {
-      // project each on plane!
-      shape.lineTo(points[l].xy.x, points[l].xy.y);
-    }
+    function _class(halfDimensions, center, position, direction) {
+      var toAABB = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : new three.Matrix4();
 
-    // close the shape!
-    shape.lineTo(points[0].xy.x, points[0].xy.y);
-    return shape;
-  };
+      _classCallCheck(this, _class);
 
-  /**
-   *
-   * Convenience function to extract center of mass from list of points.
-   *
-   * @private
-   *
-   * @param {Array<Vector3>} points - Set of points from which we want to extract the center of mass.
-   *
-   * @returns {Vector3} Center of mass from given points.
-   */
+      //
+      // prepare data for the shape!
+      //
+      var aabb = {
+        halfDimensions: halfDimensions,
+        center: center,
+        toAABB: toAABB
+      };
 
+      var plane = {
+        position: position,
+        direction: direction
+      };
 
-  GeometriesSlice.centerOfMass = function centerOfMass(points) {
-    var centerOfMass = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](0, 0, 0);
-    for (var i = 0; i < points.length; i++) {
-      centerOfMass.x += points[i].x;
-      centerOfMass.y += points[i].y;
-      centerOfMass.z += points[i].z;
-    }
-    centerOfMass.divideScalar(points.length);
+      // BOOM!
+      var intersections = __WEBPACK_IMPORTED_MODULE_0__core_core_intersections__["a" /* default */].aabbPlane(aabb, plane);
 
-    return centerOfMass;
-  };
-
-  /**
-   *
-   * Order 3D planar points around a refence point.
-   *
-   * @private
-   *
-   * @param {Array<Vector3>} points - Set of planar 3D points to be ordered.
-   * @param {Vector3} direction - Direction of the plane in which points and reference are sitting.
-   *
-   * @returns {Array<Object>} Set of object representing the ordered points.
-   */
-
-
-  GeometriesSlice.orderIntersections = function orderIntersections(points, direction) {
-    var reference = GeometriesSlice.centerOfMass(points);
-    // direction from first point to reference
-    var referenceDirection = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](points[0].x - reference.x, points[0].y - reference.y, points[0].z - reference.z).normalize();
-
-    var base = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](0, 0, 0).crossVectors(referenceDirection, direction).normalize();
-
-    var orderedpoints = [];
-
-    // other lines // if inter, return location + angle
-    for (var j = 0; j < points.length; j++) {
-      var point = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](points[j].x, points[j].y, points[j].z);
-      point.direction = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](points[j].x - reference.x, points[j].y - reference.y, points[j].z - reference.z).normalize();
-
-      var x = referenceDirection.dot(point.direction);
-      var y = base.dot(point.direction);
-      point.xy = { x: x, y: y };
-
-      var theta = Math.atan2(y, x) * (180 / Math.PI);
-      point.angle = theta;
-
-      orderedpoints.push(point);
-    }
-
-    orderedpoints.sort(function (a, b) {
-      return a.angle - b.angle;
-    });
-
-    var noDups = [orderedpoints[0]];
-    var epsilon = 0.0001;
-    for (var i = 1; i < orderedpoints.length; i++) {
-      if (Math.abs(orderedpoints[i - 1].angle - orderedpoints[i].angle) > epsilon) {
-        noDups.push(orderedpoints[i]);
+      // can not exist before calling the constructor
+      if (intersections.length < 3) {
+        window.console.log('WARNING: Less than 3 intersections between AABB and Plane.');
+        window.console.log('AABB');
+        window.console.log(aabb);
+        window.console.log('Plane');
+        window.console.log(plane);
+        window.console.log('exiting...');
+        var err = new Error('geometries.slice has less than 3 intersections, can not create a valid geometry.');
+        throw err;
       }
+
+      var points = __WEBPACK_IMPORTED_MODULE_1__core_core_utils__["a" /* default */].orderIntersections(intersections, direction);
+
+      // create the shape
+      var shape = new three.Shape();
+      // move to first point!
+      shape.moveTo(points[0].xy.x, points[0].xy.y);
+
+      // loop through all points!
+      for (var l = 1; l < points.length; l++) {
+        // project each on plane!
+        shape.lineTo(points[l].xy.x, points[l].xy.y);
+      }
+
+      // close the shape!
+      shape.lineTo(points[0].xy.x, points[0].xy.y);
+
+      //
+      // Generate Geometry from shape
+      // It does triangulation for us!
+      //
+
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this, shape));
+
+      _this.type = 'SliceGeometry';
+
+      // update real position of each vertex! (not in 2d)
+      _this.vertices = points;
+      _this.verticesNeedUpdate = true;
+      return _this;
     }
 
-    return noDups;
-  };
+    return _class;
+  }(Constructor);
+};
 
-  return GeometriesSlice;
-}(THREE.ShapeGeometry);
+// export factory
 
-/* harmony default export */ __webpack_exports__["a"] = (GeometriesSlice);
+// default export to
+/* harmony default export */ __webpack_exports__["a"] = (geometriesSlice());
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(0);
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-
-
-/**
- *
- * @module geometries/voxel
- */
-
-var GeometriesVoxel = function (_THREE$BoxGeometry) {
-  _inherits(GeometriesVoxel, _THREE$BoxGeometry);
-
-  function GeometriesVoxel(dataPosition) {
-    _classCallCheck(this, GeometriesVoxel);
-
-    var _this = _possibleConstructorReturn(this, _THREE$BoxGeometry.call(this, 1, 1, 1));
-
-    _this._location = dataPosition;
-
-    _this.applyMatrix(new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* Matrix4 */]().makeTranslation(_this._location.x, _this._location.y, _this._location.z));
-
-    _this.verticesNeedUpdate = true;
-    return _this;
-  }
-
-  GeometriesVoxel.prototype.resetVertices = function resetVertices() {
-    this.vertices[0].set(0.5, 0.5, 0.5);
-    this.vertices[1].set(0.5, 0.5, -0.5);
-    this.vertices[2].set(0.5, -0.5, 0.5);
-    this.vertices[3].set(0.5, -0.5, -0.5);
-    this.vertices[4].set(-0.5, 0.5, -0.5);
-    this.vertices[5].set(-0.5, 0.5, 0.5);
-    this.vertices[6].set(-0.5, -0.5, -0.5);
-    this.vertices[7].set(-0.5, -0.5, 0.5);
-  };
-
-  _createClass(GeometriesVoxel, [{
-    key: 'location',
-    set: function set(location) {
-      this._location = location;
-
-      // update vertices from location
-      this.vertices[0].set(+0.5, +0.5, +0.5);
-      this.vertices[1].set(+0.5, +0.5, -0.5);
-      this.vertices[2].set(+0.5, -0.5, +0.5);
-      this.vertices[3].set(+0.5, -0.5, -0.5);
-      this.vertices[4].set(-0.5, +0.5, -0.5);
-      this.vertices[5].set(-0.5, +0.5, +0.5);
-      this.vertices[6].set(-0.5, -0.5, -0.5);
-      this.vertices[7].set(-0.5, -0.5, +0.5);
-
-      this.applyMatrix(new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* Matrix4 */]().makeTranslation(this._location.x, this._location.y, this._location.z));
-
-      this.verticesNeedUpdate = true;
-    },
-    get: function get() {
-      return this._location;
-    }
-  }]);
-
-  return GeometriesVoxel;
-}(THREE.BoxGeometry);
-
-/* harmony default export */ __webpack_exports__["a"] = (GeometriesVoxel);
-
-/***/ }),
-/* 33 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return helpersBorder; });
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -53232,121 +52274,133 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /**
  * @module helpers/border
  */
-var HelpersBorder = function (_THREE$Object3D) {
-  _inherits(HelpersBorder, _THREE$Object3D);
 
-  function HelpersBorder(helpersSlice) {
-    _classCallCheck(this, HelpersBorder);
+var helpersBorder = function helpersBorder() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
-    var _this = _possibleConstructorReturn(this, _THREE$Object3D.call(this));
-    //
-
-
-    _this._helpersSlice = helpersSlice;
-
-    _this._visible = true;
-    _this._color = 0xff0000;
-    _this._material = null;
-    _this._geometry = null;
-    _this._mesh = null;
-
-    _this._create();
-    return _this;
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
   }
 
-  HelpersBorder.prototype._create = function _create() {
-    if (!this._material) {
-      this._material = new THREE.LineBasicMaterial({
-        color: this._color,
-        linewidth: 1
-      });
+  var Constructor = three.Object3D;
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
+
+    function _class(helpersSlice) {
+      _classCallCheck(this, _class);
+
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this));
+      //
+
+
+      _this._helpersSlice = helpersSlice;
+
+      _this._visible = true;
+      _this._color = 0xff0000;
+      _this._material = null;
+      _this._geometry = null;
+      _this._mesh = null;
+
+      _this._create();
+      return _this;
     }
 
-    //
-    if (!this._helpersSlice.geometry.vertices) {
-      return;
-    }
+    _class.prototype._create = function _create() {
+      if (!this._material) {
+        this._material = new three.LineBasicMaterial({
+          color: this._color,
+          linewidth: 1
+        });
+      }
 
-    this._geometry = new THREE.Geometry();
-    for (var i = 0; i < this._helpersSlice.geometry.vertices.length; i++) {
-      this._geometry.vertices.push(this._helpersSlice.geometry.vertices[i]);
-    }
-    this._geometry.vertices.push(this._helpersSlice.geometry.vertices[0]);
+      if (!this._helpersSlice.geometry.vertices) {
+        return;
+      }
 
-    this._mesh = new THREE.Line(this._geometry, this._material);
-    if (this._helpersSlice.aabbSpace === 'IJK') {
-      this._mesh.applyMatrix(this._helpersSlice.stack.ijk2LPS);
-    }
-    this._mesh.visible = this._visible;
+      this._geometry = new three.Geometry();
+      for (var i = 0; i < this._helpersSlice.geometry.vertices.length; i++) {
+        this._geometry.vertices.push(this._helpersSlice.geometry.vertices[i]);
+      }
+      this._geometry.vertices.push(this._helpersSlice.geometry.vertices[0]);
 
-    // and add it!
-    this.add(this._mesh);
-  };
+      this._mesh = new three.Line(this._geometry, this._material);
+      if (this._helpersSlice.aabbSpace === 'IJK') {
+        this._mesh.applyMatrix(this._helpersSlice.stack.ijk2LPS);
+      }
+      this._mesh.visible = this._visible;
 
-  HelpersBorder.prototype._update = function _update() {
-    // update slice
-    if (this._mesh) {
-      this.remove(this._mesh);
-      this._mesh.geometry.dispose();
-      this._mesh = null;
-    }
+      // and add it!
+      this.add(this._mesh);
+    };
 
-    this._create();
-  };
-
-  HelpersBorder.prototype.dispose = function dispose() {
-    this._mesh.material.dispose();
-    this._mesh.material = null;
-    this._geometry.dispose();
-    this._geometry = null;
-    this._material.dispose();
-    this._material = null;
-  };
-
-  _createClass(HelpersBorder, [{
-    key: 'helpersSlice',
-    set: function set(helpersSlice) {
-      this._helpersSlice = helpersSlice;
-      this._update();
-    },
-    get: function get() {
-      return this._helpersSlice;
-    }
-  }, {
-    key: 'visible',
-    set: function set(visible) {
-      this._visible = visible;
+    _class.prototype._update = function _update() {
+      // update slice
       if (this._mesh) {
-        this._mesh.visible = this._visible;
+        this.remove(this._mesh);
+        this._mesh.geometry.dispose();
+        this._mesh = null;
       }
-    },
-    get: function get() {
-      return this._visible;
-    }
-  }, {
-    key: 'color',
-    set: function set(color) {
-      this._color = color;
-      if (this._material) {
-        this._material.color.set(this._color);
+
+      this._create();
+    };
+
+    _class.prototype.dispose = function dispose() {
+      this._mesh.material.dispose();
+      this._mesh.material = null;
+      this._geometry.dispose();
+      this._geometry = null;
+      this._material.dispose();
+      this._material = null;
+    };
+
+    _createClass(_class, [{
+      key: 'helpersSlice',
+      set: function set(helpersSlice) {
+        this._helpersSlice = helpersSlice;
+        this._update();
+      },
+      get: function get() {
+        return this._helpersSlice;
       }
-    },
-    get: function get() {
-      return this._color;
-    }
-  }]);
+    }, {
+      key: 'visible',
+      set: function set(visible) {
+        this._visible = visible;
+        if (this._mesh) {
+          this._mesh.visible = this._visible;
+        }
+      },
+      get: function get() {
+        return this._visible;
+      }
+    }, {
+      key: 'color',
+      set: function set(color) {
+        this._color = color;
+        if (this._material) {
+          this._material.color.set(this._color);
+        }
+      },
+      get: function get() {
+        return this._color;
+      }
+    }]);
 
-  return HelpersBorder;
-}(THREE.Object3D);
+    return _class;
+  }(Constructor);
+};
 
-/* harmony default export */ __webpack_exports__["a"] = (HelpersBorder);
+// export factory
+
+// default export to
+/* harmony default export */ __webpack_exports__["a"] = (helpersBorder());
 
 /***/ }),
-/* 34 */
+/* 32 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(0);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return helpersBoundingBox; });
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -53355,121 +52409,130 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-// import * as THREE from 'three';
-
-
 /**
  * @module helpers/boundingbox
  */
 
-var HelpersBoundingBox = function (_THREE$Object3D) {
-  _inherits(HelpersBoundingBox, _THREE$Object3D);
+var helpersBoundingBox = function helpersBoundingBox() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
-  function HelpersBoundingBox(stack) {
-    _classCallCheck(this, HelpersBoundingBox);
-
-    // private vars
-    var _this = _possibleConstructorReturn(this, _THREE$Object3D.call(this));
-    //
-
-
-    _this._stack = stack;
-    _this._visible = true;
-    _this._color = 0xFFFFFF;
-    _this._material = null;
-    _this._geometry = null;
-    _this._mesh = null;
-    _this._meshStack = null;
-
-    // create object
-    _this._create();
-    return _this;
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
   }
 
-  // getters/setters
+  var Constructor = three.Object3D;
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
+
+    function _class(stack) {
+      _classCallCheck(this, _class);
+
+      // private vars
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this));
+      //
 
 
-  // private methods
-  HelpersBoundingBox.prototype._create = function _create() {
-    // Convenience vars
-    var dimensions = this._stack.dimensionsIJK;
-    var halfDimensions = this._stack.halfDimensionsIJK;
-    var offset = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](-0.5, -0.5, -0.5);
+      _this._stack = stack;
+      _this._visible = true;
+      _this._color = 0xFFFFFF;
+      _this._material = null;
+      _this._geometry = null;
+      _this._mesh = null;
+      _this._meshStack = null;
 
-    // Geometry
-    var geometry = new THREE.BoxGeometry(dimensions.x, dimensions.y, dimensions.z);
-    geometry.applyMatrix(new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* Matrix4 */]().makeTranslation(halfDimensions.x + offset.x, halfDimensions.y + offset.y, halfDimensions.z + offset.z));
-    this._geometry = geometry;
+      // create object
+      _this._create();
+      return _this;
+    }
 
-    // Material
-    this._material = new THREE.MeshBasicMaterial({
-      wireframe: true
-    });
+    // getters/setters
 
-    var mesh = new THREE.Mesh(this._geometry, null);
-    mesh.applyMatrix(this._stack.ijk2LPS);
-    mesh.visible = this._visible;
-    this._meshStack = mesh;
 
-    this._mesh = new THREE.BoxHelper(this._meshStack, this._color);
-    this._material = this._mesh.material;
+    // private methods
+    _class.prototype._create = function _create() {
+      // Convenience vars
+      var dimensions = this._stack.dimensionsIJK;
+      var halfDimensions = this._stack.halfDimensionsIJK;
+      var offset = new three.Vector3(-0.5, -0.5, -0.5);
 
-    this.add(this._mesh);
-  };
+      // Geometry
+      var geometry = new three.BoxGeometry(dimensions.x, dimensions.y, dimensions.z);
+      geometry.applyMatrix(new three.Matrix4().makeTranslation(halfDimensions.x + offset.x, halfDimensions.y + offset.y, halfDimensions.z + offset.z));
+      this._geometry = geometry;
 
-  HelpersBoundingBox.prototype._update = function _update() {
-    if (this._mesh) {
-      this.remove(this._mesh);
-      this._mesh.geometry.dispose();
-      this._mesh.geometry = null;
+      // Material
+      this._material = new three.MeshBasicMaterial({
+        wireframe: true
+      });
+
+      var mesh = new three.Mesh(this._geometry, null);
+      mesh.applyMatrix(this._stack.ijk2LPS);
+      mesh.visible = this._visible;
+      this._meshStack = mesh;
+
+      this._mesh = new three.BoxHelper(this._meshStack, this._color);
+      this._material = this._mesh.material;
+
+      this.add(this._mesh);
+    };
+
+    _class.prototype._update = function _update() {
+      if (this._mesh) {
+        this.remove(this._mesh);
+        this._mesh.geometry.dispose();
+        this._mesh.geometry = null;
+        this._mesh.material.dispose();
+        this._mesh.material = null;
+        this._mesh = null;
+      }
+
+      this._create();
+    };
+
+    _class.prototype.dispose = function dispose() {
       this._mesh.material.dispose();
       this._mesh.material = null;
-      this._mesh = null;
-    }
+      this._geometry.dispose();
+      this._geometry = null;
+      this._material.dispose();
+      this._material = null;
+    };
 
-    this._create();
-  };
-
-  HelpersBoundingBox.prototype.dispose = function dispose() {
-    this._mesh.material.dispose();
-    this._mesh.material = null;
-    this._geometry.dispose();
-    this._geometry = null;
-    this._material.dispose();
-    this._material = null;
-  };
-
-  _createClass(HelpersBoundingBox, [{
-    key: 'visible',
-    set: function set(visible) {
-      this._visible = visible;
-      if (this._mesh) {
-        this._mesh.visible = this._visible;
+    _createClass(_class, [{
+      key: "visible",
+      set: function set(visible) {
+        this._visible = visible;
+        if (this._mesh) {
+          this._mesh.visible = this._visible;
+        }
+      },
+      get: function get() {
+        return this._visible;
       }
-    },
-    get: function get() {
-      return this._visible;
-    }
-  }, {
-    key: 'color',
-    set: function set(color) {
-      this._color = color;
-      if (this._material) {
-        this._material.color.set(this._color);
+    }, {
+      key: "color",
+      set: function set(color) {
+        this._color = color;
+        if (this._material) {
+          this._material.color.set(this._color);
+        }
+      },
+      get: function get() {
+        return this._color;
       }
-    },
-    get: function get() {
-      return this._color;
-    }
-  }]);
+    }]);
 
-  return HelpersBoundingBox;
-}(THREE.Object3D);
+    return _class;
+  }(Constructor);
+};
 
-/* harmony default export */ __webpack_exports__["a"] = (HelpersBoundingBox);
+// export factory
+
+// default export too
+/* harmony default export */ __webpack_exports__["a"] = (helpersBoundingBox());
 
 /***/ }),
-/* 35 */
+/* 33 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -53519,7 +52582,7 @@ var ShadersUniform = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersUniform);
 
 /***/ }),
-/* 36 */
+/* 34 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -53540,7 +52603,7 @@ var ShadersVertex = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersVertex);
 
 /***/ }),
-/* 37 */
+/* 35 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -53605,7 +52668,7 @@ var ShadersFragment = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersFragment);
 
 /***/ }),
-/* 38 */
+/* 36 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -53680,7 +52743,7 @@ var _class = function () {
 /* harmony default export */ __webpack_exports__["a"] = (_class);
 
 /***/ }),
-/* 39 */
+/* 37 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -53707,7 +52770,7 @@ var _class = function () {
 /* harmony default export */ __webpack_exports__["a"] = (_class);
 
 /***/ }),
-/* 40 */
+/* 38 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -53793,7 +52856,7 @@ var _class = function () {
 /* harmony default export */ __webpack_exports__["a"] = (_class);
 
 /***/ }),
-/* 41 */
+/* 39 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -53954,16 +53017,16 @@ var HelpersProgressBar = function () {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersProgressBar);
 
 /***/ }),
-/* 42 */
+/* 40 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometries_geometries_slice__ = __webpack_require__(31);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_data_uniform__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_data_vertex__ = __webpack_require__(44);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__shaders_shaders_data_fragment__ = __webpack_require__(45);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_helpers_material_mixin__ = __webpack_require__(48);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_three__ = __webpack_require__(0);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return helpersSlice; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometries_geometries_slice__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_data_uniform__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_data_vertex__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__shaders_shaders_data_fragment__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_helpers_material_mixin__ = __webpack_require__(46);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -53980,512 +53043,521 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 
 
-
-
 /**
  * @module helpers/slice
  */
 
-var HelpersSlice = function (_HelpersMaterialMixin) {
-  _inherits(HelpersSlice, _HelpersMaterialMixin);
+var helpersSlice = function helpersSlice() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
-  function HelpersSlice(stack) {
-    var index = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-    var position = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : new __WEBPACK_IMPORTED_MODULE_5_three__["f" /* Vector3 */](0, 0, 0);
-    var direction = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : new __WEBPACK_IMPORTED_MODULE_5_three__["f" /* Vector3 */](0, 0, 1);
-    var aabbSpace = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'IJK';
-
-    _classCallCheck(this, HelpersSlice);
-
-    // private vars
-    var _this = _possibleConstructorReturn(this, _HelpersMaterialMixin.call(this));
-    //
-
-
-    _this._stack = stack;
-
-    // image settings
-    // index only used to grab window/level and intercept/slope
-    _this._invert = _this._stack.invert;
-
-    _this._lut = 'none';
-    _this._lutTexture = null;
-    // if auto === true, get from index
-    // else from stack which holds the default values
-    _this._intensityAuto = true;
-    _this._interpolation = 1; // default to trilinear interpolation
-    // starts at 0
-    _this._index = index;
-    _this._windowWidth = null;
-    _this._windowCenter = null;
-    _this._rescaleSlope = null;
-    _this._rescaleIntercept = null;
-
-    // threshold
-    _this._lowerThreshold = null;
-    _this._upperThreshold = null;
-
-    _this._canvasWidth = 0;
-    _this._canvasHeight = 0;
-    _this._borderColor = null;
-
-    // Object3D settings
-    // shape
-    _this._planePosition = position;
-    _this._planeDirection = direction;
-    // change aaBBSpace changes the box dimensions
-    // also changes the transform
-    // there is also a switch to move back mesh to LPS space automatically
-    _this._aaBBspace = aabbSpace; // or LPS -> different transforms, esp for the geometry/mesh
-    _this._material = null;
-    _this._textures = [];
-    _this._shadersFragment = __WEBPACK_IMPORTED_MODULE_3__shaders_shaders_data_fragment__["a" /* default */];
-    _this._shadersVertex = __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_data_vertex__["a" /* default */];
-    _this._uniforms = __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_data_uniform__["a" /* default */].uniforms();
-    _this._geometry = null;
-    _this._mesh = null;
-    _this._visible = true;
-
-    // update dimensions, center, etc.
-    // depending on aaBBSpace
-    _this._init();
-
-    // update object
-    _this._create();
-    return _this;
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
   }
 
-  // getters/setters
+  var Constructor = Object(__WEBPACK_IMPORTED_MODULE_4__helpers_helpers_material_mixin__["a" /* helpersMaterialMixin */])(three);
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
 
-  HelpersSlice.prototype._init = function _init() {
-    if (!this._stack || !this._stack._prepared || !this._stack._packed) {
-      return;
-    }
+    function _class(stack) {
+      var index = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var position = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : new three.Vector3(0, 0, 0);
+      var direction = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : new three.Vector3(0, 0, 1);
+      var aabbSpace = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'IJK';
 
-    if (this._aaBBspace === 'IJK') {
-      this._halfDimensions = this._stack.halfDimensionsIJK;
-      this._center = new __WEBPACK_IMPORTED_MODULE_5_three__["f" /* Vector3 */](this._stack.halfDimensionsIJK.x - 0.5, this._stack.halfDimensionsIJK.y - 0.5, this._stack.halfDimensionsIJK.z - 0.5);
-      this._toAABB = new __WEBPACK_IMPORTED_MODULE_5_three__["c" /* Matrix4 */]();
-    } else {
-      // LPS
-      var aaBBox = this._stack.AABBox();
-      this._halfDimensions = aaBBox.clone().multiplyScalar(0.5);
-      this._center = this._stack.centerAABBox();
-      this._toAABB = this._stack.lps2AABB;
-    }
-  };
+      _classCallCheck(this, _class);
 
-  // private methods
-
-
-  HelpersSlice.prototype._create = function _create() {
-    if (!this._stack || !this._stack.prepared || !this._stack.packed) {
-      return;
-    }
-
-    // Convenience vars
-    try {
-      this._geometry = new __WEBPACK_IMPORTED_MODULE_0__geometries_geometries_slice__["a" /* default */](this._halfDimensions, this._center, this._planePosition, this._planeDirection, this._toAABB);
-    } catch (e) {
-      window.console.log(e);
-      window.console.log('invalid slice geometry - exiting...');
-      return;
-    }
-
-    if (!this._geometry.vertices) {
-      return;
-    }
-
-    if (!this._material) {
+      // private vars
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this));
       //
-      this._uniforms.uTextureSize.value = this._stack.textureSize;
-      this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x, this._stack.dimensionsIJK.y, this._stack.dimensionsIJK.z];
-      this._uniforms.uWorldToData.value = this._stack.lps2IJK;
-      this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
-      this._uniforms.uPixelType.value = this._stack.pixelType;
-      this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
-      this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
-      // compute texture if material exist
-      this._prepareTexture();
-      this._uniforms.uTextureContainer.value = this._textures;
 
-      this._createMaterial({
-        side: THREE.DoubleSide
-      });
+
+      _this._stack = stack;
+
+      // image settings
+      // index only used to grab window/level and intercept/slope
+      _this._invert = _this._stack.invert;
+
+      _this._lut = 'none';
+      _this._lutTexture = null;
+      // if auto === true, get from index
+      // else from stack which holds the default values
+      _this._intensityAuto = true;
+      _this._interpolation = 1; // default to trilinear interpolation
+      // starts at 0
+      _this._index = index;
+      _this._windowWidth = null;
+      _this._windowCenter = null;
+      _this._rescaleSlope = null;
+      _this._rescaleIntercept = null;
+
+      // threshold
+      _this._lowerThreshold = null;
+      _this._upperThreshold = null;
+
+      _this._canvasWidth = 0;
+      _this._canvasHeight = 0;
+      _this._borderColor = null;
+
+      // Object3D settings
+      // shape
+      _this._planePosition = position;
+      _this._planeDirection = direction;
+      // change aaBBSpace changes the box dimensions
+      // also changes the transform
+      // there is also a switch to move back mesh to LPS space automatically
+      _this._aaBBspace = aabbSpace; // or LPS -> different transforms, esp for the geometry/mesh
+      _this._material = null;
+      _this._textures = [];
+      _this._shadersFragment = __WEBPACK_IMPORTED_MODULE_3__shaders_shaders_data_fragment__["a" /* default */];
+      _this._shadersVertex = __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_data_vertex__["a" /* default */];
+      _this._uniforms = __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_data_uniform__["a" /* default */].uniforms();
+      _this._geometry = null;
+      _this._mesh = null;
+      _this._visible = true;
+
+      // update dimensions, center, etc.
+      // depending on aaBBSpace
+      _this._init();
+
+      // update object
+      _this._create();
+      return _this;
     }
 
-    // update intensity related stuff
-    this.updateIntensitySettings();
-    this.updateIntensitySettingsUniforms();
+    // getters/setters
 
-    // create the mesh!
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
-    if (this._aaBBspace === 'IJK') {
-      this._mesh.applyMatrix(this._stack.ijk2LPS);
-    }
-
-    this._mesh.visible = this._visible;
-
-    // and add it!
-    this.add(this._mesh);
-  };
-
-  HelpersSlice.prototype.updateIntensitySettings = function updateIntensitySettings() {
-    // if auto, get from frame index
-    if (this._intensityAuto) {
-      this.updateIntensitySetting('windowCenter');
-      this.updateIntensitySetting('windowWidth');
-      this.updateIntensitySetting('rescaleSlope');
-      this.updateIntensitySetting('rescaleIntercept');
-    } else {
-      if (this._windowCenter === null) {
-        this._windowCenter = this._stack.windowCenter;
+    _class.prototype._init = function _init() {
+      if (!this._stack || !this._stack._prepared || !this._stack._packed) {
+        return;
       }
 
-      if (this._windowWidth === null) {
-        this._windowWidth = this._stack.windowWidth;
+      if (this._aaBBspace === 'IJK') {
+        this._halfDimensions = this._stack.halfDimensionsIJK;
+        this._center = new three.Vector3(this._stack.halfDimensionsIJK.x - 0.5, this._stack.halfDimensionsIJK.y - 0.5, this._stack.halfDimensionsIJK.z - 0.5);
+        this._toAABB = new three.Matrix4();
+      } else {
+        // LPS
+        var aaBBox = this._stack.AABBox();
+        this._halfDimensions = aaBBox.clone().multiplyScalar(0.5);
+        this._center = this._stack.centerAABBox();
+        this._toAABB = this._stack.lps2AABB;
+      }
+    };
+
+    // private methods
+
+
+    _class.prototype._create = function _create() {
+      if (!this._stack || !this._stack.prepared || !this._stack.packed) {
+        return;
       }
 
-      if (this._rescaleSlope === null) {
-        this._rescaleSlope = this._stack.rescaleSlope;
+      // Convenience vars
+      try {
+        var SliceGeometryContructor = Object(__WEBPACK_IMPORTED_MODULE_0__geometries_geometries_slice__["b" /* geometriesSlice */])(three);
+        this._geometry = new SliceGeometryContructor(this._halfDimensions, this._center, this._planePosition, this._planeDirection, this._toAABB);
+      } catch (e) {
+        window.console.log(e);
+        window.console.log('invalid slice geometry - exiting...');
+        return;
       }
 
-      if (this._rescaleIntercept === null) {
-        this._rescaleIntercept = this._stack.rescaleIntercept;
+      if (!this._geometry.vertices) {
+        return;
       }
-    }
 
-    // adding thresholding
-    if (this._upperThreshold === null) {
-      this._upperThreshold = this._stack._minMax[1];
-    }
+      if (!this._material) {
+        //
+        this._uniforms.uTextureSize.value = this._stack.textureSize;
+        this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x, this._stack.dimensionsIJK.y, this._stack.dimensionsIJK.z];
+        this._uniforms.uWorldToData.value = this._stack.lps2IJK;
+        this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
+        this._uniforms.uPixelType.value = this._stack.pixelType;
+        this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
+        this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
+        // compute texture if material exist
+        this._prepareTexture();
+        this._uniforms.uTextureContainer.value = this._textures;
 
-    if (this._lowerThreshold === null) {
-      this._lowerThreshold = this._stack._minMax[0];
-    }
-  };
+        this._createMaterial({
+          side: three.DoubleSide
+        });
+      }
 
-  HelpersSlice.prototype.updateIntensitySettingsUniforms = function updateIntensitySettingsUniforms() {
-    // compensate for the offset to only pass > 0 values to shaders
-    // models > models.stack.js : _packTo8Bits
-    var offset = 0;
-    if (this._stack._minMax[0] < 0) {
-      offset -= this._stack._minMax[0];
-    }
+      // update intensity related stuff
+      this.updateIntensitySettings();
+      this.updateIntensitySettingsUniforms();
 
-    // set slice window center and width
-    this._uniforms.uRescaleSlopeIntercept.value = [this._rescaleSlope, this._rescaleIntercept];
-    this._uniforms.uWindowCenterWidth.value = [offset + this._windowCenter, this._windowWidth];
+      // create the mesh!
+      this._mesh = new three.Mesh(this._geometry, this._material);
+      if (this._aaBBspace === 'IJK') {
+        this._mesh.applyMatrix(this._stack.ijk2LPS);
+      }
 
-    // set slice upper/lower threshold
-    this._uniforms.uLowerUpperThreshold.value = [offset + this._lowerThreshold, offset + this._upperThreshold];
+      this._mesh.visible = this._visible;
 
-    // invert
-    this._uniforms.uInvert.value = this._invert === true ? 1 : 0;
+      // and add it!
+      this.add(this._mesh);
+    };
 
-    // interpolation
-    this._uniforms.uInterpolation.value = this._interpolation;
+    _class.prototype.updateIntensitySettings = function updateIntensitySettings() {
+      // if auto, get from frame index
+      if (this._intensityAuto) {
+        this.updateIntensitySetting('windowCenter');
+        this.updateIntensitySetting('windowWidth');
+        this.updateIntensitySetting('rescaleSlope');
+        this.updateIntensitySetting('rescaleIntercept');
+      } else {
+        if (this._windowCenter === null) {
+          this._windowCenter = this._stack.windowCenter;
+        }
 
-    // lut
-    if (this._lut === 'none') {
-      this._uniforms.uLut.value = 0;
-    } else {
-      this._uniforms.uLut.value = 1;
-      this._uniforms.uTextureLUT.value = this._lutTexture;
-    }
-  };
+        if (this._windowWidth === null) {
+          this._windowWidth = this._stack.windowWidth;
+        }
 
-  HelpersSlice.prototype.updateIntensitySetting = function updateIntensitySetting(setting) {
-    if (this._stack.frame[this._index] && this._stack.frame[this._index][setting]) {
-      this['_' + setting] = this._stack.frame[this._index][setting];
-    } else {
-      this['_' + setting] = this._stack[setting];
-    }
-  };
+        if (this._rescaleSlope === null) {
+          this._rescaleSlope = this._stack.rescaleSlope;
+        }
 
-  HelpersSlice.prototype._update = function _update() {
-    // update slice
-    if (this._mesh) {
+        if (this._rescaleIntercept === null) {
+          this._rescaleIntercept = this._stack.rescaleIntercept;
+        }
+      }
+
+      // adding thresholding
+      if (this._upperThreshold === null) {
+        this._upperThreshold = this._stack._minMax[1];
+      }
+
+      if (this._lowerThreshold === null) {
+        this._lowerThreshold = this._stack._minMax[0];
+      }
+    };
+
+    _class.prototype.updateIntensitySettingsUniforms = function updateIntensitySettingsUniforms() {
+      // compensate for the offset to only pass > 0 values to shaders
+      // models > models.stack.js : _packTo8Bits
+      var offset = 0;
+      if (this._stack._minMax[0] < 0) {
+        offset -= this._stack._minMax[0];
+      }
+
+      // set slice window center and width
+      this._uniforms.uRescaleSlopeIntercept.value = [this._rescaleSlope, this._rescaleIntercept];
+      this._uniforms.uWindowCenterWidth.value = [offset + this._windowCenter, this._windowWidth];
+
+      // set slice upper/lower threshold
+      this._uniforms.uLowerUpperThreshold.value = [offset + this._lowerThreshold, offset + this._upperThreshold];
+
+      // invert
+      this._uniforms.uInvert.value = this._invert === true ? 1 : 0;
+
+      // interpolation
+      this._uniforms.uInterpolation.value = this._interpolation;
+
+      // lut
+      if (this._lut === 'none') {
+        this._uniforms.uLut.value = 0;
+      } else {
+        this._uniforms.uLut.value = 1;
+        this._uniforms.uTextureLUT.value = this._lutTexture;
+      }
+    };
+
+    _class.prototype.updateIntensitySetting = function updateIntensitySetting(setting) {
+      if (this._stack.frame[this._index] && this._stack.frame[this._index][setting]) {
+        this['_' + setting] = this._stack.frame[this._index][setting];
+      } else {
+        this['_' + setting] = this._stack[setting];
+      }
+    };
+
+    _class.prototype._update = function _update() {
+      // update slice
+      if (this._mesh) {
+        this.remove(this._mesh);
+        this._mesh.geometry.dispose();
+        this._mesh.geometry = null;
+        // we do not want to dispose the texture!
+        // this._mesh.material.dispose();
+        // this._mesh.material = null;
+        this._mesh = null;
+      }
+
+      this._create();
+    };
+
+    _class.prototype.dispose = function dispose() {
+      // Release memory
+      for (var j = 0; j < this._textures.length; j++) {
+        this._textures[j].dispose();
+        this._textures[j] = null;
+      }
+      this._textures = null;
+      this._shadersFragment = null;
+      this._shadersVertex = null;
+
+      this._uniforms = null;
+
+      // material, geometry and mesh
       this.remove(this._mesh);
       this._mesh.geometry.dispose();
       this._mesh.geometry = null;
-      // we do not want to dispose the texture!
-      // this._mesh.material.dispose();
-      // this._mesh.material = null;
+      this._mesh.material.dispose();
+      this._mesh.material = null;
       this._mesh = null;
-    }
 
-    this._create();
-  };
+      this._geometry.dispose();
+      this._geometry = null;
+      this._material.vertexShader = null;
+      this._material.fragmentShader = null;
+      this._material.uniforms = null;
+      this._material.dispose();
+      this._material = null;
 
-  HelpersSlice.prototype.dispose = function dispose() {
-    // Release memory
-    for (var j = 0; j < this._textures.length; j++) {
-      this._textures[j].dispose();
-      this._textures[j] = null;
-    }
-    this._textures = null;
-    this._shadersFragment = null;
-    this._shadersVertex = null;
+      this._stack = null;
+    };
 
-    this._uniforms = null;
+    _class.prototype.cartesianEquation = function cartesianEquation() {
+      // Make sure we have a geometry
+      if (!this._geometry || !this._geometry.vertices || this._geometry.vertices.length < 3) {
+        return new three.Vector4();
+      }
 
-    // material, geometry and mesh
-    this.remove(this._mesh);
-    this._mesh.geometry.dispose();
-    this._mesh.geometry = null;
-    this._mesh.material.dispose();
-    this._mesh.material = null;
-    this._mesh = null;
+      var vertices = this._geometry.vertices;
+      var dataToWorld = this._stack.ijk2LPS;
+      var p1 = new three.Vector3(vertices[0].x, vertices[0].y, vertices[0].z).applyMatrix4(dataToWorld);
+      var p2 = new three.Vector3(vertices[1].x, vertices[1].y, vertices[1].z).applyMatrix4(dataToWorld);
+      var p3 = new three.Vector3(vertices[2].x, vertices[2].y, vertices[2].z).applyMatrix4(dataToWorld);
+      var v1 = new three.Vector3();
+      var v2 = new three.Vector3();
+      var normal = v1.subVectors(p3, p2).cross(v2.subVectors(p1, p2)).normalize();
 
-    this._geometry.dispose();
-    this._geometry = null;
-    this._material.vertexShader = null;
-    this._material.fragmentShader = null;
-    this._material.uniforms = null;
-    this._material.dispose();
-    this._material = null;
+      return new three.Vector4(normal.x, normal.y, normal.z, -normal.dot(p1));
+    };
 
-    this._stack = null;
-  };
+    _createClass(_class, [{
+      key: 'stack',
+      get: function get() {
+        return this._stack;
+      },
+      set: function set(stack) {
+        this._stack = stack;
+      }
+    }, {
+      key: 'windowWidth',
+      get: function get() {
+        return this._windowWidth;
+      },
+      set: function set(windowWidth) {
+        this._windowWidth = windowWidth;
+        this.updateIntensitySettingsUniforms();
+      }
+    }, {
+      key: 'windowCenter',
+      get: function get() {
+        return this._windowCenter;
+      },
+      set: function set(windowCenter) {
+        this._windowCenter = windowCenter;
+        this.updateIntensitySettingsUniforms();
+      }
 
-  HelpersSlice.prototype.cartesianEquation = function cartesianEquation() {
-    // Make sure we have a geometry
-    if (!this._geometry || !this._geometry.vertices || this._geometry.vertices.length < 3) {
-      return new __WEBPACK_IMPORTED_MODULE_5_three__["g" /* Vector4 */]();
-    }
+      // adding thresholding method
 
-    var vertices = this._geometry.vertices;
-    var dataToWorld = this._stack.ijk2LPS;
-    var p1 = new __WEBPACK_IMPORTED_MODULE_5_three__["f" /* Vector3 */](vertices[0].x, vertices[0].y, vertices[0].z).applyMatrix4(dataToWorld);
-    var p2 = new __WEBPACK_IMPORTED_MODULE_5_three__["f" /* Vector3 */](vertices[1].x, vertices[1].y, vertices[1].z).applyMatrix4(dataToWorld);
-    var p3 = new __WEBPACK_IMPORTED_MODULE_5_three__["f" /* Vector3 */](vertices[2].x, vertices[2].y, vertices[2].z).applyMatrix4(dataToWorld);
-    var v1 = new __WEBPACK_IMPORTED_MODULE_5_three__["f" /* Vector3 */]();
-    var v2 = new __WEBPACK_IMPORTED_MODULE_5_three__["f" /* Vector3 */]();
-    var normal = v1.subVectors(p3, p2).cross(v2.subVectors(p1, p2)).normalize();
+    }, {
+      key: 'upperThreshold',
+      get: function get() {
+        return this._upperThreshold;
+      },
+      set: function set(upperThreshold) {
+        this._upperThreshold = upperThreshold;
+        this.updateIntensitySettingsUniforms();
+      }
+    }, {
+      key: 'lowerThreshold',
+      get: function get() {
+        return this._lowerThreshold;
+      },
+      set: function set(lowerThreshold) {
+        this._lowerThreshold = lowerThreshold;
+        this.updateIntensitySettingsUniforms();
+      }
+    }, {
+      key: 'rescaleSlope',
+      get: function get() {
+        return this._rescaleSlope;
+      },
+      set: function set(rescaleSlope) {
+        this._rescaleSlope = rescaleSlope;
+        this.updateIntensitySettingsUniforms();
+      }
+    }, {
+      key: 'rescaleIntercept',
+      get: function get() {
+        return this._rescaleIntercept;
+      },
+      set: function set(rescaleIntercept) {
+        this._rescaleIntercept = rescaleIntercept;
+        this.updateIntensitySettingsUniforms();
+      }
+    }, {
+      key: 'invert',
+      get: function get() {
+        return this._invert;
+      },
+      set: function set(invert) {
+        this._invert = invert;
+        this.updateIntensitySettingsUniforms();
+      }
+    }, {
+      key: 'lut',
+      get: function get() {
+        return this._lut;
+      },
+      set: function set(lut) {
+        this._lut = lut;
+      }
+    }, {
+      key: 'lutTexture',
+      get: function get() {
+        return this._lutTexture;
+      },
+      set: function set(lutTexture) {
+        this._lutTexture = lutTexture;
+        this.updateIntensitySettingsUniforms();
+      }
+    }, {
+      key: 'intensityAuto',
+      get: function get() {
+        return this._intensityAuto;
+      },
+      set: function set(intensityAuto) {
+        this._intensityAuto = intensityAuto;
+        this.updateIntensitySettings();
+        this.updateIntensitySettingsUniforms();
+      }
+    }, {
+      key: 'interpolation',
+      get: function get() {
+        return this._interpolation;
+      },
+      set: function set(interpolation) {
+        this._interpolation = interpolation;
+        this.updateIntensitySettingsUniforms();
+        this._updateMaterial();
+      }
+    }, {
+      key: 'index',
+      get: function get() {
+        return this._index;
+      },
+      set: function set(index) {
+        this._index = index;
+        this._update();
+      }
+    }, {
+      key: 'planePosition',
+      set: function set(position) {
+        this._planePosition = position;
+        this._update();
+      },
+      get: function get() {
+        return this._planePosition;
+      }
+    }, {
+      key: 'planeDirection',
+      set: function set(direction) {
+        this._planeDirection = direction;
+        this._update();
+      },
+      get: function get() {
+        return this._planeDirection;
+      }
+    }, {
+      key: 'halfDimensions',
+      set: function set(halfDimensions) {
+        this._halfDimensions = halfDimensions;
+      },
+      get: function get() {
+        return this._halfDimensions;
+      }
+    }, {
+      key: 'center',
+      set: function set(center) {
+        this._center = center;
+      },
+      get: function get() {
+        return this._center;
+      }
+    }, {
+      key: 'aabbSpace',
+      set: function set(aabbSpace) {
+        this._aaBBspace = aabbSpace;
+        this._init();
+      },
+      get: function get() {
+        return this._aaBBspace;
+      }
+    }, {
+      key: 'mesh',
+      set: function set(mesh) {
+        this._mesh = mesh;
+      },
+      get: function get() {
+        return this._mesh;
+      }
+    }, {
+      key: 'geometry',
+      set: function set(geometry) {
+        this._geometry = geometry;
+      },
+      get: function get() {
+        return this._geometry;
+      }
+    }, {
+      key: 'canvasWidth',
+      set: function set(canvasWidth) {
+        this._canvasWidth = canvasWidth;
+        this._uniforms.uCanvasWidth.value = this._canvasWidth;
+      },
+      get: function get() {
+        return this._canvasWidth;
+      }
+    }, {
+      key: 'canvasHeight',
+      set: function set(canvasHeight) {
+        this._canvasHeight = canvasHeight;
+        this._uniforms.uCanvasHeight.value = this._canvasHeight;
+      },
+      get: function get() {
+        return this._canvasHeight;
+      }
+    }, {
+      key: 'borderColor',
+      set: function set(borderColor) {
+        this._borderColor = borderColor;
+        this._uniforms.uBorderColor.value = new three.Color(borderColor);
+      },
+      get: function get() {
+        return this._borderColor;
+      }
+    }]);
 
-    return new __WEBPACK_IMPORTED_MODULE_5_three__["g" /* Vector4 */](normal.x, normal.y, normal.z, -normal.dot(p1));
-  };
+    return _class;
+  }(Constructor);
+};
 
-  _createClass(HelpersSlice, [{
-    key: 'stack',
-    get: function get() {
-      return this._stack;
-    },
-    set: function set(stack) {
-      this._stack = stack;
-    }
-  }, {
-    key: 'windowWidth',
-    get: function get() {
-      return this._windowWidth;
-    },
-    set: function set(windowWidth) {
-      this._windowWidth = windowWidth;
-      this.updateIntensitySettingsUniforms();
-    }
-  }, {
-    key: 'windowCenter',
-    get: function get() {
-      return this._windowCenter;
-    },
-    set: function set(windowCenter) {
-      this._windowCenter = windowCenter;
-      this.updateIntensitySettingsUniforms();
-    }
 
-    // adding thresholding method
-
-  }, {
-    key: 'upperThreshold',
-    get: function get() {
-      return this._upperThreshold;
-    },
-    set: function set(upperThreshold) {
-      this._upperThreshold = upperThreshold;
-      this.updateIntensitySettingsUniforms();
-    }
-  }, {
-    key: 'lowerThreshold',
-    get: function get() {
-      return this._lowerThreshold;
-    },
-    set: function set(lowerThreshold) {
-      this._lowerThreshold = lowerThreshold;
-      this.updateIntensitySettingsUniforms();
-    }
-  }, {
-    key: 'rescaleSlope',
-    get: function get() {
-      return this._rescaleSlope;
-    },
-    set: function set(rescaleSlope) {
-      this._rescaleSlope = rescaleSlope;
-      this.updateIntensitySettingsUniforms();
-    }
-  }, {
-    key: 'rescaleIntercept',
-    get: function get() {
-      return this._rescaleIntercept;
-    },
-    set: function set(rescaleIntercept) {
-      this._rescaleIntercept = rescaleIntercept;
-      this.updateIntensitySettingsUniforms();
-    }
-  }, {
-    key: 'invert',
-    get: function get() {
-      return this._invert;
-    },
-    set: function set(invert) {
-      this._invert = invert;
-      this.updateIntensitySettingsUniforms();
-    }
-  }, {
-    key: 'lut',
-    get: function get() {
-      return this._lut;
-    },
-    set: function set(lut) {
-      this._lut = lut;
-    }
-  }, {
-    key: 'lutTexture',
-    get: function get() {
-      return this._lutTexture;
-    },
-    set: function set(lutTexture) {
-      this._lutTexture = lutTexture;
-      this.updateIntensitySettingsUniforms();
-    }
-  }, {
-    key: 'intensityAuto',
-    get: function get() {
-      return this._intensityAuto;
-    },
-    set: function set(intensityAuto) {
-      this._intensityAuto = intensityAuto;
-      this.updateIntensitySettings();
-      this.updateIntensitySettingsUniforms();
-    }
-  }, {
-    key: 'interpolation',
-    get: function get() {
-      return this._interpolation;
-    },
-    set: function set(interpolation) {
-      this._interpolation = interpolation;
-      this.updateIntensitySettingsUniforms();
-      this._updateMaterial();
-    }
-  }, {
-    key: 'index',
-    get: function get() {
-      return this._index;
-    },
-    set: function set(index) {
-      this._index = index;
-      this._update();
-    }
-  }, {
-    key: 'planePosition',
-    set: function set(position) {
-      this._planePosition = position;
-      this._update();
-    },
-    get: function get() {
-      return this._planePosition;
-    }
-  }, {
-    key: 'planeDirection',
-    set: function set(direction) {
-      this._planeDirection = direction;
-      this._update();
-    },
-    get: function get() {
-      return this._planeDirection;
-    }
-  }, {
-    key: 'halfDimensions',
-    set: function set(halfDimensions) {
-      this._halfDimensions = halfDimensions;
-    },
-    get: function get() {
-      return this._halfDimensions;
-    }
-  }, {
-    key: 'center',
-    set: function set(center) {
-      this._center = center;
-    },
-    get: function get() {
-      return this._center;
-    }
-  }, {
-    key: 'aabbSpace',
-    set: function set(aabbSpace) {
-      this._aaBBspace = aabbSpace;
-      this._init();
-    },
-    get: function get() {
-      return this._aaBBspace;
-    }
-  }, {
-    key: 'mesh',
-    set: function set(mesh) {
-      this._mesh = mesh;
-    },
-    get: function get() {
-      return this._mesh;
-    }
-  }, {
-    key: 'geometry',
-    set: function set(geometry) {
-      this._geometry = geometry;
-    },
-    get: function get() {
-      return this._geometry;
-    }
-  }, {
-    key: 'canvasWidth',
-    set: function set(canvasWidth) {
-      this._canvasWidth = canvasWidth;
-      this._uniforms.uCanvasWidth.value = this._canvasWidth;
-    },
-    get: function get() {
-      return this._canvasWidth;
-    }
-  }, {
-    key: 'canvasHeight',
-    set: function set(canvasHeight) {
-      this._canvasHeight = canvasHeight;
-      this._uniforms.uCanvasHeight.value = this._canvasHeight;
-    },
-    get: function get() {
-      return this._canvasHeight;
-    }
-  }, {
-    key: 'borderColor',
-    set: function set(borderColor) {
-      this._borderColor = borderColor;
-      this._uniforms.uBorderColor.value = new __WEBPACK_IMPORTED_MODULE_5_three__["a" /* Color */](borderColor);
-    },
-    get: function get() {
-      return this._borderColor;
-    }
-  }]);
-
-  return HelpersSlice;
-}(Object(__WEBPACK_IMPORTED_MODULE_4__helpers_helpers_material_mixin__["a" /* default */])(THREE.Object3D));
-
-/* harmony default export */ __webpack_exports__["a"] = (HelpersSlice);
+/* harmony default export */ __webpack_exports__["a"] = (helpersSlice());
 
 /***/ }),
-/* 43 */
+/* 41 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(1);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
@@ -54522,7 +53594,7 @@ var ShadersUniform = function () {
       },
       'uWorldToData': {
         type: 'm4',
-        value: new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* Matrix4 */](),
+        value: new __WEBPACK_IMPORTED_MODULE_0_three__["b" /* Matrix4 */](),
         typeGLSL: 'mat4'
       },
       'uWindowCenterWidth': {
@@ -54632,7 +53704,7 @@ var ShadersUniform = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersUniform);
 
 /***/ }),
-/* 44 */
+/* 42 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -54653,11 +53725,11 @@ var ShadersVertex = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersVertex);
 
 /***/ }),
-/* 45 */
+/* 43 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__ = __webpack_require__(44);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
@@ -54717,12 +53789,12 @@ var ShadersFragment = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersFragment);
 
 /***/ }),
-/* 46 */
+/* 44 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_interpolation_identity__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_trilinear__ = __webpack_require__(107);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_interpolation_identity__ = __webpack_require__(45);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_trilinear__ = __webpack_require__(108);
 
 
 
@@ -54744,13 +53816,13 @@ function shadersInterpolation(baseFragment, currentVoxel, dataValue, gradient) {
 /* harmony default export */ __webpack_exports__["a"] = (shadersInterpolation);
 
 /***/ }),
-/* 47 */
+/* 45 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_base__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_unpack__ = __webpack_require__(105);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_shaders_helpers_texture3d__ = __webpack_require__(106);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_base__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_unpack__ = __webpack_require__(106);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_shaders_helpers_texture3d__ = __webpack_require__(107);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -54802,10 +53874,11 @@ var InterpolationIdentity = function (_ShadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (new InterpolationIdentity());
 
 /***/ }),
-/* 48 */
+/* 46 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return helpersMaterialMixin; });
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -54818,14 +53891,21 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * @module helpers/material/mixin
  */
 
-var HerlpersMaterialMixin = function HerlpersMaterialMixin(superclass) {
-  return function (_superclass) {
-    _inherits(_class, _superclass);
+var helpersMaterialMixin = function helpersMaterialMixin() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
+  }
+
+  var Constructor = three.Object3D;
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
 
     function _class() {
       _classCallCheck(this, _class);
 
-      return _possibleConstructorReturn(this, _superclass.apply(this, arguments));
+      return _possibleConstructorReturn(this, _Constructor.apply(this, arguments));
     }
 
     _class.prototype._createMaterial = function _createMaterial(extraOptions) {
@@ -54841,7 +53921,7 @@ var HerlpersMaterialMixin = function HerlpersMaterialMixin(superclass) {
       };
 
       var options = Object.assign(extraOptions, globalOptions);
-      this._material = new THREE.ShaderMaterial(options);
+      this._material = new three.ShaderMaterial(options);
       this._material.needsUpdate = true;
     };
 
@@ -54859,7 +53939,7 @@ var HerlpersMaterialMixin = function HerlpersMaterialMixin(superclass) {
     _class.prototype._prepareTexture = function _prepareTexture() {
       this._textures = [];
       for (var m = 0; m < this._stack._rawData.length; m++) {
-        var tex = new THREE.DataTexture(this._stack.rawData[m], this._stack.textureSize, this._stack.textureSize, this._stack.textureType, THREE.UnsignedByteType, THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter);
+        var tex = new three.DataTexture(this._stack.rawData[m], this._stack.textureSize, this._stack.textureSize, this._stack.textureType, three.UnsignedByteType, three.UVMapping, three.ClampToEdgeWrapping, three.ClampToEdgeWrapping, three.NearestFilter, three.NearestFilter);
         tex.needsUpdate = true;
         tex.flipY = true;
         this._textures.push(tex);
@@ -54867,17 +53947,18 @@ var HerlpersMaterialMixin = function HerlpersMaterialMixin(superclass) {
     };
 
     return _class;
-  }(superclass);
+  }(Constructor);
 };
 
-/* harmony default export */ __webpack_exports__["a"] = (HerlpersMaterialMixin);
+
+/* unused harmony default export */ var _unused_webpack_default_export = (helpersMaterialMixin());
 
 /***/ }),
-/* 49 */
+/* 47 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(1);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
@@ -54911,7 +53992,7 @@ var ShadersUniform = function () {
       },
       'uWorldToData': {
         type: 'm4',
-        value: new __WEBPACK_IMPORTED_MODULE_0_three__["c" /* Matrix4 */](),
+        value: new __WEBPACK_IMPORTED_MODULE_0_three__["b" /* Matrix4 */](),
         typeGLSL: 'mat4'
       },
       'uWindowCenterWidth': {
@@ -55071,7 +54152,7 @@ var ShadersUniform = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersUniform);
 
 /***/ }),
-/* 50 */
+/* 48 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -55092,12 +54173,12 @@ var ShadersVertex = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersVertex);
 
 /***/ }),
-/* 51 */
+/* 49 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__ = __webpack_require__(46);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_intersectBox__ = __webpack_require__(110);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__ = __webpack_require__(44);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_shaders_helpers_intersectBox__ = __webpack_require__(111);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
@@ -55162,7 +54243,7 @@ var ShadersFragment = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersFragment);
 
 /***/ }),
-/* 52 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -55201,7 +54282,7 @@ module.exports = adler32;
 
 
 /***/ }),
-/* 53 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -55249,7 +54330,7 @@ module.exports = crc32;
 
 
 /***/ }),
-/* 54 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -55257,7 +54338,7 @@ module.exports = crc32;
 
 
 
-var utils = __webpack_require__(2);
+var utils = __webpack_require__(5);
 
 
 // Quick check if we can use fast array to bin string conversion
@@ -55441,7 +54522,7 @@ exports.utf8border = function (buf, max) {
 
 
 /***/ }),
-/* 55 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -55477,7 +54558,7 @@ module.exports = ZStream;
 
 
 /***/ }),
-/* 56 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -55534,7 +54615,7 @@ module.exports = {
 
 
 /***/ }),
-/* 57 */
+/* 55 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -56095,7 +55176,1082 @@ var ModelsSeries = function (_ModelsBase) {
 /* harmony default export */ __webpack_exports__["a"] = (ModelsSeries);
 
 /***/ }),
-/* 58 */
+/* 56 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_core_colors__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_core_utils__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_models_base__ = __webpack_require__(22);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/** * Imports ***/
+
+
+
+
+
+
+
+var binaryString = __webpack_require__(123);
+
+/**
+ * Stack object.
+ *
+ * @module models/stack
+ */
+
+var ModelsStack = function (_ModelsBase) {
+  _inherits(ModelsStack, _ModelsBase);
+
+  /**
+   * Models Stack constructor
+   */
+  function ModelsStack() {
+    _classCallCheck(this, ModelsStack);
+
+    var _this = _possibleConstructorReturn(this, _ModelsBase.call(this));
+
+    _this._uid = null;
+    _this._stackID = -1;
+
+    _this._frame = [];
+    _this._numberOfFrames = 0;
+
+    _this._rows = 0;
+    _this._columns = 0;
+    _this._numberOfChannels = 1;
+    _this._bitsAllocated = 8;
+    _this._pixelType = 0;
+    _this._pixelRepresentation = 0;
+
+    _this._textureSize = 4096;
+    _this._nbTextures = 7;
+    _this._rawData = [];
+
+    _this._windowCenter = 0;
+    _this._windowWidth = 0;
+
+    _this._rescaleSlope = 1;
+    _this._rescaleIntercept = 0;
+
+    _this._minMax = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
+
+    // TRANSFORMATION MATRICES
+    _this._regMatrix = new __WEBPACK_IMPORTED_MODULE_0_three__["b" /* Matrix4 */]();
+
+    _this._ijk2LPS = null;
+    _this._lps2IJK = null;
+
+    _this._aabb2LPS = null;
+    _this._lps2AABB = null;
+
+    //
+    // IJK dimensions
+    _this._dimensionsIJK = null;
+    _this._halfDimensionsIJK = null;
+    _this._spacing = new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* Vector3 */](1, 1, 1);
+    _this._spacingBetweenSlices = 0;
+    _this._sliceThickness = 0;
+    _this._origin = null;
+    _this._rightHanded = true;
+    _this._xCosine = new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* Vector3 */](1, 0, 0);
+    _this._yCosine = new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* Vector3 */](0, 1, 0);
+    _this._zCosine = new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* Vector3 */](0, 0, 1);
+
+    // convenience vars
+    _this._prepared = false;
+    _this._packed = false;
+    _this._packedPerPixel = 1;
+
+    //
+    _this._modality = 'Modality not set';
+
+    // SEGMENTATION STUFF
+    _this._segmentationType = null;
+    _this._segmentationSegments = [];
+    _this._segmentationDefaultColor = [63, 174, 128];
+    _this._frameSegment = [];
+    _this._segmentationLUT = [];
+    _this._segmentationLUTO = [];
+
+    // photometricInterpretation Monochrome1 VS Monochrome2
+    _this._invert = false;
+    return _this;
+  }
+
+  /**
+   * Prepare segmentation stack.
+   * A segmentation stack can hold x frames that are at the same location
+   * but segmentation specific information:
+   * - Frame X contains voxels for segmentation A.
+   * - Frame Y contains voxels for segmenttation B.
+   * - Frame X and Y are at the same location.
+   *
+   * We currently merge overlaping frames into 1.
+   */
+
+
+  ModelsStack.prototype.prepareSegmentation = function prepareSegmentation() {
+    // store frame and do special pre-processing
+    this._frameSegment = this._frame;
+    var mergedFrames = [];
+
+    // order frames
+    this.computeCosines();
+    this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
+    this._frame.sort(this._sortDistanceArraySort);
+
+    // merge frames
+    var prevIndex = -1;
+    for (var i = 0; i < this._frame.length; i++) {
+      if (!mergedFrames[prevIndex] || mergedFrames[prevIndex]._dist != this._frame[i]._dist) {
+        mergedFrames.push(this._frame[i]);
+        prevIndex++;
+
+        // Scale frame
+        // by default each frame contains binary data about a segmentation.
+        // we scale it by the referenceSegmentNumber in order to have a
+        // segmentation specific voxel value rather than 0 or 1.
+        // That allows us to merge frames later on.
+        // If we merge frames without scaling, then we can not differenciate
+        // voxels from segmentation A or B as the value is 0 or 1 in both cases.
+        for (var k = 0; k < mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; k++) {
+          mergedFrames[prevIndex]._pixelData[k] *= this._frame[i]._referencedSegmentNumber;
+        }
+      } else {
+        // frame already exsits at this location.
+        // merge data from this segmentation into existing frame
+        for (var _k = 0; _k < mergedFrames[prevIndex]._rows * mergedFrames[prevIndex]._columns; _k++) {
+          mergedFrames[prevIndex]._pixelData[_k] += this._frame[i].pixelData[_k] * this._frame[i]._referencedSegmentNumber;
+        }
+      }
+
+      mergedFrames[prevIndex].minMax = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].minMax(mergedFrames[prevIndex]._pixelData);
+    }
+
+    // get information about segments
+    var dict = {};
+    var max = 0;
+    for (var _i = 0; _i < this._segmentationSegments.length; _i++) {
+      max = Math.max(max, parseInt(this._segmentationSegments[_i].segmentNumber, 10));
+
+      var color = this._segmentationSegments[_i].recommendedDisplayCIELab;
+      if (color === null) {
+        dict[this._segmentationSegments[_i].segmentNumber] = this._segmentationDefaultColor;
+      } else {
+        dict[this._segmentationSegments[_i].segmentNumber] = __WEBPACK_IMPORTED_MODULE_1__core_core_colors__["a" /* default */].cielab2RGB.apply(__WEBPACK_IMPORTED_MODULE_1__core_core_colors__["a" /* default */], color);
+      }
+    }
+
+    // generate LUTs
+    for (var _i2 = 0; _i2 <= max; _i2++) {
+      var index = _i2 / max;
+      var opacity = _i2 ? 1 : 0;
+      var rgb = [0, 0, 0];
+      if (dict.hasOwnProperty(_i2.toString())) {
+        rgb = dict[_i2.toString()];
+      }
+
+      rgb[0] /= 255;
+      rgb[1] /= 255;
+      rgb[2] /= 255;
+
+      this._segmentationLUT.push([index].concat(rgb));
+      this._segmentationLUTO.push([index, opacity]);
+    }
+
+    this._frame = mergedFrames;
+  };
+
+  /**
+   * Compute cosines
+   * Order frames
+   * computeSpacing
+   * sanityCheck
+   * init some vars
+   * compute min/max
+   * compute transformation matrices
+   *
+   * @return {*}
+   */
+
+
+  ModelsStack.prototype.prepare = function prepare() {
+    // if segmentation, merge some frames...
+    if (this._modality === 'SEG') {
+      this.prepareSegmentation();
+    }
+
+    this.computeNumberOfFrames();
+
+    // pass parameters from frame to stack
+    this._rows = this._frame[0].rows;
+    this._columns = this._frame[0].columns;
+    this._dimensionsIJK = new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* Vector3 */](this._columns, this._rows, this._numberOfFrames);
+    this._halfDimensionsIJK = new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* Vector3 */](this._dimensionsIJK.x / 2, this._dimensionsIJK.y / 2, this._dimensionsIJK.z / 2);
+    this._spacingBetweenSlices = this._frame[0].spacingBetweenSlices;
+    this._sliceThickness = this._frame[0].sliceThickness;
+
+    // compute direction cosines
+    this.computeCosines();
+
+    // order the frames
+    if (this._numberOfFrames > 1) {
+      this.orderFrames();
+    }
+
+    // compute/guess spacing
+    this.computeSpacing();
+    // set extra vars if nulls
+    // do it now because before we would think image position/orientation
+    // are defined and we would use it to compute spacing.
+    if (!this._frame[0].imagePosition) {
+      this._frame[0].imagePosition = [0, 0, 0];
+    }
+    if (!this._frame[0].imageOrientation) {
+      this._frame[0].imageOrientation = [1, 0, 0, 0, 1, 0];
+    }
+
+    this._origin = this._arrayToVector3(this._frame[0].imagePosition, 0);
+
+    // compute transforms
+    this.computeIJK2LPS();
+
+    this.computeLPS2AABB();
+    // this.packEchos();
+
+    var middleFrameIndex = Math.floor(this._frame.length / 2);
+    var middleFrame = this._frame[middleFrameIndex];
+
+    this._rescaleSlope = middleFrame.rescaleSlope || 1;
+    this._rescaleIntercept = middleFrame.rescaleIntercept || 0;
+
+    // rescale/slope min max
+    this.computeMinMaxIntensities();
+    this._minMax[0] = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].rescaleSlopeIntercept(this._minMax[0], this._rescaleSlope, this._rescaleIntercept);
+    this._minMax[1] = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].rescaleSlopeIntercept(this._minMax[1], this._rescaleSlope, this._rescaleIntercept);
+
+    this._windowWidth = middleFrame.windowWidth || this._minMax[1] - this._minMax[0];
+
+    this._windowCenter = middleFrame.windowCenter || this._minMax[0] + this._windowWidth / 2;
+
+    this._bitsAllocated = middleFrame.bitsAllocated;
+    this._prepared = true;
+  };
+
+  ModelsStack.prototype.packEchos = function packEchos() {
+    // 4 echo times...
+    var echos = 4;
+    var packedEcho = [];
+    for (var i = 0; i < this._frame.length; i += echos) {
+      var frame = this._frame[i];
+      for (var k = 0; k < this._rows * this._columns; k++) {
+        for (var j = 1; j < echos; j++) {
+          frame.pixelData[k] += this._frame[i + j].pixelData[k];
+        }
+        frame.pixelData[k] /= echos;
+      }
+      packedEcho.push(frame);
+    }
+    this._frame = packedEcho;
+    this._numberOfFrames = this._frame.length;
+    this._dimensionsIJK = new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* Vector3 */](this._columns, this._rows, this._numberOfFrames);
+    this._halfDimensionsIJK = new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* Vector3 */](this._dimensionsIJK.x / 2, this._dimensionsIJK.y / 2, this._dimensionsIJK.z / 2);
+  };
+
+  ModelsStack.prototype.computeNumberOfFrames = function computeNumberOfFrames() {
+    // we need at least 1 frame
+    if (this._frame && this._frame.length > 0) {
+      this._numberOfFrames = this._frame.length;
+    } else {
+      window.console.warn('_frame doesn\'t contain anything....');
+      window.console.warn(this._frame);
+      return false;
+    }
+  };
+
+  // frame.cosines - returns array [x, y, z]
+
+
+  ModelsStack.prototype.computeCosines = function computeCosines() {
+    if (this._frame && this._frame[0]) {
+      var cosines = this._frame[0].cosines();
+      this._xCosine = cosines[0];
+      this._yCosine = cosines[1];
+      this._zCosine = cosines[2];
+    }
+  };
+
+  ModelsStack.prototype.orderFrames = function orderFrames() {
+    // order the frames based on theirs dimension indices
+    // first index is the most important.
+    // 1,1,1,1 will be first
+    // 1,1,2,1 will be next
+    // 1,1,2,3 will be next
+    // 1,1,3,1 will be next
+    if (this._frame[0].dimensionIndexValues) {
+      this._frame.sort(this._orderFrameOnDimensionIndicesArraySort);
+
+      // else order with image position and orientation
+    } else if (this._frame[0].imagePosition && this._frame[0].imageOrientation && this._frame[1] && this._frame[1].imagePosition && this._frame[1].imageOrientation && this._frame[0].imagePosition.join() !== this._frame[1].imagePosition.join()) {
+      // compute and sort by dist in this series
+      this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
+      this._frame.sort(this._sortDistanceArraySort);
+    } else if (this._frame[0].instanceNumber !== null && this._frame[1] && this._frame[1].instanceNumber !== null && this._frame[0].instanceNumber !== this._frame[1].instanceNumber) {
+      this._frame.sort(this._sortInstanceNumberArraySort);
+    } else if (this._frame[0].sopInstanceUID && this._frame[1] && this._frame[1].sopInstanceUID && this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
+      this._frame.sort(this._sortSopInstanceUIDArraySort);
+    } else {
+      window.console.warn('do not know how to order the frames...');
+    }
+  };
+
+  ModelsStack.prototype.computeSpacing = function computeSpacing() {
+    this.xySpacing();
+    this.zSpacing();
+  };
+
+  /**
+   * Compute stack z spacing
+   */
+
+
+  ModelsStack.prototype.zSpacing = function zSpacing() {
+    if (this._numberOfFrames > 1) {
+      if (this._frame[0].pixelSpacing && this._frame[0].pixelSpacing[2]) {
+        this._spacing.z = this._frame[0].pixelSpacing[2];
+      } else {
+        // compute and sort by dist in this series
+        this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
+
+        // if distances are different, re-sort array
+        if (this._frame[1].dist !== this._frame[0].dist) {
+          this._frame.sort(this._sortDistanceArraySort);
+          this._spacing.z = this._frame[1].dist - this._frame[0].dist;
+        } else if (this._spacingBetweenSlices) {
+          this._spacing.z = this._spacingBetweenSlices;
+        } else if (this._frame[0].sliceThickness) {
+          this._spacing.z = this._frame[0].sliceThickness;
+        }
+      }
+    }
+
+    // Spacing
+    // can not be 0 if not matrix can not be inverted.
+    if (this._spacing.z === 0) {
+      this._spacing.z = 1;
+    }
+  };
+
+  /**
+   *  FRAME CAN DO IT
+   */
+
+
+  ModelsStack.prototype.xySpacing = function xySpacing() {
+    if (this._frame && this._frame[0]) {
+      var spacingXY = this._frame[0].spacingXY();
+      this._spacing.x = spacingXY[0];
+      this._spacing.y = spacingXY[1];
+    }
+  };
+
+  /**
+   * Find min and max intensities among all frames.
+   */
+
+
+  ModelsStack.prototype.computeMinMaxIntensities = function computeMinMaxIntensities() {
+    // what about colors!!!!?
+    // we ignore values if NaNs
+    // https://github.com/FNNDSC/ami/issues/185
+    for (var i = 0; i < this._frame.length; i++) {
+      // get min/max
+      var min = this._frame[i].minMax[0];
+      if (!Number.isNaN(min)) {
+        this._minMax[0] = Math.min(this._minMax[0], min);
+      }
+
+      var max = this._frame[i].minMax[1];
+      if (!Number.isNaN(max)) {
+        this._minMax[1] = Math.max(this._minMax[1], max);
+      }
+    }
+  };
+
+  /**
+   * Compute IJK to LPS and invert transforms
+   */
+
+
+  ModelsStack.prototype.computeIJK2LPS = function computeIJK2LPS() {
+    // ijk to lps
+    this._ijk2LPS = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].ijk2LPS(this._xCosine, this._yCosine, this._zCosine, this._spacing, this._origin, this._regMatrix);
+
+    // lps 2 ijk
+    this._lps2IJK = new __WEBPACK_IMPORTED_MODULE_0_three__["b" /* Matrix4 */]();
+    this._lps2IJK.getInverse(this._ijk2LPS);
+  };
+
+  /**
+   * Compute LPS to AABB and invert transforms
+   */
+
+
+  ModelsStack.prototype.computeLPS2AABB = function computeLPS2AABB() {
+    this._aabb2LPS = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].aabb2LPS(this._xCosine, this._yCosine, this._zCosine, this._origin);
+
+    this._lps2AABB = new __WEBPACK_IMPORTED_MODULE_0_three__["b" /* Matrix4 */]();
+    this._lps2AABB.getInverse(this._aabb2LPS);
+  };
+
+  /**
+   * Merge stacks
+   *
+   * @param {*} stack
+   *
+   * @return {*}
+   */
+
+
+  ModelsStack.prototype.merge = function merge(stack) {
+    // also make sure x/y/z cosines are a match!
+    if (this._stackID === stack.stackID && this._numberOfFrames === 1 && stack._numberOfFrames === 1 && this._frame[0].columns === stack.frame[0].columns && this._frame[0].rows === stack.frame[0].rows && this._xCosine.equals(stack.xCosine) && this._yCosine.equals(stack.yCosine) && this._zCosine.equals(stack.zCosine)) {
+      return this.mergeModels(this._frame, stack.frame);
+    } else {
+      return false;
+    }
+  };
+
+  /**
+   * Pack current stack pixel data into 8 bits array buffers
+   */
+
+
+  ModelsStack.prototype.pack = function pack() {
+    // Get total number of voxels
+    var nbVoxels = this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
+
+    // Packing style
+    if (this._bitsAllocated === 8 && this._numberOfChannels === 1 || this._bitsAllocated === 1) {
+      this._packedPerPixel = 4;
+    }
+
+    if (this._bitsAllocated === 16 && this._numberOfChannels === 1) {
+      this._packedPerPixel = 2;
+    }
+
+    // Loop through all the textures we need
+    var textureDimension = this._textureSize * this._textureSize;
+    var requiredTextures = Math.ceil(nbVoxels / (textureDimension * this._packedPerPixel));
+    var voxelIndexStart = 0;
+    var voxelIndexStop = this._packedPerPixel * textureDimension;
+    if (voxelIndexStop > nbVoxels) {
+      voxelIndexStop = nbVoxels;
+    }
+
+    for (var ii = 0; ii < requiredTextures; ii++) {
+      var packed = this._packTo8Bits(this._numberOfChannels, this._frame, this._textureSize, voxelIndexStart, voxelIndexStop);
+      this._textureType = packed.textureType;
+      this._rawData.push(packed.data);
+
+      voxelIndexStart += this._packedPerPixel * textureDimension;
+      voxelIndexStop += this._packedPerPixel * textureDimension;
+      if (voxelIndexStop > nbVoxels) {
+        voxelIndexStop = nbVoxels;
+      }
+    }
+
+    this._packed = true;
+  };
+
+  /**
+   * Pack frame data to 32 bits texture
+   * @param {*} channels
+   * @param {*} frame
+   * @param {*} textureSize
+   * @param {*} startVoxel
+   * @param {*} stopVoxel
+   */
+
+
+  ModelsStack.prototype._packTo8Bits = function _packTo8Bits(channels, frame, textureSize, startVoxel, stopVoxel) {
+    var packed = {
+      textureType: null,
+      data: null
+    };
+
+    var bitsAllocated = frame[0].bitsAllocated;
+    var pixelType = frame[0].pixelType;
+
+    // transform signed to unsigned for convenience
+    var offset = 0;
+    if (this._minMax[0] < 0) {
+      offset -= this._minMax[0];
+    }
+
+    var packIndex = 0;
+    var frameIndex = 0;
+    var inFrameIndex = 0;
+    // frame should return it!
+    var frameDimension = frame[0].rows * frame[0].columns;
+
+    if (bitsAllocated === 8 && channels === 1 || bitsAllocated === 1) {
+      var data = new Uint8Array(textureSize * textureSize * 4);
+      var coordinate = 0;
+      var channelOffset = 0;
+      for (var i = startVoxel; i < stopVoxel; i++) {
+        frameIndex = ~~(i / frameDimension);
+        inFrameIndex = i % frameDimension;
+
+        var raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(raw)) {
+          data[4 * coordinate + channelOffset] = raw;
+        }
+
+        packIndex++;
+        coordinate = Math.floor(packIndex / 4);
+        channelOffset = packIndex % 4;
+      }
+      packed.textureType = __WEBPACK_IMPORTED_MODULE_0_three__["c" /* RGBAFormat */];
+      packed.data = data;
+    } else if (bitsAllocated === 16 && channels === 1) {
+      var _data = new Uint8Array(textureSize * textureSize * 4);
+      var _coordinate = 0;
+      var _channelOffset = 0;
+
+      for (var _i3 = startVoxel; _i3 < stopVoxel; _i3++) {
+        frameIndex = ~~(_i3 / frameDimension);
+        inFrameIndex = _i3 % frameDimension;
+
+        var _raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(_raw)) {
+          _data[4 * _coordinate + 2 * _channelOffset] = _raw & 0x00FF;
+          _data[4 * _coordinate + 2 * _channelOffset + 1] = _raw >>> 8 & 0x00FF;
+        }
+
+        packIndex++;
+        _coordinate = Math.floor(packIndex / 2);
+        _channelOffset = packIndex % 2;
+      }
+
+      packed.textureType = __WEBPACK_IMPORTED_MODULE_0_three__["c" /* RGBAFormat */];
+      packed.data = _data;
+    } else if (bitsAllocated === 32 && channels === 1 && pixelType === 0) {
+      var _data2 = new Uint8Array(textureSize * textureSize * 4);
+      for (var _i4 = startVoxel; _i4 < stopVoxel; _i4++) {
+        frameIndex = ~~(_i4 / frameDimension);
+        inFrameIndex = _i4 % frameDimension;
+
+        var _raw2 = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(_raw2)) {
+          _data2[4 * packIndex] = _raw2 & 0x000000FF;
+          _data2[4 * packIndex + 1] = _raw2 >>> 8 & 0x000000FF;
+          _data2[4 * packIndex + 2] = _raw2 >>> 16 & 0x000000FF;
+          _data2[4 * packIndex + 3] = _raw2 >>> 24 & 0x000000FF;
+        }
+
+        packIndex++;
+      }
+      packed.textureType = __WEBPACK_IMPORTED_MODULE_0_three__["c" /* RGBAFormat */];
+      packed.data = _data2;
+    } else if (bitsAllocated === 32 && channels === 1 && pixelType === 1) {
+      var _data3 = new Uint8Array(textureSize * textureSize * 4);
+
+      for (var _i5 = startVoxel; _i5 < stopVoxel; _i5++) {
+        frameIndex = ~~(_i5 / frameDimension);
+        inFrameIndex = _i5 % frameDimension;
+
+        var _raw3 = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(_raw3)) {
+          var bitString = binaryString(_raw3);
+          var bitStringArray = bitString.match(/.{1,8}/g);
+
+          _data3[4 * packIndex] = parseInt(bitStringArray[0], 2);
+          _data3[4 * packIndex + 1] = parseInt(bitStringArray[1], 2);
+          _data3[4 * packIndex + 2] = parseInt(bitStringArray[2], 2);
+          _data3[4 * packIndex + 3] = parseInt(bitStringArray[3], 2);
+        }
+
+        packIndex++;
+      }
+
+      packed.textureType = __WEBPACK_IMPORTED_MODULE_0_three__["c" /* RGBAFormat */];
+      packed.data = _data3;
+    } else if (bitsAllocated === 8 && channels === 3) {
+      var _data4 = new Uint8Array(textureSize * textureSize * 3);
+
+      for (var _i6 = startVoxel; _i6 < stopVoxel; _i6++) {
+        frameIndex = ~~(_i6 / frameDimension);
+        inFrameIndex = _i6 % frameDimension;
+
+        _data4[3 * packIndex] = frame[frameIndex].pixelData[3 * inFrameIndex];
+        _data4[3 * packIndex + 1] = frame[frameIndex].pixelData[3 * inFrameIndex + 1];
+        _data4[3 * packIndex + 2] = frame[frameIndex].pixelData[3 * inFrameIndex + 2];
+        packIndex++;
+      }
+
+      packed.textureType = __WEBPACK_IMPORTED_MODULE_0_three__["d" /* RGBFormat */];
+      packed.data = _data4;
+    }
+
+    return packed;
+  };
+
+  /**
+   * Get the stack world center
+   *
+   *@return {*}
+   */
+
+
+  ModelsStack.prototype.worldCenter = function worldCenter() {
+    var center = this._halfDimensionsIJK.clone().addScalar(-0.5).applyMatrix4(this._ijk2LPS);
+    return center;
+  };
+
+  /**
+   * Get the stack world bounding box
+   * @return {*}
+   */
+
+
+  ModelsStack.prototype.worldBoundingBox = function worldBoundingBox() {
+    var bbox = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
+
+    var dims = this._dimensionsIJK;
+
+    for (var i = 0; i <= dims.x; i += dims.x) {
+      for (var j = 0; j <= dims.y; j += dims.y) {
+        for (var k = 0; k <= dims.z; k += dims.z) {
+          var world = new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* Vector3 */](i, j, k).applyMatrix4(this._ijk2LPS);
+          bbox = [Math.min(bbox[0], world.x), Math.max(bbox[1], world.x), // x min/max
+          Math.min(bbox[2], world.y), Math.max(bbox[3], world.y), Math.min(bbox[4], world.z), Math.max(bbox[5], world.z)];
+        }
+      }
+    }
+
+    return bbox;
+  };
+
+  /**
+   * Get AABB size in LPS space.
+   *
+   * @return {*}
+   */
+
+
+  ModelsStack.prototype.AABBox = function AABBox() {
+    var world0 = new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* Vector3 */]().addScalar(-0.5).applyMatrix4(this._ijk2LPS).applyMatrix4(this._lps2AABB);
+
+    var world7 = this._dimensionsIJK.clone().addScalar(-0.5).applyMatrix4(this._ijk2LPS).applyMatrix4(this._lps2AABB);
+
+    var minBBox = new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* Vector3 */](Math.abs(world0.x - world7.x), Math.abs(world0.y - world7.y), Math.abs(world0.z - world7.z));
+
+    return minBBox;
+  };
+
+  /**
+   * Get AABB center in LPS space
+   */
+
+
+  ModelsStack.prototype.centerAABBox = function centerAABBox() {
+    var centerBBox = this.worldCenter();
+    centerBBox.applyMatrix4(this._lps2AABB);
+    return centerBBox;
+  };
+
+  ModelsStack.indexInDimensions = function indexInDimensions(index, dimensions) {
+    if (index.x >= 0 && index.y >= 0 && index.z >= 0 && index.x < dimensions.x && index.y < dimensions.y && index.z < dimensions.z) {
+      return true;
+    }
+
+    return false;
+  };
+
+  ModelsStack.prototype._arrayToVector3 = function _arrayToVector3(array, index) {
+    return new __WEBPACK_IMPORTED_MODULE_0_three__["h" /* Vector3 */](array[index], array[index + 1], array[index + 2]);
+  };
+
+  ModelsStack.prototype._orderFrameOnDimensionIndicesArraySort = function _orderFrameOnDimensionIndicesArraySort(a, b) {
+    if ('dimensionIndexValues' in a && Object.prototype.toString.call(a.dimensionIndexValues) === '[object Array]' && 'dimensionIndexValues' in b && Object.prototype.toString.call(b.dimensionIndexValues) === '[object Array]') {
+      for (var i = 0; i < a.dimensionIndexValues.length; i++) {
+        if (parseInt(a.dimensionIndexValues[i], 10) > parseInt(b.dimensionIndexValues[i], 10)) {
+          return 1;
+        }
+        if (parseInt(a.dimensionIndexValues[i], 10) < parseInt(b.dimensionIndexValues[i], 10)) {
+          return -1;
+        }
+      }
+    } else {
+      window.console.warn('One of the frames doesn\'t have a dimensionIndexValues array.');
+      window.console.warn(a);
+      window.console.warn(b);
+    }
+
+    return 0;
+  };
+
+  ModelsStack.prototype._computeDistanceArrayMap = function _computeDistanceArrayMap(normal, frame) {
+    frame.dist = frame.imagePosition[0] * normal.x + frame.imagePosition[1] * normal.y + frame.imagePosition[2] * normal.z;
+    return frame;
+  };
+
+  ModelsStack.prototype._sortDistanceArraySort = function _sortDistanceArraySort(a, b) {
+    return a.dist - b.dist;
+  };
+
+  ModelsStack.prototype._sortInstanceNumberArraySort = function _sortInstanceNumberArraySort(a, b) {
+    return a.instanceNumber - b.instanceNumber;
+  };
+
+  ModelsStack.prototype._sortSopInstanceUIDArraySort = function _sortSopInstanceUIDArraySort(a, b) {
+    return a.sopInstanceUID - b.sopInstanceUID;
+  };
+
+  // DEPRECATED FUNCTION
+
+  /**
+   * @deprecated for core.utils.value
+   *
+   * Get voxel value.
+   *
+   * @param {*} stack
+   * @param {*} coordinate
+   *
+   * @return {*}
+   */
+  ModelsStack.value = function value(stack, coordinate) {
+    window.console.warn('models.stack.value is deprecated.\n       Please use core.utils.value instead.');
+    return __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].value(stack, coordinate);
+  };
+
+  /**
+   * @deprecated for core.utils.rescaleSlopeIntercept
+   *
+   * Apply slope/intercept to a value.
+   *
+   * @param {*} value
+   * @param {*} slope
+   * @param {*} intercept
+   *
+   * @return {*}
+   */
+
+
+  ModelsStack.valueRescaleSlopeIntercept = function valueRescaleSlopeIntercept(value, slope, intercept) {
+    window.console.warn('models.stack.valueRescaleSlopeIntercept is deprecated.\n       Please use core.utils.rescaleSlopeIntercept instead.');
+    return __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].rescaleSlopeIntercept(value, slope, intercept);
+  };
+
+  /**
+   * @deprecated for core.utils.worldToData
+   *
+   * Transform coordinates from world coordinate to data
+   *
+   * @param {*} stack
+   * @param {*} worldCoordinates
+   *
+   * @return {*}
+   */
+
+
+  ModelsStack.worldToData = function worldToData(stack, worldCoordinates) {
+    window.console.warn('models.stack.worldToData is deprecated.\n       Please use core.utils.worldToData instead.');
+
+    return __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].worldToData(stack._lps2IJK, worldCoordinates);
+  };
+
+  _createClass(ModelsStack, [{
+    key: 'numberOfChannels',
+    set: function set(numberOfChannels) {
+      this._numberOfChannels = numberOfChannels;
+    },
+    get: function get() {
+      return this._numberOfChannels;
+    }
+  }, {
+    key: 'frame',
+    set: function set(frame) {
+      this._frame = frame;
+    },
+    get: function get() {
+      return this._frame;
+    }
+  }, {
+    key: 'prepared',
+    set: function set(prepared) {
+      this._prepared = prepared;
+    },
+    get: function get() {
+      return this._prepared;
+    }
+  }, {
+    key: 'packed',
+    set: function set(packed) {
+      this._packed = packed;
+    },
+    get: function get() {
+      return this._packed;
+    }
+  }, {
+    key: 'packedPerPixel',
+    set: function set(packedPerPixel) {
+      this._packedPerPixel = packedPerPixel;
+    },
+    get: function get() {
+      return this._packedPerPixel;
+    }
+  }, {
+    key: 'dimensionsIJK',
+    set: function set(dimensionsIJK) {
+      this._dimensionsIJK = dimensionsIJK;
+    },
+    get: function get() {
+      return this._dimensionsIJK;
+    }
+  }, {
+    key: 'halfDimensionsIJK',
+    set: function set(halfDimensionsIJK) {
+      this._halfDimensionsIJK = halfDimensionsIJK;
+    },
+    get: function get() {
+      return this._halfDimensionsIJK;
+    }
+  }, {
+    key: 'regMatrix',
+    set: function set(regMatrix) {
+      this._regMatrix = regMatrix;
+    },
+    get: function get() {
+      return this._regMatrix;
+    }
+  }, {
+    key: 'ijk2LPS',
+    set: function set(ijk2LPS) {
+      this._ijk2LPS = ijk2LPS;
+    },
+    get: function get() {
+      return this._ijk2LPS;
+    }
+  }, {
+    key: 'lps2IJK',
+    set: function set(lps2IJK) {
+      this._lps2IJK = lps2IJK;
+    },
+    get: function get() {
+      return this._lps2IJK;
+    }
+  }, {
+    key: 'lps2AABB',
+    set: function set(lps2AABB) {
+      this._lps2AABB = lps2AABB;
+    },
+    get: function get() {
+      return this._lps2AABB;
+    }
+  }, {
+    key: 'textureSize',
+    set: function set(textureSize) {
+      this._textureSize = textureSize;
+    },
+    get: function get() {
+      return this._textureSize;
+    }
+  }, {
+    key: 'textureType',
+    set: function set(textureType) {
+      this._textureType = textureType;
+    },
+    get: function get() {
+      return this._textureType;
+    }
+  }, {
+    key: 'bitsAllocated',
+    set: function set(bitsAllocated) {
+      this._bitsAllocated = bitsAllocated;
+    },
+    get: function get() {
+      return this._bitsAllocated;
+    }
+  }, {
+    key: 'rawData',
+    set: function set(rawData) {
+      this._rawData = rawData;
+    },
+    get: function get() {
+      return this._rawData;
+    }
+  }, {
+    key: 'windowWidth',
+    get: function get() {
+      return this._windowWidth;
+    },
+    set: function set(windowWidth) {
+      this._windowWidth = windowWidth;
+    }
+  }, {
+    key: 'windowCenter',
+    get: function get() {
+      return this._windowCenter;
+    },
+    set: function set(windowCenter) {
+      this._windowCenter = windowCenter;
+    }
+  }, {
+    key: 'rescaleSlope',
+    get: function get() {
+      return this._rescaleSlope;
+    },
+    set: function set(rescaleSlope) {
+      this._rescaleSlope = rescaleSlope;
+    }
+  }, {
+    key: 'rescaleIntercept',
+    get: function get() {
+      return this._rescaleIntercept;
+    },
+    set: function set(rescaleIntercept) {
+      this._rescaleIntercept = rescaleIntercept;
+    }
+  }, {
+    key: 'xCosine',
+    get: function get() {
+      return this._xCosine;
+    },
+    set: function set(xCosine) {
+      this._xCosine = xCosine;
+    }
+  }, {
+    key: 'yCosine',
+    get: function get() {
+      return this._yCosine;
+    },
+    set: function set(yCosine) {
+      this._yCosine = yCosine;
+    }
+  }, {
+    key: 'zCosine',
+    get: function get() {
+      return this._zCosine;
+    },
+    set: function set(zCosine) {
+      this._zCosine = zCosine;
+    }
+  }, {
+    key: 'minMax',
+    get: function get() {
+      return this._minMax;
+    },
+    set: function set(minMax) {
+      this._minMax = minMax;
+    }
+  }, {
+    key: 'stackID',
+    get: function get() {
+      return this._stackID;
+    },
+    set: function set(stackID) {
+      this._stackID = stackID;
+    }
+  }, {
+    key: 'pixelType',
+    get: function get() {
+      return this._pixelType;
+    },
+    set: function set(pixelType) {
+      this._pixelType = pixelType;
+    }
+  }, {
+    key: 'pixelRepresentation',
+    get: function get() {
+      return this._pixelRepresentation;
+    },
+    set: function set(pixelRepresentation) {
+      this._pixelRepresentation = pixelRepresentation;
+    }
+  }, {
+    key: 'invert',
+    set: function set(invert) {
+      this._invert = invert;
+    },
+    get: function get() {
+      return this._invert;
+    }
+  }, {
+    key: 'modality',
+    set: function set(modality) {
+      this._modality = modality;
+    },
+    get: function get() {
+      return this._modality;
+    }
+  }, {
+    key: 'rightHanded',
+    get: function get() {
+      return this._rightHanded;
+    },
+    set: function set(rightHanded) {
+      this._rightHanded = rightHanded;
+    }
+  }, {
+    key: 'spacingBetweenSlices',
+    get: function get() {
+      return this._spacingBetweenSlices;
+    },
+    set: function set(spacingBetweenSlices) {
+      this._spacingBetweenSlices = spacingBetweenSlices;
+    }
+  }, {
+    key: 'segmentationSegments',
+    set: function set(segmentationSegments) {
+      this._segmentationSegments = segmentationSegments;
+    },
+    get: function get() {
+      return this._segmentationSegments;
+    }
+  }, {
+    key: 'segmentationType',
+    set: function set(segmentationType) {
+      this._segmentationType = segmentationType;
+    },
+    get: function get() {
+      return this._segmentationType;
+    }
+  }, {
+    key: 'segmentationLUT',
+    set: function set(segmentationLUT) {
+      this._segmentationLUT = segmentationLUT;
+    },
+    get: function get() {
+      return this._segmentationLUT;
+    }
+  }, {
+    key: 'segmentationLUTO',
+    set: function set(segmentationLUTO) {
+      this._segmentationLUTO = segmentationLUTO;
+    },
+    get: function get() {
+      return this._segmentationLUTO;
+    }
+  }]);
+
+  return ModelsStack;
+}(__WEBPACK_IMPORTED_MODULE_3__models_models_base__["a" /* default */]);
+
+/* harmony default export */ __webpack_exports__["a"] = (ModelsStack);
+
+/***/ }),
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -56107,7 +56263,7 @@ module.exports = Math.floor;
 
 
 /***/ }),
-/* 59 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -56119,12 +56275,12 @@ module.exports = Math.ceil;
 
 
 /***/ }),
-/* 60 */
+/* 59 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_models_base__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(1);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -56247,16 +56403,16 @@ var ModelsFrame = function (_ModelsBase) {
 
 
   ModelsFrame.prototype.cosines = function cosines() {
-    var cosines = [new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](1, 0, 0), new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](0, 1, 0), new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](0, 0, 1)];
+    var cosines = [new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](1, 0, 0), new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](0, 1, 0), new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](0, 0, 1)];
 
     if (this._imageOrientation && this._imageOrientation.length === 6) {
-      var xCos = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](this._imageOrientation[0], this._imageOrientation[1], this._imageOrientation[2]);
-      var yCos = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](this._imageOrientation[3], this._imageOrientation[4], this._imageOrientation[5]);
+      var xCos = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](this._imageOrientation[0], this._imageOrientation[1], this._imageOrientation[2]);
+      var yCos = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](this._imageOrientation[3], this._imageOrientation[4], this._imageOrientation[5]);
 
       if (xCos.length() > 0 && yCos.length() > 0) {
         cosines[0] = xCos;
         cosines[1] = yCos;
-        cosines[2] = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](0, 0, 0).crossVectors(cosines[0], cosines[1]).normalize();
+        cosines[2] = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](0, 0, 0).crossVectors(cosines[0], cosines[1]).normalize();
       }
     } else {
       window.console.log('No valid image orientation for frame');
@@ -56294,7 +56450,23 @@ var ModelsFrame = function (_ModelsBase) {
   };
 
   /**
-   * Get and set data value
+   * Get data value
+   *
+   * @param {*} column
+   * @param {*} row
+   * @return {*}
+   */
+
+
+  ModelsFrame.prototype.getPixelData = function getPixelData(column, row) {
+    if (column >= 0 && column < this._columns && row >= 0 && row < this._rows) {
+      return this.pixelData[column + this._columns * row];
+    } else {
+      return null;
+    }
+  };
+  /**
+   * Set data value
    *
    * @param {*} column
    * @param {*} row
@@ -56302,10 +56474,6 @@ var ModelsFrame = function (_ModelsBase) {
    * @return {*}
    */
 
-
-  ModelsFrame.prototype.getPixelData = function getPixelData(column, row) {
-    return this.pixelData[column + this._columns * row];
-  };
 
   ModelsFrame.prototype.setPixelData = function setPixelData(column, row, value) {
     this.pixelData[column + this._columns * row] = value;
@@ -56679,11 +56847,11 @@ var ModelsFrame = function (_ModelsBase) {
 /* harmony default export */ __webpack_exports__["a"] = (ModelsFrame);
 
 /***/ }),
-/* 61 */
+/* 60 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(11);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -56693,10 +56861,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /** * Imports ***/
 
 
-var DicomParser = __webpack_require__(132);
-var Jpeg = __webpack_require__(156);
-var JpegBaseline = __webpack_require__(158);
-var Jpx = __webpack_require__(159);
+var DicomParser = __webpack_require__(133);
+var Jpeg = __webpack_require__(157);
+var JpegBaseline = __webpack_require__(159);
+var Jpx = __webpack_require__(160);
 
 /**
  * Dicom parser is a combination of utilities to get a VJS image from dicom files.
@@ -57156,11 +57324,17 @@ var ParsersDicom = function (_ParsersVolume) {
     // expect frame index to start at 0!
     var pixelSpacing = this._findStringEverywhere('x00289110', 'x00280030', frameIndex);
 
-    // format image orientation ('1\0\0\0\1\0') to array containing 6 numbers
-    // should we default to undefined??
+    if (pixelSpacing === null) {
+      pixelSpacing = this._dataSet.string('x00181164');
+    }
+
     if (pixelSpacing) {
       // make sure we return array of numbers! (not strings!)
       pixelSpacing = pixelSpacing.split('\\').map(Number);
+    }
+
+    if (typeof pixelSpacing === 'undefined') {
+      pixelSpacing = null;
     }
 
     return pixelSpacing;
@@ -57775,7 +57949,7 @@ var ParsersDicom = function (_ParsersVolume) {
 /* harmony default export */ __webpack_exports__["a"] = (ParsersDicom);
 
 /***/ }),
-/* 62 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -57810,7 +57984,7 @@ var processNextTick = __webpack_require__(16);
 module.exports = Readable;
 
 /*<replacement>*/
-var isArray = __webpack_require__(139);
+var isArray = __webpack_require__(140);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -57828,13 +58002,13 @@ var EElistenerCount = function (emitter, type) {
 /*</replacement>*/
 
 /*<replacement>*/
-var Stream = __webpack_require__(63);
+var Stream = __webpack_require__(62);
 /*</replacement>*/
 
 // TODO(bmeurer): Change this back to const once hole checks are
 // properly optimized away early in Ignition+TurboFan.
 /*<replacement>*/
-var Buffer = __webpack_require__(27).Buffer;
+var Buffer = __webpack_require__(26).Buffer;
 var OurUint8Array = global.Uint8Array || function () {};
 function _uint8ArrayToBuffer(chunk) {
   return Buffer.from(chunk);
@@ -57845,12 +58019,12 @@ function _isUint8Array(obj) {
 /*</replacement>*/
 
 /*<replacement>*/
-var util = __webpack_require__(13);
-util.inherits = __webpack_require__(14);
+var util = __webpack_require__(12);
+util.inherits = __webpack_require__(13);
 /*</replacement>*/
 
 /*<replacement>*/
-var debugUtil = __webpack_require__(140);
+var debugUtil = __webpack_require__(141);
 var debug = void 0;
 if (debugUtil && debugUtil.debuglog) {
   debug = debugUtil.debuglog('stream');
@@ -57859,8 +58033,8 @@ if (debugUtil && debugUtil.debuglog) {
 }
 /*</replacement>*/
 
-var BufferList = __webpack_require__(141);
-var destroyImpl = __webpack_require__(64);
+var BufferList = __webpack_require__(142);
+var destroyImpl = __webpack_require__(63);
 var StringDecoder;
 
 util.inherits(Readable, Stream);
@@ -57882,7 +58056,7 @@ function prependListener(emitter, event, fn) {
 }
 
 function ReadableState(options, stream) {
-  Duplex = Duplex || __webpack_require__(7);
+  Duplex = Duplex || __webpack_require__(8);
 
   options = options || {};
 
@@ -57943,14 +58117,14 @@ function ReadableState(options, stream) {
   this.decoder = null;
   this.encoding = null;
   if (options.encoding) {
-    if (!StringDecoder) StringDecoder = __webpack_require__(66).StringDecoder;
+    if (!StringDecoder) StringDecoder = __webpack_require__(65).StringDecoder;
     this.decoder = new StringDecoder(options.encoding);
     this.encoding = options.encoding;
   }
 }
 
 function Readable(options) {
-  Duplex = Duplex || __webpack_require__(7);
+  Duplex = Duplex || __webpack_require__(8);
 
   if (!(this instanceof Readable)) return new Readable(options);
 
@@ -58099,7 +58273,7 @@ Readable.prototype.isPaused = function () {
 
 // backwards compatibility.
 Readable.prototype.setEncoding = function (enc) {
-  if (!StringDecoder) StringDecoder = __webpack_require__(66).StringDecoder;
+  if (!StringDecoder) StringDecoder = __webpack_require__(65).StringDecoder;
   this._readableState.decoder = new StringDecoder(enc);
   this._readableState.encoding = enc;
   return this;
@@ -58786,17 +58960,17 @@ function indexOf(xs, x) {
   }
   return -1;
 }
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(6)))
 
 /***/ }),
-/* 63 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(21).EventEmitter;
 
 
 /***/ }),
-/* 64 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -58874,7 +59048,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 65 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -58944,22 +59118,22 @@ var Duplex;
 Writable.WritableState = WritableState;
 
 /*<replacement>*/
-var util = __webpack_require__(13);
-util.inherits = __webpack_require__(14);
+var util = __webpack_require__(12);
+util.inherits = __webpack_require__(13);
 /*</replacement>*/
 
 /*<replacement>*/
 var internalUtil = {
-  deprecate: __webpack_require__(144)
+  deprecate: __webpack_require__(145)
 };
 /*</replacement>*/
 
 /*<replacement>*/
-var Stream = __webpack_require__(63);
+var Stream = __webpack_require__(62);
 /*</replacement>*/
 
 /*<replacement>*/
-var Buffer = __webpack_require__(27).Buffer;
+var Buffer = __webpack_require__(26).Buffer;
 var OurUint8Array = global.Uint8Array || function () {};
 function _uint8ArrayToBuffer(chunk) {
   return Buffer.from(chunk);
@@ -58969,14 +59143,14 @@ function _isUint8Array(obj) {
 }
 /*</replacement>*/
 
-var destroyImpl = __webpack_require__(64);
+var destroyImpl = __webpack_require__(63);
 
 util.inherits(Writable, Stream);
 
 function nop() {}
 
 function WritableState(options, stream) {
-  Duplex = Duplex || __webpack_require__(7);
+  Duplex = Duplex || __webpack_require__(8);
 
   options = options || {};
 
@@ -59116,7 +59290,7 @@ if (typeof Symbol === 'function' && Symbol.hasInstance && typeof Function.protot
 }
 
 function Writable(options) {
-  Duplex = Duplex || __webpack_require__(7);
+  Duplex = Duplex || __webpack_require__(8);
 
   // Writable ctor is applied to Duplexes, too.
   // `realHasInstance` is necessary because using plain `instanceof`
@@ -59542,10 +59716,10 @@ Writable.prototype._destroy = function (err, cb) {
   this.end();
   cb(err);
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(142).setImmediate, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(143).setImmediate, __webpack_require__(4)))
 
 /***/ }),
-/* 66 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -59569,7 +59743,7 @@ Writable.prototype._destroy = function (err, cb) {
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var Buffer = __webpack_require__(6).Buffer;
+var Buffer = __webpack_require__(7).Buffer;
 
 var isBufferEncoding = Buffer.isEncoding
   || function(encoding) {
@@ -59772,7 +59946,7 @@ function base64DetectIncompleteChar(buffer) {
 
 
 /***/ }),
-/* 67 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -59843,11 +60017,11 @@ function base64DetectIncompleteChar(buffer) {
 
 module.exports = Transform;
 
-var Duplex = __webpack_require__(7);
+var Duplex = __webpack_require__(8);
 
 /*<replacement>*/
-var util = __webpack_require__(13);
-util.inherits = __webpack_require__(14);
+var util = __webpack_require__(12);
+util.inherits = __webpack_require__(13);
 /*</replacement>*/
 
 util.inherits(Transform, Duplex);
@@ -59992,7 +60166,7 @@ function done(stream, er, data) {
 }
 
 /***/ }),
-/* 68 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -60012,7 +60186,7 @@ module.exports = {
 
 
 /***/ }),
-/* 69 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -60051,7 +60225,7 @@ module.exports = adler32;
 
 
 /***/ }),
-/* 70 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -60099,7 +60273,7 @@ module.exports = crc32;
 
 
 /***/ }),
-/* 71 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -60627,7 +60801,7 @@ function isPrimitive(arg) {
 }
 exports.isPrimitive = isPrimitive;
 
-exports.isBuffer = __webpack_require__(154);
+exports.isBuffer = __webpack_require__(155);
 
 function objectToString(o) {
   return Object.prototype.toString.call(o);
@@ -60671,7 +60845,7 @@ exports.log = function() {
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
  */
-exports.inherits = __webpack_require__(155);
+exports.inherits = __webpack_require__(156);
 
 exports._extend = function(origin, add) {
   // Don't do anything if add isn't an object
@@ -60689,10 +60863,10 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(6)))
 
 /***/ }),
-/* 72 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -60764,7 +60938,7 @@ function isBuffer(b) {
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var util = __webpack_require__(71);
+var util = __webpack_require__(70);
 var hasOwn = Object.prototype.hasOwnProperty;
 var pSlice = Array.prototype.slice;
 var functionsHaveNames = (function () {
@@ -61187,10 +61361,10 @@ var objectKeys = Object.keys || function (obj) {
   return keys;
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 73 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -61251,7 +61425,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 74 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -61293,7 +61467,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 /*** Imports ***/
 var jpeg = jpeg || {};
 jpeg.lossless = jpeg.lossless || {};
-jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(8) : null);
+jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(9) : null);
 jpeg.lossless.Utils = jpeg.lossless.Utils || (( true) ? __webpack_require__(18) : null);
 
 
@@ -61444,7 +61618,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 75 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -61486,7 +61660,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 /*** Imports ***/
 var jpeg = jpeg || {};
 jpeg.lossless = jpeg.lossless || {};
-jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(8) : null);
+jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(9) : null);
 jpeg.lossless.Utils = jpeg.lossless.Utils || (( true) ? __webpack_require__(18) : null);
 
 
@@ -61613,7 +61787,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 76 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -61655,8 +61829,8 @@ if ((moduleType !== 'undefined') && module.exports) {
 /*** Imports ***/
 var jpeg = jpeg || {};
 jpeg.lossless = jpeg.lossless || {};
-jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(8) : null);
-jpeg.lossless.ScanComponent = jpeg.lossless.ScanComponent || (( true) ? __webpack_require__(77) : null);
+jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(9) : null);
+jpeg.lossless.ScanComponent = jpeg.lossless.ScanComponent || (( true) ? __webpack_require__(76) : null);
 
 
 /*** Constructor ***/
@@ -61729,7 +61903,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 77 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -61791,7 +61965,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 78 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -61833,8 +62007,8 @@ if ((moduleType !== 'undefined') && module.exports) {
 /*** Imports ***/
 var jpeg = jpeg || {};
 jpeg.lossless = jpeg.lossless || {};
-jpeg.lossless.ComponentSpec = jpeg.lossless.ComponentSpec || (( true) ? __webpack_require__(73) : null);
-jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(8) : null);
+jpeg.lossless.ComponentSpec = jpeg.lossless.ComponentSpec || (( true) ? __webpack_require__(72) : null);
+jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(9) : null);
 
 
 /*** Constructor ***/
@@ -61911,11 +62085,11 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 79 */
+/* 78 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(11);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -61925,7 +62099,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /** * Imports ***/
 
 
-var NiftiReader = __webpack_require__(161);
+var NiftiReader = __webpack_require__(162);
 /**
  * @module parsers/nifti
  */
@@ -62332,7 +62506,7 @@ var ParsersNifti = function (_ParsersVolume) {
 /* harmony default export */ __webpack_exports__["a"] = (ParsersNifti);
 
 /***/ }),
-/* 80 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -62345,7 +62519,7 @@ var ParsersNifti = function (_ParsersVolume) {
 /*** Imports ***/
 
 var nifti = nifti || {};
-nifti.Utils = nifti.Utils || (( true) ? __webpack_require__(28) : null);
+nifti.Utils = nifti.Utils || (( true) ? __webpack_require__(27) : null);
 
 
 
@@ -63204,12 +63378,12 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 81 */
+/* 80 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(1);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -63221,7 +63395,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 
 var pako = __webpack_require__(19);
-var NrrdReader = __webpack_require__(163);
+var NrrdReader = __webpack_require__(164);
 /**
  * @module parsers/nifti
  */
@@ -63412,11 +63586,11 @@ var ParsersNifti = function (_ParsersVolume) {
   ParsersNifti.prototype.pixelSpacing = function pixelSpacing() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    var x = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](this._dataSet.spaceDirections[0][0], this._dataSet.spaceDirections[0][1], this._dataSet.spaceDirections[0][2]);
+    var x = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](this._dataSet.spaceDirections[0][0], this._dataSet.spaceDirections[0][1], this._dataSet.spaceDirections[0][2]);
 
-    var y = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](this._dataSet.spaceDirections[1][0], this._dataSet.spaceDirections[1][1], this._dataSet.spaceDirections[1][2]);
+    var y = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](this._dataSet.spaceDirections[1][0], this._dataSet.spaceDirections[1][1], this._dataSet.spaceDirections[1][2]);
 
-    var z = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](this._dataSet.spaceDirections[2][0], this._dataSet.spaceDirections[2][1], this._dataSet.spaceDirections[2][2]);
+    var z = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](this._dataSet.spaceDirections[2][0], this._dataSet.spaceDirections[2][1], this._dataSet.spaceDirections[2][2]);
 
     return [x.length(), y.length(), z.length()];
   };
@@ -63436,10 +63610,10 @@ var ParsersNifti = function (_ParsersVolume) {
     var invertX = this._dataSet.space.match(/right/) ? -1 : 1;
     var invertY = this._dataSet.space.match(/anterior/) ? -1 : 1;
 
-    var x = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](this._dataSet.spaceDirections[0][0] * invertX, this._dataSet.spaceDirections[0][1] * invertY, this._dataSet.spaceDirections[0][2]);
+    var x = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](this._dataSet.spaceDirections[0][0] * invertX, this._dataSet.spaceDirections[0][1] * invertY, this._dataSet.spaceDirections[0][2]);
     x.normalize();
 
-    var y = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](this._dataSet.spaceDirections[1][0] * invertX, this._dataSet.spaceDirections[1][1] * invertY, this._dataSet.spaceDirections[1][2]);
+    var y = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](this._dataSet.spaceDirections[1][0] * invertX, this._dataSet.spaceDirections[1][1] * invertY, this._dataSet.spaceDirections[1][2]);
     y.normalize();
 
     return [x.x, x.y, x.z, y.x, y.y, y.z];
@@ -63532,12 +63706,12 @@ var ParsersNifti = function (_ParsersVolume) {
 /* harmony default export */ __webpack_exports__["a"] = (ParsersNifti);
 
 /***/ }),
-/* 82 */
+/* 81 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(1);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -63677,10 +63851,10 @@ var ParsersMgh = function (_ParsersVolume) {
         }
 
         // detect if we are in a right handed coordinate system
-        var first = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */]().fromArray(_this._Xras);
-        var second = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */]().fromArray(_this._Yras);
-        var crossFirstSecond = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */]().crossVectors(first, second);
-        var third = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */]().fromArray(_this._Zras);
+        var first = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */]().fromArray(_this._Xras);
+        var second = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */]().fromArray(_this._Yras);
+        var crossFirstSecond = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */]().crossVectors(first, second);
+        var third = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */]().fromArray(_this._Zras);
 
         if (crossFirstSecond.angleTo(third) > Math.PI / 2) {
             _this._rightHanded = false;
@@ -63993,7 +64167,7 @@ ParsersMgh.TAG_MRI_FRAME = 42;
 ParsersMgh.TAG_FIELDSTRENGTH = 43;
 
 /***/ }),
-/* 83 */
+/* 82 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -64064,6 +64238,35 @@ var ModelsVoxel = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ModelsVoxel);
 
 /***/ }),
+/* 83 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * @module CSS Code for all Widgets
+ */
+var WidgetsCss = function () {
+    function WidgetsCss() {
+        _classCallCheck(this, WidgetsCss);
+    }
+
+    _createClass(WidgetsCss, null, [{
+        key: "code",
+        get: function get() {
+            return "\n        .widgets-handle {\n            position: absolute;\n            border: 1px solid;\n            border-radius: 50%;\n            width: 10px;\n            height: 10px;\n            margin: -5.5px; /* border + width / 2 */\n            z-index: 3;\n        }\n        .widgets-line {\n            position: absolute;\n            width: 1px;\n            height: 1px;\n            margin-top: -0.5px; /* height / 2 */\n        }\n        .widgets-line:before { /* for dragging */\n            content: \" \";\n            position: absolute;\n            height: 11.5px;\n            left: 0;\n            right: 0;\n            margin-top: -5px;\n        }\n        .widgets-dashline {\n            position: absolute;\n            border-top: 1px dashed;\n            margin-top: -1px; /* border */\n        }\n        .widgets-rectangle {\n            position: absolute;\n            border: 1px solid;\n            margin: -1px; /* border */\n        }\n        .widgets-rectangle-helper {\n            position: absolute;\n            border: 1px dashed;\n            margin: -1px; /* border */\n        }\n        .widgets-ellipse {\n            position: absolute;\n            border: 1px solid;\n            border-radius: 50%;\n            margin: -1px; /* border */\n            z-index: 2;\n        }\n        .widgets-label {\n            position: absolute;\n            border: 1px solid;\n            background-color: rgba(0, 0, 0, 0.7);\n            color: rgb(255, 255, 255);\n            padding: 4px;\n            z-index: 3;\n        }\n        ";
+        }
+    }]);
+
+    return WidgetsCss;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (WidgetsCss);
+
+/***/ }),
 /* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -64076,12 +64279,14 @@ module.exports = __webpack_require__(85);
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "bootstrap", function() { return bootstrap; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__cameras_cameras__ = __webpack_require__(86);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "OrthographicCamera", function() { return __WEBPACK_IMPORTED_MODULE_0__cameras_cameras__["a"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "orthographicCameraFactory", function() { return __WEBPACK_IMPORTED_MODULE_0__cameras_cameras__["b"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__controls_controls__ = __webpack_require__(94);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TrackballControl", function() { return __WEBPACK_IMPORTED_MODULE_1__controls_controls__["a"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "trackballControlFactory", function() { return __WEBPACK_IMPORTED_MODULE_1__controls_controls__["c"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TrackballOrthoControl", function() { return __WEBPACK_IMPORTED_MODULE_1__controls_controls__["b"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "trackballOrthoControlFactory", function() { return __WEBPACK_IMPORTED_MODULE_1__controls_controls__["d"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_core__ = __webpack_require__(97);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ColorsCore", function() { return __WEBPACK_IMPORTED_MODULE_2__core_core__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "IntersectionsCore", function() { return __WEBPACK_IMPORTED_MODULE_2__core_core__["b"]; });
@@ -64089,34 +64294,43 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ValidatorsCore", function() { return __WEBPACK_IMPORTED_MODULE_2__core_core__["d"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometries_geometries__ = __webpack_require__(98);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "SliceGeometry", function() { return __WEBPACK_IMPORTED_MODULE_3__geometries_geometries__["a"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "sliceGeometryFactory", function() { return __WEBPACK_IMPORTED_MODULE_3__geometries_geometries__["c"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VoxelGeometry", function() { return __WEBPACK_IMPORTED_MODULE_3__geometries_geometries__["b"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__ = __webpack_require__(99);
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "voxelGeometryFactory", function() { return __WEBPACK_IMPORTED_MODULE_3__geometries_geometries__["d"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__ = __webpack_require__(100);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "BorderHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["a"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "borderHelperFactory", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["m"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "BoundingBoxHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["b"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "boundingBoxHelperFactory", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["n"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ContourHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["c"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "contourHelperFactory", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["o"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "LocalizerHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["d"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "localizerHelperFactory", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["q"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "LutHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["e"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "SegmentationLutHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["h"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ProgressBarHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["g"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ProgressBarEventBasedHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["f"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "SliceHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["i"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "geometryHelperFactory", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["p"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "StackHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["j"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "stackHelperFactory", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["r"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VolumeRenderingHelper", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["k"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__loaders_loaders__ = __webpack_require__(111);
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VolumeRenderingHelperFactory", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_helpers__["l"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__loaders_loaders__ = __webpack_require__(112);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VolumeLoader", function() { return __WEBPACK_IMPORTED_MODULE_5__loaders_loaders__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_models__ = __webpack_require__(164);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_models__ = __webpack_require__(165);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "FrameModel", function() { return __WEBPACK_IMPORTED_MODULE_6__models_models__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "StackModel", function() { return __WEBPACK_IMPORTED_MODULE_6__models_models__["c"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "SeriesModel", function() { return __WEBPACK_IMPORTED_MODULE_6__models_models__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VoxelModel", function() { return __WEBPACK_IMPORTED_MODULE_6__models_models__["d"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__ = __webpack_require__(165);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__ = __webpack_require__(166);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "DicomParser", function() { return __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "MghParser", function() { return __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "NiftiParser", function() { return __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__["c"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "NrrdParser", function() { return __WEBPACK_IMPORTED_MODULE_7__parsers_parsers__["d"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__presets_presets__ = __webpack_require__(166);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__presets_presets__ = __webpack_require__(167);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "SegmentationPreset", function() { return __WEBPACK_IMPORTED_MODULE_8__presets_presets__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__ = __webpack_require__(169);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__ = __webpack_require__(170);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ContourUniformShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ContourFragmentShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "ContourVertexShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["c"]; });
@@ -64132,51 +64346,19 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "LocalizerUniformShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["k"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "LocalizerFragmentShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["j"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "LocalizerVertexShader", function() { return __WEBPACK_IMPORTED_MODULE_9__shaders_shaders__["l"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__ = __webpack_require__(173);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__ = __webpack_require__(174);
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "WidgetsCss", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["l"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "AngleWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "AnnotationWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["b"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "BiRulerWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["c"]; });
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "HandleWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["d"]; });
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "RoiWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["e"]; });
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "RulerWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["f"]; });
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VoxelProbeWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["g"]; });
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "AngleWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["a"]; });
-// bootstrap target version of three
-// as a global variable
-// that allows the app to use three via npm module
-// but still use the three glbal variables in ami.
-// ideally ami should not use global variables but
-// it seems tricky to export custom classes:
-//
-// slice geometry
-//
-// export default class extends THREE.ShapeGeometry
-// should be
-// export default class extends ShapeGeometryBootstraped
-// where ShapeGeometryBootstraped
-// {ShapeGeometry} from 'three' (in ami)
-// THREE.ShapeGeometry (after bootstrap)
-// 
-// however ShapeGeometryBootstraped can not be changed at runtime (after bootstrap)
-//
-// {ShapeGeometry} from 'three';
-// const bootstrap = () => {
-//   if (THREE.ShapeGeometry) {
-//       return THREE.ShapeGeometry;
-//    } else {
-//      return ShapeGeometry;
-//    }
-// }
-// export default class extends bootstrap() {...}
-//   
-//
-
-var bootstrap = function bootstrap(three) {
-  if (window.THREE && window.THREE.VERSION !== three.VERSION) {
-    window.console.log('Bootstraping three v' + three.VERSION + ' over v' + window.THREE.VERSION);
-  }
-  window.THREE = three;
-  THREE = three;
-};
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "CrossRulerWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["d"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "EllipseWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["e"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "FreehandWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["f"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "HandleWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["g"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "PolygonWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["h"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "RectangleWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["i"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "RulerWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["j"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "VoxelProbeWidget", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_widgets__["k"]; });
 
 
 
@@ -64189,8 +64371,7 @@ var bootstrap = function bootstrap(three) {
 
 
 
-
-var pckg = __webpack_require__(180);
+var pckg = __webpack_require__(185);
 window.console.log('ami v' + pckg.version + ' (three v' + pckg.config.threeVersion + ')');
 
 /***/ }),
@@ -64199,7 +64380,8 @@ window.console.log('ami v' + pckg.version + ' (three v' + pckg.config.threeVersi
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__cameras_orthographic__ = __webpack_require__(87);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__cameras_orthographic__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__cameras_orthographic__["b"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_0__cameras_orthographic__["a"]; });
 
 
 
@@ -64209,9 +64391,9 @@ window.console.log('ami v' + pckg.version + ' (three v' + pckg.config.threeVersi
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_core_intersections__ = __webpack_require__(10);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return camerasOrthographic; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_core_intersections__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_core_validators__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -64219,8 +64401,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-
 
 
 
@@ -64236,698 +64416,710 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * @module cameras/orthographic
  */
 
-var CamerasOrthographic = function (_THREE$OrthographicCa) {
-  _inherits(CamerasOrthographic, _THREE$OrthographicCa);
+var camerasOrthographic = function camerasOrthographic() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
-  function CamerasOrthographic(left, right, top, bottom, near, far) {
-    _classCallCheck(this, CamerasOrthographic);
-
-    var _this = _possibleConstructorReturn(this, _THREE$OrthographicCa.call(this, left, right, top, bottom, near, far));
-
-    _this._front = null;
-    _this._back = null;
-
-    _this._directions = [new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](1, 0, 0), new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](0, 1, 0), new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](0, 0, 1)];
-
-    _this._directionsLabel = ['A', 'P', // TOP/BOTTOM
-    'L', 'R', // LEFT/RIGHT
-    'I', 'S'];
-
-    _this._orientation = 'default';
-    _this._convention = 'radio';
-    _this._stackOrientation = 0;
-
-    _this._right = null;
-    _this._up = null;
-    _this._direction = null;
-
-    _this._controls = null;
-    _this._box = null;
-    _this._canvas = {
-      width: null,
-      height: null
-    };
-
-    _this._fromFront = true;
-    _this._angle = 0;
-    return _this;
+  if (three === undefined || three.OrthographicCamera === undefined) {
+    return null;
   }
 
-  /**
-   * Initialize orthographic camera variables
-   */
+  var Constructor = three.OrthographicCamera;
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
 
+    function _class(left, right, top, bottom, near, far) {
+      _classCallCheck(this, _class);
 
-  CamerasOrthographic.prototype.init = function init(xCosine, yCosine, zCosine, controls, box, canvas) {
-    // DEPRECATION NOTICE
-    window.console.warn('cameras.orthographic.init(...) is deprecated.\n      Use .cosines, .controls, .box and .canvas instead.');
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this, left, right, top, bottom, near, far));
 
-    //
-    if (!(__WEBPACK_IMPORTED_MODULE_1__core_core_validators__["a" /* default */].vector3(xCosine) && __WEBPACK_IMPORTED_MODULE_1__core_core_validators__["a" /* default */].vector3(yCosine) && __WEBPACK_IMPORTED_MODULE_1__core_core_validators__["a" /* default */].vector3(zCosine) && __WEBPACK_IMPORTED_MODULE_1__core_core_validators__["a" /* default */].box(box) && controls)) {
-      window.console.log('Invalid input provided.');
+      _this._front = null;
+      _this._back = null;
 
-      return false;
+      _this._directions = [new three.Vector3(1, 0, 0), new three.Vector3(0, 1, 0), new three.Vector3(0, 0, 1)];
+
+      _this._directionsLabel = ['A', 'P', // TOP/BOTTOM
+      'L', 'R', // LEFT/RIGHT
+      'I', 'S'];
+
+      _this._orientation = 'default';
+      _this._convention = 'radio';
+      _this._stackOrientation = 0;
+
+      _this._right = null;
+      _this._up = null;
+      _this._direction = null;
+
+      _this._controls = null;
+      _this._box = null;
+      _this._canvas = {
+        width: null,
+        height: null
+      };
+
+      _this._fromFront = true;
+      _this._angle = 0;
+      return _this;
     }
 
-    this._right = xCosine;
-    this._up = this._adjustTopDirection(xCosine, yCosine);
-    this._direction = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */]().crossVectors(this._right, this._up);
-    this._controls = controls;
-    this._box = box;
-    this._canvas = canvas;
+    /**
+     * Initialize orthographic camera variables
+     */
 
-    var ray = {
-      position: this._box.center,
-      direction: this._direction
-    };
 
-    var intersections = this._orderIntersections(__WEBPACK_IMPORTED_MODULE_0__core_core_intersections__["a" /* default */].rayBox(ray, this._box), this._direction);
-    this._front = intersections[0];
-    this._back = intersections[1];
+    _class.prototype.init = function init(xCosine, yCosine, zCosine, controls, box, canvas) {
+      // DEPRECATION NOTICE
+      window.console.warn('cameras.orthographic.init(...) is deprecated.\n        Use .cosines, .controls, .box and .canvas instead.');
 
-    // set default values
-    this.up.set(this._up.x, this._up.y, this._up.z);
-    this._updateCanvas();
-    this._updatePositionAndTarget(this._front, this._back);
-    this._updateMatrices();
-    this._updateDirections();
-  };
-
-  CamerasOrthographic.prototype.update = function update() {
-    // http://www.grahamwideman.com/gw/brain/orientation/orientterms.htm
-    // do magics depending on orientation and convention
-    // also needs a default mode
-
-    if (this._orientation === 'default') {
-      switch (this._getMaxIndex(this._directions[2])) {
-        case 0:
-          this._orientation = 'sagittal';
-          break;
-
-        case 1:
-          this._orientation = 'coronal';
-          break;
-
-        case 2:
-          this._orientation = 'axial';
-          break;
-
-        default:
-          this._orientation = 'free';
-          break;
-      }
-    }
-
-    if (this._orientation === 'free') {
-      this._right = this._directions[0];
-      this._up = this._directions[1];
-      this._direction = this._directions[2];
-    } else {
-      var leftIndex = this.leftDirection();
-      var leftDirection = this._directions[leftIndex];
-      var posteriorIndex = this.posteriorDirection();
-      var posteriorDirection = this._directions[posteriorIndex];
-      var superiorIndex = this.superiorDirection();
-      var superiorDirection = this._directions[superiorIndex];
-
-      if (this._convention === 'radio') {
-        switch (this._orientation) {
-          case 'axial':
-            // up vector is 'anterior'
-            if (posteriorDirection.y > 0) {
-              posteriorDirection.negate();
-            }
-
-            // looking towards superior
-            if (superiorDirection.z < 0) {
-              superiorDirection.negate();
-            }
-
-            //
-            this._right = leftDirection; // does not matter right/left
-            this._up = posteriorDirection;
-            this._direction = superiorDirection;
-            break;
-
-          case 'coronal':
-            // up vector is 'superior'
-            if (superiorDirection.z < 0) {
-              superiorDirection.negate();
-            }
-
-            // looking towards posterior
-            if (posteriorDirection.y < 0) {
-              posteriorDirection.negate();
-            }
-
-            //
-            this._right = leftDirection; // does not matter right/left
-            this._up = superiorDirection;
-            this._direction = posteriorDirection;
-            break;
-
-          case 'sagittal':
-            // up vector is 'superior'
-            if (superiorDirection.z < 0) {
-              superiorDirection.negate();
-            }
-
-            // looking towards right
-            if (leftDirection.x > 0) {
-              leftDirection.negate();
-            }
-
-            //
-            this._right = posteriorDirection; // does not matter right/left
-            this._up = superiorDirection;
-            this._direction = leftDirection;
-
-            break;
-
-          default:
-            window.console.warn('"' + this._orientation + '" orientation is not valid.\n                (choices: axial, coronal, sagittal)');
-            break;
-        }
-      } else if (this._convention === 'neuro') {
-        switch (this._orientation) {
-          case 'axial':
-            // up vector is 'anterior'
-            if (posteriorDirection.y > 0) {
-              posteriorDirection.negate();
-            }
-
-            // looking towards inferior
-            if (superiorDirection.z > 0) {
-              superiorDirection.negate();
-            }
-
-            //
-            this._right = leftDirection; // does not matter right/left
-            this._up = posteriorDirection;
-            this._direction = superiorDirection;
-            break;
-
-          case 'coronal':
-            // up vector is 'superior'
-            if (superiorDirection.z < 0) {
-              superiorDirection.negate();
-            }
-
-            // looking towards anterior
-            if (posteriorDirection.y > 0) {
-              posteriorDirection.negate();
-            }
-
-            //
-            this._right = leftDirection; // does not matter right/left
-            this._up = superiorDirection;
-            this._direction = posteriorDirection;
-            break;
-
-          case 'sagittal':
-            // up vector is 'superior'
-            if (superiorDirection.z < 0) {
-              superiorDirection.negate();
-            }
-
-            // looking towards right
-            if (leftDirection.x > 0) {
-              leftDirection.negate();
-            }
-
-            //
-            this._right = posteriorDirection; // does not matter right/left
-            this._up = superiorDirection;
-            this._direction = leftDirection;
-
-            break;
-
-          default:
-            window.console.warn('"' + this._orientation + '" orientation is not valid.\n                (choices: axial, coronal, sagittal)');
-            break;
-        }
-      } else {
-        window.console.warn(this._convention + ' is not valid (choices: radio, neuro)');
-      }
-    }
-
-    // that is what determines left/right
-    var ray = {
-      position: this._box.center,
-      direction: this._direction
-    };
-
-    var intersections = this._orderIntersections(__WEBPACK_IMPORTED_MODULE_0__core_core_intersections__["a" /* default */].rayBox(ray, this._box), this._direction);
-    this._front = intersections[0];
-    this._back = intersections[1];
-
-    // set default values
-    this.up.set(this._up.x, this._up.y, this._up.z);
-    this._updateCanvas();
-    this._updatePositionAndTarget(this._front, this._back);
-    this._updateMatrices();
-    this._updateDirections();
-  };
-
-  CamerasOrthographic.prototype.leftDirection = function leftDirection() {
-    return this._findMaxIndex(this._directions, 0);
-  };
-
-  CamerasOrthographic.prototype.posteriorDirection = function posteriorDirection() {
-    return this._findMaxIndex(this._directions, 1);
-  };
-
-  CamerasOrthographic.prototype.superiorDirection = function superiorDirection() {
-    return this._findMaxIndex(this._directions, 2);
-  };
-
-  /**
-   * Invert rows in the current slice.
-   * Inverting rows in 2 steps:
-   *   * Flip the "up" vector
-   *   * Look at the slice from the other side
-   */
-
-
-  CamerasOrthographic.prototype.invertRows = function invertRows() {
-    // flip "up" vector
-    // we flip up first because invertColumns update projectio matrices
-    this.up.multiplyScalar(-1);
-    this.invertColumns();
-
-    this._updateDirections();
-  };
-
-  /**
-   * Invert rows in the current slice.
-   * Inverting rows in 1 step:
-   *   * Look at the slice from the other side
-   */
-
-
-  CamerasOrthographic.prototype.invertColumns = function invertColumns() {
-    this.center();
-    // rotate 180 degrees around the up vector...
-    var oppositePosition = this._oppositePosition(this.position);
-
-    // update posistion and target
-    // clone is needed because this.position is overwritten in method
-    this._updatePositionAndTarget(oppositePosition, this.position.clone());
-    this._updateMatrices();
-    this._fromFront = !this._fromFront;
-
-    this._angle %= 360;
-    this._angle = 360 - this._angle;
-
-    this._updateDirections();
-  };
-
-  /**
-   * Center slice in the camera FOV.
-   * It also updates the controllers properly.
-   * We can center a camera from the front or from the back.
-   */
-
-
-  CamerasOrthographic.prototype.center = function center() {
-    if (this._fromFront) {
-      this._updatePositionAndTarget(this._front, this._back);
-    } else {
-      this._updatePositionAndTarget(this._back, this._front);
-    }
-
-    this._updateMatrices();
-    this._updateDirections();
-  };
-
-  /**
-   * Pi/2 rotation around the zCosine axis.
-   * Clock-wise rotation from the user point of view.
-   */
-
-
-  CamerasOrthographic.prototype.rotate = function rotate() {
-    var angle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-
-    this.center();
-
-    var computedAngle = 90;
-
-    var clockwise = 1;
-    if (!this._fromFront) {
-      clockwise = -1;
-    }
-
-    if (angle === null) {
-      computedAngle *= -clockwise;
-      this._angle += 90;
-    } else {
-      computedAngle = 360 - clockwise * (angle - this._angle);
-      this._angle = angle;
-    }
-
-    this._angle %= 360;
-
-    // Rotate the up vector around the "zCosine"
-    var rotation = new __WEBPACK_IMPORTED_MODULE_2_three__["c" /* Matrix4 */]().makeRotationAxis(this._direction, computedAngle * Math.PI / 180);
-    this.up.applyMatrix4(rotation);
-
-    this._updateMatrices();
-    this._updateDirections();
-  };
-
-  // dimensions[0] // width
-  // dimensions[1] // height
-  // direction= 0 width, 1 height, 2 best
-  // factor
-
-
-  CamerasOrthographic.prototype.fitBox = function fitBox() {
-    var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-    var factor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1.5;
-
-    //
-    // if (!(dimensions && dimensions.length >= 2)) {
-    //   window.console.log('Invalid dimensions container.');
-    //   window.console.log(dimensions);
-
-    //   return false;
-    // }
-
-    //
-    var zoom = 1;
-
-    // update zoom
-    switch (direction) {
-      case 0:
-        zoom = factor * this._computeZoom(this._canvas.width, this._right);
-        break;
-      case 1:
-        zoom = factor * this._computeZoom(this._canvas.height, this._up);
-        break;
-      case 2:
-        zoom = factor * Math.min(this._computeZoom(this._canvas.width, this._right), this._computeZoom(this._canvas.height, this._up));
-        break;
-      default:
-        break;
-    }
-
-    if (!zoom) {
-      return false;
-    }
-
-    this.zoom = zoom;
-
-    this.center();
-  };
-
-  CamerasOrthographic.prototype._adjustTopDirection = function _adjustTopDirection(horizontalDirection, verticalDirection) {
-    var vMaxIndex = this._getMaxIndex(verticalDirection);
-
-    // should handle vMax index === 0
-    if (vMaxIndex === 2 && verticalDirection.getComponent(vMaxIndex) < 0 || vMaxIndex === 1 && verticalDirection.getComponent(vMaxIndex) > 0 || vMaxIndex === 0 && verticalDirection.getComponent(vMaxIndex) > 0) {
-      verticalDirection.negate();
-    }
-
-    return verticalDirection;
-  };
-
-  CamerasOrthographic.prototype._getMaxIndex = function _getMaxIndex(vector) {
-    // init with X value
-    var maxValue = Math.abs(vector.x);
-    var index = 0;
-
-    if (Math.abs(vector.y) > maxValue) {
-      maxValue = Math.abs(vector.y);
-      index = 1;
-    }
-
-    if (Math.abs(vector.z) > maxValue) {
-      index = 2;
-    }
-
-    return index;
-  };
-
-  CamerasOrthographic.prototype._findMaxIndex = function _findMaxIndex(directions, target) {
-    // get index of the most superior direction
-    var maxIndices = this._getMaxIndices(directions);
-
-    for (var i = 0; i < maxIndices.length; i++) {
-      if (maxIndices[i] === target) {
-        return i;
-      }
-    }
-  };
-
-  CamerasOrthographic.prototype._getMaxIndices = function _getMaxIndices(directions) {
-    var indices = [];
-    indices.push(this._getMaxIndex(directions[0]));
-    indices.push(this._getMaxIndex(directions[1]));
-    indices.push(this._getMaxIndex(directions[2]));
-
-    return indices;
-  };
-
-  CamerasOrthographic.prototype._orderIntersections = function _orderIntersections(intersections, direction) {
-    var ordered = intersections[0].dot(direction) < intersections[1].dot(direction);
-
-    if (!ordered) {
-      return [intersections[1], intersections[0]];
-    }
-
-    return intersections;
-  };
-
-  CamerasOrthographic.prototype._updateCanvas = function _updateCanvas() {
-    var camFactor = 2;
-    this.left = -this._canvas.width / camFactor;
-    this.right = this._canvas.width / camFactor;
-    this.top = this._canvas.height / camFactor;
-    this.bottom = -this._canvas.height / camFactor;
-
-    this._updateMatrices();
-    this.controls.handleResize();
-  };
-
-  CamerasOrthographic.prototype._oppositePosition = function _oppositePosition(position) {
-    var oppositePosition = position.clone();
-    // center world postion around box center
-    oppositePosition.sub(this._box.center);
-    // rotate
-    var rotation = new __WEBPACK_IMPORTED_MODULE_2_three__["c" /* Matrix4 */]().makeRotationAxis(this.up, Math.PI);
-
-    oppositePosition.applyMatrix4(rotation);
-    // translate back to world position
-    oppositePosition.add(this._box.center);
-    return oppositePosition;
-  };
-
-  CamerasOrthographic.prototype._computeZoom = function _computeZoom(dimension, direction) {
-    if (!(dimension && dimension > 0)) {
-      window.console.log('Invalid dimension provided.');
-      window.console.log(dimension);
-      return false;
-    }
-
-    // ray
-    var ray = {
-      position: this._box.center.clone(),
-      direction: direction
-    };
-
-    var intersections = __WEBPACK_IMPORTED_MODULE_0__core_core_intersections__["a" /* default */].rayBox(ray, this._box);
-    if (intersections.length < 2) {
-      window.console.log('Can not adjust the camera ( < 2 intersections).');
-      window.console.log(ray);
-      window.console.log(this._box);
-      return false;
-    }
-
-    return dimension / intersections[0].distanceTo(intersections[1]);
-  };
-
-  CamerasOrthographic.prototype._updatePositionAndTarget = function _updatePositionAndTarget(position, target) {
-    // position
-    this.position.set(position.x, position.y, position.z);
-
-    // targets
-    this.lookAt(target.x, target.y, target.z);
-    this._controls.target.set(target.x, target.y, target.z);
-  };
-
-  CamerasOrthographic.prototype._updateMatrices = function _updateMatrices() {
-    this._controls.update();
-    // THEN camera
-    this.updateProjectionMatrix();
-    this.updateMatrixWorld();
-  };
-
-  CamerasOrthographic.prototype._updateLabels = function _updateLabels() {
-    this._directionsLabel = [this._vector2Label(this._up), this._vector2Label(this._up.clone().negate()), this._vector2Label(this._right), this._vector2Label(this._right.clone().negate()), this._vector2Label(this._direction), this._vector2Label(this._direction.clone().negate())];
-  };
-
-  CamerasOrthographic.prototype._vector2Label = function _vector2Label(direction) {
-    var index = this._getMaxIndex(direction);
-    // set vector max value to 1
-    var scaledDirection = direction.clone().divideScalar(Math.abs(direction.getComponent(index)));
-    var delta = 0.2;
-    var label = '';
-
-    // loop through components of the vector
-    for (var i = 0; i < 3; i++) {
-      if (i === 0) {
-        if (scaledDirection.getComponent(i) + delta >= 1) {
-          label += 'L';
-        } else if (scaledDirection.getComponent(i) - delta <= -1) {
-          label += 'R';
-        }
-      }
-
-      if (i === 1) {
-        if (scaledDirection.getComponent(i) + delta >= 1) {
-          label += 'P';
-        } else if (scaledDirection.getComponent(i) - delta <= -1) {
-          label += 'A';
-        }
-      }
-
-      if (i === 2) {
-        if (scaledDirection.getComponent(i) + delta >= 1) {
-          label += 'S';
-        } else if (scaledDirection.getComponent(i) - delta <= -1) {
-          label += 'I';
-        }
-      }
-    }
-
-    return label;
-  };
-
-  CamerasOrthographic.prototype._updateDirections = function _updateDirections() {
-    // up is correct
-    this._up = this.up.clone();
-
-    // direction
-    var pLocal = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */](0, 0, -1);
-    var pWorld = pLocal.applyMatrix4(this.matrixWorld);
-    this._direction = pWorld.sub(this.position).normalize();
-
-    // right
-    this._right = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */]().crossVectors(this._direction, this.up);
-
-    // update labels accordingly
-    this._updateLabels();
-  };
-
-  _createClass(CamerasOrthographic, [{
-    key: 'controls',
-    set: function set(controls) {
-      this._controls = controls;
-    },
-    get: function get() {
-      return this._controls;
-    }
-  }, {
-    key: 'box',
-    set: function set(box) {
-      this._box = box;
-    },
-    get: function get() {
-      return this._box;
-    }
-  }, {
-    key: 'canvas',
-    set: function set(canvas) {
-      this._canvas = canvas;
-      this._updateCanvas();
-    },
-    get: function get() {
-      return this._canvas;
-    }
-  }, {
-    key: 'angle',
-    set: function set(angle) {
-      this.rotate(angle);
-    },
-    get: function get() {
-      return this._angle;
-    }
-  }, {
-    key: 'directions',
-    set: function set(directions) {
-      this._directions = directions;
-    },
-    get: function get() {
-      return this._directions;
-    }
-  }, {
-    key: 'convention',
-    set: function set(convention) {
-      this._convention = convention;
-    },
-    get: function get() {
-      return this._convention;
-    }
-  }, {
-    key: 'orientation',
-    set: function set(orientation) {
-      this._orientation = orientation;
-    },
-    get: function get() {
-      return this._orientation;
-    }
-  }, {
-    key: 'directionsLabel',
-    set: function set(directionsLabel) {
-      this._directionsLabel = directionsLabel;
-    },
-    get: function get() {
-      return this._directionsLabel;
-    }
-  }, {
-    key: 'stackOrientation',
-    set: function set(stackOrientation) {
-      this._stackOrientation = stackOrientation;
-
-      if (this._stackOrientation === 0) {
-        this._orientation = 'default';
-      } else {
-        var maxIndex = this._getMaxIndex(this._directions[(this._stackOrientation + 2) % 3]);
-
-        if (maxIndex === 0) {
-          this._orientation = 'sagittal';
-        } else if (maxIndex === 1) {
-          this._orientation = 'coronal';
-        } else if (maxIndex === 2) {
-          this._orientation = 'axial';
-        }
-      }
-    },
-    get: function get() {
       //
-      if (this._orientation === 'default') {
-        this._stackOrientation = 0;
-      } else {
-        var maxIndex = this._getMaxIndex(this._direction);
+      if (!(__WEBPACK_IMPORTED_MODULE_1__core_core_validators__["a" /* default */].vector3(xCosine) && __WEBPACK_IMPORTED_MODULE_1__core_core_validators__["a" /* default */].vector3(yCosine) && __WEBPACK_IMPORTED_MODULE_1__core_core_validators__["a" /* default */].vector3(zCosine) && __WEBPACK_IMPORTED_MODULE_1__core_core_validators__["a" /* default */].box(box) && controls)) {
+        window.console.log('Invalid input provided.');
 
-        if (maxIndex === this._getMaxIndex(this._directions[2])) {
-          this._stackOrientation = 0;
-        } else if (maxIndex === this._getMaxIndex(this._directions[0])) {
-          this._stackOrientation = 1;
-        } else if (maxIndex === this._getMaxIndex(this._directions[1])) {
-          this._stackOrientation = 2;
+        return false;
+      }
+
+      this._right = xCosine;
+      this._up = this._adjustTopDirection(xCosine, yCosine);
+      this._direction = new three.Vector3().crossVectors(this._right, this._up);
+      this._controls = controls;
+      this._box = box;
+      this._canvas = canvas;
+
+      var ray = {
+        position: this._box.center,
+        direction: this._direction
+      };
+
+      var intersections = this._orderIntersections(__WEBPACK_IMPORTED_MODULE_0__core_core_intersections__["a" /* default */].rayBox(ray, this._box), this._direction);
+      this._front = intersections[0];
+      this._back = intersections[1];
+
+      // set default values
+      this.up.set(this._up.x, this._up.y, this._up.z);
+      this._updateCanvas();
+      this._updatePositionAndTarget(this._front, this._back);
+      this._updateMatrices();
+      this._updateDirections();
+    };
+
+    _class.prototype.update = function update() {
+      // http://www.grahamwideman.com/gw/brain/orientation/orientterms.htm
+      // do magics depending on orientation and convention
+      // also needs a default mode
+
+      if (this._orientation === 'default') {
+        switch (this._getMaxIndex(this._directions[2])) {
+          case 0:
+            this._orientation = 'sagittal';
+            break;
+
+          case 1:
+            this._orientation = 'coronal';
+            break;
+
+          case 2:
+            this._orientation = 'axial';
+            break;
+
+          default:
+            this._orientation = 'free';
+            break;
         }
       }
 
-      return this._stackOrientation;
-    }
-  }]);
+      if (this._orientation === 'free') {
+        this._right = this._directions[0];
+        this._up = this._directions[1];
+        this._direction = this._directions[2];
+      } else {
+        var leftIndex = this.leftDirection();
+        var leftDirection = this._directions[leftIndex];
+        var posteriorIndex = this.posteriorDirection();
+        var posteriorDirection = this._directions[posteriorIndex];
+        var superiorIndex = this.superiorDirection();
+        var superiorDirection = this._directions[superiorIndex];
 
-  return CamerasOrthographic;
-}(THREE.OrthographicCamera);
+        if (this._convention === 'radio') {
+          switch (this._orientation) {
+            case 'axial':
+              // up vector is 'anterior'
+              if (posteriorDirection.y > 0) {
+                posteriorDirection.negate();
+              }
 
-/* harmony default export */ __webpack_exports__["a"] = (CamerasOrthographic);
+              // looking towards superior
+              if (superiorDirection.z < 0) {
+                superiorDirection.negate();
+              }
+
+              //
+              this._right = leftDirection; // does not matter right/left
+              this._up = posteriorDirection;
+              this._direction = superiorDirection;
+              break;
+
+            case 'coronal':
+              // up vector is 'superior'
+              if (superiorDirection.z < 0) {
+                superiorDirection.negate();
+              }
+
+              // looking towards posterior
+              if (posteriorDirection.y < 0) {
+                posteriorDirection.negate();
+              }
+
+              //
+              this._right = leftDirection; // does not matter right/left
+              this._up = superiorDirection;
+              this._direction = posteriorDirection;
+              break;
+
+            case 'sagittal':
+              // up vector is 'superior'
+              if (superiorDirection.z < 0) {
+                superiorDirection.negate();
+              }
+
+              // looking towards right
+              if (leftDirection.x > 0) {
+                leftDirection.negate();
+              }
+
+              //
+              this._right = posteriorDirection; // does not matter right/left
+              this._up = superiorDirection;
+              this._direction = leftDirection;
+
+              break;
+
+            default:
+              window.console.warn('"' + this._orientation + '" orientation is not valid.\n                  (choices: axial, coronal, sagittal)');
+              break;
+          }
+        } else if (this._convention === 'neuro') {
+          switch (this._orientation) {
+            case 'axial':
+              // up vector is 'anterior'
+              if (posteriorDirection.y > 0) {
+                posteriorDirection.negate();
+              }
+
+              // looking towards inferior
+              if (superiorDirection.z > 0) {
+                superiorDirection.negate();
+              }
+
+              //
+              this._right = leftDirection; // does not matter right/left
+              this._up = posteriorDirection;
+              this._direction = superiorDirection;
+              break;
+
+            case 'coronal':
+              // up vector is 'superior'
+              if (superiorDirection.z < 0) {
+                superiorDirection.negate();
+              }
+
+              // looking towards anterior
+              if (posteriorDirection.y > 0) {
+                posteriorDirection.negate();
+              }
+
+              //
+              this._right = leftDirection; // does not matter right/left
+              this._up = superiorDirection;
+              this._direction = posteriorDirection;
+              break;
+
+            case 'sagittal':
+              // up vector is 'superior'
+              if (superiorDirection.z < 0) {
+                superiorDirection.negate();
+              }
+
+              // looking towards right
+              if (leftDirection.x > 0) {
+                leftDirection.negate();
+              }
+
+              //
+              this._right = posteriorDirection; // does not matter right/left
+              this._up = superiorDirection;
+              this._direction = leftDirection;
+
+              break;
+
+            default:
+              window.console.warn('"' + this._orientation + '" orientation is not valid.\n                  (choices: axial, coronal, sagittal)');
+              break;
+          }
+        } else {
+          window.console.warn(this._convention + ' is not valid (choices: radio, neuro)');
+        }
+      }
+
+      // that is what determines left/right
+      var ray = {
+        position: this._box.center,
+        direction: this._direction
+      };
+
+      var intersections = this._orderIntersections(__WEBPACK_IMPORTED_MODULE_0__core_core_intersections__["a" /* default */].rayBox(ray, this._box), this._direction);
+      this._front = intersections[0];
+      this._back = intersections[1];
+
+      // set default values
+      this.up.set(this._up.x, this._up.y, this._up.z);
+      this._updateCanvas();
+      this._updatePositionAndTarget(this._front, this._back);
+      this._updateMatrices();
+      this._updateDirections();
+    };
+
+    _class.prototype.leftDirection = function leftDirection() {
+      return this._findMaxIndex(this._directions, 0);
+    };
+
+    _class.prototype.posteriorDirection = function posteriorDirection() {
+      return this._findMaxIndex(this._directions, 1);
+    };
+
+    _class.prototype.superiorDirection = function superiorDirection() {
+      return this._findMaxIndex(this._directions, 2);
+    };
+
+    /**
+     * Invert rows in the current slice.
+     * Inverting rows in 2 steps:
+     *   * Flip the "up" vector
+     *   * Look at the slice from the other side
+     */
+
+
+    _class.prototype.invertRows = function invertRows() {
+      // flip "up" vector
+      // we flip up first because invertColumns update projectio matrices
+      this.up.multiplyScalar(-1);
+      this.invertColumns();
+
+      this._updateDirections();
+    };
+
+    /**
+     * Invert rows in the current slice.
+     * Inverting rows in 1 step:
+     *   * Look at the slice from the other side
+     */
+
+
+    _class.prototype.invertColumns = function invertColumns() {
+      this.center();
+      // rotate 180 degrees around the up vector...
+      var oppositePosition = this._oppositePosition(this.position);
+
+      // update posistion and target
+      // clone is needed because this.position is overwritten in method
+      this._updatePositionAndTarget(oppositePosition, this.position.clone());
+      this._updateMatrices();
+      this._fromFront = !this._fromFront;
+
+      this._angle %= 360;
+      this._angle = 360 - this._angle;
+
+      this._updateDirections();
+    };
+
+    /**
+     * Center slice in the camera FOV.
+     * It also updates the controllers properly.
+     * We can center a camera from the front or from the back.
+     */
+
+
+    _class.prototype.center = function center() {
+      if (this._fromFront) {
+        this._updatePositionAndTarget(this._front, this._back);
+      } else {
+        this._updatePositionAndTarget(this._back, this._front);
+      }
+
+      this._updateMatrices();
+      this._updateDirections();
+    };
+
+    /**
+     * Pi/2 rotation around the zCosine axis.
+     * Clock-wise rotation from the user point of view.
+     */
+
+
+    _class.prototype.rotate = function rotate() {
+      var angle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+      this.center();
+
+      var computedAngle = 90;
+
+      var clockwise = 1;
+      if (!this._fromFront) {
+        clockwise = -1;
+      }
+
+      if (angle === null) {
+        computedAngle *= -clockwise;
+        this._angle += 90;
+      } else {
+        computedAngle = 360 - clockwise * (angle - this._angle);
+        this._angle = angle;
+      }
+
+      this._angle %= 360;
+
+      // Rotate the up vector around the "zCosine"
+      var rotation = new three.Matrix4().makeRotationAxis(this._direction, computedAngle * Math.PI / 180);
+      this.up.applyMatrix4(rotation);
+
+      this._updateMatrices();
+      this._updateDirections();
+    };
+
+    // dimensions[0] // width
+    // dimensions[1] // height
+    // direction= 0 width, 1 height, 2 best
+    // factor
+
+
+    _class.prototype.fitBox = function fitBox() {
+      var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+      var factor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1.5;
+
+      //
+      // if (!(dimensions && dimensions.length >= 2)) {
+      //   window.console.log('Invalid dimensions container.');
+      //   window.console.log(dimensions);
+
+      //   return false;
+      // }
+
+      //
+      var zoom = 1;
+
+      // update zoom
+      switch (direction) {
+        case 0:
+          zoom = factor * this._computeZoom(this._canvas.width, this._right);
+          break;
+        case 1:
+          zoom = factor * this._computeZoom(this._canvas.height, this._up);
+          break;
+        case 2:
+          zoom = factor * Math.min(this._computeZoom(this._canvas.width, this._right), this._computeZoom(this._canvas.height, this._up));
+          break;
+        default:
+          break;
+      }
+
+      if (!zoom) {
+        return false;
+      }
+
+      this.zoom = zoom;
+
+      this.center();
+    };
+
+    _class.prototype._adjustTopDirection = function _adjustTopDirection(horizontalDirection, verticalDirection) {
+      var vMaxIndex = this._getMaxIndex(verticalDirection);
+
+      // should handle vMax index === 0
+      if (vMaxIndex === 2 && verticalDirection.getComponent(vMaxIndex) < 0 || vMaxIndex === 1 && verticalDirection.getComponent(vMaxIndex) > 0 || vMaxIndex === 0 && verticalDirection.getComponent(vMaxIndex) > 0) {
+        verticalDirection.negate();
+      }
+
+      return verticalDirection;
+    };
+
+    _class.prototype._getMaxIndex = function _getMaxIndex(vector) {
+      // init with X value
+      var maxValue = Math.abs(vector.x);
+      var index = 0;
+
+      if (Math.abs(vector.y) > maxValue) {
+        maxValue = Math.abs(vector.y);
+        index = 1;
+      }
+
+      if (Math.abs(vector.z) > maxValue) {
+        index = 2;
+      }
+
+      return index;
+    };
+
+    _class.prototype._findMaxIndex = function _findMaxIndex(directions, target) {
+      // get index of the most superior direction
+      var maxIndices = this._getMaxIndices(directions);
+
+      for (var i = 0; i < maxIndices.length; i++) {
+        if (maxIndices[i] === target) {
+          return i;
+        }
+      }
+    };
+
+    _class.prototype._getMaxIndices = function _getMaxIndices(directions) {
+      var indices = [];
+      indices.push(this._getMaxIndex(directions[0]));
+      indices.push(this._getMaxIndex(directions[1]));
+      indices.push(this._getMaxIndex(directions[2]));
+
+      return indices;
+    };
+
+    _class.prototype._orderIntersections = function _orderIntersections(intersections, direction) {
+      var ordered = intersections[0].dot(direction) < intersections[1].dot(direction);
+
+      if (!ordered) {
+        return [intersections[1], intersections[0]];
+      }
+
+      return intersections;
+    };
+
+    _class.prototype._updateCanvas = function _updateCanvas() {
+      var camFactor = 2;
+      this.left = -this._canvas.width / camFactor;
+      this.right = this._canvas.width / camFactor;
+      this.top = this._canvas.height / camFactor;
+      this.bottom = -this._canvas.height / camFactor;
+
+      this._updateMatrices();
+      this.controls.handleResize();
+    };
+
+    _class.prototype._oppositePosition = function _oppositePosition(position) {
+      var oppositePosition = position.clone();
+      // center world postion around box center
+      oppositePosition.sub(this._box.center);
+      // rotate
+      var rotation = new three.Matrix4().makeRotationAxis(this.up, Math.PI);
+
+      oppositePosition.applyMatrix4(rotation);
+      // translate back to world position
+      oppositePosition.add(this._box.center);
+      return oppositePosition;
+    };
+
+    _class.prototype._computeZoom = function _computeZoom(dimension, direction) {
+      if (!(dimension && dimension > 0)) {
+        window.console.log('Invalid dimension provided.');
+        window.console.log(dimension);
+        return false;
+      }
+
+      // ray
+      var ray = {
+        position: this._box.center.clone(),
+        direction: direction
+      };
+
+      var intersections = __WEBPACK_IMPORTED_MODULE_0__core_core_intersections__["a" /* default */].rayBox(ray, this._box);
+      if (intersections.length < 2) {
+        window.console.log('Can not adjust the camera ( < 2 intersections).');
+        window.console.log(ray);
+        window.console.log(this._box);
+        return false;
+      }
+
+      return dimension / intersections[0].distanceTo(intersections[1]);
+    };
+
+    _class.prototype._updatePositionAndTarget = function _updatePositionAndTarget(position, target) {
+      // position
+      this.position.set(position.x, position.y, position.z);
+
+      // targets
+      this.lookAt(target.x, target.y, target.z);
+      this._controls.target.set(target.x, target.y, target.z);
+    };
+
+    _class.prototype._updateMatrices = function _updateMatrices() {
+      this._controls.update();
+      // THEN camera
+      this.updateProjectionMatrix();
+      this.updateMatrixWorld();
+    };
+
+    _class.prototype._updateLabels = function _updateLabels() {
+      this._directionsLabel = [this._vector2Label(this._up), this._vector2Label(this._up.clone().negate()), this._vector2Label(this._right), this._vector2Label(this._right.clone().negate()), this._vector2Label(this._direction), this._vector2Label(this._direction.clone().negate())];
+    };
+
+    _class.prototype._vector2Label = function _vector2Label(direction) {
+      var index = this._getMaxIndex(direction);
+      // set vector max value to 1
+      var scaledDirection = direction.clone().divideScalar(Math.abs(direction.getComponent(index)));
+      var delta = 0.2;
+      var label = '';
+
+      // loop through components of the vector
+      for (var i = 0; i < 3; i++) {
+        if (i === 0) {
+          if (scaledDirection.getComponent(i) + delta >= 1) {
+            label += 'L';
+          } else if (scaledDirection.getComponent(i) - delta <= -1) {
+            label += 'R';
+          }
+        }
+
+        if (i === 1) {
+          if (scaledDirection.getComponent(i) + delta >= 1) {
+            label += 'P';
+          } else if (scaledDirection.getComponent(i) - delta <= -1) {
+            label += 'A';
+          }
+        }
+
+        if (i === 2) {
+          if (scaledDirection.getComponent(i) + delta >= 1) {
+            label += 'S';
+          } else if (scaledDirection.getComponent(i) - delta <= -1) {
+            label += 'I';
+          }
+        }
+      }
+
+      return label;
+    };
+
+    _class.prototype._updateDirections = function _updateDirections() {
+      // up is correct
+      this._up = this.up.clone();
+
+      // direction
+      var pLocal = new three.Vector3(0, 0, -1);
+      var pWorld = pLocal.applyMatrix4(this.matrixWorld);
+      this._direction = pWorld.sub(this.position).normalize();
+
+      // right
+      this._right = new three.Vector3().crossVectors(this._direction, this.up);
+
+      // update labels accordingly
+      this._updateLabels();
+    };
+
+    _createClass(_class, [{
+      key: 'controls',
+      set: function set(controls) {
+        this._controls = controls;
+      },
+      get: function get() {
+        return this._controls;
+      }
+    }, {
+      key: 'box',
+      set: function set(box) {
+        this._box = box;
+      },
+      get: function get() {
+        return this._box;
+      }
+    }, {
+      key: 'canvas',
+      set: function set(canvas) {
+        this._canvas = canvas;
+        this._updateCanvas();
+      },
+      get: function get() {
+        return this._canvas;
+      }
+    }, {
+      key: 'angle',
+      set: function set(angle) {
+        this.rotate(angle);
+      },
+      get: function get() {
+        return this._angle;
+      }
+    }, {
+      key: 'directions',
+      set: function set(directions) {
+        this._directions = directions;
+      },
+      get: function get() {
+        return this._directions;
+      }
+    }, {
+      key: 'convention',
+      set: function set(convention) {
+        this._convention = convention;
+      },
+      get: function get() {
+        return this._convention;
+      }
+    }, {
+      key: 'orientation',
+      set: function set(orientation) {
+        this._orientation = orientation;
+      },
+      get: function get() {
+        return this._orientation;
+      }
+    }, {
+      key: 'directionsLabel',
+      set: function set(directionsLabel) {
+        this._directionsLabel = directionsLabel;
+      },
+      get: function get() {
+        return this._directionsLabel;
+      }
+    }, {
+      key: 'stackOrientation',
+      set: function set(stackOrientation) {
+        this._stackOrientation = stackOrientation;
+
+        if (this._stackOrientation === 0) {
+          this._orientation = 'default';
+        } else {
+          var maxIndex = this._getMaxIndex(this._directions[(this._stackOrientation + 2) % 3]);
+
+          if (maxIndex === 0) {
+            this._orientation = 'sagittal';
+          } else if (maxIndex === 1) {
+            this._orientation = 'coronal';
+          } else if (maxIndex === 2) {
+            this._orientation = 'axial';
+          }
+        }
+      },
+      get: function get() {
+        //
+        if (this._orientation === 'default') {
+          this._stackOrientation = 0;
+        } else {
+          var maxIndex = this._getMaxIndex(this._direction);
+
+          if (maxIndex === this._getMaxIndex(this._directions[2])) {
+            this._stackOrientation = 0;
+          } else if (maxIndex === this._getMaxIndex(this._directions[0])) {
+            this._stackOrientation = 1;
+          } else if (maxIndex === this._getMaxIndex(this._directions[1])) {
+            this._stackOrientation = 2;
+          }
+        }
+
+        return this._stackOrientation;
+      }
+    }]);
+
+    return _class;
+  }(Constructor);
+};
+
+// export factory
+
+// default export to
+/* harmony default export */ __webpack_exports__["b"] = (camerasOrthographic());
 
 /***/ }),
 /* 88 */
@@ -66205,7 +66397,7 @@ Url.prototype.parseHost = function() {
 
 }(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)(module), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28)(module), __webpack_require__(4)))
 
 /***/ }),
 /* 90 */
@@ -66432,7 +66624,9 @@ var objectKeys = Object.keys || function (obj) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__controls_trackball__ = __webpack_require__(95);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__controls_trackballortho__ = __webpack_require__(96);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__controls_trackball__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_0__controls_trackball__["b"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__controls_trackballortho__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_1__controls_trackballortho__["b"]; });
 
 
 
@@ -66443,7 +66637,7 @@ var objectKeys = Object.keys || function (obj) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(0);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return trackball; });
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -66458,673 +66652,683 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * @author Luca Antiga  / http://lantiga.github.io
  */
 
+var trackball = function trackball() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
+  if (three === undefined || three.EventDispatcher === undefined) {
+    return null;
+  }
 
-var Trackball = function (_EventDispatcher) {
-  _inherits(Trackball, _EventDispatcher);
+  var Constructor = three.EventDispatcher;
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
 
-  function Trackball(object, domElement) {
-    _classCallCheck(this, Trackball);
+    function _class(object, domElement) {
+      _classCallCheck(this, _class);
 
-    var _this2 = _possibleConstructorReturn(this, _EventDispatcher.call(this));
+      var _this2 = _possibleConstructorReturn(this, _Constructor.call(this));
 
-    var _this = _this2;
-    var STATE = { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM: 4, TOUCH_PAN: 5, CUSTOM: 99 };
+      var _this = _this2;
+      var STATE = { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM: 4, TOUCH_PAN: 5, CUSTOM: 99 };
 
-    _this2.object = object;
-    _this2.domElement = domElement !== undefined ? domElement : document;
+      _this2.object = object;
+      _this2.domElement = domElement !== undefined ? domElement : document;
 
-    // API
+      // API
 
-    _this2.enabled = true;
+      _this2.enabled = true;
 
-    _this2.screen = { left: 0, top: 0, width: 0, height: 0 };
+      _this2.screen = { left: 0, top: 0, width: 0, height: 0 };
 
-    _this2.rotateSpeed = 1.0;
-    _this2.zoomSpeed = 1.2;
-    _this2.panSpeed = 0.3;
+      _this2.rotateSpeed = 1.0;
+      _this2.zoomSpeed = 1.2;
+      _this2.panSpeed = 0.3;
 
-    _this2.noRotate = false;
-    _this2.noZoom = false;
-    _this2.noPan = false;
-    _this2.noCustom = false;
+      _this2.noRotate = false;
+      _this2.noZoom = false;
+      _this2.noPan = false;
+      _this2.noCustom = false;
 
-    _this2.forceState = -1;
+      _this2.forceState = -1;
 
-    _this2.staticMoving = false;
-    _this2.dynamicDampingFactor = 0.2;
+      _this2.staticMoving = false;
+      _this2.dynamicDampingFactor = 0.2;
 
-    _this2.minDistance = 0;
-    _this2.maxDistance = Infinity;
+      _this2.minDistance = 0;
+      _this2.maxDistance = Infinity;
 
-    _this2.keys = [65 /* A*/, 83 /* S*/, 68];
+      _this2.keys = [65 /* A*/, 83 /* S*/, 68];
 
-    // internals
+      // internals
 
-    _this2.target = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */]();
+      _this2.target = new three.Vector3();
 
-    var EPS = 0.000001;
+      var EPS = 0.000001;
 
-    var lastPosition = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */]();
+      var lastPosition = new three.Vector3();
 
-    var _state = STATE.NONE,
-        _prevState = STATE.NONE,
-        _eye = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](),
-        _movePrev = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */](),
-        _moveCurr = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */](),
-        _lastAxis = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](),
-        _lastAngle = 0,
-        _zoomStart = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */](),
-        _zoomEnd = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */](),
-        _touchZoomDistanceStart = 0,
-        _touchZoomDistanceEnd = 0,
-        _panStart = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */](),
-        _panEnd = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */](),
-        _customStart = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */](),
-        _customEnd = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */]();
+      var _state = STATE.NONE,
+          _prevState = STATE.NONE,
+          _eye = new three.Vector3(),
+          _movePrev = new three.Vector2(),
+          _moveCurr = new three.Vector2(),
+          _lastAxis = new three.Vector3(),
+          _lastAngle = 0,
+          _zoomStart = new three.Vector2(),
+          _zoomEnd = new three.Vector2(),
+          _touchZoomDistanceStart = 0,
+          _touchZoomDistanceEnd = 0,
+          _panStart = new three.Vector2(),
+          _panEnd = new three.Vector2(),
+          _customStart = new three.Vector2(),
+          _customEnd = new three.Vector2();
 
-    // for reset
+      // for reset
 
-    _this2.target0 = _this2.target.clone();
-    _this2.position0 = _this2.object.position.clone();
-    _this2.up0 = _this2.object.up.clone();
+      _this2.target0 = _this2.target.clone();
+      _this2.position0 = _this2.object.position.clone();
+      _this2.up0 = _this2.object.up.clone();
 
-    // events
+      // events
 
-    var changeEvent = { type: 'change' };
-    var startEvent = { type: 'start' };
-    var endEvent = { type: 'end' };
+      var changeEvent = { type: 'change' };
+      var startEvent = { type: 'start' };
+      var endEvent = { type: 'end' };
 
-    // methods
+      // methods
 
-    _this2.handleResize = function () {
-      if (this.domElement === document) {
-        this.screen.left = 0;
-        this.screen.top = 0;
-        this.screen.width = window.innerWidth;
-        this.screen.height = window.innerHeight;
-      } else {
-        var box = this.domElement.getBoundingClientRect();
-        // adjustments come from similar code in the jquery offset() function
-        var d = this.domElement.ownerDocument.documentElement;
-        this.screen.left = box.left + window.pageXOffset - d.clientLeft;
-        this.screen.top = box.top + window.pageYOffset - d.clientTop;
-        this.screen.width = box.width;
-        this.screen.height = box.height;
-      }
-    };
-
-    _this2.handleEvent = function (event) {
-      if (typeof this[event.type] == 'function') {
-        this[event.type](event);
-      }
-    };
-
-    var getMouseOnScreen = function () {
-      var vector = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */]();
-
-      return function (pageX, pageY) {
-        vector.set((pageX - _this.screen.left) / _this.screen.width, (pageY - _this.screen.top) / _this.screen.height);
-
-        return vector;
-      };
-    }();
-
-    var getMouseOnCircle = function () {
-      var vector = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */]();
-
-      return function (pageX, pageY) {
-        vector.set((pageX - _this.screen.width * 0.5 - _this.screen.left) / (_this.screen.width * 0.5), (_this.screen.height + 2 * (_this.screen.top - pageY)) / _this.screen.width // screen.width intentional
-        );
-
-        return vector;
-      };
-    }();
-
-    _this2.rotateCamera = function () {
-      var axis = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](),
-          quaternion = new __WEBPACK_IMPORTED_MODULE_0_three__["d" /* Quaternion */](),
-          eyeDirection = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](),
-          objectUpDirection = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](),
-          objectSidewaysDirection = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](),
-          moveDirection = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](),
-          angle = void 0;
-
-      return function () {
-        moveDirection.set(_moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y, 0);
-        angle = moveDirection.length();
-
-        if (angle) {
-          _eye.copy(_this.object.position).sub(_this.target);
-
-          eyeDirection.copy(_eye).normalize();
-          objectUpDirection.copy(_this.object.up).normalize();
-          objectSidewaysDirection.crossVectors(objectUpDirection, eyeDirection).normalize();
-
-          objectUpDirection.setLength(_moveCurr.y - _movePrev.y);
-          objectSidewaysDirection.setLength(_moveCurr.x - _movePrev.x);
-
-          moveDirection.copy(objectUpDirection.add(objectSidewaysDirection));
-
-          axis.crossVectors(moveDirection, _eye).normalize();
-
-          angle *= _this.rotateSpeed;
-          quaternion.setFromAxisAngle(axis, angle);
-
-          _eye.applyQuaternion(quaternion);
-          _this.object.up.applyQuaternion(quaternion);
-
-          _lastAxis.copy(axis);
-          _lastAngle = angle;
-        } else if (!_this.staticMoving && _lastAngle) {
-          _lastAngle *= Math.sqrt(1.0 - _this.dynamicDampingFactor);
-          _eye.copy(_this.object.position).sub(_this.target);
-          quaternion.setFromAxisAngle(_lastAxis, _lastAngle);
-          _eye.applyQuaternion(quaternion);
-          _this.object.up.applyQuaternion(quaternion);
+      _this2.handleResize = function () {
+        if (this.domElement === document) {
+          this.screen.left = 0;
+          this.screen.top = 0;
+          this.screen.width = window.innerWidth;
+          this.screen.height = window.innerHeight;
+        } else {
+          var box = this.domElement.getBoundingClientRect();
+          // adjustments come from similar code in the jquery offset() function
+          var d = this.domElement.ownerDocument.documentElement;
+          this.screen.left = box.left + window.pageXOffset - d.clientLeft;
+          this.screen.top = box.top + window.pageYOffset - d.clientTop;
+          this.screen.width = box.width;
+          this.screen.height = box.height;
         }
-
-        _movePrev.copy(_moveCurr);
       };
-    }();
 
-    _this2.zoomCamera = function () {
-      var factor = void 0;
+      _this2.handleEvent = function (event) {
+        if (typeof this[event.type] == 'function') {
+          this[event.type](event);
+        }
+      };
 
-      if (_state === STATE.TOUCH_ZOOM) {
-        factor = _touchZoomDistanceStart / _touchZoomDistanceEnd;
-        _touchZoomDistanceStart = _touchZoomDistanceEnd;
-        _eye.multiplyScalar(factor);
-      } else {
-        factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * _this.zoomSpeed;
+      var getMouseOnScreen = function () {
+        var vector = new three.Vector2();
 
-        if (factor !== 1.0 && factor > 0.0) {
+        return function (pageX, pageY) {
+          vector.set((pageX - _this.screen.left) / _this.screen.width, (pageY - _this.screen.top) / _this.screen.height);
+
+          return vector;
+        };
+      }();
+
+      var getMouseOnCircle = function () {
+        var vector = new three.Vector2();
+
+        return function (pageX, pageY) {
+          vector.set((pageX - _this.screen.width * 0.5 - _this.screen.left) / (_this.screen.width * 0.5), (_this.screen.height + 2 * (_this.screen.top - pageY)) / _this.screen.width // screen.width intentional
+          );
+
+          return vector;
+        };
+      }();
+
+      _this2.rotateCamera = function () {
+        var axis = new three.Vector3(),
+            quaternion = new three.Quaternion(),
+            eyeDirection = new three.Vector3(),
+            objectUpDirection = new three.Vector3(),
+            objectSidewaysDirection = new three.Vector3(),
+            moveDirection = new three.Vector3(),
+            angle = void 0;
+
+        return function () {
+          moveDirection.set(_moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y, 0);
+          angle = moveDirection.length();
+
+          if (angle) {
+            _eye.copy(_this.object.position).sub(_this.target);
+
+            eyeDirection.copy(_eye).normalize();
+            objectUpDirection.copy(_this.object.up).normalize();
+            objectSidewaysDirection.crossVectors(objectUpDirection, eyeDirection).normalize();
+
+            objectUpDirection.setLength(_moveCurr.y - _movePrev.y);
+            objectSidewaysDirection.setLength(_moveCurr.x - _movePrev.x);
+
+            moveDirection.copy(objectUpDirection.add(objectSidewaysDirection));
+
+            axis.crossVectors(moveDirection, _eye).normalize();
+
+            angle *= _this.rotateSpeed;
+            quaternion.setFromAxisAngle(axis, angle);
+
+            _eye.applyQuaternion(quaternion);
+            _this.object.up.applyQuaternion(quaternion);
+
+            _lastAxis.copy(axis);
+            _lastAngle = angle;
+          } else if (!_this.staticMoving && _lastAngle) {
+            _lastAngle *= Math.sqrt(1.0 - _this.dynamicDampingFactor);
+            _eye.copy(_this.object.position).sub(_this.target);
+            quaternion.setFromAxisAngle(_lastAxis, _lastAngle);
+            _eye.applyQuaternion(quaternion);
+            _this.object.up.applyQuaternion(quaternion);
+          }
+
+          _movePrev.copy(_moveCurr);
+        };
+      }();
+
+      _this2.zoomCamera = function () {
+        var factor = void 0;
+
+        if (_state === STATE.TOUCH_ZOOM) {
+          factor = _touchZoomDistanceStart / _touchZoomDistanceEnd;
+          _touchZoomDistanceStart = _touchZoomDistanceEnd;
           _eye.multiplyScalar(factor);
+        } else {
+          factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * _this.zoomSpeed;
 
-          if (_this.staticMoving) {
-            _zoomStart.copy(_zoomEnd);
-          } else {
-            _zoomStart.y += (_zoomEnd.y - _zoomStart.y) * this.dynamicDampingFactor;
-          }
-        }
-      }
-    };
+          if (factor !== 1.0 && factor > 0.0) {
+            _eye.multiplyScalar(factor);
 
-    _this2.panCamera = function () {
-      var mouseChange = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */](),
-          objectUp = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](),
-          pan = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */]();
-
-      return function () {
-        mouseChange.copy(_panEnd).sub(_panStart);
-
-        if (mouseChange.lengthSq()) {
-          mouseChange.multiplyScalar(_eye.length() * _this.panSpeed);
-
-          pan.copy(_eye).cross(_this.object.up).setLength(mouseChange.x);
-          pan.add(objectUp.copy(_this.object.up).setLength(mouseChange.y));
-
-          _this.object.position.add(pan);
-          _this.target.add(pan);
-
-          if (_this.staticMoving) {
-            _panStart.copy(_panEnd);
-          } else {
-            _panStart.add(mouseChange.subVectors(_panEnd, _panStart).multiplyScalar(_this.dynamicDampingFactor));
+            if (_this.staticMoving) {
+              _zoomStart.copy(_zoomEnd);
+            } else {
+              _zoomStart.y += (_zoomEnd.y - _zoomStart.y) * this.dynamicDampingFactor;
+            }
           }
         }
       };
-    }();
 
-    _this2.checkDistances = function () {
-      if (!_this.noZoom || !_this.noPan) {
-        if (_eye.lengthSq() > _this.maxDistance * _this.maxDistance) {
-          _this.object.position.addVectors(_this.target, _eye.setLength(_this.maxDistance));
+      _this2.panCamera = function () {
+        var mouseChange = new three.Vector2(),
+            objectUp = new three.Vector3(),
+            pan = new three.Vector3();
+
+        return function () {
+          mouseChange.copy(_panEnd).sub(_panStart);
+
+          if (mouseChange.lengthSq()) {
+            mouseChange.multiplyScalar(_eye.length() * _this.panSpeed);
+
+            pan.copy(_eye).cross(_this.object.up).setLength(mouseChange.x);
+            pan.add(objectUp.copy(_this.object.up).setLength(mouseChange.y));
+
+            _this.object.position.add(pan);
+            _this.target.add(pan);
+
+            if (_this.staticMoving) {
+              _panStart.copy(_panEnd);
+            } else {
+              _panStart.add(mouseChange.subVectors(_panEnd, _panStart).multiplyScalar(_this.dynamicDampingFactor));
+            }
+          }
+        };
+      }();
+
+      _this2.checkDistances = function () {
+        if (!_this.noZoom || !_this.noPan) {
+          if (_eye.lengthSq() > _this.maxDistance * _this.maxDistance) {
+            _this.object.position.addVectors(_this.target, _eye.setLength(_this.maxDistance));
+          }
+
+          if (_eye.lengthSq() < _this.minDistance * _this.minDistance) {
+            _this.object.position.addVectors(_this.target, _eye.setLength(_this.minDistance));
+          }
+        }
+      };
+
+      _this2.update = function () {
+        _eye.subVectors(_this.object.position, _this.target);
+
+        if (!_this.noRotate) {
+          _this.rotateCamera();
         }
 
-        if (_eye.lengthSq() < _this.minDistance * _this.minDistance) {
-          _this.object.position.addVectors(_this.target, _eye.setLength(_this.minDistance));
+        if (!_this.noZoom) {
+          _this.zoomCamera();
         }
-      }
-    };
 
-    _this2.update = function () {
-      _eye.subVectors(_this.object.position, _this.target);
+        if (!_this.noPan) {
+          _this.panCamera();
+        }
 
-      if (!_this.noRotate) {
-        _this.rotateCamera();
-      }
+        if (!_this.noCustom) {
+          _this.custom(_customStart, _customEnd);
+        }
 
-      if (!_this.noZoom) {
-        _this.zoomCamera();
-      }
+        _this.object.position.addVectors(_this.target, _eye);
 
-      if (!_this.noPan) {
-        _this.panCamera();
-      }
+        _this.checkDistances();
 
-      if (!_this.noCustom) {
-        _this.custom(_customStart, _customEnd);
-      }
+        _this.object.lookAt(_this.target);
 
-      _this.object.position.addVectors(_this.target, _eye);
+        if (lastPosition.distanceToSquared(_this.object.position) > EPS) {
+          _this.dispatchEvent(changeEvent);
 
-      _this.checkDistances();
+          lastPosition.copy(_this.object.position);
+        }
+      };
 
-      _this.object.lookAt(_this.target);
+      _this2.reset = function () {
+        _state = STATE.NONE;
+        _prevState = STATE.NONE;
 
-      if (lastPosition.distanceToSquared(_this.object.position) > EPS) {
+        _this.target.copy(_this.target0);
+        _this.object.position.copy(_this.position0);
+        _this.object.up.copy(_this.up0);
+
+        _eye.subVectors(_this.object.position, _this.target);
+
+        _this.object.lookAt(_this.target);
+
         _this.dispatchEvent(changeEvent);
 
         lastPosition.copy(_this.object.position);
-      }
-    };
+      };
 
-    _this2.reset = function () {
-      _state = STATE.NONE;
-      _prevState = STATE.NONE;
+      _this2.setState = function (targetState) {
+        _this.forceState = targetState;
+        _prevState = targetState;
+        _state = targetState;
+      };
 
-      _this.target.copy(_this.target0);
-      _this.object.position.copy(_this.position0);
-      _this.object.up.copy(_this.up0);
+      _this2.custom = function (customStart, customEnd) {};
 
-      _eye.subVectors(_this.object.position, _this.target);
+      // listeners
 
-      _this.object.lookAt(_this.target);
+      function keydown(event) {
+        if (_this.enabled === false) return;
 
-      _this.dispatchEvent(changeEvent);
+        window.removeEventListener('keydown', keydown);
 
-      lastPosition.copy(_this.object.position);
-    };
+        _prevState = _state;
 
-    _this2.setState = function (targetState) {
-      _this.forceState = targetState;
-      _prevState = targetState;
-      _state = targetState;
-    };
-
-    _this2.custom = function (customStart, customEnd) {};
-
-    // listeners
-
-    function keydown(event) {
-      if (_this.enabled === false) return;
-
-      window.removeEventListener('keydown', keydown);
-
-      _prevState = _state;
-
-      if (_state !== STATE.NONE) {
-        return;
-      } else if (event.keyCode === _this.keys[STATE.ROTATE] && !_this.noRotate) {
-        _state = STATE.ROTATE;
-      } else if (event.keyCode === _this.keys[STATE.ZOOM] && !_this.noZoom) {
-        _state = STATE.ZOOM;
-      } else if (event.keyCode === _this.keys[STATE.PAN] && !_this.noPan) {
-        _state = STATE.PAN;
-      }
-    }
-
-    function keyup(event) {
-      if (_this.enabled === false) return;
-
-      _state = _prevState;
-
-      window.addEventListener('keydown', keydown, false);
-    }
-
-    function mousedown(event) {
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (_state === STATE.NONE) {
-        _state = event.button;
-      }
-
-      if (_state === STATE.ROTATE && !_this.noRotate) {
-        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
-        _movePrev.copy(_moveCurr);
-      } else if (_state === STATE.ZOOM && !_this.noZoom) {
-        _zoomStart.copy(getMouseOnScreen(event.pageX, event.pageY));
-        _zoomEnd.copy(_zoomStart);
-      } else if (_state === STATE.PAN && !_this.noPan) {
-        _panStart.copy(getMouseOnScreen(event.pageX, event.pageY));
-        _panEnd.copy(_panStart);
-      } else if (_state === STATE.CUSTOM && !_this.noCustom) {
-        _customStart.copy(getMouseOnScreen(event.pageX, event.pageY));
-        _customEnd.copy(_panStart);
-      }
-
-      document.addEventListener('mousemove', mousemove, false);
-      document.addEventListener('mouseup', mouseup, false);
-
-      _this.dispatchEvent(startEvent);
-    }
-
-    function mousemove(event) {
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (_state === STATE.ROTATE && !_this.noRotate) {
-        _movePrev.copy(_moveCurr);
-        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
-      } else if (_state === STATE.ZOOM && !_this.noZoom) {
-        _zoomEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
-      } else if (_state === STATE.PAN && !_this.noPan) {
-        _panEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
-      } else if (_state === STATE.CUSTOM && !_this.noCustom) {
-        _customEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
-      }
-    }
-
-    function mouseup(event) {
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (_this.forceState === -1) {
-        _state = STATE.NONE;
-      }
-
-      document.removeEventListener('mousemove', mousemove);
-      document.removeEventListener('mouseup', mouseup);
-      _this.dispatchEvent(endEvent);
-    }
-
-    function mousewheel(event) {
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      var delta = 0;
-
-      if (event.wheelDelta) {
-        // WebKit / Opera / Explorer 9
-
-        delta = event.wheelDelta / 40;
-      } else if (event.detail) {
-        // Firefox
-
-        delta = -event.detail / 3;
-      }
-
-      if (_state !== STATE.CUSTOM) {
-        _zoomStart.y += delta * 0.01;
-      } else if (_state === STATE.CUSTOM) {
-        _customStart.y += delta * 0.01;
-      }
-
-      _this.dispatchEvent(startEvent);
-      _this.dispatchEvent(endEvent);
-    }
-
-    function touchstart(event) {
-      if (_this.enabled === false) return;
-
-      if (_this.forceState === -1) {
-        switch (event.touches.length) {
-          case 1:
-            _state = STATE.TOUCH_ROTATE;
-            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
-            _movePrev.copy(_moveCurr);
-            break;
-
-          case 2:
-            _state = STATE.TOUCH_ZOOM;
-            var dx = event.touches[0].pageX - event.touches[1].pageX;
-            var dy = event.touches[0].pageY - event.touches[1].pageY;
-            _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
-
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _panStart.copy(getMouseOnScreen(x, y));
-            _panEnd.copy(_panStart);
-            break;
-
-          default:
-            _state = STATE.NONE;
+        if (_state !== STATE.NONE) {
+          return;
+        } else if (event.keyCode === _this.keys[STATE.ROTATE] && !_this.noRotate) {
+          _state = STATE.ROTATE;
+        } else if (event.keyCode === _this.keys[STATE.ZOOM] && !_this.noZoom) {
+          _state = STATE.ZOOM;
+        } else if (event.keyCode === _this.keys[STATE.PAN] && !_this.noPan) {
+          _state = STATE.PAN;
         }
-      } else {
-        // { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4, CUSTOM: 99 };
-        switch (_state) {
-          case 0:
-            // 1 or 2 fingers, smae behavior
-            _state = STATE.TOUCH_ROTATE;
-            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
-            _movePrev.copy(_moveCurr);
-            break;
+      }
 
-          case 1:
-          case 4:
-            if (event.touches.length >= 2) {
+      function keyup(event) {
+        if (_this.enabled === false) return;
+
+        _state = _prevState;
+
+        window.addEventListener('keydown', keydown, false);
+      }
+
+      function mousedown(event) {
+        if (_this.enabled === false) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (_state === STATE.NONE) {
+          _state = event.button;
+        }
+
+        if (_state === STATE.ROTATE && !_this.noRotate) {
+          _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
+          _movePrev.copy(_moveCurr);
+        } else if (_state === STATE.ZOOM && !_this.noZoom) {
+          _zoomStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+          _zoomEnd.copy(_zoomStart);
+        } else if (_state === STATE.PAN && !_this.noPan) {
+          _panStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+          _panEnd.copy(_panStart);
+        } else if (_state === STATE.CUSTOM && !_this.noCustom) {
+          _customStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+          _customEnd.copy(_panStart);
+        }
+
+        document.addEventListener('mousemove', mousemove, false);
+        document.addEventListener('mouseup', mouseup, false);
+
+        _this.dispatchEvent(startEvent);
+      }
+
+      function mousemove(event) {
+        if (_this.enabled === false) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (_state === STATE.ROTATE && !_this.noRotate) {
+          _movePrev.copy(_moveCurr);
+          _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
+        } else if (_state === STATE.ZOOM && !_this.noZoom) {
+          _zoomEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
+        } else if (_state === STATE.PAN && !_this.noPan) {
+          _panEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
+        } else if (_state === STATE.CUSTOM && !_this.noCustom) {
+          _customEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
+        }
+      }
+
+      function mouseup(event) {
+        if (_this.enabled === false) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (_this.forceState === -1) {
+          _state = STATE.NONE;
+        }
+
+        document.removeEventListener('mousemove', mousemove);
+        document.removeEventListener('mouseup', mouseup);
+        _this.dispatchEvent(endEvent);
+      }
+
+      function mousewheel(event) {
+        if (_this.enabled === false) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        var delta = 0;
+
+        if (event.wheelDelta) {
+          // WebKit / Opera / Explorer 9
+
+          delta = event.wheelDelta / 40;
+        } else if (event.detail) {
+          // Firefox
+
+          delta = -event.detail / 3;
+        }
+
+        if (_state !== STATE.CUSTOM) {
+          _zoomStart.y += delta * 0.01;
+        } else if (_state === STATE.CUSTOM) {
+          _customStart.y += delta * 0.01;
+        }
+
+        _this.dispatchEvent(startEvent);
+        _this.dispatchEvent(endEvent);
+      }
+
+      function touchstart(event) {
+        if (_this.enabled === false) return;
+
+        if (_this.forceState === -1) {
+          switch (event.touches.length) {
+            case 1:
+              _state = STATE.TOUCH_ROTATE;
+              _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+              _movePrev.copy(_moveCurr);
+              break;
+
+            case 2:
               _state = STATE.TOUCH_ZOOM;
               var dx = event.touches[0].pageX - event.touches[1].pageX;
               var dy = event.touches[0].pageY - event.touches[1].pageY;
               _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
-            } else {
-              _state = STATE.ZOOM;
-              _zoomStart.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
-              _zoomEnd.copy(_zoomStart);
-            }
-            break;
 
-          case 2:
-          case 5:
-            if (event.touches.length >= 2) {
-              _state = STATE.TOUCH_PAN;
               var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
               var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
               _panStart.copy(getMouseOnScreen(x, y));
               _panEnd.copy(_panStart);
-            } else {
-              _state = STATE.PAN;
-              _panStart.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
-              _panEnd.copy(_panStart);
-            }
-            break;
+              break;
 
-          case 99:
-            _state = STATE.CUSTOM;
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _customStart.copy(getMouseOnScreen(x, y));
-            _customEnd.copy(_customStart);
-            break;
+            default:
+              _state = STATE.NONE;
+          }
+        } else {
+          // { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4, CUSTOM: 99 };
+          switch (_state) {
+            case 0:
+              // 1 or 2 fingers, smae behavior
+              _state = STATE.TOUCH_ROTATE;
+              _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+              _movePrev.copy(_moveCurr);
+              break;
 
-          default:
-            _state = STATE.NONE;
+            case 1:
+            case 4:
+              if (event.touches.length >= 2) {
+                _state = STATE.TOUCH_ZOOM;
+                var dx = event.touches[0].pageX - event.touches[1].pageX;
+                var dy = event.touches[0].pageY - event.touches[1].pageY;
+                _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
+              } else {
+                _state = STATE.ZOOM;
+                _zoomStart.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
+                _zoomEnd.copy(_zoomStart);
+              }
+              break;
+
+            case 2:
+            case 5:
+              if (event.touches.length >= 2) {
+                _state = STATE.TOUCH_PAN;
+                var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                _panStart.copy(getMouseOnScreen(x, y));
+                _panEnd.copy(_panStart);
+              } else {
+                _state = STATE.PAN;
+                _panStart.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
+                _panEnd.copy(_panStart);
+              }
+              break;
+
+            case 99:
+              _state = STATE.CUSTOM;
+              var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+              var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+              _customStart.copy(getMouseOnScreen(x, y));
+              _customEnd.copy(_customStart);
+              break;
+
+            default:
+              _state = STATE.NONE;
+          }
+        }
+
+        _this.dispatchEvent(startEvent);
+      }
+
+      function touchmove(event) {
+        if (_this.enabled === false) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (_this.forceState === -1) {
+          switch (event.touches.length) {
+            case 1:
+              _movePrev.copy(_moveCurr);
+              _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+              break;
+
+            case 2:
+              var dx = event.touches[0].pageX - event.touches[1].pageX;
+              var dy = event.touches[0].pageY - event.touches[1].pageY;
+              _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
+
+              var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+              var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+              _panEnd.copy(getMouseOnScreen(x, y));
+              break;
+
+            default:
+              _state = STATE.NONE;
+          }
+        } else {
+          // { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4, CUSTOM: 99 };
+          switch (_state) {
+            case 0:
+              _movePrev.copy(_moveCurr);
+              _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+              break;
+
+            case 1:
+              _zoomEnd.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
+              break;
+
+            case 2:
+              _panEnd.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
+              break;
+
+            case 4:
+              // 2 fingers!
+              // TOUCH ZOOM
+              var dx = event.touches[0].pageX - event.touches[1].pageX;
+              var dy = event.touches[0].pageY - event.touches[1].pageY;
+              _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
+              break;
+
+            case 5:
+              // 2 fingers
+              // TOUCH_PAN
+              var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+              var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+              _panEnd.copy(getMouseOnScreen(x, y));
+              break;
+
+            case 99:
+              var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+              var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+              _customEnd.copy(getMouseOnScreen(x, y));
+              break;
+
+            default:
+              _state = STATE.NONE;
+          }
         }
       }
 
-      _this.dispatchEvent(startEvent);
-    }
+      function touchend(event) {
+        if (_this.enabled === false) return;
 
-    function touchmove(event) {
-      if (_this.enabled === false) return;
+        if (_this.forceState === -1) {
+          switch (event.touches.length) {
+            case 1:
+              _movePrev.copy(_moveCurr);
+              _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+              break;
 
-      event.preventDefault();
-      event.stopPropagation();
+            case 2:
+              _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
 
-      if (_this.forceState === -1) {
-        switch (event.touches.length) {
-          case 1:
-            _movePrev.copy(_moveCurr);
-            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
-            break;
-
-          case 2:
-            var dx = event.touches[0].pageX - event.touches[1].pageX;
-            var dy = event.touches[0].pageY - event.touches[1].pageY;
-            _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
-
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _panEnd.copy(getMouseOnScreen(x, y));
-            break;
-
-          default:
-            _state = STATE.NONE;
-        }
-      } else {
-        // { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4, CUSTOM: 99 };
-        switch (_state) {
-          case 0:
-            _movePrev.copy(_moveCurr);
-            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
-            break;
-
-          case 1:
-            _zoomEnd.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
-            break;
-
-          case 2:
-            _panEnd.copy(getMouseOnScreen(event.touches[0].pageX, event.touches[0].pageY));
-            break;
-
-          case 4:
-            // 2 fingers!
-            // TOUCH ZOOM
-            var dx = event.touches[0].pageX - event.touches[1].pageX;
-            var dy = event.touches[0].pageY - event.touches[1].pageY;
-            _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
-            break;
-
-          case 5:
-            // 2 fingers
-            // TOUCH_PAN
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _panEnd.copy(getMouseOnScreen(x, y));
-            break;
-
-          case 99:
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _customEnd.copy(getMouseOnScreen(x, y));
-            break;
-
-          default:
-            _state = STATE.NONE;
-        }
-      }
-    }
-
-    function touchend(event) {
-      if (_this.enabled === false) return;
-
-      if (_this.forceState === -1) {
-        switch (event.touches.length) {
-          case 1:
-            _movePrev.copy(_moveCurr);
-            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
-            break;
-
-          case 2:
-            _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
-
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _panEnd.copy(getMouseOnScreen(x, y));
-            _panStart.copy(_panEnd);
-            break;
-        }
-
-        _state = STATE.NONE;
-      } else {
-        switch (_state) {
-          case 0:
-            _movePrev.copy(_moveCurr);
-            _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
-            break;
-
-          case 1:
-          case 2:
-            break;
-
-          case 4:
-            // TOUCH ZOOM
-            _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
-            _state = STATE.ZOOM;
-            break;
-
-          case 5:
-            // TOUCH ZOOM
-            if (event.touches.length >= 2) {
               var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
               var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
               _panEnd.copy(getMouseOnScreen(x, y));
               _panStart.copy(_panEnd);
-            }
-            _state = STATE.PAN;
-            break;
+              break;
+          }
 
-          case 99:
-            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-            _customEnd.copy(getMouseOnScreen(x, y));
-            _customStart.copy(_customEnd);
-            break;
+          _state = STATE.NONE;
+        } else {
+          switch (_state) {
+            case 0:
+              _movePrev.copy(_moveCurr);
+              _moveCurr.copy(getMouseOnCircle(event.touches[0].pageX, event.touches[0].pageY));
+              break;
 
-          default:
-            _state = STATE.NONE;
+            case 1:
+            case 2:
+              break;
+
+            case 4:
+              // TOUCH ZOOM
+              _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
+              _state = STATE.ZOOM;
+              break;
+
+            case 5:
+              // TOUCH ZOOM
+              if (event.touches.length >= 2) {
+                var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+                var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+                _panEnd.copy(getMouseOnScreen(x, y));
+                _panStart.copy(_panEnd);
+              }
+              _state = STATE.PAN;
+              break;
+
+            case 99:
+              var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+              var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+              _customEnd.copy(getMouseOnScreen(x, y));
+              _customStart.copy(_customEnd);
+              break;
+
+            default:
+              _state = STATE.NONE;
+          }
         }
+
+        _this.dispatchEvent(endEvent);
       }
 
-      _this.dispatchEvent(endEvent);
+      function contextmenu(event) {
+        event.preventDefault();
+      }
+
+      _this2.dispose = function () {
+        this.domElement.removeEventListener('contextmenu', contextmenu, false);
+        this.domElement.removeEventListener('mousedown', mousedown, false);
+        this.domElement.removeEventListener('wheel', mousewheel, false);
+
+        this.domElement.removeEventListener('touchstart', touchstart, false);
+        this.domElement.removeEventListener('touchend', touchend, false);
+        this.domElement.removeEventListener('touchmove', touchmove, false);
+
+        window.removeEventListener('keydown', keydown, false);
+        window.removeEventListener('keyup', keyup, false);
+      };
+
+      _this2.domElement.addEventListener('contextmenu', contextmenu, false);
+      _this2.domElement.addEventListener('mousedown', mousedown, false);
+      _this2.domElement.addEventListener('wheel', mousewheel, false);
+
+      _this2.domElement.addEventListener('touchstart', touchstart, false);
+      _this2.domElement.addEventListener('touchend', touchend, false);
+      _this2.domElement.addEventListener('touchmove', touchmove, false);
+
+      window.addEventListener('keydown', keydown, false);
+      window.addEventListener('keyup', keyup, false);
+
+      _this2.handleResize();
+
+      // force an update at start
+      _this2.update();
+      return _this2;
     }
 
-    function contextmenu(event) {
-      event.preventDefault();
-    }
+    return _class;
+  }(Constructor);
+};
 
-    _this2.dispose = function () {
-      this.domElement.removeEventListener('contextmenu', contextmenu, false);
-      this.domElement.removeEventListener('mousedown', mousedown, false);
-      this.domElement.removeEventListener('mousewheel', mousewheel, false);
+// export factory
 
-      this.domElement.removeEventListener('touchstart', touchstart, false);
-      this.domElement.removeEventListener('touchend', touchend, false);
-      this.domElement.removeEventListener('touchmove', touchmove, false);
-
-      window.removeEventListener('keydown', keydown, false);
-      window.removeEventListener('keyup', keyup, false);
-    };
-
-    _this2.domElement.addEventListener('contextmenu', contextmenu, false);
-    _this2.domElement.addEventListener('mousedown', mousedown, false);
-    _this2.domElement.addEventListener('mousewheel', mousewheel, false);
-
-    _this2.domElement.addEventListener('touchstart', touchstart, false);
-    _this2.domElement.addEventListener('touchend', touchend, false);
-    _this2.domElement.addEventListener('touchmove', touchmove, false);
-
-    window.addEventListener('keydown', keydown, false);
-    window.addEventListener('keyup', keyup, false);
-
-    _this2.handleResize();
-
-    // force an update at start
-    _this2.update();
-    return _this2;
-  }
-
-  return Trackball;
-}(__WEBPACK_IMPORTED_MODULE_0_three__["b" /* EventDispatcher */]);
-
-/* harmony default export */ __webpack_exports__["a"] = (Trackball);
+// default export to
+/* harmony default export */ __webpack_exports__["a"] = (trackball());
 
 /***/ }),
 /* 96 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(0);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return trackballOrtho; });
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -67138,460 +67342,468 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * @author Max Smolens / https://github.com/msmolens
  */
 
+var trackballOrtho = function trackballOrtho() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
+  if (three === undefined || three.EventDispatcher === undefined) {
+    return null;
+  }
 
-var Trackballortho = function (_EventDispatcher) {
-  _inherits(Trackballortho, _EventDispatcher);
+  var Constructor = three.EventDispatcher;
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
 
-  function Trackballortho(object, domElement) {
-    var state = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5 };
+    function _class(object, domElement) {
+      var state = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5 };
 
-    _classCallCheck(this, Trackballortho);
+      _classCallCheck(this, _class);
 
-    var _this2 = _possibleConstructorReturn(this, _EventDispatcher.call(this));
+      var _this2 = _possibleConstructorReturn(this, _Constructor.call(this));
 
-    var _this = _this2;
-    var STATE = state;
+      var _this = _this2;
+      var STATE = state;
 
-    _this2.object = object;
-    _this2.domElement = domElement !== undefined ? domElement : document;
+      _this2.object = object;
+      _this2.domElement = domElement !== undefined ? domElement : document;
 
-    // API
+      // API
 
-    _this2.enabled = true;
+      _this2.enabled = true;
 
-    _this2.screen = { left: 0, top: 0, width: 0, height: 0 };
+      _this2.screen = { left: 0, top: 0, width: 0, height: 0 };
 
-    _this2.radius = 0;
+      _this2.radius = 0;
 
-    _this2.zoomSpeed = 1.2;
+      _this2.zoomSpeed = 1.2;
 
-    _this2.noZoom = false;
-    _this2.noPan = false;
+      _this2.noZoom = false;
+      _this2.noPan = false;
 
-    _this2.staticMoving = false;
-    _this2.dynamicDampingFactor = 0.2;
+      _this2.staticMoving = false;
+      _this2.dynamicDampingFactor = 0.2;
 
-    _this2.keys = [65 /* A*/, 83 /* S*/, 68];
+      _this2.keys = [65 /* A*/, 83 /* S*/, 68];
 
-    // internals
+      // internals
 
-    _this2.target = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */]();
+      _this2.target = new three.Vector3();
 
-    var EPS = 0.000001;
+      var EPS = 0.000001;
 
-    var _changed = true;
+      var _changed = true;
 
-    var _state = STATE.NONE,
-        _prevState = STATE.NONE,
-        _eye = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](),
-        _zoomStart = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */](),
-        _zoomEnd = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */](),
-        _touchZoomDistanceStart = 0,
-        _touchZoomDistanceEnd = 0,
-        _panStart = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */](),
-        _panEnd = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */]();
+      var _state = STATE.NONE,
+          _prevState = STATE.NONE,
+          _eye = new three.Vector3(),
+          _zoomStart = new three.Vector2(),
+          _zoomEnd = new three.Vector2(),
+          _touchZoomDistanceStart = 0,
+          _touchZoomDistanceEnd = 0,
+          _panStart = new three.Vector2(),
+          _panEnd = new three.Vector2();
 
-    // window level fire after...
+      // window level fire after...
 
-    // for reset
+      // for reset
 
-    _this2.target0 = _this2.target.clone();
-    _this2.position0 = _this2.object.position.clone();
-    _this2.up0 = _this2.object.up.clone();
+      _this2.target0 = _this2.target.clone();
+      _this2.position0 = _this2.object.position.clone();
+      _this2.up0 = _this2.object.up.clone();
 
-    _this2.left0 = _this2.object.left;
-    _this2.right0 = _this2.object.right;
-    _this2.top0 = _this2.object.top;
-    _this2.bottom0 = _this2.object.bottom;
+      _this2.left0 = _this2.object.left;
+      _this2.right0 = _this2.object.right;
+      _this2.top0 = _this2.object.top;
+      _this2.bottom0 = _this2.object.bottom;
 
-    // events
+      // events
 
-    var changeEvent = { type: 'change' };
-    var startEvent = { type: 'start' };
-    var endEvent = { type: 'end' };
+      var changeEvent = { type: 'change' };
+      var startEvent = { type: 'start' };
+      var endEvent = { type: 'end' };
 
-    // methods
+      // methods
 
-    _this2.handleResize = function () {
-      if (this.domElement === document) {
-        this.screen.left = 0;
-        this.screen.top = 0;
-        this.screen.width = window.innerWidth;
-        this.screen.height = window.innerHeight;
-      } else {
-        var box = this.domElement.getBoundingClientRect();
-        // adjustments come from similar code in the jquery offset() function
-        var d = this.domElement.ownerDocument.documentElement;
-        this.screen.left = box.left + window.pageXOffset - d.clientLeft;
-        this.screen.top = box.top + window.pageYOffset - d.clientTop;
-        this.screen.width = box.width;
-        this.screen.height = box.height;
-      }
-
-      this.radius = 0.5 * Math.min(this.screen.width, this.screen.height);
-
-      this.left0 = this.object.left;
-      this.right0 = this.object.right;
-      this.top0 = this.object.top;
-      this.bottom0 = this.object.bottom;
-    };
-
-    _this2.handleEvent = function (event) {
-      if (typeof this[event.type] == 'function') {
-        this[event.type](event);
-      }
-    };
-
-    var getMouseOnScreen = function () {
-      var vector = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */]();
-
-      return function getMouseOnScreen(pageX, pageY) {
-        vector.set((pageX - _this.screen.left) / _this.screen.width, (pageY - _this.screen.top) / _this.screen.height);
-
-        return vector;
-      };
-    }();
-
-    _this2.zoomCamera = function () {
-      if (_state === STATE.TOUCH_ZOOM_PAN) {
-        var factor = _touchZoomDistanceEnd / _touchZoomDistanceStart;
-        _touchZoomDistanceStart = _touchZoomDistanceEnd;
-
-        _this.object.zoom *= factor;
-
-        _changed = true;
-      } else {
-        var factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * _this.zoomSpeed;
-
-        if (Math.abs(factor - 1.0) > EPS && factor > 0.0) {
-          _this.object.zoom /= factor;
-
-          if (_this.staticMoving) {
-            _zoomStart.copy(_zoomEnd);
-          } else {
-            _zoomStart.y += (_zoomEnd.y - _zoomStart.y) * this.dynamicDampingFactor;
-          }
-
-          _changed = true;
+      _this2.handleResize = function () {
+        if (this.domElement === document) {
+          this.screen.left = 0;
+          this.screen.top = 0;
+          this.screen.width = window.innerWidth;
+          this.screen.height = window.innerHeight;
+        } else {
+          var box = this.domElement.getBoundingClientRect();
+          // adjustments come from similar code in the jquery offset() function
+          var d = this.domElement.ownerDocument.documentElement;
+          this.screen.left = box.left + window.pageXOffset - d.clientLeft;
+          this.screen.top = box.top + window.pageYOffset - d.clientTop;
+          this.screen.width = box.width;
+          this.screen.height = box.height;
         }
-      }
-    };
 
-    _this2.panCamera = function () {
-      var mouseChange = new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */](),
-          objectUp = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */](),
-          pan = new __WEBPACK_IMPORTED_MODULE_0_three__["f" /* Vector3 */]();
+        this.radius = 0.5 * Math.min(this.screen.width, this.screen.height);
 
-      return function panCamera() {
-        mouseChange.copy(_panEnd).sub(_panStart);
+        this.left0 = this.object.left;
+        this.right0 = this.object.right;
+        this.top0 = this.object.top;
+        this.bottom0 = this.object.bottom;
+      };
 
-        if (mouseChange.lengthSq()) {
-          // Scale movement to keep clicked/dragged position under cursor
-          var scale_x = (_this.object.right - _this.object.left) / _this.object.zoom;
-          var scale_y = (_this.object.top - _this.object.bottom) / _this.object.zoom;
-          mouseChange.x *= scale_x;
-          mouseChange.y *= scale_y;
-
-          pan.copy(_eye).cross(_this.object.up).setLength(mouseChange.x);
-          pan.add(objectUp.copy(_this.object.up).setLength(mouseChange.y));
-
-          _this.object.position.add(pan);
-          _this.target.add(pan);
-
-          if (_this.staticMoving) {
-            _panStart.copy(_panEnd);
-          } else {
-            _panStart.add(mouseChange.subVectors(_panEnd, _panStart).multiplyScalar(_this.dynamicDampingFactor));
-          }
-
-          _changed = true;
+      _this2.handleEvent = function (event) {
+        if (typeof this[event.type] == 'function') {
+          this[event.type](event);
         }
       };
-    }();
 
-    _this2.update = function () {
-      _eye.subVectors(_this.object.position, _this.target);
+      var getMouseOnScreen = function () {
+        var vector = new three.Vector2();
 
-      if (!_this.noZoom) {
-        _this.zoomCamera();
+        return function getMouseOnScreen(pageX, pageY) {
+          vector.set((pageX - _this.screen.left) / _this.screen.width, (pageY - _this.screen.top) / _this.screen.height);
+
+          return vector;
+        };
+      }();
+
+      _this2.zoomCamera = function () {
+        if (_state === STATE.TOUCH_ZOOM_PAN) {
+          var factor = _touchZoomDistanceEnd / _touchZoomDistanceStart;
+          _touchZoomDistanceStart = _touchZoomDistanceEnd;
+
+          _this.object.zoom *= factor;
+
+          _changed = true;
+        } else {
+          var factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * _this.zoomSpeed;
+
+          if (Math.abs(factor - 1.0) > EPS && factor > 0.0) {
+            _this.object.zoom /= factor;
+
+            if (_this.staticMoving) {
+              _zoomStart.copy(_zoomEnd);
+            } else {
+              _zoomStart.y += (_zoomEnd.y - _zoomStart.y) * this.dynamicDampingFactor;
+            }
+
+            _changed = true;
+          }
+        }
+      };
+
+      _this2.panCamera = function () {
+        var mouseChange = new three.Vector2(),
+            objectUp = new three.Vector3(),
+            pan = new three.Vector3();
+
+        return function panCamera() {
+          mouseChange.copy(_panEnd).sub(_panStart);
+
+          if (mouseChange.lengthSq()) {
+            // Scale movement to keep clicked/dragged position under cursor
+            var scale_x = (_this.object.right - _this.object.left) / _this.object.zoom;
+            var scale_y = (_this.object.top - _this.object.bottom) / _this.object.zoom;
+            mouseChange.x *= scale_x;
+            mouseChange.y *= scale_y;
+
+            pan.copy(_eye).cross(_this.object.up).setLength(mouseChange.x);
+            pan.add(objectUp.copy(_this.object.up).setLength(mouseChange.y));
+
+            _this.object.position.add(pan);
+            _this.target.add(pan);
+
+            if (_this.staticMoving) {
+              _panStart.copy(_panEnd);
+            } else {
+              _panStart.add(mouseChange.subVectors(_panEnd, _panStart).multiplyScalar(_this.dynamicDampingFactor));
+            }
+
+            _changed = true;
+          }
+        };
+      }();
+
+      _this2.update = function () {
+        _eye.subVectors(_this.object.position, _this.target);
+
+        if (!_this.noZoom) {
+          _this.zoomCamera();
+
+          if (_changed) {
+            _this.object.updateProjectionMatrix();
+          }
+        }
+
+        if (!_this.noPan) {
+          _this.panCamera();
+        }
+
+        _this.object.position.addVectors(_this.target, _eye);
+
+        _this.object.lookAt(_this.target);
 
         if (_changed) {
-          _this.object.updateProjectionMatrix();
+          _this.dispatchEvent(changeEvent);
+
+          _changed = false;
         }
-      }
+      };
 
-      if (!_this.noPan) {
-        _this.panCamera();
-      }
+      _this2.reset = function () {
+        _state = STATE.NONE;
+        _prevState = STATE.NONE;
 
-      _this.object.position.addVectors(_this.target, _eye);
+        _this.target.copy(_this.target0);
+        _this.object.position.copy(_this.position0);
+        _this.object.up.copy(_this.up0);
 
-      _this.object.lookAt(_this.target);
+        _eye.subVectors(_this.object.position, _this.target);
 
-      if (_changed) {
+        _this.object.left = _this.left0;
+        _this.object.right = _this.right0;
+        _this.object.top = _this.top0;
+        _this.object.bottom = _this.bottom0;
+
+        _this.object.lookAt(_this.target);
+
         _this.dispatchEvent(changeEvent);
 
         _changed = false;
+      };
+
+      // listeners
+
+      function keydown(event) {
+        if (_this.enabled === false) return;
+
+        window.removeEventListener('keydown', keydown);
+
+        _prevState = _state;
+
+        if (_state !== STATE.NONE) {
+          return;
+        } else if (event.keyCode === _this.keys[STATE.ROTATE] && !_this.noRotate) {
+          _state = STATE.ROTATE;
+        } else if (event.keyCode === _this.keys[STATE.ZOOM] && !_this.noZoom) {
+          _state = STATE.ZOOM;
+        } else if (event.keyCode === _this.keys[STATE.PAN] && !_this.noPan) {
+          _state = STATE.PAN;
+        }
       }
-    };
 
-    _this2.reset = function () {
-      _state = STATE.NONE;
-      _prevState = STATE.NONE;
+      function keyup(event) {
+        if (_this.enabled === false) return;
 
-      _this.target.copy(_this.target0);
-      _this.object.position.copy(_this.position0);
-      _this.object.up.copy(_this.up0);
+        _state = _prevState;
 
-      _eye.subVectors(_this.object.position, _this.target);
-
-      _this.object.left = _this.left0;
-      _this.object.right = _this.right0;
-      _this.object.top = _this.top0;
-      _this.object.bottom = _this.bottom0;
-
-      _this.object.lookAt(_this.target);
-
-      _this.dispatchEvent(changeEvent);
-
-      _changed = false;
-    };
-
-    // listeners
-
-    function keydown(event) {
-      if (_this.enabled === false) return;
-
-      window.removeEventListener('keydown', keydown);
-
-      _prevState = _state;
-
-      if (_state !== STATE.NONE) {
-        return;
-      } else if (event.keyCode === _this.keys[STATE.ROTATE] && !_this.noRotate) {
-        _state = STATE.ROTATE;
-      } else if (event.keyCode === _this.keys[STATE.ZOOM] && !_this.noZoom) {
-        _state = STATE.ZOOM;
-      } else if (event.keyCode === _this.keys[STATE.PAN] && !_this.noPan) {
-        _state = STATE.PAN;
+        window.addEventListener('keydown', keydown, false);
       }
-    }
 
-    function keyup(event) {
-      if (_this.enabled === false) return;
+      function mousedown(event) {
+        if (_this.enabled === false) return;
 
-      _state = _prevState;
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (_state === STATE.NONE) {
+          _state = event.button;
+        }
+
+        if (_state === STATE.ROTATE && !_this.noRotate) {} else if (_state === STATE.ZOOM && !_this.noZoom) {
+          _zoomStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+          _zoomEnd.copy(_zoomStart);
+        } else if (_state === STATE.PAN && !_this.noPan) {
+          _panStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+          _panEnd.copy(_panStart);
+        }
+
+        document.addEventListener('mousemove', mousemove, false);
+        document.addEventListener('mouseup', mouseup, false);
+
+        _this.dispatchEvent(startEvent);
+      }
+
+      function mousemove(event) {
+        if (_this.enabled === false) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (_state === STATE.ROTATE && !_this.noRotate) {} else if (_state === STATE.ZOOM && !_this.noZoom) {
+          _zoomEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
+        } else if (_state === STATE.PAN && !_this.noPan) {
+          _panEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
+        }
+      }
+
+      function mouseup(event) {
+        if (_this.enabled === false) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        _state = STATE.NONE;
+
+        document.removeEventListener('mousemove', mousemove);
+        document.removeEventListener('mouseup', mouseup);
+        _this.dispatchEvent(endEvent);
+      }
+
+      function mousewheel(event) {
+        if (_this.enabled === false) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        var delta = 0;
+
+        if (event.wheelDelta) {
+          // WebKit / Opera / Explorer 9
+
+          delta = event.wheelDelta / 40;
+        } else if (event.detail) {
+          // Firefox
+
+          delta = -event.detail / 3;
+        }
+
+        // FIRE SCROLL EVENT
+
+        _this.dispatchEvent({
+          type: 'OnScroll',
+          delta: delta
+        });
+
+        // _zoomStart.y += delta * 0.01;
+        _this.dispatchEvent(startEvent);
+        _this.dispatchEvent(endEvent);
+      }
+
+      function touchstart(event) {
+        if (_this.enabled === false) return;
+
+        switch (event.touches.length) {
+          case 1:
+            _state = STATE.TOUCH_ROTATE;
+
+            break;
+
+          case 2:
+            _state = STATE.TOUCH_ZOOM_PAN;
+            var dx = event.touches[0].pageX - event.touches[1].pageX;
+            var dy = event.touches[0].pageY - event.touches[1].pageY;
+            _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
+
+            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+            _panStart.copy(getMouseOnScreen(x, y));
+            _panEnd.copy(_panStart);
+            break;
+
+          default:
+            _state = STATE.NONE;
+        }
+        _this.dispatchEvent(startEvent);
+      }
+
+      function touchmove(event) {
+        if (_this.enabled === false) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        switch (event.touches.length) {
+          case 1:
+
+            break;
+
+          case 2:
+            var dx = event.touches[0].pageX - event.touches[1].pageX;
+            var dy = event.touches[0].pageY - event.touches[1].pageY;
+            _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
+
+            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+            _panEnd.copy(getMouseOnScreen(x, y));
+            break;
+
+          default:
+            _state = STATE.NONE;
+        }
+      }
+
+      function touchend(event) {
+        if (_this.enabled === false) return;
+
+        switch (event.touches.length) {
+          case 1:
+
+            break;
+
+          case 2:
+            _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
+
+            var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+            var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+            _panEnd.copy(getMouseOnScreen(x, y));
+            _panStart.copy(_panEnd);
+            break;
+        }
+
+        _state = STATE.NONE;
+        _this.dispatchEvent(endEvent);
+      }
+
+      function contextmenu(event) {
+        event.preventDefault();
+      }
+
+      _this2.dispose = function () {
+        this.domElement.removeEventListener('contextmenu', contextmenu, false);
+        this.domElement.removeEventListener('mousedown', mousedown, false);
+        this.domElement.removeEventListener('wheel', mousewheel, false);
+
+        this.domElement.removeEventListener('touchstart', touchstart, false);
+        this.domElement.removeEventListener('touchend', touchend, false);
+        this.domElement.removeEventListener('touchmove', touchmove, false);
+
+        window.removeEventListener('keydown', keydown, false);
+        window.removeEventListener('keyup', keyup, false);
+      };
+
+      _this2.domElement.addEventListener('contextmenu', contextmenu, false);
+      _this2.domElement.addEventListener('mousedown', mousedown, false);
+      _this2.domElement.addEventListener('wheel', mousewheel, false);
+
+      _this2.domElement.addEventListener('touchstart', touchstart, false);
+      _this2.domElement.addEventListener('touchend', touchend, false);
+      _this2.domElement.addEventListener('touchmove', touchmove, false);
 
       window.addEventListener('keydown', keydown, false);
+      window.addEventListener('keyup', keyup, false);
+
+      _this2.handleResize();
+
+      // force an update at start
+      _this2.update();
+      return _this2;
     }
 
-    function mousedown(event) {
-      if (_this.enabled === false) return;
+    return _class;
+  }(Constructor);
+};
 
-      event.preventDefault();
-      event.stopPropagation();
+// export factory
 
-      if (_state === STATE.NONE) {
-        _state = event.button;
-      }
-
-      if (_state === STATE.ROTATE && !_this.noRotate) {} else if (_state === STATE.ZOOM && !_this.noZoom) {
-        _zoomStart.copy(getMouseOnScreen(event.pageX, event.pageY));
-        _zoomEnd.copy(_zoomStart);
-      } else if (_state === STATE.PAN && !_this.noPan) {
-        _panStart.copy(getMouseOnScreen(event.pageX, event.pageY));
-        _panEnd.copy(_panStart);
-      }
-
-      document.addEventListener('mousemove', mousemove, false);
-      document.addEventListener('mouseup', mouseup, false);
-
-      _this.dispatchEvent(startEvent);
-    }
-
-    function mousemove(event) {
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (_state === STATE.ROTATE && !_this.noRotate) {} else if (_state === STATE.ZOOM && !_this.noZoom) {
-        _zoomEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
-      } else if (_state === STATE.PAN && !_this.noPan) {
-        _panEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
-      }
-    }
-
-    function mouseup(event) {
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      _state = STATE.NONE;
-
-      document.removeEventListener('mousemove', mousemove);
-      document.removeEventListener('mouseup', mouseup);
-      _this.dispatchEvent(endEvent);
-    }
-
-    function mousewheel(event) {
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      var delta = 0;
-
-      if (event.wheelDelta) {
-        // WebKit / Opera / Explorer 9
-
-        delta = event.wheelDelta / 40;
-      } else if (event.detail) {
-        // Firefox
-
-        delta = -event.detail / 3;
-      }
-
-      // FIRE SCROLL EVENT
-
-      _this.dispatchEvent({
-        type: 'OnScroll',
-        delta: delta
-      });
-
-      // _zoomStart.y += delta * 0.01;
-      _this.dispatchEvent(startEvent);
-      _this.dispatchEvent(endEvent);
-    }
-
-    function touchstart(event) {
-      if (_this.enabled === false) return;
-
-      switch (event.touches.length) {
-        case 1:
-          _state = STATE.TOUCH_ROTATE;
-
-          break;
-
-        case 2:
-          _state = STATE.TOUCH_ZOOM_PAN;
-          var dx = event.touches[0].pageX - event.touches[1].pageX;
-          var dy = event.touches[0].pageY - event.touches[1].pageY;
-          _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
-
-          var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-          var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-          _panStart.copy(getMouseOnScreen(x, y));
-          _panEnd.copy(_panStart);
-          break;
-
-        default:
-          _state = STATE.NONE;
-      }
-      _this.dispatchEvent(startEvent);
-    }
-
-    function touchmove(event) {
-      if (_this.enabled === false) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      switch (event.touches.length) {
-        case 1:
-
-          break;
-
-        case 2:
-          var dx = event.touches[0].pageX - event.touches[1].pageX;
-          var dy = event.touches[0].pageY - event.touches[1].pageY;
-          _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
-
-          var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-          var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-          _panEnd.copy(getMouseOnScreen(x, y));
-          break;
-
-        default:
-          _state = STATE.NONE;
-      }
-    }
-
-    function touchend(event) {
-      if (_this.enabled === false) return;
-
-      switch (event.touches.length) {
-        case 1:
-
-          break;
-
-        case 2:
-          _touchZoomDistanceStart = _touchZoomDistanceEnd = 0;
-
-          var x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
-          var y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
-          _panEnd.copy(getMouseOnScreen(x, y));
-          _panStart.copy(_panEnd);
-          break;
-      }
-
-      _state = STATE.NONE;
-      _this.dispatchEvent(endEvent);
-    }
-
-    function contextmenu(event) {
-      event.preventDefault();
-    }
-
-    _this2.dispose = function () {
-      this.domElement.removeEventListener('contextmenu', contextmenu, false);
-      this.domElement.removeEventListener('mousedown', mousedown, false);
-      this.domElement.removeEventListener('mousewheel', mousewheel, false);
-      this.domElement.removeEventListener('MozMousePixelScroll', mousewheel, false); // firefox
-
-      this.domElement.removeEventListener('touchstart', touchstart, false);
-      this.domElement.removeEventListener('touchend', touchend, false);
-      this.domElement.removeEventListener('touchmove', touchmove, false);
-
-      window.removeEventListener('keydown', keydown, false);
-      window.removeEventListener('keyup', keyup, false);
-    };
-
-    _this2.domElement.addEventListener('contextmenu', contextmenu, false);
-    _this2.domElement.addEventListener('mousedown', mousedown, false);
-    _this2.domElement.addEventListener('mousewheel', mousewheel, false);
-    _this2.domElement.addEventListener('MozMousePixelScroll', mousewheel, false); // firefox
-
-    _this2.domElement.addEventListener('touchstart', touchstart, false);
-    _this2.domElement.addEventListener('touchend', touchend, false);
-    _this2.domElement.addEventListener('touchmove', touchmove, false);
-
-    window.addEventListener('keydown', keydown, false);
-    window.addEventListener('keyup', keyup, false);
-
-    _this2.handleResize();
-
-    // force an update at start
-    _this2.update();
-    return _this2;
-  }
-
-  return Trackballortho;
-}(__WEBPACK_IMPORTED_MODULE_0_three__["b" /* EventDispatcher */]);
-
-/* harmony default export */ __webpack_exports__["a"] = (Trackballortho);
+// default export to
+/* harmony default export */ __webpack_exports__["a"] = (trackballOrtho());
 
 /***/ }),
 /* 97 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_colors__ = __webpack_require__(30);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_intersections__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_colors__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_intersections__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_validators__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__core_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__core_utils__ = __webpack_require__(0);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__core_colors__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__core_intersections__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_3__core_utils__["a"]; });
@@ -67608,10 +67820,12 @@ var Trackballortho = function (_EventDispatcher) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometries_slice__ = __webpack_require__(31);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__geometries_voxel__ = __webpack_require__(32);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometries_slice__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__geometries_voxel__ = __webpack_require__(99);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__geometries_slice__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_0__geometries_slice__["b"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__geometries_voxel__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_1__geometries_voxel__["b"]; });
 
 
 
@@ -67622,28 +67836,123 @@ var Trackballortho = function (_EventDispatcher) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__helpers_border__ = __webpack_require__(33);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_boundingbox__ = __webpack_require__(34);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_contour__ = __webpack_require__(100);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__helpers_localizer__ = __webpack_require__(101);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_lut__ = __webpack_require__(102);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__helpers_segmentationlut__ = __webpack_require__(103);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__helpers_progressbar__ = __webpack_require__(41);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__helpers_progressbar_eventbased__ = __webpack_require__(104);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__helpers_slice__ = __webpack_require__(42);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__helpers_stack__ = __webpack_require__(108);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__helpers_volumerendering__ = __webpack_require__(109);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return geometriesVoxel; });
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ *
+ * @module geometries/voxel
+ */
+
+var geometriesVoxel = function geometriesVoxel() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+  if (three === undefined || three.BoxGeometry === undefined) {
+    return null;
+  }
+
+  var Constructor = three.BoxGeometry;
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
+
+    function _class(dataPosition) {
+      _classCallCheck(this, _class);
+
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this, 1, 1, 1));
+
+      _this._location = dataPosition;
+
+      _this.applyMatrix(new three.Matrix4().makeTranslation(_this._location.x, _this._location.y, _this._location.z));
+
+      _this.verticesNeedUpdate = true;
+      return _this;
+    }
+
+    _class.prototype.resetVertices = function resetVertices() {
+      this.vertices[0].set(0.5, 0.5, 0.5);
+      this.vertices[1].set(0.5, 0.5, -0.5);
+      this.vertices[2].set(0.5, -0.5, 0.5);
+      this.vertices[3].set(0.5, -0.5, -0.5);
+      this.vertices[4].set(-0.5, 0.5, -0.5);
+      this.vertices[5].set(-0.5, 0.5, 0.5);
+      this.vertices[6].set(-0.5, -0.5, -0.5);
+      this.vertices[7].set(-0.5, -0.5, 0.5);
+    };
+
+    _createClass(_class, [{
+      key: "location",
+      set: function set(location) {
+        this._location = location;
+
+        // update vertices from location
+        this.vertices[0].set(+0.5, +0.5, +0.5);
+        this.vertices[1].set(+0.5, +0.5, -0.5);
+        this.vertices[2].set(+0.5, -0.5, +0.5);
+        this.vertices[3].set(+0.5, -0.5, -0.5);
+        this.vertices[4].set(-0.5, +0.5, -0.5);
+        this.vertices[5].set(-0.5, +0.5, +0.5);
+        this.vertices[6].set(-0.5, -0.5, -0.5);
+        this.vertices[7].set(-0.5, -0.5, +0.5);
+
+        this.applyMatrix(new three.Matrix4().makeTranslation(this._location.x, this._location.y, this._location.z));
+
+        this.verticesNeedUpdate = true;
+      },
+      get: function get() {
+        return this._location;
+      }
+    }]);
+
+    return _class;
+  }(Constructor);
+};
+
+// export factory
+
+// default export to
+/* harmony default export */ __webpack_exports__["a"] = (geometriesVoxel());
+
+/***/ }),
+/* 100 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__helpers_border__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_boundingbox__ = __webpack_require__(32);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_contour__ = __webpack_require__(101);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__helpers_localizer__ = __webpack_require__(102);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__helpers_lut__ = __webpack_require__(103);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__helpers_segmentationlut__ = __webpack_require__(104);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__helpers_progressbar__ = __webpack_require__(39);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__helpers_progressbar_eventbased__ = __webpack_require__(105);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__helpers_slice__ = __webpack_require__(40);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__helpers_stack__ = __webpack_require__(109);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__helpers_volumerendering__ = __webpack_require__(110);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__helpers_border__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "m", function() { return __WEBPACK_IMPORTED_MODULE_0__helpers_border__["b"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__helpers_boundingbox__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "n", function() { return __WEBPACK_IMPORTED_MODULE_1__helpers_boundingbox__["b"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_2__helpers_contour__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "o", function() { return __WEBPACK_IMPORTED_MODULE_2__helpers_contour__["b"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_3__helpers_localizer__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return __WEBPACK_IMPORTED_MODULE_3__helpers_localizer__["b"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return __WEBPACK_IMPORTED_MODULE_4__helpers_lut__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return __WEBPACK_IMPORTED_MODULE_5__helpers_segmentationlut__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return __WEBPACK_IMPORTED_MODULE_6__helpers_progressbar__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return __WEBPACK_IMPORTED_MODULE_7__helpers_progressbar_eventbased__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return __WEBPACK_IMPORTED_MODULE_8__helpers_slice__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "p", function() { return __WEBPACK_IMPORTED_MODULE_8__helpers_slice__["helpersGeometry"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return __WEBPACK_IMPORTED_MODULE_9__helpers_stack__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "r", function() { return __WEBPACK_IMPORTED_MODULE_9__helpers_stack__["b"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return __WEBPACK_IMPORTED_MODULE_10__helpers_volumerendering__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return __WEBPACK_IMPORTED_MODULE_10__helpers_volumerendering__["b"]; });
+
 
 
 
@@ -67658,13 +67967,14 @@ var Trackballortho = function (_EventDispatcher) {
 
 
 /***/ }),
-/* 100 */
+/* 101 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_contour_uniform__ = __webpack_require__(35);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_contour_vertex__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_contour_fragment__ = __webpack_require__(37);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return helpersContour; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_contour_uniform__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_contour_vertex__ = __webpack_require__(34);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_contour_fragment__ = __webpack_require__(35);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -67681,186 +67991,198 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /**
 * @module helpers/contour
 */
+var helpersContour = function helpersContour() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
-var HelpersContour = function (_THREE$Object3D) {
-  _inherits(HelpersContour, _THREE$Object3D);
-
-  function HelpersContour(stack, geometry, texture) {
-    _classCallCheck(this, HelpersContour);
-
-    var _this = _possibleConstructorReturn(this, _THREE$Object3D.call(this));
-    //
-
-
-    _this._stack = stack;
-    _this._textureToFilter = texture;
-    _this._contourWidth = 1;
-    _this._contourOpacity = 1;
-    _this._canvasWidth = 0;
-    _this._canvasHeight = 0;
-    _this._shadersFragment = __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_contour_fragment__["a" /* default */];
-    _this._shadersVertex = __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_contour_vertex__["a" /* default */];
-    _this._uniforms = __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_contour_uniform__["a" /* default */].uniforms();
-    _this._material = null;
-    _this._geometry = geometry;
-
-    _this._create();
-    return _this;
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
   }
 
-  HelpersContour.prototype._create = function _create() {
-    this._prepareMaterial();
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
-    this._mesh.applyMatrix(this._stack._ijk2LPS);
-    this.add(this._mesh);
-  };
+  var Constructor = three.Object3D;
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
 
-  HelpersContour.prototype._prepareMaterial = function _prepareMaterial() {
-    if (!this._material) {
-      // contour default width
-      this._uniforms.uWidth.value = this._contourWidth;
-      this._uniforms.uOpacity.value = this._contourOpacity;
+    function _class(stack, geometry, texture) {
+      _classCallCheck(this, _class);
 
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this));
       //
-      this._uniforms.uCanvasWidth.value = this._canvasWidth;
-      this._uniforms.uCanvasHeight.value = this._canvasHeight;
 
-      // generate material
-      var fs = new __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_contour_fragment__["a" /* default */](this._uniforms);
-      var vs = new __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_contour_vertex__["a" /* default */]();
-      this._material = new THREE.ShaderMaterial({
-        side: THREE.DoubleSide,
-        uniforms: this._uniforms,
-        vertexShader: vs.compute(),
-        fragmentShader: fs.compute(),
-        transparent: true
-      });
-    }
-  };
 
-  HelpersContour.prototype.update = function update() {
-    if (this._mesh) {
-      this.remove(this._mesh);
-      this._mesh.geometry.dispose();
-      this._mesh.geometry = null;
-      this._mesh = null;
+      _this._stack = stack;
+      _this._textureToFilter = texture;
+      _this._contourWidth = 1;
+      _this._contourOpacity = 1;
+      _this._canvasWidth = 0;
+      _this._canvasHeight = 0;
+      _this._shadersFragment = __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_contour_fragment__["a" /* default */];
+      _this._shadersVertex = __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_contour_vertex__["a" /* default */];
+      _this._uniforms = __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_contour_uniform__["a" /* default */].uniforms();
+      _this._material = null;
+      _this._geometry = geometry;
+
+      _this._create();
+      return _this;
     }
 
-    this._create();
-  };
+    _class.prototype._create = function _create() {
+      this._prepareMaterial();
+      this._mesh = new three.Mesh(this._geometry, this._material);
+      this._mesh.applyMatrix(this._stack._ijk2LPS);
+      this.add(this._mesh);
+    };
 
-  HelpersContour.prototype.dispose = function dispose() {
-    //
-    if (this._textureToFilter !== null) {
-      this._textureToFilter.dispose();
-      this._textureToFilter = null;
-    }
+    _class.prototype._prepareMaterial = function _prepareMaterial() {
+      if (!this._material) {
+        // contour default width
+        this._uniforms.uWidth.value = this._contourWidth;
+        this._uniforms.uOpacity.value = this._contourOpacity;
 
-    this._shadersFragment = null;
-    this._shadersVertex = null;
+        //
+        this._uniforms.uCanvasWidth.value = this._canvasWidth;
+        this._uniforms.uCanvasHeight.value = this._canvasHeight;
 
-    this._uniforms = null;
+        // generate material
+        var fs = new __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_contour_fragment__["a" /* default */](this._uniforms);
+        var vs = new __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_contour_vertex__["a" /* default */]();
+        this._material = new three.ShaderMaterial({
+          side: three.DoubleSide,
+          uniforms: this._uniforms,
+          vertexShader: vs.compute(),
+          fragmentShader: fs.compute(),
+          transparent: true
+        });
+      }
+    };
 
-    // material, geometry and mesh
-    this.remove(this._mesh);
-    this._mesh.geometry.dispose();
-    this._mesh.geometry = null;
-    this._mesh.material.dispose();
-    this._mesh.material = null;
-    this._mesh = null;
-
-    this._geometry.dispose();
-    this._geometry = null;
-    this._material.vertexShader = null;
-    this._material.fragmentShader = null;
-    this._material.uniforms = null;
-    this._material.dispose();
-    this._material = null;
-
-    this._stack = null;
-  };
-
-  _createClass(HelpersContour, [{
-    key: 'geometry',
-    get: function get() {
-      return this._geometry;
-    },
-    set: function set(geometry) {
+    _class.prototype.update = function update() {
       if (this._mesh) {
         this.remove(this._mesh);
         this._mesh.geometry.dispose();
         this._mesh.geometry = null;
         this._mesh = null;
-
-        this._geometry.dispose();
-        this._geometry = null;
       }
 
-      this._geometry = geometry;
-
       this._create();
-    }
-  }, {
-    key: 'textureToFilter',
-    get: function get() {
-      return this._textureToFilter;
-    },
-    set: function set(texture) {
-      this._textureToFilter = texture;
-      this._uniforms.uTextureFilled.value = texture;
-      this._material.needsUpdate = true;
-    }
-  }, {
-    key: 'contourOpacity',
-    get: function get() {
-      return this._contourOpacity;
-    },
-    set: function set(contourOpacity) {
-      this._contourOpacity = contourOpacity;
-      this._uniforms.uOpacity.value = this._contourOpacity;
-    }
-  }, {
-    key: 'contourWidth',
-    get: function get() {
-      return this._contourWidth;
-    },
-    set: function set(contourWidth) {
-      this._contourWidth = contourWidth;
-      this._uniforms.uWidth.value = this._contourWidth;
-    }
-  }, {
-    key: 'canvasWidth',
-    get: function get() {
-      return this._canvasWidth;
-    },
-    set: function set(canvasWidth) {
-      this._canvasWidth = canvasWidth;
-      this._uniforms.uCanvasWidth.value = this._canvasWidth;
-    }
-  }, {
-    key: 'canvasHeight',
-    get: function get() {
-      return this._canvasHeight;
-    },
-    set: function set(canvasHeight) {
-      this._canvasHeight = canvasHeight;
-      this._uniforms.uCanvasHeight.value = this._canvasHeight;
-    }
-  }]);
+    };
 
-  return HelpersContour;
-}(THREE.Object3D);
+    _class.prototype.dispose = function dispose() {
+      //
+      if (this._textureToFilter !== null) {
+        this._textureToFilter.dispose();
+        this._textureToFilter = null;
+      }
 
-/* harmony default export */ __webpack_exports__["a"] = (HelpersContour);
+      this._shadersFragment = null;
+      this._shadersVertex = null;
+
+      this._uniforms = null;
+
+      // material, geometry and mesh
+      this.remove(this._mesh);
+      this._mesh.geometry.dispose();
+      this._mesh.geometry = null;
+      this._mesh.material.dispose();
+      this._mesh.material = null;
+      this._mesh = null;
+
+      this._geometry.dispose();
+      this._geometry = null;
+      this._material.vertexShader = null;
+      this._material.fragmentShader = null;
+      this._material.uniforms = null;
+      this._material.dispose();
+      this._material = null;
+
+      this._stack = null;
+    };
+
+    _createClass(_class, [{
+      key: 'geometry',
+      get: function get() {
+        return this._geometry;
+      },
+      set: function set(geometry) {
+        if (this._mesh) {
+          this.remove(this._mesh);
+          this._mesh.geometry.dispose();
+          this._mesh.geometry = null;
+          this._mesh = null;
+
+          this._geometry.dispose();
+          this._geometry = null;
+        }
+
+        this._geometry = geometry;
+
+        this._create();
+      }
+    }, {
+      key: 'textureToFilter',
+      get: function get() {
+        return this._textureToFilter;
+      },
+      set: function set(texture) {
+        this._textureToFilter = texture;
+        this._uniforms.uTextureFilled.value = texture;
+        this._material.needsUpdate = true;
+      }
+    }, {
+      key: 'contourOpacity',
+      get: function get() {
+        return this._contourOpacity;
+      },
+      set: function set(contourOpacity) {
+        this._contourOpacity = contourOpacity;
+        this._uniforms.uOpacity.value = this._contourOpacity;
+      }
+    }, {
+      key: 'contourWidth',
+      get: function get() {
+        return this._contourWidth;
+      },
+      set: function set(contourWidth) {
+        this._contourWidth = contourWidth;
+        this._uniforms.uWidth.value = this._contourWidth;
+      }
+    }, {
+      key: 'canvasWidth',
+      get: function get() {
+        return this._canvasWidth;
+      },
+      set: function set(canvasWidth) {
+        this._canvasWidth = canvasWidth;
+        this._uniforms.uCanvasWidth.value = this._canvasWidth;
+      }
+    }, {
+      key: 'canvasHeight',
+      get: function get() {
+        return this._canvasHeight;
+      },
+      set: function set(canvasHeight) {
+        this._canvasHeight = canvasHeight;
+        this._uniforms.uCanvasHeight.value = this._canvasHeight;
+      }
+    }]);
+
+    return _class;
+  }(Constructor);
+};
+
+// export factory
+
+// default export to
+/* harmony default export */ __webpack_exports__["a"] = (helpersContour());
 
 /***/ }),
-/* 101 */
+/* 102 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_localizer_uniform__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_localizer_vertex__ = __webpack_require__(39);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_localizer_fragment__ = __webpack_require__(40);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return helpersLocalizer; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_localizer_uniform__ = __webpack_require__(36);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_localizer_vertex__ = __webpack_require__(37);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_localizer_fragment__ = __webpack_require__(38);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -67877,240 +68199,249 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /**
  * @module helpers/localizer
  */
+var helpersLocalizer = function helpersLocalizer() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
-var HelpersLocalizer = function (_THREE$Object3D) {
-  _inherits(HelpersLocalizer, _THREE$Object3D);
-
-  function HelpersLocalizer(stack, geometry, referencePlane) {
-    _classCallCheck(this, HelpersLocalizer);
-
-    var _this = _possibleConstructorReturn(this, _THREE$Object3D.call(this));
-    //
-
-
-    _this._stack = stack;
-    _this._referencePlane = referencePlane;
-    _this._plane1 = null;
-    _this._color1 = null;
-    _this._plane2 = null;
-    _this._color2 = null;
-    _this._plane3 = null;
-    _this._color3 = null;
-    _this._canvasWidth = 0;
-    _this._canvasHeight = 0;
-    _this._shadersFragment = __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_localizer_fragment__["a" /* default */];
-    _this._shadersVertex = __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_localizer_vertex__["a" /* default */];
-    _this._uniforms = __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_localizer_uniform__["a" /* default */].uniforms();
-    _this._material = null;
-    _this._geometry = geometry;
-
-    _this._create();
-    return _this;
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
   }
 
-  HelpersLocalizer.prototype._create = function _create() {
-    this._prepareMaterial();
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
-    this._mesh.applyMatrix(this._stack._ijk2LPS);
-    this.add(this._mesh);
-  };
+  var Constructor = three.Object3D;
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
 
-  HelpersLocalizer.prototype._prepareMaterial = function _prepareMaterial() {
-    if (!this._material) {
-      // reference plane
-      this._uniforms.uSlice.value = this._referencePlane;
+    function _class(stack, geometry, referencePlane) {
+      _classCallCheck(this, _class);
 
-      // localizer planes
-      if (this._plane1) {
-        this._uniforms.uPlane1.value = this._plane1;
-        this._uniforms.uPlaneColor1.value = this._color1;
-      }
-
-      if (this._plane2) {
-        this._uniforms.uPlane2.value = this._plane2;
-        this._uniforms.uPlaneColor2.value = this._color2;
-      }
-
-      if (this._plane3) {
-        this._uniforms.uPlane3.value = this._plane3;
-        this._uniforms.uPlaneColor3.value = this._color3;
-      }
-
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this));
       //
-      this._uniforms.uCanvasWidth.value = this._canvasWidth;
-      this._uniforms.uCanvasHeight.value = this._canvasHeight;
 
-      // generate material
-      var fs = new __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_localizer_fragment__["a" /* default */](this._uniforms);
-      var vs = new __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_localizer_vertex__["a" /* default */]();
-      this._material = new THREE.ShaderMaterial({ side: THREE.DoubleSide,
-        uniforms: this._uniforms,
-        vertexShader: vs.compute(),
-        fragmentShader: fs.compute()
-      });
-      this._material.transparent = true;
+
+      _this._stack = stack;
+      _this._referencePlane = referencePlane;
+      _this._plane1 = null;
+      _this._color1 = null;
+      _this._plane2 = null;
+      _this._color2 = null;
+      _this._plane3 = null;
+      _this._color3 = null;
+      _this._canvasWidth = 0;
+      _this._canvasHeight = 0;
+      _this._shadersFragment = __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_localizer_fragment__["a" /* default */];
+      _this._shadersVertex = __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_localizer_vertex__["a" /* default */];
+      _this._uniforms = __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_localizer_uniform__["a" /* default */].uniforms();
+      _this._material = null;
+      _this._geometry = geometry;
+
+      _this._create();
+      return _this;
     }
-  };
 
-  HelpersLocalizer.prototype.update = function update() {
-    if (this._mesh) {
-      this.remove(this._mesh);
-      this._mesh.geometry.dispose();
-      this._mesh.geometry = null;
-      this._mesh = null;
-    }
+    _class.prototype._create = function _create() {
+      this._prepareMaterial();
+      this._mesh = new three.Mesh(this._geometry, this._material);
+      this._mesh.applyMatrix(this._stack._ijk2LPS);
+      this.add(this._mesh);
+    };
 
-    this._create();
-  };
+    _class.prototype._prepareMaterial = function _prepareMaterial() {
+      if (!this._material) {
+        // reference plane
+        this._uniforms.uSlice.value = this._referencePlane;
 
-  HelpersLocalizer.prototype.dispose = function dispose() {
-    //
-    this._referencePlane = null;
-    this._plane1 = null;
-    this._color1 = null;
-    this._plane2 = null;
-    this._color2 = null;
-    this._plane3 = null;
-    this._color3 = null;
+        // localizer planes
+        if (this._plane1) {
+          this._uniforms.uPlane1.value = this._plane1;
+          this._uniforms.uPlaneColor1.value = this._color1;
+        }
 
-    this._shadersFragment = null;
-    this._shadersVertex = null;
+        if (this._plane2) {
+          this._uniforms.uPlane2.value = this._plane2;
+          this._uniforms.uPlaneColor2.value = this._color2;
+        }
 
-    this._uniforms = null;
+        if (this._plane3) {
+          this._uniforms.uPlane3.value = this._plane3;
+          this._uniforms.uPlaneColor3.value = this._color3;
+        }
 
-    // material, geometry and mesh
-    this.remove(this._mesh);
-    this._mesh.geometry.dispose();
-    this._mesh.geometry = null;
-    this._mesh.material.dispose();
-    this._mesh.material = null;
-    this._mesh = null;
+        //
+        this._uniforms.uCanvasWidth.value = this._canvasWidth;
+        this._uniforms.uCanvasHeight.value = this._canvasHeight;
 
-    this._geometry.dispose();
-    this._geometry = null;
-    this._material.vertexShader = null;
-    this._material.fragmentShader = null;
-    this._material.uniforms = null;
-    this._material.dispose();
-    this._material = null;
+        // generate material
+        var fs = new __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_localizer_fragment__["a" /* default */](this._uniforms);
+        var vs = new __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_localizer_vertex__["a" /* default */]();
+        this._material = new three.ShaderMaterial({ side: three.DoubleSide,
+          uniforms: this._uniforms,
+          vertexShader: vs.compute(),
+          fragmentShader: fs.compute()
+        });
+        this._material.transparent = true;
+      }
+    };
 
-    this._stack = null;
-  };
-
-  _createClass(HelpersLocalizer, [{
-    key: 'geometry',
-    get: function get() {
-      return this._geometry;
-    },
-    set: function set(geometry) {
+    _class.prototype.update = function update() {
       if (this._mesh) {
         this.remove(this._mesh);
         this._mesh.geometry.dispose();
         this._mesh.geometry = null;
         this._mesh = null;
-
-        this._geometry.dispose();
-        this._geometry = null;
       }
 
-      this._geometry = geometry;
-
       this._create();
-    }
-  }, {
-    key: 'referencePlane',
-    get: function get() {
-      return this._referencePlane;
-    },
-    set: function set(referencePlane) {
-      this._referencePlane = referencePlane;
-      this._uniforms.uSlice.value = this._referencePlane;
-    }
-  }, {
-    key: 'plane1',
-    get: function get() {
-      return this._plane1;
-    },
-    set: function set(plane1) {
-      this._plane1 = plane1;
-      this._uniforms.uPlane1.value = this._plane1;
-    }
-  }, {
-    key: 'color1',
-    get: function get() {
-      return this._color1;
-    },
-    set: function set(color1) {
-      this._color1 = color1;
-      this._uniforms.uPlaneColor1.value = this._color1;
-    }
-  }, {
-    key: 'plane2',
-    get: function get() {
-      return this._plane2;
-    },
-    set: function set(plane2) {
-      this._plane2 = plane2;
-      this._uniforms.uPlane2.value = this._plane2;
-    }
-  }, {
-    key: 'color2',
-    get: function get() {
-      return this._color2;
-    },
-    set: function set(color2) {
-      this._color2 = color2;
-      this._uniforms.uPlaneColor2.value = this._color2;
-    }
-  }, {
-    key: 'plane3',
-    get: function get() {
-      return this._plane3;
-    },
-    set: function set(plane3) {
-      this._plane3 = plane3;
-      this._uniforms.uPlane3.value = this._plane3;
-    }
-  }, {
-    key: 'color3',
-    get: function get() {
-      return this._color3;
-    },
-    set: function set(color3) {
-      this._color3 = color3;
-      this._uniforms.uPlaneColor3.value = this._color3;
-    }
-  }, {
-    key: 'canvasWidth',
-    get: function get() {
-      return this._canvasWidth;
-    },
-    set: function set(canvasWidth) {
-      this._canvasWidth = canvasWidth;
-      this._uniforms.uCanvasWidth.value = this._canvasWidth;
-    }
-  }, {
-    key: 'canvasHeight',
-    get: function get() {
-      return this._canvasHeight;
-    },
-    set: function set(canvasHeight) {
-      this._canvasHeight = canvasHeight;
-      this._uniforms.uCanvasHeight.value = this._canvasHeight;
-    }
-  }]);
+    };
 
-  return HelpersLocalizer;
-}(THREE.Object3D);
+    _class.prototype.dispose = function dispose() {
+      //
+      this._referencePlane = null;
+      this._plane1 = null;
+      this._color1 = null;
+      this._plane2 = null;
+      this._color2 = null;
+      this._plane3 = null;
+      this._color3 = null;
 
-/* harmony default export */ __webpack_exports__["a"] = (HelpersLocalizer);
+      this._shadersFragment = null;
+      this._shadersVertex = null;
+
+      this._uniforms = null;
+
+      // material, geometry and mesh
+      this.remove(this._mesh);
+      this._mesh.geometry.dispose();
+      this._mesh.geometry = null;
+      this._mesh.material.dispose();
+      this._mesh.material = null;
+      this._mesh = null;
+
+      this._geometry.dispose();
+      this._geometry = null;
+      this._material.vertexShader = null;
+      this._material.fragmentShader = null;
+      this._material.uniforms = null;
+      this._material.dispose();
+      this._material = null;
+
+      this._stack = null;
+    };
+
+    _createClass(_class, [{
+      key: 'geometry',
+      get: function get() {
+        return this._geometry;
+      },
+      set: function set(geometry) {
+        if (this._mesh) {
+          this.remove(this._mesh);
+          this._mesh.geometry.dispose();
+          this._mesh.geometry = null;
+          this._mesh = null;
+
+          this._geometry.dispose();
+          this._geometry = null;
+        }
+
+        this._geometry = geometry;
+
+        this._create();
+      }
+    }, {
+      key: 'referencePlane',
+      get: function get() {
+        return this._referencePlane;
+      },
+      set: function set(referencePlane) {
+        this._referencePlane = referencePlane;
+        this._uniforms.uSlice.value = this._referencePlane;
+      }
+    }, {
+      key: 'plane1',
+      get: function get() {
+        return this._plane1;
+      },
+      set: function set(plane1) {
+        this._plane1 = plane1;
+        this._uniforms.uPlane1.value = this._plane1;
+      }
+    }, {
+      key: 'color1',
+      get: function get() {
+        return this._color1;
+      },
+      set: function set(color1) {
+        this._color1 = color1;
+        this._uniforms.uPlaneColor1.value = this._color1;
+      }
+    }, {
+      key: 'plane2',
+      get: function get() {
+        return this._plane2;
+      },
+      set: function set(plane2) {
+        this._plane2 = plane2;
+        this._uniforms.uPlane2.value = this._plane2;
+      }
+    }, {
+      key: 'color2',
+      get: function get() {
+        return this._color2;
+      },
+      set: function set(color2) {
+        this._color2 = color2;
+        this._uniforms.uPlaneColor2.value = this._color2;
+      }
+    }, {
+      key: 'plane3',
+      get: function get() {
+        return this._plane3;
+      },
+      set: function set(plane3) {
+        this._plane3 = plane3;
+        this._uniforms.uPlane3.value = this._plane3;
+      }
+    }, {
+      key: 'color3',
+      get: function get() {
+        return this._color3;
+      },
+      set: function set(color3) {
+        this._color3 = color3;
+        this._uniforms.uPlaneColor3.value = this._color3;
+      }
+    }, {
+      key: 'canvasWidth',
+      get: function get() {
+        return this._canvasWidth;
+      },
+      set: function set(canvasWidth) {
+        this._canvasWidth = canvasWidth;
+        this._uniforms.uCanvasWidth.value = this._canvasWidth;
+      }
+    }, {
+      key: 'canvasHeight',
+      get: function get() {
+        return this._canvasHeight;
+      },
+      set: function set(canvasHeight) {
+        this._canvasHeight = canvasHeight;
+        this._uniforms.uCanvasHeight.value = this._canvasHeight;
+      }
+    }]);
+
+    return _class;
+  }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["a"] = (helpersLocalizer());
 
 /***/ }),
-/* 102 */
+/* 103 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_core_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_core_utils__ = __webpack_require__(0);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -68351,11 +68682,11 @@ var HelpersLut = function () {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersLut);
 
 /***/ }),
-/* 103 */
+/* 104 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_core_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_core_utils__ = __webpack_require__(0);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -68474,11 +68805,11 @@ var HelpersSegmentationLut = function () {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersSegmentationLut);
 
 /***/ }),
-/* 104 */
+/* 105 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_core_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core_core_utils__ = __webpack_require__(0);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
@@ -68633,11 +68964,11 @@ var HelpersProgressBarEventBased = function () {
 /* harmony default export */ __webpack_exports__["a"] = (HelpersProgressBarEventBased);
 
 /***/ }),
-/* 105 */
+/* 106 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_base__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_base__ = __webpack_require__(10);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -68777,11 +69108,11 @@ var Unpack = function (_ShadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (new Unpack());
 
 /***/ }),
-/* 106 */
+/* 107 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_base__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_base__ = __webpack_require__(10);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -68833,12 +69164,12 @@ var Texture3d = function (_ShadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (new Texture3d());
 
 /***/ }),
-/* 107 */
+/* 108 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_base__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_base__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__ = __webpack_require__(45);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -68891,14 +69222,14 @@ var InterpolationTrilinear = function (_ShadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (new InterpolationTrilinear());
 
 /***/ }),
-/* 108 */
+/* 109 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__helpers_helpers_border__ = __webpack_require__(33);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_helpers_boundingbox__ = __webpack_require__(34);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_helpers_slice__ = __webpack_require__(42);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_three__ = __webpack_require__(0);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return helpersStack; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__helpers_helpers_border__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__helpers_helpers_boundingbox__ = __webpack_require__(32);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__helpers_helpers_slice__ = __webpack_require__(40);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -68908,8 +69239,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /** * Imports ***/
-
-
 
 
 
@@ -68932,7 +69261,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * let stack = new VJS.Models.Stack();
  * ... // prepare the stack
  *
- * let stackHelper = new VJS.Helpers.Stack(stack);
+ * let helpersStack = new VJS.Helpers.Stack(stack);
  * stackHelper.bbox.color = 0xF9F9F9;
  * stackHelper.border.color = 0xF9F9F9;
  *
@@ -68945,469 +69274,483 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  *
  * @module helpers/stack
  */
+var helpersStack = function helpersStack() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
-var HelpersStack = function (_THREE$Object3D) {
-  _inherits(HelpersStack, _THREE$Object3D);
-
-  function HelpersStack(stack) {
-    _classCallCheck(this, HelpersStack);
-
-    var _this = _possibleConstructorReturn(this, _THREE$Object3D.call(this));
-    //
-
-
-    _this._stack = stack;
-    _this._bBox = null;
-    _this._slice = null;
-    _this._border = null;
-    _this._dummy = null;
-
-    _this._orientation = 0;
-    _this._index = 0;
-
-    _this._uniforms = null;
-    _this._autoWindowLevel = false;
-    _this._outOfBounds = false;
-    _this._orientationMaxIndex = 0;
-
-    _this._canvasWidth = 0;
-    _this._canvasHeight = 0;
-    _this._borderColor = null;
-
-    _this._create();
-    return _this;
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
   }
 
-  /**
-   * Get stack.
-   *
-   * @type {ModelsStack}
-   */
+  var Constructor = three.Object3D;
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
+
+    function _class(stack) {
+      _classCallCheck(this, _class);
+
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this));
+      //
 
 
-  //
-  // PRIVATE METHODS
-  //
+      _this._stack = stack;
+      _this._bBox = null;
+      _this._slice = null;
+      _this._border = null;
+      _this._dummy = null;
 
-  /**
-   * Initial setup, including stack prepare, bbox prepare, slice prepare and
-   * border prepare.
-   *
-   * @private
-   */
-  HelpersStack.prototype._create = function _create() {
-    if (this._stack) {
-      // prepare sthe stack internals
-      this._prepareStack();
+      _this._orientation = 0;
+      _this._index = 0;
 
-      // prepare visual objects
-      this._prepareBBox();
-      this._prepareSlice();
-      this._prepareBorder();
-      // todo: Arrow
-    } else {
-      window.console.log('no stack to be prepared...');
-    }
-  };
+      _this._uniforms = null;
+      _this._autoWindowLevel = false;
+      _this._outOfBounds = false;
+      _this._orientationMaxIndex = 0;
 
-  HelpersStack.prototype._computeOrientationMaxIndex = function _computeOrientationMaxIndex() {
-    var dimensionsIJK = this._stack.dimensionsIJK;
-    this._orientationMaxIndex = 0;
-    switch (this._orientation) {
-      case 0:
-        this._orientationMaxIndex = dimensionsIJK.z - 1;
-        break;
-      case 1:
-        this._orientationMaxIndex = dimensionsIJK.x - 1;
-        break;
-      case 2:
-        this._orientationMaxIndex = dimensionsIJK.y - 1;
-        break;
-      default:
-        // do nothing!
-        break;
-    }
-  };
+      _this._canvasWidth = 0;
+      _this._canvasHeight = 0;
+      _this._borderColor = null;
 
-  /**
-   * Given orientation, check if index is in/out of bounds.
-   *
-   * @private
-   */
-
-
-  HelpersStack.prototype._isIndexOutOfBounds = function _isIndexOutOfBounds() {
-    this._computeOrientationMaxIndex();
-    if (this._index >= this._orientationMaxIndex || this._index < 0) {
-      this._outOfBounds = true;
-    } else {
-      this._outOfBounds = false;
-    }
-  };
-
-  /**
-   * Prepare a stack for visualization. (image to world transform, frames order,
-   * pack data into 8 bits textures, etc.)
-   *
-   * @private
-   */
-
-
-  HelpersStack.prototype._prepareStack = function _prepareStack() {
-    // make sure there is something, if not throw an error
-    // compute image to workd transform, order frames, etc.
-    if (!this._stack.prepared) {
-      this._stack.prepare();
-    }
-    // pack data into 8 bits rgba texture for the shader
-    // this one can be slow...
-    if (!this._stack.packed) {
-      this._stack.pack();
-    }
-  };
-
-  /**
-   * Setup bounding box helper given prepared stack and add bounding box helper
-   * to stack helper.
-   *
-   * @private
-   */
-
-
-  HelpersStack.prototype._prepareBBox = function _prepareBBox() {
-    this._bBox = new __WEBPACK_IMPORTED_MODULE_1__helpers_helpers_boundingbox__["a" /* default */](this._stack);
-    this.add(this._bBox);
-  };
-
-  /**
-   * Setup border helper given slice helper and add border helper
-   * to stack helper.
-   *
-   * @private
-   */
-
-
-  HelpersStack.prototype._prepareBorder = function _prepareBorder() {
-    this._border = new __WEBPACK_IMPORTED_MODULE_0__helpers_helpers_border__["a" /* default */](this._slice);
-    this.add(this._border);
-  };
-
-  /**
-   * Setup slice helper given prepared stack helper and add slice helper
-   * to stack helper.
-   *
-   * @private
-   */
-
-
-  HelpersStack.prototype._prepareSlice = function _prepareSlice() {
-    var halfDimensionsIJK = this._stack.halfDimensionsIJK;
-    // compute initial index given orientation
-    this._index = this._prepareSliceIndex(halfDimensionsIJK);
-    // compute initial position given orientation and index
-    var position = this._prepareSlicePosition(halfDimensionsIJK, this._index);
-    // compute initial direction orientation
-    var direction = this._prepareDirection(this._orientation);
-
-    this._slice = new __WEBPACK_IMPORTED_MODULE_2__helpers_helpers_slice__["a" /* default */](this._stack, this._index, position, direction);
-    this.add(this._slice);
-  };
-
-  /**
-   * Compute slice index depending on orientation.
-   *
-   * @param {Vector3} indices - Indices in each direction.
-   *
-   * @returns {number} Slice index according to current orientation.
-   *
-   * @private
-   */
-
-
-  HelpersStack.prototype._prepareSliceIndex = function _prepareSliceIndex(indices) {
-    var index = 0;
-    switch (this._orientation) {
-      case 0:
-        index = Math.floor(indices.z);
-        break;
-      case 1:
-        index = Math.floor(indices.x);
-        break;
-      case 2:
-        index = Math.floor(indices.y);
-        break;
-      default:
-        // do nothing!
-        break;
-    }
-    return index;
-  };
-
-  /**
-   * Compute slice position depending on orientation.
-   * Sets index in proper location of reference position.
-   *
-   * @param {Vector3} rPosition - Reference position.
-   * @param {number} index - Current index.
-   *
-   * @returns {number} Slice index according to current orientation.
-   *
-   * @private
-   */
-
-
-  HelpersStack.prototype._prepareSlicePosition = function _prepareSlicePosition(rPosition, index) {
-    var position = new __WEBPACK_IMPORTED_MODULE_3_three__["f" /* Vector3 */](0, 0, 0);
-    switch (this._orientation) {
-      case 0:
-        position = new __WEBPACK_IMPORTED_MODULE_3_three__["f" /* Vector3 */](Math.floor(rPosition.x), Math.floor(rPosition.y), index);
-        break;
-      case 1:
-        position = new __WEBPACK_IMPORTED_MODULE_3_three__["f" /* Vector3 */](index, Math.floor(rPosition.y), Math.floor(rPosition.z));
-        break;
-      case 2:
-        position = new __WEBPACK_IMPORTED_MODULE_3_three__["f" /* Vector3 */](Math.floor(rPosition.x), index, Math.floor(rPosition.z));
-        break;
-      default:
-        // do nothing!
-        break;
-    }
-    return position;
-  };
-
-  /**
-   * Compute slice direction depending on orientation.
-   *
-   * @param {number} orientation - Slice orientation.
-   *
-   * @returns {Vector3} Slice direction
-   *
-   * @private
-   */
-
-
-  HelpersStack.prototype._prepareDirection = function _prepareDirection(orientation) {
-    var direction = new __WEBPACK_IMPORTED_MODULE_3_three__["f" /* Vector3 */](0, 0, 1);
-    switch (orientation) {
-      case 0:
-        direction = new __WEBPACK_IMPORTED_MODULE_3_three__["f" /* Vector3 */](0, 0, 1);
-        break;
-      case 1:
-        direction = new __WEBPACK_IMPORTED_MODULE_3_three__["f" /* Vector3 */](1, 0, 0);
-        break;
-      case 2:
-        direction = new __WEBPACK_IMPORTED_MODULE_3_three__["f" /* Vector3 */](0, 1, 0);
-        break;
-      default:
-        // do nothing!
-        break;
-    }
-
-    return direction;
-  };
-
-  /**
-   * Release the stack helper memory including the slice memory.
-   *
-   * @public
-   */
-
-
-  HelpersStack.prototype.dispose = function dispose() {
-    this.remove(this._slice);
-    this._slice.dispose();
-    this._slice = null;
-    this._bBox.dispose();
-    this._bBox = null;
-    this._border.dispose();
-    this._border = null;
-  };
-
-  _createClass(HelpersStack, [{
-    key: 'stack',
-    get: function get() {
-      return this._stack;
+      _this._create();
+      return _this;
     }
 
     /**
-     * Set stack.
+     * Get stack.
      *
      * @type {ModelsStack}
      */
-    ,
-    set: function set(stack) {
-      this._stack = stack;
-    }
+
+
+    //
+    // PRIVATE METHODS
+    //
 
     /**
-     * Get bounding box helper.
+     * Initial setup, including stack prepare, bbox prepare, slice prepare and
+     * border prepare.
      *
-     * @type {HelpersBoundingBox}
+     * @private
      */
+    _class.prototype._create = function _create() {
+      if (this._stack) {
+        // prepare sthe stack internals
+        this._prepareStack();
 
-  }, {
-    key: 'bbox',
-    get: function get() {
-      return this._bBox;
-    }
+        // prepare visual objects
+        this._prepareBBox();
+        this._prepareSlice();
+        this._prepareBorder();
+        // todo: Arrow
+      } else {
+        window.console.log('no stack to be prepared...');
+      }
+    };
+
+    _class.prototype._computeOrientationMaxIndex = function _computeOrientationMaxIndex() {
+      var dimensionsIJK = this._stack.dimensionsIJK;
+      this._orientationMaxIndex = 0;
+      switch (this._orientation) {
+        case 0:
+          this._orientationMaxIndex = dimensionsIJK.z - 1;
+          break;
+        case 1:
+          this._orientationMaxIndex = dimensionsIJK.x - 1;
+          break;
+        case 2:
+          this._orientationMaxIndex = dimensionsIJK.y - 1;
+          break;
+        default:
+          // do nothing!
+          break;
+      }
+    };
 
     /**
-     * Get slice helper.
+     * Given orientation, check if index is in/out of bounds.
      *
-     * @type {HelpersSlice}
+     * @private
      */
 
-  }, {
-    key: 'slice',
-    get: function get() {
-      return this._slice;
-    }
 
-    /**
-     * Get border helper.
-     *
-     * @type {HelpersSlice}
-     */
-
-  }, {
-    key: 'border',
-    get: function get() {
-      return this._border;
-    }
-
-    /**
-     * Set/get current slice index.<br>
-     * Sets outOfBounds flag to know if target index is in/out stack bounding box.<br>
-     * <br>
-     * Internally updates the sliceHelper index and position. Also updates the
-     * borderHelper with the updated sliceHelper.
-     *
-     * @type {number}
-     */
-
-  }, {
-    key: 'index',
-    get: function get() {
-      return this._index;
-    },
-    set: function set(index) {
-      this._index = index;
-
-      // update the slice
-      this._slice.index = index;
-      var halfDimensions = this._stack.halfDimensionsIJK;
-      this._slice.planePosition = this._prepareSlicePosition(halfDimensions, this._index);
-
-      // also update the border
-      this._border.helpersSlice = this._slice;
-
-      // update ourOfBounds flag
-      this._isIndexOutOfBounds();
-    }
-
-    /**
-     * Set/get current slice orientation.<br>
-     * Values: <br>
-     *   - 0: acquisition direction (slice normal is z_cosine)<br>
-     *   - 1: next direction (slice normal is x_cosine)<br>
-     *   - 2: next direction (slice normal is y_cosine)<br>
-     *   - n: set orientation to 0<br>
-     * <br>
-     * Internally updates the sliceHelper direction. Also updates the
-     * borderHelper with the updated sliceHelper.
-     *
-     * @type {number}
-     */
-
-  }, {
-    key: 'orientation',
-    set: function set(orientation) {
-      this._orientation = orientation;
+    _class.prototype._isIndexOutOfBounds = function _isIndexOutOfBounds() {
       this._computeOrientationMaxIndex();
-
-      this._slice.planeDirection = this._prepareDirection(this._orientation);
-
-      // also update the border
-      this._border.helpersSlice = this._slice;
-    },
-    get: function get() {
-      return this._orientation;
-    }
+      if (this._index >= this._orientationMaxIndex || this._index < 0) {
+        this._outOfBounds = true;
+      } else {
+        this._outOfBounds = false;
+      }
+    };
 
     /**
-     * Set/get the outOfBound flag.
+     * Prepare a stack for visualization. (image to world transform, frames order,
+     * pack data into 8 bits textures, etc.)
      *
-     * @type {boolean}
+     * @private
      */
 
-  }, {
-    key: 'outOfBounds',
-    set: function set(outOfBounds) {
-      this._outOfBounds = outOfBounds;
-    },
-    get: function get() {
-      return this._outOfBounds;
-    }
+
+    _class.prototype._prepareStack = function _prepareStack() {
+      // make sure there is something, if not throw an error
+      // compute image to workd transform, order frames, etc.
+      if (!this._stack.prepared) {
+        this._stack.prepare();
+      }
+      // pack data into 8 bits rgba texture for the shader
+      // this one can be slow...
+      if (!this._stack.packed) {
+        this._stack.pack();
+      }
+    };
 
     /**
-     * Set/get the orientationMaxIndex flag.
+     * Setup bounding box helper given prepared stack and add bounding box helper
+     * to stack helper.
      *
-     * @type {boolean}
+     * @private
      */
 
-  }, {
-    key: 'orientationMaxIndex',
-    set: function set(orientationMaxIndex) {
-      this._orientationMaxIndex = orientationMaxIndex;
-    },
-    get: function get() {
-      return this._orientationMaxIndex;
-    }
-  }, {
-    key: 'canvasWidth',
-    set: function set(canvasWidth) {
-      this._canvasWidth = canvasWidth;
-      this._slice.canvasWidth = this._canvasWidth;
-    },
-    get: function get() {
-      return this._canvasWidth;
-    }
-  }, {
-    key: 'canvasHeight',
-    set: function set(canvasHeight) {
-      this._canvasHeight = canvasHeight;
-      this._slice.canvasHeight = this._canvasHeight;
-    },
-    get: function get() {
-      return this._canvasHeight;
-    }
-  }, {
-    key: 'borderColor',
-    set: function set(borderColor) {
-      this._borderColor = borderColor;
-      this._border.color = borderColor;
-      this._slice.borderColor = this._borderColor;
-    },
-    get: function get() {
-      return this._borderColor;
-    }
-  }]);
 
-  return HelpersStack;
-}(THREE.Object3D);
+    _class.prototype._prepareBBox = function _prepareBBox() {
+      var HelpersBoundingBoxConstructor = Object(__WEBPACK_IMPORTED_MODULE_1__helpers_helpers_boundingbox__["b" /* helpersBoundingBox */])(three);
+      this._bBox = new HelpersBoundingBoxConstructor(this._stack);
+      this.add(this._bBox);
+    };
 
-/* harmony default export */ __webpack_exports__["a"] = (HelpersStack);
+    /**
+     * Setup border helper given slice helper and add border helper
+     * to stack helper.
+     *
+     * @private
+     */
+
+
+    _class.prototype._prepareBorder = function _prepareBorder() {
+      var HelpersBorderContructor = Object(__WEBPACK_IMPORTED_MODULE_0__helpers_helpers_border__["b" /* helpersBorder */])(three);
+      this._border = new HelpersBorderContructor(this._slice);
+      this.add(this._border);
+    };
+
+    /**
+     * Setup slice helper given prepared stack helper and add slice helper
+     * to stack helper.
+     *
+     * @private
+     */
+
+
+    _class.prototype._prepareSlice = function _prepareSlice() {
+      var halfDimensionsIJK = this._stack.halfDimensionsIJK;
+      // compute initial index given orientation
+      this._index = this._prepareSliceIndex(halfDimensionsIJK);
+      // compute initial position given orientation and index
+      var position = this._prepareSlicePosition(halfDimensionsIJK, this._index);
+      // compute initial direction orientation
+      var direction = this._prepareDirection(this._orientation);
+
+      var SliceHelperConstructor = Object(__WEBPACK_IMPORTED_MODULE_2__helpers_helpers_slice__["c" /* helpersSlice */])(three);
+      this._slice = new SliceHelperConstructor(this._stack, this._index, position, direction);
+      this.add(this._slice);
+    };
+
+    /**
+     * Compute slice index depending on orientation.
+     *
+     * @param {Vector3} indices - Indices in each direction.
+     *
+     * @returns {number} Slice index according to current orientation.
+     *
+     * @private
+     */
+
+
+    _class.prototype._prepareSliceIndex = function _prepareSliceIndex(indices) {
+      var index = 0;
+      switch (this._orientation) {
+        case 0:
+          index = Math.floor(indices.z);
+          break;
+        case 1:
+          index = Math.floor(indices.x);
+          break;
+        case 2:
+          index = Math.floor(indices.y);
+          break;
+        default:
+          // do nothing!
+          break;
+      }
+      return index;
+    };
+
+    /**
+     * Compute slice position depending on orientation.
+     * Sets index in proper location of reference position.
+     *
+     * @param {Vector3} rPosition - Reference position.
+     * @param {number} index - Current index.
+     *
+     * @returns {number} Slice index according to current orientation.
+     *
+     * @private
+     */
+
+
+    _class.prototype._prepareSlicePosition = function _prepareSlicePosition(rPosition, index) {
+      var position = new three.Vector3(0, 0, 0);
+      switch (this._orientation) {
+        case 0:
+          position = new three.Vector3(Math.floor(rPosition.x), Math.floor(rPosition.y), index);
+          break;
+        case 1:
+          position = new three.Vector3(index, Math.floor(rPosition.y), Math.floor(rPosition.z));
+          break;
+        case 2:
+          position = new three.Vector3(Math.floor(rPosition.x), index, Math.floor(rPosition.z));
+          break;
+        default:
+          // do nothing!
+          break;
+      }
+      return position;
+    };
+
+    /**
+     * Compute slice direction depending on orientation.
+     *
+     * @param {number} orientation - Slice orientation.
+     *
+     * @returns {Vector3} Slice direction
+     *
+     * @private
+     */
+
+
+    _class.prototype._prepareDirection = function _prepareDirection(orientation) {
+      var direction = new three.Vector3(0, 0, 1);
+      switch (orientation) {
+        case 0:
+          direction = new three.Vector3(0, 0, 1);
+          break;
+        case 1:
+          direction = new three.Vector3(1, 0, 0);
+          break;
+        case 2:
+          direction = new three.Vector3(0, 1, 0);
+          break;
+        default:
+          // do nothing!
+          break;
+      }
+
+      return direction;
+    };
+
+    /**
+     * Release the stack helper memory including the slice memory.
+     *
+     * @public
+     */
+
+
+    _class.prototype.dispose = function dispose() {
+      this.remove(this._slice);
+      this._slice.dispose();
+      this._slice = null;
+      this._bBox.dispose();
+      this._bBox = null;
+      this._border.dispose();
+      this._border = null;
+    };
+
+    _createClass(_class, [{
+      key: 'stack',
+      get: function get() {
+        return this._stack;
+      }
+
+      /**
+       * Set stack.
+       *
+       * @type {ModelsStack}
+       */
+      ,
+      set: function set(stack) {
+        this._stack = stack;
+      }
+
+      /**
+       * Get bounding box helper.
+       *
+       * @type {HelpersBoundingBox}
+       */
+
+    }, {
+      key: 'bbox',
+      get: function get() {
+        return this._bBox;
+      }
+
+      /**
+       * Get slice helper.
+       *
+       * @type {HelpersSlice}
+       */
+
+    }, {
+      key: 'slice',
+      get: function get() {
+        return this._slice;
+      }
+
+      /**
+       * Get border helper.
+       *
+       * @type {HelpersSlice}
+       */
+
+    }, {
+      key: 'border',
+      get: function get() {
+        return this._border;
+      }
+
+      /**
+       * Set/get current slice index.<br>
+       * Sets outOfBounds flag to know if target index is in/out stack bounding box.<br>
+       * <br>
+       * Internally updates the sliceHelper index and position. Also updates the
+       * borderHelper with the updated sliceHelper.
+       *
+       * @type {number}
+       */
+
+    }, {
+      key: 'index',
+      get: function get() {
+        return this._index;
+      },
+      set: function set(index) {
+        this._index = index;
+
+        // update the slice
+        this._slice.index = index;
+        var halfDimensions = this._stack.halfDimensionsIJK;
+        this._slice.planePosition = this._prepareSlicePosition(halfDimensions, this._index);
+
+        // also update the border
+        this._border.helpersSlice = this._slice;
+
+        // update ourOfBounds flag
+        this._isIndexOutOfBounds();
+      }
+
+      /**
+       * Set/get current slice orientation.<br>
+       * Values: <br>
+       *   - 0: acquisition direction (slice normal is z_cosine)<br>
+       *   - 1: next direction (slice normal is x_cosine)<br>
+       *   - 2: next direction (slice normal is y_cosine)<br>
+       *   - n: set orientation to 0<br>
+       * <br>
+       * Internally updates the sliceHelper direction. Also updates the
+       * borderHelper with the updated sliceHelper.
+       *
+       * @type {number}
+       */
+
+    }, {
+      key: 'orientation',
+      set: function set(orientation) {
+        this._orientation = orientation;
+        this._computeOrientationMaxIndex();
+
+        this._slice.planeDirection = this._prepareDirection(this._orientation);
+
+        // also update the border
+        this._border.helpersSlice = this._slice;
+      },
+      get: function get() {
+        return this._orientation;
+      }
+
+      /**
+       * Set/get the outOfBound flag.
+       *
+       * @type {boolean}
+       */
+
+    }, {
+      key: 'outOfBounds',
+      set: function set(outOfBounds) {
+        this._outOfBounds = outOfBounds;
+      },
+      get: function get() {
+        return this._outOfBounds;
+      }
+
+      /**
+       * Set/get the orientationMaxIndex flag.
+       *
+       * @type {boolean}
+       */
+
+    }, {
+      key: 'orientationMaxIndex',
+      set: function set(orientationMaxIndex) {
+        this._orientationMaxIndex = orientationMaxIndex;
+      },
+      get: function get() {
+        return this._orientationMaxIndex;
+      }
+    }, {
+      key: 'canvasWidth',
+      set: function set(canvasWidth) {
+        this._canvasWidth = canvasWidth;
+        this._slice.canvasWidth = this._canvasWidth;
+      },
+      get: function get() {
+        return this._canvasWidth;
+      }
+    }, {
+      key: 'canvasHeight',
+      set: function set(canvasHeight) {
+        this._canvasHeight = canvasHeight;
+        this._slice.canvasHeight = this._canvasHeight;
+      },
+      get: function get() {
+        return this._canvasHeight;
+      }
+    }, {
+      key: 'borderColor',
+      set: function set(borderColor) {
+        this._borderColor = borderColor;
+        this._border.color = borderColor;
+        this._slice.borderColor = this._borderColor;
+      },
+      get: function get() {
+        return this._borderColor;
+      }
+    }]);
+
+    return _class;
+  }(Constructor);
+};
+
+// export factory
+
+// default export to
+/* harmony default export */ __webpack_exports__["a"] = (helpersStack());
 
 /***/ }),
-/* 109 */
+/* 110 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_vr_uniform__ = __webpack_require__(49);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_vr_vertex__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_vr_fragment__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__helpers_helpers_material_mixin__ = __webpack_require__(48);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_three__ = __webpack_require__(0);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return helpersVolumeRendering; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_vr_uniform__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_vr_vertex__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_vr_fragment__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__helpers_helpers_material_mixin__ = __webpack_require__(46);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -69423,240 +69766,257 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 
 
-
-
 /**
  * @module helpers/volumerendering
  */
 
-var HelpersVolumeRendering = function (_HelpersMaterialMixin) {
-  _inherits(HelpersVolumeRendering, _HelpersMaterialMixin);
+var helpersVolumeRendering = function helpersVolumeRendering() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
-  function HelpersVolumeRendering(stack) {
-    _classCallCheck(this, HelpersVolumeRendering);
-
-    var _this = _possibleConstructorReturn(this, _HelpersMaterialMixin.call(this));
-    //
-
-
-    _this._stack = stack;
-    _this._textures = [];
-    _this._shadersFragment = __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_vr_fragment__["a" /* default */];
-    _this._shadersVertex = __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_vr_vertex__["a" /* default */];
-    _this._uniforms = __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_vr_uniform__["a" /* default */].uniforms();
-    _this._material = null;
-    _this._geometry = null;
-
-    _this._algorithm = 0; // ray marching
-    _this._alphaCorrection = 0.5; // default
-    _this._interpolation = 1; // default to trilinear interpolation
-    _this._shading = 1; // shading is on by default
-    _this._shininess = 10.0;
-    _this._steps = 256; // default
-    _this._offset = 0.;
-    _this._windowCenter = 0.0;
-    _this._windowWidth = 1.0;
-
-    _this._create();
-    return _this;
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
   }
 
-  HelpersVolumeRendering.prototype._create = function _create() {
-    this._prepareStack();
-    this._prepareTexture();
-    this._prepareMaterial();
-    this._prepareGeometry();
+  var Constructor = Object(__WEBPACK_IMPORTED_MODULE_3__helpers_helpers_material_mixin__["a" /* helpersMaterialMixin */])(three);
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
 
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
-    this.add(this._mesh);
-  };
+    function _class(stack) {
+      _classCallCheck(this, _class);
 
-  HelpersVolumeRendering.prototype._prepareStack = function _prepareStack() {
-    if (!this._stack.prepared) {
-      this._stack.prepare();
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this));
+      //
+
+
+      _this._stack = stack;
+      _this._textures = [];
+      _this._shadersFragment = __WEBPACK_IMPORTED_MODULE_2__shaders_shaders_vr_fragment__["a" /* default */];
+      _this._shadersVertex = __WEBPACK_IMPORTED_MODULE_1__shaders_shaders_vr_vertex__["a" /* default */];
+      _this._uniforms = __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_vr_uniform__["a" /* default */].uniforms();
+      _this._material = null;
+      _this._geometry = null;
+      _this._mesh = null;
+
+      _this._algorithm = 0; // ray marching
+      _this._alphaCorrection = 0.5; // default
+      _this._interpolation = 1; // default to trilinear interpolation
+      _this._shading = 1; // shading is on by default
+      _this._shininess = 10.0;
+      _this._steps = 256; // default
+      _this._offset = 0.;
+      _this._windowCenter = 0.0;
+      _this._windowWidth = 1.0;
+
+      _this._create();
+      return _this;
     }
 
-    if (!this._stack.packed) {
-      this._stack.pack();
-    }
+    _class.prototype._create = function _create() {
+      this._prepareStack();
+      this._prepareTexture();
+      this._prepareMaterial();
+      this._prepareGeometry();
 
-    // compensate for the offset to only pass > 0 values to shaders
-    // models > models.stack.js : _packTo8Bits
-    this._offset = Math.min(0, this._stack._minMax[0]);
-    this._windowCenter = this._stack.windowCenter;
-    this._windowWidth = this._stack.windowWidth * 0.8; // multiply for better default visualization
-  };
+      this._mesh = new three.Mesh(this._geometry, this._material);
+      this.add(this._mesh);
+    };
 
-  HelpersVolumeRendering.prototype._prepareMaterial = function _prepareMaterial() {
-    // uniforms
-    this._uniforms = __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_vr_uniform__["a" /* default */].uniforms();
-    this._uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
-    this._uniforms.uTextureSize.value = this._stack.textureSize;
-    this._uniforms.uTextureContainer.value = this._textures;
-    this._uniforms.uWorldToData.value = this._stack.lps2IJK;
-    this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
-    this._uniforms.uPixelType.value = this._stack.pixelType;
-    this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
-    this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
-    this._uniforms.uWindowCenterWidth.value = [this._windowCenter - this._offset, this._windowWidth];
-    this._uniforms.uRescaleSlopeIntercept.value = [this._stack.rescaleSlope, this._stack.rescaleIntercept];
-    this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x, this._stack.dimensionsIJK.y, this._stack.dimensionsIJK.z];
-    this._uniforms.uAlphaCorrection.value = this._alphaCorrection;
-    this._uniforms.uInterpolation.value = this._interpolation;
-    this._uniforms.uShading.value = this._shading;
-    this._uniforms.uShininess.value = this._shininess;
-    this._uniforms.uSteps.value = this._steps;
-    this._uniforms.uAlgorithm.value = this._algorithm;
+    _class.prototype._prepareStack = function _prepareStack() {
+      if (!this._stack.prepared) {
+        this._stack.prepare();
+      }
 
-    this._createMaterial({
-      side: THREE.BackSide,
-      transparent: true
-    });
-  };
+      if (!this._stack.packed) {
+        this._stack.pack();
+      }
 
-  HelpersVolumeRendering.prototype._prepareGeometry = function _prepareGeometry() {
-    var worldBBox = this._stack.worldBoundingBox();
-    var centerLPS = this._stack.worldCenter();
+      // compensate for the offset to only pass > 0 values to shaders
+      // models > models.stack.js : _packTo8Bits
+      this._offset = Math.min(0, this._stack._minMax[0]);
+      this._windowCenter = this._stack.windowCenter;
+      this._windowWidth = this._stack.windowWidth * 0.8; // multiply for better default visualization
+    };
 
-    this._geometry = new THREE.BoxGeometry(worldBBox[1] - worldBBox[0], worldBBox[3] - worldBBox[2], worldBBox[5] - worldBBox[4]);
-    this._geometry.applyMatrix(new __WEBPACK_IMPORTED_MODULE_4_three__["c" /* Matrix4 */]().makeTranslation(centerLPS.x, centerLPS.y, centerLPS.z));
-  };
-
-  HelpersVolumeRendering.prototype.dispose = function dispose() {
-    // Release memory
-    for (var j = 0; j < this._textures.length; j++) {
-      this._textures[j].dispose();
-      this._textures[j] = null;
-    }
-    this._textures = null;
-    this._shadersFragment = null;
-    this._shadersVertex = null;
-
-    this._uniforms.uTextureContainer = null;
-    this._uniforms.uTextureLUT = null;
-    this._uniforms = null;
-
-    // material, geometry and mesh
-    this.remove(this._mesh);
-    this._mesh.geometry.dispose();
-    this._mesh.geometry = null;
-    this._mesh.material.dispose();
-    this._mesh.material = null;
-    this._mesh = null;
-
-    this._geometry.dispose();
-    this._geometry = null;
-    this._material.vertexShader = null;
-    this._material.fragmentShader = null;
-    this._material.uniforms = null;
-    this._material.dispose();
-    this._material = null;
-
-    this._stack = null;
-  };
-
-  _createClass(HelpersVolumeRendering, [{
-    key: 'uniforms',
-    get: function get() {
-      return this._uniforms;
-    },
-    set: function set(uniforms) {
-      this._uniforms = uniforms;
-    }
-  }, {
-    key: 'stack',
-    get: function get() {
-      return this._stack;
-    },
-    set: function set(stack) {
-      this._stack = stack;
-    }
-  }, {
-    key: 'windowCenter',
-    get: function get() {
-      return this._windowCenter;
-    },
-    set: function set(windowCenter) {
-      this._windowCenter = windowCenter;
-      this._uniforms.uWindowCenterWidth.value[0] = this._windowCenter - this._offset;
-    }
-  }, {
-    key: 'windowWidth',
-    get: function get() {
-      return this._windowWidth;
-    },
-    set: function set(windowWidth) {
-      this._windowWidth = Math.max(1, windowWidth);
-      this._uniforms.uWindowCenterWidth.value[1] = this._windowWidth;
-    }
-  }, {
-    key: 'steps',
-    get: function get() {
-      return this._steps;
-    },
-    set: function set(steps) {
-      this._steps = steps;
-      this._uniforms.uSteps.value = this._steps;
-    }
-  }, {
-    key: 'alphaCorrection',
-    get: function get() {
-      return this._alphaCorrection;
-    },
-    set: function set(alphaCorrection) {
-      this._alphaCorrection = alphaCorrection;
+    _class.prototype._prepareMaterial = function _prepareMaterial() {
+      // uniforms
+      this._uniforms = __WEBPACK_IMPORTED_MODULE_0__shaders_shaders_vr_uniform__["a" /* default */].uniforms();
+      this._uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
+      this._uniforms.uTextureSize.value = this._stack.textureSize;
+      this._uniforms.uTextureContainer.value = this._textures;
+      this._uniforms.uWorldToData.value = this._stack.lps2IJK;
+      this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
+      this._uniforms.uPixelType.value = this._stack.pixelType;
+      this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
+      this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
+      this._uniforms.uWindowCenterWidth.value = [this._windowCenter - this._offset, this._windowWidth];
+      this._uniforms.uRescaleSlopeIntercept.value = [this._stack.rescaleSlope, this._stack.rescaleIntercept];
+      this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x, this._stack.dimensionsIJK.y, this._stack.dimensionsIJK.z];
       this._uniforms.uAlphaCorrection.value = this._alphaCorrection;
-    }
-  }, {
-    key: 'interpolation',
-    get: function get() {
-      return this._interpolation;
-    },
-    set: function set(interpolation) {
-      this._interpolation = interpolation;
       this._uniforms.uInterpolation.value = this._interpolation;
-      this._updateMaterial();
-    }
-  }, {
-    key: 'shading',
-    get: function get() {
-      return this._shading;
-    },
-    set: function set(shading) {
-      this._shading = shading;
       this._uniforms.uShading.value = this._shading;
-    }
-  }, {
-    key: 'shininess',
-    get: function get() {
-      return this._shininess;
-    },
-    set: function set(shininess) {
-      this._shininess = shininess;
       this._uniforms.uShininess.value = this._shininess;
-    }
-  }, {
-    key: 'algorithm',
-    get: function get() {
-      return this._algorithm;
-    },
-    set: function set(algorithm) {
-      this._algorithm = algorithm;
+      this._uniforms.uSteps.value = this._steps;
       this._uniforms.uAlgorithm.value = this._algorithm;
-    }
-  }]);
 
-  return HelpersVolumeRendering;
-}(Object(__WEBPACK_IMPORTED_MODULE_3__helpers_helpers_material_mixin__["a" /* default */])(THREE.Object3D));
+      this._createMaterial({
+        side: three.BackSide,
+        transparent: true
+      });
+    };
 
-/* harmony default export */ __webpack_exports__["a"] = (HelpersVolumeRendering);
+    _class.prototype._prepareGeometry = function _prepareGeometry() {
+      var worldBBox = this._stack.worldBoundingBox();
+      var centerLPS = this._stack.worldCenter();
+
+      this._geometry = new three.BoxGeometry(worldBBox[1] - worldBBox[0], worldBBox[3] - worldBBox[2], worldBBox[5] - worldBBox[4]);
+      this._geometry.applyMatrix(new three.Matrix4().makeTranslation(centerLPS.x, centerLPS.y, centerLPS.z));
+    };
+
+    _class.prototype.dispose = function dispose() {
+      // Release memory
+      for (var j = 0; j < this._textures.length; j++) {
+        this._textures[j].dispose();
+        this._textures[j] = null;
+      }
+      this._textures = null;
+      this._shadersFragment = null;
+      this._shadersVertex = null;
+
+      this._uniforms.uTextureContainer = null;
+      this._uniforms.uTextureLUT = null;
+      this._uniforms = null;
+
+      // material, geometry and mesh
+      this.remove(this._mesh);
+      this._mesh.geometry.dispose();
+      this._mesh.geometry = null;
+      this._mesh.material.dispose();
+      this._mesh.material = null;
+      this._mesh = null;
+
+      this._geometry.dispose();
+      this._geometry = null;
+      this._material.vertexShader = null;
+      this._material.fragmentShader = null;
+      this._material.uniforms = null;
+      this._material.dispose();
+      this._material = null;
+
+      this._stack = null;
+    };
+
+    _createClass(_class, [{
+      key: 'uniforms',
+      get: function get() {
+        return this._uniforms;
+      },
+      set: function set(uniforms) {
+        this._uniforms = uniforms;
+      }
+    }, {
+      key: 'mesh',
+      set: function set(mesh) {
+        this._mesh = mesh;
+      },
+      get: function get() {
+        return this._mesh;
+      }
+    }, {
+      key: 'stack',
+      get: function get() {
+        return this._stack;
+      },
+      set: function set(stack) {
+        this._stack = stack;
+      }
+    }, {
+      key: 'windowCenter',
+      get: function get() {
+        return this._windowCenter;
+      },
+      set: function set(windowCenter) {
+        this._windowCenter = windowCenter;
+        this._uniforms.uWindowCenterWidth.value[0] = this._windowCenter - this._offset;
+      }
+    }, {
+      key: 'windowWidth',
+      get: function get() {
+        return this._windowWidth;
+      },
+      set: function set(windowWidth) {
+        this._windowWidth = Math.max(1, windowWidth);
+        this._uniforms.uWindowCenterWidth.value[1] = this._windowWidth;
+      }
+    }, {
+      key: 'steps',
+      get: function get() {
+        return this._steps;
+      },
+      set: function set(steps) {
+        this._steps = steps;
+        this._uniforms.uSteps.value = this._steps;
+      }
+    }, {
+      key: 'alphaCorrection',
+      get: function get() {
+        return this._alphaCorrection;
+      },
+      set: function set(alphaCorrection) {
+        this._alphaCorrection = alphaCorrection;
+        this._uniforms.uAlphaCorrection.value = this._alphaCorrection;
+      }
+    }, {
+      key: 'interpolation',
+      get: function get() {
+        return this._interpolation;
+      },
+      set: function set(interpolation) {
+        this._interpolation = interpolation;
+        this._uniforms.uInterpolation.value = this._interpolation;
+        this._updateMaterial();
+      }
+    }, {
+      key: 'shading',
+      get: function get() {
+        return this._shading;
+      },
+      set: function set(shading) {
+        this._shading = shading;
+        this._uniforms.uShading.value = this._shading;
+      }
+    }, {
+      key: 'shininess',
+      get: function get() {
+        return this._shininess;
+      },
+      set: function set(shininess) {
+        this._shininess = shininess;
+        this._uniforms.uShininess.value = this._shininess;
+      }
+    }, {
+      key: 'algorithm',
+      get: function get() {
+        return this._algorithm;
+      },
+      set: function set(algorithm) {
+        this._algorithm = algorithm;
+        this._uniforms.uAlgorithm.value = this._algorithm;
+      }
+    }]);
+
+    return _class;
+  }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["a"] = (helpersVolumeRendering());
 
 /***/ }),
-/* 110 */
+/* 111 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_base__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_base__ = __webpack_require__(10);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -69716,31 +70076,31 @@ var IntersectBox = function (_ShadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (new IntersectBox());
 
 /***/ }),
-/* 111 */
+/* 112 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__loaders_volume__ = __webpack_require__(112);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__loaders_volume__ = __webpack_require__(113);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__loaders_volume__["a"]; });
 
 
 
 
 /***/ }),
-/* 112 */
+/* 113 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__loaders_base__ = __webpack_require__(121);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_core_utils__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_models_series__ = __webpack_require__(57);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_models_stack__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_models_frame__ = __webpack_require__(60);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__parsers_parsers_dicom__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__parsers_parsers_mhd__ = __webpack_require__(160);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__parsers_parsers_nifti__ = __webpack_require__(79);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__parsers_parsers_nrrd__ = __webpack_require__(81);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__parsers_parsers_mgh__ = __webpack_require__(82);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__loaders_base__ = __webpack_require__(122);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core_core_utils__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_models_series__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_models_stack__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_models_frame__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__parsers_parsers_dicom__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__parsers_parsers_mhd__ = __webpack_require__(161);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__parsers_parsers_nifti__ = __webpack_require__(78);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__parsers_parsers_nrrd__ = __webpack_require__(80);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__parsers_parsers_mgh__ = __webpack_require__(81);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -70111,18 +70471,18 @@ var LoadersVolumes = function (_LoadersBase) {
 /* harmony default export */ __webpack_exports__["a"] = (LoadersVolumes);
 
 /***/ }),
-/* 113 */
+/* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var zlib_deflate = __webpack_require__(114);
-var utils        = __webpack_require__(2);
-var strings      = __webpack_require__(54);
+var zlib_deflate = __webpack_require__(115);
+var utils        = __webpack_require__(5);
+var strings      = __webpack_require__(52);
 var msg          = __webpack_require__(20);
-var ZStream      = __webpack_require__(55);
+var ZStream      = __webpack_require__(53);
 
 var toString = Object.prototype.toString;
 
@@ -70518,16 +70878,16 @@ exports.gzip = gzip;
 
 
 /***/ }),
-/* 114 */
+/* 115 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils   = __webpack_require__(2);
-var trees   = __webpack_require__(115);
-var adler32 = __webpack_require__(52);
-var crc32   = __webpack_require__(53);
+var utils   = __webpack_require__(5);
+var trees   = __webpack_require__(116);
+var adler32 = __webpack_require__(50);
+var crc32   = __webpack_require__(51);
 var msg     = __webpack_require__(20);
 
 /* Public constants ==========================================================*/
@@ -72373,14 +72733,14 @@ exports.deflateTune = deflateTune;
 
 
 /***/ }),
-/* 115 */
+/* 116 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var utils = __webpack_require__(2);
+var utils = __webpack_require__(5);
 
 /* Public constants ==========================================================*/
 /* ===========================================================================*/
@@ -73582,20 +73942,20 @@ exports._tr_align = _tr_align;
 
 
 /***/ }),
-/* 116 */
+/* 117 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var zlib_inflate = __webpack_require__(117);
-var utils        = __webpack_require__(2);
-var strings      = __webpack_require__(54);
-var c            = __webpack_require__(56);
+var zlib_inflate = __webpack_require__(118);
+var utils        = __webpack_require__(5);
+var strings      = __webpack_require__(52);
+var c            = __webpack_require__(54);
 var msg          = __webpack_require__(20);
-var ZStream      = __webpack_require__(55);
-var GZheader     = __webpack_require__(120);
+var ZStream      = __webpack_require__(53);
+var GZheader     = __webpack_require__(121);
 
 var toString = Object.prototype.toString;
 
@@ -74007,18 +74367,18 @@ exports.ungzip  = inflate;
 
 
 /***/ }),
-/* 117 */
+/* 118 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var utils         = __webpack_require__(2);
-var adler32       = __webpack_require__(52);
-var crc32         = __webpack_require__(53);
-var inflate_fast  = __webpack_require__(118);
-var inflate_table = __webpack_require__(119);
+var utils         = __webpack_require__(5);
+var adler32       = __webpack_require__(50);
+var crc32         = __webpack_require__(51);
+var inflate_fast  = __webpack_require__(119);
+var inflate_table = __webpack_require__(120);
 
 var CODES = 0;
 var LENS = 1;
@@ -75552,7 +75912,7 @@ exports.inflateUndermine = inflateUndermine;
 
 
 /***/ }),
-/* 118 */
+/* 119 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -75885,14 +76245,14 @@ module.exports = function inflate_fast(strm, start) {
 
 
 /***/ }),
-/* 119 */
+/* 120 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var utils = __webpack_require__(2);
+var utils = __webpack_require__(5);
 
 var MAXBITS = 15;
 var ENOUGH_LENS = 852;
@@ -76219,7 +76579,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
 
 
 /***/ }),
-/* 120 */
+/* 121 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -76266,11 +76626,11 @@ module.exports = GZheader;
 
 
 /***/ }),
-/* 121 */
+/* 122 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__helpers_helpers_progressbar__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__helpers_helpers_progressbar__ = __webpack_require__(39);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_events__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_events___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_events__);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -76613,7 +76973,7 @@ var LoadersBase = function (_EventEmitter) {
 /* harmony default export */ __webpack_exports__["a"] = (LoadersBase);
 
 /***/ }),
-/* 122 */
+/* 123 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -76621,15 +76981,15 @@ var LoadersBase = function (_EventEmitter) {
 
 // MODULES //
 
-var pinf = __webpack_require__( 123 );
-var ninf = __webpack_require__( 124 );
-var abs = __webpack_require__( 125 );
-var floor = __webpack_require__( 58 );
-var rpad = __webpack_require__( 126 );
-var lpad = __webpack_require__( 129 );
-var repeat = __webpack_require__( 26 );
-var div2 = __webpack_require__( 130 );
-var mult2 = __webpack_require__( 131 );
+var pinf = __webpack_require__( 124 );
+var ninf = __webpack_require__( 125 );
+var abs = __webpack_require__( 126 );
+var floor = __webpack_require__( 57 );
+var rpad = __webpack_require__( 127 );
+var lpad = __webpack_require__( 130 );
+var repeat = __webpack_require__( 25 );
+var div2 = __webpack_require__( 131 );
+var mult2 = __webpack_require__( 132 );
 
 
 // CONSTANTS //
@@ -76741,7 +77101,7 @@ module.exports = binaryString;
 
 
 /***/ }),
-/* 123 */
+/* 124 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -76765,7 +77125,7 @@ module.exports = FLOAT32_VIEW[ 0 ];
 
 
 /***/ }),
-/* 124 */
+/* 125 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -76789,7 +77149,7 @@ module.exports = FLOAT32_VIEW[ 0 ];
 
 
 /***/ }),
-/* 125 */
+/* 126 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -76819,7 +77179,7 @@ module.exports = abs;
 
 
 /***/ }),
-/* 126 */
+/* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -76827,10 +77187,10 @@ module.exports = abs;
 
 // MODULES //
 
-var isString = __webpack_require__( 24 );
-var isNonNegativeInteger = __webpack_require__( 25 );
-var ceil = __webpack_require__( 59 );
-var repeat = __webpack_require__( 26 );
+var isString = __webpack_require__( 23 );
+var isNonNegativeInteger = __webpack_require__( 24 );
+var ceil = __webpack_require__( 58 );
+var repeat = __webpack_require__( 25 );
 
 
 // CONSTANTS //
@@ -76887,7 +77247,7 @@ module.exports = rpad;
 
 
 /***/ }),
-/* 127 */
+/* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -76923,7 +77283,7 @@ module.exports = rpad;
 
 // MODULES //
 
-var isNumber = __webpack_require__( 128 );
+var isNumber = __webpack_require__( 129 );
 
 
 // ISINTEGER //
@@ -76946,7 +77306,7 @@ module.exports = isInteger;
 
 
 /***/ }),
-/* 128 */
+/* 129 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -76998,7 +77358,7 @@ module.exports = isNumber;
 
 
 /***/ }),
-/* 129 */
+/* 130 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -77006,10 +77366,10 @@ module.exports = isNumber;
 
 // MODULES //
 
-var isString = __webpack_require__( 24 );
-var isNonNegativeInteger = __webpack_require__( 25 );
-var ceil = __webpack_require__( 59 );
-var repeat = __webpack_require__( 26 );
+var isString = __webpack_require__( 23 );
+var isNonNegativeInteger = __webpack_require__( 24 );
+var ceil = __webpack_require__( 58 );
+var repeat = __webpack_require__( 25 );
 
 
 // CONSTANTS //
@@ -77066,7 +77426,7 @@ module.exports = lpad;
 
 
 /***/ }),
-/* 130 */
+/* 131 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -77074,7 +77434,7 @@ module.exports = lpad;
 
 // MODULES //
 
-var floor = __webpack_require__( 58 );
+var floor = __webpack_require__( 57 );
 
 
 // DIV2 //
@@ -77110,7 +77470,7 @@ module.exports = div2;
 
 
 /***/ }),
-/* 131 */
+/* 132 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -77171,7 +77531,7 @@ module.exports = mult2;
 
 
 /***/ }),
-/* 132 */
+/* 133 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, Buffer) {var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! dicom-parser - v1.7.3 - 2016-08-18 | (c) 2014 Chris Hafey | https://github.com/chafey/dicomParser */
@@ -77254,7 +77614,7 @@ var dicomParser = (function(dicomParser) {
                 // http://stackoverflow.com/questions/4224606/how-to-check-whether-a-script-is-running-under-node-js
                 else if (typeof module !== 'undefined' && this.module !== module) {
                     // inflate it
-                    var zlib = __webpack_require__(136);
+                    var zlib = __webpack_require__(137);
                     var deflatedBuffer = dicomParser.sharedCopy(byteArray, position, byteArray.length - position);
                     var inflatedBuffer = zlib.inflateRawSync(deflatedBuffer);
 
@@ -79861,10 +80221,10 @@ var dicomParser = (function (dicomParser)
     return dicomParser;
 }));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)(module), __webpack_require__(6).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28)(module), __webpack_require__(7).Buffer))
 
 /***/ }),
-/* 133 */
+/* 134 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -79985,7 +80345,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 134 */
+/* 135 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -80075,7 +80435,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 135 */
+/* 136 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -80086,7 +80446,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 136 */
+/* 137 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -80110,11 +80470,11 @@ module.exports = Array.isArray || function (arr) {
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var Transform = __webpack_require__(137);
+var Transform = __webpack_require__(138);
 
-var binding = __webpack_require__(146);
-var util = __webpack_require__(71);
-var assert = __webpack_require__(72).ok;
+var binding = __webpack_require__(147);
+var util = __webpack_require__(70);
+var assert = __webpack_require__(71).ok;
 
 // zlib doesn't provide these, so kludge them in following the same
 // const naming scheme zlib uses.
@@ -80700,30 +81060,30 @@ util.inherits(DeflateRaw, Zlib);
 util.inherits(InflateRaw, Zlib);
 util.inherits(Unzip, Zlib);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer, __webpack_require__(4)))
-
-/***/ }),
-/* 137 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(138).Transform
-
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7).Buffer, __webpack_require__(6)))
 
 /***/ }),
 /* 138 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(62);
-exports.Stream = exports;
-exports.Readable = exports;
-exports.Writable = __webpack_require__(65);
-exports.Duplex = __webpack_require__(7);
-exports.Transform = __webpack_require__(67);
-exports.PassThrough = __webpack_require__(145);
+module.exports = __webpack_require__(139).Transform
 
 
 /***/ }),
 /* 139 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(61);
+exports.Stream = exports;
+exports.Readable = exports;
+exports.Writable = __webpack_require__(64);
+exports.Duplex = __webpack_require__(8);
+exports.Transform = __webpack_require__(66);
+exports.PassThrough = __webpack_require__(146);
+
+
+/***/ }),
+/* 140 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -80734,13 +81094,13 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 140 */
+/* 141 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 141 */
+/* 142 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -80750,7 +81110,7 @@ module.exports = Array.isArray || function (arr) {
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Buffer = __webpack_require__(27).Buffer;
+var Buffer = __webpack_require__(26).Buffer;
 /*</replacement>*/
 
 function copyBuffer(src, target, offset) {
@@ -80820,7 +81180,7 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 142 */
+/* 143 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -80873,13 +81233,13 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(143);
+__webpack_require__(144);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 143 */
+/* 144 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -81069,10 +81429,10 @@ exports.clearImmediate = clearImmediate;
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(6)))
 
 /***/ }),
-/* 144 */
+/* 145 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -81143,10 +81503,10 @@ function config (name) {
   return String(val).toLowerCase() === 'true';
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 145 */
+/* 146 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -81179,11 +81539,11 @@ function config (name) {
 
 module.exports = PassThrough;
 
-var Transform = __webpack_require__(67);
+var Transform = __webpack_require__(66);
 
 /*<replacement>*/
-var util = __webpack_require__(13);
-util.inherits = __webpack_require__(14);
+var util = __webpack_require__(12);
+util.inherits = __webpack_require__(13);
 /*</replacement>*/
 
 util.inherits(PassThrough, Transform);
@@ -81199,14 +81559,14 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 };
 
 /***/ }),
-/* 146 */
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(process, Buffer) {var msg = __webpack_require__(68);
-var zstream = __webpack_require__(147);
-var zlib_deflate = __webpack_require__(148);
-var zlib_inflate = __webpack_require__(150);
-var constants = __webpack_require__(153);
+/* WEBPACK VAR INJECTION */(function(process, Buffer) {var msg = __webpack_require__(67);
+var zstream = __webpack_require__(148);
+var zlib_deflate = __webpack_require__(149);
+var zlib_inflate = __webpack_require__(151);
+var constants = __webpack_require__(154);
 
 for (var key in constants) {
   exports[key] = constants[key];
@@ -81439,10 +81799,10 @@ Zlib.prototype._error = function(status) {
 
 exports.Zlib = Zlib;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(6).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(7).Buffer))
 
 /***/ }),
-/* 147 */
+/* 148 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -81478,17 +81838,17 @@ module.exports = ZStream;
 
 
 /***/ }),
-/* 148 */
+/* 149 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils   = __webpack_require__(17);
-var trees   = __webpack_require__(149);
-var adler32 = __webpack_require__(69);
-var crc32   = __webpack_require__(70);
-var msg     = __webpack_require__(68);
+var trees   = __webpack_require__(150);
+var adler32 = __webpack_require__(68);
+var crc32   = __webpack_require__(69);
+var msg     = __webpack_require__(67);
 
 /* Public constants ==========================================================*/
 /* ===========================================================================*/
@@ -83340,7 +83700,7 @@ exports.deflateTune = deflateTune;
 
 
 /***/ }),
-/* 149 */
+/* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -84549,7 +84909,7 @@ exports._tr_align = _tr_align;
 
 
 /***/ }),
-/* 150 */
+/* 151 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -84557,10 +84917,10 @@ exports._tr_align = _tr_align;
 
 
 var utils         = __webpack_require__(17);
-var adler32       = __webpack_require__(69);
-var crc32         = __webpack_require__(70);
-var inflate_fast  = __webpack_require__(151);
-var inflate_table = __webpack_require__(152);
+var adler32       = __webpack_require__(68);
+var crc32         = __webpack_require__(69);
+var inflate_fast  = __webpack_require__(152);
+var inflate_table = __webpack_require__(153);
 
 var CODES = 0;
 var LENS = 1;
@@ -86094,7 +86454,7 @@ exports.inflateUndermine = inflateUndermine;
 
 
 /***/ }),
-/* 151 */
+/* 152 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -86427,7 +86787,7 @@ module.exports = function inflate_fast(strm, start) {
 
 
 /***/ }),
-/* 152 */
+/* 153 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -86761,7 +87121,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
 
 
 /***/ }),
-/* 153 */
+/* 154 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -86818,7 +87178,7 @@ module.exports = {
 
 
 /***/ }),
-/* 154 */
+/* 155 */
 /***/ (function(module, exports) {
 
 module.exports = function isBuffer(arg) {
@@ -86829,7 +87189,7 @@ module.exports = function isBuffer(arg) {
 }
 
 /***/ }),
-/* 155 */
+/* 156 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -86858,7 +87218,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 156 */
+/* 157 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -86870,14 +87230,14 @@ if (typeof Object.create === 'function') {
 /*** Imports ***/
 var jpeg = jpeg || {};
 jpeg.lossless = jpeg.lossless || {};
-jpeg.lossless.ComponentSpec = jpeg.lossless.ComponentSpec || (( true) ? __webpack_require__(73) : null);
-jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(8) : null);
-jpeg.lossless.Decoder = jpeg.lossless.Decoder || (( true) ? __webpack_require__(157) : null);
-jpeg.lossless.FrameHeader = jpeg.lossless.FrameHeader || (( true) ? __webpack_require__(78) : null);
-jpeg.lossless.HuffmanTable = jpeg.lossless.HuffmanTable || (( true) ? __webpack_require__(74) : null);
-jpeg.lossless.QuantizationTable = jpeg.lossless.QuantizationTable || (( true) ? __webpack_require__(75) : null);
-jpeg.lossless.ScanComponent = jpeg.lossless.ScanComponent || (( true) ? __webpack_require__(77) : null);
-jpeg.lossless.ScanHeader = jpeg.lossless.ScanHeader || (( true) ? __webpack_require__(76) : null);
+jpeg.lossless.ComponentSpec = jpeg.lossless.ComponentSpec || (( true) ? __webpack_require__(72) : null);
+jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(9) : null);
+jpeg.lossless.Decoder = jpeg.lossless.Decoder || (( true) ? __webpack_require__(158) : null);
+jpeg.lossless.FrameHeader = jpeg.lossless.FrameHeader || (( true) ? __webpack_require__(77) : null);
+jpeg.lossless.HuffmanTable = jpeg.lossless.HuffmanTable || (( true) ? __webpack_require__(73) : null);
+jpeg.lossless.QuantizationTable = jpeg.lossless.QuantizationTable || (( true) ? __webpack_require__(74) : null);
+jpeg.lossless.ScanComponent = jpeg.lossless.ScanComponent || (( true) ? __webpack_require__(76) : null);
+jpeg.lossless.ScanHeader = jpeg.lossless.ScanHeader || (( true) ? __webpack_require__(75) : null);
 jpeg.lossless.Utils = jpeg.lossless.Utils || (( true) ? __webpack_require__(18) : null);
 
 
@@ -86889,7 +87249,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 157 */
+/* 158 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -86931,11 +87291,11 @@ if ((moduleType !== 'undefined') && module.exports) {
 /*** Imports ***/
 var jpeg = jpeg || {};
 jpeg.lossless = jpeg.lossless || {};
-jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(8) : null);
-jpeg.lossless.HuffmanTable = jpeg.lossless.HuffmanTable || (( true) ? __webpack_require__(74) : null);
-jpeg.lossless.QuantizationTable = jpeg.lossless.QuantizationTable || (( true) ? __webpack_require__(75) : null);
-jpeg.lossless.ScanHeader = jpeg.lossless.ScanHeader || (( true) ? __webpack_require__(76) : null);
-jpeg.lossless.FrameHeader = jpeg.lossless.FrameHeader || (( true) ? __webpack_require__(78) : null);
+jpeg.lossless.DataStream = jpeg.lossless.DataStream || (( true) ? __webpack_require__(9) : null);
+jpeg.lossless.HuffmanTable = jpeg.lossless.HuffmanTable || (( true) ? __webpack_require__(73) : null);
+jpeg.lossless.QuantizationTable = jpeg.lossless.QuantizationTable || (( true) ? __webpack_require__(74) : null);
+jpeg.lossless.ScanHeader = jpeg.lossless.ScanHeader || (( true) ? __webpack_require__(75) : null);
+jpeg.lossless.FrameHeader = jpeg.lossless.FrameHeader || (( true) ? __webpack_require__(77) : null);
 jpeg.lossless.Utils = jpeg.lossless.Utils || (( true) ? __webpack_require__(18) : null);
 
 
@@ -87723,7 +88083,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 158 */
+/* 159 */
 /***/ (function(module, exports) {
 
 // jshint ignore: start
@@ -88747,7 +89107,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 }
 
 /***/ }),
-/* 159 */
+/* 160 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -92807,12 +93167,12 @@ function loadJpegStream(id, imageUrl, objs) {
 }
 
 /***/ }),
-/* 160 */
+/* 161 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_volume__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_three__ = __webpack_require__(1);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -92909,7 +93269,11 @@ var ParsersMHD = function (_ParsersVolume) {
 
     // 0 - int
     // 1 - float
-    return 0;
+    var type = 0;
+    if (this._header.ElementType === 'MET_UFLOAT' || this._header.ElementType === 'MET_FLOAT') {
+      type = 1;
+    }
+    return type;
   };
 
   ParsersMHD.prototype.bitsAllocated = function bitsAllocated() {
@@ -92952,10 +93316,10 @@ var ParsersMHD = function (_ParsersVolume) {
     var invertX = this._header.AnatomicalOrientation.match(/L/) ? -1 : 1;
     var invertY = this._header.AnatomicalOrientation.match(/P/) ? -1 : 1;
 
-    var x = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](parseFloat(this._header.TransformMatrix[0]) * invertX, parseFloat(this._header.TransformMatrix[1]) * invertY, parseFloat(this._header.TransformMatrix[2]));
+    var x = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](parseFloat(this._header.TransformMatrix[0]) * invertX, parseFloat(this._header.TransformMatrix[1]) * invertY, parseFloat(this._header.TransformMatrix[2]));
     x.normalize();
 
-    var y = new __WEBPACK_IMPORTED_MODULE_1_three__["f" /* Vector3 */](parseFloat(this._header.TransformMatrix[3]) * invertX, parseFloat(this._header.TransformMatrix[4]) * invertY, parseFloat(this._header.TransformMatrix[5]));
+    var y = new __WEBPACK_IMPORTED_MODULE_1_three__["h" /* Vector3 */](parseFloat(this._header.TransformMatrix[3]) * invertX, parseFloat(this._header.TransformMatrix[4]) * invertY, parseFloat(this._header.TransformMatrix[5]));
     y.normalize();
 
     return [x.x, x.y, x.z, y.x, y.y, y.z];
@@ -93012,7 +93376,7 @@ var ParsersMHD = function (_ParsersVolume) {
 /* harmony default export */ __webpack_exports__["a"] = (ParsersMHD);
 
 /***/ }),
-/* 161 */
+/* 162 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -93029,9 +93393,9 @@ var ParsersMHD = function (_ParsersVolume) {
  * @type {*|{}}
  */
 var nifti = nifti || {};
-nifti.NIFTI1 = nifti.NIFTI1 || (( true) ? __webpack_require__(80) : null);
-nifti.NIFTI2 = nifti.NIFTI2 || (( true) ? __webpack_require__(162) : null);
-nifti.Utils = nifti.Utils || (( true) ? __webpack_require__(28) : null);
+nifti.NIFTI1 = nifti.NIFTI1 || (( true) ? __webpack_require__(79) : null);
+nifti.NIFTI2 = nifti.NIFTI2 || (( true) ? __webpack_require__(163) : null);
+nifti.Utils = nifti.Utils || (( true) ? __webpack_require__(27) : null);
 
 var pako = pako || (( true) ? __webpack_require__(19) : null);
 
@@ -93229,7 +93593,7 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 162 */
+/* 163 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -93242,8 +93606,8 @@ if ((moduleType !== 'undefined') && module.exports) {
 /*** Imports ***/
 
 var nifti = nifti || {};
-nifti.Utils = nifti.Utils || (( true) ? __webpack_require__(28) : null);
-nifti.NIFTI1 = nifti.NIFTI1 || (( true) ? __webpack_require__(80) : null);
+nifti.Utils = nifti.Utils || (( true) ? __webpack_require__(27) : null);
+nifti.NIFTI1 = nifti.NIFTI1 || (( true) ? __webpack_require__(79) : null);
 
 
 /*** Constructor ***/
@@ -93632,12 +93996,12 @@ if ((moduleType !== 'undefined') && module.exports) {
 
 
 /***/ }),
-/* 163 */
+/* 164 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var assert = __webpack_require__(72);
+var assert = __webpack_require__(71);
 
 var lineSeparatorRE = /[ \f\t\v]*\r?\n/;
 var NRRDMagicRE = /^NRRD\d{4}$/;
@@ -94885,14 +95249,14 @@ function serializeToTextBuffer(data) {
 
 
 /***/ }),
-/* 164 */
+/* 165 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_frame__ = __webpack_require__(60);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__models_stack__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_series__ = __webpack_require__(57);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_voxel__ = __webpack_require__(83);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_frame__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__models_stack__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_series__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_voxel__ = __webpack_require__(82);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__models_frame__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_1__models_stack__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_2__models_series__["a"]; });
@@ -94905,14 +95269,14 @@ function serializeToTextBuffer(data) {
 
 
 /***/ }),
-/* 165 */
+/* 166 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_dicom__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__parsers_mgh__ = __webpack_require__(82);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__parsers_nifti__ = __webpack_require__(79);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__parsers_nrrd__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parsers_dicom__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__parsers_mgh__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__parsers_nifti__ = __webpack_require__(78);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__parsers_nrrd__ = __webpack_require__(80);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__parsers_dicom__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__parsers_mgh__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_2__parsers_nifti__["a"]; });
@@ -94925,21 +95289,21 @@ function serializeToTextBuffer(data) {
 
 
 /***/ }),
-/* 166 */
+/* 167 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__presets_segmentation__ = __webpack_require__(167);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__presets_segmentation__ = __webpack_require__(168);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__presets_segmentation__["a"]; });
 
 
 
 /***/ }),
-/* 167 */
+/* 168 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__presets_segmentation_freesurfer__ = __webpack_require__(168);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__presets_segmentation_freesurfer__ = __webpack_require__(169);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -95004,7 +95368,7 @@ var PresetsSegmentation = function () {
 /* harmony default export */ __webpack_exports__["a"] = (PresetsSegmentation);
 
 /***/ }),
-/* 168 */
+/* 169 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -96306,25 +96670,25 @@ var segmentationFs = {
 /* harmony default export */ __webpack_exports__["a"] = (segmentationFs);
 
 /***/ }),
-/* 169 */
+/* 170 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_contour_uniform__ = __webpack_require__(35);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_contour_fragment__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shaders_contour_vertex__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__shaders_data_uniform__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__shaders_data_fragment__ = __webpack_require__(45);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__shaders_data_vertex__ = __webpack_require__(44);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__shaders_vr_uniform__ = __webpack_require__(49);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__shaders_vr_fragment__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__shaders_vr_vertex__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__shaders_layer_uniform__ = __webpack_require__(170);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__shaders_layer_fragment__ = __webpack_require__(171);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__shaders_layer_vertex__ = __webpack_require__(172);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__shaders_localizer_uniform__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__shaders_localizer_fragment__ = __webpack_require__(40);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__shaders_localizer_vertex__ = __webpack_require__(39);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shaders_contour_uniform__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shaders_contour_fragment__ = __webpack_require__(35);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__shaders_contour_vertex__ = __webpack_require__(34);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__shaders_data_uniform__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__shaders_data_fragment__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__shaders_data_vertex__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__shaders_vr_uniform__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__shaders_vr_fragment__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__shaders_vr_vertex__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__shaders_layer_uniform__ = __webpack_require__(171);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__shaders_layer_fragment__ = __webpack_require__(172);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__shaders_layer_vertex__ = __webpack_require__(173);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__shaders_localizer_uniform__ = __webpack_require__(36);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__shaders_localizer_fragment__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__shaders_localizer_vertex__ = __webpack_require__(37);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_0__shaders_contour_uniform__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_1__shaders_contour_fragment__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_2__shaders_contour_vertex__["a"]; });
@@ -96363,11 +96727,11 @@ var segmentationFs = {
 
 
 /***/ }),
-/* 170 */
+/* 171 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(1);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
@@ -96420,7 +96784,7 @@ var ShadersUniform = function () {
       },
       'uMouse': {
         type: 'v2',
-        value: new __WEBPACK_IMPORTED_MODULE_0_three__["e" /* Vector2 */](),
+        value: new __WEBPACK_IMPORTED_MODULE_0_three__["g" /* Vector2 */](),
         typeGLSL: 'vec2'
       }
     };
@@ -96432,7 +96796,7 @@ var ShadersUniform = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersUniform);
 
 /***/ }),
-/* 171 */
+/* 172 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -96497,7 +96861,7 @@ var ShadersFragment = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersFragment);
 
 /***/ }),
-/* 172 */
+/* 173 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -96518,579 +96882,58 @@ var ShadersVertex = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ShadersVertex);
 
 /***/ }),
-/* 173 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_annotation__ = __webpack_require__(174);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_biruler__ = __webpack_require__(175);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__widgets_handle__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__widgets_roi__ = __webpack_require__(176);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__widgets_ruler__ = __webpack_require__(177);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__widgets_voxelProbe__ = __webpack_require__(178);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__widgets_angle__ = __webpack_require__(179);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_0__widgets_annotation__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_1__widgets_biruler__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_2__widgets_handle__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return __WEBPACK_IMPORTED_MODULE_3__widgets_roi__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return __WEBPACK_IMPORTED_MODULE_4__widgets_ruler__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return __WEBPACK_IMPORTED_MODULE_5__widgets_voxelProbe__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_6__widgets_angle__["a"]; });
-
-
-
-
-
-
-
-
-
-
-/***/ }),
 /* 174 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_css__ = __webpack_require__(83);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_angle__ = __webpack_require__(175);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__widgets_annotation__ = __webpack_require__(176);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__widgets_biruler__ = __webpack_require__(177);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__widgets_crossRuler__ = __webpack_require__(178);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__widgets_ellipse__ = __webpack_require__(179);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__widgets_freehand__ = __webpack_require__(180);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__widgets_handle__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__widgets_polygon__ = __webpack_require__(181);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__widgets_rectangle__ = __webpack_require__(182);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__widgets_ruler__ = __webpack_require__(183);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__widgets_voxelProbe__ = __webpack_require__(184);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return __WEBPACK_IMPORTED_MODULE_0__widgets_css__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_1__widgets_angle__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_2__widgets_annotation__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_3__widgets_biruler__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_4__widgets_crossRuler__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return __WEBPACK_IMPORTED_MODULE_5__widgets_ellipse__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return __WEBPACK_IMPORTED_MODULE_6__widgets_freehand__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return __WEBPACK_IMPORTED_MODULE_7__widgets_handle__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return __WEBPACK_IMPORTED_MODULE_8__widgets_polygon__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return __WEBPACK_IMPORTED_MODULE_9__widgets_rectangle__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return __WEBPACK_IMPORTED_MODULE_10__widgets_ruler__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return __WEBPACK_IMPORTED_MODULE_11__widgets_voxelProbe__["a"]; });
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 
 
 
 
 
-/**
- * @module widgets/handle
- *
- */
 
-var WidgetsAnnotation = function (_WidgetsBase) {
-  _inherits(WidgetsAnnotation, _WidgetsBase);
 
-  function WidgetsAnnotation(targetMesh, controls, camera, container) {
-    _classCallCheck(this, WidgetsAnnotation);
 
-    var _this = _possibleConstructorReturn(this, _WidgetsBase.call(this));
 
-    _this._targetMesh = targetMesh;
-    _this._controls = controls;
-    _this._camera = camera;
-    _this._container = container;
 
-    _this._active = true;
 
-    _this._worldPosition = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */]();
-    if (_this._targetMesh !== null) {
-      _this._worldPosition = _this._targetMesh.position;
-    }
-
-    // mesh stuff
-    _this._material = null;
-    _this._geometry = null;
-    _this._mesh = null;
-
-    // dom stuff
-    _this._line = null;
-    _this._label = null;
-    _this._cone = null;
-    _this._labeltext = null;
-
-    // booleans
-    _this._alreadycreated = null; // bool that turns true when the user enter the name of the label
-    _this._movinglabel = null; // bool that turns true when the label is moving with the mouse
-    _this._labelmoved = false; // bool that turns true once the label is moved by the user (at least once)
-
-    _this._labelhovered = false;
-    _this._domHovered = false;
-    _this._hovered = true;
-    _this._manuallabeldisplay = false; // Make true to force the label to be displayed
-
-    // var
-    _this._labelpositionx = null; // position of label (top left corner)
-    _this._labelpositiony = null; // position of label (top left corner)
-    _this._differencemousecenterlabelx = 0; // difference between mouse position in the label and position of label (top left corner)
-    _this._differencemousecenterlabely = 0; // difference between mouse position in the label and position of label (top left corner)
-
-    // add handles
-    _this._handles = [];
-
-    // first handle
-    var firstHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](_this._targetMesh, _this._controls, _this._camera, _this._container);
-    firstHandle.worldPosition = _this._worldPosition;
-    firstHandle.hovered = true;
-    _this.add(firstHandle);
-
-    _this._handles.push(firstHandle);
-
-    var secondHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](_this._targetMesh, _this._controls, _this._camera, _this._container);
-    secondHandle.worldPosition = _this._worldPosition;
-    secondHandle.hovered = true;
-    // active and tracking might be redundant
-    secondHandle.active = true;
-    secondHandle.tracking = true;
-    _this.add(secondHandle);
-
-    _this._handles.push(secondHandle);
-
-    // Create annotation
-
-    _this.create();
-
-    _this.onEnd = _this.onEnd.bind(_this);
-    _this.onMove = _this.onMove.bind(_this);
-    _this.onHoverlabel = _this.onHoverlabel.bind(_this);
-    _this.notonHoverlabel = _this.notonHoverlabel.bind(_this);
-    _this.changelabeltext = _this.changelabeltext.bind(_this);
-    _this.movelabel = _this.movelabel.bind(_this);
-    _this.notmovelabel = _this.notmovelabel.bind(_this);
-
-    _this.addEventListeners();
-    return _this;
-  }
-
-  WidgetsAnnotation.prototype.addEventListeners = function addEventListeners() {
-    this._label.addEventListener('mouseenter', this.onHoverlabel);
-    this._label.addEventListener('mouseleave', this.notonHoverlabel);
-    this._label.addEventListener('dblclick', this.changelabeltext);
-    this._label.addEventListener('mousedown', this.movelabel);
-    this._container.addEventListener('mouseup', this.notmovelabel);
-
-    this._container.addEventListener('mousewheel', this.onMove);
-    this._container.addEventListener('DOMMouseScroll', this.onMove);
-  };
-
-  WidgetsAnnotation.prototype.movelabel = function movelabel() {
-    // function called when mousedown
-    if (this._labelhovered) {
-      // if label hobered we will move the label
-      this._movinglabel = true;
-      this._labelmoved = true;
-      var mousey = -(-event.clientY + this._container.offsetHeight);
-      var mousex = event.clientX;
-      // calculate differencemousecenterlabel (difference between ref position of the label (top-left corner) and mouse position in the label)
-      this._differencemousecenterlabelx = Math.abs(Math.abs(mousex) - Math.abs(this._labelpositionx));
-      this._differencemousecenterlabely = Math.abs(Math.abs(mousey) - Math.abs(this._labelpositiony));
-    }
-  };
-
-  WidgetsAnnotation.prototype.notmovelabel = function notmovelabel() {
-    // this function is called when mouseup
-    this._movinglabel = false;
-    this._handles[0]._controls.enabled = true; // move the camera when mousedown and mousedown again
-    this._handles[1]._controls.enabled = true;
-    this._differencemousecenterlabelx = 0; // restart the value of differencemousecenterlabel. Necessary?
-    this._differencemousecenterlabely = 0;
-  };
-
-  WidgetsAnnotation.prototype.onHoverlabel = function onHoverlabel() {
-    // this function is called when mouse enters the label with "mouseenter" event
-    this._labelhovered = true;
-  };
-
-  WidgetsAnnotation.prototype.notonHoverlabel = function notonHoverlabel() {
-    // this function is called when mouse leaves the label with "mouseleave" event
-    this._labelhovered = false;
-  };
-
-  WidgetsAnnotation.prototype.onMove = function onMove(evt) {
-    if (this._movinglabel) {
-      this._handles[0]._controls.enabled = false;
-      this._handles[1]._controls.enabled = false;
-    }
-
-    this._dragged = true;
-
-    this._handles[0].onMove(evt);
-    this._handles[1].onMove(evt);
-
-    this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._labelhovered;
-
-    this.update();
-  };
-
-  WidgetsAnnotation.prototype.onStart = function onStart(evt) {
-    this._dragged = false;
-
-    this._handles[0].onStart(evt);
-    this._handles[1].onStart(evt);
-
-    this._active = this._handles[0].active || this._handles[1].active;
-
-    this.update();
-  };
-
-  WidgetsAnnotation.prototype.setlabeltext = function setlabeltext() {
-    this._labeltext = prompt('Please enter the name of the label', ''); // this function is called when the user creates a new arrow
-    if (typeof this._labeltext == 'string') {
-      // avoid error
-      if (this._labeltext.length > 0) {
-        this._label.innerHTML = this._labeltext;
-        this._label.style.display = ''; // in css an empty string is used to revert display=none. Show the label once we know the content
-        this._dashline.style.display = ''; // in css an empty string is used to revert display=none. Show the label once we know the content
-      } else {
-        this._label.innerHTML = this._labeltext;
-        this._label.style.display = 'none'; // hide the label
-        this._dashline.style.display = 'none'; // hide the label
-      }
-    }
-  };
-
-  WidgetsAnnotation.prototype.changelabeltext = function changelabeltext() {
-    // this function is called when the user does double click in the label
-    this._labeltext = prompt('Please enter new name of the label', this._label.innerHTML);
-    if (typeof this._labeltext == 'string') {
-      // avoid error
-      if (this._labeltext.length > 0) {
-        this._label.innerHTML = this._labeltext;
-        this._label.style.display = ''; // in css an empty string is used to revert display=none. Show the label
-        this._dashline.style.display = ''; // in css an empty string is used to revert display=none. Show the label
-      } else {
-        // if the length is 0 the user pressed Cancel
-        this._label.innerHTML = this._labeltext;
-        this._label.style.display = 'none'; // hide the label
-        this._dashline.style.display = 'none'; // hide the label
-      }
-    }
-  };
-
-  WidgetsAnnotation.prototype.displaylabel = function displaylabel() {
-    if (typeof this._labeltext == 'string') {
-      // avoid error
-      this._label.innerHTML = this._labeltext;
-      this._label.style.display = ''; // in css an empty string is used to revert display=none. Show the label
-      this._dashline.style.display = ''; // in css an empty string is used to revert display=none. Show the label
-      this._label.style.transform = 'translate3D(' + this._labelpositionx + 'px,' + this._labelpositiony + 'px, 0)';
-    }
-  };
-
-  WidgetsAnnotation.prototype.onEnd = function onEnd(evt) {
-    // First Handle
-    this._handles[0].onEnd(evt);
-
-    // Second Handle
-    if (this._dragged || !this._handles[1].tracking) {
-      this._handles[1].tracking = false;
-      this._handles[1].onEnd(evt);
-    } else {
-      this._handles[1].tracking = false;
-    }
-
-    if (!this._alreadycreated) {
-      this.setlabeltext();
-      this._alreadycreated = true;
-    }
-
-    // State of annotation widget
-    this._active = this._handles[0].active || this._handles[1].active;
-    this.update();
-  };
-
-  WidgetsAnnotation.prototype.create = function create() {
-    this.createMesh();
-    this.createDOM();
-  };
-
-  WidgetsAnnotation.prototype.update = function update() {
-    this.updateColor();
-
-    // mesh stuff
-    this.updateMeshColor();
-    this.updateMeshPosition();
-
-    // DOM stuff
-    this.updateDOMPosition();
-    this.updateDOMColor();
-  };
-
-  WidgetsAnnotation.prototype.createMesh = function createMesh() {
-    // geometry
-    this._geometry = new THREE.Geometry();
-    this._geometry.vertices.push(this._handles[0].worldPosition);
-    this._geometry.vertices.push(this._handles[1].worldPosition);
-
-    // material
-    this._material = new THREE.LineBasicMaterial();
-    this.updateMeshColor();
-
-    // mesh
-    this._meshline = new THREE.Line(this._geometry, this._material);
-    this._meshline.visible = true;
-
-    // add it!
-    this.add(this._meshline);
-
-    // create cone and add it
-    this._conegeometry = new THREE.CylinderGeometry(0, 2, 10);
-    this._conegeometry.translate(0, -5, 0);
-    this._conegeometry.rotateX(-Math.PI / 2);
-    this._cone = new THREE.Mesh(this._conegeometry, this._material);
-    this._cone.visible = true;
-    this.add(this._cone);
-  };
-
-  WidgetsAnnotation.prototype.updateMeshColor = function updateMeshColor() {
-    if (this._material) {
-      this._material.color.set(this._color);
-    }
-  };
-
-  WidgetsAnnotation.prototype.updateMeshPosition = function updateMeshPosition() {
-    if (this._geometry) {
-      this._geometry.verticesNeedUpdate = true;
-    }
-  };
-
-  WidgetsAnnotation.prototype.createDOM = function createDOM() {
-    // add line!
-    this._line = document.createElement('div');
-    this._line.setAttribute('class', 'widgets handle line');
-    this._line.style.position = 'absolute';
-    this._line.style.transformOrigin = '0 100%';
-    this._line.style.marginTop = '-1px';
-    this._line.style.height = '2px';
-    this._line.style.width = '3px';
-    this._container.appendChild(this._line);
-
-    // add dash line
-    this._dashline = document.createElement('div');
-    this._dashline.setAttribute('class', 'widgets handle dashline');
-    this._dashline.style.position = 'absolute';
-    this._dashline.style.border = 'none';
-    this._dashline.style.borderTop = '2.5px dashed #F9F9F9';
-    this._dashline.style.transformOrigin = '0 100%';
-    this._dashline.style.height = '1px';
-    this._dashline.style.width = '50%';
-    this._dashline.style.display = 'none';
-    this._container.appendChild(this._dashline);
-
-    // add label!
-    this._label = document.createElement('div');
-    this._label.setAttribute('id', this.uuid);
-    this._label.setAttribute('class', 'widgets handle label');
-    this._label.style.border = '2px solid #F9F9F9';
-    this._label.style.backgroundColor = '#F9F9F9';
-    // this._label.style.opacity = '0.5';
-    this._label.style.color = '#353535';
-    this._label.style.padding = '4px';
-    this._label.style.position = 'absolute';
-    this._label.style.transformOrigin = '0 100%';
-    this._label.innerHTML = 'Hello, world!';
-    this._label.style.display = 'none';
-    this._container.appendChild(this._label);
-
-    this.updateDOMColor();
-  };
-
-  WidgetsAnnotation.prototype.updateDOMPosition = function updateDOMPosition() {
-    // update annotation lines and text!
-    var x1 = this._handles[0].screenPosition.x;
-    var y1 = this._handles[0].screenPosition.y;
-    var x2 = this._handles[1].screenPosition.x;
-    var y2 = this._handles[1].screenPosition.y;
-
-    var x0 = x1 + (x2 - x1) / 2;
-    var y0 = y1 + (y2 - y1) / 2;
-
-    var length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-    var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI; // result in deg
-
-    var posY = y1 - this._container.offsetHeight;
-
-    // update line
-    var transform = 'translate3D(' + x1 + 'px,' + posY + 'px, 0)';
-    transform += ' rotate(' + angle + 'deg)';
-
-    this._line.style.transform = transform;
-    this._line.style.width = length + 'px';
-
-    // update label position
-    var mousex = 0;
-    var mousey = 0;
-
-    var posY0 = void 0;
-
-    posY0 = y0 - this._container.offsetHeight - this._label.offsetHeight / 2;
-    x0 -= this._label.offsetWidth / 2;
-
-    var x = void 0;
-    var y = void 0;
-
-    if (!this._labelmoved) {
-      // if the user hasnt moved the label, the position is defined by the position of the arrow
-      var transform2 = 'translate3D(' + Math.round(x0) + 'px,' + Math.round(posY0) + 'px, 0)';
-      this._label.style.transform = transform2;
-      this._labelpositionx = Math.round(x0);
-      this._labelpositiony = Math.round(posY0);
-    }
-
-    if (this._movinglabel) {
-      // if the user has moved the label, the position is defined by the mouse
-      mousex = event.clientX;
-      mousey = -(-event.clientY + this._container.offsetHeight);
-      this._label.style.transform = 'translate3D(' + (mousex - this._differencemousecenterlabelx) + 'px,' + (mousey - this._differencemousecenterlabely) + 'px, 0)';
-      // we use differencemousecenterlabel to check the difference between the position of the mouse in the label and the reference position of the label (top-left corner)
-      this._labelpositionx = mousex - this._differencemousecenterlabelx;
-      this._labelpositiony = mousey - this._differencemousecenterlabely;
-    }
-
-    // create the label without the interaction of the user. Useful when we need to create the label manually.
-    if (this._manuallabeldisplay) {
-      this.displaylabel();
-    }
-
-    // update cone
-    var w0 = this._handles[0].worldPosition;
-    var w1 = this._handles[1].worldPosition;
-
-    // position and rotation of cone
-    this._cone.position.set(w1.x, w1.y, w1.z);
-    this._cone.lookAt(w0);
-
-    // update dash line
-
-    // calculate the place in the label: center of the label
-    x1 = this._handles[0].screenPosition.x;
-    y1 = this._handles[0].screenPosition.y;
-    x2 = this._labelpositionx;
-    y2 = this._labelpositiony + this._container.offsetHeight; // revert the operation in 'mousey' to get the previous eventY
-
-    // get the size of the label so we can place the dashed line in the center of it
-    var labelheight = this._label.offsetHeight;
-    var labelwidth = this._label.offsetWidth;
-
-    var centerlabelx = 0;
-    var centerlabely = 0;
-
-    if (isFinite(labelwidth) && isFinite(labelheight)) {
-      // if the extraction has been succesfull, we calculate the center of the label with total size
-      centerlabelx = labelwidth / 2;
-      centerlabely = labelheight / 2;
-    }
-
-    x2 += centerlabelx;
-    y2 += centerlabely;
-
-    // calculate the place in the arrow: closest part of the line to place the dashed line
-    var x1_tail = this._handles[0].screenPosition.x; // first position: tail of arrow
-    var y1_tail = this._handles[0].screenPosition.y;
-    var x1_body = (this._handles[0].screenPosition.x + this._handles[1].screenPosition.x) / 2; // second position: center of arrow
-    var y1_body = (this._handles[0].screenPosition.y + this._handles[1].screenPosition.y) / 2;
-    var x1_nose = this._handles[1].screenPosition.x; // third position: peak of arrow
-    var y1_nose = this._handles[1].screenPosition.y;
-
-    // calculate all the lengths to the label, so we can choose the min
-    var lengthtaillabel = Math.sqrt((x1_tail - x2) * (x1_tail - x2) + (y1_tail - y2) * (y1_tail - y2));
-    var lengthbodylabel = Math.sqrt((x1_body - x2) * (x1_body - x2) + (y1_body - y2) * (y1_body - y2));
-    var lengthnoselabel = Math.sqrt((x1_nose - x2) * (x1_nose - x2) + (y1_nose - y2) * (y1_nose - y2));
-
-    var lengths = [lengthtaillabel, lengthbodylabel, lengthnoselabel];
-    var minlength = Math.min(lengthtaillabel, lengthbodylabel, lengthnoselabel);
-    var minlengthindex = lengths.indexOf(minlength);
-
-    if (minlengthindex == 0) {
-      x1 = x1_tail;
-      y1 = y1_tail;
-    }
-    if (minlengthindex == 1) {
-      x1 = x1_body;
-      y1 = y1_body;
-    }
-    if (minlengthindex == 2) {
-      x1 = x1_nose;
-      y1 = y1_nose;
-    }
-
-    // Once we found the closest point to the label, we create the dashed line from that point
-    var lengthdashline = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-    var angledashline = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI; // result in deg
-
-    var posYdashline = y1 - this._container.offsetHeight;
-
-    // update dashed line
-    var transformdashline = 'translate3D(' + x1 + 'px,' + posYdashline + 'px, 0)';
-    transformdashline += ' rotate(' + angledashline + 'deg)';
-
-    this._dashline.style.transform = transformdashline;
-    this._dashline.style.width = lengthdashline + 'px';
-  };
-
-  WidgetsAnnotation.prototype.updateDOMColor = function updateDOMColor() {
-    this._line.style.backgroundColor = '' + this._color;
-    this._dashline.style.borderTop = '2.5px dashed ' + ('' + this._color);
-    this._label.style.borderColor = '' + this._color;
-  };
-
-  WidgetsAnnotation.prototype.hideDOM = function hideDOM() {
-    this._line.style.display = 'none';
-    this._dashline.style.display = 'none';
-    this._label.style.display = 'none';
-    for (var index in this._handles) {
-      this._handles[index].hideDOM();
-    }
-  };
-
-  WidgetsAnnotation.prototype.showDOM = function showDOM() {
-    this._line.style.display = '';
-    this._dashline.style.display = '';
-    this._label.style.display = '';
-    for (var index in this._handles) {
-      this._handles[index].showDOM();
-    }
-  };
-
-  WidgetsAnnotation.prototype.hideMesh = function hideMesh() {
-    this.visible = false;
-  };
-
-  WidgetsAnnotation.prototype.showMesh = function showMesh() {
-    this.visible = true;
-  };
-
-  WidgetsAnnotation.prototype.show = function show() {
-    this.showDOM();
-    this.showMesh();
-  };
-
-  WidgetsAnnotation.prototype.hide = function hide() {
-    this.hideDOM();
-    this.hideMesh();
-  };
-
-  _createClass(WidgetsAnnotation, [{
-    key: 'worldPosition',
-    get: function get() {
-      return this._worldPosition;
-    },
-    set: function set(worldPosition) {
-      this._worldPosition = worldPosition;
-      this._handles[0].worldPosition = this._worldPosition;
-      this._handles[1].worldPosition = this._worldPosition;
-
-      this.update();
-    }
-  }]);
-
-  return WidgetsAnnotation;
-}(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* default */]);
-
-/* harmony default export */ __webpack_exports__["a"] = (WidgetsAnnotation);
 
 /***/ }),
 /* 175 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
+/* unused harmony export widgetsAngle */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(3);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -97102,496 +96945,433 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 
 
-
-
 /**
- * @module widgets/handle
- *
+ * @module widgets/angle
  */
+var widgetsAngle = function widgetsAngle() {
+    var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
-var WidgetsBiRuler = function (_WidgetsBase) {
-    _inherits(WidgetsBiRuler, _WidgetsBase);
-
-    function WidgetsBiRuler(targetMesh, controls, camera, container) {
-        _classCallCheck(this, WidgetsBiRuler);
-
-        var _this = _possibleConstructorReturn(this, _WidgetsBase.call(this));
-
-        _this._targetMesh = targetMesh;
-        _this._controls = controls;
-        _this._camera = camera;
-        _this._container = container;
-
-        _this._active = true;
-        _this._initOrtho = false;
-
-        _this._worldPosition = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */]();
-        if (_this._targetMesh !== null) {
-            _this._worldPosition = _this._targetMesh.position;
-        }
-
-        // mesh stuff
-        _this._material = null;
-        _this._geometry = null;
-        _this._mesh = null;
-
-        // dom stuff
-        _this._line = null;
-        _this._distance = null;
-
-        // add handles
-        _this._handles = [];
-
-        // first handle
-        var firstHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](_this._targetMesh, _this._controls, _this._camera, _this._container);
-        firstHandle.worldPosition = _this._worldPosition;
-        firstHandle.hovered = true;
-        _this.add(firstHandle);
-
-        _this._handles.push(firstHandle);
-
-        var secondHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](_this._targetMesh, _this._controls, _this._camera, _this._container);
-        secondHandle.worldPosition = _this._worldPosition;
-        secondHandle.hovered = true;
-        // active and tracking might be redundant
-        secondHandle.active = true;
-        secondHandle.tracking = true;
-        _this.add(secondHandle);
-
-        _this._handles.push(secondHandle);
-
-        // third handle
-        var thirdHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](_this._targetMesh, _this._controls, _this._camera, _this._container);
-        thirdHandle.worldPosition = _this._worldPosition;
-        thirdHandle.hovered = true;
-        _this.add(thirdHandle);
-
-        _this._handles.push(thirdHandle);
-
-        // fourth handle
-        var fourthHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](_this._targetMesh, _this._controls, _this._camera, _this._container);
-        fourthHandle.worldPosition = _this._worldPosition;
-        fourthHandle.hovered = true;
-        _this.add(fourthHandle);
-
-        _this._handles.push(fourthHandle);
-
-        // Create ruler
-        _this.create();
-
-        _this.onMove = _this.onMove.bind(_this);
-        _this.addEventListeners();
-
-        _this._orientation = null;
-        _this._slice = null;
-        return _this;
+    if (three === undefined || three.Object3D === undefined) {
+        return null;
     }
 
-    WidgetsBiRuler.prototype.addEventListeners = function addEventListeners() {
-        this._container.addEventListener('mousewheel', this.onMove);
-        this._container.addEventListener('DOMMouseScroll', this.onMove);
-    };
+    var Constructor = Object(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* widgetsBase */])(three);
+    return function (_Constructor) {
+        _inherits(_class, _Constructor);
 
-    WidgetsBiRuler.prototype.onMove = function onMove(evt) {
-        this._dragged = true;
+        function _class(targetMesh, controls) {
+            _classCallCheck(this, _class);
 
-        this._handles[0].onMove(evt);
-        this._handles[1].onMove(evt);
-        this._handles[2].onMove(evt);
-        this._handles[3].onMove(evt);
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
 
-        this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._handles[2].hovered || this._handles[3].hovered;
+            _this._widgetType = 'Angle';
+            _this._moving = false;
+            _this._domHovered = false;
 
-        this.update();
-    };
+            // mesh stuff
+            _this._material = null;
+            _this._material2 = null;
+            _this._geometry = null;
+            _this._geometry2 = null;
+            _this._mesh = null;
+            _this._mesh2 = null;
 
-    WidgetsBiRuler.prototype.onStart = function onStart(evt) {
-        this._dragged = false;
+            // dom stuff
+            _this._line = null;
+            _this._line2 = null;
+            _this._label = null;
 
-        this._handles[0].onStart(evt);
-        this._handles[1].onStart(evt);
-        this._handles[2].onStart(evt);
-        this._handles[3].onStart(evt);
+            _this._opangle = null;
+            _this._defaultAngle = true;
 
-        this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active;
-        this.update();
-    };
+            // add handles
+            _this._handles = [];
 
-    WidgetsBiRuler.prototype.onEnd = function onEnd(evt) {
-        // First Handle
-        this._handles[0].onEnd(evt);
-        this._handles[2].onEnd(evt);
-        this._handles[3].onEnd(evt);
+            var handle = void 0;
+            var WidgetsHandle = Object(__WEBPACK_IMPORTED_MODULE_1__widgets_handle__["b" /* widgetsHandle */])(three);
+            for (var i = 0; i < 3; i++) {
+                handle = new WidgetsHandle(targetMesh, controls);
+                handle.worldPosition.copy(_this._worldPosition);
+                _this.add(handle);
+                _this._handles.push(handle);
+            }
+            _this._handles[1].active = true;
+            _this._handles[1].tracking = true;
+            _this._handles[2].active = true;
+            _this._handles[2].tracking = true;
 
-        window.console.log(this);
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls);
+            _this._moveHandle.worldPosition.copy(_this._worldPosition);
+            _this.add(_this._moveHandle);
+            _this._handles.push(_this._moveHandle);
+            _this._moveHandle.hide();
 
-        // Second Handle
-        if (this._dragged || !this._handles[1].tracking) {
-            this._handles[1].tracking = false;
-            this._handles[1].onEnd(evt);
-        } else {
-            this._handles[1].tracking = false;
+            _this.create();
+
+            _this.onMove = _this.onMove.bind(_this);
+            _this.onHover = _this.onHover.bind(_this);
+            _this.addEventListeners();
+            return _this;
         }
 
-        // State of ruler widget
-        this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active;
-        this.update();
-    };
+        _class.prototype.addEventListeners = function addEventListeners() {
+            this._container.addEventListener('wheel', this.onMove);
 
-    WidgetsBiRuler.prototype.create = function create() {
-        this.createMesh();
-        this.createDOM();
-    };
+            this._line.addEventListener('mouseenter', this.onHover);
+            this._line.addEventListener('mouseleave', this.onHover);
+            this._line2.addEventListener('mouseenter', this.onHover);
+            this._line2.addEventListener('mouseleave', this.onHover);
+            this._label.addEventListener('mouseenter', this.onHover);
+            this._label.addEventListener('mouseleave', this.onHover);
+        };
 
-    WidgetsBiRuler.prototype.hideDOM = function hideDOM() {
-        this._line.style.display = 'none';
-        this._distance.style.display = 'none';
-        this._line2.style.display = 'none';
-        this._distance2.style.display = 'none';
+        _class.prototype.removeEventListeners = function removeEventListeners() {
+            this._container.removeEventListener('wheel', this.onMove);
 
-        for (var index in this._handles) {
-            this._handles[index].hideDOM();
-        }
+            this._line.removeEventListener('mouseenter', this.onHover);
+            this._line.removeEventListener('mouseleave', this.onHover);
+            this._line2.removeEventListener('mouseenter', this.onHover);
+            this._line2.removeEventListener('mouseleave', this.onHover);
+            this._label.removeEventListener('mouseenter', this.onHover);
+            this._label.removeEventListener('mouseleave', this.onHover);
+        };
 
-        this._dashline.style.display = 'none';
-    };
+        _class.prototype.onHover = function onHover(evt) {
+            if (evt) {
+                this.hoverDom(evt);
+            }
 
-    WidgetsBiRuler.prototype.showDOM = function showDOM() {
-        this._line.style.display = '';
-        this._distance.style.display = '';
-        this._line2.style.display = '';
-        this._distance2.style.display = '';
+            this.hoverMesh();
 
-        for (var index in this._handles) {
-            this._handles[index].showDOM();
-        }
+            this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._handles[2].hovered || this._domHovered;
+            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+        };
 
-        this._dashline.style.display = '';
-    };
+        _class.prototype.hoverMesh = function hoverMesh() {
+            // check raycast intersection, do we want to hover on mesh or just css?
+        };
 
-    WidgetsBiRuler.prototype.hideMesh = function hideMesh() {
-        this._mesh.visible = false;
-        this._mesh2.visible = false;
-        this._handles[0].visible = false;
-        this._handles[1].visible = false;
-        this._handles[2].visible = false;
-        this._handles[3].visible = false;
-    };
+        _class.prototype.hoverDom = function hoverDom(evt) {
+            this._domHovered = evt.type === 'mouseenter';
+        };
 
-    WidgetsBiRuler.prototype.showMesh = function showMesh() {
-        this._mesh.visible = true;
-        this._mesh2.visible = true;
-        this._handles[0].visible = true;
-        this._handles[1].visible = true;
-        this._handles[2].visible = true;
-        this._handles[3].visible = true;
-    };
+        _class.prototype.onStart = function onStart(evt) {
+            this._moveHandle.onMove(evt, true);
 
-    WidgetsBiRuler.prototype.show = function show() {
-        this.showDOM();
-        this.showMesh();
-    };
+            this._handles[0].onStart(evt);
+            this._handles[1].onStart(evt);
+            this._handles[2].onStart(evt);
 
-    WidgetsBiRuler.prototype.hide = function hide() {
-        this.hideDOM();
-        this.hideMesh();
-    };
+            this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._domHovered;
 
-    WidgetsBiRuler.prototype.update = function update() {
-        this.updateColor();
-
-        // mesh stuff
-        this.updateMeshColor();
-        this.updateMeshPosition();
-
-        // DOM stuff
-        this.updateDOMPosition();
-        this.updateDOMColor();
-    };
-
-    WidgetsBiRuler.prototype.createMesh = function createMesh() {
-        // geometry
-        this._geometry = new THREE.Geometry();
-        this._geometry.vertices.push(this._handles[0].worldPosition);
-        this._geometry.vertices.push(this._handles[1].worldPosition);
-
-        // geometry
-        this._geometry2 = new THREE.Geometry();
-        this._geometry2.vertices.push(this._handles[2].worldPosition);
-        this._geometry2.vertices.push(this._handles[3].worldPosition);
-
-        // material
-        this._material = new THREE.LineBasicMaterial();
-        this._material2 = new THREE.LineBasicMaterial();
-        this.updateMeshColor();
-
-        // mesh
-        this._mesh = new THREE.Line(this._geometry, this._material);
-        this._mesh.visible = true;
-        this._mesh2 = new THREE.Line(this._geometry2, this._material2);
-        this._mesh2.visible = true;
-
-        // add it!
-        this.add(this._mesh);
-        this.add(this._mesh2);
-    };
-
-    WidgetsBiRuler.prototype.updateMeshColor = function updateMeshColor() {
-        if (this._material) {
-            this._material.color.set(this._color);
-        }
-        if (this._material2) {
-            this._material2.color.set(this._color);
-        }
-    };
-
-    WidgetsBiRuler.prototype.updateMeshPosition = function updateMeshPosition() {
-        if (this._geometry) {
-            this._geometry.verticesNeedUpdate = true;
-        }
-        if (this._geometry2) {
-            this._geometry2.verticesNeedUpdate = true;
-        }
-    };
-
-    WidgetsBiRuler.prototype.createDOM = function createDOM() {
-        // add line!
-        this._line = document.createElement('div');
-        this._line.setAttribute('class', 'widgets handle line');
-        this._line.style.position = 'absolute';
-        this._line.style.transformOrigin = '0 100%';
-        this._line.style.marginTop = '-1px';
-        this._line.style.height = '2px';
-        this._line.style.width = '3px';
-        this._container.appendChild(this._line);
-
-        // add distance!
-        this._distance = document.createElement('div');
-        this._distance.setAttribute('class', 'widgets handle distance');
-        this._distance.style.border = '2px solid';
-        this._distance.style.backgroundColor = '#F9F9F9';
-        // this._distance.style.opacity = '0.5';
-        this._distance.style.color = '#353535';
-        this._distance.style.padding = '4px';
-        this._distance.style.position = 'absolute';
-        this._distance.style.transformOrigin = '0 100%';
-        this._distance.innerHTML = 'Hello, world!';
-        this._container.appendChild(this._distance);
-
-        // add line!
-        this._line2 = document.createElement('div');
-        this._line2.setAttribute('class', 'widgets handle line');
-        this._line2.style.position = 'absolute';
-        this._line2.style.transformOrigin = '0 100%';
-        this._line2.style.marginTop = '-1px';
-        this._line2.style.height = '2px';
-        this._line2.style.width = '3px';
-        this._container.appendChild(this._line2);
-
-        // add distance!
-        this._distance2 = document.createElement('div');
-        this._distance2.setAttribute('class', 'widgets handle distance');
-        this._distance.style.border = '2px solid';
-        this._distance.style.backgroundColor = '#F9F9F9';
-        // this._distance2.style.opacity = '0.5';
-        this._distance2.style.color = '#353535';
-        this._distance2.style.padding = '4px';
-        this._distance2.style.position = 'absolute';
-        this._distance2.style.transformOrigin = '0 100%';
-        this._distance2.innerHTML = 'Hello, world!';
-        this._container.appendChild(this._distance2);
-
-        // add dash line
-        this._dashline = document.createElement('div');
-        this._dashline.setAttribute('class', 'widgets handle dashline');
-        this._dashline.style.position = 'absolute';
-        this._dashline.style.border = 'none';
-        this._dashline.style.borderTop = '2.5px dashed #F9F9F9';
-        this._dashline.style.transformOrigin = '0 100%';
-        this._dashline.style.height = '1px';
-        this._dashline.style.width = '50%';
-        this._container.appendChild(this._dashline);
-
-        this.updateDOMColor();
-    };
-
-    WidgetsBiRuler.prototype.updateDOMPosition = function updateDOMPosition() {
-        // update rulers lines and text!
-        var x1 = this._handles[0].screenPosition.x;
-        var y1 = this._handles[0].screenPosition.y;
-        var x2 = this._handles[1].screenPosition.x;
-        var y2 = this._handles[1].screenPosition.y;
-
-        // let x0 = x1 + (x2 - x1)/2;
-        // let y0 = y1 + (y2 - y1)/2;
-        var x0 = x2;
-        var y0 = y2;
-
-        if (y1 >= y2) {
-            y0 = y2 - 30;
-        } else {
-            y0 = y2 + 30;
-        }
-
-        var length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-        var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-
-        var posY = y1 - this._container.offsetHeight;
-
-        // update line
-        var transform = 'translate3D(' + x1 + 'px,' + posY + 'px, 0)';
-        transform += ' rotate(' + angle + 'deg)';
-
-        this._line.style.transform = transform;
-        this._line.style.width = length + 'px';
-
-        // update distance
-        var w0 = this._handles[0].worldPosition;
-        var w1 = this._handles[1].worldPosition;
-
-        this._distance.innerHTML = Math.sqrt((w0.x - w1.x) * (w0.x - w1.x) + (w0.y - w1.y) * (w0.y - w1.y) + (w0.z - w1.z) * (w0.z - w1.z)).toFixed(2) + ' mm';
-        this._distanceValue = Math.sqrt((w0.x - w1.x) * (w0.x - w1.x) + (w0.y - w1.y) * (w0.y - w1.y) + (w0.z - w1.z) * (w0.z - w1.z)).toFixed(2);
-        var posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight / 2;
-        x0 -= this._distance.offsetWidth / 2;
-
-        var transform2 = 'translate3D(' + Math.round(x0) + 'px,' + Math.round(posY0) + 'px, 0)';
-        this._distance.style.transform = transform2;
-
-        // update rulers lines 2 and text!
-        var x3 = this._handles[2].screenPosition.x;
-        var y3 = this._handles[2].screenPosition.y;
-        var x4 = this._handles[3].screenPosition.x;
-        var y4 = this._handles[3].screenPosition.y;
-
-        // let x0 = x1 + (x2 - x1)/2;
-        // let y0 = y1 + (y2 - y1)/2;
-        var x02 = x4;
-        var y02 = y4;
-
-        if (y3 >= y4) {
-            y02 = y4 - 30;
-        } else {
-            y02 = y4 + 30;
-        }
-
-        length = Math.sqrt((x3 - x4) * (x3 - x4) + (y3 - y4) * (y3 - y4));
-        angle = Math.atan2(y4 - y3, x4 - x3) * 180 / Math.PI;
-
-        posY = y3 - this._container.offsetHeight;
-
-        // update line
-        transform = 'translate3D(' + x3 + 'px,' + posY + 'px, 0)';
-        transform += ' rotate(' + angle + 'deg)';
-
-        this._line2.style.transform = transform;
-        this._line2.style.width = length + 'px';
-
-        // update distance
-        var w02 = this._handles[2].worldPosition;
-        var w12 = this._handles[3].worldPosition;
-
-        this._distance2.innerHTML = Math.sqrt((w02.x - w12.x) * (w02.x - w12.x) + (w02.y - w12.y) * (w02.y - w12.y) + (w02.z - w12.z) * (w02.z - w12.z)).toFixed(2) + ' mm';
-        this._distance2Value = Math.sqrt((w02.x - w12.x) * (w02.x - w12.x) + (w02.y - w12.y) * (w02.y - w12.y) + (w02.z - w12.z) * (w02.z - w12.z)).toFixed(2);
-        var posY02 = y02 - this._container.offsetHeight - this._distance2.offsetHeight / 2;
-        x02 -= this._distance2.offsetWidth / 2;
-
-        transform2 = 'translate3D(' + Math.round(x02) + 'px,' + Math.round(posY02) + 'px, 0)';
-        this._distance2.style.transform = transform2;
-
-        // update dash line
-
-        var l1center = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.5);
-        var l2center = this.getPointInBetweenByPerc(this._handles[2].worldPosition, this._handles[3].worldPosition, 0.5);
-
-        var screen1 = this._handles[0].worldToScreen(l1center, this._camera, this._container);
-        var screen2 = this._handles[0].worldToScreen(l2center, this._camera, this._container);
-
-        x1 = screen1.x;
-        y1 = screen1.y;
-        x2 = screen2.x;
-        y2 = screen2.y;
-
-        length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-        angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-
-        posY = y1 - this._container.offsetHeight;
-
-        // update line
-        transform = 'translate3D(' + x1 + 'px,' + posY + 'px, 0)';
-        transform += ' rotate(' + angle + 'deg)';
-
-        this._dashline.style.transform = transform;
-        this._dashline.style.width = length + 'px';
-    };
-
-    WidgetsBiRuler.prototype.updateDOMColor = function updateDOMColor() {
-        this._line.style.backgroundColor = '' + this._color;
-        this._distance.style.borderColor = '' + this._color;
-
-        this._line2.style.backgroundColor = '' + this._color;
-        this._distance2.style.borderColor = '' + this._color;
-    };
-
-    WidgetsBiRuler.prototype.getPointInBetweenByPerc = function getPointInBetweenByPerc(pointA, pointB, percentage) {
-        var dir = pointB.clone().sub(pointA);
-        var len = dir.length();
-        dir = dir.normalize().multiplyScalar(len * percentage);
-        return pointA.clone().add(dir);
-    };
-
-    WidgetsBiRuler.prototype.initOrtho = function initOrtho() {
-        this._initOrtho = true;
-
-        var pcenter = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.5);
-        this._handles[2].worldPosition = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.25);
-        this._handles[3].worldPosition = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.75);
-
-        this._handles[2].worldPosition.x = pcenter.x - Math.sqrt((pcenter.y - this._handles[2].worldPosition.y) * (pcenter.y - this._handles[2].worldPosition.y));
-        this._handles[2].worldPosition.y = pcenter.y + Math.sqrt((pcenter.x - this._handles[2].worldPosition.x) * (pcenter.x - this._handles[2].worldPosition.x));
-
-        this._handles[3].worldPosition.x = pcenter.x + Math.sqrt((pcenter.y - this._handles[2].worldPosition.y) * (pcenter.y - this._handles[2].worldPosition.y));
-        this._handles[3].worldPosition.y = pcenter.y - Math.sqrt((pcenter.x - this._handles[2].worldPosition.x) * (pcenter.x - this._handles[2].worldPosition.x));
-    };
-
-    _createClass(WidgetsBiRuler, [{
-        key: 'worldPosition',
-        get: function get() {
-            return this._worldPosition;
-        },
-        set: function set(worldPosition) {
-            this._worldPosition = worldPosition;
-            this._handles[0].worldPosition = this._worldPosition;
-            this._handles[1].worldPosition = this._worldPosition;
-            this._handles[2].worldPosition = this._worldPosition;
-            this._handles[3].worldPosition = this._worldPosition;
+            if (this._domHovered && !this._handles[1].tracking && !this._handles[2].tracking) {
+                this._moving = true;
+                this._controls.enabled = false;
+            }
 
             this.update();
-        }
-    }, {
-        key: 'shotestDistance',
-        get: function get() {
-            return this._distanceValue < this._distance2Value ? this._distanceValue : this._distance2Value;
-        }
-    }, {
-        key: 'longestDistance',
-        get: function get() {
-            return this._distanceValue > this._distance2Value ? this._distanceValue : this._distance2Value;
-        }
-    }]);
+        };
 
-    return WidgetsBiRuler;
-}(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* default */]);
+        _class.prototype.onMove = function onMove(evt) {
+            if (this._active) {
+                var prevPosition = this._moveHandle.worldPosition.clone();
 
-/* harmony default export */ __webpack_exports__["a"] = (WidgetsBiRuler);
+                this._dragged = true;
+                this._moveHandle.onMove(evt, true);
+
+                if (this._moving) {
+                    this._handles.slice(0, -1).forEach(function (elem, ind) {
+                        this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                    }, this);
+                }
+            } else {
+                this.onHover(null);
+            }
+
+            this._handles[0].onMove(evt);
+            this._handles[1].onMove(evt);
+            this._handles[2].onMove(evt);
+
+            this.update();
+        };
+
+        _class.prototype.onEnd = function onEnd() {
+            this._handles[0].onEnd(); // First Handle
+
+            if (this._handles[1].tracking && this._handles[0].screenPosition.distanceTo(this._handles[1].screenPosition) < 10 || !this._handles[1].tracking && this._handles[2].tracking && this._handles[1].screenPosition.distanceTo(this._handles[2].screenPosition) < 10) {
+                return;
+            }
+
+            if (!this._dragged && this._active && !this._handles[2].tracking) {
+                this._selected = !this._selected; // change state if there was no dragging
+                this._handles[0].selected = this._selected;
+            }
+
+            // Third Handle
+            if (this._handles[1].active) {
+                this._handles[2].onEnd();
+            } else if (this._dragged || !this._handles[2].tracking) {
+                this._handles[2].tracking = false;
+                this._handles[2].onEnd();
+            } else {
+                this._handles[2].tracking = false;
+            }
+            this._handles[2].selected = this._selected;
+
+            // Second Handle
+            if (this._dragged || !this._handles[1].tracking) {
+                this._handles[1].tracking = false;
+                this._handles[1].onEnd();
+            } else {
+                this._handles[1].tracking = false;
+            }
+            this._handles[1].selected = this._selected;
+
+            this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active;
+            this._dragged = this._handles[2].tracking;
+            this._moving = false;
+            this.update();
+        };
+
+        _class.prototype.create = function create() {
+            this.createMesh();
+            this.createDOM();
+        };
+
+        _class.prototype.createMesh = function createMesh() {
+            // geometry
+            this._geometry = new three.Geometry();
+            this._geometry.vertices.push(this._handles[0].worldPosition);
+            this._geometry.vertices.push(this._handles[1].worldPosition);
+
+            // geometry
+            this._geometry2 = new three.Geometry();
+            this._geometry2.vertices.push(this._handles[1].worldPosition);
+            this._geometry2.vertices.push(this._handles[2].worldPosition);
+
+            // material
+            this._material = new three.LineBasicMaterial();
+            this._material2 = new three.LineBasicMaterial();
+
+            this.updateMeshColor();
+
+            // mesh
+            this._mesh = new three.Line(this._geometry, this._material);
+            this._mesh.visible = true;
+            this._mesh2 = new three.Line(this._geometry2, this._material2);
+            this._mesh2.visible = true;
+
+            this.add(this._mesh);
+            this.add(this._mesh2);
+        };
+
+        _class.prototype.createDOM = function createDOM() {
+            this._line = document.createElement('div');
+            this._line.setAttribute('class', 'widgets-line');
+            this._container.appendChild(this._line);
+
+            this._line2 = document.createElement('div');
+            this._line2.setAttribute('class', 'widgets-line');
+            this._container.appendChild(this._line2);
+
+            this._label = document.createElement('div');
+            this._label.setAttribute('class', 'widgets-label');
+            this._container.appendChild(this._label);
+
+            this.updateDOMColor();
+        };
+
+        _class.prototype.hideDOM = function hideDOM() {
+            this._line.style.display = 'none';
+            this._line2.style.display = 'none';
+            this._label.style.display = 'none';
+
+            this._handles.forEach(function (elem) {
+                elem.hideDOM();
+            });
+        };
+
+        _class.prototype.showDOM = function showDOM() {
+            this._line.style.display = '';
+            this._line2.style.display = '';
+            this._label.style.display = '';
+
+            this._handles[0].showDOM();
+            this._handles[1].showDOM();
+            this._handles[2].showDOM();
+        };
+
+        _class.prototype.update = function update() {
+            this.updateColor();
+
+            // update handles
+            this._handles[0].update();
+            this._handles[1].update();
+            this._handles[2].update();
+
+            // mesh stuff
+            this.updateMeshColor();
+            this.updateMeshPosition();
+
+            // DOM stuff
+            this.updateDOMColor();
+            this.updateDOMPosition();
+        };
+
+        _class.prototype.updateMeshColor = function updateMeshColor() {
+            if (this._material) {
+                this._material.color.set(this._color);
+            }
+            if (this._material2) {
+                this._material2.color.set(this._color);
+            }
+        };
+
+        _class.prototype.updateMeshPosition = function updateMeshPosition() {
+            if (this._geometry) {
+                this._geometry.verticesNeedUpdate = true;
+            }
+            if (this._geometry2) {
+                this._geometry2.verticesNeedUpdate = true;
+            }
+        };
+
+        _class.prototype.updateDOMPosition = function updateDOMPosition() {
+            // update first line
+            var lineData = this.getLineData(this._handles[1].screenPosition, this._handles[0].screenPosition);
+
+            this._line.style.transform = 'translate3D(' + lineData.transformX + 'px, ' + lineData.transformY + 'px, 0)\n            rotate(' + lineData.transformAngle + 'rad)';
+            this._line.style.width = lineData.length + 'px';
+
+            // update second line
+            var line2Data = this.getLineData(this._handles[1].screenPosition, this._handles[2].screenPosition);
+
+            this._line2.style.transform = 'translate3D(' + line2Data.transformX + 'px, ' + line2Data.transformY + 'px, 0)\n            rotate(' + line2Data.transformAngle + 'rad)';
+            this._line2.style.width = line2Data.length + 'px';
+
+            // update angle and label
+            this._opangle = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition).angleTo(this._handles[1].worldPosition.clone().sub(this._handles[2].worldPosition)) * 180 / Math.PI || 0.0;
+            this._opangle = this._defaultAngle ? this._opangle : 360 - this._opangle;
+
+            this._label.innerHTML = this._opangle.toFixed(2) + '&deg;';
+
+            var paddingNormVector = lineData.line.clone().add(line2Data.line).normalize().negate(),
+                normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
+
+            if (normAngle > Math.PI / 2) {
+                normAngle = Math.PI - normAngle;
+            }
+
+            var labelPadding = Math.tan(normAngle) < this._label.offsetHeight / this._label.offsetWidth ? this._label.offsetWidth / 2 / Math.cos(normAngle) + 15 // 15px padding
+            : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - normAngle) + 15,
+                paddingPoint = this._handles[1].screenPosition.clone().add(paddingNormVector.multiplyScalar(labelPadding)),
+                transform = this.adjustLabelTransform(this._label, paddingPoint);
+
+            this._label.style.transform = 'translate3D(' + transform.x + 'px, ' + transform.y + 'px, 0)';
+        };
+
+        _class.prototype.updateDOMColor = function updateDOMColor() {
+            this._line.style.backgroundColor = this._color;
+            this._line2.style.backgroundColor = this._color;
+            this._label.style.borderColor = this._color;
+        };
+
+        _class.prototype.free = function free() {
+            var _this2 = this;
+
+            this.removeEventListeners();
+
+            this._handles.forEach(function (h) {
+                _this2.remove(h);
+                h.free();
+            });
+            this._handles = [];
+
+            this._container.removeChild(this._line);
+            this._container.removeChild(this._line2);
+            this._container.removeChild(this._label);
+
+            // mesh, geometry, material
+            this.remove(this._mesh);
+            this._mesh.geometry.dispose();
+            this._mesh.geometry = null;
+            this._mesh.material.dispose();
+            this._mesh.material = null;
+            this._mesh = null;
+            this._geometry.dispose();
+            this._geometry = null;
+            this._material.vertexShader = null;
+            this._material.fragmentShader = null;
+            this._material.uniforms = null;
+            this._material.dispose();
+            this._material = null;
+            this.remove(this._mesh2);
+            this._mesh2.geometry.dispose();
+            this._mesh2.geometry = null;
+            this._mesh2.material.dispose();
+            this._mesh2.material = null;
+            this._mesh2 = null;
+            this._geometry2.dispose();
+            this._geometry2 = null;
+            this._material2.vertexShader = null;
+            this._material2.fragmentShader = null;
+            this._material2.uniforms = null;
+            this._material2.dispose();
+            this._material2 = null;
+
+            _Constructor.prototype.free.call(this);
+        };
+
+        _class.prototype.toggleDefaultAngle = function toggleDefaultAngle() {
+            this._defaultAngle = !this._defaultAngle;
+        };
+
+        _createClass(_class, [{
+            key: 'targetMesh',
+            get: function get() {
+                return this._targetMesh;
+            },
+            set: function set(targetMesh) {
+                this._targetMesh = targetMesh;
+                this._handles.forEach(function (elem) {
+                    elem.targetMesh = targetMesh;
+                });
+                this.update();
+            }
+        }, {
+            key: 'worldPosition',
+            get: function get() {
+                return this._worldPosition;
+            },
+            set: function set(worldPosition) {
+                this._handles[0].worldPosition.copy(worldPosition);
+                this._handles[1].worldPosition.copy(worldPosition);
+                this._handles[2].worldPosition.copy(worldPosition);
+                this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }, {
+            key: 'angle',
+            get: function get() {
+                return this._opangle;
+            }
+        }]);
+
+        return _class;
+    }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["a"] = (widgetsAngle());
 
 /***/ }),
 /* 176 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
+/* unused harmony export widgetsAnnotation */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(3);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -97603,425 +97383,430 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 
 
-
-
 /**
- * @module widgets/handle
- *
+ * @module widgets/annotation
+ * @todo: add option to show only label (without mesh, dots and lines)
  */
+var widgetsAnnotation = function widgetsAnnotation() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
-var WidgetsRoi = function (_WidgetsBase) {
-    _inherits(WidgetsRoi, _WidgetsBase);
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
+  }
 
-    function WidgetsRoi(targetMesh, controls, camera, container) {
-        _classCallCheck(this, WidgetsRoi);
+  var Constructor = Object(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* widgetsBase */])(three);
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
 
-        var _this = _possibleConstructorReturn(this, _WidgetsBase.call(this));
+    function _class(targetMesh, controls) {
+      _classCallCheck(this, _class);
 
-        _this._targetMesh = targetMesh;
-        _this._controls = controls;
-        _this._camera = camera;
-        _this._container = container;
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
 
-        _this._active = true;
-        _this._init = false;
+      _this._widgetType = 'Annotation';
+      _this._initialized = false; // set to true when the name of the label is entered
+      _this._movinglabel = null; // bool that turns true when the label is moving with the mouse
+      _this._labelmoved = false; // bool that turns true once the label is moved by the user (at least once)
+      _this._labelhovered = false;
+      _this._manuallabeldisplay = false; // Make true to force the label to be displayed
 
-        _this._worldPosition = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */]();
-        if (_this._targetMesh !== null) {
-            _this._worldPosition = _this._targetMesh.position;
-        }
+      // mesh stuff
+      _this._material = null;
+      _this._geometry = null;
+      _this._meshline = null;
+      _this._cone = null;
 
-        // mesh stuff
-        _this._material = null;
-        _this._geometry = null;
-        _this._mesh = null;
+      // dom stuff
+      _this._line = null;
+      _this._dashline = null;
+      _this._label = null;
+      _this._labeltext = null;
 
-        // dom stuff
-        _this._lines = [];
-        _this._area = null;
+      // var
+      _this._labelOffset = new three.Vector3(); // difference between label center and second handle
+      _this._mouseLabelOffset = new three.Vector3(); // difference between mouse coordinates and label center
 
-        // add handles
-        _this._handles = [];
+      // add handles
+      _this._handles = [];
 
-        // first handle
-        var firstHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](_this._targetMesh, _this._controls, _this._camera, _this._container);
-        firstHandle.worldPosition = _this._worldPosition;
-        firstHandle.hovered = true;
-        _this.add(firstHandle);
+      var handle = void 0;
+      var WidgetsHandle = Object(__WEBPACK_IMPORTED_MODULE_1__widgets_handle__["b" /* widgetsHandle */])(three);
+      for (var i = 0; i < 2; i++) {
+        handle = new WidgetsHandle(targetMesh, controls);
+        handle.worldPosition.copy(_this._worldPosition);
+        _this.add(handle);
+        _this._handles.push(handle);
+      }
+      _this._handles[1].active = true;
 
-        _this._handles.push(firstHandle);
+      _this.create();
+      _this.initOffsets();
 
-        // Create ruler
-        _this.create();
+      _this.onResize = _this.onResize.bind(_this);
+      _this.onMove = _this.onMove.bind(_this);
+      _this.onHoverlabel = _this.onHoverlabel.bind(_this);
+      _this.notonHoverlabel = _this.notonHoverlabel.bind(_this);
+      _this.changelabeltext = _this.changelabeltext.bind(_this);
 
-        _this.onMove = _this.onMove.bind(_this);
-        _this.addEventListeners();
-
-        _this._orientation = null;
-        _this._slice = null;
-        return _this;
+      _this.addEventListeners();
+      return _this;
     }
 
-    WidgetsRoi.prototype.addEventListeners = function addEventListeners() {
-        this._container.addEventListener('mousewheel', this.onMove);
-        this._container.addEventListener('DOMMouseScroll', this.onMove);
+    _class.prototype.addEventListeners = function addEventListeners() {
+      window.addEventListener('resize', this.onResize);
+
+      this._label.addEventListener('mouseenter', this.onHoverlabel);
+      this._label.addEventListener('mouseleave', this.notonHoverlabel);
+      this._label.addEventListener('dblclick', this.changelabeltext);
+
+      this._container.addEventListener('wheel', this.onMove);
     };
 
-    WidgetsRoi.prototype.onMove = function onMove(evt) {
+    _class.prototype.removeEventListeners = function removeEventListeners() {
+      window.removeEventListener('resize', this.onResize);
+
+      this._label.removeEventListener('mouseenter', this.onHoverlabel);
+      this._label.removeEventListener('mouseleave', this.notonHoverlabel);
+      this._label.removeEventListener('dblclick', this.changelabeltext);
+
+      this._container.removeEventListener('wheel', this.onMove);
+    };
+
+    _class.prototype.onResize = function onResize() {
+      this.initOffsets();
+    };
+
+    _class.prototype.onHoverlabel = function onHoverlabel() {
+      // this function is called when mouse enters the label with "mouseenter" event
+      this._labelhovered = true;
+      this._container.style.cursor = 'pointer';
+    };
+
+    _class.prototype.notonHoverlabel = function notonHoverlabel() {
+      // this function is called when mouse leaves the label with "mouseleave" event
+      this._labelhovered = false;
+      this._container.style.cursor = 'default';
+    };
+
+    _class.prototype.onStart = function onStart(evt) {
+      if (this._labelhovered) {
+        // if label hovered then it should be moved
+        // save mouse coordinates offset from label center
+        var offsets = this.getMouseOffsets(evt, this._container),
+            paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelOffset);
+
+        this._mouseLabelOffset = new three.Vector3(offsets.screenX - paddingPoint.x, offsets.screenY - paddingPoint.y, 0);
+        this._movinglabel = true;
+        this._labelmoved = true;
+      }
+
+      this._handles[0].onStart(evt);
+      this._handles[1].onStart(evt);
+
+      this._active = this._handles[0].active || this._handles[1].active || this._labelhovered;
+
+      this.update();
+    };
+
+    _class.prototype.onMove = function onMove(evt) {
+      if (this._movinglabel) {
+        var offsets = this.getMouseOffsets(evt, this._container);
+
+        this._labelOffset = new three.Vector3(this._handles[1].screenPosition.x - offsets.screenX + this._mouseLabelOffset.x, this._handles[1].screenPosition.y - offsets.screenY + this._mouseLabelOffset.y, 0);
+        this._controls.enabled = false;
+      }
+
+      if (this._active) {
         this._dragged = true;
-        var numHandles = this._handles.length;
+      }
 
-        if (this.active && !this._init) {
-            var lastHandle = this._handles[numHandles - 1];
-            lastHandle.hovered = false;
-            lastHandle.active = false;
-            lastHandle.tracking = false;
+      this._handles[0].onMove(evt);
+      this._handles[1].onMove(evt);
 
-            var nextHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](this._targetMesh, this._controls, this._camera, this._container);
-            nextHandle.worldPosition = this._worldPosition;
-            nextHandle.hovered = true;
-            nextHandle.active = true;
-            nextHandle.tracking = true;
-            this.add(nextHandle);
+      this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._labelhovered;
 
-            this._handles.push(nextHandle);
-
-            var newLine = document.createElement('div');
-            newLine.setAttribute('class', 'widgets handle line');
-            newLine.style.position = 'absolute';
-            newLine.style.transformOrigin = '0 100%';
-            newLine.style.marginTop = '-1px';
-            newLine.style.height = '2px';
-            newLine.style.width = '3px';
-            newLine.style.backgroundColor = '#F9F9F9';
-
-            this._lines.push(newLine);
-            this._container.appendChild(newLine);
-        }
-
-        var hovered = false;
-
-        for (var index in this._handles) {
-            this._handles[index].onMove(evt);
-            hovered = hovered || this._handles[index].hovered;
-        }
-
-        this._hovered = hovered;
-
-        if (this.active && numHandles > 2) {
-            this.pushPopHandle();
-        }
-
-        this.update();
+      this.update();
     };
 
-    WidgetsRoi.prototype.onStart = function onStart(evt) {
-        this._dragged = false;
+    _class.prototype.onEnd = function onEnd() {
+      this._handles[0].onEnd(); // First Handle
 
-        var active = false;
+      // Second Handle
+      if (this._dragged || !this._handles[1].tracking) {
+        this._handles[1].tracking = false;
+        this._handles[1].onEnd();
+      } else {
+        this._handles[1].tracking = false;
+      }
 
-        for (var index in this._handles) {
-            this._handles[index].onStart(evt);
-            active = active || this._handles[index].active;
-        }
+      if (!this._dragged && this._active && this._initialized) {
+        this._selected = !this._selected; // change state if there was no dragging
+        this._handles[0].selected = this._selected;
+        this._handles[1].selected = this._selected;
+      }
 
-        this._active = active;
-        this.update();
+      if (!this._initialized) {
+        this._labelOffset = this._handles[1].screenPosition.clone().sub(this._handles[0].screenPosition).multiplyScalar(0.5);
+        this.setlabeltext();
+        this._initialized = true;
+      }
+
+      this._active = this._handles[0].active || this._handles[1].active;
+      this._dragged = false;
+      this._movinglabel = false;
+      this.update();
     };
 
-    WidgetsRoi.prototype.onEnd = function onEnd(evt) {
-        // First Handle
-        var active = false;
-        for (var index in this._handles.slice(0, this._handles.length - 2)) {
-            this._handles[index].onEnd(evt);
-            active = active || this._handles[index].active;
-        }
-
-        // Second Handle
-        if (this._dragged || !this._handles[this._handles.length - 1].tracking) {
-            this._handles[this._handles.length - 1].tracking = false;
-            this._handles[this._handles.length - 1].onEnd(evt);
-        } else {
-            this._handles[this._handles.length - 1].tracking = false;
-        }
-
-        active = active || this._handles[this._handles.length - 1].active;
-        // State of ruler widget
-        this._active = active;
-
-        if (this._lines.length < this._handles.length) {
-            var newLine = document.createElement('div');
-            newLine.setAttribute('class', 'widgets handle line');
-            newLine.style.position = 'absolute';
-            newLine.style.transformOrigin = '0 100%';
-            newLine.style.marginTop = '-1px';
-            newLine.style.height = '2px';
-            newLine.style.width = '3px';
-            newLine.style.backgroundColor = '#F9F9F9';
-
-            this._lines.push(newLine);
-            this._container.appendChild(newLine);
-        }
-
-        this._init = true;
-        this.updateMesh();
-        this.update();
+    _class.prototype.setlabeltext = function setlabeltext() {
+      // called when the user creates a new arrow
+      while (!this._labeltext) {
+        this._labeltext = prompt('Please enter the annotation text', '');
+      }
+      this.displaylabel();
     };
 
-    WidgetsRoi.prototype.create = function create() {
-        this.createDOM();
+    _class.prototype.changelabeltext = function changelabeltext() {
+      // called when the user does double click in the label
+      this._labeltext = prompt('Please enter a new annotation text', this._label.innerHTML);
+      this.displaylabel();
     };
 
-    WidgetsRoi.prototype.hideDOM = function hideDOM() {
-        for (var index in this._handles) {
-            this._handles[index].hideDOM();
-        }
-
-        for (var _index in this._lines) {
-            this._lines[_index].style.display = 'none';
-        }
+    _class.prototype.displaylabel = function displaylabel() {
+      this._label.innerHTML = typeof this._labeltext === 'string' && this._labeltext.length > 0 // avoid error
+      ? this._labeltext : ''; // empty string is passed or Cancel is pressed
+      // show the label (in css an empty string is used to revert display=none)
+      this._label.style.display = '';
+      this._dashline.style.display = '';
+      this._label.style.transform = 'translate3D(\n        ' + (this._handles[1].screenPosition.x - this._labelOffset.x - this._label.offsetWidth / 2) + 'px,\n        ' + (this._handles[1].screenPosition.y - this._labelOffset.y - this._label.offsetHeight / 2 - this._container.offsetHeight) + 'px, 0)';
     };
 
-    WidgetsRoi.prototype.showDOM = function showDOM() {
-        for (var index in this._handles) {
-            this._handles[index].showDOM();
-        }
-
-        for (var _index2 in this._lines) {
-            this._lines[_index2].style.display = '';
-        }
+    _class.prototype.create = function create() {
+      this.createMesh();
+      this.createDOM();
     };
 
-    WidgetsRoi.prototype.hideMesh = function hideMesh() {
-        this.visible = false;
+    _class.prototype.createMesh = function createMesh() {
+      // material
+      this._material = new three.LineBasicMaterial();
+
+      this.updateMeshColor();
+
+      // line geometry
+      this._geometry = new three.Geometry();
+      this._geometry.vertices.push(this._handles[0].worldPosition);
+      this._geometry.vertices.push(this._handles[1].worldPosition);
+
+      // line mesh
+      this._meshline = new three.Line(this._geometry, this._material);
+      this._meshline.visible = true;
+
+      this.add(this._meshline);
+
+      // cone geometry
+      this._conegeometry = new three.CylinderGeometry(0, 2, 10);
+      this._conegeometry.translate(0, -5, 0);
+      this._conegeometry.rotateX(-Math.PI / 2);
+
+      // cone mesh
+      this._cone = new three.Mesh(this._conegeometry, this._material);
+      this._cone.visible = true;
+
+      this.add(this._cone);
     };
 
-    WidgetsRoi.prototype.showMesh = function showMesh() {
-        this.visible = true;
+    _class.prototype.createDOM = function createDOM() {
+      this._line = document.createElement('div');
+      this._line.setAttribute('class', 'widgets-line');
+      this._container.appendChild(this._line);
+
+      this._dashline = document.createElement('div');
+      this._dashline.setAttribute('class', 'widgets-dashline');
+      this._dashline.style.display = 'none';
+      this._container.appendChild(this._dashline);
+
+      this._label = document.createElement('div');
+      this._label.setAttribute('class', 'widgets-label');
+      this._label.style.display = 'none';
+      this._container.appendChild(this._label);
+
+      this.updateDOMColor();
     };
 
-    WidgetsRoi.prototype.show = function show() {
-        this.showDOM();
-        this.showMesh();
+    _class.prototype.update = function update() {
+      this.updateColor();
+
+      // update handles
+      this._handles[0].update();
+      this._handles[1].update();
+
+      // mesh stuff
+      this.updateMeshColor();
+      this.updateMeshPosition();
+
+      // DOM stuff
+      this.updateDOMColor();
+      this.updateDOMPosition();
     };
 
-    WidgetsRoi.prototype.hide = function hide() {
-        this.hideDOM();
-        this.hideMesh();
+    _class.prototype.updateMeshColor = function updateMeshColor() {
+      if (this._material) {
+        this._material.color.set(this._color);
+      }
     };
 
-    WidgetsRoi.prototype.update = function update() {
-        this.updateColor();
-
-        for (var index in this._handles) {
-            this._handles[index].update();
-        }
-
-        // mesh stuff
-        this.updateMeshColor();
-        this.updateMeshPosition();
-
-        // DOM stuff
-        this.updateDOMPosition();
-        this.updateDOMColor();
-    };
-
-    WidgetsRoi.prototype.updateMesh = function updateMesh() {
-        // geometry
-
-        var points = [];
-        for (var index in this._handles) {
-            points.push(this._handles[index].worldPosition);
-        }
-
-        var center = AMI.SliceGeometry.centerOfMass(points);
-        var side1 = new THREE.Vector3(0, 0, 0);
-        var side2 = new THREE.Vector3(0, 0, 0);
-        side1.subVectors(points[0], center);
-        side2.subVectors(points[1], center);
-        var direction = new THREE.Vector3(0, 0, 0);
-        direction.crossVectors(side1, side2);
-
-        var reference = center;
-        // direction from first point to reference
-        var referenceDirection = new THREE.Vector3(points[0].x - reference.x, points[0].y - reference.y, points[0].z - reference.z).normalize();
-
-        var base = new THREE.Vector3(0, 0, 0).crossVectors(referenceDirection, direction).normalize();
-
-        var orderedpoints = [];
-
-        // other lines // if inter, return location + angle
-        for (var j = 0; j < points.length; j++) {
-            var point = new THREE.Vector3(points[j].x, points[j].y, points[j].z);
-            point.direction = new THREE.Vector3(points[j].x - reference.x, points[j].y - reference.y, points[j].z - reference.z).normalize();
-
-            var x = referenceDirection.dot(point.direction);
-            var y = base.dot(point.direction);
-            point.xy = { x: x, y: y };
-
-            var theta = Math.atan2(y, x) * (180 / Math.PI);
-            point.angle = theta;
-
-            orderedpoints.push(point);
-        }
-
-        var sliceShape = AMI.SliceGeometry.shape(orderedpoints);
-
-        var shape = new THREE.Shape(orderedpoints);
-
-        this._geometry = new THREE.ShapeGeometry(sliceShape);
-
-        this._geometry.vertices = orderedpoints;
+    _class.prototype.updateMeshPosition = function updateMeshPosition() {
+      if (this._geometry) {
         this._geometry.verticesNeedUpdate = true;
-        this._geometry.elementsNeedUpdate = true;
+      }
 
-        this._mesh = new THREE.Mesh(this._geometry, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
-
-        this._mesh.visible = true;
-        // add it!
-        this.add(this._mesh);
+      if (this._cone) {
+        this._cone.position.copy(this._handles[1].worldPosition);
+        this._cone.lookAt(this._handles[0].worldPosition);
+      }
     };
 
-    WidgetsRoi.prototype.updateMeshColor = function updateMeshColor() {
-        if (this._material) {
-            this._material.color.set(this._color);
-        }
+    _class.prototype.updateDOMPosition = function updateDOMPosition() {
+      // update line
+      var lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
+
+      this._line.style.transform = 'translate3D(' + lineData.transformX + 'px, ' + lineData.transformY + 'px, 0)\n        rotate(' + lineData.transformAngle + 'rad)';
+      this._line.style.width = lineData.length + 'px';
+
+      // update label
+      var paddingVector = lineData.line.multiplyScalar(0.5),
+          paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelmoved ? this._labelOffset // if the label is moved, then its position is defined by labelOffset
+      : paddingVector),
+          // otherwise it's placed in the center of the line
+      labelPosition = this.adjustLabelTransform(this._label, paddingPoint);
+
+      this._label.style.transform = 'translate3D(' + labelPosition.x + 'px, ' + labelPosition.y + 'px, 0)';
+
+      // create the label without the interaction of the user. Useful when we need to create the label manually
+      if (this._manuallabeldisplay) {
+        this.displaylabel();
+      }
+
+      // update dash line
+      var minLine = this.getLineData(this._handles[0].screenPosition, paddingPoint),
+          lineCL = this.getLineData(lineData.center, paddingPoint),
+          line1L = this.getLineData(this._handles[1].screenPosition, paddingPoint);
+
+      if (minLine.length > lineCL.length) {
+        minLine = lineCL;
+      }
+      if (minLine.length > line1L.length) {
+        minLine = line1L;
+      }
+
+      this._dashline.style.transform = 'translate3D(' + minLine.transformX + 'px, ' + minLine.transformY + 'px, 0)\n        rotate(' + minLine.transformAngle + 'rad)';
+      this._dashline.style.width = minLine.length + 'px';
     };
 
-    WidgetsRoi.prototype.updateMeshPosition = function updateMeshPosition() {
-        if (this._geometry) {
-            this._geometry.verticesNeedUpdate = true;
-        }
+    _class.prototype.updateDOMColor = function updateDOMColor() {
+      this._line.style.backgroundColor = this._color;
+      this._dashline.style.borderTop = '1.5px dashed ' + this._color;
+      this._label.style.borderColor = this._color;
     };
 
-    WidgetsRoi.prototype.createDOM = function createDOM() {
-        // add line!
-        this._line = document.createElement('div');
-        this._line.setAttribute('class', 'widgets handle line');
-        this._line.style.position = 'absolute';
-        this._line.style.transformOrigin = '0 100%';
-        this._line.style.marginTop = '-1px';
-        this._line.style.height = '2px';
-        this._line.style.width = '3px';
-        this._container.appendChild(this._line);
-
-        this.updateDOMColor();
+    _class.prototype.hideDOM = function hideDOM() {
+      this._line.style.display = 'none';
+      this._dashline.style.display = 'none';
+      this._label.style.display = 'none';
+      this._handles.forEach(function (elem) {
+        elem.hideDOM();
+      });
     };
 
-    WidgetsRoi.prototype.isPointOnLine = function isPointOnLine(pointA, pointB, pointToCheck) {
-        var c = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */]();
-        c.crossVectors(pointA.clone().sub(pointToCheck), pointB.clone().sub(pointToCheck));
-        return !c.length();
+    _class.prototype.showDOM = function showDOM() {
+      this._line.style.display = '';
+      this._dashline.style.display = '';
+      this._label.style.display = '';
+      this._handles.forEach(function (elem) {
+        elem.showDOM();
+      });
     };
 
-    WidgetsRoi.prototype.pushPopHandle = function pushPopHandle() {
-        var handle0 = this._handles[this._handles.length - 3];
-        var handle1 = this._handles[this._handles.length - 2];
-        var newhandle = this._handles[this._handles.length - 1];
+    _class.prototype.free = function free() {
+      var _this2 = this;
 
-        var isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
+      this.removeEventListeners();
 
-        var w0 = handle0;
-        var w1 = newhandle;
+      this._handles.forEach(function (h) {
+        _this2.remove(h);
+        h.free();
+      });
+      this._handles = [];
 
-        var interpointdist = Math.sqrt((w0.x - w1.x) * (w0.x - w1.x) + (w0.y - w1.y) * (w0.y - w1.y) + (w0.z - w1.z) * (w0.z - w1.z));
+      this._container.removeChild(this._line);
+      this._container.removeChild(this._dashline);
+      this._container.removeChild(this._label);
 
-        if (isOnLine || interpointdist < 3) {
-            handle1._dom.style.display = 'none';
-            this.remove(handle1);
+      // mesh, geometry, material
+      this.remove(this._meshline);
+      this._meshline.geometry.dispose();
+      this._meshline.geometry = null;
+      this._meshline.material.dispose();
+      this._meshline.material = null;
+      this._meshline = null;
+      this._geometry.dispose();
+      this._geometry = null;
+      this._material.vertexShader = null;
+      this._material.fragmentShader = null;
+      this._material.uniforms = null;
+      this._material.dispose();
+      this._material = null;
+      this.remove(this._cone);
+      this._cone.geometry.dispose();
+      this._cone.geometry = null;
+      this._cone.material.dispose();
+      this._cone.material = null;
+      this._cone = null;
+      this._conegeometry.dispose();
+      this._conegeometry = null;
 
-            this._handles[this._handles.length - 2] = newhandle;
-            this._handles.pop();
-
-            var tempLine = this._lines.pop();
-            tempLine.style.display = 'none';
-            this._container.removeChild(tempLine);
-        }
-
-        return isOnLine;
+      _Constructor.prototype.free.call(this);
     };
 
-    WidgetsRoi.prototype.updateLineDOM = function updateLineDOM(lineIndex, handle0Index, handle1Index) {
-        // update rulers lines and text!
-        var x1 = this._handles[handle0Index].screenPosition.x;
-        var y1 = this._handles[handle0Index].screenPosition.y;
-        var x2 = this._handles[handle1Index].screenPosition.x;
-        var y2 = this._handles[handle1Index].screenPosition.y;
-
-        var x0 = x2;
-        var y0 = y2;
-
-        if (y1 >= y2) {
-            y0 = y2 - 30;
-        } else {
-            y0 = y2 + 30;
-        }
-
-        var length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-        var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-
-        var posY = y1 - this._container.offsetHeight;
-
-        // update line
-        var transform = 'translate3D(' + x1 + 'px, ' + posY + 'px, 0)';
-        transform += ' rotate(' + angle + 'deg)';
-
-        this._lines[lineIndex].style.transform = transform;
-        this._lines[lineIndex].style.width = length + 'px';
-    };
-
-    WidgetsRoi.prototype.updateDOMPosition = function updateDOMPosition() {
-        if (this._handles.length >= 2) {
-            for (var index in this._lines) {
-                this.updateLineDOM(index, index, parseInt(index) + 1 == this._handles.length ? 0 : parseInt(index) + 1);
-            }
-        }
-    };
-
-    WidgetsRoi.prototype.updateDOMColor = function updateDOMColor() {
-        if (this._handles.length >= 2) {
-            for (var index in this._lines) {
-                this._lines[index].style.backgroundColor = '' + this._color;
-            }
-        }
-    };
-
-    WidgetsRoi.prototype.getPointInBetweenByPerc = function getPointInBetweenByPerc(pointA, pointB, percentage) {
-        var dir = pointB.clone().sub(pointA);
-        var len = dir.length();
-        dir = dir.normalize().multiplyScalar(len * percentage);
-        return pointA.clone().add(dir);
-    };
-
-    _createClass(WidgetsRoi, [{
-        key: 'worldPosition',
-        get: function get() {
-            return this._worldPosition;
-        },
-        set: function set(worldPosition) {
-            this._worldPosition = worldPosition;
-
-            for (var index in this._handles) {
-                this._handles[index]._worldPosition = this._worldPosition;
-            }
-
-            this.update();
-        }
+    _createClass(_class, [{
+      key: 'targetMesh',
+      get: function get() {
+        return this._targetMesh;
+      },
+      set: function set(targetMesh) {
+        this._targetMesh = targetMesh;
+        this._handles.forEach(function (elem) {
+          elem.targetMesh = targetMesh;
+        });
+        this.update();
+      }
+    }, {
+      key: 'worldPosition',
+      get: function get() {
+        return this._worldPosition;
+      },
+      set: function set(worldPosition) {
+        this._handles[0].worldPosition.copy(worldPosition);
+        this._handles[1].worldPosition.copy(worldPosition);
+        this._worldPosition.copy(worldPosition);
+        this.update();
+      }
     }]);
 
-    return WidgetsRoi;
-}(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* default */]);
+    return _class;
+  }(Constructor);
+};
 
-/* harmony default export */ __webpack_exports__["a"] = (WidgetsRoi);
+
+/* harmony default export */ __webpack_exports__["a"] = (widgetsAnnotation());
 
 /***/ }),
 /* 177 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
+/* unused harmony export widgetsBiruler */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(3);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -98033,425 +97818,433 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 
 
-
-
 /**
- * @module widgets/handle
- *
+ * @module widgets/biruler
  */
+var widgetsBiruler = function widgetsBiruler() {
+    var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
-var WidgetsRuler = function (_WidgetsBase) {
-  _inherits(WidgetsRuler, _WidgetsBase);
-
-  function WidgetsRuler(targetMesh, controls, camera, container) {
-    _classCallCheck(this, WidgetsRuler);
-
-    var _this = _possibleConstructorReturn(this, _WidgetsBase.call(this, container));
-
-    _this._targetMesh = targetMesh;
-    _this._controls = controls;
-    _this._camera = camera;
-
-    _this._active = true;
-    _this._lastEvent = null;
-    _this._moving = false;
-    _this._domHovered = false;
-    _this._worldPosition = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */]();
-    if (_this._targetMesh !== null) {
-      _this._worldPosition = _this._targetMesh.position;
+    if (three === undefined || three.Object3D === undefined) {
+        return null;
     }
 
-    // mesh stuff
-    _this._material = null;
-    _this._geometry = null;
-    _this._mesh = null;
+    var Constructor = Object(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* widgetsBase */])(three);
+    return function (_Constructor) {
+        _inherits(_class, _Constructor);
 
-    // dom stuff
-    _this._line = null;
-    _this._distance = null;
+        function _class(targetMesh, controls, stack) {
+            _classCallCheck(this, _class);
 
-    // add handles
-    _this._handles = [];
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
 
-    // first handle
-    var firstHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](_this._targetMesh, _this._controls, _this._camera, _this._container);
-    firstHandle.worldPosition = _this._worldPosition;
-    firstHandle.hovered = true;
-    _this.add(firstHandle);
+            _this._stack = stack;
 
-    _this._handles.push(firstHandle);
+            _this._widgetType = 'BiRuler';
 
-    var secondHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](_this._targetMesh, _this._controls, _this._camera, _this._container);
-    secondHandle.worldPosition = _this._worldPosition;
-    secondHandle.hovered = true;
-    // active and tracking might be redundant
-    secondHandle.active = true;
-    secondHandle.tracking = true;
-    _this.add(secondHandle);
+            // mesh stuff
+            _this._material = null;
+            _this._material2 = null;
+            _this._geometry = null;
+            _this._geometry2 = null;
+            _this._mesh = null;
+            _this._mesh2 = null;
 
-    _this._handles.push(secondHandle);
+            // dom stuff
+            _this._line = null;
+            _this._label = null;
+            _this._line2 = null;
+            _this._label2 = null;
+            _this._dashline = null;
 
-    // first handle
-    _this.imoveHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](_this._targetMesh, _this._controls, _this._camera, _this._container);
-    _this.imoveHandle.worldPosition = _this._worldPosition;
-    _this.imoveHandle.hovered = true;
-    _this.add(_this.imoveHandle);
-    _this._handles.push(_this.imoveHandle);
+            // add handles
+            _this._handles = [];
 
-    _this.fmoveHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](_this._targetMesh, _this._controls, _this._camera, _this._container);
-    _this.fmoveHandle.worldPosition = _this._worldPosition;
-    _this.fmoveHandle.hovered = true;
-    _this.add(_this.fmoveHandle);
-    _this._handles.push(_this.fmoveHandle);
+            var handle = void 0;
+            var WidgetsHandle = Object(__WEBPACK_IMPORTED_MODULE_1__widgets_handle__["b" /* widgetsHandle */])(three);
+            for (var i = 0; i < 4; i++) {
+                handle = new WidgetsHandle(targetMesh, controls);
+                handle.worldPosition.copy(_this._worldPosition);
+                _this.add(handle);
+                _this._handles.push(handle);
+            }
+            _this._handles[1].active = true;
+            _this._handles[1].tracking = true;
+            _this._handles[3].active = true;
+            _this._handles[3].tracking = true;
 
-    // Create ruler
-    _this.create();
-    _this.initOffsets();
+            _this.create();
 
-    _this.onMove = _this.onMove.bind(_this);
-    _this.onEndControl = _this.onEndControl.bind(_this);
-    _this.onHover = _this.onHover.bind(_this);
-    _this.addEventListeners();
-    return _this;
-  }
-
-  WidgetsRuler.prototype.addEventListeners = function addEventListeners() {
-    this._container.addEventListener('mousewheel', this.onMove);
-    this._container.addEventListener('DOMMouseScroll', this.onMove);
-
-    this._controls.addEventListener('end', this.onEndControl);
-
-    this._line.addEventListener('mouseenter', this.onHover);
-    this._line.addEventListener('mouseleave', this.onHover);
-    this._distance.addEventListener('mouseenter', this.onHover);
-    this._distance.addEventListener('mouseleave', this.onHover);
-  };
-
-  WidgetsRuler.prototype.removeEventListeners = function removeEventListeners() {
-    this._container.removeEventListener('mousewheel', this.onMove);
-    this._container.removeEventListener('DOMMouseScroll', this.onMove);
-
-    this._controls.removeEventListener('end', this.onEndControl);
-
-    this._line.removeEventListener('mouseenter', this.onHover);
-    this._line.removeEventListener('mouseleave', this.onHover);
-    this._distance.removeEventListener('mouseenter', this.onHover);
-    this._distance.removeEventListener('mouseleave', this.onHover);
-  };
-
-  WidgetsRuler.prototype.onHover = function onHover(evt) {
-    if (evt) {
-      this._lastEvent = evt;
-      evt.preventDefault();
-      this.hoverDom(evt);
-    }
-
-    this.hoverMesh();
-
-    this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._domHovered;
-    this._container.style.cursor = this._hovered ? 'pointer' : 'default';
-  };
-
-  WidgetsRuler.prototype.hoverMesh = function hoverMesh() {
-    // check raycast intersection, do we want to hover on mesh or just css?
-  };
-
-  WidgetsRuler.prototype.hoverDom = function hoverDom(evt) {
-    this._domHovered = evt.type === 'mouseenter';
-  };
-
-  WidgetsRuler.prototype.onMove = function onMove(evt) {
-    this._lastEvent = evt;
-    this._dragged = true;
-
-    if (this._active) {
-      this.fmoveHandle.active = true;
-      this.fmoveHandle.onMove(evt);
-      this.fmoveHandle.active = false;
-      this.fmoveHandle.hide();
-
-      if (this._moving) {
-        for (var index in this._handles.slice(0, -2)) {
-          this._handles[index].worldPosition.x = this._handles[index].worldPosition.x + (this.fmoveHandle.worldPosition.x - this.imoveHandle.worldPosition.x);
-          this._handles[index].worldPosition.y = this._handles[index].worldPosition.y + (this.fmoveHandle.worldPosition.y - this.imoveHandle.worldPosition.y);
-          this._handles[index].worldPosition.z = this._handles[index].worldPosition.z + (this.fmoveHandle.worldPosition.z - this.imoveHandle.worldPosition.z);
+            _this.onMove = _this.onMove.bind(_this);
+            _this.addEventListeners();
+            return _this;
         }
-      }
 
-      this.imoveHandle.active = true;
-      this.imoveHandle.onMove(evt);
-      this.imoveHandle.active = false;
-      this.imoveHandle.hide();
-    }
+        _class.prototype.addEventListeners = function addEventListeners() {
+            this._container.addEventListener('wheel', this.onMove);
+        };
 
-    this._handles[0].onMove(evt);
-    this._handles[1].onMove(evt);
+        _class.prototype.removeEventListeners = function removeEventListeners() {
+            this._container.removeEventListener('wheel', this.onMove);
+        };
 
-    this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._domHovered;
+        _class.prototype.onStart = function onStart(evt) {
+            this._handles.forEach(function (elem) {
+                elem.onStart(evt);
+            });
 
-    this.update();
-  };
+            this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active;
 
-  WidgetsRuler.prototype.onStart = function onStart(evt) {
-    this._lastEvent = evt;
-    this._dragged = false;
+            this.update();
+        };
 
-    this.imoveHandle.active = true;
-    this.imoveHandle.onMove(evt);
-    this.imoveHandle.active = false;
-    this.imoveHandle.hide();
+        _class.prototype.onMove = function onMove(evt) {
+            if (this._active) {
+                this._dragged = true;
+            } else {
+                this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._handles[2].hovered || this._handles[3].hovered;
+                this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+            }
 
-    this._handles[0].onStart(evt);
-    this._handles[1].onStart(evt);
+            this._handles.forEach(function (elem) {
+                elem.onMove(evt);
+            });
 
-    this._active = this._handles[0].active || this._handles[1].active || this._domHovered;
+            this.update();
+        };
 
-    if (this._domHovered) {
-      this._moving = true;
-    }
+        _class.prototype.onEnd = function onEnd() {
+            this._handles[0].onEnd();
+            this._handles[2].onEnd();
 
-    this.update();
-  };
+            if (this._handles[1].tracking && this._handles[0].screenPosition.distanceTo(this._handles[1].screenPosition) < 10) {
+                return;
+            }
 
-  WidgetsRuler.prototype.onEnd = function onEnd(evt) {
-    this._lastEvent = evt;
-    // First Handle
-    this._handles[0].onEnd(evt);
+            if (!this._dragged && this._active && !this._handles[3].tracking) {
+                this._selected = !this._selected; // change state if there was no dragging
+                this._handles[0].selected = this._selected;
+                this._handles[2].selected = this._selected;
+            }
 
-    this._moving = false;
-    // window.console.log(this);
+            // Fourth Handle
+            if (this._handles[1].active) {
+                this._handles[3].onEnd();
+            } else if (this._dragged || !this._handles[3].tracking) {
+                this._handles[3].tracking = false;
+                this._handles[3].onEnd();
+            } else {
+                this._handles[3].tracking = false;
+            }
+            this._handles[3].selected = this._selected;
 
-    // Second Handle
-    if (this._dragged || !this._handles[1].tracking) {
-      this._handles[1].tracking = false;
-      this._handles[1].onEnd(evt);
-    } else {
-      this._handles[1].tracking = false;
-    }
+            // Second Handle
+            if (this._dragged || !this._handles[1].tracking) {
+                this._handles[1].tracking = false;
+                this._handles[1].onEnd();
+            } else {
+                this._handles[1].tracking = false;
+            }
+            this._handles[1].selected = this._selected;
 
-    // State of ruler widget
-    this._active = this._handles[0].active || this._handles[1].active;
-    this.update();
-  };
+            this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active;
+            this._dragged = false;
+            this.update();
+        };
 
-  WidgetsRuler.prototype.onEndControl = function onEndControl() {
-    var _this2 = this;
+        _class.prototype.create = function create() {
+            this.createMesh();
+            this.createDOM();
+        };
 
-    if (!this._lastEvent) {
-      return;
-    }
+        _class.prototype.createMesh = function createMesh() {
+            // geometry
+            this._geometry = new three.Geometry();
+            this._geometry.vertices.push(this._handles[0].worldPosition);
+            this._geometry.vertices.push(this._handles[1].worldPosition);
 
-    window.requestAnimationFrame(function () {
-      _this2.onMove(_this2._lastEvent);
-    });
-  };
+            // geometry
+            this._geometry2 = new three.Geometry();
+            this._geometry2.vertices.push(this._handles[2].worldPosition);
+            this._geometry2.vertices.push(this._handles[3].worldPosition);
 
-  WidgetsRuler.prototype.create = function create() {
-    this.createMesh();
-    this.createDOM();
-  };
+            // material
+            this._material = new three.LineBasicMaterial();
+            this._material2 = new three.LineBasicMaterial();
 
-  WidgetsRuler.prototype.hideDOM = function hideDOM() {
-    this._line.style.display = 'none';
-    this._distance.style.display = 'none';
-    for (var index in this._handles) {
-      this._handles[index].hideDOM();
-    }
-  };
+            this.updateMeshColor();
 
-  WidgetsRuler.prototype.showDOM = function showDOM() {
-    this._line.style.display = '';
-    this._distance.style.display = '';
-    for (var index in this._handles) {
-      this._handles[index].showDOM();
-    }
-  };
+            // mesh
+            this._mesh = new three.Line(this._geometry, this._material);
+            this._mesh.visible = true;
+            this._mesh2 = new three.Line(this._geometry2, this._material2);
+            this._mesh2.visible = true;
 
-  WidgetsRuler.prototype.hideMesh = function hideMesh() {
-    this.visible = false;
-  };
+            this.add(this._mesh);
+            this.add(this._mesh2);
+        };
 
-  WidgetsRuler.prototype.showMesh = function showMesh() {
-    this.visible = true;
-  };
+        _class.prototype.createDOM = function createDOM() {
+            this._line = document.createElement('div');
+            this._line.setAttribute('class', 'widgets-line');
+            this._container.appendChild(this._line);
 
-  WidgetsRuler.prototype.show = function show() {
-    this.showDOM();
-    this.showMesh();
-  };
+            this._label = document.createElement('div');
+            this._label.setAttribute('class', 'widgets-label');
+            this._container.appendChild(this._label);
 
-  WidgetsRuler.prototype.hide = function hide() {
-    this.hideDOM();
-    this.hideMesh();
-  };
+            this._line2 = document.createElement('div');
+            this._line2.setAttribute('class', 'widgets-line');
+            this._container.appendChild(this._line2);
 
-  WidgetsRuler.prototype.update = function update() {
-    this.updateColor();
+            this._label2 = document.createElement('div');
+            this._label2.setAttribute('class', 'widgets-label');
+            this._container.appendChild(this._label2);
 
-    // update handles
-    this._handles[0].update();
-    this._handles[1].update();
+            this._dashline = document.createElement('div');
+            this._dashline.setAttribute('class', 'widgets-dashline');
+            this._container.appendChild(this._dashline);
 
-    // mesh stuff
-    this.updateMeshColor();
-    this.updateMeshPosition();
+            this.updateDOMColor();
+        };
 
-    // DOM stuff
-    this.updateDOMColor();
-    this.updateDOMPosition();
-  };
+        _class.prototype.hideDOM = function hideDOM() {
+            this._line.style.display = 'none';
+            this._label.style.display = 'none';
+            this._line2.style.display = 'none';
+            this._label2.style.display = 'none';
+            this._dashline.style.display = 'none';
 
-  WidgetsRuler.prototype.createMesh = function createMesh() {
-    // geometry
-    this._geometry = new THREE.Geometry();
-    this._geometry.vertices.push(this._handles[0].worldPosition);
-    this._geometry.vertices.push(this._handles[1].worldPosition);
+            this._handles.forEach(function (elem) {
+                elem.hideDOM();
+            });
+        };
 
-    // material
-    this._material = new THREE.LineBasicMaterial();
-    this.updateMeshColor();
+        _class.prototype.showDOM = function showDOM() {
+            this._line.style.display = '';
+            this._label.style.display = '';
+            this._line2.style.display = '';
+            this._label2.style.display = '';
+            this._dashline.style.display = '';
 
-    // mesh
-    this._mesh = new THREE.Line(this._geometry, this._material);
-    this._mesh.visible = true;
+            this._handles.forEach(function (elem) {
+                elem.showDOM();
+            });
+        };
 
-    // add it!
-    this.add(this._mesh);
-  };
+        _class.prototype.update = function update() {
+            this.updateColor();
 
-  WidgetsRuler.prototype.updateMeshColor = function updateMeshColor() {
-    if (this._material) {
-      this._material.color.set(this._color);
-    }
-  };
+            // update handles
+            this._handles.forEach(function (elem) {
+                elem.update();
+            });
 
-  WidgetsRuler.prototype.updateMeshPosition = function updateMeshPosition() {
-    if (this._geometry) {
-      this._geometry.verticesNeedUpdate = true;
-    }
-  };
+            // mesh stuff
+            this.updateMeshColor();
+            this.updateMeshPosition();
 
-  WidgetsRuler.prototype.createDOM = function createDOM() {
-    // add line!
-    this._line = document.createElement('div');
-    this._line.setAttribute('id', this.uuid);
-    this._line.setAttribute('class', 'AMI Widget Ruler');
-    this._line.style.position = 'absolute';
-    this._line.style.transformOrigin = '0 100%';
-    this._line.style.marginTop = '-1px';
-    this._line.style.height = '2px';
-    this._line.style.width = '3px';
-    this._container.appendChild(this._line);
+            // DOM stuff
+            this.updateDOMColor();
+            this.updateDOMPosition();
+        };
 
-    // add distance!
-    this._distance = document.createElement('div');
-    this._distance.setAttribute('class', 'widgets handle distance');
-    this._distance.style.border = '2px solid';
-    this._distance.style.backgroundColor = '#F9F9F9';
-    // this._distance.style.opacity = '0.5';
-    this._distance.style.color = '#353535';
-    this._distance.style.padding = '4px';
-    this._distance.style.position = 'absolute';
-    this._distance.style.transformOrigin = '0 100%';
-    this._distance.innerHTML = 'Hello, world!';
-    this._container.appendChild(this._distance);
+        _class.prototype.updateMeshColor = function updateMeshColor() {
+            if (this._material) {
+                this._material.color.set(this._color);
+            }
+            if (this._material2) {
+                this._material2.color.set(this._color);
+            }
+        };
 
-    this.updateDOMColor();
-  };
+        _class.prototype.updateMeshPosition = function updateMeshPosition() {
+            if (this._geometry) {
+                this._geometry.verticesNeedUpdate = true;
+            }
+            if (this._geometry2) {
+                this._geometry2.verticesNeedUpdate = true;
+            }
+        };
 
-  WidgetsRuler.prototype.updateDOMPosition = function updateDOMPosition() {
-    // update rulers lines and text!
-    var x1 = this._handles[0].screenPosition.x;
-    var y1 = this._handles[0].screenPosition.y;
-    var x2 = this._handles[1].screenPosition.x;
-    var y2 = this._handles[1].screenPosition.y;
+        _class.prototype.updateDOMPosition = function updateDOMPosition() {
+            // update first line
+            var lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 
-    var x0 = x2;
-    var y0 = y2;
+            this._line.style.transform = 'translate3D(' + lineData.transformX + 'px, ' + lineData.transformY + 'px, 0)\n                rotate(' + lineData.transformAngle + 'rad)';
+            this._line.style.width = lineData.length + 'px';
 
-    if (y1 >= y2) {
-      y0 = y2 - 30;
-    } else {
-      y0 = y2 + 30;
-    }
+            // update second line
+            var line2Data = this.getLineData(this._handles[2].screenPosition, this._handles[3].screenPosition);
 
-    var length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-    var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+            this._line2.style.transform = 'translate3D(' + line2Data.transformX + 'px, ' + line2Data.transformY + 'px, 0)\n                rotate(' + line2Data.transformAngle + 'rad)';
+            this._line2.style.width = line2Data.length + 'px';
 
-    var posY = y1 - this._container.offsetHeight;
+            // update dash line
+            var line1Center = this._handles[0].worldPosition.clone().add(this._handles[1].worldPosition).multiplyScalar(0.5),
+                line2Center = this._handles[2].worldPosition.clone().add(this._handles[3].worldPosition).multiplyScalar(0.5),
+                dashLineData = this.getLineData(this.worldToScreen(line1Center), this.worldToScreen(line2Center));
 
-    // update line
-    var transform = 'translate3D(' + x1 + 'px,' + posY + 'px, 0)';
-    transform += ' rotate(' + angle + 'deg)';
+            this._dashline.style.transform = 'translate3D(' + dashLineData.transformX + 'px, ' + dashLineData.transformY + 'px, 0)\n                rotate(' + dashLineData.transformAngle + 'rad)';
+            this._dashline.style.width = dashLineData.length + 'px';
 
-    this._line.style.transform = transform;
-    this._line.style.width = length + 'px';
+            // update labels
+            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
+                title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
 
-    // update distance
-    var w0 = this._handles[0].worldPosition;
-    var w1 = this._handles[1].worldPosition;
+            this._distance = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition);
+            this._distance2 = this._handles[2].worldPosition.distanceTo(this._handles[3].worldPosition);
 
-    this._distance.innerHTML = Math.sqrt((w0.x - w1.x) * (w0.x - w1.x) + (w0.y - w1.y) * (w0.y - w1.y) + (w0.z - w1.z) * (w0.z - w1.z)).toFixed(2) + ' mm';
-    var posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight / 2;
-    x0 -= this._distance.offsetWidth / 2;
+            this._label.innerHTML = this._distance.toFixed(2) + ' ' + units;
+            this._label2.innerHTML = this._distance2.toFixed(2) + ' ' + units;
 
-    var transform2 = 'translate3D(' + Math.round(x0) + 'px,' + Math.round(posY0) + 'px, 0)';
-    this._distance.style.transform = transform2;
-  };
+            if (title !== '') {
+                this._label.setAttribute('title', title);
+                this._label.style.color = this._colors.error;
+                this._label2.setAttribute('title', title);
+                this._label2.style.color = this._colors.error;
+            } else {
+                this._label.removeAttribute('title');
+                this._label.style.color = this._colors.text;
+                this._label2.removeAttribute('title');
+                this._label2.style.color = this._colors.text;
+            }
 
-  WidgetsRuler.prototype.updateDOMColor = function updateDOMColor() {
-    this._line.style.backgroundColor = '' + this._color;
-    this._distance.style.borderColor = '' + this._color;
-  };
+            var angle = Math.abs(lineData.transformAngle);
+            if (angle > Math.PI / 2) {
+                angle = Math.PI - angle;
+            }
 
-  WidgetsRuler.prototype.free = function free() {
-    this._container.removeEventListener('mousewheel', this.onMove);
-    this._container.removeEventListener('DOMMouseScroll', this.onMove);
+            var labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth ? this._label.offsetWidth / 2 / Math.cos(angle) + 15 // 5px for each handle + padding
+            : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle) + 15,
+                paddingVector = lineData.line.normalize().multiplyScalar(labelPadding),
+                paddingPoint = lineData.length > labelPadding * 2 ? this._handles[1].screenPosition.clone().sub(paddingVector) : this._handles[1].screenPosition.clone().add(paddingVector),
+                transform = this.adjustLabelTransform(this._label, paddingPoint);
 
-    this._handles.forEach(function (h) {
-      h.free();
-    });
+            this._label.style.transform = 'translate3D(' + transform.x + 'px, ' + transform.y + 'px, 0)';
 
-    this._handles = [];
+            var angle2 = Math.abs(line2Data.transformAngle);
+            if (angle2 > Math.PI / 2) {
+                angle2 = Math.PI - angle2;
+            }
 
-    this._container.removeChild(this._line);
-    this._container.removeChild(this._distance);
+            var label2Padding = Math.tan(angle2) < this._label2.offsetHeight / this._label2.offsetWidth ? this._label2.offsetWidth / 2 / Math.cos(angle2) + 15 // 5px for each handle + padding
+            : this._label2.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle2) + 15,
+                paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding),
+                paddingPoint2 = line2Data.length > label2Padding * 2 ? this._handles[3].screenPosition.clone().sub(paddingVector2) : this._handles[3].screenPosition.clone().add(paddingVector2),
+                transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
 
-    this.remove(this._mesh);
+            this._label2.style.transform = 'translate3D(' + transform2.x + 'px, ' + transform2.y + 'px, 0)';
+        };
 
-    _WidgetsBase.prototype.free.call(this);
-  };
+        _class.prototype.updateDOMColor = function updateDOMColor() {
+            this._line.style.backgroundColor = this._color;
+            this._label.style.borderColor = this._color;
 
-  _createClass(WidgetsRuler, [{
-    key: 'worldPosition',
-    get: function get() {
-      return this._worldPosition;
-    },
-    set: function set(worldPosition) {
-      this._worldPosition = worldPosition;
-      this._handles[0].worldPosition = this._worldPosition;
-      this._handles[1].worldPosition = this._worldPosition;
+            this._line2.style.backgroundColor = this._color;
+            this._label2.style.borderColor = this._color;
 
-      this.update();
-    }
-  }]);
+            this._dashline.style.borderTop = '1.5px dashed ' + this._color;
+        };
 
-  return WidgetsRuler;
-}(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* default */]);
+        _class.prototype.free = function free() {
+            var _this2 = this;
 
-/* harmony default export */ __webpack_exports__["a"] = (WidgetsRuler);
+            this.removeEventListeners();
+
+            this._handles.forEach(function (h) {
+                _this2.remove(h);
+                h.free();
+            });
+            this._handles = [];
+
+            this._container.removeChild(this._line);
+            this._container.removeChild(this._label);
+            this._container.removeChild(this._line2);
+            this._container.removeChild(this._label2);
+            this._container.removeChild(this._dashline);
+
+            // mesh, geometry, material
+            this.remove(this._mesh);
+            this._mesh.geometry.dispose();
+            this._mesh.geometry = null;
+            this._mesh.material.dispose();
+            this._mesh.material = null;
+            this._mesh = null;
+            this._geometry.dispose();
+            this._geometry = null;
+            this._material.vertexShader = null;
+            this._material.fragmentShader = null;
+            this._material.uniforms = null;
+            this._material.dispose();
+            this._material = null;
+            this.remove(this._mesh2);
+            this._mesh2.geometry.dispose();
+            this._mesh2.geometry = null;
+            this._mesh2.material.dispose();
+            this._mesh2.material = null;
+            this._mesh2 = null;
+            this._geometry2.dispose();
+            this._geometry2 = null;
+            this._material2.vertexShader = null;
+            this._material2.fragmentShader = null;
+            this._material2.uniforms = null;
+            this._material2.dispose();
+            this._material2 = null;
+
+            _Constructor.prototype.free.call(this);
+        };
+
+        _createClass(_class, [{
+            key: 'targetMesh',
+            get: function get() {
+                return this._targetMesh;
+            },
+            set: function set(targetMesh) {
+                this._targetMesh = targetMesh;
+                this._handles.forEach(function (elem) {
+                    elem.targetMesh = targetMesh;
+                });
+                this.update();
+            }
+        }, {
+            key: 'worldPosition',
+            get: function get() {
+                return this._worldPosition;
+            },
+            set: function set(worldPosition) {
+                this._handles.forEach(function (elem) {
+                    elem.worldPosition.copy(worldPosition);
+                });
+                this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }, {
+            key: 'shotestDistance',
+            get: function get() {
+                return this._distance < this._distance2 ? this._distance : this._distance2;
+            }
+        }, {
+            key: 'longestDistance',
+            get: function get() {
+                return this._distance > this._distance2 ? this._distance : this._distance2;
+            }
+        }]);
+
+        return _class;
+    }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["a"] = (widgetsBiruler());
 
 /***/ }),
 /* 178 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__geometries_geometries_voxel__ = __webpack_require__(32);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_models_stack__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_models_voxel__ = __webpack_require__(83);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__core_core_intersections__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_three__ = __webpack_require__(0);
+/* unused harmony export widgetsCrossRuler */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(3);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -98462,6 +98255,2929 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 
 
+
+/**
+ * @module widgets/crossRuler
+ */
+var widgetsCrossRuler = function widgetsCrossRuler() {
+    var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+    if (three === undefined || three.Object3D === undefined) {
+        return null;
+    }
+
+    var Constructor = Object(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* widgetsBase */])(three);
+    return function (_Constructor) {
+        _inherits(_class, _Constructor);
+
+        function _class(targetMesh, controls, stack) {
+            _classCallCheck(this, _class);
+
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
+
+            _this._stack = stack;
+
+            _this._widgetType = 'CrossRuler';
+            _this._domHovered = false;
+            _this._moving = false;
+
+            _this._distances = null; // from intersection point to handles
+            _this._line01 = null; // vector from 0 to 1st handle
+            _this._normal = null; // normal vector to line01
+
+            // mesh stuff
+            _this._material = null;
+            _this._material2 = null;
+            _this._geometry = null;
+            _this._geometry2 = null;
+            _this._mesh = null;
+            _this._mesh2 = null;
+
+            // dom stuff
+            _this._line = null;
+            _this._line2 = null;
+
+            // add handles
+            _this._handles = [];
+
+            var handle = void 0;
+            var WidgetsHandle = Object(__WEBPACK_IMPORTED_MODULE_1__widgets_handle__["b" /* widgetsHandle */])(three);
+            for (var i = 0; i < 4; i++) {
+                handle = new WidgetsHandle(targetMesh, controls);
+                handle.worldPosition.copy(_this._worldPosition);
+                _this.add(handle);
+                _this._handles.push(handle);
+            }
+            _this._handles[1].active = true;
+            _this._handles[1].tracking = true;
+
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls);
+            _this._moveHandle.worldPosition.copy(_this._worldPosition);
+            _this.add(_this._moveHandle);
+            _this._handles.push(_this._moveHandle);
+            _this._moveHandle.hide();
+
+            _this.onHover = _this.onHover.bind(_this);
+            _this.onMove = _this.onMove.bind(_this);
+
+            _this.create();
+
+            _this.addEventListeners();
+            return _this;
+        }
+
+        _class.prototype.addEventListeners = function addEventListeners() {
+            this._line.addEventListener('mouseenter', this.onHover);
+            this._line.addEventListener('mouseleave', this.onHover);
+            this._line2.addEventListener('mouseenter', this.onHover);
+            this._line2.addEventListener('mouseleave', this.onHover);
+
+            this._container.addEventListener('wheel', this.onMove);
+        };
+
+        _class.prototype.removeEventListeners = function removeEventListeners() {
+            this._line.removeEventListener('mouseenter', this.onHover);
+            this._line.removeEventListener('mouseleave', this.onHover);
+            this._line2.removeEventListener('mouseenter', this.onHover);
+            this._line2.removeEventListener('mouseleave', this.onHover);
+
+            this._container.removeEventListener('wheel', this.onMove);
+        };
+
+        _class.prototype.onHover = function onHover(evt) {
+            if (evt) {
+                this.hoverDom(evt);
+            }
+
+            this.hoverMesh();
+
+            this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._handles[2].hovered || this._handles[3].hovered || this._domHovered;
+            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+        };
+
+        _class.prototype.hoverMesh = function hoverMesh() {
+            // check raycast intersection, do we want to hover on mesh or just css?
+        };
+
+        _class.prototype.hoverDom = function hoverDom(evt) {
+            this._domHovered = evt.type === 'mouseenter';
+        };
+
+        _class.prototype.onStart = function onStart(evt) {
+            this._moveHandle.onMove(evt, true);
+
+            this._handles.slice(0, -1).forEach(function (elem) {
+                elem.onStart(evt);
+            });
+
+            this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active || this._domHovered;
+
+            if (this._domHovered && this._distances) {
+                this._moving = true;
+                this._controls.enabled = false;
+            }
+
+            this.update();
+        };
+
+        _class.prototype.onMove = function onMove(evt) {
+            if (this._active) {
+                var prevPosition = this._moveHandle.worldPosition.clone();
+
+                this._dragged = true;
+                this._moveHandle.onMove(evt, true);
+
+                if (this._moving) {
+                    this._handles.slice(0, -1).forEach(function (elem, ind) {
+                        this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                    }, this);
+                }
+            } else {
+                this.onHover(null);
+            }
+
+            this._handles.slice(0, -1).forEach(function (elem) {
+                elem.onMove(evt);
+            });
+
+            if (this._distances) {
+                if (this._handles[0].active || this._handles[1].active) {
+                    this.repositionOrtho(); // change worldPosition of 2nd and 3rd handle
+                } else if (this._handles[2].active || this._handles[3].active) {
+                    this.recalculateOrtho();
+                }
+            }
+            this.update();
+        };
+
+        _class.prototype.onEnd = function onEnd() {
+            this._handles[0].onEnd();
+            this._handles[2].onEnd();
+            this._handles[3].onEnd();
+
+            if (this._handles[1].tracking && this._handles[0].screenPosition.distanceTo(this._handles[1].screenPosition) < 10) {
+                return;
+            }
+
+            if (!this._dragged && this._active && !this._handles[1].tracking) {
+                this._selected = !this._selected; // change state if there was no dragging
+                this._handles[0].selected = this._selected;
+                this._handles[2].selected = this._selected;
+                this._handles[3].selected = this._selected;
+            }
+
+            // Second Handle
+            if (this._dragged || !this._handles[1].tracking) {
+                this._handles[1].tracking = false;
+                this._handles[1].onEnd();
+            } else {
+                this._handles[1].tracking = false;
+            }
+            this._handles[1].selected = this._selected;
+
+            this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active;
+            this._dragged = false;
+            this._moving = false;
+
+            if (!this._distances) {
+                this.initOrtho();
+            }
+            this.update();
+        };
+
+        _class.prototype.create = function create() {
+            this.createMesh();
+            this.createDOM();
+        };
+
+        _class.prototype.createMesh = function createMesh() {
+            // geometry
+            this._geometry = new three.Geometry();
+            this._geometry.vertices.push(this._handles[0].worldPosition);
+            this._geometry.vertices.push(this._handles[1].worldPosition);
+
+            // geometry
+            this._geometry2 = new three.Geometry();
+            this._geometry2.vertices.push(this._handles[2].worldPosition);
+            this._geometry2.vertices.push(this._handles[3].worldPosition);
+
+            // material
+            this._material = new three.LineBasicMaterial();
+            this._material2 = new three.LineBasicMaterial();
+
+            this.updateMeshColor();
+
+            // mesh
+            this._mesh = new three.Line(this._geometry, this._material);
+            this._mesh.visible = true;
+            this._mesh2 = new three.Line(this._geometry2, this._material2);
+            this._mesh2.visible = true;
+
+            this.add(this._mesh);
+            this.add(this._mesh2);
+        };
+
+        _class.prototype.createDOM = function createDOM() {
+            this._line = document.createElement('div');
+            this._line.setAttribute('class', 'widgets-line');
+            this._container.appendChild(this._line);
+
+            this._line2 = document.createElement('div');
+            this._line2.setAttribute('class', 'widgets-line');
+            this._container.appendChild(this._line2);
+
+            this.updateDOMColor();
+        };
+
+        _class.prototype.hideDOM = function hideDOM() {
+            this._line.style.display = 'none';
+            this._line2.style.display = 'none';
+
+            this._handles.slice(0, -1).forEach(function (elem) {
+                elem.hideDOM();
+            });
+        };
+
+        _class.prototype.showDOM = function showDOM() {
+            this._line.style.display = '';
+            this._line2.style.display = '';
+
+            this._handles.slice(0, -1).forEach(function (elem) {
+                elem.showDOM();
+            });
+        };
+
+        _class.prototype.update = function update() {
+            this.updateColor();
+
+            // update handles
+            this._handles.slice(0, -1).forEach(function (elem) {
+                elem.update();
+            });
+
+            // mesh stuff
+            this.updateMeshColor();
+            this.updateMeshPosition();
+
+            // DOM stuff
+            this.updateDOMColor();
+            this.updateDOMPosition();
+        };
+
+        _class.prototype.updateMeshColor = function updateMeshColor() {
+            if (this._material) {
+                this._material.color.set(this._color);
+            }
+            if (this._material2) {
+                this._material2.color.set(this._color);
+            }
+        };
+
+        _class.prototype.updateMeshPosition = function updateMeshPosition() {
+            if (this._geometry) {
+                this._geometry.verticesNeedUpdate = true;
+            }
+            if (this._geometry2) {
+                this._geometry2.verticesNeedUpdate = true;
+            }
+        };
+
+        _class.prototype.updateDOMPosition = function updateDOMPosition() {
+            // update first line
+            var lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
+
+            this._line.style.transform = 'translate3D(' + lineData.transformX + 'px, ' + lineData.transformY + 'px, 0)\n            rotate(' + lineData.transformAngle + 'rad)';
+            this._line.style.width = lineData.length + 'px';
+
+            // update second line
+            var line2Data = this.getLineData(this._handles[2].screenPosition, this._handles[3].screenPosition);
+
+            this._line2.style.transform = 'translate3D(' + line2Data.transformX + 'px, ' + line2Data.transformY + 'px, 0)\n            rotate(' + line2Data.transformAngle + 'rad)';
+            this._line2.style.width = line2Data.length + 'px';
+        };
+
+        _class.prototype.updateDOMColor = function updateDOMColor() {
+            this._line.style.backgroundColor = this._color;
+            this._line2.style.backgroundColor = this._color;
+        };
+
+        _class.prototype.free = function free() {
+            var _this2 = this;
+
+            this.removeEventListeners();
+
+            this._handles.forEach(function (h) {
+                _this2.remove(h);
+                h.free();
+            });
+            this._handles = [];
+
+            this._container.removeChild(this._line);
+            this._container.removeChild(this._line2);
+
+            // mesh, geometry, material
+            this.remove(this._mesh);
+            this._mesh.geometry.dispose();
+            this._mesh.geometry = null;
+            this._mesh.material.dispose();
+            this._mesh.material = null;
+            this._mesh = null;
+            this._geometry.dispose();
+            this._geometry = null;
+            this._material.vertexShader = null;
+            this._material.fragmentShader = null;
+            this._material.uniforms = null;
+            this._material.dispose();
+            this._material = null;
+            this.remove(this._mesh2);
+            this._mesh2.geometry.dispose();
+            this._mesh2.geometry = null;
+            this._mesh2.material.dispose();
+            this._mesh2.material = null;
+            this._mesh2 = null;
+            this._geometry2.dispose();
+            this._geometry2 = null;
+            this._material2.vertexShader = null;
+            this._material2.fragmentShader = null;
+            this._material2.uniforms = null;
+            this._material2.dispose();
+            this._material2 = null;
+
+            _Constructor.prototype.free.call(this);
+        };
+
+        _class.prototype.initLineAndNormal = function initLineAndNormal() {
+            this._line01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition);
+            this._normal = this._line01.clone().cross(this._camera._direction).normalize();
+        };
+
+        _class.prototype.initOrtho = function initOrtho() {
+            // called onEnd if distances are null
+            this.initLineAndNormal();
+
+            var center = this._handles[1].worldPosition.clone().add(this._handles[0].worldPosition).multiplyScalar(0.5),
+                halfLength = this._line01.length() / 2,
+                normLine = this._normal.clone().multiplyScalar(halfLength * 0.8),
+                normLength = normLine.length();
+
+            this._handles[2].worldPosition.copy(center.clone().add(normLine));
+            this._handles[3].worldPosition.copy(center.clone().sub(normLine));
+
+            this._distances = [halfLength, halfLength, normLength, normLength];
+        };
+
+        _class.prototype.repositionOrtho = function repositionOrtho() {
+            // called onMove if 0 or 1st handle is active
+            this.initLineAndNormal();
+            this._distances[0] *= this._line01.length() / (this._distances[0] + this._distances[1]);
+            this._distances[1] = this._line01.length() - this._distances[0];
+
+            var intersect = this._handles[0].worldPosition.clone().add(this._line01.clone().normalize().multiplyScalar(this._distances[0]));
+
+            this._handles[2].worldPosition.copy(intersect.clone().add(this._normal.clone().multiplyScalar(this._distances[2])));
+            this._handles[3].worldPosition.copy(intersect.clone().sub(this._normal.clone().multiplyScalar(this._distances[3])));
+        };
+
+        _class.prototype.recalculateOrtho = function recalculateOrtho() {
+            // called onMove if 2nd or 3rd handle is active
+            var activeInd = this._handles[2].active ? 2 : 3,
+                lines = [],
+                intersect = new three.Vector3();
+
+            lines[2] = this._handles[2].worldPosition.clone().sub(this._handles[0].worldPosition);
+            lines[3] = this._handles[3].worldPosition.clone().sub(this._handles[0].worldPosition);
+            new three.Ray(this._handles[0].worldPosition, this._line01.clone().normalize()).closestPointToPoint(this._handles[activeInd].worldPosition, intersect);
+
+            var isOutside = intersect.clone().sub(this._handles[0].worldPosition).length() > this._line01.length();
+            // if intersection is outside of the line01 then change worldPosition of active handle
+            if (isOutside || intersect.equals(this._handles[0].worldPosition)) {
+                if (isOutside) {
+                    intersect.copy(this._handles[1].worldPosition);
+                }
+
+                this._handles[activeInd].worldPosition.copy(intersect.clone().add(lines[activeInd].clone().projectOnVector(this._normal)));
+            }
+
+            if (lines[2].cross(this._line01).angleTo(this._camera._direction) > 0.01) {
+                this._handles[2].worldPosition.copy(intersect); // 2nd handle should always be above line01
+            }
+            if (lines[3].cross(this._line01).angleTo(this._camera._direction) < Math.PI - 0.01) {
+                this._handles[3].worldPosition.copy(intersect); // 3nd handle should always be below line01
+            }
+
+            lines[0] = this._normal.clone().multiplyScalar(this._distances[5 - activeInd]);
+            if (activeInd === 2) {
+                lines[0].negate();
+            }
+            this._handles[5 - activeInd].worldPosition.copy(intersect.clone().add(lines[0]));
+
+            this._distances[activeInd] = intersect.clone().sub(this._handles[activeInd].worldPosition).length();
+            this._distances[0] = intersect.clone().sub(this._handles[0].worldPosition).length();
+            this._distances[1] = intersect.clone().sub(this._handles[1].worldPosition).length();
+        };
+
+        /**
+         * Get CrossRuler handles position
+         *
+         * @return {Array.<Vector3>} First begin, first end, second begin, second end
+         */
+
+
+        _class.prototype.getCoordinates = function getCoordinates() {
+            return [this._handles[0].worldPosition, this._handles[1].worldPosition, this._handles[2].worldPosition, this._handles[3].worldPosition];
+        };
+
+        /**
+         * Set CrossRuler handles position
+         *
+         * @param {Vector3} first   The beginning of the first line
+         * @param {Vector3} second  The end of the first line
+         * @param {Vector3} third   The beginning of the second line (clockwise relative to the first line)
+         * @param {Vector3} fourth  The end of the second line
+         */
+
+
+        _class.prototype.initCoordinates = function initCoordinates(first, second, third, fourth) {
+            var intersectR = new three.Vector3(),
+                intersectS = new three.Vector3(),
+                ray = new three.Ray(first);
+
+            ray.lookAt(second);
+            ray.distanceSqToSegment(third, fourth, intersectR, intersectS);
+
+            if (intersectR.distanceTo(intersectS) > 0.01 && intersectR.clone().sub(first).length() > second.clone().sub(first).length() + 0.01) {
+                window.console.warn('Lines do not intersect');
+
+                return;
+            }
+
+            this.active = false;
+            this.hovered = false;
+            this.setDefaultColor('#198');
+            this._worldPosition.copy(first);
+            this._handles[0].worldPosition.copy(first);
+            this._handles[1].worldPosition.copy(second);
+            this._handles[1].active = false;
+            this._handles[1].tracking = false;
+            this._handles[2].worldPosition.copy(third);
+            this._handles[3].worldPosition.copy(fourth);
+            this._distances = [intersectR.clone().sub(first).length(), intersectR.clone().sub(second).length(), intersectR.clone().sub(third).length(), intersectR.clone().sub(fourth).length()];
+
+            this.initLineAndNormal();
+            this.update();
+        };
+
+        _class.prototype.setDefaultColor = function setDefaultColor(color) {
+            this._colors.default = color;
+            this._handles.forEach(function (elem) {
+                elem._colors.default = color;
+            });
+        };
+
+        _createClass(_class, [{
+            key: 'targetMesh',
+            get: function get() {
+                return this._targetMesh;
+            },
+            set: function set(targetMesh) {
+                this._targetMesh = targetMesh;
+                this._handles.forEach(function (elem) {
+                    elem.targetMesh = targetMesh;
+                });
+                this.update();
+            }
+        }, {
+            key: 'worldPosition',
+            get: function get() {
+                return this._worldPosition;
+            },
+            set: function set(worldPosition) {
+                this._handles.slice(0, -1).forEach(function (elem) {
+                    elem.worldPosition.copy(worldPosition);
+                });
+                this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }]);
+
+        return _class;
+    }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["a"] = (widgetsCrossRuler());
+
+/***/ }),
+/* 179 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export widgetsEllipse */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_core_utils__ = __webpack_require__(0);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+/**
+ * @module widgets/ellipse
+ */
+var widgetsEllipse = function widgetsEllipse() {
+    var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+    if (three === undefined || three.Object3D === undefined) {
+        return null;
+    }
+
+    var Constructor = Object(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* widgetsBase */])(three);
+    return function (_Constructor) {
+        _inherits(_class, _Constructor);
+
+        function _class(targetMesh, controls, stack) {
+            _classCallCheck(this, _class);
+
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
+
+            _this._stack = stack;
+
+            _this._widgetType = 'Ellipse';
+            _this._moving = false;
+            _this._domHovered = false;
+
+            // mesh stuff
+            _this._material = null;
+            _this._geometry = null;
+            _this._mesh = null;
+
+            // dom stuff
+            _this._rectangle = null;
+            _this._ellipse = null;
+            _this._label = null;
+
+            // add handles
+            _this._handles = [];
+
+            var handle = void 0;
+            var WidgetsHandle = Object(__WEBPACK_IMPORTED_MODULE_1__widgets_handle__["b" /* widgetsHandle */])(three);
+            for (var i = 0; i < 2; i++) {
+                handle = new WidgetsHandle(targetMesh, controls);
+                handle.worldPosition.copy(_this._worldPosition);
+                _this.add(handle);
+                _this._handles.push(handle);
+            }
+            _this._handles[1].active = true;
+            _this._handles[1].tracking = true;
+
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls);
+            _this._moveHandle.worldPosition.copy(_this._worldPosition);
+            _this.add(_this._moveHandle);
+            _this._handles.push(_this._moveHandle);
+            _this._moveHandle.hide();
+
+            _this.create();
+
+            _this.onMove = _this.onMove.bind(_this);
+            _this.onHover = _this.onHover.bind(_this);
+            _this.addEventListeners();
+            return _this;
+        }
+
+        _class.prototype.addEventListeners = function addEventListeners() {
+            this._container.addEventListener('wheel', this.onMove);
+
+            this._rectangle.addEventListener('mouseenter', this.onHover);
+            this._rectangle.addEventListener('mouseleave', this.onHover);
+            this._ellipse.addEventListener('mouseenter', this.onHover);
+            this._ellipse.addEventListener('mouseleave', this.onHover);
+            this._label.addEventListener('mouseenter', this.onHover);
+            this._label.addEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.removeEventListeners = function removeEventListeners() {
+            this._container.removeEventListener('wheel', this.onMove);
+
+            this._rectangle.removeEventListener('mouseenter', this.onHover);
+            this._rectangle.removeEventListener('mouseleave', this.onHover);
+            this._ellipse.removeEventListener('mouseenter', this.onHover);
+            this._ellipse.removeEventListener('mouseleave', this.onHover);
+            this._label.removeEventListener('mouseenter', this.onHover);
+            this._label.removeEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.onHover = function onHover(evt) {
+            if (evt) {
+                this.hoverDom(evt);
+            }
+
+            this.hoverMesh();
+
+            this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._domHovered;
+            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+        };
+
+        _class.prototype.hoverMesh = function hoverMesh() {
+            // check raycast intersection, if we want to hover on mesh instead of just css
+        };
+
+        _class.prototype.hoverDom = function hoverDom(evt) {
+            this._domHovered = evt.type === 'mouseenter';
+        };
+
+        _class.prototype.onStart = function onStart(evt) {
+            this._moveHandle.onMove(evt, true);
+
+            this._handles[0].onStart(evt);
+            this._handles[1].onStart(evt);
+
+            this._active = this._handles[0].active || this._handles[1].active || this._domHovered;
+
+            if (this._domHovered && !this._handles[1].tracking) {
+                this._moving = true;
+                this._controls.enabled = false;
+            }
+
+            this.update();
+        };
+
+        _class.prototype.onMove = function onMove(evt) {
+            if (this._active) {
+                var prevPosition = this._moveHandle.worldPosition.clone();
+
+                this._dragged = true;
+                this._moveHandle.onMove(evt, true);
+
+                if (this._moving) {
+                    this._handles.slice(0, -1).forEach(function (elem, ind) {
+                        this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                    }, this);
+                }
+
+                this.updateRoI(true);
+            } else {
+                this.onHover(null);
+            }
+
+            this._handles[0].onMove(evt);
+            this._handles[1].onMove(evt);
+
+            this.update();
+        };
+
+        _class.prototype.onEnd = function onEnd() {
+            this._handles[0].onEnd(); // First Handle
+
+            if (this._handles[1].tracking && this._handles[0].screenPosition.distanceTo(this._handles[1].screenPosition) < 10) {
+                return;
+            }
+
+            if (!this._dragged && this._active && !this._handles[1].tracking) {
+                this._selected = !this._selected; // change state if there was no dragging
+                this._handles[0].selected = this._selected;
+            }
+
+            // Second Handle
+            if (this._dragged || !this._handles[1].tracking) {
+                this._handles[1].tracking = false;
+                this._handles[1].onEnd();
+            } else {
+                this._handles[1].tracking = false;
+            }
+            this._handles[1].selected = this._selected;
+
+            this._active = this._handles[0].active || this._handles[1].active;
+            this._dragged = false;
+            this._moving = false;
+
+            this.updateRoI();
+            this.update();
+        };
+
+        _class.prototype.hideDOM = function hideDOM() {
+            this._handles.forEach(function (elem) {
+                elem.hideDOM();
+            });
+
+            this._rectangle.style.display = 'none';
+            this._ellipse.style.display = 'none';
+            this._label.style.display = 'none';
+        };
+
+        _class.prototype.showDOM = function showDOM() {
+            this._handles[0].showDOM();
+            this._handles[1].showDOM();
+
+            this._rectangle.style.display = '';
+            this._ellipse.style.display = '';
+            this._label.style.display = '';
+        };
+
+        _class.prototype.create = function create() {
+            this.createMaterial();
+            this.createDOM();
+        };
+
+        _class.prototype.createMaterial = function createMaterial() {
+            this._material = new three.MeshBasicMaterial();
+            this._material.transparent = true;
+            this._material.opacity = 0.2;
+        };
+
+        _class.prototype.createDOM = function createDOM() {
+            this._rectangle = document.createElement('div');
+            this._rectangle.setAttribute('class', 'widgets-rectangle-helper');
+            this._container.appendChild(this._rectangle);
+
+            this._ellipse = document.createElement('div');
+            this._ellipse.setAttribute('class', 'widgets-ellipse');
+            this._container.appendChild(this._ellipse);
+
+            this._label = document.createElement('div');
+            this._label.setAttribute('class', 'widgets-label');
+
+            // measurenents
+            var measurementsContainer = document.createElement('div');
+            // Mean / SD
+            var meanSDContainer = document.createElement('div');
+            meanSDContainer.setAttribute('class', 'mean-sd');
+            measurementsContainer.appendChild(meanSDContainer);
+            // Max / Min
+            var maxMinContainer = document.createElement('div');
+            maxMinContainer.setAttribute('class', 'max-min');
+            measurementsContainer.appendChild(maxMinContainer);
+            // Area
+            var areaContainer = document.createElement('div');
+            areaContainer.setAttribute('class', 'area');
+            measurementsContainer.appendChild(areaContainer);
+
+            this._label.appendChild(measurementsContainer);
+
+            this._container.appendChild(this._label);
+
+            this.updateDOMColor();
+        };
+
+        _class.prototype.update = function update() {
+            this.updateColor();
+
+            // update handles
+            this._handles[0].update();
+            this._handles[1].update();
+
+            // mesh stuff
+            this.updateMeshColor();
+            this.updateMeshPosition();
+
+            // DOM stuff
+            this.updateDOMColor();
+            this.updateDOMContent();
+            this.updateDOMPosition();
+        };
+
+        _class.prototype.updateMeshColor = function updateMeshColor() {
+            if (this._material) {
+                this._material.color.set(this._color);
+            }
+        };
+
+        _class.prototype.updateMeshPosition = function updateMeshPosition() {
+            if (this._mesh) {
+                this.remove(this._mesh);
+            }
+
+            var vec01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition),
+                height = vec01.clone().projectOnVector(this._camera.up).length(),
+                width = vec01.clone().projectOnVector(this._camera._right).length();
+
+            if (width === 0 || height === 0) {
+                return;
+            }
+
+            this._geometry = new three.ShapeGeometry(new three.Shape(new three.EllipseCurve(0, 0, width / 2, height / 2, 0, 2 * Math.PI, false).getPoints(50)));
+
+            this._mesh = new three.Mesh(this._geometry, this._material);
+            this._mesh.position.copy(this._handles[0].worldPosition.clone().add(vec01.multiplyScalar(0.5)));
+            this._mesh.rotation.copy(this._camera.rotation);
+            this._mesh.visible = true;
+            this.add(this._mesh);
+        };
+
+        _class.prototype.updateDOMColor = function updateDOMColor() {
+            this._rectangle.style.borderColor = this._color;
+            this._ellipse.style.borderColor = this._color;
+            this._label.style.borderColor = this._color;
+        };
+
+        _class.prototype.updateRoI = function updateRoI(clear) {
+            if (!this._geometry) {
+                return;
+            }
+
+            var meanSDContainer = this._label.querySelector('.mean-sd');
+            var maxMinContainer = this._label.querySelector('.max-min');
+
+            if (clear) {
+                meanSDContainer.innerHTML = '';
+                maxMinContainer.innerHTML = '';
+
+                return;
+            }
+
+            var roi = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].getRoI(this._mesh, this._camera, this._stack);
+
+            if (roi !== null) {
+                meanSDContainer.innerHTML = 'Mean: ' + roi.mean.toFixed(1) + ' / SD: ' + roi.sd.toFixed(1);
+                maxMinContainer.innerHTML = 'Max: ' + roi.max.toFixed() + ' / Min: ' + roi.min.toFixed();
+            } else {
+                meanSDContainer.innerHTML = '';
+                maxMinContainer.innerHTML = '';
+            }
+        };
+
+        _class.prototype.updateDOMContent = function updateDOMContent() {
+            if (!this._geometry) {
+                return;
+            }
+
+            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
+            var title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+
+            if (title !== '') {
+                this._label.setAttribute('title', title);
+                this._label.style.color = this._colors.error;
+            } else {
+                this._label.removeAttribute('title');
+                this._label.style.color = this._colors.text;
+            }
+            this._label.querySelector('.area').innerHTML = 'Area: ' + (__WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].getGeometryArea(this._geometry) / 100).toFixed(2) + ' ' + units;
+        };
+
+        _class.prototype.updateDOMPosition = function updateDOMPosition() {
+            var rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition),
+                labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));
+
+            // update rectangle
+            this._rectangle.style.transform = 'translate3D(' + rectData.transformX + 'px, ' + rectData.transformY + 'px, 0)';
+            this._rectangle.style.width = rectData.width + 'px';
+            this._rectangle.style.height = rectData.height + 'px';
+
+            // update ellipse
+            this._ellipse.style.transform = 'translate3D(' + rectData.transformX + 'px, ' + rectData.transformY + 'px, 0)';
+            this._ellipse.style.width = rectData.width + 'px';
+            this._ellipse.style.height = rectData.height + 'px';
+
+            // update label
+            this._label.style.transform = 'translate3D(' + labelTransform.x + 'px,' + labelTransform.y + 'px, 0)';
+        };
+
+        _class.prototype.free = function free() {
+            var _this2 = this;
+
+            this.removeEventListeners();
+
+            this._handles.forEach(function (h) {
+                _this2.remove(h);
+                h.free();
+            });
+            this._handles = [];
+
+            this._container.removeChild(this._rectangle);
+            this._container.removeChild(this._ellipse);
+            this._container.removeChild(this._label);
+
+            // mesh, geometry, material
+            if (this._mesh) {
+                this.remove(this._mesh);
+                this._mesh.geometry.dispose();
+                this._mesh.geometry = null;
+                this._mesh.material.dispose();
+                this._mesh.material = null;
+                this._mesh = null;
+            }
+            if (this._geometry) {
+                this._geometry.dispose();
+                this._geometry = null;
+            }
+            this._material.vertexShader = null;
+            this._material.fragmentShader = null;
+            this._material.uniforms = null;
+            this._material.dispose();
+            this._material = null;
+
+            _Constructor.prototype.free.call(this);
+        };
+
+        _createClass(_class, [{
+            key: 'targetMesh',
+            get: function get() {
+                return this._targetMesh;
+            },
+            set: function set(targetMesh) {
+                this._targetMesh = targetMesh;
+                this._handles.forEach(function (elem) {
+                    elem.targetMesh = targetMesh;
+                });
+                this.update();
+            }
+        }, {
+            key: 'worldPosition',
+            get: function get() {
+                return this._worldPosition;
+            },
+            set: function set(worldPosition) {
+                this._handles[0].worldPosition.copy(worldPosition);
+                this._handles[1].worldPosition.copy(worldPosition);
+                this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }]);
+
+        return _class;
+    }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["a"] = (widgetsEllipse());
+
+/***/ }),
+/* 180 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export widgetsFreehand */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_core_utils__ = __webpack_require__(0);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+/**
+ * @module widgets/freehand
+ */
+var widgetsFreehand = function widgetsFreehand() {
+    var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+    if (three === undefined || three.Object3D === undefined) {
+        return null;
+    }
+
+    var Constructor = Object(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* widgetsBase */])(three);
+    return function (_Constructor) {
+        _inherits(_class, _Constructor);
+
+        function _class(targetMesh, controls, stack) {
+            _classCallCheck(this, _class);
+
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
+
+            _this._stack = stack;
+
+            _this._widgetType = 'Freehand';
+            _this._initialized = false; // set to true onEnd if number of handles > 2
+            _this._moving = false;
+            _this._domHovered = false;
+
+            // mesh stuff
+            _this._material = null;
+            _this._geometry = null;
+            _this._mesh = null;
+
+            // dom stuff
+            _this._lines = [];
+            _this._label = null;
+
+            // add handles
+            _this._handles = [];
+            var WidgetsHandle = Object(__WEBPACK_IMPORTED_MODULE_1__widgets_handle__["b" /* widgetsHandle */])(three);
+
+            var handle = new WidgetsHandle(targetMesh, controls);
+            handle.worldPosition.copy(_this._worldPosition);
+            _this.add(handle);
+            _this._handles.push(handle);
+
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls);
+            _this._moveHandle.worldPosition.copy(_this._worldPosition);
+            _this.add(_this._moveHandle);
+            _this._moveHandle.hide();
+
+            _this.onMove = _this.onMove.bind(_this);
+            _this.onHover = _this.onHover.bind(_this);
+
+            _this.create();
+
+            _this.addEventListeners();
+            return _this;
+        }
+
+        _class.prototype.addEventListeners = function addEventListeners() {
+            this._container.addEventListener('wheel', this.onMove);
+
+            this._label.addEventListener('mouseenter', this.onHover);
+            this._label.addEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.removeEventListeners = function removeEventListeners() {
+            this._container.removeEventListener('wheel', this.onMove);
+
+            this._label.removeEventListener('mouseenter', this.onHover);
+            this._label.removeEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.onHover = function onHover(evt) {
+            if (evt) {
+                this.hoverDom(evt);
+            }
+
+            this.hoverMesh();
+
+            var hovered = false;
+
+            this._handles.forEach(function (elem) {
+                hovered = hovered || elem.hovered;
+            });
+
+            this._hovered = hovered || this._domHovered;
+            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+        };
+
+        _class.prototype.hoverMesh = function hoverMesh() {
+            // check raycast intersection, if we want to hover on mesh instead of just css
+        };
+
+        _class.prototype.hoverDom = function hoverDom(evt) {
+            this._domHovered = evt.type === 'mouseenter';
+        };
+
+        _class.prototype.onStart = function onStart(evt) {
+            var active = false;
+
+            this._moveHandle.onMove(evt, true);
+            this._handles.forEach(function (elem) {
+                elem.onStart(evt);
+                active = active || elem.active;
+            });
+
+            this._active = active || this._domHovered;
+
+            if (this._domHovered && this._initialized) {
+                this._moving = true;
+                this._controls.enabled = false;
+            }
+
+            this.update();
+        };
+
+        _class.prototype.onMove = function onMove(evt) {
+            var numHandles = this._handles.length,
+                hovered = false;
+
+            if (this.active) {
+                this._dragged = true;
+
+                if (!this._initialized) {
+                    this._handles[numHandles - 1].hovered = false;
+                    this._handles[numHandles - 1].active = false;
+                    this._handles[numHandles - 1].tracking = false;
+
+                    var WidgetsHandle = Object(__WEBPACK_IMPORTED_MODULE_1__widgets_handle__["b" /* widgetsHandle */])(three);
+                    var handle = new WidgetsHandle(this._targetMesh, this._controls);
+                    handle.worldPosition.copy(this._worldPosition);
+                    handle.hovered = true;
+                    handle.active = true;
+                    handle.tracking = true;
+                    this.add(handle);
+                    this._handles.push(handle);
+
+                    this.createLine();
+                } else {
+                    var prevPosition = this._moveHandle.worldPosition.clone();
+
+                    if (this._mesh) {
+                        this.remove(this._mesh);
+                    }
+                    this.updateDOMContent(true);
+
+                    this._moveHandle.onMove(evt, true);
+
+                    if (this._moving) {
+                        this._handles.forEach(function (elem, ind) {
+                            this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                        }, this);
+                    }
+                }
+            }
+
+            this._handles.forEach(function (elem) {
+                elem.onMove(evt);
+                hovered = hovered || elem.hovered;
+            });
+
+            this._hovered = hovered || this._domHovered;
+            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+
+            if (this.active && this._handles.length > 2) {
+                this.pushPopHandle();
+            }
+
+            this.update();
+        };
+
+        _class.prototype.onEnd = function onEnd() {
+            var numHandles = this._handles.length;
+
+            if (numHandles < 3) {
+                return;
+            }
+
+            var active = false;
+
+            this._handles.slice(0, numHandles - 1).forEach(function (elem) {
+                elem.onEnd();
+                active = active || elem.active;
+            });
+
+            // Last Handle
+            if (this._dragged || !this._handles[numHandles - 1].tracking) {
+                this._handles[numHandles - 1].tracking = false;
+                this._handles[numHandles - 1].onEnd();
+            } else {
+                this._handles[numHandles - 1].tracking = false;
+            }
+
+            if (this._lines.length < numHandles) {
+                this.createLine();
+            }
+
+            if (!this._dragged && this._active) {
+                this._selected = !this._selected; // change state if there was no dragging
+                this._handles.forEach(function (elem) {
+                    elem.selected = this._selected;
+                }, this);
+            }
+            this._active = active || this._handles[numHandles - 1].active;
+            this._dragged = false;
+            this._moving = false;
+            this._initialized = true;
+
+            this.updateMesh();
+            this.updateDOMContent();
+            this.update();
+        };
+
+        _class.prototype.create = function create() {
+            this.createMaterial();
+            this.createDOM();
+        };
+
+        _class.prototype.createMaterial = function createMaterial() {
+            this._material = new three.MeshBasicMaterial({ side: three.DoubleSide });
+            this._material.transparent = true;
+            this._material.opacity = 0.2;
+        };
+
+        _class.prototype.createDOM = function createDOM() {
+            this._label = document.createElement('div');
+            this._label.setAttribute('class', 'widgets-label');
+
+            // measurenents
+            var measurementsContainer = document.createElement('div');
+            // Mean / SD
+            var meanSDContainer = document.createElement('div');
+            meanSDContainer.setAttribute('class', 'mean-sd');
+            measurementsContainer.appendChild(meanSDContainer);
+            // Max / Min
+            var maxMinContainer = document.createElement('div');
+            maxMinContainer.setAttribute('class', 'max-min');
+            measurementsContainer.appendChild(maxMinContainer);
+            // Area
+            var areaContainer = document.createElement('div');
+            areaContainer.setAttribute('class', 'area');
+            measurementsContainer.appendChild(areaContainer);
+
+            this._label.appendChild(measurementsContainer);
+
+            this._container.appendChild(this._label);
+
+            this.updateDOMColor();
+        };
+
+        _class.prototype.createLine = function createLine() {
+            var line = document.createElement('div');
+
+            line.setAttribute('class', 'widgets-line');
+            line.addEventListener('mouseenter', this.onHover);
+            line.addEventListener('mouseleave', this.onHover);
+            this._lines.push(line);
+            this._container.appendChild(line);
+        };
+
+        _class.prototype.hideDOM = function hideDOM() {
+            this._handles.forEach(function (elem) {
+                elem.hideDOM();
+            });
+
+            this._lines.forEach(function (elem) {
+                elem.style.display = 'none';
+            });
+            this._label.style.display = 'none';
+        };
+
+        _class.prototype.showDOM = function showDOM() {
+            this._handles.forEach(function (elem) {
+                elem.showDOM();
+            });
+
+            this._lines.forEach(function (elem) {
+                elem.style.display = '';
+            });
+            this._label.style.display = '';
+        };
+
+        _class.prototype.update = function update() {
+            this.updateColor();
+
+            // update handles
+            this._handles.forEach(function (elem) {
+                elem.update();
+            });
+
+            // mesh stuff
+            this.updateMeshColor();
+            this.updateMeshPosition();
+
+            // DOM stuff
+            this.updateDOMColor();
+            this.updateDOMPosition();
+        };
+
+        _class.prototype.updateMesh = function updateMesh() {
+            // geometry
+            if (this._mesh) {
+                this.remove(this._mesh);
+            }
+
+            var points = [];
+            this._handles.forEach(function (elem) {
+                points.push(elem.worldPosition);
+            });
+
+            var center = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].centerOfMass(points);
+            var direction = new three.Vector3().crossVectors(new three.Vector3().subVectors(points[0], center), // side 1
+            new three.Vector3().subVectors(points[1], center) // side 2
+            );
+
+            // direction from first point to center
+            var referenceDirection = new three.Vector3().subVectors(points[0], center).normalize();
+            var base = new three.Vector3().crossVectors(referenceDirection, direction).normalize();
+            var orderedpoints = [];
+
+            // other lines // if inter, return location + angle
+            for (var j = 0; j < points.length; j++) {
+                var point = new three.Vector3(points[j].x, points[j].y, points[j].z);
+                point.direction = new three.Vector3().subVectors(points[j], center).normalize();
+
+                var x = referenceDirection.dot(point.direction);
+                var y = base.dot(point.direction);
+                point.xy = { x: x, y: y };
+                point.angle = Math.atan2(y, x) * (180 / Math.PI);
+
+                orderedpoints.push(point);
+            }
+
+            // override to catch console.warn "THREE.ShapeUtils: Unable to triangulate polygon! in triangulate()"
+            this._shapeWarn = false;
+            var oldWarn = console.warn;
+            console.warn = function () {
+                for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {
+                    rest[_key] = arguments[_key];
+                }
+
+                if (rest[0] === 'three.ShapeUtils: Unable to triangulate polygon! in triangulate()') {
+                    this._shapeWarn = true;
+                }
+                return oldWarn.apply(console, rest);
+            }.bind(this);
+
+            // create the shape
+            var shape = new three.Shape();
+            // move to first point!
+            shape.moveTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
+
+            // loop through all points!
+            for (var l = 1; l < orderedpoints.length; l++) {
+                // project each on plane!
+                shape.lineTo(orderedpoints[l].xy.x, orderedpoints[l].xy.y);
+            }
+
+            // close the shape!
+            shape.lineTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
+
+            this._geometry = new three.ShapeGeometry(shape);
+
+            console.warn = oldWarn;
+
+            this._geometry.vertices = orderedpoints;
+            this._geometry.verticesNeedUpdate = true;
+            this._geometry.elementsNeedUpdate = true;
+
+            this.updateMeshColor();
+
+            this._mesh = new three.Mesh(this._geometry, this._material);
+            this._mesh.visible = true;
+            this.add(this._mesh);
+        };
+
+        _class.prototype.updateMeshColor = function updateMeshColor() {
+            if (this._material) {
+                this._material.color.set(this._color);
+            }
+        };
+
+        _class.prototype.updateMeshPosition = function updateMeshPosition() {
+            if (this._geometry) {
+                this._geometry.verticesNeedUpdate = true;
+            }
+        };
+
+        _class.prototype.isPointOnLine = function isPointOnLine(pointA, pointB, pointToCheck) {
+            var c = new three.Vector3();
+            c.crossVectors(pointA.clone().sub(pointToCheck), pointB.clone().sub(pointToCheck));
+            return !c.length();
+        };
+
+        _class.prototype.pushPopHandle = function pushPopHandle() {
+            var handle0 = this._handles[this._handles.length - 3],
+                handle1 = this._handles[this._handles.length - 2],
+                newhandle = this._handles[this._handles.length - 1];
+
+            var isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
+
+            if (isOnLine || handle0.screenPosition.distanceTo(newhandle.screenPosition) < 25) {
+                this.remove(handle1);
+                handle1.free();
+
+                this._handles[this._handles.length - 2] = newhandle;
+                this._handles.pop();
+
+                var tempLine = this._lines.pop();
+                tempLine.style.display = 'none';
+                this._container.removeChild(tempLine);
+            }
+
+            return isOnLine;
+        };
+
+        _class.prototype.updateDOMColor = function updateDOMColor() {
+            if (this._handles.length >= 2) {
+                this._lines.forEach(function (elem) {
+                    elem.style.backgroundColor = this._color;
+                }, this);
+            }
+            this._label.style.borderColor = this._color;
+        };
+
+        _class.prototype.updateDOMContent = function updateDOMContent(clear) {
+            var meanSDContainer = this._label.querySelector('.mean-sd'),
+                maxMinContainer = this._label.querySelector('.max-min'),
+                areaContainer = this._label.querySelector('.area');
+
+            if (clear) {
+                meanSDContainer.innerHTML = '';
+                maxMinContainer.innerHTML = '';
+                areaContainer.innerHTML = '';
+
+                return;
+            }
+
+            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
+                title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+
+            if (this._shapeWarn) {
+                title += 'Values may be incorrect due to triangulation error.';
+            }
+            if (title !== '') {
+                this._label.setAttribute('title', title);
+                this._label.style.color = this._colors.error;
+            } else {
+                this._label.removeAttribute('title');
+                this._label.style.color = this._colors.text;
+            }
+
+            var roi = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].getRoI(this._mesh, this._camera, this._stack);
+
+            if (roi !== null) {
+                meanSDContainer.innerHTML = 'Mean: ' + roi.mean.toFixed(1) + ' / SD: ' + roi.sd.toFixed(1);
+                maxMinContainer.innerHTML = 'Max: ' + roi.max.toFixed() + ' / Min: ' + roi.min.toFixed();
+            } else {
+                meanSDContainer.innerHTML = '';
+                maxMinContainer.innerHTML = '';
+            }
+            areaContainer.innerHTML = 'Area: ' + (GeometriesSlice.getGeometryArea(this._geometry) / 100).toFixed(2) + ' ' + units;
+        };
+
+        _class.prototype.updateDOMPosition = function updateDOMPosition() {
+            if (this._handles.length < 2) {
+                return;
+            }
+            // update lines and get coordinates of lowest handle
+            var labelPosition = null;
+
+            this._lines.forEach(function (elem, ind) {
+                var lineData = this.getLineData(this._handles[ind].screenPosition, this._handles[ind + 1 === this._handles.length ? 0 : ind + 1].screenPosition);
+
+                elem.style.transform = 'translate3D(' + lineData.transformX + 'px, ' + lineData.transformY + 'px, 0)\n                rotate(' + lineData.transformAngle + 'rad)';
+                elem.style.width = lineData.length + 'px';
+
+                if (labelPosition === null || labelPosition.y < this._handles[ind].screenPosition.y) {
+                    labelPosition = this._handles[ind].screenPosition.clone();
+                }
+            }, this);
+
+            if (!this._initialized) {
+                return;
+            }
+
+            // update label
+            labelPosition.y += 15 + this._label.offsetHeight / 2;
+            labelPosition = this.adjustLabelTransform(this._label, labelPosition);
+
+            this._label.style.transform = 'translate3D(' + labelPosition.x + 'px, ' + labelPosition.y + 'px, 0)';
+        };
+
+        _class.prototype.free = function free() {
+            var _this2 = this;
+
+            this.removeEventListeners();
+
+            this._handles.forEach(function (h) {
+                _this2.remove(h);
+                h.free();
+            });
+            this._handles = [];
+
+            this.remove(this._moveHandle);
+            this._moveHandle.free();
+            this._moveHandle = null;
+
+            this._lines.forEach(function (elem) {
+                elem.removeEventListener('mouseenter', this.onHover);
+                elem.removeEventListener('mouseleave', this.onHover);
+                this._container.removeChild(elem);
+            }, this);
+            this._lines = [];
+            this._container.removeChild(this._label);
+
+            // mesh, geometry, material
+            if (this._mesh) {
+                this.remove(this._mesh);
+                this._mesh.geometry.dispose();
+                this._mesh.geometry = null;
+                this._mesh.material.dispose();
+                this._mesh.material = null;
+                this._mesh = null;
+            }
+            if (this._geometry) {
+                this._geometry.dispose();
+                this._geometry = null;
+            }
+            this._material.vertexShader = null;
+            this._material.fragmentShader = null;
+            this._material.uniforms = null;
+            this._material.dispose();
+            this._material = null;
+
+            _Constructor.prototype.free.call(this);
+        };
+
+        _createClass(_class, [{
+            key: 'targetMesh',
+            get: function get() {
+                return this._targetMesh;
+            },
+            set: function set(targetMesh) {
+                this._targetMesh = targetMesh;
+                this._handles.forEach(function (elem) {
+                    elem.targetMesh = targetMesh;
+                });
+                this._moveHandle.targetMesh = targetMesh;
+                this.update();
+            }
+        }, {
+            key: 'worldPosition',
+            get: function get() {
+                return this._worldPosition;
+            },
+            set: function set(worldPosition) {
+                this._handles.forEach(function (elem) {
+                    elem._worldPosition.copy(worldPosition);
+                }, this);
+                this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }]);
+
+        return _class;
+    }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["a"] = (widgetsFreehand());
+
+/***/ }),
+/* 181 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export widgetsPolygon */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_core_utils__ = __webpack_require__(0);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+/**
+ * @module widgets/polygon
+ */
+var widgetsPolygon = function widgetsPolygon() {
+    var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+    if (three === undefined || three.Object3D === undefined) {
+        return null;
+    }
+
+    var Constructor = Object(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* widgetsBase */])(three);
+    return function (_Constructor) {
+        _inherits(_class, _Constructor);
+
+        function _class(targetMesh, controls, stack) {
+            _classCallCheck(this, _class);
+
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
+
+            _this._stack = stack;
+
+            _this._widgetType = 'Polygon';
+            _this._initialized = false; // set to true onDblClick if number of handles > 2
+            _this._newHandleRequired = true; // should handle be created onMove?
+            _this._moving = false;
+            _this._domHovered = false;
+
+            // mesh stuff
+            _this._material = null;
+            _this._geometry = null;
+            _this._mesh = null;
+
+            // dom stuff
+            _this._lines = [];
+            _this._label = null;
+
+            // add handles
+            _this._handles = [];
+            var WidgetsHandle = Object(__WEBPACK_IMPORTED_MODULE_1__widgets_handle__["b" /* widgetsHandle */])(three);
+
+            var handle = new WidgetsHandle(targetMesh, controls);
+            handle.worldPosition.copy(_this._worldPosition);
+            _this.add(handle);
+            _this._handles.push(handle);
+
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls);
+            _this._moveHandle.worldPosition.copy(_this._worldPosition);
+            _this.add(_this._moveHandle);
+            _this._moveHandle.hide();
+
+            _this.onDoubleClick = _this.onDoubleClick.bind(_this);
+            _this.onMove = _this.onMove.bind(_this);
+            _this.onHover = _this.onHover.bind(_this);
+
+            _this.create();
+
+            _this.addEventListeners();
+            return _this;
+        }
+
+        _class.prototype.addEventListeners = function addEventListeners() {
+            this._container.addEventListener('dblclick', this.onDoubleClick);
+            this._container.addEventListener('wheel', this.onMove);
+
+            this._label.addEventListener('mouseenter', this.onHover);
+            this._label.addEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.removeEventListeners = function removeEventListeners() {
+            this._container.removeEventListener('dblclick', this.onDoubleClick);
+            this._container.removeEventListener('wheel', this.onMove);
+
+            this._label.removeEventListener('mouseenter', this.onHover);
+            this._label.removeEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.onHover = function onHover(evt) {
+            if (evt) {
+                this.hoverDom(evt);
+            }
+
+            this.hoverMesh();
+
+            var hovered = false;
+
+            this._handles.forEach(function (elem) {
+                hovered = hovered || elem.hovered;
+            });
+
+            this._hovered = hovered || this._domHovered;
+            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+        };
+
+        _class.prototype.hoverMesh = function hoverMesh() {
+            // check raycast intersection, if we want to hover on mesh instead of just css
+        };
+
+        _class.prototype.hoverDom = function hoverDom(evt) {
+            this._domHovered = evt.type === 'mouseenter';
+        };
+
+        _class.prototype.onStart = function onStart(evt) {
+            var active = false;
+
+            this._handles.forEach(function (elem) {
+                elem.onStart(evt);
+                active = active || elem.active;
+            });
+
+            if (!this._initialized) {
+                return;
+            }
+
+            this._moveHandle.onMove(evt, true);
+            this._active = active || this._domHovered;
+
+            if (this._domHovered && this._initialized) {
+                this._moving = true;
+                this._controls.enabled = false;
+            }
+
+            this.update();
+        };
+
+        _class.prototype.onMove = function onMove(evt) {
+            var numHandles = this._handles.length,
+                hovered = false;
+
+            if (this.active) {
+                this._dragged = true;
+
+                if (this._newHandleRequired && !this._initialized) {
+                    this._handles[numHandles - 1].hovered = false;
+                    this._handles[numHandles - 1].active = false;
+                    this._handles[numHandles - 1].tracking = false;
+                    var WidgetsHandle = Object(__WEBPACK_IMPORTED_MODULE_1__widgets_handle__["b" /* widgetsHandle */])(three);
+
+                    var handle = new WidgetsHandle(this._targetMesh, this._controls);
+                    handle.worldPosition.copy(this._worldPosition);
+                    handle.hovered = true;
+                    handle.active = true;
+                    handle.tracking = true;
+                    this.add(handle);
+                    this._handles.push(handle);
+
+                    this.createLine();
+                    this._newHandleRequired = false;
+                } else {
+                    var prevPosition = this._moveHandle.worldPosition.clone();
+
+                    if (this._mesh) {
+                        this.remove(this._mesh);
+                    }
+                    this.updateDOMContent(true);
+
+                    this._moveHandle.onMove(evt, true);
+
+                    if (this._moving) {
+                        this._handles.forEach(function (elem, ind) {
+                            this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                        }, this);
+                    }
+                }
+            }
+
+            this._handles.forEach(function (elem) {
+                elem.onMove(evt);
+                hovered = hovered || elem.hovered;
+            });
+
+            this._hovered = hovered || this._domHovered;
+            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+
+            this.update();
+        };
+
+        _class.prototype.onEnd = function onEnd() {
+            var numHandles = this._handles.length,
+                active = false;
+
+            if (!this._initialized && numHandles > 1 && this._handles[numHandles - 2].screenPosition.distanceTo(this._handles[numHandles - 1].screenPosition) < 10) {
+                return;
+            }
+
+            this._handles.forEach(function (elem) {
+                elem.onEnd();
+                active = active || elem.active;
+            });
+
+            if (!this._initialized) {
+                this._newHandleRequired = true;
+
+                return;
+            }
+
+            if (!this._dragged && this._active) {
+                this._selected = !this._selected; // change state if there was no dragging
+                this._handles.forEach(function (elem) {
+                    elem.selected = this._selected;
+                }, this);
+            }
+            this._active = active || this._handles[numHandles - 1].active;
+            this._dragged = false;
+            this._moving = false;
+
+            this.updateMesh();
+            this.updateDOMContent();
+            this.update();
+        };
+
+        _class.prototype.onDoubleClick = function onDoubleClick() {
+            var numHandles = this._handles.length;
+
+            if (numHandles < 3 || this._initialized || numHandles > 1 && this._handles[numHandles - 2].screenPosition.distanceTo(this._handles[numHandles - 1].screenPosition) < 10) {
+                return;
+            }
+
+            this._handles[numHandles - 1].tracking = false;
+            this._handles.forEach(function (elem) {
+                elem.onEnd();
+            });
+
+            this._active = false;
+            this._dragged = false;
+            this._moving = false;
+            this._initialized = true;
+
+            this.updateMesh();
+            this.updateDOMContent();
+            this.update();
+        };
+
+        _class.prototype.create = function create() {
+            this.createMaterial();
+            this.createDOM();
+        };
+
+        _class.prototype.createMaterial = function createMaterial() {
+            this._material = new three.MeshBasicMaterial({ side: THREE.DoubleSide });
+            this._material.transparent = true;
+            this._material.opacity = 0.2;
+        };
+
+        _class.prototype.createDOM = function createDOM() {
+            this.createLine();
+
+            this._label = document.createElement('div');
+            this._label.setAttribute('class', 'widgets-label');
+
+            // measurenents
+            var measurementsContainer = document.createElement('div');
+            // Mean / SD
+            var meanSDContainer = document.createElement('div');
+            meanSDContainer.setAttribute('class', 'mean-sd');
+            measurementsContainer.appendChild(meanSDContainer);
+            // Max / Min
+            var maxMinContainer = document.createElement('div');
+            maxMinContainer.setAttribute('class', 'max-min');
+            measurementsContainer.appendChild(maxMinContainer);
+            // Area
+            var areaContainer = document.createElement('div');
+            areaContainer.setAttribute('class', 'area');
+            measurementsContainer.appendChild(areaContainer);
+
+            this._label.appendChild(measurementsContainer);
+
+            this._container.appendChild(this._label);
+
+            this.updateDOMColor();
+        };
+
+        _class.prototype.createLine = function createLine() {
+            var line = document.createElement('div');
+
+            line.setAttribute('class', 'widgets-line');
+            line.addEventListener('mouseenter', this.onHover);
+            line.addEventListener('mouseleave', this.onHover);
+            this._lines.push(line);
+            this._container.appendChild(line);
+        };
+
+        _class.prototype.hideDOM = function hideDOM() {
+            this._handles.forEach(function (elem) {
+                elem.hideDOM();
+            });
+
+            this._lines.forEach(function (elem) {
+                elem.style.display = 'none';
+            });
+            this._label.style.display = 'none';
+        };
+
+        _class.prototype.showDOM = function showDOM() {
+            this._handles.forEach(function (elem) {
+                elem.showDOM();
+            });
+
+            this._lines.forEach(function (elem) {
+                elem.style.display = '';
+            });
+            this._label.style.display = '';
+        };
+
+        _class.prototype.update = function update() {
+            this.updateColor();
+
+            // update handles
+            this._handles.forEach(function (elem) {
+                elem.update();
+            });
+
+            // mesh stuff
+            this.updateMeshColor();
+            this.updateMeshPosition();
+
+            // DOM stuff
+            this.updateDOMColor();
+            this.updateDOMPosition();
+        };
+
+        _class.prototype.updateMesh = function updateMesh() {
+            // geometry
+            if (this._mesh) {
+                this.remove(this._mesh);
+            }
+
+            var points = [];
+            this._handles.forEach(function (elem) {
+                points.push(elem.worldPosition);
+            });
+
+            var center = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].centerOfMass(points);
+            // direction from first point to center
+            var referenceDirection = new three.Vector3().subVectors(points[0], center).normalize();
+            var direction = new three.Vector3().crossVectors(new three.Vector3().subVectors(points[0], center), // side 1
+            new three.Vector3().subVectors(points[1], center) // side 2
+            );
+            var base = new three.Vector3().crossVectors(referenceDirection, direction).normalize();
+            var orderedpoints = [];
+
+            // other lines // if inter, return location + angle
+            for (var j = 0; j < points.length; j++) {
+                var point = new three.Vector3(points[j].x, points[j].y, points[j].z);
+
+                point.direction = new three.Vector3().subVectors(points[j], center).normalize();
+
+                var x = referenceDirection.dot(point.direction);
+                var y = base.dot(point.direction);
+
+                point.xy = { x: x, y: y };
+                point.angle = Math.atan2(y, x) * (180 / Math.PI);
+
+                orderedpoints.push(point);
+            }
+
+            // override to catch console.warn "THREE.ShapeUtils: Unable to triangulate polygon! in triangulate()"
+            this._shapeWarn = false;
+            var oldWarn = console.warn;
+            console.warn = function () {
+                for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {
+                    rest[_key] = arguments[_key];
+                }
+
+                if (rest[0] === 'THREE.ShapeUtils: Unable to triangulate polygon! in triangulate()') {
+                    this._shapeWarn = true;
+                }
+                return oldWarn.apply(console, rest);
+            }.bind(this);
+
+            // create the shape
+            var shape = new three.Shape();
+            // move to first point!
+            shape.moveTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
+
+            // loop through all points!
+            for (var l = 1; l < orderedpoints.length; l++) {
+                // project each on plane!
+                shape.lineTo(orderedpoints[l].xy.x, orderedpoints[l].xy.y);
+            }
+
+            // close the shape!
+            shape.lineTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
+
+            this._geometry = new three.ShapeGeometry(shape);
+
+            console.warn = oldWarn;
+
+            this._geometry.vertices = orderedpoints;
+            this._geometry.verticesNeedUpdate = true;
+            this._geometry.elementsNeedUpdate = true;
+
+            this.updateMeshColor();
+
+            this._mesh = new three.Mesh(this._geometry, this._material);
+            this._mesh.visible = true;
+            this.add(this._mesh);
+        };
+
+        _class.prototype.updateMeshColor = function updateMeshColor() {
+            if (this._material) {
+                this._material.color.set(this._color);
+            }
+        };
+
+        _class.prototype.updateMeshPosition = function updateMeshPosition() {
+            if (this._geometry) {
+                this._geometry.verticesNeedUpdate = true;
+            }
+        };
+
+        _class.prototype.updateDOMColor = function updateDOMColor() {
+            this._lines.forEach(function (elem) {
+                elem.style.backgroundColor = this._color;
+            }, this);
+            this._label.style.borderColor = this._color;
+        };
+
+        _class.prototype.updateDOMContent = function updateDOMContent(clear) {
+            var meanSDContainer = this._label.querySelector('.mean-sd'),
+                maxMinContainer = this._label.querySelector('.max-min'),
+                areaContainer = this._label.querySelector('.area');
+
+            if (clear) {
+                meanSDContainer.innerHTML = '';
+                maxMinContainer.innerHTML = '';
+                areaContainer.innerHTML = '';
+
+                return;
+            }
+
+            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
+                title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+
+            if (this._shapeWarn) {
+                title += 'Values may be incorrect due to triangulation error.';
+            }
+            if (title !== '') {
+                this._label.setAttribute('title', title);
+                this._label.style.color = this._colors.error;
+            } else {
+                this._label.removeAttribute('title');
+                this._label.style.color = this._colors.text;
+            }
+
+            var roi = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].getRoI(this._mesh, this._camera, this._stack);
+
+            if (roi !== null) {
+                meanSDContainer.innerHTML = 'Mean: ' + roi.mean.toFixed(1) + ' / SD: ' + roi.sd.toFixed(1);
+                maxMinContainer.innerHTML = 'Max: ' + roi.max.toFixed() + ' / Min: ' + roi.min.toFixed();
+            } else {
+                meanSDContainer.innerHTML = '';
+                maxMinContainer.innerHTML = '';
+            }
+            areaContainer.innerHTML = 'Area: ' + (__WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].getGeometryArea(this._geometry) / 100).toFixed(2) + ' ' + units;
+        };
+
+        _class.prototype.updateDOMPosition = function updateDOMPosition() {
+            // update lines and get coordinates of lowest handle
+            var labelPosition = null;
+
+            this._lines.forEach(function (elem, ind) {
+                var lineData = this.getLineData(this._handles[ind].screenPosition, this._handles[ind + 1 === this._handles.length ? 0 : ind + 1].screenPosition);
+
+                elem.style.transform = 'translate3D(' + lineData.transformX + 'px, ' + lineData.transformY + 'px, 0)\n                    rotate(' + lineData.transformAngle + 'rad)';
+                elem.style.width = lineData.length + 'px';
+
+                if (labelPosition === null || labelPosition.y < this._handles[ind].screenPosition.y) {
+                    labelPosition = this._handles[ind].screenPosition.clone();
+                }
+            }, this);
+
+            if (!this._initialized) {
+                return;
+            }
+
+            // update label
+            labelPosition.y += 15 + this._label.offsetHeight / 2;
+            labelPosition = this.adjustLabelTransform(this._label, labelPosition);
+
+            this._label.style.transform = 'translate3D(' + labelPosition.x + 'px, ' + labelPosition.y + 'px, 0)';
+        };
+
+        _class.prototype.free = function free() {
+            var _this2 = this;
+
+            this.removeEventListeners();
+
+            this._handles.forEach(function (h) {
+                _this2.remove(h);
+                h.free();
+            });
+            this._handles = [];
+
+            this.remove(this._moveHandle);
+            this._moveHandle.free();
+            this._moveHandle = null;
+
+            this._lines.forEach(function (elem) {
+                elem.removeEventListener('mouseenter', this.onHover);
+                elem.removeEventListener('mouseleave', this.onHover);
+                this._container.removeChild(elem);
+            }, this);
+            this._lines = [];
+            this._container.removeChild(this._label);
+
+            // mesh, geometry, material
+            if (this._mesh) {
+                this.remove(this._mesh);
+                this._mesh.geometry.dispose();
+                this._mesh.geometry = null;
+                this._mesh.material.dispose();
+                this._mesh.material = null;
+                this._mesh = null;
+            }
+            if (this._geometry) {
+                this._geometry.dispose();
+                this._geometry = null;
+            }
+            this._material.vertexShader = null;
+            this._material.fragmentShader = null;
+            this._material.uniforms = null;
+            this._material.dispose();
+            this._material = null;
+
+            _Constructor.prototype.free.call(this);
+        };
+
+        _createClass(_class, [{
+            key: 'targetMesh',
+            get: function get() {
+                return this._targetMesh;
+            },
+            set: function set(targetMesh) {
+                this._targetMesh = targetMesh;
+                this._handles.forEach(function (elem) {
+                    elem.targetMesh = targetMesh;
+                });
+                this._moveHandle.targetMesh = targetMesh;
+                this.update();
+            }
+        }, {
+            key: 'worldPosition',
+            get: function get() {
+                return this._worldPosition;
+            },
+            set: function set(worldPosition) {
+                this._handles.forEach(function (elem) {
+                    elem._worldPosition.copy(worldPosition);
+                }, this);
+                this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }]);
+
+        return _class;
+    }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["a"] = (widgetsPolygon());
+
+/***/ }),
+/* 182 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export widgetsRectangle */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__core_core_utils__ = __webpack_require__(0);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+/**
+ * @module widgets/rectangle
+ */
+var widgetsRectangle = function widgetsRectangle() {
+    var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+    if (three === undefined || three.Object3D === undefined) {
+        return null;
+    }
+
+    var Constructor = Object(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* widgetsBase */])(three);
+    return function (_Constructor) {
+        _inherits(_class, _Constructor);
+
+        function _class(targetMesh, controls, stack) {
+            _classCallCheck(this, _class);
+
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
+
+            _this._stack = stack;
+
+            _this._widgetType = 'Rectangle';
+            _this._moving = false;
+            _this._domHovered = false;
+
+            // mesh stuff
+            _this._material = null;
+            _this._geometry = null;
+            _this._mesh = null;
+
+            // dom stuff
+            _this._rectangle = null;
+            _this._label = null;
+
+            // add handles
+            _this._handles = [];
+            var WidgetsHandle = Object(__WEBPACK_IMPORTED_MODULE_1__widgets_handle__["b" /* widgetsHandle */])(three);
+
+            var handle = void 0;
+            for (var i = 0; i < 2; i++) {
+                handle = new WidgetsHandle(targetMesh, controls);
+                handle.worldPosition.copy(_this._worldPosition);
+                _this.add(handle);
+                _this._handles.push(handle);
+            }
+            _this._handles[1].active = true;
+            _this._handles[1].tracking = true;
+
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls);
+            _this._moveHandle.worldPosition.copy(_this._worldPosition);
+            _this.add(_this._moveHandle);
+            _this._handles.push(_this._moveHandle);
+            _this._moveHandle.hide();
+
+            _this.create();
+
+            _this.onMove = _this.onMove.bind(_this);
+            _this.onHover = _this.onHover.bind(_this);
+            _this.addEventListeners();
+            return _this;
+        }
+
+        _class.prototype.addEventListeners = function addEventListeners() {
+            this._container.addEventListener('wheel', this.onMove);
+
+            this._rectangle.addEventListener('mouseenter', this.onHover);
+            this._rectangle.addEventListener('mouseleave', this.onHover);
+            this._label.addEventListener('mouseenter', this.onHover);
+            this._label.addEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.removeEventListeners = function removeEventListeners() {
+            this._container.removeEventListener('wheel', this.onMove);
+
+            this._rectangle.removeEventListener('mouseenter', this.onHover);
+            this._rectangle.removeEventListener('mouseleave', this.onHover);
+            this._label.removeEventListener('mouseenter', this.onHover);
+            this._label.removeEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.onHover = function onHover(evt) {
+            if (evt) {
+                this.hoverDom(evt);
+            }
+
+            this.hoverMesh();
+
+            this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._domHovered;
+            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+        };
+
+        _class.prototype.hoverMesh = function hoverMesh() {
+            // check raycast intersection, if we want to hover on mesh instead of just css
+        };
+
+        _class.prototype.hoverDom = function hoverDom(evt) {
+            this._domHovered = evt.type === 'mouseenter';
+        };
+
+        _class.prototype.onStart = function onStart(evt) {
+            this._moveHandle.onMove(evt, true);
+
+            this._handles[0].onStart(evt);
+            this._handles[1].onStart(evt);
+
+            this._active = this._handles[0].active || this._handles[1].active || this._domHovered;
+
+            if (this._domHovered && !this._handles[1].tracking) {
+                this._moving = true;
+                this._controls.enabled = false;
+            }
+
+            this.update();
+        };
+
+        _class.prototype.onMove = function onMove(evt) {
+            if (this._active) {
+                var prevPosition = this._moveHandle.worldPosition.clone();
+
+                this._dragged = true;
+                this._moveHandle.onMove(evt, true);
+
+                if (this._moving) {
+                    this._handles.slice(0, -1).forEach(function (elem, ind) {
+                        this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                    }, this);
+                }
+
+                this.updateRoI(true);
+            } else {
+                this.onHover(null);
+            }
+
+            this._handles[0].onMove(evt);
+            this._handles[1].onMove(evt);
+
+            this.update();
+        };
+
+        _class.prototype.onEnd = function onEnd() {
+            this._handles[0].onEnd(); // First Handle
+
+            if (this._handles[1].tracking && this._handles[0].screenPosition.distanceTo(this._handles[1].screenPosition) < 10) {
+                return;
+            }
+
+            if (!this._dragged && this._active && !this._handles[1].tracking) {
+                this._selected = !this._selected; // change state if there was no dragging
+                this._handles[0].selected = this._selected;
+            }
+
+            // Second Handle
+            if (this._dragged || !this._handles[1].tracking) {
+                this._handles[1].tracking = false;
+                this._handles[1].onEnd();
+            } else {
+                this._handles[1].tracking = false;
+            }
+            this._handles[1].selected = this._selected;
+
+            this._active = this._handles[0].active || this._handles[1].active;
+            this._dragged = false;
+            this._moving = false;
+
+            this.updateRoI();
+            this.update();
+        };
+
+        _class.prototype.hideDOM = function hideDOM() {
+            this._handles.forEach(function (elem) {
+                elem.hideDOM();
+            });
+
+            this._rectangle.style.display = 'none';
+            this._label.style.display = 'none';
+        };
+
+        _class.prototype.showDOM = function showDOM() {
+            this._handles[0].showDOM();
+            this._handles[1].showDOM();
+
+            this._rectangle.style.display = '';
+            this._label.style.display = '';
+        };
+
+        _class.prototype.create = function create() {
+            this.createMesh();
+            this.createDOM();
+        };
+
+        _class.prototype.createMesh = function createMesh() {
+            this._geometry = new three.PlaneGeometry(1, 1);
+
+            this._material = new three.MeshBasicMaterial({ side: three.DoubleSide });
+            this._material.transparent = true;
+            this._material.opacity = 0.2;
+
+            this.updateMeshColor();
+
+            this._mesh = new three.Mesh(this._geometry, this._material);
+            this._mesh.visible = true;
+
+            this.add(this._mesh);
+        };
+
+        _class.prototype.createDOM = function createDOM() {
+            this._rectangle = document.createElement('div');
+            this._rectangle.setAttribute('class', 'widgets-rectangle');
+            this._container.appendChild(this._rectangle);
+
+            this._label = document.createElement('div');
+            this._label.setAttribute('class', 'widgets-label');
+
+            // measurenents
+            var measurementsContainer = document.createElement('div');
+            // Mean / SD
+            var meanSDContainer = document.createElement('div');
+            meanSDContainer.setAttribute('class', 'mean-sd');
+            measurementsContainer.appendChild(meanSDContainer);
+            // Max / Min
+            var maxMinContainer = document.createElement('div');
+            maxMinContainer.setAttribute('class', 'max-min');
+            measurementsContainer.appendChild(maxMinContainer);
+            // Area
+            var areaContainer = document.createElement('div');
+            areaContainer.setAttribute('class', 'area');
+            measurementsContainer.appendChild(areaContainer);
+
+            this._label.appendChild(measurementsContainer);
+
+            this._container.appendChild(this._label);
+
+            this.updateDOMColor();
+        };
+
+        _class.prototype.update = function update() {
+            this.updateColor();
+
+            // update handles
+            this._handles[0].update();
+            this._handles[1].update();
+
+            // mesh stuff
+            this.updateMeshColor();
+            this.updateMeshPosition();
+
+            // DOM stuff
+            this.updateDOMColor();
+            this.updateDOMContent();
+            this.updateDOMPosition();
+        };
+
+        _class.prototype.updateMeshColor = function updateMeshColor() {
+            if (this._material) {
+                this._material.color.set(this._color);
+            }
+        };
+
+        _class.prototype.updateMeshPosition = function updateMeshPosition() {
+            if (this._geometry) {
+                var progection = new three.Vector3().subVectors(this._handles[1].worldPosition, this._handles[0].worldPosition).projectOnVector(this._camera.up);
+
+                this._geometry.vertices[0].copy(this._handles[0].worldPosition);
+                this._geometry.vertices[1].copy(new three.Vector3().addVectors(this._handles[0].worldPosition, progection));
+                this._geometry.vertices[2].copy(new three.Vector3().subVectors(this._handles[1].worldPosition, progection));
+                this._geometry.vertices[3].copy(this._handles[1].worldPosition);
+
+                this._geometry.verticesNeedUpdate = true;
+                this._geometry.computeBoundingSphere();
+            }
+        };
+
+        _class.prototype.updateDOMColor = function updateDOMColor() {
+            this._rectangle.style.borderColor = this._color;
+            this._label.style.borderColor = this._color;
+        };
+
+        _class.prototype.updateRoI = function updateRoI(clear) {
+            var meanSDContainer = this._label.querySelector('.mean-sd'),
+                maxMinContainer = this._label.querySelector('.max-min');
+
+            if (clear) {
+                meanSDContainer.innerHTML = '';
+                maxMinContainer.innerHTML = '';
+
+                return;
+            }
+
+            var roi = __WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].getRoI(this._mesh, this._camera, this._stack);
+
+            if (roi !== null) {
+                meanSDContainer.innerHTML = 'Mean: ' + roi.mean.toFixed(1) + ' / SD: ' + roi.sd.toFixed(1);
+                maxMinContainer.innerHTML = 'Max: ' + roi.max.toFixed() + ' / Min: ' + roi.min.toFixed();
+            } else {
+                meanSDContainer.innerHTML = '';
+                maxMinContainer.innerHTML = '';
+            }
+        };
+
+        _class.prototype.updateDOMContent = function updateDOMContent() {
+            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
+                title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+
+            if (title !== '') {
+                this._label.setAttribute('title', title);
+                this._label.style.color = this._colors.error;
+            } else {
+                this._label.removeAttribute('title');
+                this._label.style.color = this._colors.text;
+            }
+            this._label.querySelector('.area').innerHTML = 'Area: ' + (__WEBPACK_IMPORTED_MODULE_2__core_core_utils__["a" /* default */].getGeometryArea(this._geometry) / 100).toFixed(2) + ' ' + units;
+        };
+
+        _class.prototype.updateDOMPosition = function updateDOMPosition() {
+            var rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition),
+                labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));
+
+            // update rectangle
+            this._rectangle.style.transform = 'translate3D(' + rectData.transformX + 'px, ' + rectData.transformY + 'px, 0)';
+            this._rectangle.style.width = rectData.width + 'px';
+            this._rectangle.style.height = rectData.height + 'px';
+
+            // update label
+            this._label.style.transform = 'translate3D(' + labelTransform.x + 'px,' + labelTransform.y + 'px, 0)';
+        };
+
+        _class.prototype.free = function free() {
+            var _this2 = this;
+
+            this.removeEventListeners();
+
+            this._handles.forEach(function (h) {
+                _this2.remove(h);
+                h.free();
+            });
+            this._handles = [];
+
+            this._container.removeChild(this._rectangle);
+            this._container.removeChild(this._label);
+
+            // mesh, geometry, material
+            this.remove(this._mesh);
+            this._mesh.geometry.dispose();
+            this._mesh.geometry = null;
+            this._mesh.material.dispose();
+            this._mesh.material = null;
+            this._mesh = null;
+            this._geometry.dispose();
+            this._geometry = null;
+            this._material.vertexShader = null;
+            this._material.fragmentShader = null;
+            this._material.uniforms = null;
+            this._material.dispose();
+            this._material = null;
+
+            _Constructor.prototype.free.call(this);
+        };
+
+        _createClass(_class, [{
+            key: 'targetMesh',
+            get: function get() {
+                return this._targetMesh;
+            },
+            set: function set(targetMesh) {
+                this._targetMesh = targetMesh;
+                this._handles.forEach(function (elem) {
+                    elem.targetMesh = targetMesh;
+                });
+                this.update();
+            }
+        }, {
+            key: 'worldPosition',
+            get: function get() {
+                return this._worldPosition;
+            },
+            set: function set(worldPosition) {
+                this._handles[0].worldPosition.copy(worldPosition);
+                this._handles[1].worldPosition.copy(worldPosition);
+                this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }]);
+
+        return _class;
+    }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["a"] = (widgetsRectangle());
+
+/***/ }),
+/* 183 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export widgetsRuler */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(3);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+/**
+ * @module widgets/ruler
+ */
+var widgetsRuler = function widgetsRuler() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
+  }
+
+  var Constructor = Object(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* widgetsBase */])(three);
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
+
+    function _class(targetMesh, controls, stack) {
+      _classCallCheck(this, _class);
+
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
+
+      _this._stack = stack;
+
+      _this._widgetType = 'Ruler';
+      _this._moving = false;
+      _this._domHovered = false;
+
+      // mesh stuff
+      _this._material = null;
+      _this._geometry = null;
+      _this._mesh = null;
+
+      // dom stuff
+      _this._line = null;
+      _this._label = null;
+
+      _this._distance = null;
+
+      // add handles
+      _this._handles = [];
+      var WidgetsHandle = Object(__WEBPACK_IMPORTED_MODULE_1__widgets_handle__["b" /* widgetsHandle */])(three);
+
+      var handle = void 0;
+      for (var i = 0; i < 2; i++) {
+        handle = new WidgetsHandle(targetMesh, controls);
+        handle.worldPosition.copy(_this._worldPosition);
+        _this.add(handle);
+        _this._handles.push(handle);
+      }
+      _this._handles[1].active = true;
+      _this._handles[1].tracking = true;
+
+      _this._moveHandle = new WidgetsHandle(targetMesh, controls);
+      _this._moveHandle.worldPosition.copy(_this._worldPosition);
+      _this.add(_this._moveHandle);
+      _this._handles.push(_this._moveHandle);
+      _this._moveHandle.hide();
+
+      _this.create();
+
+      _this.onMove = _this.onMove.bind(_this);
+      _this.onHover = _this.onHover.bind(_this);
+      _this.addEventListeners();
+      return _this;
+    }
+
+    _class.prototype.addEventListeners = function addEventListeners() {
+      this._container.addEventListener('wheel', this.onMove);
+
+      this._line.addEventListener('mouseenter', this.onHover);
+      this._line.addEventListener('mouseleave', this.onHover);
+      this._label.addEventListener('mouseenter', this.onHover);
+      this._label.addEventListener('mouseleave', this.onHover);
+    };
+
+    _class.prototype.removeEventListeners = function removeEventListeners() {
+      this._container.removeEventListener('wheel', this.onMove);
+
+      this._line.removeEventListener('mouseenter', this.onHover);
+      this._line.removeEventListener('mouseleave', this.onHover);
+      this._label.removeEventListener('mouseenter', this.onHover);
+      this._label.removeEventListener('mouseleave', this.onHover);
+    };
+
+    _class.prototype.onHover = function onHover(evt) {
+      if (evt) {
+        this.hoverDom(evt);
+      }
+
+      this.hoverMesh();
+
+      this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._domHovered;
+      this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+    };
+
+    _class.prototype.hoverMesh = function hoverMesh() {
+      // check raycast intersection, do we want to hover on mesh or just css?
+    };
+
+    _class.prototype.hoverDom = function hoverDom(evt) {
+      this._domHovered = evt.type === 'mouseenter';
+    };
+
+    _class.prototype.onStart = function onStart(evt) {
+      this._moveHandle.onMove(evt, true);
+
+      this._handles[0].onStart(evt);
+      this._handles[1].onStart(evt);
+
+      this._active = this._handles[0].active || this._handles[1].active || this._domHovered;
+
+      if (this._domHovered && !this._handles[1].tracking) {
+        this._moving = true;
+        this._controls.enabled = false;
+      }
+
+      this.update();
+    };
+
+    _class.prototype.onMove = function onMove(evt) {
+      if (this._active) {
+        var prevPosition = this._moveHandle.worldPosition.clone();
+
+        this._dragged = true;
+        this._moveHandle.onMove(evt, true);
+
+        if (this._moving) {
+          this._handles.slice(0, -1).forEach(function (elem, ind) {
+            this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+          }, this);
+        }
+      } else {
+        this.onHover(null);
+      }
+
+      this._handles[0].onMove(evt);
+      this._handles[1].onMove(evt);
+
+      this.update();
+    };
+
+    _class.prototype.onEnd = function onEnd() {
+      this._handles[0].onEnd(); // First Handle
+
+      if (this._handles[1].tracking && this._handles[0].screenPosition.distanceTo(this._handles[1].screenPosition) < 10) {
+        return;
+      }
+
+      if (!this._dragged && this._active && !this._handles[1].tracking) {
+        this._selected = !this._selected; // change state if there was no dragging
+        this._handles[0].selected = this._selected;
+      }
+
+      // Second Handle
+      if (this._dragged || !this._handles[1].tracking) {
+        this._handles[1].tracking = false;
+        this._handles[1].onEnd();
+      } else {
+        this._handles[1].tracking = false;
+      }
+      this._handles[1].selected = this._selected;
+
+      this._active = this._handles[0].active || this._handles[1].active;
+      this._dragged = false;
+      this._moving = false;
+      this.update();
+    };
+
+    _class.prototype.create = function create() {
+      this.createMesh();
+      this.createDOM();
+    };
+
+    _class.prototype.createMesh = function createMesh() {
+      // geometry
+      this._geometry = new three.Geometry();
+      this._geometry.vertices.push(this._handles[0].worldPosition);
+      this._geometry.vertices.push(this._handles[1].worldPosition);
+
+      // material
+      this._material = new three.LineBasicMaterial();
+
+      this.updateMeshColor();
+
+      // mesh
+      this._mesh = new three.Line(this._geometry, this._material);
+      this._mesh.visible = true;
+
+      this.add(this._mesh);
+    };
+
+    _class.prototype.createDOM = function createDOM() {
+      this._line = document.createElement('div');
+      this._line.setAttribute('class', 'widgets-line');
+      this._container.appendChild(this._line);
+
+      this._label = document.createElement('div');
+      this._label.setAttribute('class', 'widgets-label');
+      this._container.appendChild(this._label);
+
+      this.updateDOMColor();
+    };
+
+    _class.prototype.hideDOM = function hideDOM() {
+      this._line.style.display = 'none';
+      this._label.style.display = 'none';
+      this._handles.forEach(function (elem) {
+        elem.hideDOM();
+      });
+    };
+
+    _class.prototype.showDOM = function showDOM() {
+      this._line.style.display = '';
+      this._label.style.display = '';
+      this._handles[0].showDOM();
+      this._handles[1].showDOM();
+    };
+
+    _class.prototype.update = function update() {
+      this.updateColor();
+
+      // update handles
+      this._handles[0].update();
+      this._handles[1].update();
+
+      // mesh stuff
+      this.updateMeshColor();
+      this.updateMeshPosition();
+
+      // DOM stuff
+      this.updateDOMColor();
+      this.updateDOMPosition();
+    };
+
+    _class.prototype.updateMeshColor = function updateMeshColor() {
+      if (this._material) {
+        this._material.color.set(this._color);
+      }
+    };
+
+    _class.prototype.updateMeshPosition = function updateMeshPosition() {
+      if (this._geometry) {
+        this._geometry.verticesNeedUpdate = true;
+      }
+    };
+
+    _class.prototype.updateDOMPosition = function updateDOMPosition() {
+      // update line
+      var lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
+
+      this._line.style.transform = 'translate3D(' + lineData.transformX + 'px, ' + lineData.transformY + 'px, 0)\n      rotate(' + lineData.transformAngle + 'rad)';
+      this._line.style.width = lineData.length + 'px';
+
+      // update label
+      this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
+
+      var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
+          title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
+
+      if (title !== '') {
+        this._label.setAttribute('title', title);
+        this._label.style.color = this._colors.error;
+      } else {
+        this._label.removeAttribute('title');
+        this._label.style.color = this._colors.text;
+      }
+      this._label.innerHTML = this._distance.toFixed(2) + ' ' + units;
+
+      var angle = Math.abs(lineData.transformAngle);
+      if (angle > Math.PI / 2) {
+        angle = Math.PI - angle;
+      }
+
+      var labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth ? this._label.offsetWidth / 2 / Math.cos(angle) + 15 // 5px for each handle + padding
+      : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle) + 15,
+          paddingVector = lineData.line.normalize().multiplyScalar(labelPadding),
+          paddingPoint = lineData.length > labelPadding * 2 ? this._handles[1].screenPosition.clone().sub(paddingVector) : this._handles[1].screenPosition.clone().add(paddingVector),
+          transform = this.adjustLabelTransform(this._label, paddingPoint);
+
+      this._label.style.transform = 'translate3D(' + transform.x + 'px, ' + transform.y + 'px, 0)';
+    };
+
+    _class.prototype.updateDOMColor = function updateDOMColor() {
+      this._line.style.backgroundColor = this._color;
+      this._label.style.borderColor = this._color;
+    };
+
+    _class.prototype.free = function free() {
+      var _this2 = this;
+
+      this.removeEventListeners();
+
+      this._handles.forEach(function (h) {
+        _this2.remove(h);
+        h.free();
+      });
+      this._handles = [];
+
+      this._container.removeChild(this._line);
+      this._container.removeChild(this._label);
+
+      // mesh, geometry, material
+      this.remove(this._mesh);
+      this._mesh.geometry.dispose();
+      this._mesh.geometry = null;
+      this._mesh.material.dispose();
+      this._mesh.material = null;
+      this._mesh = null;
+      this._geometry.dispose();
+      this._geometry = null;
+      this._material.vertexShader = null;
+      this._material.fragmentShader = null;
+      this._material.uniforms = null;
+      this._material.dispose();
+      this._material = null;
+
+      _Constructor.prototype.free.call(this);
+    };
+
+    _createClass(_class, [{
+      key: 'targetMesh',
+      get: function get() {
+        return this._targetMesh;
+      },
+      set: function set(targetMesh) {
+        this._targetMesh = targetMesh;
+        this._handles.forEach(function (elem) {
+          elem.targetMesh = targetMesh;
+        });
+        this.update();
+      }
+    }, {
+      key: 'worldPosition',
+      get: function get() {
+        return this._worldPosition;
+      },
+      set: function set(worldPosition) {
+        this._handles[0].worldPosition.copy(worldPosition);
+        this._handles[1].worldPosition.copy(worldPosition);
+        this._worldPosition.copy(worldPosition);
+        this.update();
+      }
+    }]);
+
+    return _class;
+  }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["a"] = (widgetsRuler());
+
+/***/ }),
+/* 184 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export widgetsVoxelprobe */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_models_voxel__ = __webpack_require__(82);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__core_core_utils__ = __webpack_require__(0);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 
 
@@ -98471,1019 +101187,308 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /**
  * @module widgets/voxelProbe
  */
+var widgetsVoxelprobe = function widgetsVoxelprobe() {
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
-var WidgetsVoxelProbe = function (_WidgetsBase) {
-  _inherits(WidgetsVoxelProbe, _WidgetsBase);
-
-  function WidgetsVoxelProbe(stack, targetMesh, controls, camera, container) {
-    _classCallCheck(this, WidgetsVoxelProbe);
-
-    var _this = _possibleConstructorReturn(this, _WidgetsBase.call(this, container));
-
-    _this._stack = stack;
-
-    _this._targetMesh = targetMesh;
-    _this._controls = controls;
-    _this._camera = camera;
-
-    // if no target mesh, use plane for FREE dragging.
-    _this._plane = {
-      position: new __WEBPACK_IMPORTED_MODULE_5_three__["f" /* Vector3 */](),
-      direction: new __WEBPACK_IMPORTED_MODULE_5_three__["f" /* Vector3 */]()
-    };
-
-    _this._offset = new __WEBPACK_IMPORTED_MODULE_5_three__["f" /* Vector3 */]();
-    _this._raycaster = new THREE.Raycaster();
-
-    _this._tracking = false;
-
-    _this._mouse = new __WEBPACK_IMPORTED_MODULE_5_three__["e" /* Vector2 */]();
-    _this._lastEvent = null;
-
-    // world (LPS) position of the center
-    _this._worldPosition = new __WEBPACK_IMPORTED_MODULE_5_three__["f" /* Vector3 */]();
-
-    // screen position of the center
-    _this._screenPosition = new __WEBPACK_IMPORTED_MODULE_5_three__["e" /* Vector2 */]();
-
-    // mesh stuff
-    _this._material = null;
-    _this._geometry = null;
-    _this._mesh = null;
-    _this._meshDisplayed = true;
-    _this._meshHovered = false;
-    _this._meshStyle = 'sphere'; // cube, etc.
-
-    // dom stuff
-    _this._dom = null;
-    _this._domDisplayed = true;
-    _this._domHovered = false;
-    _this._domStyle = 'circle'; // square, triangle
-
-    if (_this._targetMesh !== null) {
-      _this._worldPosition.copy(_this._targetMesh.position);
-    }
-
-    _this._screenPosition = _this.worldToScreen(_this._worldPosition, _this._camera, _this._container);
-
-    // create handle
-    _this.create();
-    _this.initOffsets();
-
-    // event listeners
-    _this.onMove = _this.onMove.bind(_this);
-    _this.onHover = _this.onHover.bind(_this);
-    _this.onEndControl = _this.onEndControl.bind(_this);
-    _this.addEventListeners();
-    return _this;
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
   }
 
-  WidgetsVoxelProbe.prototype.addEventListeners = function addEventListeners() {
-    this._dom.addEventListener('mouseenter', this.onHover);
-    this._dom.addEventListener('mouseleave', this.onHover);
+  var Constructor = Object(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* widgetsBase */])(three);
+  return function (_Constructor) {
+    _inherits(_class, _Constructor);
 
-    this._container.addEventListener('mousewheel', this.onMove);
-    this._container.addEventListener('DOMMouseScroll', this.onMove);
+    function _class(targetMesh, controls, stack) {
+      _classCallCheck(this, _class);
 
-    this._controls.addEventListener('end', this.onEndControl);
-  };
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
 
-  WidgetsVoxelProbe.prototype.removeEventListeners = function removeEventListeners() {
-    this._dom.removeEventListener('mouseenter', this.onHover);
-    this._dom.removeEventListener('mouseleave', this.onHover);
+      _this._stack = stack;
 
-    this._container.removeEventListener('mousewheel', this.onMove);
-    this._container.removeEventListener('DOMMouseScroll', this.onMove);
+      _this._widgetType = 'VoxelProbe';
+      _this._controls.enabled = false; // controls should be disabled for widgets with a single handle
+      _this._initialized = false; // set to true onEnd
+      _this._moving = false;
 
-    this._controls.removeEventListener('end', this.onEndControl);
-  };
+      // dom stuff
+      _this._label = null;
+      _this._domDisplayed = true;
+      _this._domHovered = false;
 
-  WidgetsVoxelProbe.prototype.onStart = function onStart(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
+      // handle (represent voxel)
+      var WidgetsHandle = Object(__WEBPACK_IMPORTED_MODULE_1__widgets_handle__["b" /* widgetsHandle */])(three);
+      _this._handle = new WidgetsHandle(targetMesh, controls);
+      _this._handle.worldPosition.copy(_this._worldPosition);
+      _this.add(_this._handle);
 
-    var offsets = this.getMouseOffsets(evt, this._container);
-    this._mouse.set(offsets.x, offsets.y);
+      _this._moveHandle = new WidgetsHandle(targetMesh, controls);
+      _this._moveHandle.worldPosition.copy(_this._worldPosition);
+      _this.add(_this._moveHandle);
+      _this._moveHandle.hide();
 
-    // update raycaster
-    this._raycaster.setFromCamera(this._mouse, this._camera);
-    this._raycaster.ray.position = this._raycaster.ray.origin;
+      _this.create();
 
-    if (this._hovered) {
-      this._active = true;
-      this._controls.enabled = false;
+      // event listeners
+      _this.onMove = _this.onMove.bind(_this);
+      _this.onHover = _this.onHover.bind(_this);
+      _this.addEventListeners();
+      return _this;
+    }
 
-      if (this._targetMesh) {
-        var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
-        if (intersectsTarget.length > 0) {
-          this._offset.copy(intersectsTarget[0].point).sub(this._worldPosition);
-        }
-      } else {
-        this._plane.position.copy(this._worldPosition);
-        this._plane.direction.copy(this._camera.getWorldDirection());
-        var intersection = __WEBPACK_IMPORTED_MODULE_4__core_core_intersections__["a" /* default */].rayPlane(this._raycaster.ray, this._plane);
-        if (intersection !== null) {
-          this._offset.copy(intersection).sub(this._plane.position);
-        }
+    _class.prototype.addEventListeners = function addEventListeners() {
+      this._label.addEventListener('mouseenter', this.onHover);
+      this._label.addEventListener('mouseleave', this.onHover);
+
+      this._container.addEventListener('wheel', this.onMove);
+    };
+
+    _class.prototype.removeEventListeners = function removeEventListeners() {
+      this._label.removeEventListener('mouseenter', this.onHover);
+      this._label.removeEventListener('mouseleave', this.onHover);
+
+      this._container.removeEventListener('wheel', this.onMove);
+    };
+
+    _class.prototype.onStart = function onStart(evt) {
+      this._moveHandle.onMove(evt, true);
+      this._handle.onStart(evt);
+
+      this._active = this._handle.active || this._domHovered;
+
+      if (this._domHovered) {
+        this._moving = true;
+        this._controls.enabled = false;
       }
 
       this.update();
-    }
-  };
-
-  WidgetsVoxelProbe.prototype.onEnd = function onEnd(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
-    // stay active and keep controls disabled
-    if (this._tracking === true) {
-      return;
-    }
-
-    // unselect if go up without moving
-    if (!this._dragged && this._active) {
-      // change state if was not dragging
-      this._selected = !this._selected;
-    }
-
-    this._active = false;
-    this._dragged = false;
-    this._controls.enabled = true;
-
-    this.update();
-  };
-
-  WidgetsVoxelProbe.prototype.onEndControl = function onEndControl() {
-    var _this2 = this;
-
-    if (!this._lastEvent) {
-      return;
-    }
-
-    window.requestAnimationFrame(function () {
-      _this2.onMove(_this2._lastEvent);
-    });
-  };
-
-  WidgetsVoxelProbe.prototype.onMove = function onMove(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
-    var offsets = this.getMouseOffsets(evt, this._container);
-    this._mouse.set(offsets.x, offsets.y);
-
-    // update raycaster
-    // set ray.position to satisfy CoreIntersections::rayPlane API
-    this._raycaster.setFromCamera(this._mouse, this._camera);
-    this._raycaster.ray.position = this._raycaster.ray.origin;
-
-    if (this._active) {
-      this._dragged = true;
-
-      if (this._targetMesh !== null) {
-        var intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
-        if (intersectsTarget.length > 0) {
-          this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
-        }
-      } else {
-        if (this._plane.direction.length() === 0) {
-          // free mode!this._targetMesh
-          this._plane.position.copy(this._worldPosition);
-          this._plane.direction.copy(this._camera.getWorldDirection());
-        }
-
-        var intersection = __WEBPACK_IMPORTED_MODULE_4__core_core_intersections__["a" /* default */].rayPlane(this._raycaster.ray, this._plane);
-        if (intersection !== null) {
-          this._worldPosition.copy(intersection.sub(this._offset));
-        }
-      }
-    } else {
-      this.onHover(null);
-    }
-
-    this.update();
-  };
-
-  WidgetsVoxelProbe.prototype.onHover = function onHover(evt) {
-    if (evt) {
-      this._lastEvent = evt;
-      evt.preventDefault();
-      this.hoverDom(evt);
-    }
-
-    this.hoverMesh();
-
-    this._hovered = this._meshHovered || this._domHovered;
-    this._container.style.cursor = this._hovered ? 'pointer' : 'default';
-  };
-
-  WidgetsVoxelProbe.prototype.hoverMesh = function hoverMesh() {
-    // check raycast intersection, do we want to hover on mesh or just css?
-    var intersectsHandle = this._raycaster.intersectObject(this._mesh);
-    this._meshHovered = intersectsHandle.length > 0;
-  };
-
-  WidgetsVoxelProbe.prototype.hoverDom = function hoverDom(evt) {
-    this._domHovered = evt.type === 'mouseenter';
-  };
-
-  WidgetsVoxelProbe.prototype.worldToScreen = function worldToScreen(worldCoordinate, camera, canvas) {
-    var screenCoordinates = worldCoordinate.clone();
-    screenCoordinates.project(camera);
-
-    screenCoordinates.x = Math.round((screenCoordinates.x + 1) * canvas.offsetWidth / 2);
-    screenCoordinates.y = Math.round((-screenCoordinates.y + 1) * canvas.offsetHeight / 2);
-    screenCoordinates.z = 0;
-
-    return screenCoordinates;
-  };
-
-  WidgetsVoxelProbe.prototype.create = function create() {
-    this.createVoxel();
-    this.createMesh();
-    this.createDOM();
-  };
-
-  WidgetsVoxelProbe.prototype.createVoxel = function createVoxel() {
-    this._voxel = new __WEBPACK_IMPORTED_MODULE_3__models_models_voxel__["a" /* default */]();
-    this._voxel.id = this.id;
-    this._voxel.worldCoordinates = this._worldCoordinates;
-  };
-
-  WidgetsVoxelProbe.prototype.createMesh = function createMesh() {
-    var dataCoordinates = __WEBPACK_IMPORTED_MODULE_2__models_models_stack__["a" /* default */].worldToData(this._stack, this._worldPosition);
-
-    this._geometry = new __WEBPACK_IMPORTED_MODULE_1__geometries_geometries_voxel__["a" /* default */](dataCoordinates);
-    this._material = new THREE.MeshBasicMaterial({
-      wireframe: true,
-      wireframeLinewidth: 1
-    });
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
-    this._mesh.applyMatrix(this._stack.ijk2LPS);
-    this._mesh.visible = true;
-
-    this.updateMeshColor();
-
-    this.add(this._mesh);
-  };
-
-  WidgetsVoxelProbe.prototype.updateMeshColor = function updateMeshColor() {
-    if (this._material) {
-      this._material.color.set(this._color);
-    }
-  };
-
-  WidgetsVoxelProbe.prototype.createDOM = function createDOM() {
-    // dom
-    this._dom = document.createElement('div');
-    this._dom.setAttribute('id', this.uuid);
-    this._dom.setAttribute('class', 'AMI Widget VoxelProbe');
-    this._dom.style.border = '2px solid #000';
-    this._dom.style.backgroundColor = 'rgb(249, 249, 249)';
-    this._dom.style.color = '#212121';
-    this._dom.style.position = 'absolute';
-    this._dom.style.transformOrigin = '0px 100% 0px';
-
-    // measurenents
-    var measurementsContainer = document.createElement('div');
-    // LPS
-    var lpsContainer = document.createElement('div');
-    lpsContainer.setAttribute('id', 'lpsPosition');
-    measurementsContainer.appendChild(lpsContainer);
-    // IJK
-    var ijkContainer = document.createElement('div');
-    ijkContainer.setAttribute('id', 'ijkPosition');
-    measurementsContainer.appendChild(ijkContainer);
-    // Value
-    var valueContainer = document.createElement('div');
-    valueContainer.setAttribute('id', 'value');
-    measurementsContainer.appendChild(valueContainer);
-
-    this.updateDOMColor();
-    this._dom.appendChild(measurementsContainer);
-
-    // add it!
-    this._container.appendChild(this._dom);
-  };
-
-  WidgetsVoxelProbe.prototype.updateDOMContent = function updateDOMContent() {
-    var rasContainer = this._dom.querySelector('#lpsPosition');
-    rasContainer.innerHTML = 'LPS: \n      ' + this._voxel.worldCoordinates.x.toFixed(2) + ' :\n      ' + this._voxel.worldCoordinates.y.toFixed(2) + ' :\n      ' + this._voxel.worldCoordinates.z.toFixed(2);
-
-    var ijkContainer = this._dom.querySelector('#ijkPosition');
-    ijkContainer.innerHTML = 'IJK: \n      ' + this._voxel.dataCoordinates.x + ' :\n      ' + this._voxel.dataCoordinates.y + ' :\n      ' + this._voxel.dataCoordinates.z;
-
-    var valueContainer = this._dom.querySelector('#value');
-    valueContainer.innerHTML = 'Value: ' + this._voxel.value;
-  };
-
-  WidgetsVoxelProbe.prototype.update = function update() {
-    // general update
-    this.updateColor();
-    this._screenPosition = this.worldToScreen(this._worldPosition, this._camera, this._container);
-
-    // set data coordinates && value
-    this.updateVoxel(this._worldPosition);
-
-    // update mesh position
-    this.updateMeshColor();
-    if (this._mesh && this._mesh.geometry) {
-      this._mesh.geometry.location = this._voxel.dataCoordinates;
-      this._mesh.updateMatrix();
-    }
-
-    // update dom
-    this.updateDOMContent();
-    this.updateDOMColor();
-    this.updateDOMPosition();
-  };
-
-  WidgetsVoxelProbe.prototype.updateVoxel = function updateVoxel(worldCoordinates) {
-    // update world coordinates
-    this._voxel.worldCoordinates = worldCoordinates;
-
-    // update data coordinates
-    this._voxel.dataCoordinates = __WEBPACK_IMPORTED_MODULE_2__models_models_stack__["a" /* default */].worldToData(this._stack, this._voxel.worldCoordinates);
-
-    // update value
-    var value = __WEBPACK_IMPORTED_MODULE_2__models_models_stack__["a" /* default */].value(this._stack, this._voxel.dataCoordinates);
-
-    this._voxel.value = __WEBPACK_IMPORTED_MODULE_2__models_models_stack__["a" /* default */].valueRescaleSlopeIntercept(value, this._stack.rescaleSlope, this._stack.rescaleIntercept);
-  };
-
-  WidgetsVoxelProbe.prototype.updateDOMPosition = function updateDOMPosition() {
-    if (this._dom) {
-      var posY = this._screenPosition.y - this._container.offsetHeight;
-      this._dom.style.transform = 'translate3D(' + this._screenPosition.x + 'px, ' + posY + 'px, 0)';
-    }
-  };
-
-  WidgetsVoxelProbe.prototype.updateDOMColor = function updateDOMColor() {
-    this._dom.style.borderColor = '' + this._color;
-  };
-
-  WidgetsVoxelProbe.prototype.free = function free() {
-    this._container.removeEventListener('mouseup', this.onMouseUpHandler, false);
-    this._container.removeEventListener('mousemove', this.onMouseMoveHandler, false);
-
-    this._container.removeEventListener('mousewheel', this.onMouseMoveHandler, false);
-    this._container.removeEventListener('DOMMouseScroll', this.onMouseMoveHandler, false);
-
-    this._voxel.removeTest();
-    this.remove(this._voxel);
-    this._voxel = null;
-
-    _WidgetsBase.prototype.free.call(this);
-  };
-
-  WidgetsVoxelProbe.prototype.hoverVoxel = function hoverVoxel(mouseScreenCoordinates, currentDataCoordinates) {
-    // update distance mouse/this._voxel
-    var dx = mouseScreenCoordinates.screenX - this._voxel.voxel.screenCoordinates.x;
-    var dy = mouseScreenCoordinates.screenY - this._voxel.voxel.screenCoordinates.y;
-    var distance = Math.sqrt(dx * dx + dy * dy);
-    this._voxel.distance = distance;
-    if (distance >= 0 && distance < 10) {
-      this._hover = true;
-    } else {
-      this._hover = false;
-    }
-  };
-
-  WidgetsVoxelProbe.prototype.hideDOM = function hideDOM() {
-    this._dom.style.display = 'none';
-  };
-
-  WidgetsVoxelProbe.prototype.showDOM = function showDOM() {
-    this._dom.style.display = '';
-  };
-
-  WidgetsVoxelProbe.prototype.hideMesh = function hideMesh() {
-    this.visible = false;
-  };
-
-  WidgetsVoxelProbe.prototype.showMesh = function showMesh() {
-    this.visible = true;
-  };
-
-  WidgetsVoxelProbe.prototype.show = function show() {
-    this.showDOM();
-    this.showMesh();
-  };
-
-  WidgetsVoxelProbe.prototype.hide = function hide() {
-    this.hideDOM();
-    this.hideMesh();
-  };
-
-  _createClass(WidgetsVoxelProbe, [{
-    key: 'worldPosition',
-    set: function set(worldPosition) {
-      this._worldPosition.copy(worldPosition);
-      this.update();
-    }
-  }, {
-    key: 'defaultColor',
-    set: function set(defaultColor) {
-      this._defaultColor = defaultColor;
-      this.update();
-    },
-    get: function get() {
-      return this._defaultColor;
-    }
-  }, {
-    key: 'activeColor',
-    set: function set(activeColor) {
-      this._activeColor = activeColor;
-      this.update();
-    },
-    get: function get() {
-      return this._activeColor;
-    }
-  }, {
-    key: 'hoverColor',
-    set: function set(hoverColor) {
-      this._hoverColor = hoverColor;
-      this.update();
-    },
-    get: function get() {
-      return this._hoverColor;
-    }
-  }, {
-    key: 'selectedColor',
-    set: function set(selectedColor) {
-      this._selectedColor = selectedColor;
-      this.update();
-    },
-    get: function get() {
-      return this._selectedColor;
-    }
-  }, {
-    key: 'showVoxel',
-    set: function set(showVoxel) {
-      this._showVoxel = showVoxel;
-      this.update();
-    },
-    get: function get() {
-      return this._showVoxel;
-    }
-  }, {
-    key: 'showDomSVG',
-    set: function set(showDomSVG) {
-      this._showDomSVG = showDomSVG;
-      this.update();
-    },
-    get: function get() {
-      return this._showDomSVG;
-    }
-  }, {
-    key: 'showDomMeasurements',
-    set: function set(showDomMeasurements) {
-      this._showDomMeasurements = showDomMeasurements;
-      this.update();
-    },
-    get: function get() {
-      return this._showDomMeasurements;
-    }
-  }]);
-
-  return WidgetsVoxelProbe;
-}(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* default */]);
-
-/* harmony default export */ __webpack_exports__["a"] = (WidgetsVoxelProbe);
-
-/***/ }),
-/* 179 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__widgets_base__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__widgets_handle__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_three__ = __webpack_require__(0);
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-
-
-
-
-
-/**
- * @module widgets/angle
- *
- */
-
-var WidgetsAngle = function (_WidgetsBase) {
-    _inherits(WidgetsAngle, _WidgetsBase);
-
-    function WidgetsAngle(targetMesh, controls, camera, container) {
-        _classCallCheck(this, WidgetsAngle);
-
-        var _this = _possibleConstructorReturn(this, _WidgetsBase.call(this));
-
-        _this._targetMesh = targetMesh;
-        _this._controls = controls;
-        _this._camera = camera;
-        _this._container = container;
-
-        _this._active = true;
-        _this._moving = false;
-
-        _this._worldPosition = new __WEBPACK_IMPORTED_MODULE_2_three__["f" /* Vector3 */]();
-        if (_this._targetMesh !== null) {
-            _this._worldPosition = _this._targetMesh.position;
-        }
-
-        // mesh stuff
-        _this._material = null;
-        _this._geometry = null;
-        _this._mesh = null;
-
-        // dom stuff
-        _this._line = null;
-        _this._distance = null;
-
-        // dom stuff
-        _this._line2 = null;
-
-        _this._angle = null;
-        _this._opangle = null;
-
-        // add handles
-        _this._handles = [];
-
-        _this._defaultAngle = true;
-        return _this;
-    }
-
-    WidgetsAngle.prototype.setPoints = function setPoints(pointsList) {
-        for (var i = 0; i < pointsList.length; i++) {
-            // first handle
-            var newHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](this._targetMesh, this._controls, this._camera, this._container);
-            newHandle.worldPosition = pointsList[i].worldPosition;
-            newHandle.hovered = true;
-            this.add(newHandle);
-
-            this._handles.push(newHandle);
-            pointsList[i].hide();
-        }
-
-        // Create ruler
-        this.create();
-
-        this.onMove = this.onMove.bind(this);
-        this.onHover = this.onHover.bind(this);
-        this.addEventListeners();
-
-        this._orientation = null;
-        this._slice = null;
-
-        // first handle
-        this.imoveHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](this._targetMesh, this._controls, this._camera, this._container);
-        this.imoveHandle.worldPosition = this._worldPosition;
-        this.imoveHandle.hovered = true;
-        this.add(this.imoveHandle);
-        this._handles.push(this.imoveHandle);
-
-        this.fmoveHandle = new __WEBPACK_IMPORTED_MODULE_1__widgets_handle__["a" /* default */](this._targetMesh, this._controls, this._camera, this._container);
-        this.fmoveHandle.worldPosition = this._worldPosition;
-        this.fmoveHandle.hovered = true;
-        this.add(this.fmoveHandle);
-        this._handles.push(this.fmoveHandle);
     };
 
-    WidgetsAngle.prototype.addEventListeners = function addEventListeners() {
-        this._container.addEventListener('mousewheel', this.onMove);
-        this._container.addEventListener('DOMMouseScroll', this.onMove);
+    _class.prototype.onMove = function onMove(evt) {
+      if (this._active) {
+        var prevPosition = this._moveHandle.worldPosition.clone();
 
-        this._line.addEventListener('mouseenter', this.onHover);
-        this._line.addEventListener('mouseleave', this.onHover);
-        this._line2.addEventListener('mouseenter', this.onHover);
-        this._line2.addEventListener('mouseleave', this.onHover);
-        this._distance.addEventListener('mouseenter', this.onHover);
-        this._distance.addEventListener('mouseleave', this.onHover);
-    };
-
-    WidgetsAngle.prototype.removeEventListeners = function removeEventListeners() {
-        this._line.removeEventListener('mouseenter', this.onHover);
-        this._line.removeEventListener('mouseleave', this.onHover);
-        this._line2.removeEventListener('mouseenter', this.onHover);
-        this._line2.removeEventListener('mouseleave', this.onHover);
-        this._distance.removeEventListener('mouseenter', this.onHover);
-        this._distance.removeEventListener('mouseleave', this.onHover);
-    };
-
-    WidgetsAngle.prototype.onHover = function onHover(evt) {
-        if (evt) {
-            this._lastEvent = evt;
-            evt.preventDefault();
-            this.hoverDom(evt);
-        }
-
-        this.hoverMesh();
-
-        this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._handles[2].hovered || this._meshHovered || this._domHovered;
-        this._container.style.cursor = this._hovered ? 'pointer' : 'default';
-    };
-
-    WidgetsAngle.prototype.hoverMesh = function hoverMesh() {
-        // check raycast intersection, do we want to hover on mesh or just css?
-    };
-
-    WidgetsAngle.prototype.hoverDom = function hoverDom(evt) {
-        this._domHovered = evt.type === 'mouseenter';
-    };
-
-    WidgetsAngle.prototype.onMove = function onMove(evt) {
         this._dragged = true;
+        this._moveHandle.onMove(evt, true);
 
-        if (this._active) {
-            this.fmoveHandle.active = true;
-            this.fmoveHandle.onMove(evt);
-            this.fmoveHandle.active = false;
-            this.fmoveHandle.hide();
-
-            if (this._moving) {
-                for (var index in this._handles.slice(0, -2)) {
-                    this._handles[index].worldPosition.x = this._handles[index].worldPosition.x + (this.fmoveHandle.worldPosition.x - this.imoveHandle.worldPosition.x);
-                    this._handles[index].worldPosition.y = this._handles[index].worldPosition.y + (this.fmoveHandle.worldPosition.y - this.imoveHandle.worldPosition.y);
-                    this._handles[index].worldPosition.z = this._handles[index].worldPosition.z + (this.fmoveHandle.worldPosition.z - this.imoveHandle.worldPosition.z);
-                }
-            }
-
-            this.imoveHandle.active = true;
-            this.imoveHandle.onMove(evt);
-            this.imoveHandle.active = false;
-            this.imoveHandle.hide();
+        if (this._moving) {
+          this._handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
         }
+      } else {
+        this.onHover(null);
+      }
 
-        this._handles[0].onMove(evt);
-        this._handles[1].onMove(evt);
-        this._handles[2].onMove(evt);
+      this._handle.onMove(evt);
 
-        this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._handles[2].hovered || this._meshHovered || this._domHovered;
+      this.update();
+    };
 
+    _class.prototype.onEnd = function onEnd() {
+      this._handle.onEnd();
+
+      if (!this._dragged && this._active && this._initialized) {
+        this._selected = !this._selected; // change state if there was no dragging
+        this._handle.selected = this._selected;
+      }
+
+      this._initialized = true;
+      this._active = this._handle.active;
+      this._dragged = false;
+      this._moving = false;
+
+      this.update();
+    };
+
+    _class.prototype.onHover = function onHover(evt) {
+      if (evt) {
+        this.hoverDom(evt);
+      }
+
+      this._hovered = this._handle.hovered || this._domHovered;
+      this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+    };
+
+    _class.prototype.hoverDom = function hoverDom(evt) {
+      this._domHovered = evt.type === 'mouseenter';
+    };
+
+    _class.prototype.create = function create() {
+      this.createVoxel();
+      this.createDOM();
+    };
+
+    _class.prototype.createVoxel = function createVoxel() {
+      this._voxel = new __WEBPACK_IMPORTED_MODULE_2__models_models_voxel__["a" /* default */]();
+      this._voxel.id = this.id;
+    };
+
+    _class.prototype.createDOM = function createDOM() {
+      this._label = document.createElement('div');
+      this._label.setAttribute('class', 'widgets-label');
+
+      // measurenents
+      var measurementsContainer = document.createElement('div');
+      // LPS
+      var lpsContainer = document.createElement('div');
+      lpsContainer.setAttribute('id', 'lpsPosition');
+      measurementsContainer.appendChild(lpsContainer);
+      // IJK
+      var ijkContainer = document.createElement('div');
+      ijkContainer.setAttribute('id', 'ijkPosition');
+      measurementsContainer.appendChild(ijkContainer);
+      // Value
+      var valueContainer = document.createElement('div');
+      valueContainer.setAttribute('id', 'value');
+      measurementsContainer.appendChild(valueContainer);
+
+      this._label.appendChild(measurementsContainer);
+
+      this._container.appendChild(this._label);
+
+      this.updateDOMColor();
+    };
+
+    _class.prototype.update = function update() {
+      this.updateColor();
+
+      this._handle.update();
+      this._worldPosition.copy(this._handle.worldPosition);
+
+      this.updateVoxel(); // set data coordinates && value
+
+      // update dom
+      this.updateDOMContent();
+      this.updateDOMColor();
+      this.updateDOMPosition();
+    };
+
+    _class.prototype.updateVoxel = function updateVoxel() {
+      this._voxel.worldCoordinates = this._worldPosition;
+      this._voxel.dataCoordinates = __WEBPACK_IMPORTED_MODULE_3__core_core_utils__["a" /* default */].worldToData(this._stack.lps2IJK, this._worldPosition);
+
+      // update value
+      var value = __WEBPACK_IMPORTED_MODULE_3__core_core_utils__["a" /* default */].getPixelData(this._stack, this._voxel.dataCoordinates);
+
+      this._voxel.value = value === null || this._stack.numberOfChannels > 1 ? 'NA' // coordinates outside the image or RGB
+      : __WEBPACK_IMPORTED_MODULE_3__core_core_utils__["a" /* default */].rescaleSlopeIntercept(value, this._stack.rescaleSlope, this._stack.rescaleIntercept).toFixed();
+    };
+
+    _class.prototype.updateDOMContent = function updateDOMContent() {
+      var rasContainer = this._label.querySelector('#lpsPosition'),
+          ijkContainer = this._label.querySelector('#ijkPosition'),
+          valueContainer = this._label.querySelector('#value');
+
+      rasContainer.innerHTML = 'LPS: \n      ' + this._voxel.worldCoordinates.x.toFixed(2) + ' :\n      ' + this._voxel.worldCoordinates.y.toFixed(2) + ' :\n      ' + this._voxel.worldCoordinates.z.toFixed(2);
+      ijkContainer.innerHTML = 'IJK: \n      ' + this._voxel.dataCoordinates.x + ' :\n      ' + this._voxel.dataCoordinates.y + ' :\n      ' + this._voxel.dataCoordinates.z;
+      valueContainer.innerHTML = 'Value: ' + this._voxel.value;
+    };
+
+    _class.prototype.updateDOMPosition = function updateDOMPosition() {
+      var transform = this.adjustLabelTransform(this._label, this._handle.screenPosition, true);
+
+      this._label.style.transform = 'translate3D(' + transform.x + 'px, ' + transform.y + 'px, 0)';
+    };
+
+    _class.prototype.updateDOMColor = function updateDOMColor() {
+      this._label.style.borderColor = this._color;
+    };
+
+    _class.prototype.free = function free() {
+      this.removeEventListeners();
+
+      this.remove(this._handle);
+      this._handle.free();
+      this._handle = null;
+      this.remove(this._moveHandle);
+      this._moveHandle.free();
+      this._moveHandle = null;
+
+      this._container.removeChild(this._label);
+
+      this._voxel = null;
+
+      _Constructor.prototype.free.call(this);
+    };
+
+    _class.prototype.hideDOM = function hideDOM() {
+      this._label.style.display = 'none';
+      this._handle.hideDOM();
+    };
+
+    _class.prototype.showDOM = function showDOM() {
+      this._label.style.display = '';
+      this._handle.showDOM();
+    };
+
+    _createClass(_class, [{
+      key: 'targetMesh',
+      get: function get() {
+        return this._targetMesh;
+      },
+      set: function set(targetMesh) {
+        this._targetMesh = targetMesh;
+        this._handle.targetMesh = targetMesh;
+        this._moveHandle.targetMesh = targetMesh;
         this.update();
-    };
-
-    WidgetsAngle.prototype.onStart = function onStart(evt) {
-        this._dragged = false;
-
-        this.imoveHandle.active = true;
-        this.imoveHandle.onMove(evt);
-        this.imoveHandle.active = false;
-        this.imoveHandle.hide();
-
-        this._handles[0].onStart(evt);
-        this._handles[1].onStart(evt);
-        this._handles[2].onStart(evt);
-
-        this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._domHovered;
-
-        if (this._domHovered) {
-            this._moving = true;
-        }
-
-        this.update();
-    };
-
-    WidgetsAngle.prototype.onEnd = function onEnd(evt) {
-        // First Handle
-        this._handles[0].onEnd(evt);
-        this._handles[2].onEnd(evt);
-
-        this._moving = false;
-
-        // Second Handle
-        if (this._dragged || !this._handles[1].tracking) {
-            this._handles[1].tracking = false;
-            this._handles[1].onEnd(evt);
-        } else {
-            this._handles[1].tracking = false;
-        }
-
-        // State of ruler widget
-        this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active;
-        this.update();
-    };
-
-    WidgetsAngle.prototype.create = function create() {
-        this.createMesh();
-        this.createDOM();
-    };
-
-    WidgetsAngle.prototype.hideDOM = function hideDOM() {
-        this._line.style.display = 'none';
-        this._distance.style.display = 'none';
-        this._line2.style.display = 'none';
-
-        for (var index in this._handles) {
-            this._handles[index].hideDOM();
-        }
-
-        this._dashline.style.display = 'none';
-    };
-
-    WidgetsAngle.prototype.showDOM = function showDOM() {
-        this._line.style.display = '';
-        this._distance.style.display = '';
-        this._line2.style.display = '';
-
-        for (var index in this._handles) {
-            this._handles[index].showDOM();
-        }
-
-        this._dashline.style.display = '';
-    };
-
-    WidgetsAngle.prototype.hideMesh = function hideMesh() {
-        this._mesh.visible = false;
-        this._mesh2.visible = false;
-        this._handles[0].visible = false;
-        this._handles[1].visible = false;
-        this._handles[2].visible = false;
-    };
-
-    WidgetsAngle.prototype.showMesh = function showMesh() {
-        this._mesh.visible = true;
-        this._mesh2.visible = true;
-        this._handles[0].visible = true;
-        this._handles[1].visible = true;
-        this._handles[2].visible = true;
-    };
-
-    WidgetsAngle.prototype.show = function show() {
-        this.showDOM();
-        this.showMesh();
-    };
-
-    WidgetsAngle.prototype.hide = function hide() {
-        this.hideDOM();
-        this.hideMesh();
-    };
-
-    WidgetsAngle.prototype.update = function update() {
-        this.updateColor();
-
-        // mesh stuff
-        this.updateMeshColor();
-        this.updateMeshPosition();
-
-        // DOM stuff
-        this.updateDOMPosition();
-        this.updateDOMColor();
-    };
-
-    WidgetsAngle.prototype.createMesh = function createMesh() {
-        // geometry
-        this._geometry = new THREE.Geometry();
-        this._geometry.vertices.push(this._handles[0].worldPosition);
-        this._geometry.vertices.push(this._handles[1].worldPosition);
-
-        // geometry
-        this._geometry2 = new THREE.Geometry();
-        this._geometry2.vertices.push(this._handles[1].worldPosition);
-        this._geometry2.vertices.push(this._handles[2].worldPosition);
-
-        // material
-        this._material = new THREE.LineBasicMaterial();
-        this._material2 = new THREE.LineBasicMaterial();
-        this.updateMeshColor();
-
-        // mesh
-        this._mesh = new THREE.Line(this._geometry, this._material);
-        this._mesh.visible = true;
-        this._mesh2 = new THREE.Line(this._geometry2, this._material2);
-        this._mesh2.visible = true;
-
-        // add it!
-        this.add(this._mesh);
-        this.add(this._mesh2);
-    };
-
-    WidgetsAngle.prototype.updateMeshColor = function updateMeshColor() {
-        if (this._material) {
-            this._material.color.set(this._color);
-        }
-        if (this._material2) {
-            this._material2.color.set(this._color);
-        }
-    };
-
-    WidgetsAngle.prototype.updateMeshPosition = function updateMeshPosition() {
-        if (this._geometry) {
-            this._geometry.verticesNeedUpdate = true;
-        }
-        if (this._geometry2) {
-            this._geometry2.verticesNeedUpdate = true;
-        }
-    };
-
-    WidgetsAngle.prototype.createDOM = function createDOM() {
-        // add line!
-        this._line = document.createElement('div');
-        this._line.setAttribute('class', 'widgets handle line');
-        this._line.style.position = 'absolute';
-        this._line.style.transformOrigin = '0 100%';
-        this._line.style.marginTop = '-1px';
-        this._line.style.height = '2px';
-        this._line.style.width = '3px';
-        this._container.appendChild(this._line);
-
-        // add distance!
-        this._distance = document.createElement('div');
-        this._distance.setAttribute('class', 'widgets handle distance');
-        this._distance.setAttribute('selectable', 'true');
-        this._distance.style.border = '2px solid';
-        this._distance.style.backgroundColor = '#F9F9F9';
-        // this._distance.style.opacity = '0.5';
-        this._distance.style.color = '#353535';
-        this._distance.style.padding = '4px';
-        this._distance.style.position = 'absolute';
-        this._distance.style.transformOrigin = '0 100%';
-        this._distance.innerHTML = 'Hello, world!';
-        this._container.appendChild(this._distance);
-
-        // add line!
-        this._line2 = document.createElement('div');
-        this._line2.setAttribute('class', 'widgets handle line');
-        this._line2.style.position = 'absolute';
-        this._line2.style.transformOrigin = '0 100%';
-        this._line2.style.marginTop = '-1px';
-        this._line2.style.height = '2px';
-        this._line2.style.width = '3px';
-        this._container.appendChild(this._line2);
-
-        // add dash line
-        this._dashline = document.createElement('div');
-        this._dashline.setAttribute('class', 'widgets handle dashline');
-        this._dashline.style.position = 'absolute';
-        this._dashline.style.border = 'none';
-        this._dashline.style.borderTop = '2.5px dashed #F9F9F9';
-        this._dashline.style.transformOrigin = '0 100%';
-        this._dashline.style.height = '1px';
-        this._dashline.style.width = '50%';
-        this._container.appendChild(this._dashline);
-
-        this.updateDOMColor();
-    };
-
-    WidgetsAngle.prototype.updateDOMPosition = function updateDOMPosition() {
-        // update rulers lines and text!
-        var x1 = this._handles[0].screenPosition.x;
-        var y1 = this._handles[0].screenPosition.y;
-        var x2 = this._handles[1].screenPosition.x;
-        var y2 = this._handles[1].screenPosition.y;
-
-        var x0 = x2;
-        var y0 = y2;
-
-        if (y1 >= y2) {
-            y0 = y2 - 30;
-        } else {
-            y0 = y2 + 30;
-        }
-
-        var length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-        var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-
-        var posY = y1 - this._container.offsetHeight;
-
-        // update line
-        var transform = 'translate3D(' + x1 + 'px,' + posY + 'px, 0)';
-        transform += ' rotate(' + angle + 'deg)';
-
-        this._line.style.transform = transform;
-        this._line.style.width = length + 'px';
-
-        // update distance
-        var w0 = this._handles[0].worldPosition;
-        var w1 = this._handles[1].worldPosition;
-        var w2 = this._handles[2].worldPosition;
-
-        var p10 = Math.sqrt((w1.x - w0.x) * (w1.x - w0.x) + (w1.y - w0.y) * (w1.y - w0.y) + (w1.z - w0.z) * (w1.z - w0.z));
-        var p12 = Math.sqrt((w1.x - w2.x) * (w1.x - w2.x) + (w1.y - w2.y) * (w1.y - w2.y) + (w1.z - w2.z) * (w1.z - w2.z));
-        var p02 = Math.sqrt((w0.x - w2.x) * (w0.x - w2.x) + (w0.y - w2.y) * (w0.y - w2.y) + (w0.z - w2.z) * (w0.z - w2.z));
-
-        var a0102 = Math.acos((p10 * p10 + p12 * p12 - p02 * p02) / (2 * p10 * p12));
-        this._opangle = this._defaultAngle ? a0102 * 180 / Math.PI : 360 - a0102 * 180 / Math.PI;
-        this._distance.innerHTML = this._opangle.toFixed(2) + '&deg;';
-
-        this._distanceValue = Math.sqrt((w0.x - w1.x) * (w0.x - w1.x) + (w0.y - w1.y) * (w0.y - w1.y) + (w0.z - w1.z) * (w0.z - w1.z)).toFixed(2);
-        var posY0 = y0 - this._container.offsetHeight - this._distance.offsetHeight / 2;
-        x0 -= this._distance.offsetWidth / 2;
-
-        var transform2 = 'translate3D(' + Math.round(x0) + 'px,' + Math.round(posY0) + 'px, 0)';
-        this._distance.style.transform = transform2;
-
-        // update rulers lines 2 and text!
-        var x3 = this._handles[1].screenPosition.x;
-        var y3 = this._handles[1].screenPosition.y;
-        var x4 = this._handles[2].screenPosition.x;
-        var y4 = this._handles[2].screenPosition.y;
-
-        var x02 = x4;
-        var y02 = y4;
-
-        if (y3 >= y4) {
-            y02 = y4 - 30;
-        } else {
-            y02 = y4 + 30;
-        }
-
-        length = Math.sqrt((x3 - x4) * (x3 - x4) + (y3 - y4) * (y3 - y4));
-        angle = Math.atan2(y4 - y3, x4 - x3) * 180 / Math.PI;
-
-        posY = y3 - this._container.offsetHeight;
-
-        // update line
-        transform = 'translate3D(' + x3 + 'px,' + posY + 'px, 0)';
-        transform += ' rotate(' + angle + 'deg)';
-
-        this._line2.style.transform = transform;
-        this._line2.style.width = length + 'px';
-
-        // update distance
-        var w02 = this._handles[1].worldPosition;
-        var w12 = this._handles[2].worldPosition;
-
-        // update dash line
-
-        var l1center = this.getPointInBetweenByPerc(this._handles[0].worldPosition, this._handles[1].worldPosition, 0.75);
-        var l2center = this.getPointInBetweenByPerc(this._handles[1].worldPosition, this._handles[2].worldPosition, 0.25);
-
-        var screen1 = this._handles[0].worldToScreen(l1center, this._camera, this._container);
-        var screen2 = this._handles[0].worldToScreen(l2center, this._camera, this._container);
-
-        x1 = screen1.x;
-        y1 = screen1.y;
-        x2 = screen2.x;
-        y2 = screen2.y;
-
-        length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-        angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-
-        posY = y1 - this._container.offsetHeight;
-
-        // update line
-        transform = 'translate3D(' + x1 + 'px,' + posY + 'px, 0)';
-        transform += ' rotate(' + angle + 'deg)';
-
-        this._dashline.style.transform = transform;
-        this._dashline.style.width = length + 'px';
-    };
-
-    WidgetsAngle.prototype.updateDOMColor = function updateDOMColor() {
-        this._line.style.backgroundColor = '' + this._color;
-        this._distance.style.borderColor = '' + this._color;
-
-        this._line2.style.backgroundColor = '' + this._color;
-    };
-
-    WidgetsAngle.prototype.getPointInBetweenByPerc = function getPointInBetweenByPerc(pointA, pointB, percentage) {
-        var dir = pointB.clone().sub(pointA);
-        var len = dir.length();
-        dir = dir.normalize().multiplyScalar(len * percentage);
-        return pointA.clone().add(dir);
-    };
-
-    WidgetsAngle.prototype.toggleDefaultAngle = function toggleDefaultAngle() {
-        this._defaultAngle = !this._defaultAngle;
-        if (this._defaultAngle) {
-            this._dashline.style.borderTop = '2.5px dashed #F9F9F9';
-        } else {
-            this._dashline.style.borderTop = '2.5px dashed #ffa7a7';
-        }
-    };
-
-    _createClass(WidgetsAngle, [{
-        key: 'worldPosition',
-        get: function get() {
-            return this._worldPosition;
-        },
-        set: function set(worldPosition) {
-            this._worldPosition = worldPosition;
-
-            this.update();
-        }
+      }
     }, {
-        key: 'angle',
-        get: function get() {
-            return this._opangle;
-        }
+      key: 'worldPosition',
+      get: function get() {
+        return this._worldPosition;
+      },
+      set: function set(worldPosition) {
+        this._handle.worldPosition.copy(worldPosition);
+        this._worldPosition.copy(worldPosition);
+        this.update();
+      }
+    }, {
+      key: 'active',
+      get: function get() {
+        return this._active;
+      },
+      set: function set(active) {
+        this._active = active;
+        this._controls.enabled = !this._active;
+
+        this.update();
+      }
+    }, {
+      key: 'showVoxel',
+      set: function set(showVoxel) {
+        this._showVoxel = showVoxel;
+        this.update();
+      },
+      get: function get() {
+        return this._showVoxel;
+      }
+    }, {
+      key: 'showDomSVG',
+      set: function set(showDomSVG) {
+        this._showDomSVG = showDomSVG;
+        this.update();
+      },
+      get: function get() {
+        return this._showDomSVG;
+      }
+    }, {
+      key: 'showDomMeasurements',
+      set: function set(showDomMeasurements) {
+        this._showDomMeasurements = showDomMeasurements;
+        this.update();
+      },
+      get: function get() {
+        return this._showDomMeasurements;
+      }
     }]);
 
-    return WidgetsAngle;
-}(__WEBPACK_IMPORTED_MODULE_0__widgets_base__["a" /* default */]);
+    return _class;
+  }(Constructor);
+};
 
-/* harmony default export */ __webpack_exports__["a"] = (WidgetsAngle);
+
+/* harmony default export */ __webpack_exports__["a"] = (widgetsVoxelprobe());
 
 /***/ }),
-/* 180 */
+/* 185 */
 /***/ (function(module, exports) {
 
 module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"93","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"dependencies":{"dicom-parser":"1.7.3","image-JPEG2000":"OHIF/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.92.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","lesson":"node ./scripts/router.js lessons","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","gen:index:lessons":"node ./scripts/genIndexFiles.js lessons","gen:index:lessons:cdn":"node ./scripts/genIndexFiles.js lessons cdn","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples && echo 'hi'","lint":"eslint src/**/*.js","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"latest","eslint-config-google":"latest","gh-pages":"latest","glslify":"5.1.0","jasmine-core":"latest","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.2","karma-chrome-launcher":"^2.2.0","karma-jasmine":"latest","karma-sinon":"^1.0.5","karma-spec-reporter":"latest","karma-webpack":"^2.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","puppeteer":"^0.13.0","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"latest","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.0.0-beta.3","webpack":"^3.7.1","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^2.9.1","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}}

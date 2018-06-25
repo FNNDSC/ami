@@ -1,14 +1,17 @@
-import WidgetsBase from './widgets.base';
-import WidgetsHandle from './widgets.handle';
-import GeometriesSlice from '../geometries/geometries.slice';
+import {widgetsBase} from './widgets.base';
+import {widgetsHandle as widgetsHandleFactory} from './widgets.handle';
 import CoreUtils from '../core/core.utils';
-
-import {Vector3} from 'three';
 
 /**
  * @module widgets/rectangle
  */
-export default class WidgetsRectangle extends WidgetsBase {
+const widgetsRectangle = (three = window.THREE) => {
+    if (three === undefined || three.Object3D === undefined) {
+      return null;
+    }
+
+    const Constructor = widgetsBase(three);
+    return class extends Constructor {
     constructor(targetMesh, controls, stack) {
         super(targetMesh, controls);
 
@@ -29,6 +32,7 @@ export default class WidgetsRectangle extends WidgetsBase {
 
         // add handles
         this._handles = [];
+        const WidgetsHandle = widgetsHandleFactory(three);
 
         let handle;
         for (let i = 0; i < 2; i++) {
@@ -184,15 +188,15 @@ export default class WidgetsRectangle extends WidgetsBase {
     }
 
     createMesh() {
-        this._geometry = new THREE.PlaneGeometry(1, 1);
+        this._geometry = new three.PlaneGeometry(1, 1);
 
-        this._material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide});
+        this._material = new three.MeshBasicMaterial({side: three.DoubleSide});
         this._material.transparent = true;
         this._material.opacity = 0.2;
 
         this.updateMeshColor();
 
-        this._mesh = new THREE.Mesh(this._geometry, this._material);
+        this._mesh = new three.Mesh(this._geometry, this._material);
         this._mesh.visible = true;
 
         this.add(this._mesh);
@@ -253,13 +257,13 @@ export default class WidgetsRectangle extends WidgetsBase {
 
     updateMeshPosition() {
         if (this._geometry) {
-            const progection = new Vector3()
+            const progection = new three.Vector3()
                     .subVectors(this._handles[1].worldPosition, this._handles[0].worldPosition)
                     .projectOnVector(this._camera.up);
 
             this._geometry.vertices[0].copy(this._handles[0].worldPosition);
-            this._geometry.vertices[1].copy(new Vector3().addVectors(this._handles[0].worldPosition, progection));
-            this._geometry.vertices[2].copy(new Vector3().subVectors(this._handles[1].worldPosition, progection));
+            this._geometry.vertices[1].copy(new three.Vector3().addVectors(this._handles[0].worldPosition, progection));
+            this._geometry.vertices[2].copy(new three.Vector3().subVectors(this._handles[1].worldPosition, progection));
             this._geometry.vertices[3].copy(this._handles[1].worldPosition);
 
             this._geometry.verticesNeedUpdate = true;
@@ -306,7 +310,7 @@ export default class WidgetsRectangle extends WidgetsBase {
             this._label.style.color = this._colors.text;
         }
         this._label.querySelector('.area').innerHTML =
-            `Area: ${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+            `Area: ${(CoreUtils.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
     }
 
     updateDOMPosition() {
@@ -375,4 +379,9 @@ export default class WidgetsRectangle extends WidgetsBase {
         this._worldPosition.copy(worldPosition);
         this.update();
     }
-}
+  };
+};
+
+export {widgetsRectangle};
+export default widgetsRectangle();
+

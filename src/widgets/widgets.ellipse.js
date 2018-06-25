@@ -1,12 +1,17 @@
-import WidgetsBase from './widgets.base';
-import WidgetsHandle from './widgets.handle';
-import GeometriesSlice from '../geometries/geometries.slice';
+import {widgetsBase} from './widgets.base';
+import {widgetsHandle as widgetsHandleFactory} from './widgets.handle';
 import CoreUtils from '../core/core.utils';
 
 /**
  * @module widgets/ellipse
  */
-export default class WidgetsEllipse extends WidgetsBase {
+const widgetsEllipse = (three = window.THREE) => {
+    if (three === undefined || three.Object3D === undefined) {
+      return null;
+    }
+
+    const Constructor = widgetsBase(three);
+    return class extends Constructor {
     constructor(targetMesh, controls, stack) {
         super(targetMesh, controls);
 
@@ -30,6 +35,7 @@ export default class WidgetsEllipse extends WidgetsBase {
         this._handles = [];
 
         let handle;
+        const WidgetsHandle = widgetsHandleFactory(three);
         for (let i = 0; i < 2; i++) {
             handle = new WidgetsHandle(targetMesh, controls);
             handle.worldPosition.copy(this._worldPosition);
@@ -189,7 +195,7 @@ export default class WidgetsEllipse extends WidgetsBase {
     }
 
     createMaterial() {
-        this._material = new THREE.MeshBasicMaterial();
+        this._material = new three.MeshBasicMaterial();
         this._material.transparent = true;
         this._material.opacity = 0.2;
     }
@@ -264,11 +270,11 @@ export default class WidgetsEllipse extends WidgetsBase {
             return;
         }
 
-        this._geometry = new THREE.ShapeGeometry(new THREE.Shape(
-            new THREE.EllipseCurve(0, 0, width / 2, height / 2, 0, 2 * Math.PI, false).getPoints(50)
+        this._geometry = new three.ShapeGeometry(new three.Shape(
+            new three.EllipseCurve(0, 0, width / 2, height / 2, 0, 2 * Math.PI, false).getPoints(50)
         ));
 
-        this._mesh = new THREE.Mesh(this._geometry, this._material);
+        this._mesh = new three.Mesh(this._geometry, this._material);
         this._mesh.position.copy(this._handles[0].worldPosition.clone().add(vec01.multiplyScalar(0.5)));
         this._mesh.rotation.copy(this._camera.rotation);
         this._mesh.visible = true;
@@ -286,8 +292,8 @@ export default class WidgetsEllipse extends WidgetsBase {
             return;
         }
 
-        const meanSDContainer = this._label.querySelector('.mean-sd'),
-            maxMinContainer = this._label.querySelector('.max-min');
+        const meanSDContainer = this._label.querySelector('.mean-sd');
+        const maxMinContainer = this._label.querySelector('.max-min');
 
         if (clear) {
             meanSDContainer.innerHTML = '';
@@ -312,8 +318,8 @@ export default class WidgetsEllipse extends WidgetsBase {
             return;
         }
 
-        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
-            title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
+        let title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
         if (title !== '') {
             this._label.setAttribute('title', title);
@@ -323,7 +329,7 @@ export default class WidgetsEllipse extends WidgetsBase {
             this._label.style.color = this._colors.text;
         }
         this._label.querySelector('.area').innerHTML =
-            `Area: ${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+            `Area: ${(CoreUtils.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
     }
 
     updateDOMPosition() {
@@ -402,4 +408,8 @@ export default class WidgetsEllipse extends WidgetsBase {
         this._worldPosition.copy(worldPosition);
         this.update();
     }
-}
+  };
+};
+
+export {widgetsEllipse};
+export default widgetsEllipse();

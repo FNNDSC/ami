@@ -1,12 +1,16 @@
-import WidgetsBase from './widgets.base';
-import WidgetsHandle from './widgets.handle';
-
-import {Vector3} from 'three';
+import {widgetsBase} from './widgets.base';
+import {widgetsHandle as widgetsHandleFactory} from './widgets.handle';
 
 /**
  * @module widgets/crossRuler
  */
-export default class WidgetsCrossRuler extends WidgetsBase {
+const widgetsCrossRuler = (three = window.THREE) => {
+    if (three === undefined || three.Object3D === undefined) {
+      return null;
+    }
+
+    const Constructor = widgetsBase(three);
+    return class extends Constructor {
     constructor(targetMesh, controls, stack) {
         super(targetMesh, controls);
 
@@ -36,6 +40,7 @@ export default class WidgetsCrossRuler extends WidgetsBase {
         this._handles = [];
 
         let handle;
+        const WidgetsHandle = widgetsHandleFactory(three);
         for (let i = 0; i < 4; i++) {
             handle = new WidgetsHandle(targetMesh, controls);
             handle.worldPosition.copy(this._worldPosition);
@@ -190,25 +195,25 @@ export default class WidgetsCrossRuler extends WidgetsBase {
 
     createMesh() {
         // geometry
-        this._geometry = new THREE.Geometry();
+        this._geometry = new three.Geometry();
         this._geometry.vertices.push(this._handles[0].worldPosition);
         this._geometry.vertices.push(this._handles[1].worldPosition);
 
         // geometry
-        this._geometry2 = new THREE.Geometry();
+        this._geometry2 = new three.Geometry();
         this._geometry2.vertices.push(this._handles[2].worldPosition);
         this._geometry2.vertices.push(this._handles[3].worldPosition);
 
         // material
-        this._material = new THREE.LineBasicMaterial();
-        this._material2 = new THREE.LineBasicMaterial();
+        this._material = new three.LineBasicMaterial();
+        this._material2 = new three.LineBasicMaterial();
 
         this.updateMeshColor();
 
         // mesh
-        this._mesh = new THREE.Line(this._geometry, this._material);
+        this._mesh = new three.Line(this._geometry, this._material);
         this._mesh.visible = true;
-        this._mesh2 = new THREE.Line(this._geometry2, this._material2);
+        this._mesh2 = new three.Line(this._geometry2, this._material2);
         this._mesh2.visible = true;
 
         this.add(this._mesh);
@@ -380,11 +385,11 @@ export default class WidgetsCrossRuler extends WidgetsBase {
     recalculateOrtho() { // called onMove if 2nd or 3rd handle is active
         const activeInd = this._handles[2].active ? 2 : 3,
             lines = [],
-            intersect = new Vector3();
+            intersect = new three.Vector3();
 
         lines[2] = this._handles[2].worldPosition.clone().sub(this._handles[0].worldPosition);
         lines[3] = this._handles[3].worldPosition.clone().sub(this._handles[0].worldPosition);
-        new THREE.Ray(this._handles[0].worldPosition, this._line01.clone().normalize())
+        new three.Ray(this._handles[0].worldPosition, this._line01.clone().normalize())
             .closestPointToPoint(this._handles[activeInd].worldPosition, intersect);
 
         const isOutside = intersect.clone().sub(this._handles[0].worldPosition).length() > this._line01.length();
@@ -439,9 +444,9 @@ export default class WidgetsCrossRuler extends WidgetsBase {
      * @param {Vector3} fourth  The end of the second line
      */
     initCoordinates(first, second, third, fourth) {
-        const intersectR = new Vector3(),
-            intersectS = new Vector3(),
-            ray = new THREE.Ray(first);
+        const intersectR = new three.Vector3(),
+            intersectS = new three.Vector3(),
+            ray = new three.Ray(first);
 
         ray.lookAt(second);
         ray.distanceSqToSegment(third, fourth, intersectR, intersectS);
@@ -505,4 +510,8 @@ export default class WidgetsCrossRuler extends WidgetsBase {
         this._worldPosition.copy(worldPosition);
         this.update();
     }
-}
+  };
+};
+
+export {widgetsCrossRuler};
+export default widgetsCrossRuler();

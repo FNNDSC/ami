@@ -1,14 +1,18 @@
-import WidgetsBase from './widgets.base';
-import WidgetsHandle from './widgets.handle';
-import GeometriesSlice from '../geometries/geometries.slice';
+import {widgetsBase} from './widgets.base';
+import {widgetsHandle as widgetsHandleFactory} from './widgets.handle';
 import CoreUtils from '../core/core.utils';
 
-import {Vector3} from 'three';
 
 /**
  * @module widgets/polygon
  */
-export default class WidgetsPolygon extends WidgetsBase {
+const widgetsPolygon = (three = window.THREE) => {
+    if (three === undefined || three.Object3D === undefined) {
+      return null;
+    }
+
+    const Constructor = widgetsBase(three);
+    return class extends Constructor {
     constructor(targetMesh, controls, stack) {
         super(targetMesh, controls);
 
@@ -31,6 +35,7 @@ export default class WidgetsPolygon extends WidgetsBase {
 
         // add handles
         this._handles = [];
+        const WidgetsHandle = widgetsHandleFactory(three);
 
         let handle = new WidgetsHandle(targetMesh, controls);
         handle.worldPosition.copy(this._worldPosition);
@@ -126,6 +131,7 @@ export default class WidgetsPolygon extends WidgetsBase {
                 this._handles[numHandles-1].hovered = false;
                 this._handles[numHandles-1].active = false;
                 this._handles[numHandles-1].tracking = false;
+                const WidgetsHandle = widgetsHandleFactory(three);
 
                 let handle = new WidgetsHandle(this._targetMesh, this._controls);
                 handle.worldPosition.copy(this._worldPosition);
@@ -232,7 +238,7 @@ export default class WidgetsPolygon extends WidgetsBase {
     }
 
     createMaterial() {
-        this._material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide});
+        this._material = new three.MeshBasicMaterial({side: THREE.DoubleSide});
         this._material.transparent = true;
         this._material.opacity = 0.2;
     }
@@ -324,24 +330,24 @@ export default class WidgetsPolygon extends WidgetsBase {
             points.push(elem.worldPosition);
         });
 
-        let center = GeometriesSlice.centerOfMass(points),
-            // direction from first point to center
-            referenceDirection = new Vector3().subVectors(points[0], center).normalize(),
-            direction = new Vector3().crossVectors(
-                new Vector3().subVectors(points[0], center), // side 1
-                new Vector3().subVectors(points[1], center) // side 2
-            ),
-            base = new Vector3().crossVectors(referenceDirection, direction).normalize(),
-            orderedpoints = [];
+        let center = CoreUtils.centerOfMass(points);
+        // direction from first point to center
+        let referenceDirection = new three.Vector3().subVectors(points[0], center).normalize();
+        let direction = new three.Vector3().crossVectors(
+                new three.Vector3().subVectors(points[0], center), // side 1
+                new three.Vector3().subVectors(points[1], center) // side 2
+            );
+        let base = new three.Vector3().crossVectors(referenceDirection, direction).normalize();
+        let orderedpoints = [];
 
         // other lines // if inter, return location + angle
         for (let j = 0; j < points.length; j++) {
-            let point = new Vector3(points[j].x, points[j].y, points[j].z);
+            let point = new three.Vector3(points[j].x, points[j].y, points[j].z);
 
-            point.direction = new Vector3().subVectors(points[j], center).normalize();
+            point.direction = new three.Vector3().subVectors(points[j], center).normalize();
 
-            let x = referenceDirection.dot(point.direction),
-                y = base.dot(point.direction);
+            let x = referenceDirection.dot(point.direction);
+            let y = base.dot(point.direction);
 
             point.xy = {x, y};
             point.angle = Math.atan2(y, x) * (180 / Math.PI);
@@ -359,7 +365,21 @@ export default class WidgetsPolygon extends WidgetsBase {
             return oldWarn.apply(console, rest);
         }.bind(this);
 
-        this._geometry = new THREE.ShapeGeometry(GeometriesSlice.shape(orderedpoints));
+        // create the shape
+        let shape = new three.Shape();
+        // move to first point!
+        shape.moveTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
+
+        // loop through all points!
+        for (let l = 1; l < orderedpoints.length; l++) {
+            // project each on plane!
+            shape.lineTo(orderedpoints[l].xy.x, orderedpoints[l].xy.y);
+        }
+
+        // close the shape!
+        shape.lineTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
+
+        this._geometry = new three.ShapeGeometry(shape);
 
         console.warn = oldWarn;
 
@@ -369,7 +389,7 @@ export default class WidgetsPolygon extends WidgetsBase {
 
         this.updateMeshColor();
 
-        this._mesh = new THREE.Mesh(this._geometry, this._material);
+        this._mesh = new three.Mesh(this._geometry, this._material);
         this._mesh.visible = true;
         this.add(this._mesh);
     }
@@ -429,7 +449,7 @@ export default class WidgetsPolygon extends WidgetsBase {
             meanSDContainer.innerHTML = '';
             maxMinContainer.innerHTML = '';
         }
-        areaContainer.innerHTML = `Area: ${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+        areaContainer.innerHTML = `Area: ${(CoreUtils.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
     }
 
     updateDOMPosition() {
@@ -528,4 +548,8 @@ export default class WidgetsPolygon extends WidgetsBase {
         this._worldPosition.copy(worldPosition);
         this.update();
     }
-}
+  };
+};
+
+export {widgetsPolygon};
+export default widgetsPolygon();
