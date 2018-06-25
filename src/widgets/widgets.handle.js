@@ -5,17 +5,12 @@ import {Vector2, Vector3} from 'three';
 
 /**
  * @module widgets/handle
- *
  */
-
 export default class WidgetsHandle extends WidgetsBase {
-  constructor(targetMesh, controls, camera, container) {
-    super(container);
+  constructor(targetMesh, controls) {
+    super(targetMesh, controls);
 
-    this._targetMesh = targetMesh;
-    this._controls = controls;
-    this._camera = camera;
-
+    this._widgetType = 'Handle';
     // if no target mesh, use plane for FREE dragging.
     this._plane = {
         position: new Vector3(),
@@ -24,16 +19,13 @@ export default class WidgetsHandle extends WidgetsBase {
     this._offset = new Vector3();
     this._raycaster = new THREE.Raycaster();
 
+    this._active = false;
+    this._hovered = false;
     this._tracking = false;
 
     this._mouse = new Vector2();
-    this._lastEvent = null;
 
-    // world (LPS) position of this handle
-    this._worldPosition = new Vector3();
-
-    // screen position of this handle
-    this._screenPosition = new Vector2();
+    this._initialized = false; // set to true onEnd
 
     // mesh stuff
     this._material = null;
@@ -49,165 +41,42 @@ export default class WidgetsHandle extends WidgetsBase {
     this._domHovered = false;
     this._domStyle = 'circle'; // square, triangle
 
-    if (this._targetMesh !== null) {
-      this._worldPosition.copy(this._targetMesh.position);
-    }
+    this._screenPosition = this.worldToScreen(this._worldPosition);
 
-    this._screenPosition =
-      this.worldToScreen(this._worldPosition, this._camera, this._container);
-
-    // create handle
     this.create();
     this.initOffsets();
 
     // event listeners
+    this.onResize = this.onResize.bind(this);
     this.onMove = this.onMove.bind(this);
     this.onHover = this.onHover.bind(this);
-    this.onEndControl = this.onEndControl.bind(this);
     this.addEventListeners();
   }
 
   addEventListeners() {
+    window.addEventListener('resize', this.onResize);
+
     this._dom.addEventListener('mouseenter', this.onHover);
     this._dom.addEventListener('mouseleave', this.onHover);
 
-    this._container.addEventListener('mousewheel', this.onMove);
-    this._container.addEventListener('DOMMouseScroll', this.onMove);
-
-    this._controls.addEventListener('end', this.onEndControl);
+    this._container.addEventListener('wheel', this.onMove);
   }
 
   removeEventListeners() {
+    window.removeEventListener('resize', this.onResize);
+
     this._dom.removeEventListener('mouseenter', this.onHover);
     this._dom.removeEventListener('mouseleave', this.onHover);
 
-    this._container.removeEventListener('mousewheel', this.onMove);
-    this._container.removeEventListener('DOMMouseScroll', this.onMove);
-
-    this._controls.removeEventListener('end', this.onEndControl);
+    this._container.removeEventListener('wheel', this.onMove);
   }
 
-  create() {
-    this.createMesh();
-    this.createDOM();
-  }
-
-  onStart(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
-    const offsets = this.getMouseOffsets(evt, this._container);
-    this._mouse.set(offsets.x, offsets.y);
-
-    // update raycaster
-    this._raycaster.setFromCamera(this._mouse, this._camera);
-    this._raycaster.ray.position = this._raycaster.ray.origin;
-
-    if (this._hovered) {
-      this._active = true;
-      this._controls.enabled = false;
-
-      if (this._targetMesh) {
-        let intersectsTarget =
-          this._raycaster.intersectObject(this._targetMesh);
-        if (intersectsTarget.length > 0) {
-          this._offset.copy(intersectsTarget[0].point).sub(this._worldPosition);
-        }
-      } else {
-        this._plane.position.copy(this._worldPosition);
-        this._plane.direction.copy(this._camera.getWorldDirection());
-        let intersection =
-          CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
-        if (intersection !== null) {
-          this._offset.copy(intersection).sub(this._plane.position);
-        }
-      }
-
-      this.update();
-    }
-  }
-
-  onEnd(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
-    // stay active and keep controls disabled
-    if (this._tracking === true) {
-      return;
-    }
-
-    // unselect if go up without moving
-    if (!this._dragged && this._active) {
-      // change state if was not dragging
-      this._selected = !this._selected;
-    }
-
-    this._active = false;
-    this._dragged = false;
-    this._controls.enabled = true;
-
-    this.update();
-  }
-
-  onEndControl() {
-    if (!this._lastEvent) {
-      return;
-    }
-
-    window.requestAnimationFrame(() => {
-      this.onMove(this._lastEvent);
-    });
-  }
-
-  /**
-   *
-   *
-   */
-  onMove(evt) {
-    this._lastEvent = evt;
-    evt.preventDefault();
-
-    const offsets = this.getMouseOffsets(evt, this._container);
-    this._mouse.set(offsets.x, offsets.y);
-
-    // update raycaster
-    // set ray.position to satisfy CoreIntersections::rayPlane API
-    this._raycaster.setFromCamera(this._mouse, this._camera);
-    this._raycaster.ray.position = this._raycaster.ray.origin;
-
-    if (this._active) {
-      this._dragged = true;
-
-      if (this._targetMesh !== null) {
-        let intersectsTarget =
-          this._raycaster.intersectObject(this._targetMesh);
-        if (intersectsTarget.length > 0) {
-          this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
-        }
-      } else {
-        if (this._plane.direction.length() === 0) {
-          // free mode!this._targetMesh
-          this._plane.position.copy(this._worldPosition);
-          this._plane.direction.copy(this._camera.getWorldDirection());
-         }
-
-        let intersection =
-          CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
-        if (intersection !== null) {
-          this._worldPosition.copy(intersection.sub(this._offset));
-        }
-      }
-    } else {
-      this.onHover(null);
-    }
-
-    this.update();
+  onResize() {
+    this.initOffsets();
   }
 
   onHover(evt) {
     if (evt) {
-      this._lastEvent = evt;
-      evt.preventDefault();
       this.hoverDom(evt);
     }
 
@@ -215,38 +84,6 @@ export default class WidgetsHandle extends WidgetsBase {
 
     this._hovered = this._meshHovered || this._domHovered;
     this._container.style.cursor = this._hovered ? 'pointer' : 'default';
-  }
-
-  update() {
-    // general update
-    this.updateColor();
-
-    // update screen position of handle
-    this._screenPosition =
-      this.worldToScreen(this._worldPosition, this._camera, this._container);
-
-    // mesh stuff
-    this.updateMeshColor();
-    this.updateMeshPosition();
-
-    // DOM stuff
-    this.updateDOMColor();
-    this.updateDOMPosition();
-  }
-
-  //
-  updateMeshColor() {
-    if (this._material) {
-      this._material.color.set(this._color);
-    }
-  }
-
-  updateMeshPosition() {
-    if (this._mesh) {
-      this._mesh.position.x = this._worldPosition.x;
-      this._mesh.position.y = this._worldPosition.y;
-      this._mesh.position.z = this._worldPosition.z;
-    }
   }
 
   hoverMesh() {
@@ -259,17 +96,96 @@ export default class WidgetsHandle extends WidgetsBase {
     this._domHovered = (evt.type === 'mouseenter');
   }
 
-  worldToScreen(worldCoordinate, camera, canvas) {
-    let screenCoordinates = worldCoordinate.clone();
-    screenCoordinates.project(camera);
+  onStart(evt) {
+    const offsets = this.getMouseOffsets(evt, this._container);
+    this._mouse.set(offsets.x, offsets.y);
 
-    screenCoordinates.x =
-      Math.round((screenCoordinates.x + 1) * canvas.offsetWidth / 2);
-    screenCoordinates.y =
-      Math.round((-screenCoordinates.y + 1) * canvas.offsetHeight / 2);
-    screenCoordinates.z = 0;
+    // update raycaster
+    this._raycaster.setFromCamera(this._mouse, this._camera);
+    this._raycaster.ray.position = this._raycaster.ray.origin;
 
-    return screenCoordinates;
+    if (this._hovered) {
+      this._active = true;
+      this._controls.enabled = false;
+
+      if (this._targetMesh) {
+        let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+        if (intersectsTarget.length > 0) {
+          this._offset.copy(intersectsTarget[0].point).sub(this._worldPosition);
+        }
+      } else {
+        this._plane.position.copy(this._worldPosition);
+        this._plane.direction.copy(this._camera.getWorldDirection());
+        let intersection = CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
+        if (intersection !== null) {
+          this._offset.copy(intersection).sub(this._plane.position);
+        }
+      }
+
+      this.update();
+    }
+  }
+
+  /**
+   * @param {Object} evt - Browser event
+   * @param {Boolean} forced - true to move inactive handles
+   */
+  onMove(evt, forced) {
+    const offsets = this.getMouseOffsets(evt, this._container);
+    this._mouse.set(offsets.x, offsets.y);
+
+    // update raycaster
+    // set ray.position to satisfy CoreIntersections::rayPlane API
+    this._raycaster.setFromCamera(this._mouse, this._camera);
+    this._raycaster.ray.position = this._raycaster.ray.origin;
+
+    if (this._active || forced) {
+      this._dragged = true;
+
+      if (this._targetMesh !== null) {
+        let intersectsTarget = this._raycaster.intersectObject(this._targetMesh);
+        if (intersectsTarget.length > 0) {
+          this._worldPosition.copy(intersectsTarget[0].point.sub(this._offset));
+        }
+      } else {
+        if (this._plane.direction.length() === 0) {
+          // free mode!this._targetMesh
+          this._plane.position.copy(this._worldPosition);
+          this._plane.direction.copy(this._camera.getWorldDirection());
+         }
+
+        let intersection = CoreIntersections.rayPlane(this._raycaster.ray, this._plane);
+        if (intersection !== null) {
+          this._worldPosition.copy(intersection.sub(this._offset));
+        }
+      }
+    } else {
+      this.onHover(null);
+    }
+
+    this.update();
+  }
+
+  onEnd() {
+    if (this._tracking === true) { // stay active and keep controls disabled
+      return;
+    }
+
+    if (!this._dragged && this._active && this._initialized) {
+      this._selected = !this._selected; // change state if there was no dragging
+    }
+
+    this._initialized = true;
+    this._active = false;
+    this._dragged = false;
+    this._controls.enabled = true;
+
+    this.update();
+  }
+
+  create() {
+    this.createMesh();
+    this.createDOM();
   }
 
   createMesh() {
@@ -282,82 +198,105 @@ export default class WidgetsHandle extends WidgetsBase {
         wireframeLinewidth: 2,
       });
 
-    // mesh
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
-    this._mesh.position.x = this._worldPosition.x;
-    this._mesh.position.y = this._worldPosition.y;
-    this._mesh.position.z = this._worldPosition.z;
-    this._mesh.visible = true;
-
     this.updateMeshColor();
 
-    // add it!
+    // mesh
+    this._mesh = new THREE.Mesh(this._geometry, this._material);
+    this._mesh.position.copy(this._worldPosition);
+    this._mesh.visible = true;
+
     this.add(this._mesh);
   }
 
-
   createDOM() {
-    // dom
     this._dom = document.createElement('div');
-    this._dom.setAttribute('id', this.uuid);
-    this._dom.setAttribute('class', 'AMI Widget Handle');
-    this._dom.style.border = '2px solid';
-    this._dom.style.backgroundColor = '#F9F9F9';
-    this._dom.style.color = '#F9F9F9';
-    this._dom.style.position = 'absolute';
-    this._dom.style.width = '12px';
-    this._dom.style.height = '12px';
-    this._dom.style.margin = '-6px';
-    this._dom.style.borderRadius = '50%';
-    this._dom.style.transformOrigin = '0 100%';
+    this._dom.setAttribute('class', 'widgets-handle');
 
-    let posY = this._screenPosition.y - this._container.offsetHeight;
-    this._dom.style.transform =
-      `translate3D(${this._screenPosition.x}px, ${posY}px, 0)`;
+    this._dom.style.transform =`translate3D(
+      ${this._screenPosition.x}px,
+      ${this._screenPosition.y - this._container.offsetHeight}px, 0)`;
 
     this.updateDOMColor();
 
-    // add it!
     this._container.appendChild(this._dom);
+  }
+
+  update() {
+    // general update
+    this.updateColor();
+
+    // update screen position of handle
+    this._screenPosition = this.worldToScreen(this._worldPosition);
+
+    // mesh stuff
+    this.updateMeshColor();
+    this.updateMeshPosition();
+
+    // DOM stuff
+    this.updateDOMColor();
+    this.updateDOMPosition();
+  }
+
+  updateMeshColor() {
+    if (this._material) {
+      this._material.color.set(this._color);
+    }
+  }
+
+  updateMeshPosition() {
+    if (this._mesh) {
+      this._mesh.position.copy(this._worldPosition);
+    }
   }
 
   updateDOMPosition() {
     if (this._dom) {
-      let posY = this._screenPosition.y - this._container.offsetHeight;
-      this._dom.style.transform =
-        `translate3D(${this._screenPosition.x}px, ${posY}px, 0)`;
+      this._dom.style.transform = `translate3D(${this._screenPosition.x}px,
+        ${this._screenPosition.y - this._container.offsetHeight}px, 0)`;
     }
   }
 
   updateDOMColor() {
-    this._dom.style.borderColor = `${this._color}`;
+    this._dom.style.borderColor = this._color;
   }
 
   free() {
+    // events
+    this.removeEventListeners();
     // dom
     this._container.removeChild(this._dom);
-    // event
-    this.removeEventListeners();
+    // mesh, geometry, material
+    this.remove(this._mesh);
+    this._mesh.geometry.dispose();
+    this._mesh.geometry = null;
+    this._mesh.material.dispose();
+    this._mesh.material = null;
+    this._mesh = null;
+    this._geometry.dispose();
+    this._geometry = null;
+    this._material.vertexShader = null;
+    this._material.fragmentShader = null;
+    this._material.uniforms = null;
+    this._material.dispose();
+    this._material = null;
 
     super.free();
   }
 
-  set worldPosition(worldPosition) {
-    this._worldPosition.copy(worldPosition);
-
-    this.update();
+  hideDOM() {
+    this._dom.style.display = 'none';
   }
 
-  get worldPosition() {
-    return this._worldPosition;
-  }
-
-  set screenPosition(screenPosition) {
-    this._screenPosition = screenPosition;
+  showDOM() {
+    this._dom.style.display = '';
   }
 
   get screenPosition() {
     return this._screenPosition;
+  }
+
+  set screenPosition(screenPosition) {
+    this._screenPosition = screenPosition;
   }
 
   get active() {
@@ -379,31 +318,5 @@ export default class WidgetsHandle extends WidgetsBase {
   set tracking(tracking) {
     this._tracking = tracking;
     this.update();
-  }
-
-  hideDOM() {
-    this._dom.style.display = 'none';
-  }
-
-  showDOM() {
-    this._dom.style.display = '';
-  }
-
-  hideMesh() {
-    this.visible = false;
-  }
-
-  showMesh() {
-    this.visible = true;
-  }
-
-  show() {
-    this.showDOM();
-    this.showMesh();
-  }
-
-  hide() {
-    this.hideDOM();
-    this.hideMesh();
   }
 }

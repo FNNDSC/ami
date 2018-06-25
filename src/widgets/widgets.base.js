@@ -1,18 +1,30 @@
+import WidgetsCss from './widgets.css';
+
+import {Vector2, Vector3} from 'three';
+
 /**
- *
+ * @module Abstract Widget
  */
 export default class WidgetsBase extends THREE.Object3D {
-  constructor(container) {
-    // init THREE Object 3D
-    super();
+  constructor(targetMesh, controls) {
+    super(); // init THREE Object 3D
 
-    // is widget enabled?
-    this._enabled = true;
+    this._widgetType = 'Base';
+
+    const elementStyle = document.getElementById('ami-widgets');
+    if (elementStyle === null) {
+      const styleEl = document.createElement('style');
+      styleEl.setAttribute('id', 'ami-widgets');
+      styleEl.innerHTML = WidgetsCss.code;
+      document.head.appendChild(styleEl);
+    }
+
+    this._enabled = true; // is widget enabled?
 
     // STATE, ENUM might be better
     this._selected = false;
-    this._hovered = false;
-    this._active = false;
+    this._hovered = true;
+    this._active = true;
     // thos._state = 'SELECTED';
 
     this._colors = {
@@ -20,6 +32,8 @@ export default class WidgetsBase extends THREE.Object3D {
       active: '#FFEB3B',
       hover: '#F50057',
       select: '#76FF03',
+      text: '#FFF',
+      error: '#F77',
     };
     this._color = this._colors.default;
 
@@ -27,7 +41,15 @@ export default class WidgetsBase extends THREE.Object3D {
     // can not call it visible because it conflicts with THREE.Object3D
     this._displayed = true;
 
-    this._container = container;
+    this._targetMesh = targetMesh;
+    this._controls = controls;
+    this._camera = controls.object;
+    this._container = controls.domElement;
+
+    this._worldPosition = new Vector3(); // LPS position
+    if (this._targetMesh !== null) {
+      this._worldPosition.copy(this._targetMesh.position);
+    }
   }
 
   initOffsets() {
@@ -43,18 +65,10 @@ export default class WidgetsBase extends THREE.Object3D {
     const clientTop = docEl.clientTop || body.clientTop || 0;
     const clientLeft = docEl.clientLeft || body.clientLeft || 0;
 
-    const top = box.top + scrollTop - clientTop;
-    const left = box.left + scrollLeft - clientLeft;
-
     this._offsets = {
-      top: Math.round(top),
-      left: Math.round(left),
+      top: Math.round(box.top + scrollTop - clientTop),
+      left: Math.round(box.left + scrollLeft - clientLeft),
     };
-  }
-
-  offsetChanged() {
-    this.initOffsets();
-    this.update();
   }
 
   getMouseOffsets(event, container) {
@@ -67,13 +81,80 @@ export default class WidgetsBase extends THREE.Object3D {
     };
   }
 
+  getLineData(pointA, pointB) {
+    const line = pointB.clone().sub(pointA),
+      center = pointB.clone().add(pointA).multiplyScalar(0.5),
+      length = line.length(),
+      angle = line.angleTo(new Vector3(1, 0, 0));
+
+    return {
+      line: line,
+      length: length,
+      transformX: center.x - length / 2,
+      transformY: center.y - this._container.offsetHeight,
+      transformAngle: pointA.y < pointB.y ? angle : -angle,
+      center: center,
+    };
+  }
+
+  getRectData(pointA, pointB) {
+    const line = pointB.clone().sub(pointA),
+      vertical = line.clone().projectOnVector(new Vector3(0, 1, 0)),
+      min = pointA.clone().min(pointB); // coordinates of the top left corner
+
+    return {
+      width: line.clone().projectOnVector(new Vector3(1, 0, 0)).length(),
+      height: vertical.length(),
+      transformX: min.x,
+      transformY: min.y - this._container.offsetHeight,
+      paddingVector: vertical.clone().normalize(),
+    };
+  }
+
+  /**
+   * @param {HTMLElement} label
+   * @param {Vector3}     point  label's center coordinates (default)
+   * @param {Boolean}     corner if true, then point is the label's top left corner coordinates
+   */
+  adjustLabelTransform(label, point, corner) {
+    let x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2)),
+      y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
+
+    if (x < 0) {
+      x = x > -label.offsetWidth ? 0 : x + label.offsetWidth;
+    } else if (x > this._container.offsetWidth - label.offsetWidth) {
+      x = x < this._container.offsetWidth
+        ? this._container.offsetWidth - label.offsetWidth
+        : x - label.offsetWidth;
+    }
+
+    if (y < -this._container.offsetHeight) {
+      y = y > -this._container.offsetHeight - label.offsetHeight
+        ? -this._container.offsetHeight
+        : y + label.offsetHeight;
+    } else if (y > -label.offsetHeight) {
+      y = y < 0 ? -label.offsetHeight : y - label.offsetHeight;
+    }
+
+    return new Vector2(x, y);
+  }
+
+  worldToScreen(worldCoordinate) {
+    let screenCoordinates = worldCoordinate.clone();
+    screenCoordinates.project(this._camera);
+
+    screenCoordinates.x = Math.round((screenCoordinates.x + 1)
+        * this._container.offsetWidth / 2);
+    screenCoordinates.y = Math.round((-screenCoordinates.y + 1)
+        * this._container.offsetHeight / 2);
+    screenCoordinates.z = 0;
+
+    return screenCoordinates;
+  }
+
   update() {
     // to be overloaded
     window.console.log('update() should be overloaded!');
-  }
-
-  free() {
-    this._container = null;
   }
 
   updateColor() {
@@ -86,6 +167,61 @@ export default class WidgetsBase extends THREE.Object3D {
     } else {
       this._color = this._colors.default;
     }
+  }
+
+  show() {
+    this.showDOM();
+    this.showMesh();
+    this.update();
+  }
+
+  hide() {
+    this.hideDOM();
+    this.hideMesh();
+  }
+
+  hideDOM() {
+    // to be overloaded
+    window.console.log('hideDOM() should be overloaded!');
+  }
+
+  showDOM() {
+    // to be overloaded
+    window.console.log('showDOM() should be overloaded!');
+  }
+
+  hideMesh() {
+    this.visible = false;
+  }
+
+  showMesh() {
+    this.visible = true;
+  }
+
+  free() {
+    this._container = null;
+  }
+
+  get widgetType() {
+    return this._widgetType;
+  }
+
+  get targetMesh() {
+    return this._targetMesh;
+  }
+
+  set targetMesh(targetMesh) {
+    this._targetMesh = targetMesh;
+    this.update();
+  }
+
+  get worldPosition() {
+    return this._worldPosition;
+  }
+
+  set worldPosition(worldPosition) {
+    this._worldPosition.copy(worldPosition);
+    this.update();
   }
 
   get enabled() {

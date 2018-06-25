@@ -427,11 +427,17 @@ export default class ParsersDicom extends ParsersVolume {
     // expect frame index to start at 0!
     let pixelSpacing = this._findStringEverywhere('x00289110', 'x00280030', frameIndex);
 
-    // format image orientation ('1\0\0\0\1\0') to array containing 6 numbers
-    // should we default to undefined??
+    if (pixelSpacing === null) {
+      pixelSpacing = this._dataSet.string('x00181164');
+    }
+
     if (pixelSpacing) {
       // make sure we return array of numbers! (not strings!)
       pixelSpacing = pixelSpacing.split('\\').map(Number);
+    }
+
+    if (typeof pixelSpacing === 'undefined') {
+        pixelSpacing = null;
     }
 
     return pixelSpacing;
