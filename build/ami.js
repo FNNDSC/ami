@@ -64240,7 +64240,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  */
 
 var camerasOrthographic = function camerasOrthographic() {
-  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : THREE;
+  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
 
   var Constructor = three.OrthographicCamera;
   return function (_Constructor) {

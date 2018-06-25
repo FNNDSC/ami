@@ -13,7 +13,7 @@ import Validators from '../core/core.validators';
  */
 
 
-const camerasOrthographic = (three = THREE) => {
+const camerasOrthographic = (three = window.THREE) => {
   const Constructor = three.OrthographicCamera;
   return class extends Constructor {
     constructor(left, right, top, bottom, near, far) {
