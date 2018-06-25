@@ -6,6 +6,10 @@
  */
 
 const trackballOrtho = (three = window.THREE) => {
+  if (three === undefined || three.EventDispatcher === undefined) {
+    return null;
+  }
+
   const Constructor = three.EventDispatcher;
   return class extends Constructor {
     constructor(object, domElement, state = {NONE: -1, ROTATE: 1, ZOOM: 2, PAN: 0, SCROLL: 4, TOUCH_ROTATE: 4, TOUCH_ZOOM_PAN: 5}) {

@@ -4,7 +4,11 @@
  * @module helpers/material/mixin
  */
 
- const helpersMaterialMixin = (three = THREE) => {
+ const helpersMaterialMixin = (three = window.THREE) => {
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
+  }
+
    const Constructor = three.Object3D;
    return class extends Constructor {
     _createMaterial(extraOptions) {

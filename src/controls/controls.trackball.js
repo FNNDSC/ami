@@ -7,6 +7,10 @@
  */
 
 const trackball = (three = window.THREE) => {
+  if (three === undefined || three.EventDispatcher === undefined) {
+    return null;
+  }
+
   const Constructor = three.EventDispatcher;
   return class extends Constructor {
     constructor(object, domElement) {

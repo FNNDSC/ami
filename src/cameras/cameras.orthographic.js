@@ -14,6 +14,10 @@ import Validators from '../core/core.validators';
 
 
 const camerasOrthographic = (three = window.THREE) => {
+  if (three === undefined || three.OrthographicCamera === undefined) {
+    return null;
+  }
+
   const Constructor = three.OrthographicCamera;
   return class extends Constructor {
     constructor(left, right, top, bottom, near, far) {

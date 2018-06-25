@@ -4,6 +4,10 @@
  */
 
  const geometriesVoxel = (three = window.THREE) => {
+  if (three === undefined || three.BoxGeometry === undefined) {
+    return null;
+  }
+
    const Constructor = three.BoxGeometry;
    return class extends Constructor {
     constructor(dataPosition) {

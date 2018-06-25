@@ -1,7 +1,7 @@
 import Border, {helpersBorder} from './helpers.border';
 import BoundingBox, {helpersBoundingBox} from './helpers.boundingbox';
-import Contour from './helpers.contour';
-import Localizer from './helpers.localizer';
+import Contour, {helpersContour} from './helpers.contour';
+import Localizer, {helpersLocalizer} from './helpers.localizer';
 import Lut from './helpers.lut';
 import SegmentationLut from './helpers.segmentationlut';
 import ProgressBar from './helpers.progressbar';
@@ -16,7 +16,9 @@ export {
     BoundingBox as BoundingBoxHelper,
     helpersBoundingBox as boundingBoxHelperFactory,
     Contour as ContourHelper,
+    helpersContour as contourHelperFactory,
     Localizer as LocalizerHelper,
+    helpersLocalizer as localizerHelperFactory,
     Lut as LutHelper,
     SegmentationLut as SegmentationLutHelper,
     ProgressBar as ProgressBarHelper,

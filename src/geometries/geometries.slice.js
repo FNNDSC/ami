@@ -43,6 +43,10 @@ import coreUtils from '../core/core.utils';
  */
 
  const geometriesSlice = (three = window.THREE) => {
+  if (three === undefined || three.ShapeGeometry === undefined) {
+    return null;
+  }
+
   const Constructor = three.ShapeGeometry;
   return class extends Constructor {
     constructor(halfDimensions, center, position, direction, toAABB = new three.Matrix4()) {

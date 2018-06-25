@@ -3,6 +3,10 @@
  */
 
 const helpersBorder = (three = window.THREE) => {
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
+  }
+
   const Constructor = three.Object3D;
   return class extends Constructor {
     constructor(helpersSlice) {

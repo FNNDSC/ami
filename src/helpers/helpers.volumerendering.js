@@ -10,6 +10,10 @@ import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
  */
 
  const helpersVolumeRendering = (three = window.THREE) => {
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
+  }
+
   const Constructor = helpersMaterialMixin(three);
   return class extends Constructor {
     constructor(stack) {
