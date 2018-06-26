@@ -31,229 +31,246 @@ import ShadersUniform from '../shaders/shaders.vr.uniform';
 import ShadersVertex from '../shaders/shaders.vr.vertex';
 import ShadersFragment from '../shaders/shaders.vr.fragment';
 
-import HelpersMaterialMixin from '../helpers/helpers.material.mixin';
-
-import {Matrix4} from 'three';
+import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
 
 /**
  * @module helpers/volumerendering
  */
 
-export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.Object3D) {
-  constructor(stack) {
-    //
-    super();
-
-    this._stack = stack;
-    this._textures = [];
-    this._shadersFragment = ShadersFragment;
-    this._shadersVertex = ShadersVertex;
-    this._uniforms = ShadersUniform.uniforms();
-    this._material = null;
-    this._geometry = null;
-
-    this._algorithm = 0; // ray marching
-    this._alphaCorrection = 0.5; // default
-    this._interpolation = 1; // default to trilinear interpolation
-    this._shading = 1; // shading is on by default
-    this._shininess = 10.0;
-    this._steps = 256; // default
-    this._offset = 0.;
-    this._windowCenter = 0.0;
-    this._windowWidth = 1.0;
-
-    this._create();
+ const helpersVolumeRendering = (three = window.THREE) => {
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
   }
 
-  _create() {
-    this._prepareStack();
-    this._prepareTexture();
-    this._prepareMaterial();
-    this._prepareGeometry();
+  const Constructor = helpersMaterialMixin(three);
+  return class extends Constructor {
+    constructor(stack) {
+      //
+      super();
 
-    this._mesh = new THREE.Mesh(this._geometry, this._material);
-    this.add(this._mesh);
-  }
+      this._stack = stack;
+      this._textures = [];
+      this._shadersFragment = ShadersFragment;
+      this._shadersVertex = ShadersVertex;
+      this._uniforms = ShadersUniform.uniforms();
+      this._material = null;
+      this._geometry = null;
+      this._mesh = null;
 
-  _prepareStack() {
-    if (!this._stack.prepared) {
-      this._stack.prepare();
+      this._algorithm = 0; // ray marching
+      this._alphaCorrection = 0.5; // default
+      this._interpolation = 1; // default to trilinear interpolation
+      this._shading = 1; // shading is on by default
+      this._shininess = 10.0;
+      this._steps = 256; // default
+      this._offset = 0.;
+      this._windowCenter = 0.0;
+      this._windowWidth = 1.0;
+
+      this._create();
     }
 
-    if (!this._stack.packed) {
-      this._stack.pack();
+    _create() {
+      this._prepareStack();
+      this._prepareTexture();
+      this._prepareMaterial();
+      this._prepareGeometry();
+
+      this._mesh = new three.Mesh(this._geometry, this._material);
+      this.add(this._mesh);
     }
 
-    // compensate for the offset to only pass > 0 values to shaders
-    // models > models.stack.js : _packTo8Bits
-    this._offset = Math.min(0, this._stack._minMax[0]);
-    this._windowCenter = this._stack.windowCenter;
-    this._windowWidth = this._stack.windowWidth * 0.8; // multiply for better default visualization
-  }
+    _prepareStack() {
+      if (!this._stack.prepared) {
+        this._stack.prepare();
+      }
 
-  _prepareMaterial() {
-    // uniforms
-    this._uniforms = ShadersUniform.uniforms();
-    this._uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
-    this._uniforms.uTextureSize.value = this._stack.textureSize;
-    this._uniforms.uTextureContainer.value = this._textures;
-    this._uniforms.uWorldToData.value = this._stack.lps2IJK;
-    this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
-    this._uniforms.uPixelType.value = this._stack.pixelType;
-    this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
-    this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
-    this._uniforms.uWindowCenterWidth.value = [this._windowCenter - this._offset, this._windowWidth];
-    this._uniforms.uRescaleSlopeIntercept.value = [this._stack.rescaleSlope, this._stack.rescaleIntercept];
-    this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x,
-                                                this._stack.dimensionsIJK.y,
-                                                this._stack.dimensionsIJK.z];
-    this._uniforms.uAlphaCorrection.value = this._alphaCorrection;
-    this._uniforms.uInterpolation.value = this._interpolation;
-    this._uniforms.uShading.value = this._shading;
-    this._uniforms.uShininess.value = this._shininess;
-    this._uniforms.uSteps.value = this._steps;
-    this._uniforms.uAlgorithm.value = this._algorithm;
+      if (!this._stack.packed) {
+        this._stack.pack();
+      }
 
-    this._createMaterial({
-      side: THREE.BackSide,
-      transparent: true,
-    });
-  }
-
-  _prepareGeometry() {
-    let worldBBox = this._stack.worldBoundingBox();
-    let centerLPS = this._stack.worldCenter();
-
-    this._geometry = new THREE.BoxGeometry(
-      worldBBox[1] - worldBBox[0],
-      worldBBox[3] - worldBBox[2],
-      worldBBox[5] - worldBBox[4]);
-    this._geometry.applyMatrix(new Matrix4().makeTranslation(
-      centerLPS.x, centerLPS.y, centerLPS.z));
-  }
-
-  get uniforms() {
-    return this._uniforms;
-  }
-
-  set uniforms(uniforms) {
-    this._uniforms = uniforms;
-  }
-
-  get stack() {
-    return this._stack;
-  }
-
-  set stack(stack) {
-    this._stack = stack;
-  }
-
-  get windowCenter() {
-    return this._windowCenter;
-  }
-
-  set windowCenter(windowCenter) {
-    this._windowCenter = windowCenter;
-    this._uniforms.uWindowCenterWidth.value[0] = this._windowCenter - this._offset;
-  }
-
-  get windowWidth() {
-    return this._windowWidth;
-  }
-
-  set windowWidth(windowWidth) {
-    this._windowWidth = Math.max(1, windowWidth);
-    this._uniforms.uWindowCenterWidth.value[1] = this._windowWidth;
-  }
-
-  get steps() {
-    return this._steps;
-  }
-
-  set steps(steps) {
-    this._steps = steps;
-    this._uniforms.uSteps.value = this._steps;
-  }
-
-  get alphaCorrection() {
-    return this._alphaCorrection;
-  }
-
-  set alphaCorrection(alphaCorrection) {
-    this._alphaCorrection = alphaCorrection;
-    this._uniforms.uAlphaCorrection.value = this._alphaCorrection;
-  }
-
-  get interpolation() {
-    return this._interpolation;
-  }
-
-  set interpolation(interpolation) {
-    this._interpolation = interpolation;
-    this._uniforms.uInterpolation.value = this._interpolation;
-    this._updateMaterial();
-  }
-
-  get shading() {
-    return this._shading;
-  }
-
-  set shading(shading) {
-    this._shading = shading;
-    this._uniforms.uShading.value = this._shading;
-  }
-
-  get shininess() {
-    return this._shininess;
-  }
-
-  set shininess(shininess) {
-    this._shininess = shininess;
-    this._uniforms.uShininess.value = this._shininess;
-  }
-
-  get algorithm() {
-    return this._algorithm;
-  }
-
-  set algorithm(algorithm) {
-    this._algorithm = algorithm;
-    this._uniforms.uAlgorithm.value = this._algorithm;
-  }
-
-  dispose() {
-    // Release memory
-    for (let j =0; j&lt; this._textures.length; j++) {
-      this._textures[j].dispose();
-      this._textures[j] = null;
+      // compensate for the offset to only pass > 0 values to shaders
+      // models > models.stack.js : _packTo8Bits
+      this._offset = Math.min(0, this._stack._minMax[0]);
+      this._windowCenter = this._stack.windowCenter;
+      this._windowWidth = this._stack.windowWidth * 0.8; // multiply for better default visualization
     }
-    this._textures = null;
-    this._shadersFragment = null;
-    this._shadersVertex = null;
 
-    this._uniforms.uTextureContainer = null;
-    this._uniforms.uTextureLUT = null;
-    this._uniforms = null;
+    _prepareMaterial() {
+      // uniforms
+      this._uniforms = ShadersUniform.uniforms();
+      this._uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
+      this._uniforms.uTextureSize.value = this._stack.textureSize;
+      this._uniforms.uTextureContainer.value = this._textures;
+      this._uniforms.uWorldToData.value = this._stack.lps2IJK;
+      this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
+      this._uniforms.uPixelType.value = this._stack.pixelType;
+      this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
+      this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
+      this._uniforms.uWindowCenterWidth.value = [this._windowCenter - this._offset, this._windowWidth];
+      this._uniforms.uRescaleSlopeIntercept.value = [this._stack.rescaleSlope, this._stack.rescaleIntercept];
+      this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x,
+                                                  this._stack.dimensionsIJK.y,
+                                                  this._stack.dimensionsIJK.z];
+      this._uniforms.uAlphaCorrection.value = this._alphaCorrection;
+      this._uniforms.uInterpolation.value = this._interpolation;
+      this._uniforms.uShading.value = this._shading;
+      this._uniforms.uShininess.value = this._shininess;
+      this._uniforms.uSteps.value = this._steps;
+      this._uniforms.uAlgorithm.value = this._algorithm;
 
-    // material, geometry and mesh
-    this.remove(this._mesh);
-    this._mesh.geometry.dispose();
-    this._mesh.geometry = null;
-    this._mesh.material.dispose();
-    this._mesh.material = null;
-    this._mesh = null;
+      this._createMaterial({
+        side: three.BackSide,
+        transparent: true,
+      });
+    }
 
-    this._geometry.dispose();
-    this._geometry = null;
-    this._material.vertexShader = null;
-    this._material.fragmentShader = null;
-    this._material.uniforms = null;
-    this._material.dispose();
-    this._material = null;
+    _prepareGeometry() {
+      let worldBBox = this._stack.worldBoundingBox();
+      let centerLPS = this._stack.worldCenter();
 
-    this._stack = null;
-  }
-}
+      this._geometry = new three.BoxGeometry(
+        worldBBox[1] - worldBBox[0],
+        worldBBox[3] - worldBBox[2],
+        worldBBox[5] - worldBBox[4]);
+      this._geometry.applyMatrix(new three.Matrix4().makeTranslation(
+        centerLPS.x, centerLPS.y, centerLPS.z));
+    }
+
+    get uniforms() {
+      return this._uniforms;
+    }
+
+    set uniforms(uniforms) {
+      this._uniforms = uniforms;
+    }
+
+    set mesh(mesh) {
+      this._mesh = mesh;
+    }
+
+    get mesh() {
+      return this._mesh;
+    }
+
+    get stack() {
+      return this._stack;
+    }
+
+    set stack(stack) {
+      this._stack = stack;
+    }
+
+    get windowCenter() {
+      return this._windowCenter;
+    }
+
+    set windowCenter(windowCenter) {
+      this._windowCenter = windowCenter;
+      this._uniforms.uWindowCenterWidth.value[0] = this._windowCenter - this._offset;
+    }
+
+    get windowWidth() {
+      return this._windowWidth;
+    }
+
+    set windowWidth(windowWidth) {
+      this._windowWidth = Math.max(1, windowWidth);
+      this._uniforms.uWindowCenterWidth.value[1] = this._windowWidth;
+    }
+
+    get steps() {
+      return this._steps;
+    }
+
+    set steps(steps) {
+      this._steps = steps;
+      this._uniforms.uSteps.value = this._steps;
+    }
+
+    get alphaCorrection() {
+      return this._alphaCorrection;
+    }
+
+    set alphaCorrection(alphaCorrection) {
+      this._alphaCorrection = alphaCorrection;
+      this._uniforms.uAlphaCorrection.value = this._alphaCorrection;
+    }
+
+    get interpolation() {
+      return this._interpolation;
+    }
+
+    set interpolation(interpolation) {
+      this._interpolation = interpolation;
+      this._uniforms.uInterpolation.value = this._interpolation;
+      this._updateMaterial();
+    }
+
+    get shading() {
+      return this._shading;
+    }
+
+    set shading(shading) {
+      this._shading = shading;
+      this._uniforms.uShading.value = this._shading;
+    }
+
+    get shininess() {
+      return this._shininess;
+    }
+
+    set shininess(shininess) {
+      this._shininess = shininess;
+      this._uniforms.uShininess.value = this._shininess;
+    }
+
+    get algorithm() {
+      return this._algorithm;
+    }
+
+    set algorithm(algorithm) {
+      this._algorithm = algorithm;
+      this._uniforms.uAlgorithm.value = this._algorithm;
+    }
+
+    dispose() {
+      // Release memory
+      for (let j =0; j&lt; this._textures.length; j++) {
+        this._textures[j].dispose();
+        this._textures[j] = null;
+      }
+      this._textures = null;
+      this._shadersFragment = null;
+      this._shadersVertex = null;
+
+      this._uniforms.uTextureContainer = null;
+      this._uniforms.uTextureLUT = null;
+      this._uniforms = null;
+
+      // material, geometry and mesh
+      this.remove(this._mesh);
+      this._mesh.geometry.dispose();
+      this._mesh.geometry = null;
+      this._mesh.material.dispose();
+      this._mesh.material = null;
+      this._mesh = null;
+
+      this._geometry.dispose();
+      this._geometry = null;
+      this._material.vertexShader = null;
+      this._material.fragmentShader = null;
+      this._material.uniforms = null;
+      this._material.dispose();
+      this._material = null;
+
+      this._stack = null;
+    }
+  };
+};
+
+export {helpersVolumeRendering};
+export default helpersVolumeRendering();
 </code></pre>
         </article>
     </section>
@@ -264,13 +281,13 @@ export default class HelpersVolumeRendering extends HelpersMaterialMixin(THREE.O
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_contour.html">helpers/contour</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_mgh.html">parsers/mgh</a></li><li><a href="module-parsers_mhd.html">parsers/mhd</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-presets_segmentation.html">presets/segmentation</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets_angle.html">widgets/angle</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="Unpack.html">Unpack</a></li></ul><h3>Global</h3><ul><li><a href="global.html#cielab2RGB">cielab2RGB</a></li><li><a href="global.html#cielab2XYZ">cielab2XYZ</a></li><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#segmentation">segmentation</a></li><li><a href="global.html#uniforms">uniforms</a></li><li><a href="global.html#xyz2RGB">xyz2RGB</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Abstract%2520Widget.html">Abstract Widget</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-CSS%2520Code%2520for%2520all%2520Widgets.html">CSS Code for all Widgets</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_contour.html">helpers/contour</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_mgh.html">parsers/mgh</a></li><li><a href="module-parsers_mhd.html">parsers/mhd</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-presets_segmentation.html">presets/segmentation</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets_angle.html">widgets/angle</a></li><li><a href="module-widgets_annotation.html">widgets/annotation</a></li><li><a href="module-widgets_biruler.html">widgets/biruler</a></li><li><a href="module-widgets_crossRuler.html">widgets/crossRuler</a></li><li><a href="module-widgets_ellipse.html">widgets/ellipse</a></li><li><a href="module-widgets_freehand.html">widgets/freehand</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_polygon.html">widgets/polygon</a></li><li><a href="module-widgets_rectangle.html">widgets/rectangle</a></li><li><a href="module-widgets_ruler.html">widgets/ruler</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="Unpack.html">Unpack</a></li></ul><h3>Global</h3><ul><li><a href="global.html#cielab2RGB">cielab2RGB</a></li><li><a href="global.html#cielab2XYZ">cielab2XYZ</a></li><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#segmentation">segmentation</a></li><li><a href="global.html#uniforms">uniforms</a></li><li><a href="global.html#xyz2RGB">xyz2RGB</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.0-dev</a> on Thu May 17 2018 09:52:13 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.0-dev</a> on Tue Jun 26 2018 10:55:42 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
