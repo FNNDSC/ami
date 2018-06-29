@@ -1,17 +1,17 @@
 /* globals Stats, dat*/
 
-import CamerasOrthographic from '../../src/cameras/cameras.orthographic';
-import ControlsOrthographic from '../../src/controls/controls.trackballortho';
-import HelpersLut from '../../src/helpers/helpers.lut';
-import HelpersStack from '../../src/helpers/helpers.stack';
-import LoadersVolume from '../../src/loaders/loaders.volume';
+import CamerasOrthographic from 'base/cameras/cameras.orthographic';
+import ControlsOrthographic from 'base/controls/controls.trackballortho';
+import HelpersLut from 'base/helpers/helpers.lut';
+import HelpersStack from 'base/helpers/helpers.stack';
+import LoadersVolume from 'base/loaders/loaders.volume';
 
-import ShadersLayerUniform from '../../src/shaders/shaders.layer.uniform';
-import ShadersLayerVertex from '../../src/shaders/shaders.layer.vertex';
-import ShadersLayerFragment from '../../src/shaders/shaders.layer.fragment';
-import ShadersUniform from '../../src/shaders/shaders.data.uniform';
-import ShadersVertex from '../../src/shaders/shaders.data.vertex';
-import ShadersFragment from '../../src/shaders/shaders.data.fragment';
+import ShadersLayerUniform from 'base/shaders/shaders.layer.uniform';
+import ShadersLayerVertex from 'base/shaders/shaders.layer.vertex';
+import ShadersLayerFragment from 'base/shaders/shaders.layer.fragment';
+import ShadersUniform from 'base/shaders/shaders.data.uniform';
+import ShadersVertex from 'base/shaders/shaders.data.vertex';
+import ShadersFragment from 'base/shaders/shaders.data.fragment';
 
 // standard global letiables
 let controls;
@@ -67,19 +67,23 @@ let layerMix = {
   trackMouse: true,
 };
 
+function render() {
+  // render
+  controls.update();
+  // render first layer offscreen
+  renderer.render(sceneLayer0, camera, sceneLayer0TextureTarget, true);
+  // render second layer offscreen
+  renderer.render(sceneLayer1, camera, sceneLayer1TextureTarget, true);
+  // mix the layers and render it ON screen!
+  renderer.render(sceneLayerMix, camera);
+  statsyay.update();
+}
+
 // FUNCTIONS
 function init() {
   // this function is executed on each animation frame
   function animate() {
-    // render
-    controls.update();
-    // render first layer offscreen
-    renderer.render(sceneLayer0, camera, sceneLayer0TextureTarget, true);
-    // render second layer offscreen
-    renderer.render(sceneLayer1, camera, sceneLayer1TextureTarget, true);
-    // mix the layers and render it ON screen!
-    renderer.render(sceneLayerMix, camera);
-    statsyay.update();
+    render();
 
     // request new frame
     requestAnimationFrame(function() {
@@ -377,6 +381,7 @@ window.onload = function() {
     uniformsLayer1.uDataDimensions.value = [stack2.dimensionsIJK.x,
                                                 stack2.dimensionsIJK.y,
                                                 stack2.dimensionsIJK.z];
+    uniformsLayer1.uLowerUpperThreshold.value = [...stack2.minMax];
 
     // generate shaders on-demand!
     let fs = new ShadersFragment(uniformsLayer1);
@@ -391,7 +396,7 @@ window.onload = function() {
     // add mesh in this scene with right shaders...
     meshLayer1 = new THREE.Mesh(stackHelper.slice.geometry, materialLayer1);
     // go the LPS space
-    meshLayer1.applyMatrix(stack2._ijk2LPS);
+    meshLayer1.applyMatrix(stack._ijk2LPS);
     sceneLayer1.add(meshLayer1);
 
     //
@@ -416,7 +421,7 @@ window.onload = function() {
     // add mesh in this scene with right shaders...
     meshLayerMix = new THREE.Mesh(stackHelper.slice.geometry, materialLayerMix);
     // go the LPS space
-    meshLayerMix.applyMatrix(stack2._ijk2LPS);
+    meshLayerMix.applyMatrix(stack._ijk2LPS);
     sceneLayerMix.add(meshLayerMix);
 
     // set camera
@@ -471,6 +476,12 @@ window.onload = function() {
   loader.load(files)
   .then(function() {
     handleSeries();
+    // force 1st render
+    render();
+    // notify puppeteer to take screenshot
+    const puppetDiv = document.createElement('div');
+    puppetDiv.setAttribute('id', 'puppeteer');
+    document.body.appendChild(puppetDiv);
   })
   .catch(function(error) {
     window.console.log('oops... something went wrong...');

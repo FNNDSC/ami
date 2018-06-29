@@ -1,7 +1,7 @@
 const URL = require('url');
 import Validators from './core.validators';
 
-import {Matrix4, Vector3} from 'three';
+import {Box3, Matrix4, Raycaster, Triangle, Vector3} from 'three';
 
 /**
  * General purpose functions.
@@ -167,6 +167,7 @@ export default class CoreUtils {
 
   /**
    * Compute IJK to LPS tranform.
+   *  http://nipy.org/nibabel/dicom/dicom_orientation.html
    *
    * @param {*} xCos
    * @param {*} yCos
@@ -224,7 +225,7 @@ export default class CoreUtils {
    *
    * @return {*}
    */
-    static worldToData(lps2IJK, worldCoordinates) {
+  static worldToData(lps2IJK, worldCoordinates) {
     let dataCoordinate = new Vector3()
       .copy(worldCoordinates)
       .applyMatrix4(lps2IJK);
@@ -235,19 +236,41 @@ export default class CoreUtils {
     return dataCoordinate;
   }
 
+  static value(stack, coordinate) {
+    window.console.warn('value is deprecated, please use getPixelData instead');
+    this.getPixelData(stack, coordinate);
+  }
+
   /**
    * Get voxel value
    *
-   * @param {*} stack
-   * @param {*} coordinate
-   *
+   * @param {ModelsStack} stack
+   * @param {Vector3} coordinate
    * @return {*}
    */
-  static value(stack, coordinate) {
+  static getPixelData(stack, coordinate) {
     if (coordinate.z >= 0 &&
         coordinate.z < stack._frame.length) {
       return stack._frame[coordinate.z].
-        value(coordinate.x, coordinate.y);
+        getPixelData(coordinate.x, coordinate.y);
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Set voxel value
+   *
+   * @param {ModelsStack} stack
+   * @param {Vector3} coordinate
+   * @param {Number} value
+   * @return {*}
+   */
+  static setPixelData(stack, coordinate, value) {
+    if (coordinate.z >= 0 &&
+        coordinate.z < stack._frame.length) {
+      stack._frame[coordinate.z].
+        setPixelData(coordinate.x, coordinate.y, value);
     } else {
       return null;
     }
@@ -264,5 +287,177 @@ export default class CoreUtils {
    */
   static rescaleSlopeIntercept(value, slope, intercept) {
     return value * slope + intercept;
+  }
+
+  /**
+  * 
+  *
+  * Convenience function to extract center of mass from list of points.
+  *
+  * @private
+  *
+  * @param {Array<Vector3>} points - Set of points from which we want to extract the center of mass.
+  *
+  * @returns {Vector3} Center of mass from given points.
+  */
+  static centerOfMass(points) {
+    let centerOfMass = new Vector3(0, 0, 0);
+    for (let i = 0; i < points.length; i++) {
+      centerOfMass.x += points[i].x;
+      centerOfMass.y += points[i].y;
+      centerOfMass.z += points[i].z;
+    }
+    centerOfMass.divideScalar(points.length);
+
+    return centerOfMass;
+  }
+
+  /**
+  *
+  * Order 3D planar points around a refence point.
+  *
+  * @private
+  *
+  * @param {Array<Vector3>} points - Set of planar 3D points to be ordered.
+  * @param {Vector3} direction - Direction of the plane in which points and reference are sitting.
+  *
+  * @returns {Array<Object>} Set of object representing the ordered points.
+  */
+  static orderIntersections(points, direction) {
+    let reference = this.centerOfMass(points);
+    // direction from first point to reference
+    let referenceDirection = new Vector3(
+      points[0].x - reference.x,
+      points[0].y - reference.y,
+      points[0].z - reference.z
+      ).normalize();
+
+    let base = new Vector3(0, 0, 0)
+        .crossVectors(referenceDirection, direction)
+        .normalize();
+
+    let orderedpoints = [];
+
+    // other lines // if inter, return location + angle
+    for (let j = 0; j < points.length; j++) {
+      let point = new Vector3(
+        points[j].x,
+        points[j].y,
+        points[j].z);
+      point.direction = new Vector3(
+        points[j].x - reference.x,
+        points[j].y - reference.y,
+        points[j].z - reference.z).normalize();
+
+      let x = referenceDirection.dot(point.direction);
+      let y = base.dot(point.direction);
+      point.xy = {x, y};
+
+      let theta = Math.atan2(y, x) * (180 / Math.PI);
+      point.angle = theta;
+
+      orderedpoints.push(point);
+    }
+
+    orderedpoints.sort(function(a, b) {
+      return a.angle - b.angle;
+    });
+
+    let noDups = [orderedpoints[0]];
+    let epsilon = 0.0001;
+    for (let i=1; i<orderedpoints.length; i++) {
+      if (Math.abs(orderedpoints[i-1].angle - orderedpoints[i].angle) > epsilon) {
+        noDups.push(orderedpoints[i]);
+      }
+    }
+
+    return noDups;
+  }
+
+  /**
+   * Get min, max, mean and sd of voxel values behind the mesh
+   *
+   * @param {THREE.Mesh}  mesh    Region of Interest
+   * @param {*}           camera  Tested on CamerasOrthographic
+   * @param {ModelsStack} stack
+   *
+   * @return {Object|null}
+   */
+  static getRoI(mesh, camera, stack) {
+    mesh.geometry.computeBoundingBox();
+
+    const bbox = new Box3().setFromObject(mesh);
+    const min = bbox.min.clone().project(camera);
+    const max = bbox.max.clone().project(camera);
+    const offsetWidth = camera.controls.domElement.offsetWidth;
+    const offsetHeight = camera.controls.domElement.offsetHeight;
+    const rayCaster = new Raycaster();
+    const values = [];
+
+    min.x = Math.round((min.x + 1) * offsetWidth / 2);
+    min.y = Math.round((-min.y + 1) * offsetHeight / 2);
+    max.x = Math.round((max.x + 1) * offsetWidth / 2);
+    max.y = Math.round((-max.y + 1) * offsetHeight / 2);
+    [min.x, max.x] = [Math.min(min.x, max.x), Math.max(min.x, max.x)];
+    [min.y, max.y] = [Math.min(min.y, max.y), Math.max(min.y, max.y)];
+
+    let intersect = [];
+    let value = null;
+
+    for (let x = min.x; x <= max.x; x++) {
+      for (let y = min.y; y <= max.y; y++) {
+        rayCaster.setFromCamera({
+          x: (x / offsetWidth) * 2 - 1,
+          y: -(y / offsetHeight) * 2 + 1,
+        }, camera);
+        intersect = rayCaster.intersectObject(mesh);
+
+        if (intersect.length === 0) {
+          continue;
+        }
+
+        value = CoreUtils.getPixelData(stack, CoreUtils.worldToData(stack.lps2IJK, intersect[0].point));
+
+        // the image isn't RGB and coordinates are inside it
+        if (value !== null && stack.numberOfChannels === 1) {
+          values.push(CoreUtils.rescaleSlopeIntercept(value, stack.rescaleSlope, stack.rescaleIntercept));
+        }
+      }
+    }
+
+    if (values.length === 0) {
+      return null;
+    }
+
+    const avg = values.reduce((sum, val) => sum + val) / values.length;
+
+    return {
+      min: values.reduce((prev, val) => prev < val ? prev : val),
+      max: values.reduce((prev, val) => prev > val ? prev : val),
+      mean: avg,
+      sd: Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / values.length),
+    };
+  }
+
+  /**
+   * Calculate shape area (sum of triangle polygons area).
+   *
+   * @param {THREE.Geometry} geometry
+   *
+   * @returns {Number}
+   */
+  static getGeometryArea(geometry) {
+    if (geometry.faces.length < 1) {
+      return 0.0;
+    }
+
+    let area = 0.0;
+    let vertices = geometry.vertices;
+
+    geometry.faces.forEach(function(elem) {
+      area += new Triangle(vertices[elem.a], vertices[elem.b], vertices[elem.c]).getArea();
+    });
+
+    return area;
   }
 }

@@ -1,8 +1,6 @@
-import Orthographic from './cameras.orthographic';
+import Orthographic, {camerasOrthographic} from './cameras.orthographic';
 
-/**
- * @module cameras
- */
-export default {
-  Orthographic,
+export {
+  Orthographic as OrthographicCamera,
+  camerasOrthographic as orthographicCameraFactory,
 };

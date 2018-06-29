@@ -22,6 +22,7 @@ export default class HelpersProgressBar {
     this._mode = null;
     this._value = null;
     this._total = null;
+    this._totalFiles = null;
 
     this.init();
   }
@@ -54,7 +55,8 @@ export default class HelpersProgressBar {
     this.updateUI();
   }
 
-  update(value, total, mode) {
+  // url can be used in child class to show overall progress bar
+  update(value, total, mode, url = '') {
     this._mode = mode;
     this._value = value;
     // depending on CDN, total return to XHTTPRequest can be 0.
@@ -78,7 +80,6 @@ export default class HelpersProgressBar {
       return false;
     }
 
-    const message = '';
     const progress = Math.round((this._value / this._total) * 100);
     const color = this._modes[this._mode].color;
 
@@ -128,5 +129,13 @@ export default class HelpersProgressBar {
     bar.style.width = '0%';
 
     return bar;
+  }
+
+  set totalFiles(totalFiles) {
+      this._totalFiles = totalFiles;
+  }
+
+  get totalFiles() {
+      return this._totalFiles;
   }
 }

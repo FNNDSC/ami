@@ -4,6 +4,8 @@ import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
 import ModelsBase from '../models/models.base';
 
+import {RGBFormat, RGBAFormat} from 'three';
+
 const binaryString = require('math-float32-to-binary-string');
 
 /**
@@ -41,7 +43,7 @@ export default class ModelsStack extends ModelsBase {
     this._rescaleSlope = 1;
     this._rescaleIntercept = 0;
 
-    this._minMax = [65535, -32768];
+    this._minMax = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
 
     // TRANSFORMATION MATRICES
     this._regMatrix = new Matrix4();
@@ -199,14 +201,7 @@ export default class ModelsStack extends ModelsBase {
       this.prepareSegmentation();
     }
 
-    // we need at least 1 frame
-    if (this._frame && this._frame.length > 0) {
-      this._numberOfFrames = this._frame.length;
-    } else {
-      window.console.log('_frame doesn\'t contain anything....');
-      window.console.log(this._frame);
-      return false;
-    }
+    this.computeNumberOfFrames();
 
     // pass parameters from frame to stack
     this._rows = this._frame[0].rows;
@@ -225,7 +220,9 @@ export default class ModelsStack extends ModelsBase {
     this.computeCosines();
 
     // order the frames
-    this.orderFrames();
+    if (this._numberOfFrames > 1) {
+      this.orderFrames();
+    }
 
     // compute/guess spacing
     this.computeSpacing();
@@ -247,8 +244,11 @@ export default class ModelsStack extends ModelsBase {
     this.computeLPS2AABB();
     // this.packEchos();
 
-    this._rescaleSlope = this._frame[0].rescaleSlope || 1;
-    this._rescaleIntercept = this._frame[0].rescaleIntercept || 0;
+    const middleFrameIndex = Math.floor(this._frame.length / 2);
+    const middleFrame = this._frame[middleFrameIndex];
+
+    this._rescaleSlope = middleFrame.rescaleSlope || 1;
+    this._rescaleIntercept = middleFrame.rescaleIntercept || 0;
 
     // rescale/slope min max
     this.computeMinMaxIntensities();
@@ -261,15 +261,13 @@ export default class ModelsStack extends ModelsBase {
       this._rescaleSlope,
       this._rescaleIntercept);
 
-    let width =
-      this._frame[0].windowWidth * this._rescaleSlope || this._minMax[1] - this._minMax[0];
-    this._windowWidth = width + this._rescaleIntercept;
+    this._windowWidth =
+      middleFrame.windowWidth || this._minMax[1] - this._minMax[0];
 
-    let center =
-      this._frame[0].windowCenter * this._rescaleSlope || this._minMax[0] + width / 2;
-    this._windowCenter = center + this._rescaleIntercept;
+    this._windowCenter =
+      middleFrame.windowCenter || this._minMax[0] + this._windowWidth / 2;
 
-    this._bitsAllocated = this._frame[0].bitsAllocated;
+    this._bitsAllocated = middleFrame.bitsAllocated;
     this._prepared = true;
   }
 
@@ -298,6 +296,17 @@ export default class ModelsStack extends ModelsBase {
     );
   }
 
+  computeNumberOfFrames() {
+    // we need at least 1 frame
+    if (this._frame && this._frame.length > 0) {
+      this._numberOfFrames = this._frame.length;
+    } else {
+      window.console.warn('_frame doesn\'t contain anything....');
+      window.console.warn(this._frame);
+      return false;
+    }
+  }
+
   // frame.cosines - returns array [x, y, z]
   computeCosines() {
     if (this._frame &&
@@ -312,10 +321,10 @@ export default class ModelsStack extends ModelsBase {
   orderFrames() {
     // order the frames based on theirs dimension indices
     // first index is the most important.
-    // 1,1,1,1 willl be first
+    // 1,1,1,1 will be first
     // 1,1,2,1 will be next
     // 1,1,2,3 will be next
-    // 1,1,3,1 wil be next
+    // 1,1,3,1 will be next
     if (this._frame[0].dimensionIndexValues) {
       this._frame.sort(this._orderFrameOnDimensionIndicesArraySort);
 
@@ -338,19 +347,10 @@ export default class ModelsStack extends ModelsBase {
       this._frame[1] && this._frame[1].sopInstanceUID &&
       this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
       this._frame.sort(this._sortSopInstanceUIDArraySort);
+    } else if (!this._frame[0].imagePosition) {
+      // cancel warning if you have set null imagePosition on purpose (?)
     } else {
-      // window.console.log(this._frame[0]);
-      // window.console.log(this._frame[1]);
-      // window.console.log(this._frame[0].instanceNumber !== null && true);
-      // window.console.log(
-      // this._frame[0].instanceNumber !== this._frame[1].instanceNumber);
-      window.console.log('do not know how to order the frames...');
-      // else slice location
-      // image number
-      // ORDERING BASED ON instance number
-      // _ordering = 'instance_number';
-      // first_image.sort(function(a,b){
-      // return a["instance_number"]-b["instance_number"]});
+      window.console.warn('do not know how to order the frames...');
     }
   }
 
@@ -407,10 +407,19 @@ export default class ModelsStack extends ModelsBase {
    */
   computeMinMaxIntensities() {
     // what about colors!!!!?
+    // we ignore values if NaNs
+    // https://github.com/FNNDSC/ami/issues/185
     for (let i = 0; i < this._frame.length; i++) {
       // get min/max
-      this._minMax[0] = Math.min(this._minMax[0], this._frame[i].minMax[0]);
-      this._minMax[1] = Math.max(this._minMax[1], this._frame[i].minMax[1]);
+      let min = this._frame[i].minMax[0];
+      if (!Number.isNaN(min)) {
+        this._minMax[0] = Math.min(this._minMax[0], min);
+      }
+
+      let max = this._frame[i].minMax[1];
+      if (!Number.isNaN(max)) {
+        this._minMax[1] = Math.max(this._minMax[1], max);
+      }
     }
   }
 
@@ -452,7 +461,13 @@ export default class ModelsStack extends ModelsBase {
    */
   merge(stack) {
     // also make sure x/y/z cosines are a match!
-    if (this._stackID === stack.stackID) {
+    if (this._stackID === stack.stackID &&
+        this._numberOfFrames === 1 && stack._numberOfFrames === 1 &&
+        this._frame[0].columns === stack.frame[0].columns &&
+        this._frame[0].rows === stack.frame[0].rows &&
+        this._xCosine.equals(stack.xCosine) &&
+        this._yCosine.equals(stack.yCosine) &&
+        this._zCosine.equals(stack.zCosine)) {
       return this.mergeModels(this._frame, stack.frame);
     } else {
       return false;
@@ -468,6 +483,10 @@ export default class ModelsStack extends ModelsBase {
       this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
 
     // Packing style
+    if (this._bitsAllocated === 8 && this._numberOfChannels === 1 || this._bitsAllocated === 1) {
+      this._packedPerPixel = 4;
+    }
+
     if (this._bitsAllocated === 16 && this._numberOfChannels === 1) {
       this._packedPerPixel = 2;
     }
@@ -533,15 +552,23 @@ export default class ModelsStack extends ModelsBase {
     const frameDimension = frame[0].rows * frame[0].columns;
 
     if (bitsAllocated === 8 && channels === 1 || bitsAllocated === 1) {
-      let data = new Uint8Array(textureSize * textureSize * 1);
+      let data = new Uint8Array(textureSize * textureSize * 4);
+      let coordinate = 0;
+      let channelOffset = 0;
       for (let i = startVoxel; i < stopVoxel; i++) {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
 
-        data[packIndex] = offset + frame[frameIndex].pixelData[inFrameIndex];
+        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(raw)) {
+          data[4 * coordinate + channelOffset] = raw;
+        }
+
         packIndex++;
+        coordinate = Math.floor(packIndex / 4);
+        channelOffset = packIndex % 4;
       }
-      packed.textureType = THREE.LuminanceFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 16 && channels === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -553,16 +580,18 @@ export default class ModelsStack extends ModelsBase {
         inFrameIndex = i % (frameDimension);
 
 
-        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
-        data[4 * coordinate + 2 * channelOffset] = raw & 0x00FF;
-        data[4 * coordinate + 2 * channelOffset + 1] = (raw >>> 8) & 0x00FF;
+        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(raw)) {
+          data[4 * coordinate + 2 * channelOffset] = raw & 0x00FF;
+          data[4 * coordinate + 2 * channelOffset + 1] = (raw >>> 8) & 0x00FF;
+        }
 
         packIndex++;
         coordinate = Math.floor(packIndex / 2);
         channelOffset = packIndex % 2;
       }
 
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 0) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -570,15 +599,17 @@ export default class ModelsStack extends ModelsBase {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
 
-        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
-        data[4 * packIndex] = raw & 0x000000FF;
-        data[4 * packIndex + 1] = (raw >>> 8) & 0x000000FF;
-        data[4 * packIndex + 2] = (raw >>> 16) & 0x000000FF;
-        data[4 * packIndex + 3] = (raw >>> 24) & 0x000000FF;
+        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(raw)) {
+          data[4 * packIndex] = raw & 0x000000FF;
+          data[4 * packIndex + 1] = (raw >>> 8) & 0x000000FF;
+          data[4 * packIndex + 2] = (raw >>> 16) & 0x000000FF;
+          data[4 * packIndex + 3] = (raw >>> 24) & 0x000000FF;
+        }
 
         packIndex++;
       }
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -587,19 +618,21 @@ export default class ModelsStack extends ModelsBase {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
 
-        let raw = offset + frame[frameIndex].pixelData[inFrameIndex];
-        let bitString = binaryString(raw);
-        let bitStringArray = bitString.match(/.{1,8}/g);
+        let raw = frame[frameIndex].pixelData[inFrameIndex] + offset;
+        if (!Number.isNaN(raw)) {
+          let bitString = binaryString(raw);
+          let bitStringArray = bitString.match(/.{1,8}/g);
 
-        data[4 * packIndex] = parseInt(bitStringArray[0], 2);
-        data[4 * packIndex + 1] = parseInt(bitStringArray[1], 2);
-        data[4 * packIndex + 2] = parseInt(bitStringArray[2], 2);
-        data[4 * packIndex + 3] = parseInt(bitStringArray[3], 2);
+          data[4 * packIndex] = parseInt(bitStringArray[0], 2);
+          data[4 * packIndex + 1] = parseInt(bitStringArray[1], 2);
+          data[4 * packIndex + 2] = parseInt(bitStringArray[2], 2);
+          data[4 * packIndex + 3] = parseInt(bitStringArray[3], 2);
+        }
 
         packIndex++;
       }
 
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 8 && channels === 3) {
       let data = new Uint8Array(textureSize * textureSize * 3);
@@ -617,7 +650,7 @@ export default class ModelsStack extends ModelsBase {
         packIndex++;
       }
 
-      packed.textureType = THREE.RGBFormat;
+      packed.textureType = RGBFormat;
       packed.data = data;
     }
 
@@ -656,7 +689,7 @@ export default class ModelsStack extends ModelsBase {
             Math.min(bbox[0], world.x), Math.max(bbox[1], world.x), // x min/max
             Math.min(bbox[2], world.y), Math.max(bbox[3], world.y),
             Math.min(bbox[4], world.z), Math.max(bbox[5], world.z),
-            ];
+          ];
         }
       }
     }
@@ -728,18 +761,20 @@ export default class ModelsStack extends ModelsBase {
         }
       }
     } else {
-      window.console.log('One of the frames doesn\'t have a dimensionIndexValues array.');
-      window.console.log(a);
-      window.console.log(b);
+      window.console.warn('One of the frames doesn\'t have a dimensionIndexValues array.');
+      window.console.warn(a);
+      window.console.warn(b);
     }
 
     return 0;
   }
 
   _computeDistanceArrayMap(normal, frame) {
-    frame.dist = frame.imagePosition[0] * normal.x +
-      frame.imagePosition[1] * normal.y +
-      frame.imagePosition[2] * normal.z;
+    if (frame.imagePosition) {
+      frame.dist = frame.imagePosition[0] * normal.x +
+        frame.imagePosition[1] * normal.y +
+        frame.imagePosition[2] * normal.z;
+    }
     return frame;
   }
 
@@ -1038,7 +1073,7 @@ export default class ModelsStack extends ModelsBase {
    * @return {*}
    */
   static value(stack, coordinate) {
-    console.warn(
+    window.console.warn(
       `models.stack.value is deprecated.
        Please use core.utils.value instead.`);
     return CoreUtils.value(stack, coordinate);
@@ -1056,7 +1091,7 @@ export default class ModelsStack extends ModelsBase {
    * @return {*}
    */
   static valueRescaleSlopeIntercept(value, slope, intercept) {
-    console.warn(
+    window.console.warn(
       `models.stack.valueRescaleSlopeIntercept is deprecated.
        Please use core.utils.rescaleSlopeIntercept instead.`);
     return CoreUtils.rescaleSlopeIntercept(
@@ -1074,7 +1109,7 @@ export default class ModelsStack extends ModelsBase {
    * @return {*}
    */
   static worldToData(stack, worldCoordinates) {
-    console.warn(
+    window.console.warn(
       `models.stack.worldToData is deprecated.
        Please use core.utils.worldToData instead.`);
 

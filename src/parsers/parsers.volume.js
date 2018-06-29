@@ -10,6 +10,10 @@ export default class ParsersVolume {
     return 0;
   }
 
+  pixelPaddingValue(frameIndex = 0) {
+    return null;
+  }
+
   modality() {
     return 'unknown';
   }
@@ -65,6 +69,10 @@ export default class ParsersVolume {
 
   rescaleIntercept(frameIndex = 0) {
     return 0;
+  }
+
+  frameTime(frameIndex = 0) {
+    return null;
   }
 
   _decompressUncompressed() {
@@ -176,7 +184,7 @@ export default class ParsersVolume {
    * @return {*}
    */
   minMaxPixelData(pixelData = []) {
-    let minMax = [65535, -32768];
+    let minMax = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
     let numPixels = pixelData.length;
     for (let index = 0; index < numPixels; index++) {
       let spv = pixelData[index];

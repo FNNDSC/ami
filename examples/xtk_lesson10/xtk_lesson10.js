@@ -1,7 +1,7 @@
 // XTK imports
-import XRenderer3D from '../../src/helpers/x/helpers.x.renderer3d';
-import XMesh from '../../src/helpers/x/helpers.x.mesh';
-import XVolume from '../../src/helpers/x/helpers.x.volume';
+import XRenderer3D from 'base/helpers/x/helpers.x.renderer3d';
+import XMesh from 'base/helpers/x/helpers.x.mesh';
+import XVolume from 'base/helpers/x/helpers.x.volume';
 
 window.onload = function() {
     // INIT THE RENDERER
@@ -30,6 +30,13 @@ window.onload = function() {
     xVolume.load().then((volume) => {
         renderer.add(volume);
         renderer.center(volume.centerLPS);
+
+        // force first render
+        renderer.render();
+        // notify puppeteer to take screenshot
+        const puppetDiv = document.createElement('div');
+        puppetDiv.setAttribute('id', 'puppeteer');
+        document.body.appendChild(puppetDiv);
     }).catch((error) =>
       console.log('ERROR: something went wrong with the volume load.', error));
 };

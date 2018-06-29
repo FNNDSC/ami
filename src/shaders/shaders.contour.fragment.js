@@ -70,7 +70,9 @@ void main(void) {
   gl_FragColor.r = max(max(centerPixel.r, rightPixel.r), bottomPixel.r);
   gl_FragColor.g = max(max(centerPixel.g, rightPixel.g), bottomPixel.g);
   gl_FragColor.b = max(max(centerPixel.b, rightPixel.b), bottomPixel.b);
-  gl_FragColor.a = max(_dFdX, _dFdY);
+  float maxDerivative = max(_dFdX, _dFdY);
+  float clampedDerivative = clamp(maxDerivative, 0., 1.);
+  gl_FragColor.a = uOpacity * clampedDerivative;
 
   return;
   // float h = 1./uCanvasHeight;
@@ -90,7 +92,7 @@ void main(void) {
   // vec3 sobel = sqrt((sobel_horizEdge.rgb * sobel_horizEdge.rgb) + (sobel_vertEdge.rgb * sobel_vertEdge.rgb));
   // gl_FragColor = vec4( sobel, max(max(sobel.r, sobel.g), sobel.b) );
 
-  return;
+  // return;
 }
    `;
   }

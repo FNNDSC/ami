@@ -1,11 +1,9 @@
-import Slice from './geometries.slice';
-import Voxel from './geometries.voxel';
+import Slice, {geometriesSlice} from './geometries.slice';
+import Voxel, {geometriesVoxel} from './geometries.voxel';
 
-/**
- * @module geometries
- */
-
-export default {
-  Slice,
-  Voxel,
+export {
+    Slice as SliceGeometry,
+    geometriesSlice as sliceGeometryFactory,
+    Voxel as VoxelGeometry,
+    geometriesVoxel as voxelGeometryFactory,
 };

@@ -1,8 +1,8 @@
 /* globals Stats*/
 
-import ControlsTrackball from '../../src/controls/controls.trackball';
-import HelpersStack from '../../src/helpers/helpers.stack';
-import LoadersVolume from '../../src/loaders/loaders.volume';
+import ControlsTrackball from 'base/controls/controls.trackball';
+import HelpersStack from 'base/helpers/helpers.stack';
+import LoadersVolume from 'base/loaders/loaders.volume';
 
 // standard global variables
 let controls;
@@ -13,12 +13,16 @@ let camera;
 let stackHelper;
 let threeD;
 
+function render() {
+  controls.update();
+  renderer.render(scene, camera);
+  stats.update();
+}
+
 function init() {
   // this function is executed on each animation frame
   function animate() {
-    controls.update();
-    renderer.render(scene, camera);
-    stats.update();
+    render();
 
     // request new frame
     requestAnimationFrame(function() {
@@ -123,6 +127,13 @@ window.onload = function() {
     }
 
     window.addEventListener('resize', onWindowResize, false);
+
+    // force 1st render
+    render();
+    // notify puppeteer to take screenshot
+    const puppetDiv = document.createElement('div');
+    puppetDiv.setAttribute('id', 'puppeteer');
+    document.body.appendChild(puppetDiv);
   })
   .catch(function(error) {
     window.console.log('oops... something went wrong...');

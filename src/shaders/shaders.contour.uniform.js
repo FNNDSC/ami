@@ -20,6 +20,11 @@ export default class ShadersUniform {
         value: 1.,
         typeGLSL: 'float',
       },
+      'uOpacity': {
+        type: 'f',
+        value: 1.,
+        typeGLSL: 'float',
+      },
       'uTextureFilled': {
         type: 't',
         value: [],

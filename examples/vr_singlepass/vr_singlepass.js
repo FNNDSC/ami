@@ -1,9 +1,9 @@
 /* globals Stats, dat*/
 
-import ControlsTrackball from '../../src/controls/controls.trackball';
-import HelpersLut from '../../src/helpers/helpers.lut';
-import HelpersVR from '../../src/helpers/helpers.volumerendering';
-import LoadersVolume from '../../src/loaders/loaders.volume';
+import ControlsTrackball from 'base/controls/controls.trackball';
+import HelpersLut from 'base/helpers/helpers.lut';
+import HelpersVR from 'base/helpers/helpers.volumerendering';
+import LoadersVolume from 'base/loaders/loaders.volume';
 
 // standard global letiables
 let controls;
@@ -15,8 +15,12 @@ let scene;
 let vrHelper;
 let lut;
 let ready = false;
+let modified = false;
+let wheel = null;
+let wheelTO = null;
 
 let myStack = {
+  algorithm: 'ray marching',
   lut: 'random',
   opacity: 'random',
   steps: 256,
@@ -26,18 +30,52 @@ let myStack = {
   interpolation: 1,
 };
 
-function onMouseDown() {
-  if (vrHelper && vrHelper.uniforms) {
-    vrHelper.uniforms.uSteps.value = Math.floor(myStack.steps / 2);
-    vrHelper.interpolation = 0;
+function onStart(event) {
+  if (vrHelper && vrHelper.uniforms && !wheel) {
+    renderer.setPixelRatio(.1 * window.devicePixelRatio);
+    renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+    modified = true;
   }
 }
 
-function onMouseUp() {
-  if (vrHelper && vrHelper.uniforms) {
-    vrHelper.uniforms.uSteps.value = myStack.steps;
-    vrHelper.interpolation = myStack.interpolation;
+function onEnd(event) {
+  if (vrHelper && vrHelper.uniforms && !wheel) {
+    renderer.setPixelRatio(.5 * window.devicePixelRatio);
+    renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+    modified = true;
+
+    setTimeout(function() {
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+      modified = true;
+    }, 100);
   }
+}
+
+function onWheel() {
+  if (!wheel) {
+    renderer.setPixelRatio(.1 * window.devicePixelRatio);
+    renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+    wheel = Date.now();
+  }
+
+  if (Date.now() - wheel < 300) {
+    clearTimeout(wheelTO);
+    wheelTO = setTimeout(function() {
+      renderer.setPixelRatio(.5 * window.devicePixelRatio);
+      renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+      modified = true;
+
+      setTimeout(function() {
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+        wheel = null;
+        modified = true;
+      }, 100);
+    }, 300);
+  }
+
+  modified = true;
 }
 
 function onWindowResize() {
@@ -45,8 +83,9 @@ function onWindowResize() {
   camera.aspect = threeD.offsetWidth / threeD.offsetHeight;
   camera.updateProjectionMatrix();
 
-    // notify the renderer of the size change
+  // notify the renderer of the size change
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+  modified = true;
 }
 
 function buildGUI() {
@@ -58,11 +97,18 @@ function buildGUI() {
   customContainer.appendChild(gui.domElement);
 
   let stackFolder = gui.addFolder('Settings');
+  let algorithmUpdate = stackFolder.add(myStack, 'algorithm', ['ray marching', 'mip']);
+  algorithmUpdate.onChange(function(value) {
+    vrHelper.algorithm = value === 'mip' ? 1 : 0;
+    modified = true;
+  });
+
   let lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
   lutUpdate.onChange(function(value) {
       lut.lut = value;
       vrHelper.uniforms.uTextureLUT.value.dispose();
       vrHelper.uniforms.uTextureLUT.value = lut.texture;
+      modified = true;
     });
   // init LUT
   lut.lut = myStack.lut;
@@ -74,12 +120,14 @@ function buildGUI() {
       lut.lutO = value;
       vrHelper.uniforms.uTextureLUT.value.dispose();
       vrHelper.uniforms.uTextureLUT.value = lut.texture;
+      modified = true;
     });
 
   let stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
   stepsUpdate.onChange(function(value) {
       if (vrHelper.uniforms) {
         vrHelper.uniforms.uSteps.value = value;
+        modified = true;
       }
     });
 
@@ -87,39 +135,50 @@ function buildGUI() {
   alphaCorrrectionUpdate.onChange(function(value) {
       if (vrHelper.uniforms) {
         vrHelper.uniforms.uAlphaCorrection.value = value;
+        modified = true;
       }
     });
 
-  // let frequenceUpdate = stackFolder.add(myStack, 'frequence', 0, 1).step(0.01);
-  // frequenceUpdate.onChange(function(value) {
-  // if (vrHelper.uniforms) {
-  //   vrHelper.uniforms.uFrequence.value = value;
-  // }
-  // });
+  let interpolationUpdate = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
+  interpolationUpdate.onChange(function(value) {
+    if (vrHelper.uniforms) {
+      modified = true;
+    }
+  });
 
-  // let amplitudeUpdate = stackFolder.add(myStack, 'amplitude', 0, 0.5).step(0.01);
-  // amplitudeUpdate.onChange(function(value) {
-  // if (vrHelper.uniforms) {
-  //   vrHelper.uniforms.uAmplitude.value = value;
-  // }
-  // });
+  let shadingUpdate = stackFolder.add(vrHelper, 'shading', 0, 1).step(1);
+  shadingUpdate.onChange(function(value) {
+    if (vrHelper.uniforms) {
+      modified = true;
+    }
+  });
 
-  let interpolation = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
+  let shininessUpdate = stackFolder.add(vrHelper, 'shininess', 0, 20).step(.1);
+  shininessUpdate.onChange(function(value) {
+    if (vrHelper.uniforms) {
+      modified = true;
+    }
+  });
 
   stackFolder.open();
+}
+
+function render() {
+  // render
+  controls.update();
+
+  if (ready && modified) {
+    renderer.render(scene, camera);
+    modified = false;
+  }
+
+  stats.update();
 }
 
 function init() {
   // this function is executed on each animation frame
   function animate() {
-    // render
-    controls.update();
-
-    if (ready) {
-      renderer.render(scene, camera);
-    }
-
-    stats.update();
+    render();
 
     // request new frame
     requestAnimationFrame(function() {
@@ -133,6 +192,7 @@ function init() {
     alpha: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
   threeD.appendChild(renderer.domElement);
 
   // scene
@@ -156,11 +216,14 @@ function init() {
   controls.panSpeed = 0.8;
   controls.staticMoving = true;
   controls.dynamicDampingFactor = 0.3;
+  controls.addEventListener('change', () => {
+    modified = true;
+  });
+  controls.addEventListener('start', onStart);
+  controls.addEventListener('end', onEnd);
 
-  threeD.addEventListener('mousedown', onMouseDown, false);
-  threeD.addEventListener('mouseup', onMouseUp, false);
   window.addEventListener('resize', onWindowResize, false);
-
+  renderer.domElement.addEventListener('wheel', onWheel);
   // start rendering loop
   animate();
 }
@@ -170,11 +233,12 @@ window.onload = function() {
   init();
 
   let filename = 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz';
+  let files = [filename];
 
   // load sequence for each file
   // instantiate the loader
   let loader = new LoadersVolume(threeD);
-  loader.load(filename)
+  loader.load(files)
   .then(() => {
     let series = loader.data[0].mergeSeries(loader.data)[0];
     loader.free();
@@ -219,6 +283,14 @@ window.onload = function() {
 
     // good to go
     ready = true;
+    modified = true;
+
+    // force first render
+    render();
+    // notify puppeteer to take screenshot
+    const puppetDiv = document.createElement('div');
+    puppetDiv.setAttribute('id', 'puppeteer');
+    document.body.appendChild(puppetDiv);
   })
   .catch((error) => window.console.log(error));
 };

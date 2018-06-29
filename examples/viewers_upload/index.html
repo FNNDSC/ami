@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<title>AMI - Example viewers_upload</title>
+
+	<link rel="stylesheet" type="text/css" href="viewers_upload.css">
+
+	<script type="text/javascript" src="https://use.edgefonts.net/source-code-pro.js"></script>
+	<script type="text/javascript" src="https://cdn.rawgit.com/dataarts/dat.gui/master/build/dat.gui.min.js"></script>
+	<script type="text/javascript" src="https://cdn.rawgit.com/mrdoob/stats.js/master/build/stats.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/93/three.min.js"></script>
+</head>
+
+<body>
+	<!-- home page -->
+<div id="home-container">
+  <div id="buttons">
+    <button type="button" id="buttoninput">Dicom<br/>Mgh/z<br/>Nifti<br/>Nrrd</button>
+    <input id="filesinput" type="file" multiple>
+  </div>
+</div>
+
+<!-- the container for the renderers -->
+<div id="my-gui-container"></div>
+<div id="my-lut-container">
+  <div id="my-lut-canvases"></div>
+</div>
+
+<div id="viewer">
+  <div id="orientation">
+    <div id="top" class="direction"></div>
+    <div id="bottom" class="direction"></div>
+    <div id="left" class="direction"></div>
+    <div id="right" class="direction"></div>
+  </div>
+  <div id="r3d"></div>
+</div>
+
+
+<div style="background-color: #f9f9f9; width: 0; height: 0;"></div>
+
+	<script type="text/javascript" src="viewers_upload.js"></script>
+
+	<!-- google analytics -->
+	
+</body>
+
+</html>

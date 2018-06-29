@@ -18,6 +18,8 @@ export default class ModelsFrame extends ModelsBase {
     this._sopInstanceUID = null;
     this._url = null;
     this._stackID = -1;
+    this._invert = false;
+    this._frameTime = null;
     this._rows = 0;
     this._columns = 0;
     this._dimensionIndexValues = [];
@@ -26,6 +28,7 @@ export default class ModelsFrame extends ModelsBase {
     this._rightHanded = true;
     this._sliceThickness = 1;
     this._spacingBetweenSlices = null;
+    this._pixelPaddingValue = null;
     this._pixelRepresentation = 0;
     this._pixelType = 0;
     this._pixelSpacing = null;
@@ -39,6 +42,7 @@ export default class ModelsFrame extends ModelsBase {
     this._rescaleIntercept = null;
 
     this._bitsAllocated = 8;
+    this._numberOfChannels = 1;
 
     this._minMax = null;
     this._dist = null;
@@ -172,11 +176,119 @@ export default class ModelsFrame extends ModelsBase {
    *
    * @param {*} column
    * @param {*} row
-   *
    * @return {*}
    */
-  value(column, row) {
-    return this.pixelData[column + this._columns * row];
+  getPixelData(column, row) {
+    if (column >= 0 && column < this._columns &&
+        row >= 0 && row < this._rows) {
+      return this.pixelData[column + this._columns * row];
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Set data value
+   *
+   * @param {*} column
+   * @param {*} row
+   * @param {*} value
+   * @return {*}
+   */
+  setPixelData(column, row, value) {
+    this.pixelData[column + this._columns * row] = value;
+  }
+
+  /**
+   * Get frame preview as data:URL
+   *
+   * @return {String}
+   */
+  getImageDataUrl() {
+    const canvas = document.createElement('canvas');
+    canvas.width = this._columns;
+    canvas.height = this._rows;
+
+    const context = canvas.getContext('2d'),
+      imageData = context.createImageData(canvas.width, canvas.height);
+
+    imageData.data.set(this._frameToCanvas());
+    context.putImageData(imageData, 0, 0);
+
+    return canvas.toDataURL();
+  }
+
+  /**
+   * Convert frame.pixelData to canvas.context.imageData.data
+   *
+   * @return {Uint8Array}
+   */
+  _frameToCanvas() {
+    const dimension = this._columns * this._rows,
+      params = {
+        invert: this._invert,
+        min: this._minMax[0],
+        padding: this._pixelPaddingValue,
+      };
+    let data = new Uint8Array(dimension * 4);
+
+    if (params.padding !== null) { // recalculation of min ignoring pixelPaddingValue
+      params.min = this._minMax[1];
+      for (let index = 0, numPixels = this._pixelData.length; index < numPixels; index++) {
+        if (this._pixelData[index] !== params.padding) {
+          params.min = Math.min(params.min, this._pixelData[index]);
+        }
+      }
+    }
+
+    if (this._windowWidth && this._windowCenter !== null) { // applying windowCenter and windowWidth
+      const intercept = this._rescaleIntercept || 0,
+        slope = this._rescaleSlope || 1;
+
+      params.min = Math.max(((this._windowCenter - this._windowWidth / 2) - intercept) / slope, params.min);
+      params.max = Math.min(((this._windowCenter + this._windowWidth / 2) - intercept) / slope, this._minMax[1]);
+    } else {
+      params.max = this._minMax[1];
+    }
+
+    params.range = (params.max - params.min) || 255; // if max is 0 convert it to: 255 - black, 1 - white
+
+    if (this._numberOfChannels === 1) {
+      for (let i = 0; i < dimension; i++) {
+        const normalized = this._pixelTo8Bit(this._pixelData[i], params);
+        data[4 * i] = normalized;
+        data[4 * i + 1] = normalized;
+        data[4 * i + 2] = normalized;
+        data[4 * i + 3] = 255; // alpha channel (fully opaque)
+      }
+    } else if (this._numberOfChannels === 3) {
+      for (let i = 0; i < dimension; i++) {
+        data[4 * i] = this._pixelTo8Bit(this._pixelData[3 * i], params);
+        data[4 * i + 1] = this._pixelTo8Bit(this._pixelData[3 * i + 1], params);
+        data[4 * i + 2] = this._pixelTo8Bit(this._pixelData[3 * i + 2], params);
+        data[4 * i + 3] = 255; // alpha channel (fully opaque)
+      }
+    }
+
+    return data;
+  }
+
+  /**
+   * Convert pixel value to 8 bit (canvas.context.imageData.data: maximum 8 bit per each of RGBA value)
+   *
+   * @param {Number} value  Pixel value
+   * @param {Object} params {invert, min, mix, padding, range}
+   *
+   * @return {Number}
+   */
+  _pixelTo8Bit(value, params) {
+    // values equal to pixelPaddingValue are outside of the image and should be ignored
+    let packedValue = (value <= params.min || value === params.padding) ? 0 : 255;
+
+    if (value > params.min && value < params.max) {
+      packedValue = Math.round((value - params.min) * 255 / params.range);
+    }
+
+    return Number.isNaN(packedValue) ? 0 : (params.invert ? 255 - packedValue : packedValue);
   }
 
   /**
@@ -204,6 +316,14 @@ export default class ModelsFrame extends ModelsBase {
     }
 
     return false;
+  }
+
+  get frameTime() {
+    return this._frameTime;
+  }
+
+  set frameTime(frameTime) {
+    this._frameTime = frameTime;
   }
 
   get rows() {
@@ -358,6 +478,14 @@ export default class ModelsFrame extends ModelsBase {
     return this._sopInstanceUID;
   }
 
+  get pixelPaddingValue() {
+    return this._pixelPaddingValue;
+  }
+
+  set pixelPaddingValue(pixelPaddingValue) {
+    this._pixelPaddingValue = pixelPaddingValue;
+  }
+
   get pixelRepresentation() {
     return this._pixelRepresentation;
   }
@@ -404,5 +532,21 @@ export default class ModelsFrame extends ModelsBase {
 
   set index(index) {
     this._index = index;
+  }
+
+  get invert() {
+    return this._invert;
+  }
+
+  set invert(invert) {
+    this._invert = invert;
+  }
+
+  get numberOfChannels() {
+    return this._numberOfChannels;
+  }
+
+  set numberOfChannels(numberOfChannels) {
+    this._numberOfChannels = numberOfChannels;
   }
 }

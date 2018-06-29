@@ -1,9 +1,9 @@
 /* globals Stats, dat*/
 
-import ControlsTrackball from '../../src/controls/controls.trackball';
-import HelpersLut from '../../src/helpers/helpers.lut';
-import HelpersVR from '../../src/helpers/helpers.volumerendering';
-import LoadersVolume from '../../src/loaders/loaders.volume';
+import ControlsTrackball from 'base/controls/controls.trackball';
+import HelpersLut from 'base/helpers/helpers.lut';
+import HelpersVR from 'base/helpers/helpers.volumerendering';
+import LoadersVolume from 'base/loaders/loaders.volume';
 
 // standard global letiables
 let controls, threeD, renderer, stats, camera, scene;
@@ -106,10 +106,7 @@ function buildGUI() {
 
   stackFolder.open();
 }
-
-function init() {
-  // this function is executed on each animation frame
-  function animate() {
+function render() {
     // render
     controls.update();
 
@@ -118,6 +115,12 @@ function init() {
     }
 
     stats.update();
+}
+
+function init() {
+  // this function is executed on each animation frame
+  function animate() {
+    render();
 
     // request new frame
     requestAnimationFrame(function() {
@@ -180,7 +183,7 @@ window.onload = function() {
   // ];
 
   // let files = data.map(function(v) {
-  //   return '../../data/nii/' + v;
+  //   return '@/data/nii/' + v;
   // });
 
   // load sequence for each file
@@ -255,6 +258,13 @@ window.onload = function() {
 
     // good to go
     ready = true;
+
+    // force first render
+    render();
+    // notify puppeteer to take screenshot
+    const puppetDiv = document.createElement('div');
+    puppetDiv.setAttribute('id', 'puppeteer');
+    document.body.appendChild(puppetDiv);
   })
   .catch((error) => window.console.log(error));
 };

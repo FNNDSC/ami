@@ -10,6 +10,7 @@ import ParsersDicom from '../parsers/parsers.dicom';
 import ParsersMhd from '../parsers/parsers.mhd';
 import ParsersNifti from '../parsers/parsers.nifti';
 import ParsersNrrd from '../parsers/parsers.nrrd';
+import ParsersMgh from '../parsers/parsers.mgh';
 
 /**
  *
@@ -57,7 +58,7 @@ export default class LoadersVolumes extends LoadersBase {
     // after the rendering will be blocked with intensive JS
     // will be removed after eventer set up
     if (this._progressBar) {
-      this._progressBar.update(0, 100, 'parse');
+      this._progressBar.update(0, 100, 'parse', response.url);
     }
 
     return new Promise(
@@ -197,9 +198,12 @@ export default class LoadersVolumes extends LoadersBase {
     frame.sopInstanceUID = dataParser.sopInstanceUID(i);
     frame.url = url;
     frame.index = i;
+    frame.invert = stack.invert;
+    frame.frameTime = dataParser.frameTime(i);
     frame.rows = dataParser.rows(i);
     frame.columns = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;
+    frame.pixelPaddingValue = dataParser.pixelPaddingValue(i);
     frame.pixelRepresentation = stack.pixelRepresentation;
     frame.pixelType = stack.pixelType;
     frame.pixelData = dataParser.extractPixelData(i);
@@ -213,9 +217,11 @@ export default class LoadersVolumes extends LoadersBase {
       frame.imageOrientation = [1, 0, 0, 0, 1, 0];
     }
     frame.imagePosition = dataParser.imagePosition(i);
+    /*
+    null ImagePosition should not be handle here
     if (frame.imagePosition === null) {
       frame.imagePosition = [0, 0, i];
-    }
+    }*/
     frame.dimensionIndexValues = dataParser.dimensionIndexValues(i);
     frame.bitsAllocated = dataParser.bitsAllocated(i);
     frame.instanceNumber = dataParser.instanceNumber(i);
@@ -239,7 +245,7 @@ export default class LoadersVolumes extends LoadersBase {
 
     // will be removed after eventer set up
     if (this._progressBar) {
-      this._progressBar.update(this._parsed, this._totalParsed, 'parse');
+      this._progressBar.update(this._parsed, this._totalParsed, 'parse', url);
     }
 
     // emit 'parsing' event
@@ -293,6 +299,10 @@ export default class LoadersVolumes extends LoadersBase {
       case 'NRRD':
         Parser = ParsersNrrd;
         break;
+      case 'MGH':
+      case 'MGZ':
+        Parser = ParsersMgh;
+        break;
       default:
         window.console.log('unsupported extension: ' + extension);
         return false;
@@ -318,10 +328,19 @@ export default class LoadersVolumes extends LoadersBase {
       data.gzcompressed = true;
       data.extension =
         data.filename.split('.gz').shift().split('.').pop();
-      let decompressedData = PAKO.inflate(data.buffer);
-      data.buffer = decompressedData.buffer;
+    } else if (data.extension === 'mgz') {
+      data.gzcompressed = true;
+      data.extension = 'mgh';
+    } else if (data.extension === 'zraw') {
+      data.gzcompressed = true;
+      data.extension = 'raw';
     } else {
       data.gzcompressed = false;
+    }
+
+    if (data.gzcompressed) {
+      let decompressedData = PAKO.inflate(data.buffer);
+      data.buffer = decompressedData.buffer;
     }
   }
 
