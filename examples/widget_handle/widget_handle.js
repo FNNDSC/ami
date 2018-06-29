@@ -6,7 +6,7 @@ import LoadersVolume from 'base/loaders/loaders.volume';
 import WidgetsAnnotation from 'base/widgets/widgets.annotation';
 import WidgetsAngle from 'base/widgets/widgets.angle';
 import WidgetsBiRuler from 'base/widgets/widgets.biruler';
-import WidgetsCrossRuler from 'base/widgets/widgets.crossruler';
+import WidgetsCrossRuler from 'base/widgets/widgets.crossRuler';
 import WidgetsEllipse from 'base/widgets/widgets.ellipse';
 import WidgetsFreehand from 'base/widgets/widgets.freehand';
 import WidgetsHandle from 'base/widgets/widgets.handle';
@@ -149,8 +149,8 @@ window.onload = function() {
 
       // mouse position
       let mouse = {
-        x: (event.clientX - offsets.left) / threeD.offsetWidth * 2 - 1,
-        y: -((event.clientY - offsets.top) / threeD.offsetHeight)
+        x: (evt.clientX - offsets.left) / threeD.offsetWidth * 2 - 1,
+        y: -((evt.clientY - offsets.top) / threeD.offsetHeight)
           * 2 + 1,
       };
 
