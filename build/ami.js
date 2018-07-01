@@ -67686,7 +67686,7 @@ var trackballOrtho = function trackballOrtho() {
 
         _this.dispatchEvent({
           type: 'OnScroll',
-          delta: delta
+          delta: event.deltaY * 0.01
         });
 
         _this.dispatchEvent(startEvent);

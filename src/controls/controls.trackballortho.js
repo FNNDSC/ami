@@ -322,7 +322,7 @@ const trackballOrtho = (three = window.THREE) => {
 
         _this.dispatchEvent({
           type: 'OnScroll',
-          delta: delta,
+          delta: event.deltaY * 0.01,
         });
 
         _this.dispatchEvent( startEvent );
