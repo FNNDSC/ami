@@ -67679,11 +67679,12 @@ var trackballOrtho = function trackballOrtho() {
       function mousewheel(event) {
         if (_this.enabled === false) return;
 
+        if (_this.noZoom === true) return;
+
         event.preventDefault();
         event.stopPropagation();
 
-        _zoomStart.y += event.deltaY * 0.01;
-
+        //_zoomStart.y += event.deltaY * 0.01;
         _this.dispatchEvent({
           type: 'OnScroll',
           delta: event.deltaY * 0.01
