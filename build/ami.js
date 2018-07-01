@@ -55509,6 +55509,8 @@ var ModelsStack = function (_ModelsBase) {
       this._frame.sort(this._sortInstanceNumberArraySort);
     } else if (this._frame[0].sopInstanceUID && this._frame[1] && this._frame[1].sopInstanceUID && this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
       this._frame.sort(this._sortSopInstanceUIDArraySort);
+    } else if (!this._frame[0].imagePosition) {
+      // cancel warning if you have set null imagePosition on purpose (?)
     } else {
       window.console.warn('do not know how to order the frames...');
     }
@@ -55902,7 +55904,9 @@ var ModelsStack = function (_ModelsBase) {
   };
 
   ModelsStack.prototype._computeDistanceArrayMap = function _computeDistanceArrayMap(normal, frame) {
-    frame.dist = frame.imagePosition[0] * normal.x + frame.imagePosition[1] * normal.y + frame.imagePosition[2] * normal.z;
+    if (frame.imagePosition) {
+      frame.dist = frame.imagePosition[0] * normal.x + frame.imagePosition[1] * normal.y + frame.imagePosition[2] * normal.z;
+    }
     return frame;
   };
 
@@ -57465,7 +57469,7 @@ var ParsersDicom = function (_ParsersVolume) {
   ParsersDicom.prototype.spacingBetweenSlices = function spacingBetweenSlices() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    var spacing = this._dataSet.intString('x00180088');
+    var spacing = this._dataSet.floatString('x00180088');
 
     if (typeof spacing === 'undefined') {
       spacing = null;
@@ -57594,6 +57598,12 @@ var ParsersDicom = function (_ParsersVolume) {
   ParsersDicom.prototype._findStringEverywhere = function _findStringEverywhere(subsequence, tag, index) {
     var targetString = this._findStringInFrameGroupSequence(subsequence, tag, index);
 
+    // PET MODULE
+    if (targetString === null) {
+      var petModule = 'x00540022';
+      targetString = this._findStringInSequence(petModule, tag);
+    }
+
     if (targetString === null) {
       targetString = this._dataSet.string(tag);
     }
@@ -57603,6 +57613,21 @@ var ParsersDicom = function (_ParsersVolume) {
     }
 
     return targetString;
+  };
+
+  ParsersDicom.prototype._findStringInSequence = function _findStringInSequence(sequenceTag, tag, index) {
+    var sequence = this._dataSet.elements[sequenceTag];
+
+    var targetString = void 0;
+    if (sequence) {
+      targetString = sequence.items[0].dataSet.string(tag);
+    }
+
+    if (typeof targetString === 'undefined') {
+      targetString = null;
+    }
+
+    return null;
   };
 
   ParsersDicom.prototype._findFloatStringInGroupSequence = function _findFloatStringInGroupSequence(sequence, subsequence, tag, index) {
@@ -67037,29 +67062,34 @@ var trackball = function trackball() {
       }
 
       function mousewheel(event) {
+
         if (_this.enabled === false) return;
+
+        if (_this.noZoom === true) return;
 
         event.preventDefault();
         event.stopPropagation();
 
-        var delta = 0;
+        switch (event.deltaMode) {
 
-        if (event.wheelDelta) {
-          // WebKit / Opera / Explorer 9
+          case 2:
+            // Zoom in pages
+            _zoomStart.y -= event.deltaY * 0.025;
+            break;
 
-          delta = event.wheelDelta / 40;
-        } else if (event.detail) {
-          // Firefox
+          case 1:
+            // Zoom in lines
+            _zoomStart.y -= event.deltaY * 0.01;
+            break;
 
-          delta = -event.detail / 3;
+          default:
+            // undefined, 0, assume pixels
+            _zoomStart.y -= event.deltaY * 0.00025;
+            break;
+
         }
 
-        if (_state !== STATE.CUSTOM) {
-          _zoomStart.y += delta * 0.01;
-        } else if (_state === STATE.CUSTOM) {
-          _customStart.y += delta * 0.01;
-        }
-
+        // _zoomStart.y += delta * 0.01;
         _this.dispatchEvent(startEvent);
         _this.dispatchEvent(endEvent);
       }
@@ -67652,26 +67682,13 @@ var trackballOrtho = function trackballOrtho() {
         event.preventDefault();
         event.stopPropagation();
 
-        var delta = 0;
-
-        if (event.wheelDelta) {
-          // WebKit / Opera / Explorer 9
-
-          delta = event.wheelDelta / 40;
-        } else if (event.detail) {
-          // Firefox
-
-          delta = -event.detail / 3;
-        }
-
-        // FIRE SCROLL EVENT
+        _zoomStart.y += event.deltaY * 0.01;
 
         _this.dispatchEvent({
           type: 'OnScroll',
           delta: delta
         });
 
-        // _zoomStart.y += delta * 0.01;
         _this.dispatchEvent(startEvent);
         _this.dispatchEvent(endEvent);
       }
@@ -70326,9 +70343,11 @@ var LoadersVolumes = function (_LoadersBase) {
       frame.imageOrientation = [1, 0, 0, 0, 1, 0];
     }
     frame.imagePosition = dataParser.imagePosition(i);
+    /*
+    null ImagePosition should not be handle here
     if (frame.imagePosition === null) {
       frame.imagePosition = [0, 0, i];
-    }
+    }*/
     frame.dimensionIndexValues = dataParser.dimensionIndexValues(i);
     frame.bitsAllocated = dataParser.bitsAllocated(i);
     frame.instanceNumber = dataParser.instanceNumber(i);

@@ -399,29 +399,34 @@ const trackball = (three = window.THREE) => {
       }
   
       function mousewheel(event) {
-        if (_this.enabled === false) return;
-  
+
+        if ( _this.enabled === false ) return;
+    
+        if ( _this.noZoom === true ) return;
+    
         event.preventDefault();
         event.stopPropagation();
-  
-        let delta = 0;
-  
-        if (event.wheelDelta) {
-   // WebKit / Opera / Explorer 9
-  
-          delta = event.wheelDelta / 40;
-        } else if (event.detail) {
-   // Firefox
-  
-          delta = -event.detail / 3;
+    
+        switch ( event.deltaMode ) {
+    
+          case 2:
+            // Zoom in pages
+            _zoomStart.y -= event.deltaY * 0.025;
+            break;
+    
+          case 1:
+            // Zoom in lines
+            _zoomStart.y -= event.deltaY * 0.01;
+            break;
+    
+          default:
+            // undefined, 0, assume pixels
+            _zoomStart.y -= event.deltaY * 0.00025;
+            break;
+    
         }
   
-        if (_state !== STATE.CUSTOM) {
-          _zoomStart.y += delta * 0.01;
-        } else if (_state === STATE.CUSTOM) {
-          _customStart.y += delta * 0.01;
-        }
-  
+        // _zoomStart.y += delta * 0.01;
         _this.dispatchEvent(startEvent);
         _this.dispatchEvent(endEvent);
       }
@@ -649,7 +654,7 @@ const trackball = (three = window.THREE) => {
         this.domElement.removeEventListener('contextmenu', contextmenu, false);
         this.domElement.removeEventListener('mousedown', mousedown, false);
         this.domElement.removeEventListener('wheel', mousewheel, false);
-  
+
         this.domElement.removeEventListener('touchstart', touchstart, false);
         this.domElement.removeEventListener('touchend', touchend, false);
         this.domElement.removeEventListener('touchmove', touchmove, false);
