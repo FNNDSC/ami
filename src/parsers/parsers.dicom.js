@@ -672,7 +672,6 @@ export default class ParsersDicom extends ParsersVolume {
 
   _findStringEverywhere(subsequence, tag, index) {
     let targetString = this._findStringInFrameGroupSequence(subsequence, tag, index);
-
     // PET MODULE
     if (targetString === null) {
       const petModule = 'x00540022';
@@ -702,7 +701,7 @@ export default class ParsersDicom extends ParsersVolume {
      targetString = null;
    }
 
-   return null;
+   return targetString;
  }
 
   _findFloatStringInGroupSequence(sequence, subsequence, tag, index) {
