@@ -124,7 +124,9 @@ void main(void) {
   if(uInvert == 1){
     dataValue = vec4(1.) - dataValue;
     // how do we deal with that and opacity?
-    dataValue.a = 1.;
+    dataValue.a = 1. * uOpacity;
+  } else {
+    dataValue.a = uOpacity;
   }
 
   gl_FragColor = dataValue;
