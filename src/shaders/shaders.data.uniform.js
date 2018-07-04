@@ -129,6 +129,11 @@ export default class ShadersUniform {
         value: 10.,
         typeGLSL: 'float',
       },
+      'uOpacity': {
+        type: 'f',
+        value: 1.0,
+        typeGLSL: 'float',
+      },
     };
   }
 }
