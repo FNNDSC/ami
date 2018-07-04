@@ -122,9 +122,7 @@ void main(void) {
   }
 
   if(uInvert == 1){
-    dataValue = vec4(1.) - dataValue;
-    // keep the same opacity
-    dataValue.a = 1. - dataValue.a;
+    dataValue.xyz = vec3(1.) - dataValue.xyz;
   }
 
   dataValue.a = dataValue.a*uOpacity;
