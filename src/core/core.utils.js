@@ -125,15 +125,14 @@ export default class CoreUtils {
     let parsedUrl = new URL(url);
     data.pathname = parsedUrl.pathname;
     data.query = parsedUrl.query;
-    
+
     // If a parameter named "filename" exists, we keep this filename
-    data.filename = parsedUrl.searchParams.get("filename");
+    data.filename = parsedUrl.searchParams.get('filename');
 
     // get file name
     if (!data.filename) {
       data.filename = data.pathname.split('/').pop();
     }
-
 
     // find extension
     let splittedName = data.filename.split('.');
