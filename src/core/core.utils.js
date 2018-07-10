@@ -1,4 +1,3 @@
-const URL = require('url');
 import Validators from './core.validators';
 
 import {Box3, Matrix4, Raycaster, Triangle, Vector3} from 'three';
@@ -123,27 +122,17 @@ export default class CoreUtils {
     data.pathname = '';
     data.query = '';
 
-    let parsedUrl = URL.parse(url);
-
+    let parsedUrl = new URL(url);
     data.pathname = parsedUrl.pathname;
     data.query = parsedUrl.query;
 
-    if (data.query) {
-      // Find "filename" parameter value, if present
-      data.filename = data.query.split('&').reduce((acc, fieldval) => {
-        let fvPair = fieldval.split('=');
-        if (fvPair.length > 0 && fvPair[0] == 'filename') {
-            acc = fvPair[1];
-        }
-        return acc;
-      });
-    }
+    // If a parameter named "filename" exists, we keep this filename
+    data.filename = parsedUrl.searchParams.get('filename');
 
     // get file name
     if (!data.filename) {
       data.filename = data.pathname.split('/').pop();
     }
-
 
     // find extension
     let splittedName = data.filename.split('.');
