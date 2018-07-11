@@ -5,7 +5,7 @@ name: AMI - Lesson 03
 description: Visualize 2D.
 authors:
   - Nicolas Rannou (github)
-js_wrap: onLoad
+js_wrap: l
 ...
 */
 

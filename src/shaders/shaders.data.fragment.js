@@ -138,7 +138,7 @@ void main(void) {
       float textureHeight = 128.;
       float min = 0.;
       // start at 0!
-      int adjustedIntensity = int(floor(normalizedIntensity + 0.5));
+      int adjustedIntensity = int(floor(realIntensity + 0.5));
   
       // Get row and column in the texture
       int colIndex = int(mod(float(adjustedIntensity), textureWidth));
@@ -157,10 +157,10 @@ void main(void) {
   }
 
   if(uInvert == 1){
-    dataValue = vec4(1.) - dataValue;
-    // how do we deal with that and opacity?
-    dataValue.a = 1.;
+    dataValue.xyz = vec3(1.) - dataValue.xyz;
   }
+
+  dataValue.a = dataValue.a*uOpacity;
 
   gl_FragColor = dataValue;
 }

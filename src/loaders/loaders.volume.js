@@ -217,9 +217,11 @@ export default class LoadersVolumes extends LoadersBase {
       frame.imageOrientation = [1, 0, 0, 0, 1, 0];
     }
     frame.imagePosition = dataParser.imagePosition(i);
+    /*
+    null ImagePosition should not be handle here
     if (frame.imagePosition === null) {
       frame.imagePosition = [0, 0, i];
-    }
+    }*/
     frame.dimensionIndexValues = dataParser.dimensionIndexValues(i);
     frame.bitsAllocated = dataParser.bitsAllocated(i);
     frame.instanceNumber = dataParser.instanceNumber(i);

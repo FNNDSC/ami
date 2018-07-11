@@ -4,6 +4,8 @@ import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
 import ModelsBase from '../models/models.base';
 
+import {RGBFormat, RGBAFormat} from 'three';
+
 const binaryString = require('math-float32-to-binary-string');
 
 /**
@@ -345,6 +347,8 @@ export default class ModelsStack extends ModelsBase {
       this._frame[1] && this._frame[1].sopInstanceUID &&
       this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
       this._frame.sort(this._sortSopInstanceUIDArraySort);
+    } else if (!this._frame[0].imagePosition) {
+      // cancel warning if you have set null imagePosition on purpose (?)
     } else {
       window.console.warn('do not know how to order the frames...');
     }
@@ -564,7 +568,7 @@ export default class ModelsStack extends ModelsBase {
         coordinate = Math.floor(packIndex / 4);
         channelOffset = packIndex % 4;
       }
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 16 && channels === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -587,7 +591,7 @@ export default class ModelsStack extends ModelsBase {
         channelOffset = packIndex % 2;
       }
 
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 0) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -605,7 +609,7 @@ export default class ModelsStack extends ModelsBase {
 
         packIndex++;
       }
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -628,7 +632,7 @@ export default class ModelsStack extends ModelsBase {
         packIndex++;
       }
 
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 8 && channels === 3) {
       let data = new Uint8Array(textureSize * textureSize * 3);
@@ -646,7 +650,7 @@ export default class ModelsStack extends ModelsBase {
         packIndex++;
       }
 
-      packed.textureType = THREE.RGBFormat;
+      packed.textureType = RGBFormat;
       packed.data = data;
     }
 
@@ -685,7 +689,7 @@ export default class ModelsStack extends ModelsBase {
             Math.min(bbox[0], world.x), Math.max(bbox[1], world.x), // x min/max
             Math.min(bbox[2], world.y), Math.max(bbox[3], world.y),
             Math.min(bbox[4], world.z), Math.max(bbox[5], world.z),
-            ];
+          ];
         }
       }
     }
@@ -766,9 +770,11 @@ export default class ModelsStack extends ModelsBase {
   }
 
   _computeDistanceArrayMap(normal, frame) {
-    frame.dist = frame.imagePosition[0] * normal.x +
-      frame.imagePosition[1] * normal.y +
-      frame.imagePosition[2] * normal.z;
+    if (frame.imagePosition) {
+      frame.dist = frame.imagePosition[0] * normal.x +
+        frame.imagePosition[1] * normal.y +
+        frame.imagePosition[2] * normal.z;
+    }
     return frame;
   }
 
