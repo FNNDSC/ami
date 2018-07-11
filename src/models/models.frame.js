@@ -19,6 +19,7 @@ export default class ModelsFrame extends ModelsBase {
     this._url = null;
     this._stackID = -1;
     this._invert = false;
+    this._frameTime = null;
     this._rows = 0;
     this._columns = 0;
     this._dimensionIndexValues = [];
@@ -171,16 +172,28 @@ export default class ModelsFrame extends ModelsBase {
   }
 
   /**
-   * Get and set data value
+   * Get data value
+   *
+   * @param {*} column
+   * @param {*} row
+   * @return {*}
+   */
+  getPixelData(column, row) {
+    if (column >= 0 && column < this._columns &&
+        row >= 0 && row < this._rows) {
+      return this.pixelData[column + this._columns * row];
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Set data value
    *
    * @param {*} column
    * @param {*} row
    * @param {*} value
    * @return {*}
    */
-  getPixelData(column, row) {
-    return this.pixelData[column + this._columns * row];
-  }
   setPixelData(column, row, value) {
     this.pixelData[column + this._columns * row] = value;
   }
@@ -303,6 +316,14 @@ export default class ModelsFrame extends ModelsBase {
     }
 
     return false;
+  }
+
+  get frameTime() {
+    return this._frameTime;
+  }
+
+  set frameTime(frameTime) {
+    this._frameTime = frameTime;
   }
 
   get rows() {

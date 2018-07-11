@@ -4,6 +4,8 @@ import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
 import ModelsBase from '../models/models.base';
 
+import {RGBFormat, RGBAFormat} from 'three';
+
 const binaryString = require('math-float32-to-binary-string');
 
 /**
@@ -199,14 +201,7 @@ export default class ModelsStack extends ModelsBase {
       this.prepareSegmentation();
     }
 
-    // we need at least 1 frame
-    if (this._frame && this._frame.length > 0) {
-      this._numberOfFrames = this._frame.length;
-    } else {
-      window.console.warn('_frame doesn\'t contain anything....');
-      window.console.warn(this._frame);
-      return false;
-    }
+    this.computeNumberOfFrames();
 
     // pass parameters from frame to stack
     this._rows = this._frame[0].rows;
@@ -225,7 +220,9 @@ export default class ModelsStack extends ModelsBase {
     this.computeCosines();
 
     // order the frames
-    this.orderFrames();
+    if (this._numberOfFrames > 1) {
+      this.orderFrames();
+    }
 
     // compute/guess spacing
     this.computeSpacing();
@@ -299,6 +296,17 @@ export default class ModelsStack extends ModelsBase {
     );
   }
 
+  computeNumberOfFrames() {
+    // we need at least 1 frame
+    if (this._frame && this._frame.length > 0) {
+      this._numberOfFrames = this._frame.length;
+    } else {
+      window.console.warn('_frame doesn\'t contain anything....');
+      window.console.warn(this._frame);
+      return false;
+    }
+  }
+
   // frame.cosines - returns array [x, y, z]
   computeCosines() {
     if (this._frame &&
@@ -313,10 +321,10 @@ export default class ModelsStack extends ModelsBase {
   orderFrames() {
     // order the frames based on theirs dimension indices
     // first index is the most important.
-    // 1,1,1,1 willl be first
+    // 1,1,1,1 will be first
     // 1,1,2,1 will be next
     // 1,1,2,3 will be next
-    // 1,1,3,1 wil be next
+    // 1,1,3,1 will be next
     if (this._frame[0].dimensionIndexValues) {
       this._frame.sort(this._orderFrameOnDimensionIndicesArraySort);
 
@@ -339,6 +347,8 @@ export default class ModelsStack extends ModelsBase {
       this._frame[1] && this._frame[1].sopInstanceUID &&
       this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
       this._frame.sort(this._sortSopInstanceUIDArraySort);
+    } else if (!this._frame[0].imagePosition) {
+      // cancel warning if you have set null imagePosition on purpose (?)
     } else {
       window.console.warn('do not know how to order the frames...');
     }
@@ -451,7 +461,13 @@ export default class ModelsStack extends ModelsBase {
    */
   merge(stack) {
     // also make sure x/y/z cosines are a match!
-    if (this._stackID === stack.stackID) {
+    if (this._stackID === stack.stackID &&
+        this._numberOfFrames === 1 && stack._numberOfFrames === 1 &&
+        this._frame[0].columns === stack.frame[0].columns &&
+        this._frame[0].rows === stack.frame[0].rows &&
+        this._xCosine.equals(stack.xCosine) &&
+        this._yCosine.equals(stack.yCosine) &&
+        this._zCosine.equals(stack.zCosine)) {
       return this.mergeModels(this._frame, stack.frame);
     } else {
       return false;
@@ -467,7 +483,7 @@ export default class ModelsStack extends ModelsBase {
       this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
 
     // Packing style
-    if (this._bitsAllocated === 8 && this._numberOfChannels === 1) {
+    if (this._bitsAllocated === 8 && this._numberOfChannels === 1 || this._bitsAllocated === 1) {
       this._packedPerPixel = 4;
     }
 
@@ -535,7 +551,7 @@ export default class ModelsStack extends ModelsBase {
     // frame should return it!
     const frameDimension = frame[0].rows * frame[0].columns;
 
-    if (bitsAllocated === 8 && channels === 1) {
+    if (bitsAllocated === 8 && channels === 1 || bitsAllocated === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
       let coordinate = 0;
       let channelOffset = 0;
@@ -552,7 +568,7 @@ export default class ModelsStack extends ModelsBase {
         coordinate = Math.floor(packIndex / 4);
         channelOffset = packIndex % 4;
       }
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 16 && channels === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -575,7 +591,7 @@ export default class ModelsStack extends ModelsBase {
         channelOffset = packIndex % 2;
       }
 
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 0) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -593,7 +609,7 @@ export default class ModelsStack extends ModelsBase {
 
         packIndex++;
       }
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 32 && channels === 1 && pixelType === 1) {
       let data = new Uint8Array(textureSize * textureSize * 4);
@@ -616,7 +632,7 @@ export default class ModelsStack extends ModelsBase {
         packIndex++;
       }
 
-      packed.textureType = THREE.RGBAFormat;
+      packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 8 && channels === 3) {
       let data = new Uint8Array(textureSize * textureSize * 3);
@@ -634,7 +650,7 @@ export default class ModelsStack extends ModelsBase {
         packIndex++;
       }
 
-      packed.textureType = THREE.RGBFormat;
+      packed.textureType = RGBFormat;
       packed.data = data;
     }
 
@@ -673,7 +689,7 @@ export default class ModelsStack extends ModelsBase {
             Math.min(bbox[0], world.x), Math.max(bbox[1], world.x), // x min/max
             Math.min(bbox[2], world.y), Math.max(bbox[3], world.y),
             Math.min(bbox[4], world.z), Math.max(bbox[5], world.z),
-            ];
+          ];
         }
       }
     }
@@ -754,9 +770,11 @@ export default class ModelsStack extends ModelsBase {
   }
 
   _computeDistanceArrayMap(normal, frame) {
-    frame.dist = frame.imagePosition[0] * normal.x +
-      frame.imagePosition[1] * normal.y +
-      frame.imagePosition[2] * normal.z;
+    if (frame.imagePosition) {
+      frame.dist = frame.imagePosition[0] * normal.x +
+        frame.imagePosition[1] * normal.y +
+        frame.imagePosition[2] * normal.z;
+    }
     return frame;
   }
 

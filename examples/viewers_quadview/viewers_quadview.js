@@ -263,6 +263,70 @@ function initHelpersLocalizer(rendererObj, stack, referencePlane, localizers) {
     rendererObj.localizerScene.add(rendererObj.localizerHelper);
 }
 
+function render() {
+  // we are ready when both meshes have been loaded
+  if (ready) {
+    // render
+    r0.controls.update();
+    r1.controls.update();
+    r2.controls.update();
+    r3.controls.update();
+
+    r0.light.position.copy(r0.camera.position);
+    r0.renderer.render(r0.scene, r0.camera);
+
+    // r1
+    r1.renderer.clear();
+    r1.renderer.render(r1.scene, r1.camera);
+    // mesh
+    r1.renderer.clearDepth();
+    data.forEach(function(object, key) {
+      object.materialFront.clippingPlanes = [clipPlane1];
+      object.materialBack.clippingPlanes = [clipPlane1];
+      r1.renderer.render(object.scene, r1.camera, redTextureTarget, true);
+      r1.renderer.clearDepth();
+      redContourHelper.contourWidth = object.selected ? 3 : 2;
+      redContourHelper.contourOpacity = object.selected ? 1 : .8;
+      r1.renderer.render(redContourScene, r1.camera);
+      r1.renderer.clearDepth();
+    });
+
+    // localizer
+    r1.renderer.clearDepth();
+    r1.renderer.render(r1.localizerScene, r1.camera);
+
+    // r2
+    r2.renderer.clear();
+    r2.renderer.render(r2.scene, r2.camera);
+    // mesh
+    r2.renderer.clearDepth();
+    data.forEach(function(object, key) {
+      object.materialFront.clippingPlanes = [clipPlane2];
+      object.materialBack.clippingPlanes = [clipPlane2];
+    });
+    r2.renderer.render(sceneClip, r2.camera);
+    // localizer
+    r2.renderer.clearDepth();
+    r2.renderer.render(r2.localizerScene, r2.camera);
+
+    // r3
+    r3.renderer.clear();
+    r3.renderer.render(r3.scene, r3.camera);
+    // mesh
+    r3.renderer.clearDepth();
+    data.forEach(function(object, key) {
+      object.materialFront.clippingPlanes = [clipPlane3];
+      object.materialBack.clippingPlanes = [clipPlane3];
+    });
+    r3.renderer.render(sceneClip, r3.camera);
+    // localizer
+    r3.renderer.clearDepth();
+    r3.renderer.render(r3.localizerScene, r3.camera);
+  }
+
+  stats.update();
+}
+
 /**
  * Init the quadview
  */
@@ -271,67 +335,7 @@ function init() {
    * Called on each animation frame
    */
   function animate() {
-    // we are ready when both meshes have been loaded
-    if (ready) {
-      // render
-      r0.controls.update();
-      r1.controls.update();
-      r2.controls.update();
-      r3.controls.update();
-
-      r0.light.position.copy(r0.camera.position);
-      r0.renderer.render(r0.scene, r0.camera);
-
-      // r1
-      r1.renderer.clear();
-      r1.renderer.render(r1.scene, r1.camera);
-      // mesh
-      r1.renderer.clearDepth();
-      data.forEach(function(object, key) {
-        object.materialFront.clippingPlanes = [clipPlane1];
-        object.materialBack.clippingPlanes = [clipPlane1];
-        r1.renderer.render(object.scene, r1.camera, redTextureTarget, true);
-        r1.renderer.clearDepth();
-        redContourHelper.contourWidth = object.selected ? 3 : 2;
-        redContourHelper.contourOpacity = object.selected ? 1 : .8;
-        r1.renderer.render(redContourScene, r1.camera);
-        r1.renderer.clearDepth();
-      });
-
-      // localizer
-      r1.renderer.clearDepth();
-      r1.renderer.render(r1.localizerScene, r1.camera);
-
-      // r2
-      r2.renderer.clear();
-      r2.renderer.render(r2.scene, r2.camera);
-      // mesh
-      r2.renderer.clearDepth();
-      data.forEach(function(object, key) {
-        object.materialFront.clippingPlanes = [clipPlane2];
-        object.materialBack.clippingPlanes = [clipPlane2];
-      });
-      r2.renderer.render(sceneClip, r2.camera);
-      // localizer
-      r2.renderer.clearDepth();
-      r2.renderer.render(r2.localizerScene, r2.camera);
-
-      // r3
-      r3.renderer.clear();
-      r3.renderer.render(r3.scene, r3.camera);
-      // mesh
-      r3.renderer.clearDepth();
-      data.forEach(function(object, key) {
-        object.materialFront.clippingPlanes = [clipPlane3];
-        object.materialBack.clippingPlanes = [clipPlane3];
-      });
-      r3.renderer.render(sceneClip, r3.camera);
-      // localizer
-      r3.renderer.clearDepth();
-      r3.renderer.render(r3.localizerScene, r3.camera);
-    }
-
-    stats.update();
+    render();
 
     // request new frame
     requestAnimationFrame(function() {
@@ -802,6 +806,13 @@ window.onload = function() {
           // good to go
           if (meshesLoaded === data.size) {
             ready = true;
+
+            // force 1st render
+            render();
+            // notify puppeteer to take screenshot
+            const puppetDiv = document.createElement('div');
+            puppetDiv.setAttribute('id', 'puppeteer');
+            document.body.appendChild(puppetDiv);
           }
         });
     }

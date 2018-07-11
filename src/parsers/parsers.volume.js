@@ -71,6 +71,10 @@ export default class ParsersVolume {
     return 0;
   }
 
+  frameTime(frameIndex = 0) {
+    return null;
+  }
+
   _decompressUncompressed() {
 
   }

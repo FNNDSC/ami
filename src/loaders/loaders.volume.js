@@ -58,7 +58,7 @@ export default class LoadersVolumes extends LoadersBase {
     // after the rendering will be blocked with intensive JS
     // will be removed after eventer set up
     if (this._progressBar) {
-      this._progressBar.update(0, 100, 'parse');
+      this._progressBar.update(0, 100, 'parse', response.url);
     }
 
     return new Promise(
@@ -199,6 +199,7 @@ export default class LoadersVolumes extends LoadersBase {
     frame.url = url;
     frame.index = i;
     frame.invert = stack.invert;
+    frame.frameTime = dataParser.frameTime(i);
     frame.rows = dataParser.rows(i);
     frame.columns = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;
@@ -216,9 +217,11 @@ export default class LoadersVolumes extends LoadersBase {
       frame.imageOrientation = [1, 0, 0, 0, 1, 0];
     }
     frame.imagePosition = dataParser.imagePosition(i);
+    /*
+    null ImagePosition should not be handle here
     if (frame.imagePosition === null) {
       frame.imagePosition = [0, 0, i];
-    }
+    }*/
     frame.dimensionIndexValues = dataParser.dimensionIndexValues(i);
     frame.bitsAllocated = dataParser.bitsAllocated(i);
     frame.instanceNumber = dataParser.instanceNumber(i);
@@ -242,7 +245,7 @@ export default class LoadersVolumes extends LoadersBase {
 
     // will be removed after eventer set up
     if (this._progressBar) {
-      this._progressBar.update(this._parsed, this._totalParsed, 'parse');
+      this._progressBar.update(this._parsed, this._totalParsed, 'parse', url);
     }
 
     // emit 'parsing' event

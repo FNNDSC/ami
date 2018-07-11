@@ -37,6 +37,12 @@ export default class ShadersUniform {
         typeGLSL: 'float',
         length: 2,
       },
+      'uLowerUpperThreshold': {
+        type: 'fv1',
+        value: [0.0, 0.0],
+        typeGLSL: 'float',
+        length: 2,
+      },
       'uRescaleSlopeIntercept': {
         type: 'fv1',
         value: [0.0, 0.0],
@@ -123,10 +129,25 @@ export default class ShadersUniform {
         value: 10.,
         typeGLSL: 'float',
       },
+      'uOpacity': {
+        type: 'f',
+        value: 1.0,
+        typeGLSL: 'float',
+      },
+      'uSpacing': {
+        type: 'f',
+        value: 0.,
+        typeGLSL: 'float',
+      },
       'uThickness': {
         type: 'f',
         value: 0.,
         typeGLSL: 'float',
+      },
+      'uThicknessMethod': {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int',
       },
     };
   }

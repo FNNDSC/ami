@@ -29,7 +29,7 @@
         "url": "https://fnndsc.github.io/ami"
     },
     "config": {
-        "threeVersion": "87",
+        "threeVersion": "93",
         "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js",
         "gaKey": "UA-39303022-3",
         "babel": "--module-bind js=babel-loader --colors --display-error-details"
@@ -42,7 +42,7 @@
         "nifti-reader-js": "v0.5.3",
         "nrrd-js": "^0.2.1",
         "pako": "1.0.1",
-        "three": "0.87.0"
+        "three": "0.92.0"
     },
     "scripts": {
         "build:ami": "webpack --config webpack.config.build.js",
@@ -63,6 +63,7 @@
         "gen:index:lessons": "node ./scripts/genIndexFiles.js lessons",
         "gen:index:lessons:cdn": "node ./scripts/genIndexFiles.js lessons cdn",
         "test": "karma start",
+        "testExamples": "yarn dist:clean && yarn dist:examples && echo 'hi'",
         "lint": "eslint src/**/*.js",
         "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src",
         "ami": "yarn lint && yarn dist:ami && yarn test",
@@ -82,13 +83,14 @@
         "glslify": "5.1.0",
         "jasmine-core": "latest",
         "jsdoc": "jsdoc3/jsdoc#master",
-        "karma": "latest",
+        "karma": "^2.0.2",
         "karma-chrome-launcher": "^2.2.0",
         "karma-jasmine": "latest",
         "karma-sinon": "^1.0.5",
         "karma-spec-reporter": "latest",
         "karma-webpack": "^2.0.4",
         "live-server": "^1.1.0",
+        "node-pre-gyp": "^0.10.0",
         "puppeteer": "^0.13.0",
         "rimraf": "^2.6.1",
         "rollup-plugin-node-builtins": "^2.1.2",

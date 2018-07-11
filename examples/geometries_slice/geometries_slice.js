@@ -81,6 +81,12 @@ function updateGeometries() {
   }
 }
 
+function render() {
+  controls.update();
+  renderer.render(scene, camera);
+  stats.update();
+}
+
 /**
  * Initialize the scene
  */
@@ -90,10 +96,7 @@ function init() {
    */
   function animate() {
     updateGeometries();
-
-    controls.update();
-    renderer.render(scene, camera);
-    stats.update();
+    render();
 
     // request new frame
     requestAnimationFrame(function() {
@@ -243,6 +246,13 @@ window.onload = function() {
     }
 
     window.addEventListener('resize', onWindowResize, false);
+
+    // force 1st render
+    render();
+    // notify puppeteer to take screenshot
+    const puppetDiv = document.createElement('div');
+    puppetDiv.setAttribute('id', 'puppeteer');
+    document.body.appendChild(puppetDiv);
   })
   .catch(function(error) {
     window.console.log('oops... something went wrong...');

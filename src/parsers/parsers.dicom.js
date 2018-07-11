@@ -427,14 +427,41 @@ export default class ParsersDicom extends ParsersVolume {
     // expect frame index to start at 0!
     let pixelSpacing = this._findStringEverywhere('x00289110', 'x00280030', frameIndex);
 
-    // format image orientation ('1\0\0\0\1\0') to array containing 6 numbers
-    // should we default to undefined??
+    if (pixelSpacing === null) {
+      pixelSpacing = this._dataSet.string('x00181164');
+    }
+
     if (pixelSpacing) {
       // make sure we return array of numbers! (not strings!)
       pixelSpacing = pixelSpacing.split('\\').map(Number);
     }
 
+    if (typeof pixelSpacing === 'undefined') {
+        pixelSpacing = null;
+    }
+
     return pixelSpacing;
+  }
+
+  frameTime(frameIndex = 0) {
+    let frameIncrementPointer = this._dataSet.uint16('x00280009', 1),
+      frameRate = this._dataSet.intString('x00082144'),
+      frameTime;
+
+    if (typeof frameIncrementPointer === 'number') {
+      frameIncrementPointer = frameIncrementPointer.toString(16);
+      frameTime = this._dataSet.floatString('x0018' + frameIncrementPointer);
+    }
+
+    if (typeof frameTime === 'undefined' && typeof frameRate === 'number') {
+      frameTime = 1000 / frameRate;
+    }
+
+    if (typeof frameTime === 'undefined') {
+      frameTime = null;
+    }
+
+    return frameTime;
   }
 
   rows(frameIndex = 0) {
@@ -518,7 +545,7 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   spacingBetweenSlices(frameIndex = 0) {
-    let spacing = this._dataSet.intString('x00180088');
+    let spacing = this._dataSet.floatString('x00180088');
 
     if (typeof spacing === 'undefined') {
       spacing = null;
@@ -645,6 +672,11 @@ export default class ParsersDicom extends ParsersVolume {
 
   _findStringEverywhere(subsequence, tag, index) {
     let targetString = this._findStringInFrameGroupSequence(subsequence, tag, index);
+    // PET MODULE
+    if (targetString === null) {
+      const petModule = 'x00540022';
+      targetString = this._findStringInSequence(petModule, tag);
+    }
 
     if (targetString === null) {
       targetString = this._dataSet.string(tag);
@@ -656,6 +688,21 @@ export default class ParsersDicom extends ParsersVolume {
 
     return targetString;
   }
+
+  _findStringInSequence(sequenceTag, tag, index) {
+   const sequence = this._dataSet.elements[sequenceTag];
+
+   let targetString;
+   if (sequence) {
+     targetString = sequence.items[0].dataSet.string(tag);
+   }
+
+   if (typeof targetString === 'undefined') {
+     targetString = null;
+   }
+
+   return targetString;
+ }
 
   _findFloatStringInGroupSequence(sequence, subsequence, tag, index) {
     let dataInGroupSequence = this._dataSet.floatString(tag);

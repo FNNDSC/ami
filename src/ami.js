@@ -11,4 +11,4 @@ export * from './shaders/shaders';
 export * from './widgets/widgets';
 
 const pckg = require('../package.json');
-window.console.log(`AMI ${pckg.version} ( ThreeJS ${pckg.config.threeVersion})`);
+window.console.log(`ami v${pckg.version} (three v${pckg.config.threeVersion})`);

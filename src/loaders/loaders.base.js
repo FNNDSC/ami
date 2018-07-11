@@ -54,6 +54,7 @@ export default class LoadersBase extends EventEmitter {
    * free the reference.
    */
   free() {
+    this._data = [];
     this._container = null;
     // this._helpersProgressBar = null;
 
@@ -85,14 +86,13 @@ export default class LoadersBase extends EventEmitter {
       };
 
       request.onload = (event) => {
-        if (request.status === 200) {
+        if (request.status === 200 || request.status === 0) {
           this._loaded = event.loaded;
           this._totalLoaded = event.total;
 
           // will be removed after eventer set up
           if (this._progressBar) {
-            this._progressBar.update(this._loaded, this._totalLoaded,
-              'load');
+            this._progressBar.update(this._loaded, this._totalLoaded, 'load', url);
           }
 
           let buffer = request.response;
@@ -156,8 +156,7 @@ export default class LoadersBase extends EventEmitter {
         });
         // will be removed after eventer set up
         if (this._progressBar) {
-          this._progressBar.update(this._loaded, this._totalLoaded,
-            'load');
+          this._progressBar.update(this._loaded, this._totalLoaded, 'load', url);
         }
       };
 
@@ -257,6 +256,11 @@ export default class LoadersBase extends EventEmitter {
     // if we load a single file, convert it to an array
     if (!Array.isArray(url)) {
       url = [url];
+    }
+
+    if (this._progressBar) {
+      this._progressBar.totalFiles = url.length;
+      this._progressBar.requests = requests;
     }
 
     // emit 'load-start' event

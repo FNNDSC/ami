@@ -106,10 +106,7 @@ function buildGUI() {
 
   stackFolder.open();
 }
-
-function init() {
-  // this function is executed on each animation frame
-  function animate() {
+function render() {
     // render
     controls.update();
 
@@ -118,6 +115,12 @@ function init() {
     }
 
     stats.update();
+}
+
+function init() {
+  // this function is executed on each animation frame
+  function animate() {
+    render();
 
     // request new frame
     requestAnimationFrame(function() {
@@ -255,6 +258,13 @@ window.onload = function() {
 
     // good to go
     ready = true;
+
+    // force first render
+    render();
+    // notify puppeteer to take screenshot
+    const puppetDiv = document.createElement('div');
+    puppetDiv.setAttribute('id', 'puppeteer');
+    document.body.appendChild(puppetDiv);
   })
   .catch((error) => window.console.log(error));
 };
