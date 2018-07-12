@@ -10,7 +10,7 @@ export default class WidgetsCss {
             border-radius: 50%;
             width: 10px;
             height: 10px;
-            margin: -5.5px; /* border + width / 2 */
+            margin: -6px; /* border + width / 2 */
             z-index: 3;
         }
         .widgets-line {
@@ -22,10 +22,10 @@ export default class WidgetsCss {
         .widgets-line:before { /* for dragging */
             content: " ";
             position: absolute;
-            height: 11.5px;
+            height: 12px;
             left: 0;
             right: 0;
-            margin-top: -5px;
+            margin-top: -6px;
         }
         .widgets-dashline {
             position: absolute;

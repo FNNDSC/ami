@@ -294,8 +294,6 @@ export default class CoreUtils {
   *
   * Convenience function to extract center of mass from list of points.
   *
-  * @private
-  *
   * @param {Array<Vector3>} points - Set of points from which we want to extract the center of mass.
   *
   * @returns {Vector3} Center of mass from given points.

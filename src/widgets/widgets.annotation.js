@@ -12,8 +12,8 @@ const widgetsAnnotation = (three = window.THREE) => {
 
   const Constructor = widgetsBase(three);
   return class extends Constructor {
-    constructor(targetMesh, controls) {
-      super(targetMesh, controls);
+    constructor(targetMesh, controls, params) {
+      super(targetMesh, controls, params);
 
       this._widgetType = 'Annotation';
       this._initialized = false; // set to true when the name of the label is entered
@@ -44,7 +44,7 @@ const widgetsAnnotation = (three = window.THREE) => {
       let handle;
       const WidgetsHandle = widgetsHandleFactory(three);
       for (let i = 0; i < 2; i++) {
-        handle = new WidgetsHandle(targetMesh, controls);
+        handle = new WidgetsHandle(targetMesh, controls, params);
         handle.worldPosition.copy(this._worldPosition);
         this.add(handle);
         this._handles.push(handle);

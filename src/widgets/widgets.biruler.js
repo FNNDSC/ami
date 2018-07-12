@@ -11,8 +11,8 @@ const widgetsBiruler = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-        constructor(targetMesh, controls, stack) {
-            super(targetMesh, controls);
+        constructor(targetMesh, controls, params, stack) {
+            super(targetMesh, controls, params);
 
             this._stack = stack;
 
@@ -39,7 +39,7 @@ const widgetsBiruler = (three = window.THREE) => {
             let handle;
             const WidgetsHandle = widgetsHandleFactory(three);
             for (let i = 0; i < 4; i++) {
-                handle = new WidgetsHandle(targetMesh, controls);
+                handle = new WidgetsHandle(targetMesh, controls, params);
                 handle.worldPosition.copy(this._worldPosition);
                 this.add(handle);
                 this._handles.push(handle);

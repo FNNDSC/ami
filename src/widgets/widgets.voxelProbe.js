@@ -13,8 +13,8 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
   const Constructor = widgetsBase(three);
   return class extends Constructor {
-  constructor(targetMesh, controls, stack) {
-    super(targetMesh, controls);
+  constructor(targetMesh, controls, params, stack) {
+    super(targetMesh, controls, params);
 
     this._stack = stack;
 
@@ -25,16 +25,15 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
     // dom stuff
     this._label = null;
-    this._domDisplayed = true;
     this._domHovered = false;
 
     // handle (represent voxel)
     const WidgetsHandle = widgetsHandleFactory(three);
-    this._handle = new WidgetsHandle(targetMesh, controls);
+    this._handle = new WidgetsHandle(targetMesh, controls, params);
     this._handle.worldPosition.copy(this._worldPosition);
     this.add(this._handle);
 
-    this._moveHandle = new WidgetsHandle(targetMesh, controls);
+    this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
     this._moveHandle.worldPosition.copy(this._worldPosition);
     this.add(this._moveHandle);
     this._moveHandle.hide();
@@ -271,33 +270,6 @@ const widgetsVoxelprobe = (three = window.THREE) => {
     this._controls.enabled = !this._active;
 
     this.update();
-  }
-
-  set showVoxel(showVoxel) {
-    this._showVoxel = showVoxel;
-    this.update();
-  }
-
-  get showVoxel() {
-    return this._showVoxel;
-  }
-
-  set showDomSVG(showDomSVG) {
-    this._showDomSVG = showDomSVG;
-    this.update();
-  }
-
-  get showDomSVG() {
-    return this._showDomSVG;
-  }
-
-  set showDomMeasurements(showDomMeasurements) {
-    this._showDomMeasurements = showDomMeasurements;
-    this.update();
-  }
-
-  get showDomMeasurements() {
-    return this._showDomMeasurements;
   }
 };
 };
