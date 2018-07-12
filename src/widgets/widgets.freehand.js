@@ -452,7 +452,7 @@ const widgetsFreehand = (three = window.THREE) => {
             meanSDContainer.innerHTML = '';
             maxMinContainer.innerHTML = '';
         }
-        areaContainer.innerHTML = `Area: ${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+        areaContainer.innerHTML = `Area: ${(CoreUtils.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
     }
 
     updateDOMPosition() {
