@@ -66,9 +66,9 @@ function updateGeometries() {
 
     // update slice and THEN its border
     stackHelper.slice.planeDirection = dirLPS;
+
     // update border with new slice
     stackHelper.border.helpersSlice = stackHelper.slice;
-
 
     // update colors based on planeDirection
     let color = rgbToHex(
@@ -175,19 +175,21 @@ window.onload = function() {
 
   loader.load(files)
   .then(function() {
-    let series = loader.data[0].mergeSeries(loader.data)[0];
-    let stack = series.stack[0];
+    const series = loader.data[0].mergeSeries(loader.data)[0];
+    const stack = series.stack[0];
     stackHelper = new HelpersStack(stack);
-    let centerLPS = stackHelper.stack.worldCenter();
+    const centerLPS = stackHelper.stack.worldCenter();
     stackHelper.slice.aabbSpace = 'LPS';
     stackHelper.slice.planePosition.x = centerLPS.x;
     stackHelper.slice.planePosition.y = centerLPS.y;
     stackHelper.slice.planePosition.z = centerLPS.z;
+    stackHelper.slice.thickness = 2.0;
+    stackHelper.slice.spacing = 0.5;
     scene.add(stackHelper);
 
     // LINE STUFF
-    let materialLine = new THREE.LineBasicMaterial();
-    let geometryLine = new THREE.Geometry();
+    const materialLine = new THREE.LineBasicMaterial();
+    const geometryLine = new THREE.Geometry();
     stackHelper.slice.updateMatrixWorld();
     geometryLine.vertices.push(stackHelper.slice.position);
     geometryLine.vertices.push(particleLight.position);
@@ -222,6 +224,10 @@ window.onload = function() {
       worldBBox[4], worldBBox[5]).step(0.01).listen();
     positionFolder.add(stackHelper.slice, 'interpolation',
       0, 1).step(1).listen();
+    positionFolder.add(stackHelper.slice, 'thickness',
+      0, 20).step(1).listen();
+    positionFolder.add(stackHelper.slice, 'spacing',
+      0, 2).step(.2).listen();
     positionFolder.open();
 
     frameIndexControllerOriginI.onChange(updateGeometries);

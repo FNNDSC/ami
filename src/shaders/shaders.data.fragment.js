@@ -67,11 +67,46 @@ void main(void) {
   }
 
   // get texture coordinates of current pixel
-  vec4 dataCoordinates = uWorldToData * vPos;
-  vec3 currentVoxel = dataCoordinates.xyz;
-  vec4 dataValue = vec4(0., 0., 0., 0.);
-  vec3 gradient = vec3(0., 0., 0.);
-  ${shadersInterpolation(this, 'currentVoxel', 'dataValue', 'gradient')}
+  vec4 dataValue = vec4(0.);
+  vec3 gradient = vec3(1.); // gradient calculations will be skipped if it is equal to vec3(1.) 
+  float steps = floor(uThickness / uSpacing + 0.5);
+
+  if (steps > 1.) {
+    vec3 origin = vPos - uThickness * 0.5 * vNormal;
+    vec4 dataValueAcc = vec4(0.);
+    for (float step = 0.; step < 128.; step++) {
+      if (step >= steps) {
+        break;
+      }
+
+      vec4 dataCoordinates = uWorldToData * vec4(origin + step * uSpacing * vNormal, 1.);
+      vec3 currentVoxel = dataCoordinates.xyz;
+      ${shadersInterpolation(this, 'currentVoxel', 'dataValueAcc', 'gradient')};
+
+      if (step == 0.) {
+        dataValue.r = dataValueAcc.r;
+        continue;
+      }
+
+      if (uThicknessMethod == 0) {
+        dataValue.r = max(dataValueAcc.r, dataValue.r);
+      }
+      if (uThicknessMethod == 1) {
+        dataValue.r += dataValueAcc.r;
+      }
+      if (uThicknessMethod == 2) {
+        dataValue.r = min(dataValueAcc.r, dataValue.r);
+      }
+    }
+
+    if (uThicknessMethod == 1) {
+      dataValue.r /= steps;
+    }
+  } else {
+    vec4 dataCoordinates = uWorldToData * vec4(vPos, 1.);
+    vec3 currentVoxel = dataCoordinates.xyz;
+    ${shadersInterpolation(this, 'currentVoxel', 'dataValue', 'gradient')}
+  }
 
   if(uNumberOfChannels == 1){
     // rescale/slope
@@ -122,10 +157,10 @@ void main(void) {
   }
 
   if(uInvert == 1){
-    dataValue = vec4(1.) - dataValue;
-    // how do we deal with that and opacity?
-    dataValue.a = 1.;
+    dataValue.xyz = vec3(1.) - dataValue.xyz;
   }
+
+  dataValue.a = dataValue.a*uOpacity;
 
   gl_FragColor = dataValue;
 }
@@ -138,7 +173,8 @@ void main(void) {
 ${this.uniforms()}
 
 // varying (should fetch it from vertex directly)
-varying vec4      vPos;
+varying vec3 vPos;
+varying vec3 vNormal;
 
 // tailored functions
 ${this.functions()}

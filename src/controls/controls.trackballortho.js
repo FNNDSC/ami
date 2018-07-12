@@ -313,33 +313,21 @@ const trackballOrtho = (three = window.THREE) => {
       }
   
       function mousewheel(event) {
-        if (_this.enabled === false) return;
-  
+        if ( _this.enabled === false ) return;
+    
+        if ( _this.noZoom === true ) return;
+
         event.preventDefault();
         event.stopPropagation();
-  
-        let delta = 0;
-  
-        if (event.wheelDelta) {
-          // WebKit / Opera / Explorer 9
-  
-          delta = event.wheelDelta / 40;
-        } else if (event.detail) {
-          // Firefox
-  
-          delta = -event.detail / 3;
-        }
-  
-        // FIRE SCROLL EVENT
-  
+
+        //_zoomStart.y += event.deltaY * 0.01;
         _this.dispatchEvent({
           type: 'OnScroll',
-          delta: delta,
+          delta: event.deltaY * 0.01,
         });
-  
-        // _zoomStart.y += delta * 0.01;
-        _this.dispatchEvent(startEvent);
-        _this.dispatchEvent(endEvent);
+
+        _this.dispatchEvent( startEvent );
+        _this.dispatchEvent( endEvent );
       }
   
       function touchstart(event) {
@@ -425,7 +413,7 @@ const trackballOrtho = (three = window.THREE) => {
         this.domElement.removeEventListener('contextmenu', contextmenu, false);
         this.domElement.removeEventListener('mousedown', mousedown, false);
         this.domElement.removeEventListener('wheel', mousewheel, false);
-  
+
         this.domElement.removeEventListener('touchstart', touchstart, false);
         this.domElement.removeEventListener('touchend', touchend, false);
         this.domElement.removeEventListener('touchmove', touchmove, false);
@@ -437,7 +425,7 @@ const trackballOrtho = (three = window.THREE) => {
       this.domElement.addEventListener('contextmenu', contextmenu, false);
       this.domElement.addEventListener('mousedown', mousedown, false);
       this.domElement.addEventListener('wheel', mousewheel, false);
-  
+
       this.domElement.addEventListener('touchstart', touchstart, false);
       this.domElement.addEventListener('touchend', touchend, false);
       this.domElement.addEventListener('touchmove', touchmove, false);
