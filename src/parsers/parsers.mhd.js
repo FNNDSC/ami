@@ -117,6 +117,9 @@ export default class ParsersMHD extends ParsersVolume {
     let x = parseFloat(this._header.ElementSpacing[1], 10);
     let y = parseFloat(this._header.ElementSpacing[0], 10);
     let z = parseFloat(this._header.ElementSpacing[2], 10);
+    if (!this.rightHanded()) {
+      z = -z;
+    }
     return [x, y, z];
   }
 
@@ -159,9 +162,12 @@ export default class ParsersMHD extends ParsersVolume {
     let numberOfChannels = this.numberOfChannels();
     let numPixels =
       this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    /*
+    // Inverting frame order leads to a loss the "first frame" information
     if (!this.rightHanded()) {
       frameIndex = this.numberOfFrames() - 1 - frameIndex;
     }
+    */
     let frameOffset = frameIndex * numPixels;
 
     if (this._header.ElementType === 'MET_CHAR') {
