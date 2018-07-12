@@ -52245,6 +52245,7 @@ var geometriesSlice = function geometriesSlice() {
       // update real position of each vertex! (not in 2d)
       _this.vertices = points;
       _this.verticesNeedUpdate = true;
+      _this.computeVertexNormals();
       return _this;
     }
 
@@ -53089,6 +53090,9 @@ var helpersSlice = function helpersSlice() {
       _this._windowCenter = null;
       _this._rescaleSlope = null;
       _this._rescaleIntercept = null;
+      _this._spacing = 1.;
+      _this._thickness = 0.;
+      _this._thicknessMethod = 0; // default to MIP (Maximum Intensity Projection); 1 - Mean; 2 - MinIP
 
       // threshold
       _this._lowerThreshold = null;
@@ -53175,6 +53179,9 @@ var helpersSlice = function helpersSlice() {
         this._uniforms.uPixelType.value = this._stack.pixelType;
         this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
         this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
+        this._uniforms.uSpacing.value = this._spacing;
+        this._uniforms.uThickness.value = this._thickness;
+        this._uniforms.uThicknessMethod.value = this._thicknessMethod;
         // compute texture if material exist
         this._prepareTexture();
         this._uniforms.uTextureContainer.value = this._textures;
@@ -53344,6 +53351,33 @@ var helpersSlice = function helpersSlice() {
       },
       set: function set(stack) {
         this._stack = stack;
+      }
+    }, {
+      key: 'spacing',
+      get: function get() {
+        return this._spacing;
+      },
+      set: function set(spacing) {
+        this._spacing = spacing;
+        this._uniforms.uSpacing.value = this._spacing;
+      }
+    }, {
+      key: 'thickness',
+      get: function get() {
+        return this._thickness;
+      },
+      set: function set(thickness) {
+        this._thickness = thickness;
+        this._uniforms.uThickness.value = this._thickness;
+      }
+    }, {
+      key: 'thicknessMethod',
+      get: function get() {
+        return this._thicknessMethod;
+      },
+      set: function set(thicknessMethod) {
+        this._thicknessMethod = thicknessMethod;
+        this._uniforms.uThicknessMethod.value = this._thicknessMethod;
       }
     }, {
       key: 'windowWidth',
@@ -53694,6 +53728,26 @@ var ShadersUniform = function () {
         type: 'f',
         value: 10.,
         typeGLSL: 'float'
+      },
+      'uOpacity': {
+        type: 'f',
+        value: 1.0,
+        typeGLSL: 'float'
+      },
+      'uSpacing': {
+        type: 'f',
+        value: 0.,
+        typeGLSL: 'float'
+      },
+      'uThickness': {
+        type: 'f',
+        value: 0.,
+        typeGLSL: 'float'
+      },
+      'uThicknessMethod': {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int'
       }
     };
   };
@@ -53716,7 +53770,7 @@ var ShadersVertex = function () {
   }
 
   ShadersVertex.prototype.compute = function compute() {
-    return "\nvarying vec4 vPos;\n\n//\n// main\n//\nvoid main() {\n\n  vPos = modelMatrix * vec4(position, 1.0 );\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );\n\n}\n        ";
+    return "\nvarying vec3 vPos;\nvarying vec3 vNormal;\n\nvoid main() {\n  vNormal = normal;\n  vPos = (modelMatrix * vec4(position, 1.0 )).xyz;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );\n\n}\n        ";
   };
 
   return ShadersVertex;
@@ -53776,11 +53830,11 @@ var ShadersFragment = function () {
 
   ShadersFragment.prototype.main = function main() {
     // need to pre-call main to fill up the functions list
-    this._main = '\nvoid main(void) {\n\n  // draw border if slice is cropped\n  // float uBorderDashLength = 10.;\n\n  if( uCanvasWidth > 0. &&\n      ((gl_FragCoord.x > uBorderMargin && (gl_FragCoord.x - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.x < (uCanvasWidth - uBorderMargin) && (gl_FragCoord.x + uBorderMargin) > (uCanvasWidth - uBorderWidth) ))){\n    float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);\n    if( valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  if( uCanvasHeight > 0. &&\n      ((gl_FragCoord.y > uBorderMargin && (gl_FragCoord.y - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.y < (uCanvasHeight - uBorderMargin) && (gl_FragCoord.y + uBorderMargin) > (uCanvasHeight - uBorderWidth) ))){\n    float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);\n    if( valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  // get texture coordinates of current pixel\n  vec4 dataCoordinates = uWorldToData * vPos;\n  vec3 currentVoxel = dataCoordinates.xyz;\n  vec4 dataValue = vec4(0., 0., 0., 0.);\n  vec3 gradient = vec3(0., 0., 0.);\n  ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'currentVoxel', 'dataValue', 'gradient') + '\n\n  if(uNumberOfChannels == 1){\n    // rescale/slope\n    float realIntensity = dataValue.r * uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  \n    // threshold\n    if (realIntensity < uLowerUpperThreshold[0] || realIntensity > uLowerUpperThreshold[1]) {\n      discard;\n    }\n  \n    // normalize\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    float normalizedIntensity =\n      ( realIntensity - windowMin ) / uWindowCenterWidth[1];\n    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;\n    dataValue.a = 1.;\n\n    // apply LUT\n    if(uLut == 1){\n      // should opacity be grabbed there?\n      dataValue = texture2D( uTextureLUT, vec2( normalizedIntensity , 1.0) );\n    }\n  \n    // apply segmentation\n    if(uLutSegmentation == 1){\n      // should opacity be grabbed there?\n      //\n      float textureWidth = 256.;\n      float textureHeight = 128.;\n      float min = 0.;\n      // start at 0!\n      int adjustedIntensity = int(floor(realIntensity + 0.5));\n  \n      // Get row and column in the texture\n      int colIndex = int(mod(float(adjustedIntensity), textureWidth));\n      int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));\n  \n      float texWidth = 1./textureWidth;\n      float texHeight = 1./textureHeight;\n    \n      // Map row and column to uv\n      vec2 uv = vec2(0,0);\n      uv.x = 0.5 * texWidth + (texWidth * float(colIndex));\n      uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);\n  \n      dataValue = texture2D( uTextureLUTSegmentation, uv );\n    }\n  }\n\n  if(uInvert == 1){\n    dataValue = vec4(1.) - dataValue;\n    // how do we deal with that and opacity?\n    dataValue.a = 1.;\n  }\n\n  gl_FragColor = dataValue;\n}\n   ';
+    this._main = '\nvoid main(void) {\n\n  // draw border if slice is cropped\n  // float uBorderDashLength = 10.;\n\n  if( uCanvasWidth > 0. &&\n      ((gl_FragCoord.x > uBorderMargin && (gl_FragCoord.x - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.x < (uCanvasWidth - uBorderMargin) && (gl_FragCoord.x + uBorderMargin) > (uCanvasWidth - uBorderWidth) ))){\n    float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);\n    if( valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  if( uCanvasHeight > 0. &&\n      ((gl_FragCoord.y > uBorderMargin && (gl_FragCoord.y - uBorderMargin) < uBorderWidth) ||\n       (gl_FragCoord.y < (uCanvasHeight - uBorderMargin) && (gl_FragCoord.y + uBorderMargin) > (uCanvasHeight - uBorderWidth) ))){\n    float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);\n    if( valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin) ){\n      gl_FragColor = vec4(uBorderColor, 1.);\n      return;\n    }\n  }\n\n  // get texture coordinates of current pixel\n  vec4 dataValue = vec4(0.);\n  vec3 gradient = vec3(1.); // gradient calculations will be skipped if it is equal to vec3(1.) \n  float steps = floor(uThickness / uSpacing + 0.5);\n\n  if (steps > 1.) {\n    vec3 origin = vPos - uThickness * 0.5 * vNormal;\n    vec4 dataValueAcc = vec4(0.);\n    for (float step = 0.; step < 128.; step++) {\n      if (step >= steps) {\n        break;\n      }\n\n      vec4 dataCoordinates = uWorldToData * vec4(origin + step * uSpacing * vNormal, 1.);\n      vec3 currentVoxel = dataCoordinates.xyz;\n      ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'currentVoxel', 'dataValueAcc', 'gradient') + ';\n\n      if (step == 0.) {\n        dataValue.r = dataValueAcc.r;\n        continue;\n      }\n\n      if (uThicknessMethod == 0) {\n        dataValue.r = max(dataValueAcc.r, dataValue.r);\n      }\n      if (uThicknessMethod == 1) {\n        dataValue.r += dataValueAcc.r;\n      }\n      if (uThicknessMethod == 2) {\n        dataValue.r = min(dataValueAcc.r, dataValue.r);\n      }\n    }\n\n    if (uThicknessMethod == 1) {\n      dataValue.r /= steps;\n    }\n  } else {\n    vec4 dataCoordinates = uWorldToData * vec4(vPos, 1.);\n    vec3 currentVoxel = dataCoordinates.xyz;\n    ' + Object(__WEBPACK_IMPORTED_MODULE_0__interpolation_shaders_interpolation__["a" /* default */])(this, 'currentVoxel', 'dataValue', 'gradient') + '\n  }\n\n  if(uNumberOfChannels == 1){\n    // rescale/slope\n    float realIntensity = dataValue.r * uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];\n  \n    // threshold\n    if (realIntensity < uLowerUpperThreshold[0] || realIntensity > uLowerUpperThreshold[1]) {\n      discard;\n    }\n  \n    // normalize\n    float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;\n    float normalizedIntensity =\n      ( realIntensity - windowMin ) / uWindowCenterWidth[1];\n    dataValue.r = dataValue.g = dataValue.b = normalizedIntensity;\n    dataValue.a = 1.;\n\n    // apply LUT\n    if(uLut == 1){\n      // should opacity be grabbed there?\n      dataValue = texture2D( uTextureLUT, vec2( normalizedIntensity , 1.0) );\n    }\n  \n    // apply segmentation\n    if(uLutSegmentation == 1){\n      // should opacity be grabbed there?\n      //\n      float textureWidth = 256.;\n      float textureHeight = 128.;\n      float min = 0.;\n      // start at 0!\n      int adjustedIntensity = int(floor(realIntensity + 0.5));\n  \n      // Get row and column in the texture\n      int colIndex = int(mod(float(adjustedIntensity), textureWidth));\n      int rowIndex = int(floor(float(adjustedIntensity)/textureWidth));\n  \n      float texWidth = 1./textureWidth;\n      float texHeight = 1./textureHeight;\n    \n      // Map row and column to uv\n      vec2 uv = vec2(0,0);\n      uv.x = 0.5 * texWidth + (texWidth * float(colIndex));\n      uv.y = 1. - (0.5 * texHeight + float(rowIndex) * texHeight);\n  \n      dataValue = texture2D( uTextureLUTSegmentation, uv );\n    }\n  }\n\n  if(uInvert == 1){\n    dataValue.xyz = vec3(1.) - dataValue.xyz;\n  }\n\n  dataValue.a = dataValue.a*uOpacity;\n\n  gl_FragColor = dataValue;\n}\n   ';
   };
 
   ShadersFragment.prototype.compute = function compute() {
-    return '\n// uniforms\n' + this.uniforms() + '\n\n// varying (should fetch it from vertex directly)\nvarying vec4      vPos;\n\n// tailored functions\n' + this.functions() + '\n\n// main loop\n' + this._main + '\n      ';
+    return '\n// uniforms\n' + this.uniforms() + '\n\n// varying (should fetch it from vertex directly)\nvarying vec3 vPos;\nvarying vec3 vNormal;\n\n// tailored functions\n' + this.functions() + '\n\n// main loop\n' + this._main + '\n      ';
   };
 
   return ShadersFragment;
@@ -57597,7 +57651,6 @@ var ParsersDicom = function (_ParsersVolume) {
 
   ParsersDicom.prototype._findStringEverywhere = function _findStringEverywhere(subsequence, tag, index) {
     var targetString = this._findStringInFrameGroupSequence(subsequence, tag, index);
-
     // PET MODULE
     if (targetString === null) {
       var petModule = 'x00540022';
@@ -57627,7 +57680,7 @@ var ParsersDicom = function (_ParsersVolume) {
       targetString = null;
     }
 
-    return null;
+    return targetString;
   };
 
   ParsersDicom.prototype._findFloatStringInGroupSequence = function _findFloatStringInGroupSequence(sequence, subsequence, tag, index) {
@@ -69231,7 +69284,7 @@ var InterpolationTrilinear = function (_ShadersBase) {
   };
 
   InterpolationTrilinear.prototype.computeDefinition = function computeDefinition() {
-    this._definition = '\nvoid trilinearInterpolation(\n  in vec3 normalizedPosition,\n  out vec4 interpolatedValue,\n  in vec4 v000, in vec4 v100,\n  in vec4 v001, in vec4 v101,\n  in vec4 v010, in vec4 v110,\n  in vec4 v011, in vec4 v111) {\n  // https://en.wikipedia.org/wiki/Trilinear_interpolation\n  vec4 c00 = v000 * ( 1.0 - normalizedPosition.x ) + v100 * normalizedPosition.x;\n  vec4 c01 = v001 * ( 1.0 - normalizedPosition.x ) + v101 * normalizedPosition.x;\n  vec4 c10 = v010 * ( 1.0 - normalizedPosition.x ) + v110 * normalizedPosition.x;\n  vec4 c11 = v011 * ( 1.0 - normalizedPosition.x ) + v111 * normalizedPosition.x;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - normalizedPosition.y) + c10 * normalizedPosition.y;\n  vec4 c1 = c01 * ( 1.0 - normalizedPosition.y) + c11 * normalizedPosition.y;\n\n  // c\n  vec4 c = c0 * ( 1.0 - normalizedPosition.z) + c1 * normalizedPosition.z;\n  interpolatedValue = c;\n}\n\nvoid ' + this._name + '(in vec3 currentVoxel, out vec4 dataValue, out vec3 gradient){\n\n  vec3 lower_bound = floor(currentVoxel);\n  lower_bound = max(vec3(0.), lower_bound);\n  \n  vec3 higher_bound = lower_bound + vec3(1.);\n\n  vec3 normalizedPosition = (currentVoxel - lower_bound);\n  normalizedPosition =  max(vec3(0.), normalizedPosition);\n\n  vec4 interpolatedValue = vec4(0.);\n\n  //\n  // fetch values required for interpolation\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c000 = vec3(lower_bound.x, lower_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c000', 'v000') + '\n\n  //\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c100 = vec3(higher_bound.x, lower_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c100', 'v100') + '\n\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c001 = vec3(lower_bound.x, lower_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c001', 'v001') + '\n\n  //\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c101 = vec3(higher_bound.x, lower_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c101', 'v101') + '\n  \n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c010 = vec3(lower_bound.x, higher_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c010', 'v010') + '\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c110 = vec3(higher_bound.x, higher_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c110', 'v110') + '\n\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c011 = vec3(lower_bound.x, higher_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c011', 'v011') + '\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c111 = vec3(higher_bound.x, higher_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c111', 'v111') + '\n\n  // compute interpolation at position\n  trilinearInterpolation(normalizedPosition, interpolatedValue ,v000, v100, v001, v101, v010,v110, v011,v111);\n  dataValue = interpolatedValue;\n\n  // compute gradient\n  float gradientStep = 0.005;\n\n  // x axis\n  vec3 g100 = vec3(1., 0., 0.);\n  vec3 ng100 = normalizedPosition + g100 * gradientStep;\n  ng100.x = min(1., ng100.x);\n\n  vec4 vg100 = vec4(0.);\n  trilinearInterpolation(ng100, vg100 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  vec3 go100 = -g100;\n  vec3 ngo100 = normalizedPosition + go100 * gradientStep;\n  ngo100.x = max(0., ngo100.x);\n\n  vec4 vgo100 = vec4(0.);\n  trilinearInterpolation(ngo100, vgo100 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  gradient.x = (g100.x * vg100.x + go100.x * vgo100.x);\n\n  // y axis\n  vec3 g010 = vec3(0., 1., 0.);\n  vec3 ng010 = normalizedPosition + g010 * gradientStep;\n  ng010.y = min(1., ng010.y);\n\n  vec4 vg010 = vec4(0.);\n  trilinearInterpolation(ng010, vg010 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  vec3 go010 = -g010;\n  vec3 ngo010 = normalizedPosition + go010 * gradientStep;\n  ngo010.y = max(0., ngo010.y);\n\n  vec4 vgo010 = vec4(0.);\n  trilinearInterpolation(ngo010, vgo010 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  gradient.y = (g010.y * vg010.x + go010.y * vgo010.x);\n\n  // z axis\n  vec3 g001 = vec3(0., 0., 1.);\n  vec3 ng001 = normalizedPosition + g001 * gradientStep;\n  ng001.z = min(1., ng001.z);\n\n  vec4 vg001 = vec4(0.);\n  trilinearInterpolation(ng001, vg001 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  vec3 go001 = -g001;\n  vec3 ngo001 = normalizedPosition + go001 * gradientStep;\n  ngo001.z = max(0., ngo001.z);\n\n  vec4 vgo001 = vec4(0.);\n  trilinearInterpolation(ngo001, vgo001 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  gradient.z = (g001.z * vg001.x + go001.z * vgo001.x);\n\n  // normalize gradient\n  // +0.0001  instead of if?\n  float gradientMagnitude = length(gradient);\n  if (gradientMagnitude > 0.0) {\n    gradient = -(1. / gradientMagnitude) * gradient;\n  }\n}\n    ';
+    this._definition = '\nvoid trilinearInterpolation(\n  in vec3 normalizedPosition,\n  out vec4 interpolatedValue,\n  in vec4 v000, in vec4 v100,\n  in vec4 v001, in vec4 v101,\n  in vec4 v010, in vec4 v110,\n  in vec4 v011, in vec4 v111) {\n  // https://en.wikipedia.org/wiki/Trilinear_interpolation\n  vec4 c00 = v000 * ( 1.0 - normalizedPosition.x ) + v100 * normalizedPosition.x;\n  vec4 c01 = v001 * ( 1.0 - normalizedPosition.x ) + v101 * normalizedPosition.x;\n  vec4 c10 = v010 * ( 1.0 - normalizedPosition.x ) + v110 * normalizedPosition.x;\n  vec4 c11 = v011 * ( 1.0 - normalizedPosition.x ) + v111 * normalizedPosition.x;\n\n  // c0 and c1\n  vec4 c0 = c00 * ( 1.0 - normalizedPosition.y) + c10 * normalizedPosition.y;\n  vec4 c1 = c01 * ( 1.0 - normalizedPosition.y) + c11 * normalizedPosition.y;\n\n  // c\n  vec4 c = c0 * ( 1.0 - normalizedPosition.z) + c1 * normalizedPosition.z;\n  interpolatedValue = c;\n}\n\nvoid ' + this._name + '(in vec3 currentVoxel, out vec4 dataValue, out vec3 gradient){\n\n  vec3 lower_bound = floor(currentVoxel);\n  lower_bound = max(vec3(0.), lower_bound);\n  \n  vec3 higher_bound = lower_bound + vec3(1.);\n\n  vec3 normalizedPosition = (currentVoxel - lower_bound);\n  normalizedPosition =  max(vec3(0.), normalizedPosition);\n\n  vec4 interpolatedValue = vec4(0.);\n\n  //\n  // fetch values required for interpolation\n  //\n  vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c000 = vec3(lower_bound.x, lower_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c000', 'v000') + '\n\n  //\n  vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c100 = vec3(higher_bound.x, lower_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c100', 'v100') + '\n\n  //\n  vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c001 = vec3(lower_bound.x, lower_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c001', 'v001') + '\n\n  //\n  vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c101 = vec3(higher_bound.x, lower_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c101', 'v101') + '\n  \n  //\n  vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c010 = vec3(lower_bound.x, higher_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c010', 'v010') + '\n\n  vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c110 = vec3(higher_bound.x, higher_bound.y, lower_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c110', 'v110') + '\n\n  //\n  vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c011 = vec3(lower_bound.x, higher_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c011', 'v011') + '\n\n  vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);\n  vec3 c111 = vec3(higher_bound.x, higher_bound.y, higher_bound.z);\n  ' + __WEBPACK_IMPORTED_MODULE_1__shaders_interpolation_identity__["a" /* default */].api(this._base, 'c111', 'v111') + '\n\n  // compute interpolation at position\n  trilinearInterpolation(normalizedPosition, interpolatedValue ,v000, v100, v001, v101, v010,v110, v011,v111);\n  dataValue = interpolatedValue;\n\n  if (gradient.x == 1.) { // skip gradient calculation for slice helper\n    return;\n  }\n\n  // compute gradient\n  float gradientStep = 0.005;\n\n  // x axis\n  vec3 g100 = vec3(1., 0., 0.);\n  vec3 ng100 = normalizedPosition + g100 * gradientStep;\n  ng100.x = min(1., ng100.x);\n\n  vec4 vg100 = vec4(0.);\n  trilinearInterpolation(ng100, vg100 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  vec3 go100 = -g100;\n  vec3 ngo100 = normalizedPosition + go100 * gradientStep;\n  ngo100.x = max(0., ngo100.x);\n\n  vec4 vgo100 = vec4(0.);\n  trilinearInterpolation(ngo100, vgo100 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  gradient.x = (g100.x * vg100.x + go100.x * vgo100.x);\n\n  // y axis\n  vec3 g010 = vec3(0., 1., 0.);\n  vec3 ng010 = normalizedPosition + g010 * gradientStep;\n  ng010.y = min(1., ng010.y);\n\n  vec4 vg010 = vec4(0.);\n  trilinearInterpolation(ng010, vg010 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  vec3 go010 = -g010;\n  vec3 ngo010 = normalizedPosition + go010 * gradientStep;\n  ngo010.y = max(0., ngo010.y);\n\n  vec4 vgo010 = vec4(0.);\n  trilinearInterpolation(ngo010, vgo010 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  gradient.y = (g010.y * vg010.x + go010.y * vgo010.x);\n\n  // z axis\n  vec3 g001 = vec3(0., 0., 1.);\n  vec3 ng001 = normalizedPosition + g001 * gradientStep;\n  ng001.z = min(1., ng001.z);\n\n  vec4 vg001 = vec4(0.);\n  trilinearInterpolation(ng001, vg001 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  vec3 go001 = -g001;\n  vec3 ngo001 = normalizedPosition + go001 * gradientStep;\n  ngo001.z = max(0., ngo001.z);\n\n  vec4 vgo001 = vec4(0.);\n  trilinearInterpolation(ngo001, vgo001 ,v000, v100, v001, v101, v010,v110, v011,v111);\n\n  gradient.z = (g001.z * vg001.x + go001.z * vgo001.x);\n\n  // normalize gradient\n  // +0.0001  instead of if?\n  float gradientMagnitude = length(gradient);\n  if (gradientMagnitude > 0.0) {\n    gradient = -(1. / gradientMagnitude) * gradient;\n  }\n}\n    ';
   };
 
   return InterpolationTrilinear;
@@ -69323,6 +69376,7 @@ var helpersStack = function helpersStack() {
       _this._autoWindowLevel = false;
       _this._outOfBounds = false;
       _this._orientationMaxIndex = 0;
+      _this._orientationSpacing = 0;
 
       _this._canvasWidth = 0;
       _this._canvasHeight = 0;
@@ -69361,6 +69415,24 @@ var helpersStack = function helpersStack() {
         // todo: Arrow
       } else {
         window.console.log('no stack to be prepared...');
+      }
+    };
+
+    _class.prototype._computeOrientationSpacing = function _computeOrientationSpacing() {
+      var spacing = this._stack._spacing;
+      switch (this._orientation) {
+        case 0:
+          this._orientationSpacing = spacing.z;
+          break;
+        case 1:
+          this._orientationSpacing = spacing.x;
+          break;
+        case 2:
+          this._orientationSpacing = spacing.y;
+          break;
+        default:
+          this._orientationSpacing = 0;
+          break;
       }
     };
 
@@ -69682,6 +69754,10 @@ var helpersStack = function helpersStack() {
         this._orientation = orientation;
         this._computeOrientationMaxIndex();
 
+        this._computeOrientationSpacing();
+        this._slice.spacing = Math.abs(this._orientationSpacing);
+        this._slice.thickness = this._slice.spacing;
+
         this._slice.planeDirection = this._prepareDirection(this._orientation);
 
         // also update the border
@@ -69707,9 +69783,9 @@ var helpersStack = function helpersStack() {
       }
 
       /**
-       * Set/get the orientationMaxIndex flag.
+       * Set/get the orientationMaxIndex.
        *
-       * @type {boolean}
+       * @type {number}
        */
 
     }, {
@@ -69719,6 +69795,21 @@ var helpersStack = function helpersStack() {
       },
       get: function get() {
         return this._orientationMaxIndex;
+      }
+
+      /**
+       * Set/get the orientationSpacing.
+       *
+       * @type {number}
+       */
+
+    }, {
+      key: 'orientationSpacing',
+      set: function set(orientationSpacing) {
+        this._orientationSpacing = orientationSpacing;
+      },
+      get: function get() {
+        return this._orientationSpacing;
       }
     }, {
       key: 'canvasWidth',
