@@ -122,7 +122,7 @@ export default class CoreUtils {
     data.pathname = '';
     data.query = '';
 
-    let parsedUrl = new URL(url);
+    let parsedUrl = new URL(url, /^(?:[a-z]+:)?\/\//i.test(url) ? '' : location.origin);
 
     data.pathname = parsedUrl.pathname;
     data.query = parsedUrl.search;
@@ -141,7 +141,8 @@ export default class CoreUtils {
       data.extension = data.filename.split('.').pop();
     }
 
-    if (!isNaN(data.extension)) {
+    const skipExt = ['asp', 'aspx', 'go', 'gs', 'hs', 'jsp', 'js', 'php', 'pl', 'py', 'rb', 'htm', 'html'];
+    if (!isNaN(data.extension) || skipExt.indexOf(data.extension) !== -1) {
       data.extension = 'dicom';
     }
 
