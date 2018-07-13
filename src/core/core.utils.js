@@ -116,18 +116,14 @@ export default class CoreUtils {
    * @return {Object}
    */
   static parseUrl(url) {
-    const data = {
-        filename: '',
+    const absUrlRe = /^(?:[a-z]+:)?\/\//i,
+      parsedUrl = new URL(url, absUrlRe.test(url) ? '' : location.origin),
+      data = {
+        filename: parsedUrl.searchParams.get('filename'),
         extension: '',
-        pathname: '',
-        query: '',
-      },
-      absUrlRe = /^(?:[a-z]+:)?\/\//i,
-      parsedUrl = new URL(url, absUrlRe.test(url) ? '' : location.origin);
-
-    data.pathname = parsedUrl.pathname;
-    data.query = parsedUrl.search;
-    data.filename = parsedUrl.searchParams.get('filename');
+        pathname: parsedUrl.pathname,
+        query: parsedUrl.search,
+      };
 
     // get file name
     if (!data.filename) {
