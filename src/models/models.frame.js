@@ -94,7 +94,7 @@ export default class ModelsFrame extends ModelsBase {
     if (this._compareArrays(this._dimensionIndexValues, frame.dimensionIndexValues) &&
         this._compareArrays(this._imageOrientation, frame.imageOrientation) &&
         this._compareArrays(this._imagePosition, frame.imagePosition) &&
-        this.instanceDifference(frame) === 0) {
+        this.instanceDifference(frame) === 0 && this.index === frame.index) {
       return true;
     } else {
       return false;
