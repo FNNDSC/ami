@@ -343,16 +343,14 @@ export default class ModelsStack extends ModelsBase {
         // 1,1,2,1 - next
         // 1,1,2,3 - next
         // 1,1,3,1 - next
-        let index = a.findIndex(function(elem, ind) {
-          return elem !== b[ind];
+        let index = a.dimensionIndexValues.findIndex(function(elem, ind) {
+          return elem !== b.dimensionIndexValues[ind];
         });
 
-        return a[index] - b[index];
+        return a.dimensionIndexValues[index] - b.dimensionIndexValues[index];
       }
 
-      window.console.warn('It is impossible to uniquely determine the order of frames!');
-
-      return 0;
+      return a.index - b.index;
     });
   }
 
