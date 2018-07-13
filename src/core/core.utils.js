@@ -122,7 +122,14 @@ export default class CoreUtils {
     data.pathname = '';
     data.query = '';
 
-    let parsedUrl = new URL(url);
+    let parsedUrl = null;
+    try {
+      parsedUrl = new URL(url);
+      // A relative url will throw an typeError exception
+    } catch(e) {
+      // we parse a relative url, if this url+base is incorrect, another exception will be thrown
+      parsedUrl = new URL(url,location.origin);
+    }
 
     data.pathname = parsedUrl.pathname;
     data.query = parsedUrl.search;
