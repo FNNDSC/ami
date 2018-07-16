@@ -23,7 +23,7 @@
         <img src="https://img.shields.io/npm/dm/ami.js.svg"
              alt="NPM Downloads per Month">
     </a>
-    <a href="http://slack.babymri.org">
+    <a href="https://join.slack.com/t/amijs/shared_invite/enQtMzk5MDI0Nzg1NjY4LWJjYWE0MDMzMjVjZDcxOWY3YjFjYzc1NzJjYzc1MmRlYTY1OGZhYWI1MGE4YzRmMTVjMmQ4MDc2MzAxNGYxYTI">
         <img src="https://img.shields.io/badge/slack-join-blue.svg"
              alt="Slack">
     </a>
