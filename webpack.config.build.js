@@ -33,6 +33,9 @@ var config = {
             }
         ]
     },
+    node: {
+        fs: "empty"
+    },
     plugins: debug
         ? []
         : [
