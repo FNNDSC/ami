@@ -9,6 +9,10 @@ JSONStream@^1.0.3:
     jsonparse "^1.2.0"
     through ">=2.2.7 <3"
 
+"OpenJPEG.js@https://github.com/cornerstonejs/openjpeg":
+  version "0.10.1"
+  resolved "https://github.com/cornerstonejs/openjpeg#93f3abc4a3cd799a31f44606d08f2effdc531116"
+
 abbrev@1:
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.0.9.tgz#91b4792588a7738c25f35dd6f63752a2f8776135"

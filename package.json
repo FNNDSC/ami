@@ -35,6 +35,7 @@
         "babel": "--module-bind js=babel-loader --colors --display-error-details"
     },
     "dependencies": {
+        "OpenJPEG.js": "https://github.com/cornerstonejs/openjpeg",
         "dicom-parser": "1.8.1",
         "image-JPEG2000": "OHIF/image-JPEG2000#master",
         "jpeg-lossless-decoder-js": "1.2.3",
