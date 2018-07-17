@@ -1,13 +1,12 @@
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
+import * as OpenJPEG from 'OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js';
 
 let DicomParser = require('dicom-parser');
 let Jpeg = require('jpeg-lossless-decoder-js');
 let JpegBaseline = require('../../external/scripts/jpeg');
-// TODO! require only 1 of the next 2 libraries?
-let OpenJPEG = require('../../external/scripts/openjpeg');
-let openJPEG; // for one time initialization
 let Jpx = require('../../external/scripts/jpx');
+let openJPEG; // for one time initialization
 
 /**
  * Dicom parser is a combination of utilities to get a VJS image from dicom files.
@@ -802,7 +801,7 @@ export default class ParsersDicom extends ParsersVolume {
     );
   }
 
-  // used only if OpenJPEG library can't be loaded, because OHIF/image-JPEG2000 is not supported any more
+  // used if OpenJPEG library isn't loaded (OHIF/image-JPEG2000 isn't supported and can't parse some images)
   _decodeJpx(frameIndex = 0) {
     const jpxImage = new Jpx();
     // https://github.com/OHIF/image-JPEG2000/issues/6
