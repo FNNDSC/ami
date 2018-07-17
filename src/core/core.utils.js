@@ -117,7 +117,7 @@ export default class CoreUtils {
    */
   static parseUrl(url) {
     const absUrlRe = /^(?:[a-z]+:)?\/\//i,
-      parsedUrl = new URL(url, absUrlRe.test(url) ? '' : location.origin),
+      parsedUrl = absUrlRe.test(url) ? new URL(url) : new URL(url, location.origin),
       data = {
         filename: parsedUrl.searchParams.get('filename'),
         extension: '',
