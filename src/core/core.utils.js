@@ -116,9 +116,8 @@ export default class CoreUtils {
    * @return {Object}
    */
   static parseUrl(url) {
-    const absUrlRe = /^(?:[a-z]+:)?\/\//i,
-      parsedUrl = new URL(url, absUrlRe.test(url) ? '' : location.origin),
-      data = {
+    const parsedUrl = new URL(url, 'http://fix.me');
+    const data = {
         filename: parsedUrl.searchParams.get('filename'),
         extension: '',
         pathname: parsedUrl.pathname,
@@ -132,9 +131,11 @@ export default class CoreUtils {
 
     // find extension
     const splittedName = data.filename.split('.');
+
     data.extension = splittedName.length > 1 ? splittedName.pop() : 'dicom';
 
     const skipExt = ['asp', 'aspx', 'go', 'gs', 'hs', 'jsp', 'js', 'php', 'pl', 'py', 'rb', 'htm', 'html'];
+
     if (!isNaN(data.extension) ||
       skipExt.indexOf(data.extension) !== -1 ||
       (data.query && data.query.includes('contentType=application%2Fdicom'))
