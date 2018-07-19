@@ -36,7 +36,7 @@
     },
     "dependencies": {
         "dicom-parser": "1.8.1",
-        "image-JPEG2000": "OHIF/image-JPEG2000#master",
+        "image-JPEG2000": "ReflexionMed/image-JPEG2000#master",
         "jpeg-lossless-decoder-js": "1.2.3",
         "math-float32-to-binary-string": "^1.0.0",
         "nifti-reader-js": "v0.5.3",
