@@ -169,7 +169,7 @@ let data2 = testObjectTemplate(
   null,
 
   // computed values
-  [0, 2402]
+  [0, 2403]
 );
 datasets.push(data2);
 

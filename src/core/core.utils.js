@@ -116,17 +116,13 @@ export default class CoreUtils {
    * @return {Object}
    */
   static parseUrl(url) {
-    const data = {};
-    data.filename = '';
-    data.extension = '';
-    data.pathname = '';
-    data.query = '';
-
-    let parsedUrl = new URL(url);
-
-    data.pathname = parsedUrl.pathname;
-    data.query = parsedUrl.search;
-    data.filename = parsedUrl.searchParams.get('filename');
+    const parsedUrl = new URL(url, 'http://fix.me');
+    const data = {
+        filename: parsedUrl.searchParams.get('filename'),
+        extension: '',
+        pathname: parsedUrl.pathname,
+        query: parsedUrl.search,
+      };
 
     // get file name
     if (!data.filename) {
@@ -134,19 +130,16 @@ export default class CoreUtils {
     }
 
     // find extension
-    let splittedName = data.filename.split('.');
-    if (splittedName.length <= 1) {
-      data.extension = 'dicom';
-    } else {
-      data.extension = data.filename.split('.').pop();
-    }
+    const splittedName = data.filename.split('.');
 
-    if (!isNaN(data.extension)) {
-      data.extension = 'dicom';
-    }
+    data.extension = splittedName.length > 1 ? splittedName.pop() : 'dicom';
 
-    if (data.query &&
-      data.query.includes('contentType=application%2Fdicom')) {
+    const skipExt = ['asp', 'aspx', 'go', 'gs', 'hs', 'jsp', 'js', 'php', 'pl', 'py', 'rb', 'htm', 'html'];
+
+    if (!isNaN(data.extension) ||
+      skipExt.indexOf(data.extension) !== -1 ||
+      (data.query && data.query.includes('contentType=application%2Fdicom'))
+    ) {
       data.extension = 'dicom';
     }
 
