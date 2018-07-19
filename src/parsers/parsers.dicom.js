@@ -13,6 +13,11 @@ let openJPEG; // for one time initialization
  *scripts
  * Relies on dcmjs, jquery, HTML5 fetch API, HTML5 promise API.
  *
+ * image-JPEG2000 (jpx) is still in use, because Cornerstone does it and may have identified some edge corners.
+ * Ref:
+ *   https://github.com/cornerstonejs/cornerstoneWADOImageLoader/blob/master/docs/Codecs.md
+ *   https://github.com/cornerstonejs/cornerstoneWADOImageLoader/blob/a9b408f5562bde5543fc6986bd23fbac9d676562/src/shared/decoders/decodeJPEG2000.js#L127-L134
+ *
  * @module parsers/dicom
  *
  * @param arrayBuffer {arraybuffer} - List of files to be parsed. It is urls from which
@@ -820,26 +825,26 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   _decodeOpenJPEG(frameIndex = 0) {
-    const encodedPixelData = this.getEncapsulatedImageFrame(frameIndex),
-      bytesPerPixel = this.bitsAllocated(frameIndex) <= 8 ? 1 : 2,
-      signed = this.pixelRepresentation(frameIndex) === 1,
-      dataPtr = openJPEG._malloc(encodedPixelData.length);
+    const encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
+    const bytesPerPixel = this.bitsAllocated(frameIndex) <= 8 ? 1 : 2;
+    const signed = this.pixelRepresentation(frameIndex) === 1;
+    const dataPtr = openJPEG._malloc(encodedPixelData.length);
 
     openJPEG.writeArrayToMemory(encodedPixelData, dataPtr);
 
     // create param outpout
-    const imagePtrPtr = openJPEG._malloc(4),
-      imageSizePtr = openJPEG._malloc(4),
-      imageSizeXPtr = openJPEG._malloc(4),
-      imageSizeYPtr = openJPEG._malloc(4),
-      imageSizeCompPtr = openJPEG._malloc(4),
-      ret = openJPEG.ccall(
-        'jp2_decode',
-        'number',
-        ['number', 'number', 'number', 'number', 'number', 'number', 'number'],
-        [dataPtr, encodedPixelData.length, imagePtrPtr, imageSizePtr, imageSizeXPtr, imageSizeYPtr, imageSizeCompPtr]
-      ),
-      imagePtr = openJPEG.getValue(imagePtrPtr, '*');
+    const imagePtrPtr = openJPEG._malloc(4);
+    const imageSizePtr = openJPEG._malloc(4);
+    const imageSizeXPtr = openJPEG._malloc(4);
+    const imageSizeYPtr = openJPEG._malloc(4);
+    const imageSizeCompPtr = openJPEG._malloc(4);
+    const ret = openJPEG.ccall(
+      'jp2_decode',
+      'number',
+      ['number', 'number', 'number', 'number', 'number', 'number', 'number'],
+      [dataPtr, encodedPixelData.length, imagePtrPtr, imageSizePtr, imageSizeXPtr, imageSizeYPtr, imageSizeCompPtr]
+    );
+    const imagePtr = openJPEG.getValue(imagePtrPtr, '*');
 
     if (ret !== 0) {
       console.log('[opj_decode] decoding failed!');
@@ -855,9 +860,8 @@ export default class ParsersDicom extends ParsersVolume {
 
     // Copy the data from the EMSCRIPTEN heap into the correct type array
     const length = openJPEG.getValue(imageSizeXPtr, 'i32') *
-        openJPEG.getValue(imageSizeYPtr, 'i32') * openJPEG.getValue(imageSizeCompPtr, 'i32'),
-      src32 = new Int32Array(openJPEG.HEAP32.buffer, imagePtr, length);
-
+        openJPEG.getValue(imageSizeYPtr, 'i32') * openJPEG.getValue(imageSizeCompPtr, 'i32');
+    const src32 = new Int32Array(openJPEG.HEAP32.buffer, imagePtr, length);
     let pixelData;
 
     if (bytesPerPixel === 1) {
