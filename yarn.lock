@@ -3270,9 +3270,9 @@ ignore@^3.3.3:
   version "3.3.5"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-3.3.5.tgz#c4e715455f6073a8d7e5dae72d2fc9d71663dba6"
 
-image-JPEG2000@OHIF/image-JPEG2000#master:
+image-JPEG2000@ReflexionMed/image-JPEG2000#master:
   version "0.3.1"
-  resolved "https://codeload.github.com/OHIF/image-JPEG2000/tar.gz/ed628f6ef0c505377179ce5c952cd7265c87e065"
+  resolved "https://codeload.github.com/ReflexionMed/image-JPEG2000/tar.gz/77ea3cb026de90629c2d013bda46e82a36edaeb6"
 
 imurmurhash@^0.1.4:
   version "0.1.4"

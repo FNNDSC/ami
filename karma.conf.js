@@ -2,7 +2,7 @@ const packageJSON = require('./package.json');
 
 ('use strict');
 
-process.env.CHROME_BIN = require('puppeteer').executablePath()
+process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 module.exports = function(karma) {
     karma.set({
@@ -16,7 +16,7 @@ module.exports = function(karma) {
             // ,
             // 'src/core/*.spec.js',
             'specs/**/*.spec.js',
-            { pattern: 'data/**/*', included: false, watched: false, served: true }
+            {pattern: 'data/**/*', included: false, watched: false, served: true},
         ],
 
         reporters: ['spec'],
@@ -24,8 +24,7 @@ module.exports = function(karma) {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            'specs/**/*.spec.js': ['webpack']
-            // 'src/core/*.spec.js': ['browserify']
+            'specs/**/*.spec.js': ['webpack'],
         },
 
         browsers: ['ChromeHeadless'],
@@ -46,15 +45,18 @@ module.exports = function(karma) {
                     {
                         test: /\.js$/,
                         loader: 'babel-loader',
-                        exclude: [/node_modules/, 'external/**/*']
-                    }
-                ]
-            }
+                        exclude: [/node_modules/, 'external/**/*'],
+                    },
+                ],
+            },
+            node: {
+                fs: 'empty',
+            },
         },
         webpackMiddleware: {
             // webpack-dev-middleware configuration
             // i. e.
-            stats: 'errors-only'
-        }
+            stats: 'errors-only',
+        },
     });
 };
