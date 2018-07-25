@@ -1,4 +1,5 @@
 const debug = process.env.NODE_ENV !== 'production';
+const mode = process.env.NODE_ENV !== 'production' ? 'development' : 'production';
 const webpack = require('webpack');
 const path = require('path');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
@@ -16,12 +17,14 @@ const config = {
         libraryTarget: 'umd',
         umdNamedDefine: true,
     },
+    mode: 'production',
     resolve: {
         modules: [path.resolve(__dirname, 'src'), 'node_modules'],
         extensions: ['.js', '.jsx', '.css', '.html', '.scss', '.json'],
         alias: {
             base: path.resolve(__dirname, 'src'),
         },
+
     },
     module: {
         rules: [
@@ -36,6 +39,21 @@ const config = {
     node: {
         fs: 'empty',
     },
+    optimization: {
+        minimize: true,
+        sideEffects: false,
+        minimizer: [
+            new UglifyJSPlugin({
+                      parallel: true,
+                      uglifyOptions: {
+                          compress: {
+                              warnings: true,
+                          },
+                          minimize: true,
+                      },
+                  }),
+          ],
+      },
     plugins: debug
         ? []
         : [
@@ -44,15 +62,15 @@ const config = {
                       NODE_ENV: JSON.stringify('production'),
                   },
               }),
-              new UglifyJSPlugin({
-                  parallel: true,
-                  uglifyOptions: {
-                      compress: {
-                          warnings: false,
-                      },
-                      minimize: true,
-                  },
-              }),
+            //   new UglifyJSPlugin({
+            //       parallel: true,
+            //       uglifyOptions: {
+            //           compress: {
+            //               warnings: false,
+            //           },
+            //           minimize: true,
+            //       },
+            //   }),
           ],
 };
 

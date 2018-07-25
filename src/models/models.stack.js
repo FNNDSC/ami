@@ -1,11 +1,12 @@
 /** * Imports ***/
-import {Vector3, Matrix4} from 'three';
+import {Matrix4} from 'three/src/math/Matrix4';
+import {Vector3} from 'three/src/math/Vector3';
+
 import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
 import ModelsBase from '../models/models.base';
 
-import {RGBFormat, RGBAFormat} from 'three';
-
+import {RGBFormat, RGBAFormat} from 'three/src/constants';
 const binaryString = require('math-float32-to-binary-string');
 
 /**

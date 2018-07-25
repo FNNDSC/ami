@@ -6,7 +6,7 @@ import Lut from './helpers.lut';
 import SegmentationLut from './helpers.segmentationlut';
 import ProgressBar from './helpers.progressbar';
 import ProgressBarEventBased from './helpers.progressbar.eventbased';
-import Slice, {helpersGeometry} from './helpers.slice';
+import Slice, {helpersSlice} from './helpers.slice';
 import Stack, {helpersStack} from './helpers.stack';
 import VolumeRendering, {helpersVolumeRendering} from './helpers.volumerendering';
 
@@ -24,7 +24,7 @@ export {
     ProgressBar as ProgressBarHelper,
     ProgressBarEventBased as ProgressBarEventBasedHelper,
     Slice as SliceHelper,
-    helpersGeometry as geometryHelperFactory,
+    helpersSlice as sliceHelperFactory,
     Stack as StackHelper,
     helpersStack as stackHelperFactory,
     VolumeRendering as VolumeRenderingHelper,
