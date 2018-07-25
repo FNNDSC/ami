@@ -34,19 +34,20 @@
         "gaKey": "UA-39303022-3",
         "babel": "--module-bind js=babel-loader --colors --display-error-details"
     },
+    "sideEffects": false,
     "dependencies": {
+        "OpenJPEG.js": "joedrago/openjpeg#master",
         "dicom-parser": "1.8.1",
         "image-JPEG2000": "ReflexionMed/image-JPEG2000#master",
         "jpeg-lossless-decoder-js": "1.2.3",
         "math-float32-to-binary-string": "^1.0.0",
         "nifti-reader-js": "v0.5.3",
         "nrrd-js": "^0.2.1",
-        "OpenJPEG.js": "joedrago/openjpeg#master",
         "pako": "1.0.1",
         "three": "0.92.0"
     },
     "scripts": {
-        "build:ami": "webpack --config webpack.config.build.js",
+        "build:ami": "cross-env NODE_ENV=production && webpack -p --verbose --config webpack.config.build.js --mode production",
         "build:ami:prod": "cross-env NODE_ENV=production yarn build:ami",
         "build:clean": "rimraf -rf build/*",
         "build:clean:hot": "rimraf -rf build/*.hot-update.*",
@@ -89,7 +90,7 @@
         "karma-jasmine": "latest",
         "karma-sinon": "^1.0.5",
         "karma-spec-reporter": "latest",
-        "karma-webpack": "^2.0.4",
+        "karma-webpack": "^3.0.0",
         "live-server": "^1.1.0",
         "node-pre-gyp": "^0.10.0",
         "puppeteer": "^0.13.0",
@@ -97,10 +98,11 @@
         "rollup-plugin-node-builtins": "^2.1.2",
         "shelljs": "latest",
         "sinon": "^2.0.0",
-        "uglifyjs-webpack-plugin": "^1.0.0-beta.3",
-        "webpack": "^3.7.1",
-        "webpack-bundle-analyzer": "^2.9.0",
-        "webpack-dev-server": "^2.9.1",
+        "uglifyjs-webpack-plugin": "^1.2.7",
+        "webpack": "^4.12.0",
+        "webpack-bundle-analyzer": "^2.13.1",
+        "webpack-cli": "^3.1.0",
+        "webpack-dev-server": "^3.1.5",
         "webpack-watch-livereload-plugin": "^0.0.1"
     },
     "engines": {
