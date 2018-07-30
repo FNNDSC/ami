@@ -7,10 +7,6 @@
         <img src="https://travis-ci.org/FNNDSC/ami.svg"
              alt="Build Status">
     </a>
-    <a href="https://codeclimate.com/github/FNNDSC/ami">
-        <img src="https://codeclimate.com/github/FNNDSC/ami/badges/gpa.svg"
-             alt="Code Climate">
-    </a>
      <a href="https://cdnjs.com/libraries/ami.js">
         <img src="https://img.shields.io/cdnjs/v/ami.js.svg"
              alt="CDNJS Version">
@@ -253,7 +249,7 @@ $> yarn add ami.js
 ```javascript
 
 // app.js
-const AMI = require('ami.js');
+import * as AMI form 'ami.js';
 window.console.log('Ready to rock!!');
 
 ```
@@ -262,8 +258,17 @@ window.console.log('Ready to rock!!');
 
 Check-out the [lessons](#lessons) to get started quickly.
 
-Add AMI in your index.html **after** THREEJS.
 
+**New:** Use the new factory not to have to include `three` in index.html.
+```javascript
+import * as THREE from 'three';
+import {stackHelperFactory} from 'ami.js';
+
+const StackHelper = stackHelperFactory(THREE);
+const stackHelper = new StackHelper();
+```
+
+Add AMI in your index.html **after** THREEJS.
 ```html
 
 <!-- index.html -->
