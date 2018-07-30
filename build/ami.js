@@ -27577,7 +27577,7 @@ module.exports = g;
 /*! exports provided: name, version, main, keywords, author, license, repository, config, sideEffects, dependencies, scripts, devDependencies, engines, default */
 /***/ (function(module) {
 
-module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"93","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.92.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","lesson":"node ./scripts/router.js lessons","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","gen:index:lessons":"node ./scripts/genIndexFiles.js lessons","gen:index:lessons:cdn":"node ./scripts/genIndexFiles.js lessons cdn","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples && echo 'hi'","lint":"eslint src/**/*.js","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"^5.2.0","eslint-config-google":"latest","gh-pages":"^1.2.0","glslify":"5.1.0","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^3.1.5","webpack-cli":"^3.1.0","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
+module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"93","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.92.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","lesson":"node ./scripts/router.js lessons","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","gen:index:lessons":"node ./scripts/genIndexFiles.js lessons","gen:index:lessons:cdn":"node ./scripts/genIndexFiles.js lessons cdn","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples && echo 'hi'","lint":"eslint src/**/*.js --fix","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"^5.2.0","eslint-config-google":"latest","gh-pages":"^1.2.0","glslify":"5.1.0","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^3.1.5","webpack-cli":"^3.1.0","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
 
 /***/ }),
 
@@ -27585,7 +27585,7 @@ module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","
 /*!********************!*\
   !*** ./src/ami.js ***!
   \********************/
-/*! exports provided: OrthographicCamera, orthographicCameraFactory, TrackballControl, trackballControlFactory, TrackballOrthoControl, trackballOrthoControlFactory, ColorsCore, IntersectionsCore, UtilsCore, ValidatorsCore, SliceGeometry, sliceGeometryFactory, VoxelGeometry, voxelGeometryFactory, BorderHelper, borderHelperFactory, BoundingBoxHelper, boundingBoxHelperFactory, ContourHelper, contourHelperFactory, LocalizerHelper, localizerHelperFactory, LutHelper, SegmentationLutHelper, ProgressBarHelper, ProgressBarEventBasedHelper, SliceHelper, sliceHelperFactory, StackHelper, stackHelperFactory, VolumeRenderingHelper, VolumeRenderingHelperFactory, VolumeLoader, FrameModel, StackModel, SeriesModel, VoxelModel, DicomParser, MghParser, NiftiParser, NrrdParser, SegmentationPreset, ContourUniformShader, ContourFragmentShader, ContourVertexShader, DataUniformShader, DataFragmentShader, DataVertexShader, VRUniformShader, VRFragmentShader, VRVertexShader, LayerUniformShader, LayerFragmentShader, LayerVertexShader, LocalizerUniformShader, LocalizerFragmentShader, LocalizerVertexShader, WidgetsCss, AngleWidget, AnnotationWidget, BiRulerWidget, CrossRulerWidget, EllipseWidget, FreehandWidget, HandleWidget, PolygonWidget, RectangleWidget, RulerWidget, VoxelProbeWidget */
+/*! exports provided: OrthographicCamera, orthographicCameraFactory, TrackballControl, trackballControlFactory, TrackballOrthoControl, trackballOrthoControlFactory, ColorsCore, IntersectionsCore, UtilsCore, ValidatorsCore, SliceGeometry, sliceGeometryFactory, VoxelGeometry, voxelGeometryFactory, BorderHelper, borderHelperFactory, BoundingBoxHelper, boundingBoxHelperFactory, ContourHelper, contourHelperFactory, LocalizerHelper, localizerHelperFactory, LutHelper, SegmentationLutHelper, ProgressBarHelper, ProgressBarEventBasedHelper, SliceHelper, sliceHelperFactory, StackHelper, stackHelperFactory, VolumeRenderingHelper, VolumeRenderingHelperFactory, VolumeLoader, FrameModel, StackModel, SeriesModel, VoxelModel, DicomParser, MghParser, NiftiParser, NrrdParser, SegmentationPreset, ContourUniformShader, ContourFragmentShader, ContourVertexShader, DataUniformShader, DataFragmentShader, DataVertexShader, VRUniformShader, VRFragmentShader, VRVertexShader, LayerUniformShader, LayerFragmentShader, LayerVertexShader, LocalizerUniformShader, LocalizerFragmentShader, LocalizerVertexShader, WidgetsCss, AngleWidget, angleWidgetFactory, AnnotationWidget, annotationWidgetFactory, BiRulerWidget, birulerWidgetFactory, CrossRulerWidget, crossrulerWidgetFactory, EllipseWidget, ellipseWidgetFactory, FreehandWidget, freehandWidgetFactory, HandleWidget, handleWidgetFactory, PolygonWidget, polygonWidgetFactory, RectangleWidget, rectangleWidgetFactory, RulerWidget, rulerWidgetFactory, VoxelProbeWidget, voxelprobeWidgetFactory */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -27719,25 +27719,47 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AngleWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["AngleWidget"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "angleWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["angleWidgetFactory"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AnnotationWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["AnnotationWidget"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "annotationWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["annotationWidgetFactory"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BiRulerWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["BiRulerWidget"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "birulerWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["birulerWidgetFactory"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "CrossRulerWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["CrossRulerWidget"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "crossrulerWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["crossrulerWidgetFactory"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "EllipseWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["EllipseWidget"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ellipseWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["ellipseWidgetFactory"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "FreehandWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["FreehandWidget"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "freehandWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["freehandWidgetFactory"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "HandleWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["HandleWidget"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "handleWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["handleWidgetFactory"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PolygonWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["PolygonWidget"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "polygonWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["polygonWidgetFactory"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RectangleWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["RectangleWidget"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "rectangleWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["rectangleWidgetFactory"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RulerWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["RulerWidget"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "rulerWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["rulerWidgetFactory"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VoxelProbeWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["VoxelProbeWidget"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "voxelprobeWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["voxelprobeWidgetFactory"]; });
 
 
 
@@ -35362,8 +35384,9 @@ var ModelsFrame = function (_ModelsBase) {
     canvas.width = this._columns;
     canvas.height = this._rows;
 
-    var context = canvas.getContext('2d'),
-        imageData = context.createImageData(canvas.width, canvas.height);
+    var context = canvas.getContext('2d');
+
+    var imageData = context.createImageData(canvas.width, canvas.height);
 
     imageData.data.set(this._frameToCanvas());
     context.putImageData(imageData, 0, 0);
@@ -35379,8 +35402,9 @@ var ModelsFrame = function (_ModelsBase) {
 
 
   ModelsFrame.prototype._frameToCanvas = function _frameToCanvas() {
-    var dimension = this._columns * this._rows,
-        params = {
+    var dimension = this._columns * this._rows;
+
+    var params = {
       invert: this._invert,
       min: this._minMax[0],
       padding: this._pixelPaddingValue
@@ -35399,8 +35423,9 @@ var ModelsFrame = function (_ModelsBase) {
 
     if (this._windowWidth && this._windowCenter !== null) {
       // applying windowCenter and windowWidth
-      var intercept = this._rescaleIntercept || 0,
-          slope = this._rescaleSlope || 1;
+      var intercept = this._rescaleIntercept || 0;
+
+      var slope = this._rescaleSlope || 1;
 
       params.min = Math.max((this._windowCenter - this._windowWidth / 2 - intercept) / slope, params.min);
       params.max = Math.min((this._windowCenter + this._windowWidth / 2 - intercept) / slope, this._minMax[1]);
@@ -37991,9 +38016,11 @@ var ParsersDicom = function (_ParsersVolume) {
   ParsersDicom.prototype.frameTime = function frameTime() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    var frameIncrementPointer = this._dataSet.uint16('x00280009', 1),
-        frameRate = this._dataSet.intString('x00082144'),
-        frameTime = void 0;
+    var frameIncrementPointer = this._dataSet.uint16('x00280009', 1);
+
+    var frameRate = this._dataSet.intString('x00082144');
+
+    var frameTime = void 0;
 
     if (typeof frameIncrementPointer === 'number') {
       frameIncrementPointer = frameIncrementPointer.toString(16);
@@ -43849,17 +43876,20 @@ var widgetsAngle = function widgetsAngle() {
 
             this._label.innerHTML = this._opangle.toFixed(2) + '&deg;';
 
-            var paddingNormVector = lineData.line.clone().add(line2Data.line).normalize().negate(),
-                normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
+            var paddingNormVector = lineData.line.clone().add(line2Data.line).normalize().negate();
+
+            var normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
 
             if (normAngle > Math.PI / 2) {
                 normAngle = Math.PI - normAngle;
             }
 
             var labelPadding = Math.tan(normAngle) < this._label.offsetHeight / this._label.offsetWidth ? this._label.offsetWidth / 2 / Math.cos(normAngle) + 15 // 15px padding
-            : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - normAngle) + 15,
-                paddingPoint = this._handles[1].screenPosition.clone().add(paddingNormVector.multiplyScalar(labelPadding)),
-                transform = this.adjustLabelTransform(this._label, paddingPoint);
+            : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - normAngle) + 15;
+
+            var paddingPoint = this._handles[1].screenPosition.clone().add(paddingNormVector.multiplyScalar(labelPadding));
+
+            var transform = this.adjustLabelTransform(this._label, paddingPoint);
 
             this._label.style.transform = 'translate3D(' + transform.x + 'px, ' + transform.y + 'px, 0)';
         };
@@ -44092,8 +44122,9 @@ var widgetsAnnotation = function widgetsAnnotation() {
       if (this._labelhovered) {
         // if label hovered then it should be moved
         // save mouse coordinates offset from label center
-        var offsets = this.getMouseOffsets(evt, this._container),
-            paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelOffset);
+        var offsets = this.getMouseOffsets(evt, this._container);
+
+        var paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelOffset);
 
         this._mouseLabelOffset = new three.Vector3(offsets.screenX - paddingPoint.x, offsets.screenY - paddingPoint.y, 0);
         this._movinglabel = true;
@@ -44273,11 +44304,13 @@ var widgetsAnnotation = function widgetsAnnotation() {
       this._line.style.width = lineData.length + 'px';
 
       // update label
-      var paddingVector = lineData.line.multiplyScalar(0.5),
-          paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelmoved ? this._labelOffset // if the label is moved, then its position is defined by labelOffset
-      : paddingVector),
-          // otherwise it's placed in the center of the line
-      labelPosition = this.adjustLabelTransform(this._label, paddingPoint);
+      var paddingVector = lineData.line.multiplyScalar(0.5);
+
+      var paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelmoved ? this._labelOffset // if the label is moved, then its position is defined by labelOffset
+      : paddingVector);
+      // otherwise it's placed in the center of the line
+
+      var labelPosition = this.adjustLabelTransform(this._label, paddingPoint);
 
       this._label.style.transform = 'translate3D(' + labelPosition.x + 'px, ' + labelPosition.y + 'px, 0)';
 
@@ -44287,9 +44320,11 @@ var widgetsAnnotation = function widgetsAnnotation() {
       }
 
       // update dash line
-      var minLine = this.getLineData(this._handles[0].screenPosition, paddingPoint),
-          lineCL = this.getLineData(lineData.center, paddingPoint),
-          line1L = this.getLineData(this._handles[1].screenPosition, paddingPoint);
+      var minLine = this.getLineData(this._handles[0].screenPosition, paddingPoint);
+
+      var lineCL = this.getLineData(lineData.center, paddingPoint);
+
+      var line1L = this.getLineData(this._handles[1].screenPosition, paddingPoint);
 
       if (minLine.length > lineCL.length) {
         minLine = lineCL;
@@ -44515,10 +44550,13 @@ var widgetsBase = function widgetsBase() {
     };
 
     _class.prototype.getLineData = function getLineData(pointA, pointB) {
-      var line = pointB.clone().sub(pointA),
-          center = pointB.clone().add(pointA).multiplyScalar(0.5),
-          length = line.length(),
-          angle = line.angleTo(new three.Vector3(1, 0, 0));
+      var line = pointB.clone().sub(pointA);
+
+      var center = pointB.clone().add(pointA).multiplyScalar(0.5);
+
+      var length = line.length();
+
+      var angle = line.angleTo(new three.Vector3(1, 0, 0));
 
       return {
         line: line,
@@ -44531,9 +44569,11 @@ var widgetsBase = function widgetsBase() {
     };
 
     _class.prototype.getRectData = function getRectData(pointA, pointB) {
-      var line = pointB.clone().sub(pointA),
-          vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0)),
-          min = pointA.clone().min(pointB); // coordinates of the top left corner
+      var line = pointB.clone().sub(pointA);
+
+      var vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0));
+
+      var min = pointA.clone().min(pointB); // coordinates of the top left corner
 
       return {
         width: line.clone().projectOnVector(new three.Vector3(1, 0, 0)).length(),
@@ -44552,8 +44592,9 @@ var widgetsBase = function widgetsBase() {
 
 
     _class.prototype.adjustLabelTransform = function adjustLabelTransform(label, point, corner) {
-      var x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2)),
-          y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
+      var x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2));
+
+      var y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
 
       if (x < 0) {
         x = x > -label.offsetWidth ? 0 : x + label.offsetWidth;
@@ -45013,16 +45054,19 @@ var widgetsBiruler = function widgetsBiruler() {
             this._line2.style.width = line2Data.length + 'px';
 
             // update dash line
-            var line1Center = this._handles[0].worldPosition.clone().add(this._handles[1].worldPosition).multiplyScalar(0.5),
-                line2Center = this._handles[2].worldPosition.clone().add(this._handles[3].worldPosition).multiplyScalar(0.5),
-                dashLineData = this.getLineData(this.worldToScreen(line1Center), this.worldToScreen(line2Center));
+            var line1Center = this._handles[0].worldPosition.clone().add(this._handles[1].worldPosition).multiplyScalar(0.5);
+
+            var line2Center = this._handles[2].worldPosition.clone().add(this._handles[3].worldPosition).multiplyScalar(0.5);
+
+            var dashLineData = this.getLineData(this.worldToScreen(line1Center), this.worldToScreen(line2Center));
 
             this._dashline.style.transform = 'translate3D(' + dashLineData.transformX + 'px, ' + dashLineData.transformY + 'px, 0)\n                rotate(' + dashLineData.transformAngle + 'rad)';
             this._dashline.style.width = dashLineData.length + 'px';
 
             // update labels
-            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
-                title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
+            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm';
+
+            var title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
 
             this._distance = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition);
             this._distance2 = this._handles[2].worldPosition.distanceTo(this._handles[3].worldPosition);
@@ -45048,10 +45092,13 @@ var widgetsBiruler = function widgetsBiruler() {
             }
 
             var labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth ? this._label.offsetWidth / 2 / Math.cos(angle) + 15 // 5px for each handle + padding
-            : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle) + 15,
-                paddingVector = lineData.line.normalize().multiplyScalar(labelPadding),
-                paddingPoint = lineData.length > labelPadding * 2 ? this._handles[1].screenPosition.clone().sub(paddingVector) : this._handles[1].screenPosition.clone().add(paddingVector),
-                transform = this.adjustLabelTransform(this._label, paddingPoint);
+            : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle) + 15;
+
+            var paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
+
+            var paddingPoint = lineData.length > labelPadding * 2 ? this._handles[1].screenPosition.clone().sub(paddingVector) : this._handles[1].screenPosition.clone().add(paddingVector);
+
+            var transform = this.adjustLabelTransform(this._label, paddingPoint);
 
             this._label.style.transform = 'translate3D(' + transform.x + 'px, ' + transform.y + 'px, 0)';
 
@@ -45061,10 +45108,13 @@ var widgetsBiruler = function widgetsBiruler() {
             }
 
             var label2Padding = Math.tan(angle2) < this._label2.offsetHeight / this._label2.offsetWidth ? this._label2.offsetWidth / 2 / Math.cos(angle2) + 15 // 5px for each handle + padding
-            : this._label2.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle2) + 15,
-                paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding),
-                paddingPoint2 = line2Data.length > label2Padding * 2 ? this._handles[3].screenPosition.clone().sub(paddingVector2) : this._handles[3].screenPosition.clone().add(paddingVector2),
-                transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
+            : this._label2.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle2) + 15;
+
+            var paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding);
+
+            var paddingPoint2 = line2Data.length > label2Padding * 2 ? this._handles[3].screenPosition.clone().sub(paddingVector2) : this._handles[3].screenPosition.clone().add(paddingVector2);
+
+            var transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
 
             this._label2.style.transform = 'translate3D(' + transform2.x + 'px, ' + transform2.y + 'px, 0)';
         };
@@ -45554,10 +45604,13 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
             // called onEnd if distances are null
             this.initLineAndNormal();
 
-            var center = this._handles[1].worldPosition.clone().add(this._handles[0].worldPosition).multiplyScalar(0.5),
-                halfLength = this._line01.length() / 2,
-                normLine = this._normal.clone().multiplyScalar(halfLength * 0.8),
-                normLength = normLine.length();
+            var center = this._handles[1].worldPosition.clone().add(this._handles[0].worldPosition).multiplyScalar(0.5);
+
+            var halfLength = this._line01.length() / 2;
+
+            var normLine = this._normal.clone().multiplyScalar(halfLength * 0.8);
+
+            var normLength = normLine.length();
 
             this._handles[2].worldPosition.copy(center.clone().add(normLine));
             this._handles[3].worldPosition.copy(center.clone().sub(normLine));
@@ -45579,9 +45632,11 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
 
         _class.prototype.recalculateOrtho = function recalculateOrtho() {
             // called onMove if 2nd or 3rd handle is active
-            var activeInd = this._handles[2].active ? 2 : 3,
-                lines = [],
-                intersect = new three.Vector3();
+            var activeInd = this._handles[2].active ? 2 : 3;
+
+            var lines = [];
+
+            var intersect = new three.Vector3();
 
             lines[2] = this._handles[2].worldPosition.clone().sub(this._handles[0].worldPosition);
             lines[3] = this._handles[3].worldPosition.clone().sub(this._handles[0].worldPosition);
@@ -45637,9 +45692,11 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
 
 
         _class.prototype.initCoordinates = function initCoordinates(first, second, third, fourth) {
-            var intersectR = new three.Vector3(),
-                intersectS = new three.Vector3(),
-                ray = new three.Ray(first);
+            var intersectR = new three.Vector3();
+
+            var intersectS = new three.Vector3();
+
+            var ray = new three.Ray(first);
 
             ray.lookAt(second);
             ray.distanceSqToSegment(third, fourth, intersectR, intersectS);
@@ -46033,9 +46090,11 @@ var widgetsEllipse = function widgetsEllipse() {
                 this.remove(this._mesh);
             }
 
-            var vec01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition),
-                height = vec01.clone().projectOnVector(this._camera.up).length(),
-                width = vec01.clone().projectOnVector(this._camera._right).length();
+            var vec01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition);
+
+            var height = vec01.clone().projectOnVector(this._camera.up).length();
+
+            var width = vec01.clone().projectOnVector(this._camera._right).length();
 
             if (width === 0 || height === 0) {
                 return;
@@ -46101,8 +46160,9 @@ var widgetsEllipse = function widgetsEllipse() {
         };
 
         _class.prototype.updateDOMPosition = function updateDOMPosition() {
-            var rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition),
-                labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));
+            var rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition);
+
+            var labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));
 
             // update rectangle
             this._rectangle.style.transform = 'translate3D(' + rectData.transformX + 'px, ' + rectData.transformY + 'px, 0)';
@@ -46331,8 +46391,9 @@ var widgetsFreehand = function widgetsFreehand() {
         };
 
         _class.prototype.onMove = function onMove(evt) {
-            var numHandles = this._handles.length,
-                hovered = false;
+            var numHandles = this._handles.length;
+
+            var hovered = false;
 
             if (this.active) {
                 this._dragged = true;
@@ -46609,9 +46670,11 @@ var widgetsFreehand = function widgetsFreehand() {
         };
 
         _class.prototype.pushPopHandle = function pushPopHandle() {
-            var handle0 = this._handles[this._handles.length - 3],
-                handle1 = this._handles[this._handles.length - 2],
-                newhandle = this._handles[this._handles.length - 1];
+            var handle0 = this._handles[this._handles.length - 3];
+
+            var handle1 = this._handles[this._handles.length - 2];
+
+            var newhandle = this._handles[this._handles.length - 1];
 
             var isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
 
@@ -46640,9 +46703,11 @@ var widgetsFreehand = function widgetsFreehand() {
         };
 
         _class.prototype.updateDOMContent = function updateDOMContent(clear) {
-            var meanSDContainer = this._label.querySelector('.mean-sd'),
-                maxMinContainer = this._label.querySelector('.max-min'),
-                areaContainer = this._label.querySelector('.area');
+            var meanSDContainer = this._label.querySelector('.mean-sd');
+
+            var maxMinContainer = this._label.querySelector('.max-min');
+
+            var areaContainer = this._label.querySelector('.area');
 
             if (clear) {
                 meanSDContainer.innerHTML = '';
@@ -46652,8 +46717,9 @@ var widgetsFreehand = function widgetsFreehand() {
                 return;
             }
 
-            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
-                title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
+
+            var title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
             if (this._shapeWarn) {
                 title += 'Values may be incorrect due to triangulation error.';
@@ -47156,7 +47222,7 @@ var widgetsHandle = function widgetsHandle() {
 /*!********************************!*\
   !*** ./src/widgets/widgets.js ***!
   \********************************/
-/*! exports provided: WidgetsCss, AngleWidget, AnnotationWidget, BiRulerWidget, CrossRulerWidget, EllipseWidget, FreehandWidget, HandleWidget, PolygonWidget, RectangleWidget, RulerWidget, VoxelProbeWidget */
+/*! exports provided: WidgetsCss, AngleWidget, angleWidgetFactory, AnnotationWidget, annotationWidgetFactory, BiRulerWidget, birulerWidgetFactory, CrossRulerWidget, crossrulerWidgetFactory, EllipseWidget, ellipseWidgetFactory, FreehandWidget, freehandWidgetFactory, HandleWidget, handleWidgetFactory, PolygonWidget, polygonWidgetFactory, RectangleWidget, rectangleWidgetFactory, RulerWidget, rulerWidgetFactory, VoxelProbeWidget, voxelprobeWidgetFactory */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -47167,35 +47233,57 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _widgets_angle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.angle */ "./src/widgets/widgets.angle.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AngleWidget", function() { return _widgets_angle__WEBPACK_IMPORTED_MODULE_1__["default"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "angleWidgetFactory", function() { return _widgets_angle__WEBPACK_IMPORTED_MODULE_1__["widgetsAngle"]; });
+
 /* harmony import */ var _widgets_annotation__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./widgets.annotation */ "./src/widgets/widgets.annotation.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AnnotationWidget", function() { return _widgets_annotation__WEBPACK_IMPORTED_MODULE_2__["default"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "annotationWidgetFactory", function() { return _widgets_annotation__WEBPACK_IMPORTED_MODULE_2__["widgetsAnnotation"]; });
 
 /* harmony import */ var _widgets_biruler__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./widgets.biruler */ "./src/widgets/widgets.biruler.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BiRulerWidget", function() { return _widgets_biruler__WEBPACK_IMPORTED_MODULE_3__["default"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "birulerWidgetFactory", function() { return _widgets_biruler__WEBPACK_IMPORTED_MODULE_3__["widgetsBiruler"]; });
+
 /* harmony import */ var _widgets_crossRuler__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./widgets.crossRuler */ "./src/widgets/widgets.crossRuler.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "CrossRulerWidget", function() { return _widgets_crossRuler__WEBPACK_IMPORTED_MODULE_4__["default"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "crossrulerWidgetFactory", function() { return _widgets_crossRuler__WEBPACK_IMPORTED_MODULE_4__["widgetsCrossRuler"]; });
 
 /* harmony import */ var _widgets_ellipse__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./widgets.ellipse */ "./src/widgets/widgets.ellipse.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "EllipseWidget", function() { return _widgets_ellipse__WEBPACK_IMPORTED_MODULE_5__["default"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ellipseWidgetFactory", function() { return _widgets_ellipse__WEBPACK_IMPORTED_MODULE_5__["widgetsEllipse"]; });
+
 /* harmony import */ var _widgets_freehand__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./widgets.freehand */ "./src/widgets/widgets.freehand.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "FreehandWidget", function() { return _widgets_freehand__WEBPACK_IMPORTED_MODULE_6__["default"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "freehandWidgetFactory", function() { return _widgets_freehand__WEBPACK_IMPORTED_MODULE_6__["widgetsFreehand"]; });
 
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "HandleWidget", function() { return _widgets_handle__WEBPACK_IMPORTED_MODULE_7__["default"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "handleWidgetFactory", function() { return _widgets_handle__WEBPACK_IMPORTED_MODULE_7__["widgetsHandle"]; });
+
 /* harmony import */ var _widgets_polygon__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./widgets.polygon */ "./src/widgets/widgets.polygon.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PolygonWidget", function() { return _widgets_polygon__WEBPACK_IMPORTED_MODULE_8__["default"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "polygonWidgetFactory", function() { return _widgets_polygon__WEBPACK_IMPORTED_MODULE_8__["widgetsPolygon"]; });
 
 /* harmony import */ var _widgets_rectangle__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./widgets.rectangle */ "./src/widgets/widgets.rectangle.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RectangleWidget", function() { return _widgets_rectangle__WEBPACK_IMPORTED_MODULE_9__["default"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "rectangleWidgetFactory", function() { return _widgets_rectangle__WEBPACK_IMPORTED_MODULE_9__["widgetsRectangle"]; });
+
 /* harmony import */ var _widgets_ruler__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./widgets.ruler */ "./src/widgets/widgets.ruler.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RulerWidget", function() { return _widgets_ruler__WEBPACK_IMPORTED_MODULE_10__["default"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "rulerWidgetFactory", function() { return _widgets_ruler__WEBPACK_IMPORTED_MODULE_10__["widgetsRuler"]; });
+
 /* harmony import */ var _widgets_voxelProbe__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./widgets.voxelProbe */ "./src/widgets/widgets.voxelProbe.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VoxelProbeWidget", function() { return _widgets_voxelProbe__WEBPACK_IMPORTED_MODULE_11__["default"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "voxelprobeWidgetFactory", function() { return _widgets_voxelProbe__WEBPACK_IMPORTED_MODULE_11__["widgetsVoxelprobe"]; });
 
 
 
@@ -47365,8 +47453,9 @@ var widgetsPolygon = function widgetsPolygon() {
         };
 
         _class.prototype.onMove = function onMove(evt) {
-            var numHandles = this._handles.length,
-                hovered = false;
+            var numHandles = this._handles.length;
+
+            var hovered = false;
 
             if (this.active) {
                 this._dragged = true;
@@ -47417,8 +47506,9 @@ var widgetsPolygon = function widgetsPolygon() {
         };
 
         _class.prototype.onEnd = function onEnd() {
-            var numHandles = this._handles.length,
-                active = false;
+            var numHandles = this._handles.length;
+
+            var active = false;
 
             if (!this._initialized && numHandles > 1 && this._handles[numHandles - 2].screenPosition.distanceTo(this._handles[numHandles - 1].screenPosition) < 10) {
                 return;
@@ -47658,9 +47748,11 @@ var widgetsPolygon = function widgetsPolygon() {
         };
 
         _class.prototype.updateDOMContent = function updateDOMContent(clear) {
-            var meanSDContainer = this._label.querySelector('.mean-sd'),
-                maxMinContainer = this._label.querySelector('.max-min'),
-                areaContainer = this._label.querySelector('.area');
+            var meanSDContainer = this._label.querySelector('.mean-sd');
+
+            var maxMinContainer = this._label.querySelector('.max-min');
+
+            var areaContainer = this._label.querySelector('.area');
 
             if (clear) {
                 meanSDContainer.innerHTML = '';
@@ -47670,8 +47762,9 @@ var widgetsPolygon = function widgetsPolygon() {
                 return;
             }
 
-            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
-                title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
+
+            var title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
             if (this._shapeWarn) {
                 title += 'Values may be incorrect due to triangulation error.';
@@ -48106,8 +48199,9 @@ var widgetsRectangle = function widgetsRectangle() {
         };
 
         _class.prototype.updateRoI = function updateRoI(clear) {
-            var meanSDContainer = this._label.querySelector('.mean-sd'),
-                maxMinContainer = this._label.querySelector('.max-min');
+            var meanSDContainer = this._label.querySelector('.mean-sd');
+
+            var maxMinContainer = this._label.querySelector('.max-min');
 
             if (clear) {
                 meanSDContainer.innerHTML = '';
@@ -48128,8 +48222,9 @@ var widgetsRectangle = function widgetsRectangle() {
         };
 
         _class.prototype.updateDOMContent = function updateDOMContent() {
-            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
-                title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
+
+            var title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
             if (title !== '') {
                 this._label.setAttribute('title', title);
@@ -48142,8 +48237,9 @@ var widgetsRectangle = function widgetsRectangle() {
         };
 
         _class.prototype.updateDOMPosition = function updateDOMPosition() {
-            var rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition),
-                labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));
+            var rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition);
+
+            var labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));
 
             // update rectangle
             this._rectangle.style.transform = 'translate3D(' + rectData.transformX + 'px, ' + rectData.transformY + 'px, 0)';
@@ -48497,8 +48593,9 @@ var widgetsRuler = function widgetsRuler() {
       // update label
       this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
 
-      var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
-          title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
+      var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm';
+
+      var title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
 
       if (title !== '') {
         this._label.setAttribute('title', title);
@@ -48515,10 +48612,13 @@ var widgetsRuler = function widgetsRuler() {
       }
 
       var labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth ? this._label.offsetWidth / 2 / Math.cos(angle) + 15 // 5px for each handle + padding
-      : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle) + 15,
-          paddingVector = lineData.line.normalize().multiplyScalar(labelPadding),
-          paddingPoint = lineData.length > labelPadding * 2 ? this._handles[1].screenPosition.clone().sub(paddingVector) : this._handles[1].screenPosition.clone().add(paddingVector),
-          transform = this.adjustLabelTransform(this._label, paddingPoint);
+      : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle) + 15;
+
+      var paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
+
+      var paddingPoint = lineData.length > labelPadding * 2 ? this._handles[1].screenPosition.clone().sub(paddingVector) : this._handles[1].screenPosition.clone().add(paddingVector);
+
+      var transform = this.adjustLabelTransform(this._label, paddingPoint);
 
       this._label.style.transform = 'translate3D(' + transform.x + 'px, ' + transform.y + 'px, 0)';
     };
@@ -48810,9 +48910,11 @@ var widgetsVoxelprobe = function widgetsVoxelprobe() {
     };
 
     _class.prototype.updateDOMContent = function updateDOMContent() {
-      var rasContainer = this._label.querySelector('#lpsPosition'),
-          ijkContainer = this._label.querySelector('#ijkPosition'),
-          valueContainer = this._label.querySelector('#value');
+      var rasContainer = this._label.querySelector('#lpsPosition');
+
+      var ijkContainer = this._label.querySelector('#ijkPosition');
+
+      var valueContainer = this._label.querySelector('#value');
 
       rasContainer.innerHTML = 'LPS: \n      ' + this._voxel.worldCoordinates.x.toFixed(2) + ' :\n      ' + this._voxel.worldCoordinates.y.toFixed(2) + ' :\n      ' + this._voxel.worldCoordinates.z.toFixed(2);
       ijkContainer.innerHTML = 'IJK: \n      ' + this._voxel.dataCoordinates.x + ' :\n      ' + this._voxel.dataCoordinates.y + ' :\n      ' + this._voxel.dataCoordinates.z;

@@ -1,28 +1,39 @@
 import Css from './widgets.css';
 
-import Angle from './widgets.angle';
-import Annotation from './widgets.annotation';
-import BiRuler from './widgets.biruler';
-import CrossRuler from './widgets.crossRuler';
-import Ellipse from './widgets.ellipse';
-import Freehand from './widgets.freehand';
-import Handle from './widgets.handle';
-import Polygon from './widgets.polygon';
-import Rectangle from './widgets.rectangle';
-import Ruler from './widgets.ruler';
-import VoxelProbe from './widgets.voxelProbe';
+import Angle, {widgetsAngle} from './widgets.angle';
+import Annotation, {widgetsAnnotation} from './widgets.annotation';
+import BiRuler, {widgetsBiruler} from './widgets.biruler';
+import CrossRuler, {widgetsCrossRuler} from './widgets.crossRuler';
+import Ellipse, {widgetsEllipse} from './widgets.ellipse';
+import Freehand, {widgetsFreehand} from './widgets.freehand';
+import Handle, {widgetsHandle} from './widgets.handle';
+import Polygon, {widgetsPolygon} from './widgets.polygon';
+import Rectangle, {widgetsRectangle} from './widgets.rectangle';
+import Ruler, {widgetsRuler} from './widgets.ruler';
+import VoxelProbe, {widgetsVoxelprobe} from './widgets.voxelProbe';
 
 export {
     Css as WidgetsCss,
     Angle as AngleWidget,
+    widgetsAngle as angleWidgetFactory,
     Annotation as AnnotationWidget,
+    widgetsAnnotation as annotationWidgetFactory,
     BiRuler as BiRulerWidget,
+    widgetsBiruler as birulerWidgetFactory,
     CrossRuler as CrossRulerWidget,
+    widgetsCrossRuler as crossrulerWidgetFactory,
     Ellipse as EllipseWidget,
+    widgetsEllipse as ellipseWidgetFactory,
     Freehand as FreehandWidget,
+    widgetsFreehand as freehandWidgetFactory,
     Handle as HandleWidget,
+    widgetsHandle as handleWidgetFactory,
     Polygon as PolygonWidget,
+    widgetsPolygon as polygonWidgetFactory,
     Rectangle as RectangleWidget,
+    widgetsRectangle as rectangleWidgetFactory,
     Ruler as RulerWidget,
+    widgetsRuler as rulerWidgetFactory,
     VoxelProbe as VoxelProbeWidget,
+    widgetsVoxelprobe as voxelprobeWidgetFactory,
 };
