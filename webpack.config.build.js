@@ -1,7 +1,7 @@
-const debug = process.env.NODE_ENV !== 'production';
-const webpack = require('webpack');
+const mode = process.env.NODE_ENV !== 'production' ? 'development' : 'production' ;
+
 const path = require('path');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const WatchLiveReloadPlugin = require('webpack-watch-livereload-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
@@ -11,11 +11,12 @@ const config = {
     devtool: 'source-map',
     output: {
         path: path.resolve(__dirname, 'build'),
-        filename: debug ? 'ami.js' : 'ami.min.js',
+        filename: mode === 'development' ? 'ami.js' : 'ami.min.js',
         library: 'AMI',
         libraryTarget: 'umd',
         umdNamedDefine: true,
     },
+    mode,
     resolve: {
         modules: [path.resolve(__dirname, 'src'), 'node_modules'],
         extensions: ['.js', '.jsx', '.css', '.html', '.scss', '.json'],
@@ -36,24 +37,12 @@ const config = {
     node: {
         fs: 'empty',
     },
-    plugins: debug
-        ? []
-        : [
-              new webpack.DefinePlugin({
-                  'process.env': {
-                      NODE_ENV: JSON.stringify('production'),
-                  },
-              }),
-              new UglifyJSPlugin({
-                  parallel: true,
-                  uglifyOptions: {
-                      compress: {
-                          warnings: false,
-                      },
-                      minimize: true,
-                  },
-              }),
-          ],
+    plugins: [],
+    optimization: {
+        minimizer: [
+          new UglifyJsPlugin()
+        ]
+      }
 };
 
 if (process.env.NODE_WEBPACK_TARGET) {
@@ -71,7 +60,7 @@ if (process.env.NODE_WEBPACK_TARGET) {
         .include.push(path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET));
 
     const workPath = path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET);
-    if (debug && workPath.indexOf('/dist/') === -1) {
+    if (mode === 'development' && workPath.indexOf('/dist/') === -1) {
         config.plugins.push(
             new WatchLiveReloadPlugin({
                 files: [path.resolve(__dirname, 'build') + '/*.js', workPath + '/**/*.html', workPath + '/**/*.css'],
@@ -85,7 +74,7 @@ if (process.env.NODE_WEBPACK_TARGET) {
         contentBase: [dataPath, workPath, path.resolve(__dirname, 'build')],
         historyApiFallback: true,
     };
-} else if (!debug) {
+} else if (mode === 'production') {
     config.plugins.push(
         new CompressionPlugin({
             algorithm: 'gzip',
