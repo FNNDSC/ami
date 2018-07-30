@@ -160,15 +160,14 @@ vec3 phongShading(vec3 k_a, vec3 k_d, vec3 k_s, float shininess, vec3 p, vec3 ey
 }
 
 
-float PHI = 1.61803398874989484820459 * 00000.1; // Golden Ratio   
 float PI  = 3.14159265358979323846264 * 00000.1; // PI
-float SRT = 1.41421356237309504880169 * 10000.0; // Square Root of Two
 
-// Gold Noise function ?  Should use a texture
-//
-float gold_noise(in vec2 coordinate, in float seed)
-{
-    return fract(sin(dot(coordinate*seed, vec2(PHI, PI)))*SRT);
+// expects values in the range of [0,1]x[0,1], returns values in the [0,1] range.
+// do not collapse into a single function per: http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
+highp float rand( const in vec2 uv ) {
+	const highp float a = 12.9898, b = 78.233, c = 43758.5453;
+	highp float dt = dot( uv.xy, vec2( a,b ) ), sn = mod( dt, PI );
+	return fract(sin(sn) * c);
 }
 
 void main(void) {
@@ -190,9 +189,13 @@ void main(void) {
   ${shadersIntersectBox.api(this, 'rayOrigin', 'rayDirection', 'AABBMin', 'AABBMax', 'tNear', 'tFar', 'intersect')}
   if (tNear < 0.0) tNear = 0.0;
 
+  // x / y should be within o-1
+  // should
+  float offset = rand(gl_FragCoord.xy);
+
   // init the ray marching
-  float tCurrent = tNear;
   float tStep = (tFar - tNear) / float(uSteps);
+  float tCurrent = tNear + offset * tStep;
   vec4 accumulatedColor = vec4(0.0);
   float accumulatedAlpha = 0.0;
 
