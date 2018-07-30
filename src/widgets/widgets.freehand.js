@@ -112,8 +112,10 @@ const widgetsFreehand = (three = window.THREE) => {
     }
 
     onMove(evt) {
-        let numHandles = this._handles.length,
-            hovered = false;
+        let numHandles = this._handles.length;
+
+
+let hovered = false;
 
         if (this.active) {
             this._dragged = true;
@@ -386,9 +388,13 @@ const widgetsFreehand = (three = window.THREE) => {
     }
 
     pushPopHandle() {
-        let handle0 = this._handles[this._handles.length-3],
-            handle1 = this._handles[this._handles.length-2],
-            newhandle = this._handles[this._handles.length-1];
+        let handle0 = this._handles[this._handles.length-3];
+
+
+let handle1 = this._handles[this._handles.length-2];
+
+
+let newhandle = this._handles[this._handles.length-1];
 
         let isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
 
@@ -417,9 +423,13 @@ const widgetsFreehand = (three = window.THREE) => {
     }
 
     updateDOMContent(clear) {
-        const meanSDContainer = this._label.querySelector('.mean-sd'),
-            maxMinContainer = this._label.querySelector('.max-min'),
-            areaContainer = this._label.querySelector('.area');
+        const meanSDContainer = this._label.querySelector('.mean-sd');
+
+
+const maxMinContainer = this._label.querySelector('.max-min');
+
+
+const areaContainer = this._label.querySelector('.area');
 
         if (clear) {
             meanSDContainer.innerHTML = '';
@@ -429,8 +439,10 @@ const widgetsFreehand = (three = window.THREE) => {
             return;
         }
 
-        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
-            title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
+
+
+let title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
         if (this._shapeWarn) {
             title += 'Values may be incorrect due to triangulation error.';
