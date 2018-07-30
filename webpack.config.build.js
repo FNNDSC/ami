@@ -22,6 +22,7 @@ const config = {
         extensions: ['.js', '.jsx', '.css', '.html', '.scss', '.json'],
         alias: {
             base: path.resolve(__dirname, 'src'),
+            pako: path.resolve(__dirname, 'node_modules', 'pako'),
         },
     },
     module: {
@@ -40,7 +41,9 @@ const config = {
     plugins: [],
     optimization: {
         minimizer: [
-          new UglifyJsPlugin()
+          new UglifyJsPlugin({
+            parallel: true,
+          })
         ]
       }
 };
