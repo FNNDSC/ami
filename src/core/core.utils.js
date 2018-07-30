@@ -275,7 +275,6 @@ export default class CoreUtils {
   }
 
   /**
-  * 
   *
   * Convenience function to extract center of mass from list of points.
   *
