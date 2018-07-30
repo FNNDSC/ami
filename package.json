@@ -66,7 +66,7 @@
         "gen:index:lessons:cdn": "node ./scripts/genIndexFiles.js lessons cdn",
         "test": "karma start",
         "testExamples": "yarn dist:clean && yarn dist:examples && echo 'hi'",
-        "lint": "eslint src/**/*.js",
+        "lint": "eslint src/**/*.js --fix",
         "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src",
         "ami": "yarn lint && yarn dist:ami && yarn test",
         "deploy": "yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"
