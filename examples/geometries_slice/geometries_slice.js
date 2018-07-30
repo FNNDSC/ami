@@ -183,8 +183,8 @@ window.onload = function() {
     stackHelper.slice.planePosition.x = centerLPS.x;
     stackHelper.slice.planePosition.y = centerLPS.y;
     stackHelper.slice.planePosition.z = centerLPS.z;
-    stackHelper.slice.thickness = 2.0;
-    stackHelper.slice.spacing = 0.5;
+    stackHelper.slice.thickness = 0.;
+    stackHelper.slice.spacing = 1.;
     scene.add(stackHelper);
 
     // LINE STUFF
