@@ -172,7 +172,7 @@ export default class LoadersVolumes extends LoadersBase {
               // recursive call for each frame
               // better than for loop to be able
               // to update dom with "progress" callback
-              setTimeout(
+              setTimeout(() ->
                 this.parseFrame(
                   series, stack, response.url, 0,
                   volumeParser, resolve, reject), 0);
@@ -261,7 +261,7 @@ export default class LoadersVolumes extends LoadersBase {
 
       resolve(series);
     } else {
-      setTimeout(
+      setTimeout(() -> 
         this.parseFrame(
           series, stack, url, this._parsed, dataParser, resolve, reject), 0
       );
