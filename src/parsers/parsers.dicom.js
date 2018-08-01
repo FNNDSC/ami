@@ -451,9 +451,13 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   frameTime(frameIndex = 0) {
-    let frameIncrementPointer = this._dataSet.uint16('x00280009', 1),
-      frameRate = this._dataSet.intString('x00082144'),
-      frameTime;
+    let frameIncrementPointer = this._dataSet.uint16('x00280009', 1);
+
+
+let frameRate = this._dataSet.intString('x00082144');
+
+
+let frameTime;
 
     if (typeof frameIncrementPointer === 'number') {
       frameIncrementPointer = frameIncrementPointer.toString(16);

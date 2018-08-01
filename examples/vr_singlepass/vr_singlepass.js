@@ -23,7 +23,7 @@ let myStack = {
   algorithm: 'ray marching',
   lut: 'random',
   opacity: 'random',
-  steps: 256,
+  steps: 128,
   alphaCorrection: 0.5,
   frequence: 0,
   amplitude: 0,

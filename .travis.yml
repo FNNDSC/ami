@@ -1,20 +1,12 @@
 language: node_js
 node_js:
-  - "6.9"
+  - "10.7.0"
 sudo: required
 cache:
   yarn: true
   directories:
     - node_modules
-before_install:
-  # - sudo apt-get update -qq
-  # - curl -s "https://raw.githubusercontent.com/arthurbeggs/scripts/master/install_apps/install_opencv2.sh" | bash
-  # opencv 3 not supported by node opencv yet
-  # - sudo apt-get install -qq libopencv-dev python-opencv
-install:
-  # - yarn add https://github.com/peterbraden/node-opencv
 script:
   - yarn ami
-  # - yarn testExamples
 notifications:
   slack: fnndsc:UohaXDsjFDVqZj5IfdC88XRa
