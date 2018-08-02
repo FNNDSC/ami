@@ -54,6 +54,7 @@ export default class LoadersVolumes extends LoadersBase {
       file: response.url,
       time: new Date(),
     });
+
     // give a chance to the UI to update because
     // after the rendering will be blocked with intensive JS
     // will be removed after eventer set up
@@ -174,13 +175,18 @@ export default class LoadersVolumes extends LoadersBase {
               // better than for loop to be able
               // to update dom with "progress" callback
               setTimeout(
-                () => this.parseFrame(
-                  series, stack, response.url, 0,
-                  volumeParser, resolve, reject), 0);
+                this.parseFrameClosure(series, stack, response.url, 0, volumeParser, resolve, reject)
+                , 0);
             }));
           }, 10);
       }
     );
+  }
+
+  parseFrameClosure(series, stack, url, i, dataParser, resolve, reject) {
+    return () => {
+      this.parseFrame(series, stack, url, i, dataParser, resolve, reject);
+    };
   }
 
   /**
@@ -268,8 +274,8 @@ export default class LoadersVolumes extends LoadersBase {
       resolve(series);
     } else {
       setTimeout(
-        () => this.parseFrame(
-          series, stack, url, this._parsed, dataParser, resolve, reject), 0
+        this.parseFrameClosure(series, stack, url, this._parsed, dataParser, resolve, reject)
+        , 0
       );
     }
   }

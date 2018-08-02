@@ -15,12 +15,6 @@ let niftiDataset = {
     parser: ParsersNifti,
 };
 
-// let nrrdDataset = {
-//     format: 'nrrd',
-//     url: '/base/data/nrrd/adi_slice.nrrd',
-//     parser: ParsersNrrd
-// };
-
 function crop(value, decimals) {
   return (Math.floor(Math.pow(10, decimals) * value) / Math.pow(10, decimals));
 }
