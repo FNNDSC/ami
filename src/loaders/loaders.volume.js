@@ -261,7 +261,7 @@ export default class LoadersVolumes extends LoadersBase {
 
       resolve(series);
     } else {
-      setTimeout(() => 
+      setTimeout(() =>
         this.parseFrame(
           series, stack, url, this._parsed, dataParser, resolve, reject), 0
       );
