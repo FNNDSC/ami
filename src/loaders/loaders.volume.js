@@ -32,7 +32,7 @@ import ParsersNrrd from '../parsers/parsers.nrrd';
  *   // Function when resource is loaded
  *   function(object) {
  *     //scene.add( object );
- *     window.console.log(object);
+ *     console.log(object);
  *   }
  * );
  */
@@ -62,7 +62,7 @@ export default class LoadersVolumes extends LoadersBase {
 
     return new Promise(
       (resolve, reject) => {
-        window.setTimeout(
+        setTimeout(
           () => {
             resolve(new Promise((resolve, reject) => {
               let data = response;
@@ -109,7 +109,7 @@ export default class LoadersVolumes extends LoadersBase {
               try {
                 volumeParser = new Parser(data, 0);
               } catch (e) {
-                window.console.log(e);
+                console.log(e);
                 // emit 'parse-error' event
                 this.emit('parse-error', {
                   file: response.url,
@@ -294,7 +294,7 @@ export default class LoadersVolumes extends LoadersBase {
         Parser = ParsersNrrd;
         break;
       default:
-        window.console.log('unsupported extension: ' + extension);
+        console.log('unsupported extension: ' + extension);
         return false;
     }
     return Parser;
