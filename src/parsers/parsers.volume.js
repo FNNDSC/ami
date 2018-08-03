@@ -46,6 +46,13 @@ export default class ParsersVolume {
     return null;
   }
 
+  echoNumber(frameIndex = 0) {
+    return -1;
+  }
+
+  acquisitionNumber(frameIndex = 0) {
+    return -1;
+  }
 
   dimensionIndexValues(frameIndex = 0) {
     return null;

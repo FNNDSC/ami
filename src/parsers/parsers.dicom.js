@@ -101,7 +101,7 @@ export default class ParsersDicom extends ParsersVolume {
       return segmentationSegments;
     }
 
-    for (let i = 0; i< segmentSequence.items.length; i++) {
+    for (let i = 0; i < segmentSequence.items.length; i++) {
       let recommendedDisplayCIELab =
         this._recommendedDisplayCIELab(segmentSequence.items[i]);
       let segmentationCode = this._segmentationCode(segmentSequence.items[i]);
@@ -168,12 +168,12 @@ export default class ParsersDicom extends ParsersVolume {
 
     let offset = segment.dataSet.elements.x0062000d.dataOffset;
     let length = segment.dataSet.elements.x0062000d.length;
-    let byteArray = segment.dataSet.byteArray.slice(offset, offset+ length);
+    let byteArray = segment.dataSet.byteArray.slice(offset, offset + length);
 
     // https://www.dabsoft.ch/dicom/3/C.10.7.1.1/
-    let CIELabScaled = new Uint16Array(length/2);
-    for (let i = 0; i<length/2; i++) {
-      CIELabScaled[i] = (byteArray[2*i + 1] << 8) + byteArray[2*i];
+    let CIELabScaled = new Uint16Array(length / 2);
+    for (let i = 0; i < length / 2; i++) {
+      CIELabScaled[i] = (byteArray[2 * i + 1] << 8) + byteArray[2 * i];
     }
 
     let CIELabNormalized = [
@@ -327,12 +327,12 @@ export default class ParsersDicom extends ParsersVolume {
     let photometricInterpretation = this.photometricInterpretation();
 
     if (!(photometricInterpretation !== 'RGB' &&
-        photometricInterpretation !== 'PALETTE COLOR' &&
-        photometricInterpretation !== 'YBR_FULL' &&
-        photometricInterpretation !== 'YBR_FULL_422' &&
-        photometricInterpretation !== 'YBR_PARTIAL_422' &&
-        photometricInterpretation !== 'YBR_PARTIAL_420' &&
-        photometricInterpretation !== 'YBR_RCT')) {
+      photometricInterpretation !== 'PALETTE COLOR' &&
+      photometricInterpretation !== 'YBR_FULL' &&
+      photometricInterpretation !== 'YBR_FULL_422' &&
+      photometricInterpretation !== 'YBR_PARTIAL_422' &&
+      photometricInterpretation !== 'YBR_PARTIAL_420' &&
+      photometricInterpretation !== 'YBR_RCT')) {
       numberOfChannels = 3;
     }
 
@@ -406,9 +406,9 @@ export default class ParsersDicom extends ParsersVolume {
 
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
       if (perFrameFunctionnalGroupSequence
-              .items[frameIndex].dataSet.elements.x2005140f) {
+        .items[frameIndex].dataSet.elements.x2005140f) {
         let planeOrientationSequence = perFrameFunctionnalGroupSequence
-            .items[frameIndex].dataSet.elements.x2005140f.items[0].dataSet;
+          .items[frameIndex].dataSet.elements.x2005140f.items[0].dataSet;
         instanceNumber = planeOrientationSequence.intString('x00200013');
       } else {
         instanceNumber = this._dataSet.intString('x00200013');
@@ -444,7 +444,7 @@ export default class ParsersDicom extends ParsersVolume {
     }
 
     if (typeof pixelSpacing === 'undefined') {
-        pixelSpacing = null;
+      pixelSpacing = null;
     }
 
     return pixelSpacing;
@@ -570,13 +570,13 @@ export default class ParsersDicom extends ParsersVolume {
 
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
       let frameContentSequence = perFrameFunctionnalGroupSequence
-          .items[frameIndex].dataSet.elements.x00209111;
+        .items[frameIndex].dataSet.elements.x00209111;
       if (frameContentSequence !== undefined &&
-          frameContentSequence !== null) {
+        frameContentSequence !== null) {
         frameContentSequence = frameContentSequence.items[0].dataSet;
         let dimensionIndexValuesElt = frameContentSequence.elements.x00209157;
         if (dimensionIndexValuesElt !== undefined &&
-            dimensionIndexValuesElt !== null) {
+          dimensionIndexValuesElt !== null) {
           // /4 because UL
           let nbValues = dimensionIndexValuesElt.length / 4;
           dimensionIndexValues = [];
@@ -592,6 +592,14 @@ export default class ParsersDicom extends ParsersVolume {
     return dimensionIndexValues;
   }
 
+  echoNumber(frameIndex = 0) {
+    return this._findStringEverywhere('x2005140f', 'x00180086', frameIndex);
+  }
+
+  acquisitionNumber(frameIndex = 0) {
+    return this._findStringEverywhere('x2005140f', 'x00200012', frameIndex);
+  }
+
   inStackPositionNumber(frameIndex = 0) {
     let inStackPositionNumber = null;
 
@@ -602,10 +610,10 @@ export default class ParsersDicom extends ParsersVolume {
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
       // NOT A PHILIPS TRICK!
       let philipsPrivateSequence = perFrameFunctionnalGroupSequence
-          .items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
+        .items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
       inStackPositionNumber = philipsPrivateSequence.uint32('x00209057');
     } else {
-      inStackPositionNumber = null;
+      inStackPositionNumber = this._dataSet.uint32('x00209057') || null;
     }
 
     return inStackPositionNumber;
@@ -621,7 +629,7 @@ export default class ParsersDicom extends ParsersVolume {
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
       // NOT A PHILIPS TRICK!
       let philipsPrivateSequence = perFrameFunctionnalGroupSequence
-          .items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
+        .items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
       stackID = philipsPrivateSequence.intString('x00209056');
     } else {
       stackID = null;
@@ -674,7 +682,7 @@ export default class ParsersDicom extends ParsersVolume {
 
   _findStringInFrameGroupSequence(subsequence, tag, index) {
     return this._findStringInGroupSequence('x52009229', subsequence, tag, 0) ||
-        this._findStringInGroupSequence('x52009230', subsequence, tag, index);
+      this._findStringInGroupSequence('x52009230', subsequence, tag, index);
   }
 
   _findStringEverywhere(subsequence, tag, index) {
@@ -697,19 +705,19 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   _findStringInSequence(sequenceTag, tag, index) {
-   const sequence = this._dataSet.elements[sequenceTag];
+    const sequence = this._dataSet.elements[sequenceTag];
 
-   let targetString;
-   if (sequence) {
-     targetString = sequence.items[0].dataSet.string(tag);
-   }
+    let targetString;
+    if (sequence) {
+      targetString = sequence.items[0].dataSet.string(tag);
+    }
 
-   if (typeof targetString === 'undefined') {
-     targetString = null;
-   }
+    if (typeof targetString === 'undefined') {
+      targetString = null;
+    }
 
-   return targetString;
- }
+    return targetString;
+  }
 
   _findFloatStringInGroupSequence(sequence, subsequence, tag, index) {
     let dataInGroupSequence = this._dataSet.floatString(tag);
@@ -731,7 +739,7 @@ export default class ParsersDicom extends ParsersVolume {
 
   _findFloatStringInFrameGroupSequence(subsequence, tag, index) {
     return this._findFloatStringInGroupSequence('x52009229', subsequence, tag, 0) ||
-        this._findFloatStringInGroupSequence('x52009230', subsequence, tag, index);
+      this._findFloatStringInGroupSequence('x52009230', subsequence, tag, index);
   }
 
   _decodePixelData(frameIndex = 0) {
@@ -860,7 +868,7 @@ export default class ParsersDicom extends ParsersVolume {
 
     // Copy the data from the EMSCRIPTEN heap into the correct type array
     const length = openJPEG.getValue(imageSizeXPtr, 'i32') *
-        openJPEG.getValue(imageSizeYPtr, 'i32') * openJPEG.getValue(imageSizeCompPtr, 'i32');
+      openJPEG.getValue(imageSizeYPtr, 'i32') * openJPEG.getValue(imageSizeCompPtr, 'i32');
     const src32 = new Int32Array(openJPEG.HEAP32.buffer, imagePtr, length);
     let pixelData;
 
@@ -1060,12 +1068,12 @@ export default class ParsersDicom extends ParsersVolume {
 
     const interpretAsRGB = this._interpretAsRGB(photometricInterpretation);
     if (interpretAsRGB &&
-        planarConfiguration === 0) {
+      planarConfiguration === 0) {
       // ALL GOOD, ALREADY ORDERED
       // planar or non planar planarConfiguration
       rgbData = uncompressedData;
     } else if (interpretAsRGB &&
-        planarConfiguration === 1) {
+      planarConfiguration === 1) {
       if (uncompressedData instanceof Int8Array) {
         rgbData = new Int8Array(uncompressedData.length);
       } else if (uncompressedData instanceof Uint8Array) {

@@ -1,5 +1,6 @@
 /** * Imports ***/
 import ModelsBase from '../models/models.base';
+import ModelsStack from '../models/models.stack';
 
 /**
  * Series object.
@@ -42,6 +43,9 @@ export default class ModelsSeries extends ModelsBase {
 
     // STACK
     this._stack = [];
+
+    this._stackSorted = false;
+    this._stackSortBy = '';
   }
 
   /**
@@ -123,7 +127,62 @@ export default class ModelsSeries extends ModelsBase {
   mergeSeries(target) {
     let seriesContainer = [this];
     this.mergeModels(seriesContainer, target);
+    this.sortStack();
     return seriesContainer;
+  }
+
+  sortStack() {
+    if (this._stackSorted) return;
+    let stackArray = this._stack;
+    for (let i = 1; i < stackArray.length; i++) stackArray[0]._frame = stackArray[0]._frame.concat(stackArray[i]._frame);
+    stackArray.length = 1;
+
+    let firstEchoNumber = stackArray[0]._frame[0]._echoNumber;
+    let firstAcquisitionNumber = stackArray[0]._frame[0]._acquisitionNumber;
+    let firstInStackPositionNumber = stackArray[0]._frame[0]._inStackPositionNumber;
+
+    let echoNumberIsDiff = false;
+    let acquisitionNumberIsDiff = false;
+    let hasStack = false;
+    let maxInStackPositionNumber = 0;
+    // let maxInstanceNumber = 0;
+    for (let i in stackArray[0]._frame) {
+      if (stackArray[0]._frame[i]._echoNumber !== firstEchoNumber) echoNumberIsDiff = true;
+      if (stackArray[0]._frame[i]._acquisitionNumber !== firstAcquisitionNumber) acquisitionNumberIsDiff = true;
+      if (stackArray[0]._frame[i]._inStackPositionNumber != firstInStackPositionNumber) hasStack = true;
+      maxInStackPositionNumber = Math.max(maxInStackPositionNumber, stackArray[0]._frame[i]._inStackPositionNumber);
+      // maxInstanceNumber = Math.max(maxInstanceNumber, stackArray[0]._frame[i]._instanceNumber)
+      if (echoNumberIsDiff && acquisitionNumberIsDiff) break;
+    }
+
+    if (echoNumberIsDiff && !acquisitionNumberIsDiff) this._stackSortBy = '_echoNumber';
+    else if (!echoNumberIsDiff && acquisitionNumberIsDiff) this._stackSortBy = '_acquisitionNumber';
+
+    if (this._stackSortBy || hasStack) {
+      stackArray[0]._frame.forEach(k => {
+        let stackID = this._stackSortBy ? k[this._stackSortBy] : parseInt((k._instanceNumber - 1) / maxInStackPositionNumber) + 1;
+        let stack;
+        for (let i in stackArray) if (stackArray[i]._stackID === stackID) stack = stackArray[i];
+        if (!stack) {
+          stack = new ModelsStack();
+          stackArray.push(stack);
+          stack.numberOfChannels = stackArray[0].numberOfChannels;
+          stack.pixelRepresentation = stackArray[0].pixelRepresentation;
+          stack.pixelType = stackArray[0].pixelType;
+          stack.invert = stackArray[0].invert;
+          stack.spacingBetweenSlices = stackArray[0].spacingBetweenSlices;
+          stack.modality = stackArray[0].modality;
+          if (stack.modality === 'SEG') {
+            stack.segmentationType = stackArray[0].segmentationType;
+            stack.segmentationSegments = stackArray[0].segmentationSegments;
+          }
+          stack._stackID = stackID;
+        }
+        stack._frame.push(k);
+      })
+      stackArray.shift();
+    }
+    this._stackSorted = true;
   }
 
   /**
@@ -460,5 +519,21 @@ export default class ModelsSeries extends ModelsBase {
    */
   get segmentationSegments() {
     return this._segmentationSegments;
+  }
+
+  get stackSorted() {
+    return this._stackSorted;
+  }
+
+  set stackSorted(stackSorted) {
+    this._stackSorted = stackSorted;
+  }
+
+  get stackSortBy() {
+    return this._stackSortBy;
+  }
+
+  set stackSortBy(stackSortBy) {
+    this._stackSortBy = stackSortBy;
   }
 }

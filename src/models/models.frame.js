@@ -50,6 +50,10 @@ export default class ModelsFrame extends ModelsBase {
     this._index = -1;
 
     this._referencedSegmentNumber = -1;
+
+    this._echoNumber = -1;
+    this._acquisitionNumber = -1;
+    this._inStackPositionNumber = -1;
   }
 
   /**
@@ -548,5 +552,29 @@ export default class ModelsFrame extends ModelsBase {
 
   set numberOfChannels(numberOfChannels) {
     this._numberOfChannels = numberOfChannels;
+  }
+
+  get echoNumber() {
+    return this._echoNumber;
+  }
+
+  set echoNumber(echoNumber) {
+    this._echoNumber = echoNumber;
+  }
+
+  get acquisitionNumber() {
+    return this._acquisitionNumber;
+  }
+
+  set acquisitionNumber(acquisitionNumber) {
+    this._acquisitionNumber = acquisitionNumber;
+  }
+
+  get inStackPositionNumber() {
+    return this._inStackPositionNumber;
+  }
+
+  set inStackPositionNumber(inStackPositionNumber) {
+    this._inStackPositionNumber = inStackPositionNumber;
   }
 }

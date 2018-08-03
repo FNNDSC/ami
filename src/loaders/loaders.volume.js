@@ -85,8 +85,8 @@ export default class LoadersVolumes extends LoadersBase {
                 let rawFile =
                   data.filter(this._filterByExtension.bind(null, 'RAW'));
                 if (data.length === 2 &&
-                    mhdFile.length === 1 &&
-                    rawFile.length === 1) {
+                  mhdFile.length === 1 &&
+                  rawFile.length === 1) {
                   data.url = mhdFile[0].url;
                   data.extension = mhdFile[0].extension;
                   data.mhdBuffer = mhdFile[0].buffer;
@@ -119,6 +119,8 @@ export default class LoadersVolumes extends LoadersBase {
                 });
                 reject(e);
               }
+
+              window.vp = volumeParser
 
               // create a series
               let series = new ModelsSeries();
@@ -225,6 +227,9 @@ export default class LoadersVolumes extends LoadersBase {
     frame.dimensionIndexValues = dataParser.dimensionIndexValues(i);
     frame.bitsAllocated = dataParser.bitsAllocated(i);
     frame.instanceNumber = dataParser.instanceNumber(i);
+    frame.echoNumber = dataParser.echoNumber(i);
+    frame.acquisitionNumber = dataParser.acquisitionNumber(i);
+    frame.inStackPositionNumber = dataParser.inStackPositionNumber(i);
     frame.windowCenter = dataParser.windowCenter(i);
     frame.windowWidth = dataParser.windowWidth(i);
     frame.rescaleSlope = dataParser.rescaleSlope(i);
