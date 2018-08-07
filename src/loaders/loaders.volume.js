@@ -230,6 +230,7 @@ export default class LoadersVolumes extends LoadersBase {
     frame.echoNumber = dataParser.echoNumber(i);
     frame.acquisitionNumber = dataParser.acquisitionNumber(i);
     frame.inStackPositionNumber = dataParser.inStackPositionNumber(i);
+    frame.sliceLocation = dataParser.sliceLocation(i);
     frame.windowCenter = dataParser.windowCenter(i);
     frame.windowWidth = dataParser.windowWidth(i);
     frame.rescaleSlope = dataParser.rescaleSlope(i);

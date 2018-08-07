@@ -1,7 +1,7 @@
 /** * Imports ***/
 import ModelsBase from '../models/models.base';
 
-import {Vector3} from 'three';
+import { Vector3 } from 'three';
 
 /**
  * Frame object.
@@ -54,6 +54,7 @@ export default class ModelsFrame extends ModelsBase {
     this._echoNumber = -1;
     this._acquisitionNumber = -1;
     this._inStackPositionNumber = -1;
+    this._sliceLocation = -1;
   }
 
   /**
@@ -97,13 +98,13 @@ export default class ModelsFrame extends ModelsBase {
     }
 
     if (this._compareArrays(
-          this._dimensionIndexValues, frame.dimensionIndexValues) &&
-        this._compareArrays(
-          this._imageOrientation, frame.imageOrientation) &&
-        this._compareArrays(
-          this._imagePosition, frame.imagePosition) &&
-        this._instanceNumber === frame.instanceNumber &&
-        this._sopInstanceUID === frame.sopInstanceUID) {
+      this._dimensionIndexValues, frame.dimensionIndexValues) &&
+      this._compareArrays(
+        this._imageOrientation, frame.imageOrientation) &&
+      this._compareArrays(
+        this._imagePosition, frame.imagePosition) &&
+      this._instanceNumber === frame.instanceNumber &&
+      this._sopInstanceUID === frame.sopInstanceUID) {
       return true;
     } else {
       return false;
@@ -118,10 +119,10 @@ export default class ModelsFrame extends ModelsBase {
    */
   cosines() {
     let cosines = [new Vector3(1, 0, 0),
-      new Vector3(0, 1, 0),
-      new Vector3(0, 0, 1)];
+    new Vector3(0, 1, 0),
+    new Vector3(0, 0, 1)];
 
-     if (this._imageOrientation &&
+    if (this._imageOrientation &&
       this._imageOrientation.length === 6) {
       let xCos =
         new Vector3(
@@ -139,8 +140,8 @@ export default class ModelsFrame extends ModelsBase {
         cosines[1] = yCos;
         cosines[2] =
           new Vector3(0, 0, 0).
-          crossVectors(cosines[0], cosines[1]).
-          normalize();
+            crossVectors(cosines[0], cosines[1]).
+            normalize();
       }
     } else {
       window.console.log('No valid image orientation for frame');
@@ -184,7 +185,7 @@ export default class ModelsFrame extends ModelsBase {
    */
   getPixelData(column, row) {
     if (column >= 0 && column < this._columns &&
-        row >= 0 && row < this._rows) {
+      row >= 0 && row < this._rows) {
       return this.pixelData[column + this._columns * row];
     } else {
       return null;
@@ -314,8 +315,8 @@ export default class ModelsFrame extends ModelsBase {
 
     // if not null....
     if (reference &&
-        target &&
-        reference.join() === target.join()) {
+      target &&
+      reference.join() === target.join()) {
       return true;
     }
 
@@ -576,5 +577,13 @@ export default class ModelsFrame extends ModelsBase {
 
   set inStackPositionNumber(inStackPositionNumber) {
     this._inStackPositionNumber = inStackPositionNumber;
+  }
+
+  get sliceLocation() {
+    return this._sliceLocation;
+  }
+
+  set sliceLocation(sliceLocation) {
+    this._sliceLocation = sliceLocation;
   }
 }

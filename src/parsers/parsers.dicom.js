@@ -600,6 +600,10 @@ export default class ParsersDicom extends ParsersVolume {
     return this._findStringEverywhere('x2005140f', 'x00200012', frameIndex);
   }
 
+  sliceLocation(frameIndex = 0) {
+    return this._findStringEverywhere('x2005140f', 'x00201041', frameIndex);
+  }
+
   inStackPositionNumber(frameIndex = 0) {
     let inStackPositionNumber = null;
 

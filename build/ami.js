@@ -53420,6 +53420,7 @@ var ModelsSeries = function (_ModelsBase) {
 
     var firstEchoNumber = stackArray[0]._frame[0]._echoNumber;
     var firstAcquisitionNumber = stackArray[0]._frame[0]._acquisitionNumber;
+    var firstSliceLocation = stackArray[0]._frame[0]._sliceLocation;
     var firstInStackPositionNumber = stackArray[0]._frame[0]._inStackPositionNumber;
 
     var echoNumberIsDiff = false;
@@ -53429,11 +53430,11 @@ var ModelsSeries = function (_ModelsBase) {
     // let maxInstanceNumber = 0;
     for (var _i in stackArray[0]._frame) {
       if (stackArray[0]._frame[_i]._echoNumber !== firstEchoNumber) echoNumberIsDiff = true;
-      if (stackArray[0]._frame[_i]._acquisitionNumber !== firstAcquisitionNumber) acquisitionNumberIsDiff = true;
+      if (stackArray[0]._frame[_i]._acquisitionNumber !== firstAcquisitionNumber && stackArray[0]._frame[_i]._sliceLocation === firstSliceLocation) acquisitionNumberIsDiff = true;
       if (stackArray[0]._frame[_i]._inStackPositionNumber != firstInStackPositionNumber) hasStack = true;
       maxInStackPositionNumber = Math.max(maxInStackPositionNumber, stackArray[0]._frame[_i]._inStackPositionNumber);
       // maxInstanceNumber = Math.max(maxInstanceNumber, stackArray[0]._frame[i]._instanceNumber)
-      if (echoNumberIsDiff && acquisitionNumberIsDiff) break;
+      if (echoNumberIsDiff || acquisitionNumberIsDiff) break;
     }
 
     if (echoNumberIsDiff && !acquisitionNumberIsDiff) this._stackSortBy = '_echoNumber';else if (!echoNumberIsDiff && acquisitionNumberIsDiff) this._stackSortBy = '_acquisitionNumber';
@@ -53996,6 +53997,7 @@ var ModelsFrame = function (_ModelsBase) {
     _this._echoNumber = -1;
     _this._acquisitionNumber = -1;
     _this._inStackPositionNumber = -1;
+    _this._sliceLocation = -1;
     return _this;
   }
 
@@ -54512,6 +54514,14 @@ var ModelsFrame = function (_ModelsBase) {
     },
     set: function set(inStackPositionNumber) {
       this._inStackPositionNumber = inStackPositionNumber;
+    }
+  }, {
+    key: 'sliceLocation',
+    get: function get() {
+      return this._sliceLocation;
+    },
+    set: function set(sliceLocation) {
+      this._sliceLocation = sliceLocation;
     }
   }]);
 
@@ -55196,6 +55206,12 @@ var ParsersDicom = function (_ParsersVolume) {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
     return this._findStringEverywhere('x2005140f', 'x00200012', frameIndex);
+  };
+
+  ParsersDicom.prototype.sliceLocation = function sliceLocation() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    return this._findStringEverywhere('x2005140f', 'x00201041', frameIndex);
   };
 
   ParsersDicom.prototype.inStackPositionNumber = function inStackPositionNumber() {
@@ -63711,6 +63727,7 @@ var LoadersVolumes = function (_LoadersBase) {
     frame.echoNumber = dataParser.echoNumber(i);
     frame.acquisitionNumber = dataParser.acquisitionNumber(i);
     frame.inStackPositionNumber = dataParser.inStackPositionNumber(i);
+    frame.sliceLocation = dataParser.sliceLocation(i);
     frame.windowCenter = dataParser.windowCenter(i);
     frame.windowWidth = dataParser.windowWidth(i);
     frame.rescaleSlope = dataParser.rescaleSlope(i);
