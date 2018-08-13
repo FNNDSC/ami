@@ -120,8 +120,6 @@ export default class LoadersVolumes extends LoadersBase {
                 reject(e);
               }
 
-              window.vp = volumeParser
-
               // create a series
               let series = new ModelsSeries();
               // global information

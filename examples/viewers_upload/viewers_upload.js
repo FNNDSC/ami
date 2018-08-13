@@ -303,9 +303,7 @@ window.onload = function() {
     loader = null;
     // prepare for slice visualization
     // first stack of first series
-    let series = seriesContainer[0].mergeSeries(seriesContainer)[0];
-    window.series = series;
-    let stack = series.stack[0];
+    let stack = seriesContainer[0].mergeSeries(seriesContainer)[0].stack[0];
 
     let stackHelper = new HelpersStack(stack);
     stackHelper.bbox.visible = false;
