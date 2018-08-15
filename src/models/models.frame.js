@@ -1,7 +1,7 @@
 /** * Imports ***/
 import ModelsBase from '../models/models.base';
 
-import { Vector3 } from 'three';
+import {Vector3} from 'three/src/math/Vector3';
 
 /**
  * Frame object.
@@ -213,8 +213,10 @@ export default class ModelsFrame extends ModelsBase {
     canvas.width = this._columns;
     canvas.height = this._rows;
 
-    const context = canvas.getContext('2d'),
-      imageData = context.createImageData(canvas.width, canvas.height);
+    const context = canvas.getContext('2d');
+
+
+const imageData = context.createImageData(canvas.width, canvas.height);
 
     imageData.data.set(this._frameToCanvas());
     context.putImageData(imageData, 0, 0);
@@ -228,8 +230,10 @@ export default class ModelsFrame extends ModelsBase {
    * @return {Uint8Array}
    */
   _frameToCanvas() {
-    const dimension = this._columns * this._rows,
-      params = {
+    const dimension = this._columns * this._rows;
+
+
+const params = {
         invert: this._invert,
         min: this._minMax[0],
         padding: this._pixelPaddingValue,
@@ -246,8 +250,10 @@ export default class ModelsFrame extends ModelsBase {
     }
 
     if (this._windowWidth && this._windowCenter !== null) { // applying windowCenter and windowWidth
-      const intercept = this._rescaleIntercept || 0,
-        slope = this._rescaleSlope || 1;
+      const intercept = this._rescaleIntercept || 0;
+
+
+const slope = this._rescaleSlope || 1;
 
       params.min = Math.max(((this._windowCenter - this._windowWidth / 2) - intercept) / slope, params.min);
       params.max = Math.min(((this._windowCenter + this._windowWidth / 2) - intercept) / slope, this._minMax[1]);

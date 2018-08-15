@@ -100,8 +100,10 @@ const widgetsAnnotation = (three = window.THREE) => {
     onStart(evt) {
       if (this._labelhovered) { // if label hovered then it should be moved
         // save mouse coordinates offset from label center
-        const offsets = this.getMouseOffsets(evt, this._container),
-          paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelOffset);
+        const offsets = this.getMouseOffsets(evt, this._container);
+
+
+const paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelOffset);
 
         this._mouseLabelOffset = new three.Vector3(offsets.screenX - paddingPoint.x, offsets.screenY - paddingPoint.y, 0);
         this._movinglabel = true;
@@ -287,11 +289,15 @@ const widgetsAnnotation = (three = window.THREE) => {
       this._line.style.width = lineData.length + 'px';
 
       // update label
-      const paddingVector = lineData.line.multiplyScalar(0.5),
-        paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelmoved
+      const paddingVector = lineData.line.multiplyScalar(0.5);
+
+
+const paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelmoved
           ? this._labelOffset // if the label is moved, then its position is defined by labelOffset
-          : paddingVector), // otherwise it's placed in the center of the line
-        labelPosition = this.adjustLabelTransform(this._label, paddingPoint);
+          : paddingVector);
+ // otherwise it's placed in the center of the line
+
+const labelPosition = this.adjustLabelTransform(this._label, paddingPoint);
 
       this._label.style.transform = `translate3D(${labelPosition.x}px, ${labelPosition.y}px, 0)`;
 
@@ -301,9 +307,13 @@ const widgetsAnnotation = (three = window.THREE) => {
       }
 
       // update dash line
-      let minLine = this.getLineData(this._handles[0].screenPosition, paddingPoint),
-        lineCL = this.getLineData(lineData.center, paddingPoint),
-        line1L = this.getLineData(this._handles[1].screenPosition, paddingPoint);
+      let minLine = this.getLineData(this._handles[0].screenPosition, paddingPoint);
+
+
+let lineCL = this.getLineData(lineData.center, paddingPoint);
+
+
+let line1L = this.getLineData(this._handles[1].screenPosition, paddingPoint);
 
       if (minLine.length > lineCL.length) {
           minLine = lineCL;
