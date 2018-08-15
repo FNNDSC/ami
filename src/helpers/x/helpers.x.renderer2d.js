@@ -4,7 +4,7 @@
 import CamerasOrthographic from '../../cameras/cameras.orthographic';
 import ControlsOrthographic from '../../controls/controls.trackballortho';
 
-import {Vector3} from 'three';
+import {Vector3} from 'three/src/math/Vector3';
 
 export default class {
   constructor(containerId='r2d', orientation='default') {

@@ -49,6 +49,7 @@ module.exports = function(karma) {
                     },
                 ],
             },
+            mode: 'development',
             node: {
                 fs: 'empty',
             },

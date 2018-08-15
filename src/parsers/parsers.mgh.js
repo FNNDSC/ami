@@ -1,6 +1,7 @@
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
-import {Vector3} from 'three';
+
+import {Vector3} from 'three/src/math/Vector3';
 
 /**
  * @module parsers/mgh
