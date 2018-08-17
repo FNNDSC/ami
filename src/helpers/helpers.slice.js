@@ -42,6 +42,7 @@ const helpersSlice = (three = window.THREE) => {
       this._index = index;
       this._windowWidth = null;
       this._windowCenter = null;
+      this._opacity = 1;
       this._rescaleSlope = null;
       this._rescaleIntercept = null;
       this._spacing = 1.;
@@ -132,6 +133,15 @@ const helpersSlice = (three = window.THREE) => {
 
     set windowCenter(windowCenter) {
       this._windowCenter = windowCenter;
+      this.updateIntensitySettingsUniforms();
+    }
+
+    get opacity() {
+      return this._opacity;
+    }
+
+    set opacity(opacity) {
+      this._opacity = opacity;
       this.updateIntensitySettingsUniforms();
     }
 
@@ -445,6 +455,9 @@ const helpersSlice = (three = window.THREE) => {
         [this._rescaleSlope, this._rescaleIntercept];
       this._uniforms.uWindowCenterWidth.value =
         [offset + this._windowCenter, this._windowWidth];
+
+      // set slice opacity
+      this._uniforms.uOpacity.value = this._opacity;
 
       // set slice upper/lower threshold
       this._uniforms.uLowerUpperThreshold.value =
