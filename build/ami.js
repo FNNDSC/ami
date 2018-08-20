@@ -36024,7 +36024,7 @@ var ModelsSeries = function (_ModelsBase) {
   ModelsSeries.prototype.sortStack = function sortStack() {
     var _this2 = this;
 
-    if (this._stackSorted) return;
+    if (this._stackSorted || this._stack.length === 0) return;
     var stackArray = this._stack;
     for (var i = 1; i < stackArray.length; i++) {
       stackArray[0]._frame = stackArray[0]._frame.concat(stackArray[i]._frame);
@@ -40485,6 +40485,18 @@ var ParsersVolume = function () {
   };
 
   ParsersVolume.prototype.acquisitionNumber = function acquisitionNumber() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    return -1;
+  };
+
+  ParsersVolume.prototype.inStackPositionNumber = function inStackPositionNumber() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    return -1;
+  };
+
+  ParsersVolume.prototype.sliceLocation = function sliceLocation() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
     return -1;

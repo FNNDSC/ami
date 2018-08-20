@@ -54,6 +54,14 @@ export default class ParsersVolume {
     return -1;
   }
 
+  inStackPositionNumber(frameIndex = 0) {
+    return -1;
+  }
+
+  sliceLocation(frameIndex = 0) {
+    return -1;
+  }
+
   dimensionIndexValues(frameIndex = 0) {
     return null;
   }
