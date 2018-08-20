@@ -58,7 +58,16 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
     step( abs( textureIndexF - 3.0 ), 0.0 ) * texture2D(uTextureContainer[3], uv) +
     step( abs( textureIndexF - 4.0 ), 0.0 ) * texture2D(uTextureContainer[4], uv) +
     step( abs( textureIndexF - 5.0 ), 0.0 ) * texture2D(uTextureContainer[5], uv) +
-    step( abs( textureIndexF - 6.0 ), 0.0 ) * texture2D(uTextureContainer[6], uv);
+    step( abs( textureIndexF - 6.0 ), 0.0 ) * texture2D(uTextureContainer[6], uv) +
+    step( abs( textureIndexF - 7.0 ), 0.0 ) * texture2D(uTextureContainer[7], uv) +
+    step( abs( textureIndexF - 8.0 ), 0.0 ) * texture2D(uTextureContainer[8], uv) +
+    step( abs( textureIndexF - 9.0 ), 0.0 ) * texture2D(uTextureContainer[9], uv) +
+    step( abs( textureIndexF - 10.0 ), 0.0 ) * texture2D(uTextureContainer[10], uv) +
+    step( abs( textureIndexF - 11.0 ), 0.0 ) * texture2D(uTextureContainer[11], uv) +
+    step( abs( textureIndexF - 12.0 ), 0.0 ) * texture2D(uTextureContainer[12], uv) +
+    step( abs( textureIndexF - 13.0 ), 0.0 ) * texture2D(uTextureContainer[13], uv) +
+    step( abs( textureIndexF - 14.0 ), 0.0 ) * texture2D(uTextureContainer[14], uv) +
+    step( abs( textureIndexF - 15.0 ), 0.0 ) * texture2D(uTextureContainer[15], uv);
 
 }
     `;
