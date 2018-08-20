@@ -68,6 +68,8 @@ export default class ModelsStack extends ModelsBase {
     this._yCosine = new Vector3(0, 1, 0);
     this._zCosine = new Vector3(0, 0, 1);
 
+    this._rawDataFromOtherStack = false;
+
     // convenience vars
     this._prepared = false;
     this._packed = false;
@@ -479,6 +481,8 @@ export default class ModelsStack extends ModelsBase {
    * Pack current stack pixel data into 8 bits array buffers
    */
   pack() {
+    this._packed = true;
+
     // Get total number of voxels
     const nbVoxels =
       this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
@@ -490,6 +494,16 @@ export default class ModelsStack extends ModelsBase {
 
     if (this._bitsAllocated === 16 && this._numberOfChannels === 1) {
       this._packedPerPixel = 2;
+    }
+
+    if(this._rawDataFromOtherStack) {
+      if(!this._rawDataFromOtherStack.packed) {
+        this._rawDataFromOtherStack.prepare();
+        this._rawDataFromOtherStack.pack();
+      }
+
+      this._rawData = this._rawDataFromOtherStack.rawData;
+      return;
     }
 
     // Loop through all the textures we need
@@ -519,8 +533,6 @@ export default class ModelsStack extends ModelsBase {
         voxelIndexStop = nbVoxels;
       }
     }
-
-    this._packed = true;
   }
 
   /**
