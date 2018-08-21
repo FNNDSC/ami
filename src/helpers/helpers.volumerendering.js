@@ -58,6 +58,15 @@ import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
       }
 
       if (!this._stack.packed) {
+        const renderer = new three.WebGLRenderer();
+
+        if (renderer.capabilities.maxTextureSize) {
+          this._stack._textureSize = renderer.capabilities.maxTextureSize;
+        }
+        if (renderer.capabilities.maxTextures) {
+          this._stack._textureUnits = renderer.capabilities.maxTextures;
+        }
+        renderer.dispose();
         this._stack.pack();
       }
 
