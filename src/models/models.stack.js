@@ -1,7 +1,6 @@
 /** * Imports ***/
 import {Matrix4} from 'three/src/math/Matrix4';
 import {Vector3} from 'three/src/math/Vector3';
-import {WebGLRenderer} from "three/src/renderers/WebGLRenderer";
 import {RGBFormat, RGBAFormat} from 'three/src/constants';
 
 import CoreColors from '../core/core.colors';
@@ -35,10 +34,8 @@ export default class ModelsStack extends ModelsBase {
     this._pixelType = 0;
     this._pixelRepresentation = 0;
 
-    const renderer = new WebGLRenderer();
-    this._textureSize = renderer.capabilities.maxTextureSize || 4096;
-    this._textureUnits = renderer.capabilities.maxTextures || 8;
-    renderer.dispose();
+    this._textureSize = 4096;
+    this._textureUnits = 8;
 
     this._rawData = [];
 
