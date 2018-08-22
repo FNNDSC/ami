@@ -14,7 +14,7 @@ export default class ShadersUniform {
         type: 'tv',
         value: [],
         typeGLSL: 'sampler2D',
-        length: 16,
+        length: 7,
       },
       'uDataDimensions': {
         type: 'iv',
