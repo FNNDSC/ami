@@ -13,10 +13,10 @@ const widgetsPolygon = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-    constructor(targetMesh, controls, params, stack) {
+    constructor(targetMesh, controls, params) {
         super(targetMesh, controls, params);
 
-        this._stack = stack;
+        this._stack = params.stack;
 
         this._widgetType = 'Polygon';
         this._initialized = false; // set to true onDblClick if number of handles > 2

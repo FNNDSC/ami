@@ -13,10 +13,10 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
   const Constructor = widgetsBase(three);
   return class extends Constructor {
-  constructor(targetMesh, controls, params, stack) {
+  constructor(targetMesh, controls, params) {
     super(targetMesh, controls, params);
 
-    this._stack = stack;
+    this._stack = params.stack;
 
     this._widgetType = 'VoxelProbe';
     this._controls.enabled = false; // controls should be disabled for widgets with a single handle

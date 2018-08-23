@@ -11,10 +11,10 @@ const widgetsCrossRuler = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-    constructor(targetMesh, controls, params, stack) {
+    constructor(targetMesh, controls, params) {
         super(targetMesh, controls, params);
 
-        this._stack = stack;
+        this._pixelSpacing = params.pixelSpacing || null;
 
         this._widgetType = 'CrossRuler';
         this._domHovered = false;
@@ -315,7 +315,7 @@ const widgetsCrossRuler = (three = window.THREE) => {
         this._line2.style.width = line2Data.length + 'px';
 
         // update labels
-        const units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm',
+        const units = this._pixelSpacing === null ? 'units' : 'mm',
             title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
 
         this._distance = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition);

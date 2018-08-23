@@ -15,7 +15,7 @@ const widgetsBase = (three = window.THREE) => {
 
       this._widgetType = 'Base';
 
-      // params: hideMesh (bool), hideHandleMesh (bool)
+      // params: hideMesh (bool), hideHandleMesh (bool), stack (ModelsStack), pixelSpacing
       this._params = params || {};
       if (this._params.hideMesh === true) {
         this.visible = false;
