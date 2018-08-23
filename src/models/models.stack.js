@@ -507,7 +507,7 @@ export default class ModelsStack extends ModelsBase {
     }
 
     for (let ii = 0; ii < requiredTextures; ii++) {
-      let packed = this._packTo8Bits(
+      const packed = this._packTo8Bits(
           this._numberOfChannels,
           this._frame,
           this._textureSize,
