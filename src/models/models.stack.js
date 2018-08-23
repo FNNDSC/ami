@@ -35,7 +35,7 @@ export default class ModelsStack extends ModelsBase {
     this._pixelRepresentation = 0;
 
     this._textureSize = 4096;
-    this._textureUnits = 8;
+    this._textureUnits = 7;
 
     this._rawData = [];
 
