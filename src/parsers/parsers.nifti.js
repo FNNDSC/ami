@@ -1,7 +1,8 @@
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
 
-let NiftiReader = require('nifti-reader-js');
+import NiftiReader from 'nifti-reader-js/src/nifti';
+
 /**
  * @module parsers/nifti
  */

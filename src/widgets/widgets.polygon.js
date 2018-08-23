@@ -121,8 +121,10 @@ const widgetsPolygon = (three = window.THREE) => {
     }
 
     onMove(evt) {
-        let numHandles = this._handles.length,
-            hovered = false;
+        let numHandles = this._handles.length;
+
+
+let hovered = false;
 
         if (this.active) {
             this._dragged = true;
@@ -173,8 +175,10 @@ const widgetsPolygon = (three = window.THREE) => {
     }
 
     onEnd() {
-        let numHandles = this._handles.length,
-            active = false;
+        let numHandles = this._handles.length;
+
+
+let active = false;
 
         if (!this._initialized && numHandles > 1 &&
             this._handles[numHandles-2].screenPosition.distanceTo(this._handles[numHandles - 1].screenPosition) < 10
@@ -414,9 +418,13 @@ const widgetsPolygon = (three = window.THREE) => {
     }
 
     updateDOMContent(clear) {
-        const meanSDContainer = this._label.querySelector('.mean-sd'),
-            maxMinContainer = this._label.querySelector('.max-min'),
-            areaContainer = this._label.querySelector('.area');
+        const meanSDContainer = this._label.querySelector('.mean-sd');
+
+
+const maxMinContainer = this._label.querySelector('.max-min');
+
+
+const areaContainer = this._label.querySelector('.area');
 
         if (clear) {
             meanSDContainer.innerHTML = '';
@@ -426,8 +434,10 @@ const widgetsPolygon = (three = window.THREE) => {
             return;
         }
 
-        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
-            title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
+
+
+let title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
         if (this._shapeWarn) {
             title += 'Values may be incorrect due to triangulation error.';

@@ -1,7 +1,8 @@
 /* globals describe, it, expect, beforeEach*/
 
 import CoreUtils from '../../src/core/core.utils';
-import {Matrix3, Vector3} from 'three';
+import {Matrix3} from 'three/src/math/Matrix3';
+import {Vector3} from 'three/src/math/Vector3';
 
 describe('Core.Utils', function() {
   describe('bbox', function() {

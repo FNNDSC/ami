@@ -1,5 +1,4 @@
-import {Matrix4} from 'three';
-
+import {Matrix4} from 'three/src/math/Matrix4';
 
 /**
  * @module shaders/data
@@ -133,6 +132,21 @@ export default class ShadersUniform {
         type: 'f',
         value: 1.0,
         typeGLSL: 'float',
+      },
+      'uSpacing': {
+        type: 'f',
+        value: 0.,
+        typeGLSL: 'float',
+      },
+      'uThickness': {
+        type: 'f',
+        value: 0.,
+        typeGLSL: 'float',
+      },
+      'uThicknessMethod': {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int',
       },
     };
   }

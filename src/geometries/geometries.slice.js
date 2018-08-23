@@ -105,6 +105,7 @@ import coreUtils from '../core/core.utils';
       // update real position of each vertex! (not in 2d)
       this.vertices = points;
       this.verticesNeedUpdate = true;
+      this.computeVertexNormals();
     }
   };
 };

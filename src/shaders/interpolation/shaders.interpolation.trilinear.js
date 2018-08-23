@@ -103,6 +103,11 @@ void ${this._name}(in vec3 currentVoxel, out vec4 dataValue, out vec3 gradient){
   trilinearInterpolation(normalizedPosition, interpolatedValue ,v000, v100, v001, v101, v010,v110, v011,v111);
   dataValue = interpolatedValue;
 
+  // That breaks shading in volume rendering
+  // if (gradient.x == 1.) { // skip gradient calculation for slice helper
+  //  return;
+  // }
+
   // compute gradient
   float gradientStep = 0.005;
 
