@@ -443,6 +443,33 @@ export default class ParsersDicom extends ParsersVolume {
     return pixelSpacing;
   }
 
+  ultrasoundRegions(frameIndex = 0) {
+    const sequence = this._dataSet.elements['x00186011'];
+
+    if (!sequence || !sequence.items) {
+      return [];
+    }
+
+    const ultrasoundRegions = [];
+
+    sequence.items.forEach((item) => {
+        ultrasoundRegions.push({
+          x0: item.dataSet.uint32('x00186018'),
+          y0: item.dataSet.uint32('x0018601a'),
+          x1: item.dataSet.uint32('x0018601c'),
+          y1: item.dataSet.uint32('x0018601e'),
+          axisX: item.dataSet.int32('x00186020'),
+          axisy: item.dataSet.int32('x00186022'),
+          unitsX: this._getUnitsName(item.dataSet.uint16('x00186024')),
+          unitsY: this._getUnitsName(item.dataSet.uint16('x00186026')),
+          deltaX: item.dataSet.double('x0018602c'),
+          deltaY: item.dataSet.double('x0018602e')
+        });
+    });
+
+    return ultrasoundRegions;
+  }
+
   frameTime(frameIndex = 0) {
     let frameIncrementPointer = this._dataSet.uint16('x00280009', 1),
       frameRate = this._dataSet.intString('x00082144'),
@@ -714,8 +741,6 @@ export default class ParsersDicom extends ParsersVolume {
 
       if (dataInGroupSequence !== null) {
         return dataInGroupSequence.floatString(tag);
-      } else {
-        return null;
       }
     }
 
@@ -769,7 +794,7 @@ export default class ParsersDicom extends ParsersVolume {
     }
   }
 
-  // https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/imageLoader/wadouri/getEncapsulatedImageFrame.js
+  // github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/imageLoader/wadouri/getEncapsulatedImageFrame.js
   framesAreFragmented() {
     const numberOfFrames = this._dataSet.intString('x00280008');
     const pixelDataElement = this._dataSet.elements.x7fe00010;
@@ -831,7 +856,12 @@ export default class ParsersDicom extends ParsersVolume {
     let bitsAllocated = this.bitsAllocated(frameIndex);
     let byteOutput = bitsAllocated <= 8 ? 1 : 2;
     let decoder = new Jpeg.lossless.Decoder();
-    let decompressedData = decoder.decode(encodedPixelData.buffer, encodedPixelData.byteOffset, encodedPixelData.length, byteOutput);
+    let decompressedData = decoder.decode(
+        encodedPixelData.buffer,
+        encodedPixelData.byteOffset,
+        encodedPixelData.length,
+        byteOutput
+    );
 
     if (pixelRepresentation === 0) {
       if (byteOutput === 2) {
@@ -1046,5 +1076,25 @@ export default class ParsersDicom extends ParsersVolume {
     }
 
     return frame;
+  }
+
+  _getUnitsName(value) {
+    const units = {
+      0: 'none',
+      1: 'percent',
+      2: 'dB',
+      3: 'cm',
+      4: 'seconds',
+      5: 'hertz',
+      6: 'dB/seconds',
+      7: 'cm/sec',
+      8: 'cm2',
+      9: 'cm2/sec',
+      10: 'cm3',
+      11: 'cm3/sec',
+      12: 'degrees'
+    };
+
+    return units.hasOwnProperty(value) ? units[value] : 'none';
   }
 }

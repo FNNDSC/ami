@@ -20,6 +20,7 @@ export default class ModelsFrame extends ModelsBase {
     this._stackID = -1;
     this._invert = false;
     this._frameTime = null;
+    this._ultrasoundRegions = [];
     this._rows = 0;
     this._columns = 0;
     this._dimensionIndexValues = [];
@@ -324,6 +325,14 @@ export default class ModelsFrame extends ModelsBase {
 
   set frameTime(frameTime) {
     this._frameTime = frameTime;
+  }
+
+  get ultrasoundRegions() {
+    return this._ultrasoundRegions;
+  }
+
+  set ultrasoundRegions(ultrasoundRegions) {
+    this._ultrasoundRegions = ultrasoundRegions;
   }
 
   get rows() {
