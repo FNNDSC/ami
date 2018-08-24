@@ -213,7 +213,11 @@ const widgetsBase = (three = window.THREE) => {
     }
 
     free() {
+      this._camera = null;
       this._container = null;
+      this._controls = null;
+      this._params = null;
+      this._targetMesh = null;
     }
 
     get widgetType() {

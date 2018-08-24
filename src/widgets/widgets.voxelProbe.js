@@ -225,6 +225,7 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
     this._container.removeChild(this._label);
 
+    this._stack = null;
     this._voxel = null;
 
     super.free();

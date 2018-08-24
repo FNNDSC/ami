@@ -107,9 +107,7 @@ const widgetsCrossRuler = (three = window.THREE) => {
     onStart(evt) {
         this._moveHandle.onMove(evt, true);
 
-        this._handles.slice(0, -1).forEach(function(elem) {
-            elem.onStart(evt);
-        });
+        this._handles.slice(0, -1).forEach((elem) => elem.onStart(evt));
 
         this._active = this._handles[0].active || this._handles[1].active ||
             this._handles[2].active || this._handles[3].active || this._domHovered;
@@ -130,17 +128,15 @@ const widgetsCrossRuler = (three = window.THREE) => {
             this._moveHandle.onMove(evt, true);
 
             if (this._moving) {
-                this._handles.slice(0, -1).forEach(function(elem, ind) {
+                this._handles.slice(0, -1).forEach((elem, ind) => {
                     this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                }, this);
+                });
             }
         } else {
             this.onHover(null);
         }
 
-        this._handles.slice(0, -1).forEach(function(elem) {
-            elem.onMove(evt);
-        });
+        this._handles.slice(0, -1).forEach((elem) => elem.onMove(evt));
 
         if (this._distances) {
             if (this._handles[0].active || this._handles[1].active) {
@@ -248,9 +244,7 @@ const widgetsCrossRuler = (three = window.THREE) => {
         this._label.style.display = 'none';
         this._label2.style.display = 'none';
 
-        this._handles.slice(0, -1).forEach(function(elem) {
-            elem.hideDOM();
-        });
+        this._handles.slice(0, -1).forEach((elem) => elem.hideDOM());
     }
 
     showDOM() {
@@ -259,18 +253,14 @@ const widgetsCrossRuler = (three = window.THREE) => {
         this._label.style.display = '';
         this._label2.style.display = '';
 
-        this._handles.slice(0, -1).forEach(function(elem) {
-            elem.showDOM();
-        });
+        this._handles.slice(0, -1).forEach((elem) => elem.showDOM());
     }
 
     update() {
         this.updateColor();
 
         // update handles
-        this._handles.slice(0, -1).forEach(function(elem) {
-            elem.update();
-        });
+        this._handles.slice(0, -1).forEach((elem) => elem.update());
 
         // mesh stuff
         this.updateMeshColor();
@@ -566,9 +556,7 @@ const widgetsCrossRuler = (three = window.THREE) => {
 
     setDefaultColor(color) {
         this._colors.default = color;
-        this._handles.forEach(function(elem) {
-            elem._colors.default = color;
-        });
+        this._handles.forEach((elem) => elem._colors.default = color);
     }
 
     get targetMesh() {
@@ -577,9 +565,7 @@ const widgetsCrossRuler = (three = window.THREE) => {
 
     set targetMesh(targetMesh) {
         this._targetMesh = targetMesh;
-        this._handles.forEach(function(elem) {
-            elem.targetMesh = targetMesh;
-        });
+        this._handles.forEach((elem) => elem.targetMesh = targetMesh);
         this.update();
     }
 
@@ -588,9 +574,7 @@ const widgetsCrossRuler = (three = window.THREE) => {
     }
 
     set worldPosition(worldPosition) {
-        this._handles.slice(0, -1).forEach(function(elem) {
-            elem.worldPosition.copy(worldPosition);
-        });
+        this._handles.slice(0, -1).forEach((elem) => elem.worldPosition.copy(worldPosition));
         this._worldPosition.copy(worldPosition);
         this.update();
     }

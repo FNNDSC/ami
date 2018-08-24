@@ -327,18 +327,14 @@ const widgetsAnnotation = (three = window.THREE) => {
       this._line.style.display = 'none';
       this._dashline.style.display = 'none';
       this._label.style.display = 'none';
-      this._handles.forEach(function(elem) {
-        elem.hideDOM();
-      });
+      this._handles.forEach((elem) => elem.hideDOM());
     }
 
     showDOM() {
       this._line.style.display = '';
       this._dashline.style.display = '';
       this._label.style.display = '';
-      this._handles.forEach(function(elem) {
-        elem.showDOM();
-      });
+      this._handles.forEach((elem) => elem.showDOM());
     }
 
     free() {
@@ -386,9 +382,7 @@ const widgetsAnnotation = (three = window.THREE) => {
 
     set targetMesh(targetMesh) {
       this._targetMesh = targetMesh;
-      this._handles.forEach(function(elem) {
-        elem.targetMesh = targetMesh;
-      });
+      this._handles.forEach((elem) => elem.targetMesh = targetMesh);
       this.update();
     }
 

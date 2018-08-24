@@ -123,9 +123,9 @@ const widgetsEllipse = (three = window.THREE) => {
             this._moveHandle.onMove(evt, true);
 
             if (this._moving) {
-                this._handles.slice(0, -1).forEach(function(elem, ind) {
+                this._handles.slice(0, -1).forEach((elem, ind) => {
                     this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                }, this);
+                });
             }
 
             this.updateRoI(true);
@@ -171,9 +171,7 @@ const widgetsEllipse = (three = window.THREE) => {
     }
 
     hideDOM() {
-        this._handles.forEach(function(elem) {
-            elem.hideDOM();
-        });
+        this._handles.forEach((elem) => elem.hideDOM());
 
         this._rectangle.style.display = 'none';
         this._ellipse.style.display = 'none';
@@ -383,6 +381,8 @@ const widgetsEllipse = (three = window.THREE) => {
         this._material.dispose();
         this._material = null;
 
+        this._stack = null;
+
         super.free();
     }
 
@@ -392,9 +392,7 @@ const widgetsEllipse = (three = window.THREE) => {
 
     set targetMesh(targetMesh) {
         this._targetMesh = targetMesh;
-        this._handles.forEach(function(elem) {
-            elem.targetMesh = targetMesh;
-        });
+        this._handles.forEach((elem) => elem.targetMesh = targetMesh);
         this.update();
     }
 

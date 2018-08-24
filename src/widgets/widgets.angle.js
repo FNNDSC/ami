@@ -131,9 +131,9 @@ const widgetsAngle = (three = window.THREE) => {
             this._moveHandle.onMove(evt, true);
 
             if (this._moving) {
-                this._handles.slice(0, -1).forEach(function(elem, ind) {
+                this._handles.slice(0, -1).forEach((elem, ind) => {
                     this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                }, this);
+                });
             }
         } else {
             this.onHover(null);
@@ -241,9 +241,7 @@ const widgetsAngle = (three = window.THREE) => {
         this._line2.style.display = 'none';
         this._label.style.display = 'none';
 
-        this._handles.forEach(function(elem) {
-          elem.hideDOM();
-        });
+        this._handles.forEach((elem) => elem.hideDOM());
     }
 
     showDOM() {
@@ -389,9 +387,7 @@ const widgetsAngle = (three = window.THREE) => {
 
     set targetMesh(targetMesh) {
         this._targetMesh = targetMesh;
-        this._handles.forEach(function(elem) {
-            elem.targetMesh = targetMesh;
-        });
+        this._handles.forEach((elem) => elem.targetMesh = targetMesh);
         this.update();
     }
 

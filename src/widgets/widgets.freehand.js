@@ -76,9 +76,7 @@ const widgetsFreehand = (three = window.THREE) => {
 
         let hovered = false;
 
-        this._handles.forEach(function(elem) {
-            hovered = hovered || elem.hovered;
-        });
+        this._handles.forEach((elem) => hovered = hovered || elem.hovered);
 
         this._hovered = hovered || this._domHovered;
         this._container.style.cursor = this._hovered ? 'pointer' : 'default';
@@ -96,7 +94,7 @@ const widgetsFreehand = (three = window.THREE) => {
         let active = false;
 
         this._moveHandle.onMove(evt, true);
-        this._handles.forEach(function(elem) {
+        this._handles.forEach((elem) => {
             elem.onStart(evt);
             active = active || elem.active;
         });
@@ -144,14 +142,14 @@ const widgetsFreehand = (three = window.THREE) => {
                 this._moveHandle.onMove(evt, true);
 
                 if (this._moving) {
-                    this._handles.forEach(function(elem, ind) {
+                    this._handles.forEach((elem, ind) => {
                         this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                    }, this);
+                    });
                 }
             }
         }
 
-        this._handles.forEach(function(elem) {
+        this._handles.forEach((elem) => {
             elem.onMove(evt);
             hovered = hovered || elem.hovered;
         });
@@ -175,7 +173,7 @@ const widgetsFreehand = (three = window.THREE) => {
 
         let active = false;
 
-        this._handles.slice(0, numHandles-1).forEach(function(elem) {
+        this._handles.slice(0, numHandles-1).forEach((elem) => {
             elem.onEnd();
             active = active || elem.active;
         });
@@ -194,9 +192,7 @@ const widgetsFreehand = (three = window.THREE) => {
 
         if (!this._dragged && this._active) {
             this._selected = !this._selected; // change state if there was no dragging
-            this._handles.forEach(function(elem) {
-                elem.selected = this._selected;
-            }, this);
+            this._handles.forEach((elem) => elem.selected = this._selected);
         }
         this._active = active || this._handles[numHandles-1].active;
         this._dragged = false;
@@ -256,24 +252,16 @@ const widgetsFreehand = (three = window.THREE) => {
     }
 
     hideDOM() {
-        this._handles.forEach(function(elem) {
-            elem.hideDOM();
-        });
+        this._handles.forEach((elem) => elem.hideDOM());
 
-        this._lines.forEach(function(elem) {
-            elem.style.display = 'none';
-        });
+        this._lines.forEach((elem) => elem.style.display = 'none');
         this._label.style.display = 'none';
     }
 
     showDOM() {
-        this._handles.forEach(function(elem) {
-            elem.showDOM();
-        });
+        this._handles.forEach((elem) => elem.showDOM());
 
-        this._lines.forEach(function(elem) {
-            elem.style.display = '';
-        });
+        this._lines.forEach((elem) => elem.style.display = '');
         this._label.style.display = '';
     }
 
@@ -281,9 +269,7 @@ const widgetsFreehand = (three = window.THREE) => {
         this.updateColor();
 
         // update handles
-        this._handles.forEach(function(elem) {
-            elem.update();
-        });
+        this._handles.forEach((elem) => elem.update());
 
         // mesh stuff
         this.updateMeshColor();
@@ -300,9 +286,7 @@ const widgetsFreehand = (three = window.THREE) => {
         }
 
         let points = [];
-        this._handles.forEach(function(elem) {
-            points.push(elem.worldPosition);
-        });
+        this._handles.forEach((elem) => points.push(elem.worldPosition));
 
         let center = CoreUtils.centerOfMass(points);
         let direction = new three.Vector3().crossVectors(
@@ -409,9 +393,7 @@ const widgetsFreehand = (three = window.THREE) => {
 
     updateDOMColor() {
         if (this._handles.length >= 2) {
-            this._lines.forEach(function(elem) {
-                elem.style.backgroundColor = this._color;
-            }, this);
+            this._lines.forEach((elem) => elem.style.backgroundColor = this._color);
         }
         this._label.style.borderColor = this._color;
     }
@@ -462,7 +444,7 @@ const widgetsFreehand = (three = window.THREE) => {
         // update lines and get coordinates of lowest handle
         let labelPosition = null;
 
-        this._lines.forEach(function(elem, ind) {
+        this._lines.forEach((elem, ind) => {
             const lineData = this.getLineData(this._handles[ind].screenPosition,
                     this._handles[ind + 1 === this._handles.length ? 0 : ind + 1].screenPosition);
 
@@ -473,7 +455,7 @@ const widgetsFreehand = (three = window.THREE) => {
             if (labelPosition === null || labelPosition.y < this._handles[ind].screenPosition.y) {
                 labelPosition = this._handles[ind].screenPosition.clone();
             }
-        }, this);
+        });
 
         if (!this._initialized) {
             return;
@@ -499,11 +481,11 @@ const widgetsFreehand = (three = window.THREE) => {
         this._moveHandle.free();
         this._moveHandle = null;
 
-        this._lines.forEach(function(elem) {
+        this._lines.forEach((elem) => {
             elem.removeEventListener('mouseenter', this.onHover);
             elem.removeEventListener('mouseleave', this.onHover);
             this._container.removeChild(elem);
-        }, this);
+        });
         this._lines = [];
         this._container.removeChild(this._label);
 
@@ -526,6 +508,8 @@ const widgetsFreehand = (three = window.THREE) => {
         this._material.dispose();
         this._material = null;
 
+        this._stack = null;
+
         super.free();
     }
 
@@ -536,9 +520,7 @@ const widgetsFreehand = (three = window.THREE) => {
 
     set targetMesh(targetMesh) {
         this._targetMesh = targetMesh;
-        this._handles.forEach(function(elem) {
-            elem.targetMesh = targetMesh;
-        });
+        this._handles.forEach((elem) => elem.targetMesh = targetMesh);
         this._moveHandle.targetMesh = targetMesh;
         this.update();
     }
@@ -548,9 +530,7 @@ const widgetsFreehand = (three = window.THREE) => {
     }
 
     set worldPosition(worldPosition) {
-        this._handles.forEach(function(elem) {
-            elem._worldPosition.copy(worldPosition);
-        }, this);
+        this._handles.forEach((elem) => elem._worldPosition.copy(worldPosition));
         this._worldPosition.copy(worldPosition);
         this.update();
     }

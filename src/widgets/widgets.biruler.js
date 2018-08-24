@@ -64,9 +64,7 @@ const widgetsBiruler = (three = window.THREE) => {
         }
 
         onStart(evt) {
-            this._handles.forEach(function(elem) {
-                elem.onStart(evt);
-            });
+            this._handles.forEach((elem) => elem.onStart(evt));
 
             this._active = this._handles[0].active || this._handles[1].active ||
                 this._handles[2].active || this._handles[3].active;
@@ -83,9 +81,7 @@ const widgetsBiruler = (three = window.THREE) => {
                 this._container.style.cursor = this._hovered ? 'pointer' : 'default';
             }
 
-            this._handles.forEach(function(elem) {
-                elem.onMove(evt);
-            });
+            this._handles.forEach((elem) => elem.onMove(evt));
 
             this.update();
         }
@@ -195,9 +191,7 @@ const widgetsBiruler = (three = window.THREE) => {
             this._label2.style.display = 'none';
             this._dashline.style.display = 'none';
 
-            this._handles.forEach(function(elem) {
-                elem.hideDOM();
-            });
+            this._handles.forEach((elem) => elem.hideDOM());
         }
 
         showDOM() {
@@ -207,18 +201,14 @@ const widgetsBiruler = (three = window.THREE) => {
             this._label2.style.display = '';
             this._dashline.style.display = '';
 
-            this._handles.forEach(function(elem) {
-                elem.showDOM();
-            });
+            this._handles.forEach((elem) => elem.showDOM());
         }
 
         update() {
             this.updateColor();
 
             // update handles
-            this._handles.forEach(function(elem) {
-                elem.update();
-            });
+            this._handles.forEach((elem) => elem.update());
 
             // mesh stuff
             this.updateMeshColor();
@@ -390,9 +380,7 @@ const widgetsBiruler = (three = window.THREE) => {
 
         set targetMesh(targetMesh) {
             this._targetMesh = targetMesh;
-            this._handles.forEach(function(elem) {
-                elem.targetMesh = targetMesh;
-            });
+            this._handles.forEach((elem) => elem.targetMesh = targetMesh);
             this.update();
         }
 
@@ -401,9 +389,7 @@ const widgetsBiruler = (three = window.THREE) => {
         }
 
         set worldPosition(worldPosition) {
-            this._handles.forEach(function(elem) {
-                elem.worldPosition.copy(worldPosition);
-            });
+            this._handles.forEach((elem) => elem.worldPosition.copy(worldPosition));
             this._worldPosition.copy(worldPosition);
             this.update();
         }
