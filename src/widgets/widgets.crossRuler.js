@@ -420,15 +420,9 @@ const widgetsCrossRuler = (three = window.THREE) => {
         this.initLineAndNormal();
 
         const center = this._handles[1].worldPosition.clone().add(this._handles[0].worldPosition).multiplyScalar(0.5);
-
-
-const halfLength = this._line01.length() / 2;
-
-
-const normLine = this._normal.clone().multiplyScalar(halfLength * 0.8);
-
-
-const normLength = normLine.length();
+        const halfLength = this._line01.length() / 2;
+        const normLine = this._normal.clone().multiplyScalar(halfLength * 0.8);
+        const normLength = normLine.length();
 
         this._handles[2].worldPosition.copy(center.clone().add(normLine));
         this._handles[3].worldPosition.copy(center.clone().sub(normLine));
@@ -452,12 +446,8 @@ const normLength = normLine.length();
 
     recalculateOrtho() { // called onMove if 2nd or 3rd handle is active
         const activeInd = this._handles[2].active ? 2 : 3;
-
-
-const lines = [];
-
-
-const intersect = new three.Vector3();
+        const lines = [];
+        const intersect = new three.Vector3();
 
         lines[2] = this._handles[2].worldPosition.clone().sub(this._handles[0].worldPosition);
         lines[3] = this._handles[3].worldPosition.clone().sub(this._handles[0].worldPosition);
@@ -529,12 +519,8 @@ const intersect = new three.Vector3();
      */
     initCoordinates(first, second, third, fourth) {
         const intersectR = new three.Vector3();
-
-
-const intersectS = new three.Vector3();
-
-
-const ray = new three.Ray(first);
+        const intersectS = new three.Vector3();
+        const ray = new three.Ray(first);
 
         ray.lookAt(second);
         ray.distanceSqToSegment(third, fourth, intersectR, intersectS);

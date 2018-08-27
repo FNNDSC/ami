@@ -312,9 +312,7 @@ const widgetsAngle = (three = window.THREE) => {
         this._label.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
         let paddingNormVector = lineData.line.clone().add(line2Data.line).normalize().negate();
-
-
-let normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
+        let normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
 
         if (normAngle > Math.PI / 2) {
             normAngle = Math.PI - normAngle;
@@ -323,12 +321,8 @@ let normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
         const labelPadding = Math.tan(normAngle) < this._label.offsetHeight / this._label.offsetWidth
                 ? (this._label.offsetWidth / 2) / Math.cos(normAngle) + 15 // 15px padding
                 : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - normAngle) + 15;
-
-
-const paddingPoint = this._handles[1].screenPosition.clone().add(paddingNormVector.multiplyScalar(labelPadding));
-
-
-const transform = this.adjustLabelTransform(this._label, paddingPoint);
+        const paddingPoint = this._handles[1].screenPosition.clone().add(paddingNormVector.multiplyScalar(labelPadding));
+        const transform = this.adjustLabelTransform(this._label, paddingPoint);
 
         this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
     }

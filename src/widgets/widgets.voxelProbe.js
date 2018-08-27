@@ -189,12 +189,8 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
   updateDOMContent() {
     const rasContainer = this._label.querySelector('#lpsPosition');
-
-
-const ijkContainer = this._label.querySelector('#ijkPosition');
-
-
-const valueContainer = this._label.querySelector('#value');
+    const ijkContainer = this._label.querySelector('#ijkPosition');
+    const valueContainer = this._label.querySelector('#value');
 
     rasContainer.innerHTML = `LPS: 
       ${this._voxel.worldCoordinates.x.toFixed(2)} :

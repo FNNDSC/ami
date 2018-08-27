@@ -250,10 +250,10 @@ const widgetsRuler = (three = window.THREE) => {
     this._line.style.width = lineData.length + 'px';
 
     // update label
-    this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
     if (this._calibrationFactor) {
-      this._distance *= this._calibrationFactor;
-    } else if (this._params.ultrasoundRegions) {
+      this._distance =
+        this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition) * this._calibrationFactor;
+    } else if (this._params.ultrasoundRegions && this._params.lps2IJK) {
       const usDistance = this.getUsDistance(
         CoreUtils.worldToData(this._params.lps2IJK, this._handles[0].worldPosition),
         CoreUtils.worldToData(this._params.lps2IJK, this._handles[1].worldPosition),
@@ -265,6 +265,8 @@ const widgetsRuler = (three = window.THREE) => {
       } else {
         this._units = this._params.pixelSpacing ? 'mm' : 'units';
       }
+    } else {
+      this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
     }
 
     if (this._units === 'units' && !this._label.hasAttribute('title')) {

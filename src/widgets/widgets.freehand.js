@@ -111,9 +111,7 @@ const widgetsFreehand = (three = window.THREE) => {
 
     onMove(evt) {
         let numHandles = this._handles.length;
-
-
-let hovered = false;
+        let hovered = false;
 
         if (this.active) {
             this._dragged = true;
@@ -373,12 +371,8 @@ let hovered = false;
 
     pushPopHandle() {
         let handle0 = this._handles[this._handles.length-3];
-
-
-let handle1 = this._handles[this._handles.length-2];
-
-
-let newhandle = this._handles[this._handles.length-1];
+        let handle1 = this._handles[this._handles.length-2];
+        let newhandle = this._handles[this._handles.length-1];
 
         let isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
 
@@ -406,12 +400,8 @@ let newhandle = this._handles[this._handles.length-1];
 
     updateDOMContent(clear) {
         const meanSDContainer = this._label.querySelector('.mean-sd');
-
-
-const maxMinContainer = this._label.querySelector('.max-min');
-
-
-const areaContainer = this._label.querySelector('.area');
+        const maxMinContainer = this._label.querySelector('.max-min');
+        const areaContainer = this._label.querySelector('.area');
 
         if (clear) {
             meanSDContainer.innerHTML = '';
@@ -422,9 +412,7 @@ const areaContainer = this._label.querySelector('.area');
         }
 
         let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
-
-
-let title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+        let title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
         if (this._shapeWarn) {
             title += 'Values may be incorrect due to triangulation error.';

@@ -68,8 +68,7 @@ const widgetsBase = (three = window.THREE) => {
       const docEl = document.documentElement;
 
       const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
-      const scrollLeft =
-        window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
+      const scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
 
       const clientTop = docEl.clientTop || body.clientTop || 0;
       const clientLeft = docEl.clientLeft || body.clientLeft || 0;
@@ -136,14 +135,14 @@ const widgetsBase = (three = window.THREE) => {
      * @returns {Number|null}
      */
     getUsDistance(pointA, pointB) {
-      const regions = this._params.stack.ultrasoundRegions || [];
+      const regions = this._params.ultrasoundRegions || [];
 
       if (regions.length < 1) {
         return null;
       }
 
-      const regionA = this.getRegionByXY(regions, pointA),
-        regionB = this.getRegionByXY(regions, pointB);
+      const regionA = this.getRegionByXY(regions, pointA);
+      const regionB = this.getRegionByXY(regions, pointB);
 
       if (regionA === null || regionB === null || regionA !== regionB
         || regions[regionA].unitsX !== 'cm' || regions[regionA].unitsY !== 'cm'
@@ -157,15 +156,9 @@ const widgetsBase = (three = window.THREE) => {
 
     getLineData(pointA, pointB) {
       const line = pointB.clone().sub(pointA);
-
-
-const center = pointB.clone().add(pointA).multiplyScalar(0.5);
-
-
-const length = line.length();
-
-
-const angle = line.angleTo(new three.Vector3(1, 0, 0));
+      const center = pointB.clone().add(pointA).multiplyScalar(0.5);
+      const length = line.length();
+      const angle = line.angleTo(new three.Vector3(1, 0, 0));
 
       return {
         line: line,
@@ -179,12 +172,8 @@ const angle = line.angleTo(new three.Vector3(1, 0, 0));
 
     getRectData(pointA, pointB) {
       const line = pointB.clone().sub(pointA);
-
-
-const vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0));
-
-
-const min = pointA.clone().min(pointB); // coordinates of the top left corner
+      const vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0));
+      const min = pointA.clone().min(pointB); // coordinates of the top left corner
 
       return {
         width: line.clone().projectOnVector(new three.Vector3(1, 0, 0)).length(),
@@ -202,9 +191,7 @@ const min = pointA.clone().min(pointB); // coordinates of the top left corner
      */
     adjustLabelTransform(label, point, corner) {
       let x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2));
-
-
-let y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
+      let y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
 
       if (x < 0) {
         x = x > -label.offsetWidth ? 0 : x + label.offsetWidth;

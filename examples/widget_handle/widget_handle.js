@@ -150,8 +150,7 @@ window.onload = function() {
       // mouse position
       let mouse = {
         x: (evt.clientX - offsets.left) / threeD.offsetWidth * 2 - 1,
-        y: -((evt.clientY - offsets.top) / threeD.offsetHeight)
-          * 2 + 1,
+        y: -((evt.clientY - offsets.top) / threeD.offsetHeight) * 2 + 1,
       };
 
       // update the raycaster
@@ -169,31 +168,43 @@ window.onload = function() {
           widget = new WidgetsHandle(stackHelper.slice.mesh, controls);
           break;
         case 'VoxelProbe':
-          widget = new WidgetsVoxelProbe(stackHelper.slice.mesh, controls, {}, stack);
+          widget = new WidgetsVoxelProbe(stackHelper.slice.mesh, controls, { stack });
           break;
         case 'Ruler':
-          widget = new WidgetsRuler(stackHelper.slice.mesh, controls, {}, stack);
+          widget = new WidgetsRuler(stackHelper.slice.mesh, controls, {
+              lps2IJK: stack.lps2IJK,
+              pixelSpacing: stack.frame[stackHelper.index].pixelSpacing,
+              ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions
+          });
           break;
-        case 'WidgetsCrossRuler':
-          widget = new WidgetsCrossRuler(stackHelper.slice.mesh, controls, {}, stack);
+        case 'CrossRuler':
+          widget = new WidgetsCrossRuler(stackHelper.slice.mesh, controls, {
+              lps2IJK: stack.lps2IJK,
+              pixelSpacing: stack.frame[stackHelper.index].pixelSpacing,
+              ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions
+          });
           break;
         case 'BiRuler':
-          widget = new WidgetsBiRuler(stackHelper.slice.mesh, controls, {}, stack);
+          widget = new WidgetsBiRuler(stackHelper.slice.mesh, controls, {
+              lps2IJK: stack.lps2IJK,
+              pixelSpacing: stack.frame[stackHelper.index].pixelSpacing,
+              ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions
+          });
           break;
         case 'Angle':
           widget = new WidgetsAngle(stackHelper.slice.mesh, controls);
           break;
         case 'Rectangle':
-          widget = new WidgetsRectangle(stackHelper.slice.mesh, controls, {}, stack);
+          widget = new WidgetsRectangle(stackHelper.slice.mesh, controls, { stack });
           break;
         case 'Ellipse':
-          widget = new WidgetsEllipse(stackHelper.slice.mesh, controls, {}, stack);
+          widget = new WidgetsEllipse(stackHelper.slice.mesh, controls, { stack });
           break;
         case 'Polygon':
-          widget = new WidgetsPolygon(stackHelper.slice.mesh, controls, {}, stack);
+          widget = new WidgetsPolygon(stackHelper.slice.mesh, controls, { stack });
           break;
         case 'Freehand':
-          widget = new WidgetsFreehand(stackHelper.slice.mesh, controls, {}, stack);
+          widget = new WidgetsFreehand(stackHelper.slice.mesh, controls, { stack });
           break;
         case 'Annotation':
           widget = new WidgetsAnnotation(stackHelper.slice.mesh, controls);
