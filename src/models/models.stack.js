@@ -1,10 +1,11 @@
 /** * Imports ***/
-import {Vector3, Matrix4} from 'three';
+import {Matrix4} from 'three/src/math/Matrix4';
+import {Vector3} from 'three/src/math/Vector3';
+import {RGBFormat, RGBAFormat} from 'three/src/constants';
+
 import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
 import ModelsBase from '../models/models.base';
-
-import {RGBFormat, RGBAFormat} from 'three';
 
 const binaryString = require('math-float32-to-binary-string');
 
@@ -34,7 +35,8 @@ export default class ModelsStack extends ModelsBase {
     this._pixelRepresentation = 0;
 
     this._textureSize = 4096;
-    this._nbTextures = 7;
+    this._textureUnits = 7;
+
     this._rawData = [];
 
     this._windowCenter = 0;
@@ -479,8 +481,7 @@ export default class ModelsStack extends ModelsBase {
    */
   pack() {
     // Get total number of voxels
-    const nbVoxels =
-      this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
+    const nbVoxels = this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
 
     // Packing style
     if (this._bitsAllocated === 8 && this._numberOfChannels === 1 || this._bitsAllocated === 1) {
@@ -493,22 +494,26 @@ export default class ModelsStack extends ModelsBase {
 
     // Loop through all the textures we need
     const textureDimension = this._textureSize * this._textureSize;
-    const requiredTextures =
-      Math.ceil(nbVoxels / (textureDimension * this._packedPerPixel));
+    let requiredTextures = Math.ceil(nbVoxels / (textureDimension * this._packedPerPixel));
     let voxelIndexStart = 0;
     let voxelIndexStop = this._packedPerPixel * textureDimension;
     if (voxelIndexStop > nbVoxels) {
       voxelIndexStop = nbVoxels;
     }
 
+    if (this._textureUnits < requiredTextures) {
+        console.warn('Insufficient number of supported textures. Some frames will not be packed.');
+        requiredTextures = this._textureUnits;
+    }
+
     for (let ii = 0; ii < requiredTextures; ii++) {
-      let packed =
-        this._packTo8Bits(
+      const packed = this._packTo8Bits(
           this._numberOfChannels,
           this._frame,
           this._textureSize,
           voxelIndexStart,
-          voxelIndexStop);
+          voxelIndexStop
+      );
       this._textureType = packed.textureType;
       this._rawData.push(packed.data);
 
@@ -751,7 +756,9 @@ export default class ModelsStack extends ModelsBase {
   }
 
   _orderFrameOnDimensionIndicesArraySort(a, b) {
-    if ('dimensionIndexValues' in a && Object.prototype.toString.call(a.dimensionIndexValues) === '[object Array]' && 'dimensionIndexValues' in b && Object.prototype.toString.call(b.dimensionIndexValues) === '[object Array]') {
+    if ('dimensionIndexValues' in a && Object.prototype.toString.call(a.dimensionIndexValues) === '[object Array]'
+        && 'dimensionIndexValues' in b && Object.prototype.toString.call(b.dimensionIndexValues) === '[object Array]'
+    ) {
       for (let i = 0; i < a.dimensionIndexValues.length; i++) {
         if (parseInt(a.dimensionIndexValues[i], 10) > parseInt(b.dimensionIndexValues[i], 10)) {
           return 1;
@@ -882,6 +889,14 @@ export default class ModelsStack extends ModelsBase {
 
   get textureSize() {
     return this._textureSize;
+  }
+
+  set textureUnits(textureUnits) {
+    this._textureUnits = textureUnits;
+  }
+
+  get textureUnits() {
+    return this._textureUnits;
   }
 
   set textureType(textureType) {

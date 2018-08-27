@@ -283,12 +283,12 @@ const widgetsRuler = (three = window.THREE) => {
 
     const labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth
         ? (this._label.offsetWidth / 2) / Math.cos(angle) + 15 // 5px for each handle + padding
-        : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle) + 15,
-      paddingVector = lineData.line.normalize().multiplyScalar(labelPadding),
-      paddingPoint = lineData.length > labelPadding * 2
+        : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle) + 15;
+    const paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
+    const paddingPoint = lineData.length > labelPadding * 2
         ? this._handles[1].screenPosition.clone().sub(paddingVector)
-        : this._handles[1].screenPosition.clone().add(paddingVector),
-      transform = this.adjustLabelTransform(this._label, paddingPoint);
+        : this._handles[1].screenPosition.clone().add(paddingVector);
+    const transform = this.adjustLabelTransform(this._label, paddingPoint);
 
     this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
   }

@@ -314,16 +314,20 @@ const trackballOrtho = (three = window.THREE) => {
   
       function mousewheel(event) {
         if ( _this.enabled === false ) return;
-    
-        if ( _this.noZoom === true ) return;
 
         event.preventDefault();
         event.stopPropagation();
 
         //_zoomStart.y += event.deltaY * 0.01;
+        /**
+         * Watch deltaX and deltaY because in some cases, (i.e. Shift or Alt key pressed)
+         * deltaX and deltaY are inverted.
+         * 
+         * It is known behaviors/shortcuts to scroll through a page horizontally.
+         */
         _this.dispatchEvent({
           type: 'OnScroll',
-          delta: event.deltaY * 0.01,
+          delta: event.deltaX * 0.01 + event.deltaY * 0.01,
         });
 
         _this.dispatchEvent( startEvent );

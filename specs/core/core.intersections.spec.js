@@ -1,7 +1,8 @@
 /* globals describe, it, expect, beforeEach*/
 
 import CoreIntersections from '../../src/core/core.intersections';
-import {Matrix4, Vector3} from 'three';
+import {Matrix4} from 'three/src/math/Matrix4';
+import {Vector3} from 'three/src/math/Vector3';
 
 describe('Core.Intersections', function() {
   describe('validateAabb', function() {

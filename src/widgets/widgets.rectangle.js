@@ -275,8 +275,10 @@ const widgetsRectangle = (three = window.THREE) => {
     }
 
     updateRoI(clear) {
-        const meanSDContainer = this._label.querySelector('.mean-sd'),
-            maxMinContainer = this._label.querySelector('.max-min');
+        const meanSDContainer = this._label.querySelector('.mean-sd');
+
+
+const maxMinContainer = this._label.querySelector('.max-min');
 
         if (clear) {
             meanSDContainer.innerHTML = '';
@@ -297,8 +299,10 @@ const widgetsRectangle = (three = window.THREE) => {
     }
 
     updateDOMContent() {
-        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²',
-            title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
+
+
+let title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
         if (title !== '') {
             this._label.setAttribute('title', title);
@@ -312,8 +316,10 @@ const widgetsRectangle = (three = window.THREE) => {
     }
 
     updateDOMPosition() {
-        const rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition),
-            labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(
+        const rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition);
+
+
+const labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(
                 rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));
 
         // update rectangle

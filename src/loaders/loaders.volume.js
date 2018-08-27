@@ -33,7 +33,7 @@ import ParsersMgh from '../parsers/parsers.mgh';
  *   // Function when resource is loaded
  *   function(object) {
  *     //scene.add( object );
- *     window.console.log(object);
+ *     console.log(object);
  *   }
  * );
  */
@@ -54,6 +54,7 @@ export default class LoadersVolumes extends LoadersBase {
       file: response.url,
       time: new Date(),
     });
+
     // give a chance to the UI to update because
     // after the rendering will be blocked with intensive JS
     // will be removed after eventer set up
@@ -63,7 +64,7 @@ export default class LoadersVolumes extends LoadersBase {
 
     return new Promise(
       (resolve, reject) => {
-        window.setTimeout(
+        setTimeout(
           () => {
             resolve(new Promise((resolve, reject) => {
               let data = response;
@@ -110,7 +111,7 @@ export default class LoadersVolumes extends LoadersBase {
               try {
                 volumeParser = new Parser(data, 0);
               } catch (e) {
-                window.console.log(e);
+                console.warn(e);
                 // emit 'parse-error' event
                 this.emit('parse-error', {
                   file: response.url,
@@ -174,13 +175,18 @@ export default class LoadersVolumes extends LoadersBase {
               // better than for loop to be able
               // to update dom with "progress" callback
               setTimeout(
-                this.parseFrame(
-                  series, stack, response.url, 0,
-                  volumeParser, resolve, reject), 0);
+                this.parseFrameClosure(series, stack, response.url, 0, volumeParser, resolve, reject)
+                , 0);
             }));
           }, 10);
       }
     );
+  }
+
+  parseFrameClosure(series, stack, url, i, dataParser, resolve, reject) {
+    return () => {
+      this.parseFrame(series, stack, url, i, dataParser, resolve, reject);
+    };
   }
 
   /**
@@ -269,8 +275,8 @@ export default class LoadersVolumes extends LoadersBase {
       resolve(series);
     } else {
       setTimeout(
-        this.parseFrame(
-          series, stack, url, this._parsed, dataParser, resolve, reject), 0
+        this.parseFrameClosure(series, stack, url, this._parsed, dataParser, resolve, reject)
+        , 0
       );
     }
   }
@@ -305,7 +311,7 @@ export default class LoadersVolumes extends LoadersBase {
         Parser = ParsersMgh;
         break;
       default:
-        window.console.log('unsupported extension: ' + extension);
+        console.warn('unsupported extension: ' + extension);
         return false;
     }
     return Parser;

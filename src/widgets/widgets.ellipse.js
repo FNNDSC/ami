@@ -260,9 +260,13 @@ const widgetsEllipse = (three = window.THREE) => {
             this.remove(this._mesh);
         }
 
-        const vec01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition),
-            height = vec01.clone().projectOnVector(this._camera.up).length(),
-            width = vec01.clone().projectOnVector(this._camera._right).length();
+        const vec01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition);
+
+
+const height = vec01.clone().projectOnVector(this._camera.up).length();
+
+
+const width = vec01.clone().projectOnVector(this._camera._right).length();
 
         if (width === 0 || height === 0) {
             return;
@@ -331,8 +335,10 @@ const widgetsEllipse = (three = window.THREE) => {
     }
 
     updateDOMPosition() {
-        const rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition),
-            labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(
+        const rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition);
+
+
+const labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(
                 rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));
 
         // update rectangle

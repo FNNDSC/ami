@@ -156,10 +156,16 @@ const widgetsBase = (three = window.THREE) => {
     }
 
     getLineData(pointA, pointB) {
-      const line = pointB.clone().sub(pointA),
-        center = pointB.clone().add(pointA).multiplyScalar(0.5),
-        length = line.length(),
-        angle = line.angleTo(new three.Vector3(1, 0, 0));
+      const line = pointB.clone().sub(pointA);
+
+
+const center = pointB.clone().add(pointA).multiplyScalar(0.5);
+
+
+const length = line.length();
+
+
+const angle = line.angleTo(new three.Vector3(1, 0, 0));
 
       return {
         line: line,
@@ -172,9 +178,13 @@ const widgetsBase = (three = window.THREE) => {
     }
 
     getRectData(pointA, pointB) {
-      const line = pointB.clone().sub(pointA),
-        vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0)),
-        min = pointA.clone().min(pointB); // coordinates of the top left corner
+      const line = pointB.clone().sub(pointA);
+
+
+const vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0));
+
+
+const min = pointA.clone().min(pointB); // coordinates of the top left corner
 
       return {
         width: line.clone().projectOnVector(new three.Vector3(1, 0, 0)).length(),
@@ -191,8 +201,10 @@ const widgetsBase = (three = window.THREE) => {
      * @param {Boolean}     corner if true, then point is the label's top left corner coordinates
      */
     adjustLabelTransform(label, point, corner) {
-      let x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2)),
-        y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
+      let x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2));
+
+
+let y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
 
       if (x < 0) {
         x = x > -label.offsetWidth ? 0 : x + label.offsetWidth;

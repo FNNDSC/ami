@@ -1,26 +1,28 @@
-var debug = process.env.NODE_ENV !== 'production';
-var webpack = require('webpack');
-var path = require('path');
-var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-var WatchLiveReloadPlugin = require('webpack-watch-livereload-plugin');
-var CompressionPlugin = require('compression-webpack-plugin');
+const mode = process.env.NODE_ENV !== 'production' ? 'development' : 'production' ;
 
-var config = {
+const path = require('path');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const WatchLiveReloadPlugin = require('webpack-watch-livereload-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
+
+const config = {
     entry: ['./src/ami.js'],
     devtool: 'source-map',
     output: {
         path: path.resolve(__dirname, 'build'),
-        filename: debug ? 'ami.js' : 'ami.min.js',
+        filename: mode === 'development' ? 'ami.js' : 'ami.min.js',
         library: 'AMI',
         libraryTarget: 'umd',
-        umdNamedDefine: true
+        umdNamedDefine: true,
     },
+    mode,
     resolve: {
         modules: [path.resolve(__dirname, 'src'), 'node_modules'],
         extensions: ['.js', '.jsx', '.css', '.html', '.scss', '.json'],
         alias: {
             base: path.resolve(__dirname, 'src'),
+            pako: path.resolve(__dirname, 'node_modules', 'pako'),
         },
     },
     module: {
@@ -29,28 +31,21 @@ var config = {
                 test: /\.js$/,
                 loader: 'babel-loader',
                 include: [path.resolve(__dirname, 'src')],
-                exclude: [/node_modules/, 'external/**/*']
-            }
-        ]
+                exclude: [/node_modules/, 'external/**/*'],
+            },
+        ],
     },
-    plugins: debug
-        ? []
-        : [
-              new webpack.DefinePlugin({
-                  'process.env': {
-                      NODE_ENV: JSON.stringify('production')
-                  }
-              }),
-              new UglifyJSPlugin({
-                  parallel: true,
-                  uglifyOptions: {
-                      compress: {
-                          warnings: false
-                      },
-                      minimize: true
-                  }
-              })
-          ]
+    node: {
+        fs: 'empty',
+    },
+    plugins: [],
+    optimization: {
+        minimizer: [
+          new UglifyJsPlugin({
+            parallel: true,
+          })
+        ]
+      }
 };
 
 if (process.env.NODE_WEBPACK_TARGET) {
@@ -64,14 +59,14 @@ if (process.env.NODE_WEBPACK_TARGET) {
     config.output.umdNamedDefine = undefined;
 
     config.module.rules
-        .find(r => r.loader === 'babel-loader')
+        .find((r) => r.loader === 'babel-loader')
         .include.push(path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET));
 
     const workPath = path.resolve(__dirname, process.env.NODE_WEBPACK_TARGET);
-    if (debug && workPath.indexOf('/dist/') === -1) {
+    if (mode === 'development' && workPath.indexOf('/dist/') === -1) {
         config.plugins.push(
             new WatchLiveReloadPlugin({
-                files: [path.resolve(__dirname, 'build') + '/*.js', workPath + '/**/*.html', workPath + '/**/*.css']
+                files: [path.resolve(__dirname, 'build') + '/*.js', workPath + '/**/*.html', workPath + '/**/*.css'],
             })
         );
     }
@@ -80,12 +75,12 @@ if (process.env.NODE_WEBPACK_TARGET) {
 
     config.devServer = {
         contentBase: [dataPath, workPath, path.resolve(__dirname, 'build')],
-        historyApiFallback: true
+        historyApiFallback: true,
     };
-} else if (!debug) {
+} else if (mode === 'production') {
     config.plugins.push(
         new CompressionPlugin({
-            algorithm: 'gzip'
+            algorithm: 'gzip',
         })
     );
 }

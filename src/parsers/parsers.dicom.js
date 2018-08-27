@@ -1,15 +1,22 @@
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
+import * as OpenJPEG from 'OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js';
 
 let DicomParser = require('dicom-parser');
 let Jpeg = require('jpeg-lossless-decoder-js');
 let JpegBaseline = require('../../external/scripts/jpeg');
 let Jpx = require('../../external/scripts/jpx');
+let openJPEG; // for one time initialization
 
 /**
  * Dicom parser is a combination of utilities to get a VJS image from dicom files.
  *scripts
  * Relies on dcmjs, jquery, HTML5 fetch API, HTML5 promise API.
+ *
+ * image-JPEG2000 (jpx) is still in use, because Cornerstone does it and may have identified some edge corners.
+ * Ref:
+ *   https://github.com/cornerstonejs/cornerstoneWADOImageLoader/blob/master/docs/Codecs.md
+ *   https://github.com/cornerstonejs/cornerstoneWADOImageLoader/blob/a9b408f5562bde5543fc6986bd23fbac9d676562/src/shared/decoders/decodeJPEG2000.js#L127-L134
  *
  * @module parsers/dicom
  *
@@ -471,9 +478,13 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   frameTime(frameIndex = 0) {
-    let frameIncrementPointer = this._dataSet.uint16('x00280009', 1),
-      frameRate = this._dataSet.intString('x00082144'),
-      frameTime;
+    let frameIncrementPointer = this._dataSet.uint16('x00280009', 1);
+
+
+let frameRate = this._dataSet.intString('x00082144');
+
+
+let frameTime;
 
     if (typeof frameIncrementPointer === 'number') {
       frameIncrementPointer = frameIncrementPointer.toString(16);
@@ -824,29 +835,118 @@ export default class ParsersDicom extends ParsersVolume {
     );
   }
 
-  _decodeJ2K(frameIndex = 0) {
-    let encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
-    let jpxImage = new Jpx();
+  // used if OpenJPEG library isn't loaded (OHIF/image-JPEG2000 isn't supported and can't parse some images)
+  _decodeJpx(frameIndex = 0) {
+    const jpxImage = new Jpx();
     // https://github.com/OHIF/image-JPEG2000/issues/6
     // It currently returns either Int16 or Uint16 based on whether the codestream is signed or not.
-    jpxImage.parse(encodedPixelData);
+    jpxImage.parse(this.getEncapsulatedImageFrame(frameIndex));
 
-    let componentsCount = jpxImage.componentsCount;
-    if (componentsCount !== 1) {
-      const error = new Error('JPEG2000 decoder returned a componentCount of ${componentsCount}, when 1 is expected');
-      throw error;
-    }
-    let tileCount = jpxImage.tiles.length;
-
-    if (tileCount !== 1) {
-      const error = new Error('JPEG2000 decoder returned a tileCount of ${tileCount}, when 1 is expected');
-      throw error;
+    if (jpxImage.componentsCount !== 1) {
+      throw new Error('JPEG2000 decoder returned a componentCount of ${componentsCount}, when 1 is expected');
     }
 
-    let tileComponents = jpxImage.tiles[0];
-    let pixelData = tileComponents.items;
+    if (jpxImage.tiles.length !== 1) {
+      throw new Error('JPEG2000 decoder returned a tileCount of ${tileCount}, when 1 is expected');
+    }
+
+    return jpxImage.tiles[0].items;
+  }
+
+  _decodeOpenJPEG(frameIndex = 0) {
+    const encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
+    const bytesPerPixel = this.bitsAllocated(frameIndex) <= 8 ? 1 : 2;
+    const signed = this.pixelRepresentation(frameIndex) === 1;
+    const dataPtr = openJPEG._malloc(encodedPixelData.length);
+
+    openJPEG.writeArrayToMemory(encodedPixelData, dataPtr);
+
+    // create param outpout
+    const imagePtrPtr = openJPEG._malloc(4);
+    const imageSizePtr = openJPEG._malloc(4);
+    const imageSizeXPtr = openJPEG._malloc(4);
+    const imageSizeYPtr = openJPEG._malloc(4);
+    const imageSizeCompPtr = openJPEG._malloc(4);
+    const ret = openJPEG.ccall(
+      'jp2_decode',
+      'number',
+      ['number', 'number', 'number', 'number', 'number', 'number', 'number'],
+      [dataPtr, encodedPixelData.length, imagePtrPtr, imageSizePtr, imageSizeXPtr, imageSizeYPtr, imageSizeCompPtr]
+    );
+    const imagePtr = openJPEG.getValue(imagePtrPtr, '*');
+
+    if (ret !== 0) {
+      console.log('[opj_decode] decoding failed!');
+      openJPEG._free(dataPtr);
+      openJPEG._free(imagePtr);
+      openJPEG._free(imageSizeXPtr);
+      openJPEG._free(imageSizeYPtr);
+      openJPEG._free(imageSizePtr);
+      openJPEG._free(imageSizeCompPtr);
+
+      return;
+    }
+
+    // Copy the data from the EMSCRIPTEN heap into the correct type array
+    const length = openJPEG.getValue(imageSizeXPtr, 'i32') *
+        openJPEG.getValue(imageSizeYPtr, 'i32') * openJPEG.getValue(imageSizeCompPtr, 'i32');
+    const src32 = new Int32Array(openJPEG.HEAP32.buffer, imagePtr, length);
+    let pixelData;
+
+    if (bytesPerPixel === 1) {
+      if (Uint8Array.from) {
+        pixelData = Uint8Array.from(src32);
+      } else {
+        pixelData = new Uint8Array(length);
+        for (let i = 0; i < length; i++) {
+          pixelData[i] = src32[i];
+        }
+      }
+    } else if (signed) {
+      if (Int16Array.from) {
+        pixelData = Int16Array.from(src32);
+      } else {
+        pixelData = new Int16Array(length);
+        for (let i = 0; i < length; i++) {
+          pixelData[i] = src32[i];
+        }
+      }
+    } else if (Uint16Array.from) {
+      pixelData = Uint16Array.from(src32);
+    } else {
+      pixelData = new Uint16Array(length);
+      for (let i = 0; i < length; i++) {
+        pixelData[i] = src32[i];
+      }
+    }
+
+    openJPEG._free(dataPtr);
+    openJPEG._free(imagePtrPtr);
+    openJPEG._free(imagePtr);
+    openJPEG._free(imageSizePtr);
+    openJPEG._free(imageSizeXPtr);
+    openJPEG._free(imageSizeYPtr);
+    openJPEG._free(imageSizeCompPtr);
 
     return pixelData;
+  }
+
+  // from cornerstone
+  _decodeJ2K(frameIndex = 0) {
+    if (typeof OpenJPEG === 'undefined') {
+      // OpenJPEG decoder not loaded
+      return this._decodeJpx(frameIndex);
+    }
+
+    if (!openJPEG) {
+      openJPEG = OpenJPEG();
+      if (!openJPEG || !openJPEG._jp2_decode) {
+        // OpenJPEG failed to initialize
+        return this._decodeJpx(frameIndex);
+      }
+    }
+
+    return this._decodeOpenJPEG(frameIndex);
   }
 
   // from cornerstone
