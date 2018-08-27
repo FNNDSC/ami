@@ -14,9 +14,10 @@ const widgetsRuler = (three = window.THREE) => {
   constructor(targetMesh, controls, params) {
     super(targetMesh, controls, params);
 
-    this._pixelSpacing = params.pixelSpacing || null;
-
     this._widgetType = 'Ruler';
+
+    this._calibrationFactor = params.calibrationFactor || null;
+
     this._moving = false;
     this._domHovered = false;
 
@@ -30,6 +31,7 @@ const widgetsRuler = (three = window.THREE) => {
     this._label = null;
 
     this._distance = null;
+    this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'mm';
 
     // add handles
     this._handles = [];
@@ -248,18 +250,21 @@ const widgetsRuler = (three = window.THREE) => {
 
     // update label
     this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
+    if (this._calibrationFactor) {
+      this._distance *= this._calibrationFactor;
+    } else if (lineData.usDistance) {
+      this._distance = lineData.usDistance;
+      this._units = 'cm';
+    }
 
-    const units = this._pixelSpacing === null ? 'units' : 'mm',
-      title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
-
-    if (title !== '') {
-      this._label.setAttribute('title', title);
+    if (this._units === 'units' && !this._label.hasAttribute('title')) {
+      this._label.setAttribute('title', 'Calibration is required to display the distance in mm');
       this._label.style.color = this._colors.error;
-    } else {
+    } else if (this._units !== 'units' && this._label.hasAttribute('title')) {
       this._label.removeAttribute('title');
       this._label.style.color = this._colors.text;
     }
-    this._label.innerHTML = `${this._distance.toFixed(2)} ${units}`;
+    this._label.innerHTML = `${this._distance.toFixed(2)} ${this._units}`;
 
     let angle = Math.abs(lineData.transformAngle);
     if (angle > Math.PI / 2) {
@@ -331,6 +336,16 @@ const widgetsRuler = (three = window.THREE) => {
     this._handles[0].worldPosition.copy(worldPosition);
     this._handles[1].worldPosition.copy(worldPosition);
     this._worldPosition.copy(worldPosition);
+    this.update();
+  }
+
+  get calibrationFactor() {
+    return this._calibrationFactor;
+  }
+
+  set calibrationFactor(calibrationFactor) {
+    this._calibrationFactor = calibrationFactor;
+    this._units = 'mm';
     this.update();
   }
   };

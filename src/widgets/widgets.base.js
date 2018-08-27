@@ -15,7 +15,8 @@ const widgetsBase = (three = window.THREE) => {
 
       this._widgetType = 'Base';
 
-      // params: hideMesh (bool), hideHandleMesh (bool), stack (ModelsStack), pixelSpacing
+      // params: hideMesh (bool), hideHandleMesh (bool),
+      //   stack (ModelsStack), calibrationFactor (number), pixelSpacing (number), ultrasoundRegions (array<object>)
       this._params = params || {};
       if (this._params.hideMesh === true) {
         this.visible = false;
@@ -89,20 +90,81 @@ const widgetsBase = (three = window.THREE) => {
       };
     }
 
+    /**
+     * Get index of ultrasound region by screen coordinates.
+     *
+     * @param {Array} regions
+     * @param {Vector3} point
+     *
+     * @returns {Number|null}
+     */
+    getRegionByXY(regions, point) {
+      let result = null;
+
+      regions.some((region, ind) => {
+        if (point.x >= region.x0 && point.x <= region.x1 && point.y >= region.y0 && point.y <= region.y1) {
+          result = ind;
+
+          return true;
+        }
+      });
+
+      return result;
+    }
+
+     /**
+      * Get point inside ultrasound region by screen coordinates.
+      *
+      * @param {Object} region
+      * @param {Vector3} point
+      *
+      * @returns {Vector2}
+      */
+     getPointInRegion(region, point) {
+       return new three.Vector2(
+         (point.x - region.x0 - region.axisX) * region.deltaX,
+         (point.y - region.y0 - region.axisY) * region.deltaY
+       );
+     }
+
+    /**
+     * Get distance between points inside ultrasound region.
+     *
+     * @param {Object} region
+     * @param {Vector3} pointA
+     * @param {Vector3} pointB
+     *
+     * @returns {Number}
+     */
+    getDistanceInRegion(region, pointA, pointB) {
+      return this.getPointInRegion(region, pointA).distanceTo(this.getPointInRegion(region, pointB));
+    }
+
     getLineData(pointA, pointB) {
       const line = pointB.clone().sub(pointA),
         center = pointB.clone().add(pointA).multiplyScalar(0.5),
         length = line.length(),
-        angle = line.angleTo(new three.Vector3(1, 0, 0));
+        angle = line.angleTo(new three.Vector3(1, 0, 0)),
+        regions = this._params.ultrasoundRegions,
+        data = {
+            line: line,
+            length: length,
+            transformX: center.x - length / 2,
+            transformY: center.y - this._container.offsetHeight,
+            transformAngle: pointA.y < pointB.y ? angle : -angle,
+            center: center,
+        };
 
-      return {
-        line: line,
-        length: length,
-        transformX: center.x - length / 2,
-        transformY: center.y - this._container.offsetHeight,
-        transformAngle: pointA.y < pointB.y ? angle : -angle,
-        center: center,
-      };
+      if (regions.length > 0) {
+        const regionA = this.getRegionByXY(regions, pointA),
+          regionB = this.getRegionByXY(regions, pointB);
+
+        if (regionA === regionB && regions[regionA].axisX === 'cm' && regions[regionA].axisY === 'cm') {
+            data.usDistance = this.getDistanceInRegion(regions[regionA], pointA, pointB);
+        }
+      }
+
+      return data;
     }
 
     getRectData(pointA, pointB) {

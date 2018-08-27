@@ -459,7 +459,7 @@ export default class ParsersDicom extends ParsersVolume {
           x1: item.dataSet.uint32('x0018601c'),
           y1: item.dataSet.uint32('x0018601e'),
           axisX: item.dataSet.int32('x00186020'),
-          axisy: item.dataSet.int32('x00186022'),
+          axisY: item.dataSet.int32('x00186022'),
           unitsX: this._getUnitsName(item.dataSet.uint16('x00186024')),
           unitsY: this._getUnitsName(item.dataSet.uint16('x00186026')),
           deltaX: item.dataSet.double('x0018602c'),

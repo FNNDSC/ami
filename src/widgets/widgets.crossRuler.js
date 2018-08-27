@@ -478,9 +478,9 @@ const widgetsCrossRuler = (three = window.THREE) => {
         }
         this._handles[5 - activeInd].worldPosition.copy(intersect.clone().add(lines[0]));
 
-        this._distances[activeInd] = intersect.clone().sub(this._handles[activeInd].worldPosition).length();
-        this._distances[0] = intersect.clone().sub(this._handles[0].worldPosition).length();
-        this._distances[1] = intersect.clone().sub(this._handles[1].worldPosition).length();
+        this._distances[activeInd] = intersect.distanceTo(this._handles[activeInd].worldPosition);
+        this._distances[0] = intersect.distanceTo(this._handles[0].worldPosition);
+        this._distances[1] = intersect.distanceTo(this._handles[1].worldPosition);
     }
 
     /**
@@ -526,7 +526,7 @@ const widgetsCrossRuler = (three = window.THREE) => {
         ray.distanceSqToSegment(third, fourth, intersectR, intersectS);
 
         if (intersectR.distanceTo(intersectS) > 0.01 &&
-            intersectR.clone().sub(first).length() > second.clone().sub(first).length() + 0.01
+            intersectR.distanceTo(first) > second.distanceTo(first) + 0.01
         ) {
             window.console.warn('Lines do not intersect');
 
@@ -544,10 +544,10 @@ const widgetsCrossRuler = (three = window.THREE) => {
         this._handles[2].worldPosition.copy(third);
         this._handles[3].worldPosition.copy(fourth);
         this._distances = [
-            intersectR.clone().sub(first).length(),
-            intersectR.clone().sub(second).length(),
-            intersectR.clone().sub(third).length(),
-            intersectR.clone().sub(fourth).length(),
+            intersectR.distanceTo(first),
+            intersectR.distanceTo(second),
+            intersectR.distanceTo(third),
+            intersectR.distanceTo(fourth),
         ];
 
         this.initLineAndNormal();
