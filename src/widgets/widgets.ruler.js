@@ -253,15 +253,17 @@ const widgetsRuler = (three = window.THREE) => {
     this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
     if (this._calibrationFactor) {
       this._distance *= this._calibrationFactor;
-    } else if (this._stack.frame[0].ultrasoundRegions) {
+    } else if (this._params.ultrasoundRegions) {
       const usDistance = this.getUsDistance(
-        CoreUtils.worldToData(this._stack.lps2IJK, this._handles[0].worldPosition),
-        CoreUtils.worldToData(this._stack.lps2IJK, this._handles[1].worldPosition),
+        CoreUtils.worldToData(this._params.lps2IJK, this._handles[0].worldPosition),
+        CoreUtils.worldToData(this._params.lps2IJK, this._handles[1].worldPosition),
       );
 
       if (usDistance !== null) {
         this._distance = usDistance;
         this._units = 'cm';
+      } else {
+        this._units = this._params.pixelSpacing ? 'mm' : 'units';
       }
     }
 

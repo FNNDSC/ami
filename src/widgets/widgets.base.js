@@ -15,7 +15,8 @@ const widgetsBase = (three = window.THREE) => {
 
       this._widgetType = 'Base';
 
-      // params: hideMesh (bool), hideHandleMesh (bool), stack (ModelsStack), calibrationFactor (number)
+      // params: hideMesh (bool), hideHandleMesh (bool), stack (ModelsStack), calibrationFactor (number),
+      //   lps2IJK (Matrix4), pixelSpacing (number), ultrasoundRegions (Array<Object>)
       this._params = params || {};
       if (this._params.hideMesh === true) {
         this.visible = false;
@@ -145,12 +146,13 @@ const widgetsBase = (three = window.THREE) => {
         regionB = this.getRegionByXY(regions, pointB);
 
       if (regionA === null || regionB === null || regionA !== regionB
-        || regions[regionA].axisX !== 'cm' || regions[regionA].axisY !== 'cm'
+        || regions[regionA].unitsX !== 'cm' || regions[regionA].unitsY !== 'cm'
       ) {
         return null;
       }
 
-      return this.getPointInRegion(regionA, pointA).distanceTo(this.getPointInRegion(regionA, pointB));
+      return this.getPointInRegion(regions[regionA], pointA)
+        .distanceTo(this.getPointInRegion(regions[regionA], pointB));
     }
 
     getLineData(pointA, pointB) {
