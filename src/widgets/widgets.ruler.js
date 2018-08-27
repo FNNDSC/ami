@@ -1,5 +1,6 @@
 import {widgetsBase} from './widgets.base';
 import {widgetsHandle as widgetsHandleFactory} from './widgets.handle';
+import CoreUtils from "../core/core.utils";
 
 /**
  * @module widgets/ruler
@@ -252,9 +253,16 @@ const widgetsRuler = (three = window.THREE) => {
     this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
     if (this._calibrationFactor) {
       this._distance *= this._calibrationFactor;
-    } else if (lineData.usDistance) {
-      this._distance = lineData.usDistance;
-      this._units = 'cm';
+    } else if (this._stack.frame[0].ultrasoundRegions) {
+      const usDistance = this.getUsDistance(
+        CoreUtils.worldToData(this._stack.lps2IJK, this._handles[0].worldPosition),
+        CoreUtils.worldToData(this._stack.lps2IJK, this._handles[1].worldPosition),
+      );
+
+      if (usDistance !== null) {
+        this._distance = usDistance;
+        this._units = 'cm';
+      }
     }
 
     if (this._units === 'units' && !this._label.hasAttribute('title')) {
