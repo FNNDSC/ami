@@ -1,6 +1,5 @@
 import {widgetsBase} from './widgets.base';
 import {widgetsHandle as widgetsHandleFactory} from './widgets.handle';
-import CoreUtils from "../core/core.utils";
 
 /**
  * @module widgets/ruler
@@ -19,6 +18,9 @@ const widgetsRuler = (three = window.THREE) => {
 
     this._calibrationFactor = params.calibrationFactor || null;
 
+    this._distance = null;
+    this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'mm';
+
     this._moving = false;
     this._domHovered = false;
 
@@ -30,9 +32,6 @@ const widgetsRuler = (three = window.THREE) => {
     // dom stuff
     this._line = null;
     this._label = null;
-
-    this._distance = null;
-    this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'mm';
 
     // add handles
     this._handles = [];
@@ -250,23 +249,15 @@ const widgetsRuler = (three = window.THREE) => {
     this._line.style.width = lineData.length + 'px';
 
     // update label
-    if (this._calibrationFactor) {
-      this._distance =
-        this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition) * this._calibrationFactor;
-    } else if (this._params.ultrasoundRegions && this._params.lps2IJK) {
-      const usDistance = this.getUsDistance(
-        CoreUtils.worldToData(this._params.lps2IJK, this._handles[0].worldPosition),
-        CoreUtils.worldToData(this._params.lps2IJK, this._handles[1].worldPosition),
-      );
+    const distanceData = this.getDistanceData(
+      this._handles[0].worldPosition,
+      this._handles[1].worldPosition,
+      this._calibrationFactor
+    );
 
-      if (usDistance !== null) {
-        this._distance = usDistance;
-        this._units = 'cm';
-      } else {
-        this._units = this._params.pixelSpacing ? 'mm' : 'units';
-      }
-    } else {
-      this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
+    this._distance = distanceData.distance;
+    if (distanceData.units) {
+      this._units = distanceData.units;
     }
 
     if (this._units === 'units' && !this._label.hasAttribute('title')) {

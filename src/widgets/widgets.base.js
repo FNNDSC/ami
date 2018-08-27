@@ -1,4 +1,5 @@
 import WidgetsCss from './widgets.css';
+import CoreUtils from "../core/core.utils";
 
 /**
  * @module Abstract Widget
@@ -92,8 +93,8 @@ const widgetsBase = (three = window.THREE) => {
     /**
      * Get index of ultrasound region by screen coordinates.
      *
-     * @param {Array} regions
-     * @param {Vector3} point
+     * @param {Array} regions US regions
+     * @param {Vector3} point Screen coordinates
      *
      * @returns {Number|null}
      */
@@ -114,8 +115,8 @@ const widgetsBase = (three = window.THREE) => {
      /**
       * Get point inside ultrasound region by screen coordinates.
       *
-      * @param {Object} region
-      * @param {Vector3} point
+      * @param {Object} region US region data
+      * @param {Vector3} point Screen coordinates
       *
       * @returns {Vector2}
       */
@@ -129,8 +130,8 @@ const widgetsBase = (three = window.THREE) => {
     /**
      * Get distance between points inside ultrasound region.
      *
-     * @param {Vector3} pointA
-     * @param {Vector3} pointB
+     * @param {Vector3} pointA Begin screen coordinates
+     * @param {Vector3} pointB End screen coordinates
      *
      * @returns {Number|null}
      */
@@ -152,6 +153,44 @@ const widgetsBase = (three = window.THREE) => {
 
       return this.getPointInRegion(regions[regionA], pointA)
         .distanceTo(this.getPointInRegion(regions[regionA], pointB));
+    }
+
+    /**
+     * Get distance between points
+     *
+     * @param {Vector3} pointA Begin world coordinates
+     * @param {Vector3} pointB End world coordinates
+     * @param {number}  cf     Calibration factor
+     *
+     * @returns {Object}
+     */
+    getDistanceData(pointA, pointB, cf) {
+      let distance = null;
+      let units = null;
+
+      if (cf) {
+        distance = pointA.distanceTo(pointB) * cf;
+      } else if (this._params.ultrasoundRegions && this._params.lps2IJK) {
+        const usDistance = this.getUsDistance(
+          CoreUtils.worldToData(this._params.lps2IJK, pointA),
+          CoreUtils.worldToData(this._params.lps2IJK, pointB),
+        );
+
+        if (usDistance !== null) {
+          distance = usDistance * 10;
+          units = 'mm';
+        } else {
+          distance = pointA.distanceTo(pointB);
+          units = this._params.pixelSpacing ? 'mm' : 'units';
+        }
+      } else {
+        distance = pointA.distanceTo(pointB);
+      }
+
+      return {
+        distance,
+        units
+      };
     }
 
     getLineData(pointA, pointB) {

@@ -14,15 +14,20 @@ const widgetsCrossRuler = (three = window.THREE) => {
     constructor(targetMesh, controls, params) {
         super(targetMesh, controls, params);
 
-        this._pixelSpacing = params.pixelSpacing || null;
-
         this._widgetType = 'CrossRuler';
-        this._domHovered = false;
-        this._moving = false;
+
+        this._calibrationFactor = params.calibrationFactor || null;
 
         this._distances = null; // from intersection point to handles
         this._line01 = null; // vector from 0 to 1st handle
         this._normal = null; // normal vector to line01
+
+        this._distance = null;
+        this._distance2 = null;
+        this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'mm';
+
+        this._domHovered = false;
+        this._moving = false;
 
         // mesh stuff
         this._material = null;
@@ -305,26 +310,47 @@ const widgetsCrossRuler = (three = window.THREE) => {
         this._line2.style.width = line2Data.length + 'px';
 
         // update labels
-        const units = this._pixelSpacing === null ? 'units' : 'mm',
-            title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
+        const distanceData = this.getDistanceData(
+            this._handles[0].worldPosition,
+            this._handles[1].worldPosition,
+            this._calibrationFactor
+        );
+        const distanceData2 = this.getDistanceData(
+            this._handles[2].worldPosition,
+            this._handles[3].worldPosition,
+            this._calibrationFactor
+        );
+        const title = 'Calibration is required to display the distance in mm';
 
-        this._distance = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition);
-        this._distance2 = this._handles[2].worldPosition.distanceTo(this._handles[3].worldPosition);
+        this._distance = distanceData.distance;
+        this._distance2 = distanceData2.distance;
+        if (distanceData.units && distanceData2.units && distanceData.units === distanceData2.units) {
+            this._units = distanceData.units;
+        } else {
+            if (!distanceData.units) {
+                distanceData.units = this._units;
+            }
+            if (!distanceData2.units) {
+                distanceData2.units = this._units;
+            }
+        }
 
-        this._label.innerHTML = `${this._distance.toFixed(2)} ${units}`;
-        this._label2.innerHTML = `${this._distance2.toFixed(2)} ${units}`;
-
-        if (title !== '') {
+        if (distanceData.units === 'units' && !this._label.hasAttribute('title')) {
             this._label.setAttribute('title', title);
             this._label.style.color = this._colors.error;
-            this._label2.setAttribute('title', title);
-            this._label2.style.color = this._colors.error;
-        } else {
+        } else if (distanceData.units !== 'units' && this._label.hasAttribute('title')) {
             this._label.removeAttribute('title');
             this._label.style.color = this._colors.text;
+        }
+        if (distanceData2.units === 'units' && !this._label2.hasAttribute('title')) {
+            this._label2.setAttribute('title', title);
+            this._label2.style.color = this._colors.error;
+        } else if (distanceData2.units !== 'units' && this._label2.hasAttribute('title')) {
             this._label2.removeAttribute('title');
             this._label2.style.color = this._colors.text;
         }
+        this._label.innerHTML = `${this._distance.toFixed(2)} ${distanceData.units}`;
+        this._label2.innerHTML = `${this._distance2.toFixed(2)} ${distanceData2.units}`;
 
         let angle = Math.abs(lineData.transformAngle);
         if (angle > Math.PI / 2) {
@@ -576,6 +602,16 @@ const widgetsCrossRuler = (three = window.THREE) => {
     set worldPosition(worldPosition) {
         this._handles.slice(0, -1).forEach((elem) => elem.worldPosition.copy(worldPosition));
         this._worldPosition.copy(worldPosition);
+        this.update();
+    }
+
+    get calibrationFactor() {
+        return this._calibrationFactor;
+    }
+
+    set calibrationFactor(calibrationFactor) {
+        this._calibrationFactor = calibrationFactor;
+        this._units = 'mm';
         this.update();
     }
   };
