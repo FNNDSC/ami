@@ -10,10 +10,16 @@ const widgetsBase = (three = window.THREE) => {
 
    const Constructor = three.Object3D;
    return class extends Constructor {
-    constructor(targetMesh, controls) {
+    constructor(targetMesh, controls, params) {
       super(); // init THREE Object 3D
 
       this._widgetType = 'Base';
+
+      // params: hideMesh (bool), hideHandleMesh (bool), stack (ModelsStack), pixelSpacing
+      this._params = params || {};
+      if (this._params.hideMesh === true) {
+        this.visible = false;
+      }
 
       const elementStyle = document.getElementById('ami-widgets');
       if (elementStyle === null) {
@@ -25,11 +31,9 @@ const widgetsBase = (three = window.THREE) => {
 
       this._enabled = true; // is widget enabled?
 
-      // STATE, ENUM might be better
       this._selected = false;
       this._hovered = true;
       this._active = true;
-      // thos._state = 'SELECTED';
 
       this._colors = {
         default: '#00B0FF',
@@ -189,11 +193,13 @@ let y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._cont
       this.showDOM();
       this.showMesh();
       this.update();
+      this._displayed = true;
     }
 
     hide() {
       this.hideDOM();
       this.hideMesh();
+      this._displayed = false;
     }
 
     hideDOM() {
@@ -211,6 +217,10 @@ let y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._cont
     }
 
     showMesh() {
+      if (this._params.hideMesh === true) {
+        return;
+      }
+
       this.visible = true;
     }
 

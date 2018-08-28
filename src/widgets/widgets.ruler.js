@@ -11,10 +11,10 @@ const widgetsRuler = (three = window.THREE) => {
 
   const Constructor = widgetsBase(three);
   return class extends Constructor {
-  constructor(targetMesh, controls, stack) {
-    super(targetMesh, controls);
+  constructor(targetMesh, controls, params) {
+    super(targetMesh, controls, params);
 
-    this._stack = stack;
+    this._pixelSpacing = params.pixelSpacing || null;
 
     this._widgetType = 'Ruler';
     this._moving = false;
@@ -37,7 +37,7 @@ const widgetsRuler = (three = window.THREE) => {
 
     let handle;
     for (let i = 0; i < 2; i++) {
-      handle = new WidgetsHandle(targetMesh, controls);
+      handle = new WidgetsHandle(targetMesh, controls, params);
       handle.worldPosition.copy(this._worldPosition);
       this.add(handle);
       this._handles.push(handle);
@@ -45,7 +45,7 @@ const widgetsRuler = (three = window.THREE) => {
     this._handles[1].active = true;
     this._handles[1].tracking = true;
 
-    this._moveHandle = new WidgetsHandle(targetMesh, controls);
+    this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
     this._moveHandle.worldPosition.copy(this._worldPosition);
     this.add(this._moveHandle);
     this._handles.push(this._moveHandle);
@@ -251,10 +251,8 @@ const widgetsRuler = (three = window.THREE) => {
     // update label
     this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
 
-    const units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm';
-
-
-const title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
+    const units = this._pixelSpacing === null ? 'units' : 'mm';
+    const title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
 
     if (title !== '') {
       this._label.setAttribute('title', title);
@@ -273,17 +271,11 @@ const title = units === 'units' ? 'Calibration is required to display the distan
     const labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth
         ? (this._label.offsetWidth / 2) / Math.cos(angle) + 15 // 5px for each handle + padding
         : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle) + 15;
-
-
-const paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
-
-
-const paddingPoint = lineData.length > labelPadding * 2
+    const paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
+    const paddingPoint = lineData.length > labelPadding * 2
         ? this._handles[1].screenPosition.clone().sub(paddingVector)
         : this._handles[1].screenPosition.clone().add(paddingVector);
-
-
-const transform = this.adjustLabelTransform(this._label, paddingPoint);
+    const transform = this.adjustLabelTransform(this._label, paddingPoint);
 
     this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
   }

@@ -11,10 +11,10 @@ const widgetsBiruler = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-        constructor(targetMesh, controls, stack) {
-            super(targetMesh, controls);
+        constructor(targetMesh, controls, params) {
+            super(targetMesh, controls, params);
 
-            this._stack = stack;
+            this._pixelSpacing = params.pixelSpacing || null;
 
             this._widgetType = 'BiRuler';
 
@@ -39,7 +39,7 @@ const widgetsBiruler = (three = window.THREE) => {
             let handle;
             const WidgetsHandle = widgetsHandleFactory(three);
             for (let i = 0; i < 4; i++) {
-                handle = new WidgetsHandle(targetMesh, controls);
+                handle = new WidgetsHandle(targetMesh, controls, params);
                 handle.worldPosition.copy(this._worldPosition);
                 this.add(handle);
                 this._handles.push(handle);
@@ -265,23 +265,17 @@ const widgetsBiruler = (three = window.THREE) => {
             // update dash line
             const line1Center = this._handles[0].worldPosition.clone()
                     .add(this._handles[1].worldPosition).multiplyScalar(0.5);
-
-
-const line2Center = this._handles[2].worldPosition.clone()
+            const line2Center = this._handles[2].worldPosition.clone()
                     .add(this._handles[3].worldPosition).multiplyScalar(0.5);
-
-
-const dashLineData = this.getLineData(this.worldToScreen(line1Center), this.worldToScreen(line2Center));
+            const dashLineData = this.getLineData(this.worldToScreen(line1Center), this.worldToScreen(line2Center));
 
             this._dashline.style.transform =`translate3D(${dashLineData.transformX}px, ${dashLineData.transformY}px, 0)
                 rotate(${dashLineData.transformAngle}rad)`;
             this._dashline.style.width = dashLineData.length + 'px';
 
             // update labels
-            const units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm';
-
-
-const title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
+            const units = this._pixelSpacing === null ? 'units' : 'mm';
+            const title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
 
             this._distance = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition);
             this._distance2 = this._handles[2].worldPosition.distanceTo(this._handles[3].worldPosition);
@@ -309,17 +303,11 @@ const title = units === 'units' ? 'Calibration is required to display the distan
             const labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth
                     ? (this._label.offsetWidth / 2) / Math.cos(angle) + 15 // 5px for each handle + padding
                     : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle) + 15;
-
-
-const paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
-
-
-const paddingPoint = lineData.length > labelPadding * 2
+            const paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
+            const paddingPoint = lineData.length > labelPadding * 2
                     ? this._handles[1].screenPosition.clone().sub(paddingVector)
                     : this._handles[1].screenPosition.clone().add(paddingVector);
-
-
-const transform = this.adjustLabelTransform(this._label, paddingPoint);
+            const transform = this.adjustLabelTransform(this._label, paddingPoint);
 
             this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
 
@@ -331,17 +319,11 @@ const transform = this.adjustLabelTransform(this._label, paddingPoint);
             const label2Padding = Math.tan(angle2) < this._label2.offsetHeight / this._label2.offsetWidth
                 ? (this._label2.offsetWidth / 2) / Math.cos(angle2) + 15 // 5px for each handle + padding
                 : (this._label2.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle2) + 15;
-
-
-const paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding);
-
-
-const paddingPoint2 = line2Data.length > label2Padding * 2
+            const paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding);
+            const paddingPoint2 = line2Data.length > label2Padding * 2
                     ? this._handles[3].screenPosition.clone().sub(paddingVector2)
                     : this._handles[3].screenPosition.clone().add(paddingVector2);
-
-
-const transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
+            const transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
 
             this._label2.style.transform = `translate3D(${transform2.x}px, ${transform2.y}px, 0)`;
         }

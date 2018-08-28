@@ -11,8 +11,8 @@ const widgetsAngle = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-    constructor(targetMesh, controls) {
-        super(targetMesh, controls);
+    constructor(targetMesh, controls, params) {
+        super(targetMesh, controls, params);
 
         this._widgetType = 'Angle';
         this._moving = false;
@@ -40,7 +40,7 @@ const widgetsAngle = (three = window.THREE) => {
         let handle;
         const WidgetsHandle = widgetsHandleFactory(three);
         for (let i = 0; i < 3; i++) {
-            handle = new WidgetsHandle(targetMesh, controls);
+            handle = new WidgetsHandle(targetMesh, controls, params);
             handle.worldPosition.copy(this._worldPosition);
             this.add(handle);
             this._handles.push(handle);
@@ -50,7 +50,7 @@ const widgetsAngle = (three = window.THREE) => {
         this._handles[2].active = true;
         this._handles[2].tracking = true;
 
-        this._moveHandle = new WidgetsHandle(targetMesh, controls);
+        this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
         this._moveHandle.worldPosition.copy(this._worldPosition);
         this.add(this._moveHandle);
         this._handles.push(this._moveHandle);

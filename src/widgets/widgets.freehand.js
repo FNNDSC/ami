@@ -12,10 +12,10 @@ const widgetsFreehand = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-    constructor(targetMesh, controls, stack) {
-        super(targetMesh, controls);
+    constructor(targetMesh, controls, params) {
+        super(targetMesh, controls, params);
 
-        this._stack = stack;
+        this._stack = params.stack;
 
         this._widgetType = 'Freehand';
         this._initialized = false; // set to true onEnd if number of handles > 2
@@ -35,12 +35,12 @@ const widgetsFreehand = (three = window.THREE) => {
         this._handles = [];
         const WidgetsHandle = widgetsHandleFactory(three);
 
-        let handle = new WidgetsHandle(targetMesh, controls);
+        let handle = new WidgetsHandle(targetMesh, controls, params);
         handle.worldPosition.copy(this._worldPosition);
         this.add(handle);
         this._handles.push(handle);
 
-        this._moveHandle = new WidgetsHandle(targetMesh, controls);
+        this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
         this._moveHandle.worldPosition.copy(this._worldPosition);
         this.add(this._moveHandle);
         this._moveHandle.hide();
@@ -126,7 +126,7 @@ let hovered = false;
                 this._handles[numHandles - 1].tracking = false;
 
                 const WidgetsHandle = widgetsHandleFactory(three);
-                let handle = new WidgetsHandle(this._targetMesh, this._controls);
+                let handle = new WidgetsHandle(this._targetMesh, this._controls, this._params);
                 handle.worldPosition.copy(this._worldPosition);
                 handle.hovered = true;
                 handle.active = true;
@@ -464,7 +464,7 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
             meanSDContainer.innerHTML = '';
             maxMinContainer.innerHTML = '';
         }
-        areaContainer.innerHTML = `Area: ${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+        areaContainer.innerHTML = `Area: ${(CoreUtils.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
     }
 
     updateDOMPosition() {
