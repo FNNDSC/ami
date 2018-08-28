@@ -302,19 +302,19 @@ const widgetsRectangle = (three = window.THREE) => {
     }
 
     updateDOMContent() {
-        const regions = this.stack.frame[this._params.frameIndex].ultrasoundRegions || [];
+        const regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
         this._area = CoreUtils.getGeometryArea(this._geometry)/100;
         if (this._calibrationFactor) {
             this._area *= this._calibrationFactor;
-        } else if (regions && regions.length > 0 && this.stack.lps2IJK) {
+        } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
             const region0 = this.getRegionByXY(
                 regions,
-                CoreUtils.worldToData(this.stack.lps2IJK, this._handles[0].worldPosition)
+                CoreUtils.worldToData(this._stack.lps2IJK, this._handles[0].worldPosition)
             );
             const region1 = this.getRegionByXY(
                 regions,
-                CoreUtils.worldToData(this.stack.lps2IJK, this._handles[1].worldPosition)
+                CoreUtils.worldToData(this._stack.lps2IJK, this._handles[1].worldPosition)
             );
 
             if (region0 === null || region1 === null || region0 !== region1
@@ -322,7 +322,7 @@ const widgetsRectangle = (three = window.THREE) => {
             ) {
                 this._units = this._params.pixelSpacing ? 'cm²' : 'units';
             } else {
-                this._area *= Math.pow(regions[region0].deltaX * 100, 2);
+                this._area *= Math.pow(regions[region0].deltaX, 2) * 100;
                 this._units = 'cm²';
             }
         }

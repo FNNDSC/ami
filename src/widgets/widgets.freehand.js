@@ -416,18 +416,18 @@ const widgetsFreehand = (three = window.THREE) => {
             return;
         }
 
-        const regions = this.stack.frame[this._params.frameIndex].ultrasoundRegions || [];
+        const regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
         this._area = CoreUtils.getGeometryArea(this._geometry)/100;
         if (this._calibrationFactor) {
             this._area *= this._calibrationFactor;
-        } else if (regions && regions.length > 0 && this.stack.lps2IJK) {
+        } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
             let same = true;
             let cRegion;
             let pRegion;
 
             this._handles.forEach((elem) => {
-                cRegion = this.getRegionByXY(regions, CoreUtils.worldToData(this.stack.lps2IJK, elem.worldPosition));
+                cRegion = this.getRegionByXY(regions, CoreUtils.worldToData(this._stack.lps2IJK, elem.worldPosition));
                 if (cRegion === null || regions[cRegion].unitsX !== 'cm'
                     || (pRegion !== undefined && pRegion !== cRegion)
                 ) {
@@ -437,7 +437,7 @@ const widgetsFreehand = (three = window.THREE) => {
             });
 
             if (same) {
-                this._area *= Math.pow(regions[cRegion].deltaX * 100, 2);
+                this._area *= Math.pow(regions[cRegion].deltaX, 2) * 100;
                 this._units = 'cm²';
             } else {
                 this._units = this._params.pixelSpacing ? 'cm²' : 'units';
