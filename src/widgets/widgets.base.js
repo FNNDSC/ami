@@ -111,7 +111,7 @@ const widgetsBase = (three = window.THREE) => {
       return result;
     }
 
-     /**
+     /**ё
       * Get point inside ultrasound region by screen coordinates.
       *
       * @param {Object}  region US region data
@@ -172,7 +172,7 @@ const widgetsBase = (three = window.THREE) => {
       } else if (this._params.ultrasoundRegions && this._params.lps2IJK) {
         const usDistance = this.getUsDistance(
           CoreUtils.worldToData(this._params.lps2IJK, pointA),
-          CoreUtils.worldToData(this._params.lps2IJK, pointB),
+          CoreUtils.worldToData(this._params.lps2IJK, pointB)
         );
 
         if (usDistance !== null) {
