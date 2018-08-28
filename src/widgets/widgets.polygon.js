@@ -2,7 +2,6 @@ import {widgetsBase} from './widgets.base';
 import {widgetsHandle as widgetsHandleFactory} from './widgets.handle';
 import CoreUtils from '../core/core.utils';
 
-
 /**
  * @module widgets/polygon
  */
@@ -16,9 +15,14 @@ const widgetsPolygon = (three = window.THREE) => {
     constructor(targetMesh, controls, params) {
         super(targetMesh, controls, params);
 
-        this._stack = params.stack;
-
         this._widgetType = 'Polygon';
+
+        this._stack = params.stack;
+        this._calibrationFactor = params.calibrationFactor || null;
+
+        this._area = null;
+        this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'cm²';
+
         this._initialized = false; // set to true onDblClick if number of handles > 2
         this._newHandleRequired = true; // should handle be created onMove?
         this._moving = false;
@@ -406,16 +410,43 @@ const widgetsPolygon = (three = window.THREE) => {
             return;
         }
 
-        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
-        let title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+        const regions = this.stack.frame[this._params.frameIndex].ultrasoundRegions || [];
+
+        this._area = CoreUtils.getGeometryArea(this._geometry)/100;
+        if (this._calibrationFactor) {
+            this._area *= this._calibrationFactor;
+        } else if (regions && regions.length > 0 && this.stack.lps2IJK) {
+            let same = true;
+            let cRegion;
+            let pRegion;
+
+            this._handles.forEach((elem) => {
+                cRegion = this.getRegionByXY(regions, CoreUtils.worldToData(this.stack.lps2IJK, elem.worldPosition));
+                if (cRegion === null || regions[cRegion].unitsX !== 'cm'
+                    || (pRegion !== undefined && pRegion !== cRegion)
+                ) {
+                    same = false;
+                }
+                pRegion = cRegion;
+            });
+
+            if (same) {
+                this._area *= Math.pow(regions[cRegion].deltaX * 100, 2);
+                this._units = 'cm²';
+            } else {
+                this._units = this._params.pixelSpacing ? 'cm²' : 'units';
+            }
+        }
+
+        let title = this._units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
         if (this._shapeWarn) {
             title += 'Values may be incorrect due to triangulation error.';
         }
-        if (title !== '') {
-            this._label.setAttribute('title', title);
+        if (title !== '' && !this._label.hasAttribute('title')) {
+            this._label.setAttribute('title', 'Calibration is required to display the area in cm²');
             this._label.style.color = this._colors.error;
-        } else {
+        } else if (title === '' && this._label.hasAttribute('title')) {
             this._label.removeAttribute('title');
             this._label.style.color = this._colors.text;
         }
@@ -429,7 +460,7 @@ const widgetsPolygon = (three = window.THREE) => {
             meanSDContainer.innerHTML = '';
             maxMinContainer.innerHTML = '';
         }
-        areaContainer.innerHTML = `Area: ${(CoreUtils.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+        areaContainer.innerHTML = `Area: ${this._area.toFixed(2)} ${this._units}`;
     }
 
     updateDOMPosition() {
@@ -524,6 +555,16 @@ const widgetsPolygon = (three = window.THREE) => {
     set worldPosition(worldPosition) {
         this._handles.forEach((elem) => elem.worldPosition.copy(worldPosition));
         this._worldPosition.copy(worldPosition);
+        this.update();
+    }
+
+    get calibrationFactor() {
+        return this._calibrationFactor;
+    }
+
+    set calibrationFactor(calibrationFactor) {
+        this._calibrationFactor = calibrationFactor;
+        this._units = 'cm²';
         this.update();
     }
   };

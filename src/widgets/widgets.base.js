@@ -83,8 +83,7 @@ const widgetsBase = (three = window.THREE) => {
     getMouseOffsets(event, container) {
       return {
         x: (event.clientX - this._offsets.left) / container.offsetWidth * 2 - 1,
-        y: -((event.clientY - this._offsets.top) / container.offsetHeight)
-          * 2 + 1,
+        y: -((event.clientY - this._offsets.top) / container.offsetHeight) * 2 + 1,
         screenX: event.clientX - this._offsets.left,
         screenY: event.clientY - this._offsets.top,
       };
@@ -93,8 +92,8 @@ const widgetsBase = (three = window.THREE) => {
     /**
      * Get index of ultrasound region by screen coordinates.
      *
-     * @param {Array} regions US regions
-     * @param {Vector3} point Screen coordinates
+     * @param {Array}   regions US regions
+     * @param {Vector3} point   Screen coordinates
      *
      * @returns {Number|null}
      */
@@ -115,8 +114,8 @@ const widgetsBase = (three = window.THREE) => {
      /**
       * Get point inside ultrasound region by screen coordinates.
       *
-      * @param {Object} region US region data
-      * @param {Vector3} point Screen coordinates
+      * @param {Object}  region US region data
+      * @param {Vector3} point  Screen coordinates
       *
       * @returns {Vector2}
       */

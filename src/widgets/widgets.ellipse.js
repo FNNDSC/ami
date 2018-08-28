@@ -15,9 +15,14 @@ const widgetsEllipse = (three = window.THREE) => {
     constructor(targetMesh, controls, params) {
         super(targetMesh, controls, params);
 
-        this._stack = params.stack;
-
         this._widgetType = 'Ellipse';
+
+        this._stack = params.stack;
+        this._calibrationFactor = params.calibrationFactor || null;
+
+        this._area = null;
+        this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'cm²';
+
         this._moving = false;
         this._domHovered = false;
 
@@ -316,18 +321,39 @@ const widgetsEllipse = (three = window.THREE) => {
             return;
         }
 
-        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
-        let title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+        const regions = this.stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
-        if (title !== '') {
-            this._label.setAttribute('title', title);
+        this._area = CoreUtils.getGeometryArea(this._geometry)/100;
+        if (this._calibrationFactor) {
+            this._area *= this._calibrationFactor;
+        } else if (regions && regions.length > 0 && this.stack.lps2IJK) {
+            const region0 = this.getRegionByXY(
+                regions,
+                CoreUtils.worldToData(this.stack.lps2IJK, this._handles[0].worldPosition)
+            );
+            const region1 = this.getRegionByXY(
+                regions,
+                CoreUtils.worldToData(this.stack.lps2IJK, this._handles[1].worldPosition)
+            );
+
+            if (region0 === null || region1 === null || region0 !== region1
+                || regions[region0].unitsX !== 'cm' || regions[region0].unitsY !== 'cm'
+            ) {
+                this._units = this._params.pixelSpacing ? 'cm²' : 'units';
+            } else {
+                this._area *= Math.pow(regions[region0].deltaX * 100, 2);
+                this._units = 'cm²';
+            }
+        }
+
+        if (this._units === 'units' && !this._label.hasAttribute('title')) {
+            this._label.setAttribute('title', 'Calibration is required to display the area in cm²');
             this._label.style.color = this._colors.error;
-        } else {
+        } else if (this._units !== 'units' && this._label.hasAttribute('title')) {
             this._label.removeAttribute('title');
             this._label.style.color = this._colors.text;
         }
-        this._label.querySelector('.area').innerHTML =
-            `Area: ${(CoreUtils.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+        this._label.querySelector('.area').innerHTML = `Area: ${this._area.toFixed(2)} ${this._units}`;
     }
 
     updateDOMPosition() {
@@ -404,6 +430,16 @@ const widgetsEllipse = (three = window.THREE) => {
         this._handles[0].worldPosition.copy(worldPosition);
         this._handles[1].worldPosition.copy(worldPosition);
         this._worldPosition.copy(worldPosition);
+        this.update();
+    }
+
+    get calibrationFactor() {
+        return this._calibrationFactor;
+    }
+
+    set calibrationFactor(calibrationFactor) {
+        this._calibrationFactor = calibrationFactor;
+        this._units = 'cm²';
         this.update();
     }
   };
