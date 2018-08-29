@@ -572,6 +572,10 @@ const widgetsPolygon = (three = window.THREE) => {
         this._units = 'cm²';
         this.update();
     }
+
+    get area() {
+        return this._area;
+    }
   };
 };
 

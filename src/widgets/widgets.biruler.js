@@ -399,6 +399,18 @@ const widgetsBiruler = (three = window.THREE) => {
             super.free();
         }
 
+        /**
+         * Get length of rulers
+         *
+         * @return {Array}
+         */
+        getDistances() {
+            return [
+                this._distance,
+                this._distance2,
+            ];
+        }
+
         get targetMesh() {
             return this._targetMesh;
         }

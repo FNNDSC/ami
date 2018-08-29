@@ -351,6 +351,10 @@ const widgetsRuler = (three = window.THREE) => {
     this._units = 'mm';
     this.update();
   }
+
+  get distance() {
+    return this._distance;
+  }
   };
 };
 
