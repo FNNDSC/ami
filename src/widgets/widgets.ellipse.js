@@ -323,9 +323,9 @@ const widgetsEllipse = (three = window.THREE) => {
 
         const regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
-        this._area = CoreUtils.getGeometryArea(this._geometry)/100;
+        this._area = CoreUtils.getGeometryArea(this._geometry);
         if (this._calibrationFactor) {
-            this._area *= this._calibrationFactor;
+            this._area *= Math.pow(this._calibrationFactor, 2);
         } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
             const region0 = this.getRegionByXY(
                 regions,
@@ -336,14 +336,19 @@ const widgetsEllipse = (three = window.THREE) => {
                 CoreUtils.worldToData(this._stack.lps2IJK, this._handles[1].worldPosition)
             );
 
-            if (region0 === null || region1 === null || region0 !== region1
-                || regions[region0].unitsX !== 'cm' || regions[region0].unitsY !== 'cm'
+            if (region0 !== null && region1 !== null && region0 === region1
+                && regions[region0].unitsX === 'cm' && regions[region0].unitsY === 'cm'
             ) {
-                this._units = this._stack.frame[this._params.frameIndex].pixelSpacing ? 'cm²' : 'units';
-            } else {
-                this._area *= Math.pow(regions[region0].deltaX, 2) * 100;
+                this._area *= Math.pow(regions[region0].deltaX, 2);
                 this._units = 'cm²';
+            } else if (this._stack.frame[this._params.frameIndex].pixelSpacing) {
+                this._area /= 100;
+                this._units = 'cm²';
+            } else {
+                this._units = 'units';
             }
+        } else if (this._units === 'cm²') {
+            this._area /= 100;
         }
 
         if (this._units === 'units' && !this._label.hasAttribute('title')) {

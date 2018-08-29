@@ -418,9 +418,9 @@ const widgetsFreehand = (three = window.THREE) => {
 
         const regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
-        this._area = CoreUtils.getGeometryArea(this._geometry)/100;
+        this._area = CoreUtils.getGeometryArea(this._geometry);
         if (this._calibrationFactor) {
-            this._area *= this._calibrationFactor;
+            this._area *= Math.pow(this._calibrationFactor, 2);
         } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
             let same = true;
             let cRegion;
@@ -437,11 +437,16 @@ const widgetsFreehand = (three = window.THREE) => {
             });
 
             if (same) {
-                this._area *= Math.pow(regions[cRegion].deltaX, 2) * 100;
+                this._area *= Math.pow(regions[cRegion].deltaX, 2);
+                this._units = 'cm²';
+            } else if (this._stack.frame[this._params.frameIndex].pixelSpacing) {
+                this._area /= 100;
                 this._units = 'cm²';
             } else {
-                this._units = this._stack.frame[this._params.frameIndex].pixelSpacing ? 'cm²' : 'units';
+                this._units = 'units';
             }
+        } else if (this._units === 'cm²') {
+            this._area /= 100;
         }
 
         let title = this._units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
