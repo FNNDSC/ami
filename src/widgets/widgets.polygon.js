@@ -21,7 +21,7 @@ const widgetsPolygon = (three = window.THREE) => {
         this._calibrationFactor = params.calibrationFactor || null;
 
         this._area = null;
-        this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'cm²';
+        this._units = !this._calibrationFactor && !params.stack.frame[params.frameIndex].pixelSpacing ? 'units' : 'cm²';
 
         this._initialized = false; // set to true onDblClick if number of handles > 2
         this._newHandleRequired = true; // should handle be created onMove?
@@ -434,7 +434,7 @@ const widgetsPolygon = (three = window.THREE) => {
                 this._area *= Math.pow(regions[cRegion].deltaX, 2) * 100;
                 this._units = 'cm²';
             } else {
-                this._units = this._params.pixelSpacing ? 'cm²' : 'units';
+                this._units = this._stack.frame[this._params.frameIndex].pixelSpacing ? 'cm²' : 'units';
             }
         }
 

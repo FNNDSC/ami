@@ -21,7 +21,7 @@ const widgetsRectangle = (three = window.THREE) => {
         this._calibrationFactor = params.calibrationFactor || null;
 
         this._area = null;
-        this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'cm²';
+        this._units = !this._calibrationFactor && !params.stack.frame[params.frameIndex].pixelSpacing ? 'units' : 'cm²';
 
         this._moving = false;
         this._domHovered = false;
@@ -320,7 +320,7 @@ const widgetsRectangle = (three = window.THREE) => {
             if (region0 === null || region1 === null || region0 !== region1
                 || regions[region0].unitsX !== 'cm' || regions[region0].unitsY !== 'cm'
             ) {
-                this._units = this._params.pixelSpacing ? 'cm²' : 'units';
+                this._units = this._stack.frame[this._params.frameIndex].pixelSpacing ? 'cm²' : 'units';
             } else {
                 this._area *= Math.pow(regions[region0].deltaX, 2) * 100;
                 this._units = 'cm²';
