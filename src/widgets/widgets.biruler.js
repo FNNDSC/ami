@@ -11,12 +11,16 @@ const widgetsBiruler = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-        constructor(targetMesh, controls, stack) {
-            super(targetMesh, controls);
-
-            this._stack = stack;
+        constructor(targetMesh, controls, params) {
+            super(targetMesh, controls, params);
 
             this._widgetType = 'BiRuler';
+
+            this._calibrationFactor = params.calibrationFactor || null;
+
+            this._distance = null;
+            this._distance2 = null;
+            this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'mm';
 
             // mesh stuff
             this._material = null;
@@ -39,7 +43,7 @@ const widgetsBiruler = (three = window.THREE) => {
             let handle;
             const WidgetsHandle = widgetsHandleFactory(three);
             for (let i = 0; i < 4; i++) {
-                handle = new WidgetsHandle(targetMesh, controls);
+                handle = new WidgetsHandle(targetMesh, controls, params);
                 handle.worldPosition.copy(this._worldPosition);
                 this.add(handle);
                 this._handles.push(handle);
@@ -64,9 +68,7 @@ const widgetsBiruler = (three = window.THREE) => {
         }
 
         onStart(evt) {
-            this._handles.forEach(function(elem) {
-                elem.onStart(evt);
-            });
+            this._handles.forEach((elem) => elem.onStart(evt));
 
             this._active = this._handles[0].active || this._handles[1].active ||
                 this._handles[2].active || this._handles[3].active;
@@ -83,9 +85,7 @@ const widgetsBiruler = (three = window.THREE) => {
                 this._container.style.cursor = this._hovered ? 'pointer' : 'default';
             }
 
-            this._handles.forEach(function(elem) {
-                elem.onMove(evt);
-            });
+            this._handles.forEach((elem) => elem.onMove(evt));
 
             this.update();
         }
@@ -195,9 +195,7 @@ const widgetsBiruler = (three = window.THREE) => {
             this._label2.style.display = 'none';
             this._dashline.style.display = 'none';
 
-            this._handles.forEach(function(elem) {
-                elem.hideDOM();
-            });
+            this._handles.forEach((elem) => elem.hideDOM());
         }
 
         showDOM() {
@@ -207,18 +205,14 @@ const widgetsBiruler = (three = window.THREE) => {
             this._label2.style.display = '';
             this._dashline.style.display = '';
 
-            this._handles.forEach(function(elem) {
-                elem.showDOM();
-            });
+            this._handles.forEach((elem) => elem.showDOM());
         }
 
         update() {
             this.updateColor();
 
             // update handles
-            this._handles.forEach(function(elem) {
-                elem.update();
-            });
+            this._handles.forEach((elem) => elem.update());
 
             // mesh stuff
             this.updateMeshColor();
@@ -265,41 +259,56 @@ const widgetsBiruler = (three = window.THREE) => {
             // update dash line
             const line1Center = this._handles[0].worldPosition.clone()
                     .add(this._handles[1].worldPosition).multiplyScalar(0.5);
-
-
-const line2Center = this._handles[2].worldPosition.clone()
+            const line2Center = this._handles[2].worldPosition.clone()
                     .add(this._handles[3].worldPosition).multiplyScalar(0.5);
-
-
-const dashLineData = this.getLineData(this.worldToScreen(line1Center), this.worldToScreen(line2Center));
+            const dashLineData = this.getLineData(this.worldToScreen(line1Center), this.worldToScreen(line2Center));
 
             this._dashline.style.transform =`translate3D(${dashLineData.transformX}px, ${dashLineData.transformY}px, 0)
                 rotate(${dashLineData.transformAngle}rad)`;
             this._dashline.style.width = dashLineData.length + 'px';
 
             // update labels
-            const units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm';
+            const distanceData = this.getDistanceData(
+                this._handles[0].worldPosition,
+                this._handles[1].worldPosition,
+                this._calibrationFactor
+            );
+            const distanceData2 = this.getDistanceData(
+                this._handles[2].worldPosition,
+                this._handles[3].worldPosition,
+                this._calibrationFactor
+            );
+            const title = 'Calibration is required to display the distance in mm';
 
+            this._distance = distanceData.distance;
+            this._distance2 = distanceData2.distance;
+            if (distanceData.units && distanceData2.units && distanceData.units === distanceData2.units) {
+                this._units = distanceData.units;
+            } else {
+                if (!distanceData.units) {
+                    distanceData.units = this._units;
+                }
+                if (!distanceData2.units) {
+                    distanceData2.units = this._units;
+                }
+            }
 
-const title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
-
-            this._distance = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition);
-            this._distance2 = this._handles[2].worldPosition.distanceTo(this._handles[3].worldPosition);
-
-            this._label.innerHTML = `${this._distance.toFixed(2)} ${units}`;
-            this._label2.innerHTML = `${this._distance2.toFixed(2)} ${units}`;
-
-            if (title !== '') {
+            if (distanceData.units === 'units' && !this._label.hasAttribute('title')) {
                 this._label.setAttribute('title', title);
                 this._label.style.color = this._colors.error;
-                this._label2.setAttribute('title', title);
-                this._label2.style.color = this._colors.error;
-            } else {
+            } else if (distanceData.units !== 'units' && this._label.hasAttribute('title')) {
                 this._label.removeAttribute('title');
                 this._label.style.color = this._colors.text;
+            }
+            if (distanceData2.units === 'units' && !this._label2.hasAttribute('title')) {
+                this._label2.setAttribute('title', title);
+                this._label2.style.color = this._colors.error;
+            } else if (distanceData2.units !== 'units' && this._label2.hasAttribute('title')) {
                 this._label2.removeAttribute('title');
                 this._label2.style.color = this._colors.text;
             }
+            this._label.innerHTML = `${this._distance.toFixed(2)} ${distanceData.units}`;
+            this._label2.innerHTML = `${this._distance2.toFixed(2)} ${distanceData2.units}`;
 
             let angle = Math.abs(lineData.transformAngle);
             if (angle > Math.PI / 2) {
@@ -309,17 +318,11 @@ const title = units === 'units' ? 'Calibration is required to display the distan
             const labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth
                     ? (this._label.offsetWidth / 2) / Math.cos(angle) + 15 // 5px for each handle + padding
                     : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle) + 15;
-
-
-const paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
-
-
-const paddingPoint = lineData.length > labelPadding * 2
+            const paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
+            const paddingPoint = lineData.length > labelPadding * 2
                     ? this._handles[1].screenPosition.clone().sub(paddingVector)
                     : this._handles[1].screenPosition.clone().add(paddingVector);
-
-
-const transform = this.adjustLabelTransform(this._label, paddingPoint);
+            const transform = this.adjustLabelTransform(this._label, paddingPoint);
 
             this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
 
@@ -331,17 +334,11 @@ const transform = this.adjustLabelTransform(this._label, paddingPoint);
             const label2Padding = Math.tan(angle2) < this._label2.offsetHeight / this._label2.offsetWidth
                 ? (this._label2.offsetWidth / 2) / Math.cos(angle2) + 15 // 5px for each handle + padding
                 : (this._label2.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle2) + 15;
-
-
-const paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding);
-
-
-const paddingPoint2 = line2Data.length > label2Padding * 2
+            const paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding);
+            const paddingPoint2 = line2Data.length > label2Padding * 2
                     ? this._handles[3].screenPosition.clone().sub(paddingVector2)
                     : this._handles[3].screenPosition.clone().add(paddingVector2);
-
-
-const transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
+            const transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
 
             this._label2.style.transform = `translate3D(${transform2.x}px, ${transform2.y}px, 0)`;
         }
@@ -402,15 +399,25 @@ const transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
             super.free();
         }
 
+        /**
+         * Get length of rulers
+         *
+         * @return {Array}
+         */
+        getDistances() {
+            return [
+                this._distance,
+                this._distance2,
+            ];
+        }
+
         get targetMesh() {
             return this._targetMesh;
         }
 
         set targetMesh(targetMesh) {
             this._targetMesh = targetMesh;
-            this._handles.forEach(function(elem) {
-                elem.targetMesh = targetMesh;
-            });
+            this._handles.forEach((elem) => elem.targetMesh = targetMesh);
             this.update();
         }
 
@@ -419,10 +426,18 @@ const transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
         }
 
         set worldPosition(worldPosition) {
-            this._handles.forEach(function(elem) {
-                elem.worldPosition.copy(worldPosition);
-            });
+            this._handles.forEach((elem) => elem.worldPosition.copy(worldPosition));
             this._worldPosition.copy(worldPosition);
+            this.update();
+        }
+
+        get calibrationFactor() {
+            return this._calibrationFactor;
+        }
+
+        set calibrationFactor(calibrationFactor) {
+            this._calibrationFactor = calibrationFactor;
+            this._units = 'mm';
             this.update();
         }
 

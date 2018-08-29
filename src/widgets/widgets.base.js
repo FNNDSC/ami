@@ -1,4 +1,5 @@
 import WidgetsCss from './widgets.css';
+import CoreUtils from "../core/core.utils";
 
 /**
  * @module Abstract Widget
@@ -10,10 +11,17 @@ const widgetsBase = (three = window.THREE) => {
 
    const Constructor = three.Object3D;
    return class extends Constructor {
-    constructor(targetMesh, controls) {
+    constructor(targetMesh, controls, params) {
       super(); // init THREE Object 3D
 
       this._widgetType = 'Base';
+
+      // params: hideMesh (bool), hideHandleMesh (bool), stack (ModelsStack), calibrationFactor (number),
+      //   lps2IJK (Matrix4), pixelSpacing (number), ultrasoundRegions (Array<Object>)
+      this._params = params || {};
+      if (this._params.hideMesh === true) {
+        this.visible = false;
+      }
 
       const elementStyle = document.getElementById('ami-widgets');
       if (elementStyle === null) {
@@ -25,11 +33,9 @@ const widgetsBase = (three = window.THREE) => {
 
       this._enabled = true; // is widget enabled?
 
-      // STATE, ENUM might be better
       this._selected = false;
       this._hovered = true;
       this._active = true;
-      // thos._state = 'SELECTED';
 
       this._colors = {
         default: '#00B0FF',
@@ -63,8 +69,7 @@ const widgetsBase = (three = window.THREE) => {
       const docEl = document.documentElement;
 
       const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
-      const scrollLeft =
-        window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
+      const scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
 
       const clientTop = docEl.clientTop || body.clientTop || 0;
       const clientLeft = docEl.clientLeft || body.clientLeft || 0;
@@ -78,24 +83,120 @@ const widgetsBase = (three = window.THREE) => {
     getMouseOffsets(event, container) {
       return {
         x: (event.clientX - this._offsets.left) / container.offsetWidth * 2 - 1,
-        y: -((event.clientY - this._offsets.top) / container.offsetHeight)
-          * 2 + 1,
+        y: -((event.clientY - this._offsets.top) / container.offsetHeight) * 2 + 1,
         screenX: event.clientX - this._offsets.left,
         screenY: event.clientY - this._offsets.top,
       };
     }
 
+    /**
+     * Get index of ultrasound region by screen coordinates.
+     *
+     * @param {Array}   regions US regions
+     * @param {Vector3} point   Screen coordinates
+     *
+     * @returns {Number|null}
+     */
+    getRegionByXY(regions, point) {
+      let result = null;
+
+      regions.some((region, ind) => {
+        if (point.x >= region.x0 && point.x <= region.x1 && point.y >= region.y0 && point.y <= region.y1) {
+          result = ind;
+
+          return true;
+        }
+      });
+
+      return result;
+    }
+
+     /**ё
+      * Get point inside ultrasound region by screen coordinates.
+      *
+      * @param {Object}  region US region data
+      * @param {Vector3} point  Screen coordinates
+      *
+      * @returns {Vector2}
+      */
+     getPointInRegion(region, point) {
+       return new three.Vector2(
+         (point.x - region.x0 - region.axisX) * region.deltaX,
+         (point.y - region.y0 - region.axisY) * region.deltaY
+       );
+     }
+
+    /**
+     * Get distance between points inside ultrasound region.
+     *
+     * @param {Vector3} pointA Begin screen coordinates
+     * @param {Vector3} pointB End screen coordinates
+     *
+     * @returns {Number|null}
+     */
+    getUsDistance(pointA, pointB) {
+      const regions = this._params.ultrasoundRegions || [];
+
+      if (regions.length < 1) {
+        return null;
+      }
+
+      const regionA = this.getRegionByXY(regions, pointA);
+      const regionB = this.getRegionByXY(regions, pointB);
+
+      if (regionA === null || regionB === null || regionA !== regionB
+        || regions[regionA].unitsX !== 'cm' || regions[regionA].unitsY !== 'cm'
+      ) {
+        return null;
+      }
+
+      return this.getPointInRegion(regions[regionA], pointA)
+        .distanceTo(this.getPointInRegion(regions[regionA], pointB));
+    }
+
+    /**
+     * Get distance between points
+     *
+     * @param {Vector3} pointA Begin world coordinates
+     * @param {Vector3} pointB End world coordinates
+     * @param {number}  cf     Calibration factor
+     *
+     * @returns {Object}
+     */
+    getDistanceData(pointA, pointB, cf) {
+      let distance = null;
+      let units = null;
+
+      if (cf) {
+        distance = pointA.distanceTo(pointB) * cf;
+      } else if (this._params.ultrasoundRegions && this._params.lps2IJK) {
+        const usDistance = this.getUsDistance(
+          CoreUtils.worldToData(this._params.lps2IJK, pointA),
+          CoreUtils.worldToData(this._params.lps2IJK, pointB)
+        );
+
+        if (usDistance !== null) {
+          distance = usDistance * 10;
+          units = 'mm';
+        } else {
+          distance = pointA.distanceTo(pointB);
+          units = this._params.pixelSpacing ? 'mm' : 'units';
+        }
+      } else {
+        distance = pointA.distanceTo(pointB);
+      }
+
+      return {
+        distance,
+        units
+      };
+    }
+
     getLineData(pointA, pointB) {
       const line = pointB.clone().sub(pointA);
-
-
-const center = pointB.clone().add(pointA).multiplyScalar(0.5);
-
-
-const length = line.length();
-
-
-const angle = line.angleTo(new three.Vector3(1, 0, 0));
+      const center = pointB.clone().add(pointA).multiplyScalar(0.5);
+      const length = line.length();
+      const angle = line.angleTo(new three.Vector3(1, 0, 0));
 
       return {
         line: line,
@@ -109,12 +210,8 @@ const angle = line.angleTo(new three.Vector3(1, 0, 0));
 
     getRectData(pointA, pointB) {
       const line = pointB.clone().sub(pointA);
-
-
-const vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0));
-
-
-const min = pointA.clone().min(pointB); // coordinates of the top left corner
+      const vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0));
+      const min = pointA.clone().min(pointB); // coordinates of the top left corner
 
       return {
         width: line.clone().projectOnVector(new three.Vector3(1, 0, 0)).length(),
@@ -132,9 +229,7 @@ const min = pointA.clone().min(pointB); // coordinates of the top left corner
      */
     adjustLabelTransform(label, point, corner) {
       let x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2));
-
-
-let y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
+      let y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
 
       if (x < 0) {
         x = x > -label.offsetWidth ? 0 : x + label.offsetWidth;
@@ -189,11 +284,13 @@ let y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._cont
       this.showDOM();
       this.showMesh();
       this.update();
+      this._displayed = true;
     }
 
     hide() {
       this.hideDOM();
       this.hideMesh();
+      this._displayed = false;
     }
 
     hideDOM() {
@@ -211,11 +308,19 @@ let y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._cont
     }
 
     showMesh() {
+      if (this._params.hideMesh === true) {
+        return;
+      }
+
       this.visible = true;
     }
 
     free() {
+      this._camera = null;
       this._container = null;
+      this._controls = null;
+      this._params = null;
+      this._targetMesh = null;
     }
 
     get widgetType() {

@@ -11,18 +11,23 @@ const widgetsCrossRuler = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-    constructor(targetMesh, controls, stack) {
-        super(targetMesh, controls);
-
-        this._stack = stack;
+    constructor(targetMesh, controls, params) {
+        super(targetMesh, controls, params);
 
         this._widgetType = 'CrossRuler';
-        this._domHovered = false;
-        this._moving = false;
+
+        this._calibrationFactor = params.calibrationFactor || null;
 
         this._distances = null; // from intersection point to handles
         this._line01 = null; // vector from 0 to 1st handle
         this._normal = null; // normal vector to line01
+
+        this._distance = null;
+        this._distance2 = null;
+        this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'mm';
+
+        this._domHovered = false;
+        this._moving = false;
 
         // mesh stuff
         this._material = null;
@@ -35,6 +40,8 @@ const widgetsCrossRuler = (three = window.THREE) => {
         // dom stuff
         this._line = null;
         this._line2 = null;
+        this._label = null;
+        this._label2 = null;
 
         // add handles
         this._handles = [];
@@ -42,7 +49,7 @@ const widgetsCrossRuler = (three = window.THREE) => {
         let handle;
         const WidgetsHandle = widgetsHandleFactory(three);
         for (let i = 0; i < 4; i++) {
-            handle = new WidgetsHandle(targetMesh, controls);
+            handle = new WidgetsHandle(targetMesh, controls, params);
             handle.worldPosition.copy(this._worldPosition);
             this.add(handle);
             this._handles.push(handle);
@@ -50,7 +57,7 @@ const widgetsCrossRuler = (three = window.THREE) => {
         this._handles[1].active = true;
         this._handles[1].tracking = true;
 
-        this._moveHandle = new WidgetsHandle(targetMesh, controls);
+        this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
         this._moveHandle.worldPosition.copy(this._worldPosition);
         this.add(this._moveHandle);
         this._handles.push(this._moveHandle);
@@ -105,9 +112,7 @@ const widgetsCrossRuler = (three = window.THREE) => {
     onStart(evt) {
         this._moveHandle.onMove(evt, true);
 
-        this._handles.slice(0, -1).forEach(function(elem) {
-            elem.onStart(evt);
-        });
+        this._handles.slice(0, -1).forEach((elem) => elem.onStart(evt));
 
         this._active = this._handles[0].active || this._handles[1].active ||
             this._handles[2].active || this._handles[3].active || this._domHovered;
@@ -128,17 +133,15 @@ const widgetsCrossRuler = (three = window.THREE) => {
             this._moveHandle.onMove(evt, true);
 
             if (this._moving) {
-                this._handles.slice(0, -1).forEach(function(elem, ind) {
+                this._handles.slice(0, -1).forEach((elem, ind) => {
                     this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                }, this);
+                });
             }
         } else {
             this.onHover(null);
         }
 
-        this._handles.slice(0, -1).forEach(function(elem) {
-            elem.onMove(evt);
-        });
+        this._handles.slice(0, -1).forEach((elem) => elem.onMove(evt));
 
         if (this._distances) {
             if (this._handles[0].active || this._handles[1].active) {
@@ -229,34 +232,40 @@ const widgetsCrossRuler = (three = window.THREE) => {
         this._line2.setAttribute('class', 'widgets-line');
         this._container.appendChild(this._line2);
 
+        this._label = document.createElement('div');
+        this._label.setAttribute('class', 'widgets-label');
+        this._container.appendChild(this._label);
+
+        this._label2 = document.createElement('div');
+        this._label2.setAttribute('class', 'widgets-label');
+        this._container.appendChild(this._label2);
+
         this.updateDOMColor();
     }
 
     hideDOM() {
         this._line.style.display = 'none';
         this._line2.style.display = 'none';
+        this._label.style.display = 'none';
+        this._label2.style.display = 'none';
 
-        this._handles.slice(0, -1).forEach(function(elem) {
-            elem.hideDOM();
-        });
+        this._handles.slice(0, -1).forEach((elem) => elem.hideDOM());
     }
 
     showDOM() {
         this._line.style.display = '';
         this._line2.style.display = '';
+        this._label.style.display = '';
+        this._label2.style.display = '';
 
-        this._handles.slice(0, -1).forEach(function(elem) {
-            elem.showDOM();
-        });
+        this._handles.slice(0, -1).forEach((elem) => elem.showDOM());
     }
 
     update() {
         this.updateColor();
 
         // update handles
-        this._handles.slice(0, -1).forEach(function(elem) {
-            elem.update();
-        });
+        this._handles.slice(0, -1).forEach((elem) => elem.update());
 
         // mesh stuff
         this.updateMeshColor();
@@ -299,11 +308,88 @@ const widgetsCrossRuler = (three = window.THREE) => {
         this._line2.style.transform =`translate3D(${line2Data.transformX}px, ${line2Data.transformY}px, 0)
             rotate(${line2Data.transformAngle}rad)`;
         this._line2.style.width = line2Data.length + 'px';
+
+        // update labels
+        const distanceData = this.getDistanceData(
+            this._handles[0].worldPosition,
+            this._handles[1].worldPosition,
+            this._calibrationFactor
+        );
+        const distanceData2 = this.getDistanceData(
+            this._handles[2].worldPosition,
+            this._handles[3].worldPosition,
+            this._calibrationFactor
+        );
+        const title = 'Calibration is required to display the distance in mm';
+
+        this._distance = distanceData.distance;
+        this._distance2 = distanceData2.distance;
+        if (distanceData.units && distanceData2.units && distanceData.units === distanceData2.units) {
+            this._units = distanceData.units;
+        } else {
+            if (!distanceData.units) {
+                distanceData.units = this._units;
+            }
+            if (!distanceData2.units) {
+                distanceData2.units = this._units;
+            }
+        }
+
+        if (distanceData.units === 'units' && !this._label.hasAttribute('title')) {
+            this._label.setAttribute('title', title);
+            this._label.style.color = this._colors.error;
+        } else if (distanceData.units !== 'units' && this._label.hasAttribute('title')) {
+            this._label.removeAttribute('title');
+            this._label.style.color = this._colors.text;
+        }
+        if (distanceData2.units === 'units' && !this._label2.hasAttribute('title')) {
+            this._label2.setAttribute('title', title);
+            this._label2.style.color = this._colors.error;
+        } else if (distanceData2.units !== 'units' && this._label2.hasAttribute('title')) {
+            this._label2.removeAttribute('title');
+            this._label2.style.color = this._colors.text;
+        }
+        this._label.innerHTML = `${this._distance.toFixed(2)} ${distanceData.units}`;
+        this._label2.innerHTML = `${this._distance2.toFixed(2)} ${distanceData2.units}`;
+
+        let angle = Math.abs(lineData.transformAngle);
+        if (angle > Math.PI / 2) {
+            angle = Math.PI - angle;
+        }
+
+        const labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth
+            ? (this._label.offsetWidth / 2) / Math.cos(angle) + 15 // 5px for each handle + padding
+            : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle) + 15,
+            paddingVector = lineData.line.normalize().multiplyScalar(labelPadding),
+            paddingPoint = lineData.length > labelPadding * 4
+                ? this._handles[1].screenPosition.clone().sub(paddingVector)
+                : this._handles[1].screenPosition.clone().add(paddingVector),
+            transform = this.adjustLabelTransform(this._label, paddingPoint);
+
+        this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
+
+        let angle2 = Math.abs(line2Data.transformAngle);
+        if (angle2 > Math.PI / 2) {
+            angle2 = Math.PI - angle2;
+        }
+
+        const label2Padding = Math.tan(angle2) < this._label2.offsetHeight / this._label2.offsetWidth
+            ? (this._label2.offsetWidth / 2) / Math.cos(angle2) + 15 // 5px for each handle + padding
+            : (this._label2.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle2) + 15,
+            paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding),
+            paddingPoint2 = line2Data.length > label2Padding * 4
+                ? this._handles[3].screenPosition.clone().sub(paddingVector2)
+                : this._handles[3].screenPosition.clone().add(paddingVector2),
+            transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
+
+        this._label2.style.transform = `translate3D(${transform2.x}px, ${transform2.y}px, 0)`;
     }
 
     updateDOMColor() {
         this._line.style.backgroundColor = this._color;
         this._line2.style.backgroundColor = this._color;
+        this._label.style.borderColor = this._color;
+        this._label2.style.borderColor = this._color;
     }
 
     free() {
@@ -317,6 +403,8 @@ const widgetsCrossRuler = (three = window.THREE) => {
 
         this._container.removeChild(this._line);
         this._container.removeChild(this._line2);
+        this._container.removeChild(this._label);
+        this._container.removeChild(this._label2);
 
         // mesh, geometry, material
         this.remove(this._mesh);
@@ -358,15 +446,9 @@ const widgetsCrossRuler = (three = window.THREE) => {
         this.initLineAndNormal();
 
         const center = this._handles[1].worldPosition.clone().add(this._handles[0].worldPosition).multiplyScalar(0.5);
-
-
-const halfLength = this._line01.length() / 2;
-
-
-const normLine = this._normal.clone().multiplyScalar(halfLength * 0.8);
-
-
-const normLength = normLine.length();
+        const halfLength = this._line01.length() / 2;
+        const normLine = this._normal.clone().multiplyScalar(halfLength * 0.8);
+        const normLength = normLine.length();
 
         this._handles[2].worldPosition.copy(center.clone().add(normLine));
         this._handles[3].worldPosition.copy(center.clone().sub(normLine));
@@ -390,12 +472,8 @@ const normLength = normLine.length();
 
     recalculateOrtho() { // called onMove if 2nd or 3rd handle is active
         const activeInd = this._handles[2].active ? 2 : 3;
-
-
-const lines = [];
-
-
-const intersect = new three.Vector3();
+        const lines = [];
+        const intersect = new three.Vector3();
 
         lines[2] = this._handles[2].worldPosition.clone().sub(this._handles[0].worldPosition);
         lines[3] = this._handles[3].worldPosition.clone().sub(this._handles[0].worldPosition);
@@ -426,9 +504,21 @@ const intersect = new three.Vector3();
         }
         this._handles[5 - activeInd].worldPosition.copy(intersect.clone().add(lines[0]));
 
-        this._distances[activeInd] = intersect.clone().sub(this._handles[activeInd].worldPosition).length();
-        this._distances[0] = intersect.clone().sub(this._handles[0].worldPosition).length();
-        this._distances[1] = intersect.clone().sub(this._handles[1].worldPosition).length();
+        this._distances[activeInd] = intersect.distanceTo(this._handles[activeInd].worldPosition);
+        this._distances[0] = intersect.distanceTo(this._handles[0].worldPosition);
+        this._distances[1] = intersect.distanceTo(this._handles[1].worldPosition);
+    }
+
+    /**
+     * Get length of rulers
+     *
+     * @return {Array}
+     */
+    getDimensions() {
+      return [
+          this._distance,
+          this._distance2,
+      ];
     }
 
     /**
@@ -455,18 +545,14 @@ const intersect = new three.Vector3();
      */
     initCoordinates(first, second, third, fourth) {
         const intersectR = new three.Vector3();
-
-
-const intersectS = new three.Vector3();
-
-
-const ray = new three.Ray(first);
+        const intersectS = new three.Vector3();
+        const ray = new three.Ray(first);
 
         ray.lookAt(second);
         ray.distanceSqToSegment(third, fourth, intersectR, intersectS);
 
         if (intersectR.distanceTo(intersectS) > 0.01 &&
-            intersectR.clone().sub(first).length() > second.clone().sub(first).length() + 0.01
+            intersectR.distanceTo(first) > second.distanceTo(first) + 0.01
         ) {
             window.console.warn('Lines do not intersect');
 
@@ -484,10 +570,10 @@ const ray = new three.Ray(first);
         this._handles[2].worldPosition.copy(third);
         this._handles[3].worldPosition.copy(fourth);
         this._distances = [
-            intersectR.clone().sub(first).length(),
-            intersectR.clone().sub(second).length(),
-            intersectR.clone().sub(third).length(),
-            intersectR.clone().sub(fourth).length(),
+            intersectR.distanceTo(first),
+            intersectR.distanceTo(second),
+            intersectR.distanceTo(third),
+            intersectR.distanceTo(fourth),
         ];
 
         this.initLineAndNormal();
@@ -496,9 +582,7 @@ const ray = new three.Ray(first);
 
     setDefaultColor(color) {
         this._colors.default = color;
-        this._handles.forEach(function(elem) {
-            elem._colors.default = color;
-        });
+        this._handles.forEach((elem) => elem._colors.default = color);
     }
 
     get targetMesh() {
@@ -507,9 +591,7 @@ const ray = new three.Ray(first);
 
     set targetMesh(targetMesh) {
         this._targetMesh = targetMesh;
-        this._handles.forEach(function(elem) {
-            elem.targetMesh = targetMesh;
-        });
+        this._handles.forEach((elem) => elem.targetMesh = targetMesh);
         this.update();
     }
 
@@ -518,10 +600,18 @@ const ray = new three.Ray(first);
     }
 
     set worldPosition(worldPosition) {
-        this._handles.slice(0, -1).forEach(function(elem) {
-            elem.worldPosition.copy(worldPosition);
-        });
+        this._handles.slice(0, -1).forEach((elem) => elem.worldPosition.copy(worldPosition));
         this._worldPosition.copy(worldPosition);
+        this.update();
+    }
+
+    get calibrationFactor() {
+        return this._calibrationFactor;
+    }
+
+    set calibrationFactor(calibrationFactor) {
+        this._calibrationFactor = calibrationFactor;
+        this._units = 'mm';
         this.update();
     }
   };

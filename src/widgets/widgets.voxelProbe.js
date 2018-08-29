@@ -13,10 +13,10 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
   const Constructor = widgetsBase(three);
   return class extends Constructor {
-  constructor(targetMesh, controls, stack) {
-    super(targetMesh, controls);
+  constructor(targetMesh, controls, params) {
+    super(targetMesh, controls, params);
 
-    this._stack = stack;
+    this._stack = params.stack;
 
     this._widgetType = 'VoxelProbe';
     this._controls.enabled = false; // controls should be disabled for widgets with a single handle
@@ -25,16 +25,15 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
     // dom stuff
     this._label = null;
-    this._domDisplayed = true;
     this._domHovered = false;
 
     // handle (represent voxel)
     const WidgetsHandle = widgetsHandleFactory(three);
-    this._handle = new WidgetsHandle(targetMesh, controls);
+    this._handle = new WidgetsHandle(targetMesh, controls, params);
     this._handle.worldPosition.copy(this._worldPosition);
     this.add(this._handle);
 
-    this._moveHandle = new WidgetsHandle(targetMesh, controls);
+    this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
     this._moveHandle.worldPosition.copy(this._worldPosition);
     this.add(this._moveHandle);
     this._moveHandle.hide();
@@ -190,12 +189,8 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
   updateDOMContent() {
     const rasContainer = this._label.querySelector('#lpsPosition');
-
-
-const ijkContainer = this._label.querySelector('#ijkPosition');
-
-
-const valueContainer = this._label.querySelector('#value');
+    const ijkContainer = this._label.querySelector('#ijkPosition');
+    const valueContainer = this._label.querySelector('#value');
 
     rasContainer.innerHTML = `LPS: 
       ${this._voxel.worldCoordinates.x.toFixed(2)} :
@@ -230,6 +225,7 @@ const valueContainer = this._label.querySelector('#value');
 
     this._container.removeChild(this._label);
 
+    this._stack = null;
     this._voxel = null;
 
     super.free();
@@ -275,33 +271,6 @@ const valueContainer = this._label.querySelector('#value');
     this._controls.enabled = !this._active;
 
     this.update();
-  }
-
-  set showVoxel(showVoxel) {
-    this._showVoxel = showVoxel;
-    this.update();
-  }
-
-  get showVoxel() {
-    return this._showVoxel;
-  }
-
-  set showDomSVG(showDomSVG) {
-    this._showDomSVG = showDomSVG;
-    this.update();
-  }
-
-  get showDomSVG() {
-    return this._showDomSVG;
-  }
-
-  set showDomMeasurements(showDomMeasurements) {
-    this._showDomMeasurements = showDomMeasurements;
-    this.update();
-  }
-
-  get showDomMeasurements() {
-    return this._showDomMeasurements;
   }
 };
 };

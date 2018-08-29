@@ -12,12 +12,17 @@ const widgetsEllipse = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-    constructor(targetMesh, controls, stack) {
-        super(targetMesh, controls);
-
-        this._stack = stack;
+    constructor(targetMesh, controls, params) {
+        super(targetMesh, controls, params);
 
         this._widgetType = 'Ellipse';
+
+        this._stack = params.stack;
+        this._calibrationFactor = params.calibrationFactor || null;
+
+        this._area = null;
+        this._units = !this._calibrationFactor && !params.stack.frame[params.frameIndex].pixelSpacing ? 'units' : 'cm²';
+
         this._moving = false;
         this._domHovered = false;
 
@@ -37,7 +42,7 @@ const widgetsEllipse = (three = window.THREE) => {
         let handle;
         const WidgetsHandle = widgetsHandleFactory(three);
         for (let i = 0; i < 2; i++) {
-            handle = new WidgetsHandle(targetMesh, controls);
+            handle = new WidgetsHandle(targetMesh, controls, params);
             handle.worldPosition.copy(this._worldPosition);
             this.add(handle);
             this._handles.push(handle);
@@ -45,7 +50,7 @@ const widgetsEllipse = (three = window.THREE) => {
         this._handles[1].active = true;
         this._handles[1].tracking = true;
 
-        this._moveHandle = new WidgetsHandle(targetMesh, controls);
+        this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
         this._moveHandle.worldPosition.copy(this._worldPosition);
         this.add(this._moveHandle);
         this._handles.push(this._moveHandle);
@@ -123,9 +128,9 @@ const widgetsEllipse = (three = window.THREE) => {
             this._moveHandle.onMove(evt, true);
 
             if (this._moving) {
-                this._handles.slice(0, -1).forEach(function(elem, ind) {
+                this._handles.slice(0, -1).forEach((elem, ind) => {
                     this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                }, this);
+                });
             }
 
             this.updateRoI(true);
@@ -171,9 +176,7 @@ const widgetsEllipse = (three = window.THREE) => {
     }
 
     hideDOM() {
-        this._handles.forEach(function(elem) {
-            elem.hideDOM();
-        });
+        this._handles.forEach((elem) => elem.hideDOM());
 
         this._rectangle.style.display = 'none';
         this._ellipse.style.display = 'none';
@@ -263,12 +266,8 @@ const widgetsEllipse = (three = window.THREE) => {
         }
 
         const vec01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition);
-
-
-const height = vec01.clone().projectOnVector(this._camera.up).length();
-
-
-const width = vec01.clone().projectOnVector(this._camera._right).length();
+        const height = vec01.clone().projectOnVector(this._camera.up).length();
+        const width = vec01.clone().projectOnVector(this._camera._right).length();
 
         if (width === 0 || height === 0) {
             return;
@@ -322,25 +321,49 @@ const width = vec01.clone().projectOnVector(this._camera._right).length();
             return;
         }
 
-        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
-        let title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+        const regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
-        if (title !== '') {
-            this._label.setAttribute('title', title);
+        this._area = CoreUtils.getGeometryArea(this._geometry);
+        if (this._calibrationFactor) {
+            this._area *= Math.pow(this._calibrationFactor, 2);
+        } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
+            const region0 = this.getRegionByXY(
+                regions,
+                CoreUtils.worldToData(this._stack.lps2IJK, this._handles[0].worldPosition)
+            );
+            const region1 = this.getRegionByXY(
+                regions,
+                CoreUtils.worldToData(this._stack.lps2IJK, this._handles[1].worldPosition)
+            );
+
+            if (region0 !== null && region1 !== null && region0 === region1
+                && regions[region0].unitsX === 'cm' && regions[region0].unitsY === 'cm'
+            ) {
+                this._area *= Math.pow(regions[region0].deltaX, 2);
+                this._units = 'cm²';
+            } else if (this._stack.frame[this._params.frameIndex].pixelSpacing) {
+                this._area /= 100;
+                this._units = 'cm²';
+            } else {
+                this._units = 'units';
+            }
+        } else if (this._units === 'cm²') {
+            this._area /= 100;
+        }
+
+        if (this._units === 'units' && !this._label.hasAttribute('title')) {
+            this._label.setAttribute('title', 'Calibration is required to display the area in cm²');
             this._label.style.color = this._colors.error;
-        } else {
+        } else if (this._units !== 'units' && this._label.hasAttribute('title')) {
             this._label.removeAttribute('title');
             this._label.style.color = this._colors.text;
         }
-        this._label.querySelector('.area').innerHTML =
-            `Area: ${(CoreUtils.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+        this._label.querySelector('.area').innerHTML = `Area: ${this._area.toFixed(2)} ${this._units}`;
     }
 
     updateDOMPosition() {
         const rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition);
-
-
-const labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(
+        const labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(
                 rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));
 
         // update rectangle
@@ -389,6 +412,8 @@ const labelTransform = this.adjustLabelTransform(this._label, this._handles[1].s
         this._material.dispose();
         this._material = null;
 
+        this._stack = null;
+
         super.free();
     }
 
@@ -398,9 +423,7 @@ const labelTransform = this.adjustLabelTransform(this._label, this._handles[1].s
 
     set targetMesh(targetMesh) {
         this._targetMesh = targetMesh;
-        this._handles.forEach(function(elem) {
-            elem.targetMesh = targetMesh;
-        });
+        this._handles.forEach((elem) => elem.targetMesh = targetMesh);
         this.update();
     }
 
@@ -413,6 +436,20 @@ const labelTransform = this.adjustLabelTransform(this._label, this._handles[1].s
         this._handles[1].worldPosition.copy(worldPosition);
         this._worldPosition.copy(worldPosition);
         this.update();
+    }
+
+    get calibrationFactor() {
+        return this._calibrationFactor;
+    }
+
+    set calibrationFactor(calibrationFactor) {
+        this._calibrationFactor = calibrationFactor;
+        this._units = 'cm²';
+        this.update();
+    }
+
+    get area() {
+        return this._area;
     }
   };
 };

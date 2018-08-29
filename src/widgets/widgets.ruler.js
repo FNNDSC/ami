@@ -11,12 +11,16 @@ const widgetsRuler = (three = window.THREE) => {
 
   const Constructor = widgetsBase(three);
   return class extends Constructor {
-  constructor(targetMesh, controls, stack) {
-    super(targetMesh, controls);
-
-    this._stack = stack;
+  constructor(targetMesh, controls, params) {
+    super(targetMesh, controls, params);
 
     this._widgetType = 'Ruler';
+
+    this._calibrationFactor = params.calibrationFactor || null;
+
+    this._distance = null;
+    this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'mm';
+
     this._moving = false;
     this._domHovered = false;
 
@@ -29,15 +33,13 @@ const widgetsRuler = (three = window.THREE) => {
     this._line = null;
     this._label = null;
 
-    this._distance = null;
-
     // add handles
     this._handles = [];
     const WidgetsHandle = widgetsHandleFactory(three);
 
     let handle;
     for (let i = 0; i < 2; i++) {
-      handle = new WidgetsHandle(targetMesh, controls);
+      handle = new WidgetsHandle(targetMesh, controls, params);
       handle.worldPosition.copy(this._worldPosition);
       this.add(handle);
       this._handles.push(handle);
@@ -45,7 +47,7 @@ const widgetsRuler = (three = window.THREE) => {
     this._handles[1].active = true;
     this._handles[1].tracking = true;
 
-    this._moveHandle = new WidgetsHandle(targetMesh, controls);
+    this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
     this._moveHandle.worldPosition.copy(this._worldPosition);
     this.add(this._moveHandle);
     this._handles.push(this._moveHandle);
@@ -119,9 +121,9 @@ const widgetsRuler = (three = window.THREE) => {
       this._moveHandle.onMove(evt, true);
 
       if (this._moving) {
-        this._handles.slice(0, -1).forEach(function(elem, ind) {
+        this._handles.slice(0, -1).forEach((elem, ind) => {
           this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-        }, this);
+        });
       }
     } else {
         this.onHover(null);
@@ -200,9 +202,7 @@ const widgetsRuler = (three = window.THREE) => {
   hideDOM() {
     this._line.style.display = 'none';
     this._label.style.display = 'none';
-    this._handles.forEach(function(elem) {
-      elem.hideDOM();
-    });
+    this._handles.forEach((elem) => elem.hideDOM());
   }
 
   showDOM() {
@@ -249,21 +249,25 @@ const widgetsRuler = (three = window.THREE) => {
     this._line.style.width = lineData.length + 'px';
 
     // update label
-    this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
+    const distanceData = this.getDistanceData(
+      this._handles[0].worldPosition,
+      this._handles[1].worldPosition,
+      this._calibrationFactor
+    );
 
-    const units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm';
+    this._distance = distanceData.distance;
+    if (distanceData.units) {
+      this._units = distanceData.units;
+    }
 
-
-const title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
-
-    if (title !== '') {
-      this._label.setAttribute('title', title);
+    if (this._units === 'units' && !this._label.hasAttribute('title')) {
+      this._label.setAttribute('title', 'Calibration is required to display the distance in mm');
       this._label.style.color = this._colors.error;
-    } else {
+    } else if (this._units !== 'units' && this._label.hasAttribute('title')) {
       this._label.removeAttribute('title');
       this._label.style.color = this._colors.text;
     }
-    this._label.innerHTML = `${this._distance.toFixed(2)} ${units}`;
+    this._label.innerHTML = `${this._distance.toFixed(2)} ${this._units}`;
 
     let angle = Math.abs(lineData.transformAngle);
     if (angle > Math.PI / 2) {
@@ -273,17 +277,11 @@ const title = units === 'units' ? 'Calibration is required to display the distan
     const labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth
         ? (this._label.offsetWidth / 2) / Math.cos(angle) + 15 // 5px for each handle + padding
         : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle) + 15;
-
-
-const paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
-
-
-const paddingPoint = lineData.length > labelPadding * 2
+    const paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
+    const paddingPoint = lineData.length > labelPadding * 2
         ? this._handles[1].screenPosition.clone().sub(paddingVector)
         : this._handles[1].screenPosition.clone().add(paddingVector);
-
-
-const transform = this.adjustLabelTransform(this._label, paddingPoint);
+    const transform = this.adjustLabelTransform(this._label, paddingPoint);
 
     this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
   }
@@ -329,9 +327,7 @@ const transform = this.adjustLabelTransform(this._label, paddingPoint);
 
   set targetMesh(targetMesh) {
     this._targetMesh = targetMesh;
-    this._handles.forEach(function(elem) {
-      elem.targetMesh = targetMesh;
-    });
+    this._handles.forEach((elem) => elem.targetMesh = targetMesh);
     this.update();
   }
 
@@ -344,6 +340,20 @@ const transform = this.adjustLabelTransform(this._label, paddingPoint);
     this._handles[1].worldPosition.copy(worldPosition);
     this._worldPosition.copy(worldPosition);
     this.update();
+  }
+
+  get calibrationFactor() {
+    return this._calibrationFactor;
+  }
+
+  set calibrationFactor(calibrationFactor) {
+    this._calibrationFactor = calibrationFactor;
+    this._units = 'mm';
+    this.update();
+  }
+
+  get distance() {
+    return this._distance;
   }
   };
 };

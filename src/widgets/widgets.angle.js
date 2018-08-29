@@ -11,8 +11,8 @@ const widgetsAngle = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-    constructor(targetMesh, controls) {
-        super(targetMesh, controls);
+    constructor(targetMesh, controls, params) {
+        super(targetMesh, controls, params);
 
         this._widgetType = 'Angle';
         this._moving = false;
@@ -40,7 +40,7 @@ const widgetsAngle = (three = window.THREE) => {
         let handle;
         const WidgetsHandle = widgetsHandleFactory(three);
         for (let i = 0; i < 3; i++) {
-            handle = new WidgetsHandle(targetMesh, controls);
+            handle = new WidgetsHandle(targetMesh, controls, params);
             handle.worldPosition.copy(this._worldPosition);
             this.add(handle);
             this._handles.push(handle);
@@ -50,7 +50,7 @@ const widgetsAngle = (three = window.THREE) => {
         this._handles[2].active = true;
         this._handles[2].tracking = true;
 
-        this._moveHandle = new WidgetsHandle(targetMesh, controls);
+        this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
         this._moveHandle.worldPosition.copy(this._worldPosition);
         this.add(this._moveHandle);
         this._handles.push(this._moveHandle);
@@ -131,9 +131,9 @@ const widgetsAngle = (three = window.THREE) => {
             this._moveHandle.onMove(evt, true);
 
             if (this._moving) {
-                this._handles.slice(0, -1).forEach(function(elem, ind) {
+                this._handles.slice(0, -1).forEach((elem, ind) => {
                     this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                }, this);
+                });
             }
         } else {
             this.onHover(null);
@@ -241,9 +241,7 @@ const widgetsAngle = (three = window.THREE) => {
         this._line2.style.display = 'none';
         this._label.style.display = 'none';
 
-        this._handles.forEach(function(elem) {
-          elem.hideDOM();
-        });
+        this._handles.forEach((elem) => elem.hideDOM());
     }
 
     showDOM() {
@@ -314,9 +312,7 @@ const widgetsAngle = (three = window.THREE) => {
         this._label.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
         let paddingNormVector = lineData.line.clone().add(line2Data.line).normalize().negate();
-
-
-let normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
+        let normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
 
         if (normAngle > Math.PI / 2) {
             normAngle = Math.PI - normAngle;
@@ -325,12 +321,8 @@ let normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
         const labelPadding = Math.tan(normAngle) < this._label.offsetHeight / this._label.offsetWidth
                 ? (this._label.offsetWidth / 2) / Math.cos(normAngle) + 15 // 15px padding
                 : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - normAngle) + 15;
-
-
-const paddingPoint = this._handles[1].screenPosition.clone().add(paddingNormVector.multiplyScalar(labelPadding));
-
-
-const transform = this.adjustLabelTransform(this._label, paddingPoint);
+        const paddingPoint = this._handles[1].screenPosition.clone().add(paddingNormVector.multiplyScalar(labelPadding));
+        const transform = this.adjustLabelTransform(this._label, paddingPoint);
 
         this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
     }
@@ -395,9 +387,7 @@ const transform = this.adjustLabelTransform(this._label, paddingPoint);
 
     set targetMesh(targetMesh) {
         this._targetMesh = targetMesh;
-        this._handles.forEach(function(elem) {
-            elem.targetMesh = targetMesh;
-        });
+        this._handles.forEach((elem) => elem.targetMesh = targetMesh);
         this.update();
     }
 
