@@ -15,6 +15,7 @@ const widgetsAngle = (three = window.THREE) => {
         super(targetMesh, controls, params);
 
         this._widgetType = 'Angle';
+
         this._moving = false;
         this._domHovered = false;
 

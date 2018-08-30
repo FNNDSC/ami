@@ -16,16 +16,19 @@ const widgetsVoxelprobe = (three = window.THREE) => {
   constructor(targetMesh, controls, params) {
     super(targetMesh, controls, params);
 
+    this._widgetType = 'VoxelProbe';
+
     this._stack = params.stack;
 
-    this._widgetType = 'VoxelProbe';
+    this._container.style.cursor = 'pointer';
     this._controls.enabled = false; // controls should be disabled for widgets with a single handle
     this._initialized = false; // set to true onEnd
-    this._moving = false;
+    this._active = true;
+    this._moving = true;
+    this._domHovered = true;
 
     // dom stuff
     this._label = null;
-    this._domHovered = false;
 
     // handle (represent voxel)
     const WidgetsHandle = widgetsHandleFactory(three);
@@ -258,6 +261,7 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
   set worldPosition(worldPosition) {
     this._handle.worldPosition.copy(worldPosition);
+    this._moveHandle.worldPosition.copy(worldPosition);
     this._worldPosition.copy(worldPosition);
     this.update();
   }

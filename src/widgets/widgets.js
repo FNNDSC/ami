@@ -7,6 +7,7 @@ import CrossRuler, {widgetsCrossRuler} from './widgets.crossRuler';
 import Ellipse, {widgetsEllipse} from './widgets.ellipse';
 import Freehand, {widgetsFreehand} from './widgets.freehand';
 import Handle, {widgetsHandle} from './widgets.handle';
+import PeakVelocity, {widgetsPeakVelocity} from './widgets.peakVelocity';
 import Polygon, {widgetsPolygon} from './widgets.polygon';
 import Rectangle, {widgetsRectangle} from './widgets.rectangle';
 import Ruler, {widgetsRuler} from './widgets.ruler';
@@ -28,6 +29,8 @@ export {
     widgetsFreehand as freehandWidgetFactory,
     Handle as HandleWidget,
     widgetsHandle as handleWidgetFactory,
+    PeakVelocity as PeakVelocityWidget,
+    widgetsPeakVelocity as peakVelocityWidgetFactory,
     Polygon as PolygonWidget,
     widgetsPolygon as polygonWidgetFactory,
     Rectangle as RectangleWidget,

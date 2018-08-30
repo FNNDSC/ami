@@ -16,6 +16,7 @@ const widgetsAnnotation = (three = window.THREE) => {
       super(targetMesh, controls, params);
 
       this._widgetType = 'Annotation';
+
       this._initialized = false; // set to true when the name of the label is entered
       this._movinglabel = null; // bool that turns true when the label is moving with the mouse
       this._labelmoved = false; // bool that turns true once the label is moved by the user (at least once)
