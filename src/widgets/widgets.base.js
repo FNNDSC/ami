@@ -117,9 +117,13 @@ const widgetsBase = (three = window.THREE) => {
       * @param {Object}  region US region data
       * @param {Vector3} point  Screen coordinates
       *
-      * @returns {Vector2}
+      * @returns {Vector2|null}
       */
      getPointInRegion(region, point) {
+       if (!region) {
+           return null;
+       }
+
        return new three.Vector2(
          (point.x - region.x0 - region.axisX) * region.deltaX,
          (point.y - region.y0 - region.axisY) * region.deltaY
