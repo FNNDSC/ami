@@ -30,6 +30,10 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             this._active = true;
             this._moving = true;
             this._domHovered = true;
+            this._initialRegion = this.getRegionByXY(
+                this._regions,
+                CoreUtils.worldToData(this._params.lps2IJK, this._params.initialPoint)
+            );
 
             // dom stuff
             this._line = null;
@@ -144,7 +148,7 @@ const widgetsPeakVelocity = (three = window.THREE) => {
                     CoreUtils.worldToData(this._params.lps2IJK, this._moveHandle.worldPosition)
                 );
 
-            if (region === null || region !== this._params.initialRegion
+            if (region === null || region !== this._initialRegion
                 || this._regions[region].unitsX === this._regions[region].unitsY
                 || (this._regions[region].unitsX !== 'cm/sec' && this._regions[region].unitsY !== 'cm/sec')
             ) {
@@ -208,18 +212,22 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             this._velocity = Math.abs(isVertical ? usPosition.y : usPosition.x) / 100;
             this._gradient = 4 * Math.pow(this._velocity, 2);
 
-            this._label.querySelector('#peakVelocity').innerHTML = `${this._velocity} cm/sec`;
-            this._label.querySelector('#gradient').innerHTML = `${this._gradient} mmhg`;
+            this._label.querySelector('#peakVelocity').innerHTML = `${this._velocity.toFixed(2)} m/s`;
+            this._label.querySelector('#gradient').innerHTML = `${this._gradient.toFixed(2)} mmhg`;
 
             // position
-            const transform = this.adjustLabelTransform(this._label, this._handle.screenPosition, true);
+            const transform = this.adjustLabelTransform(
+                this._label,
+                this._handle.screenPosition.clone().add(new three.Vector3(10, 10, 0)),
+                true
+            );
 
             this._line.style.transform = `translate3D(
-                    ${this._handle.screenPosition.x - (isVertical ? 0 : usPosition.x - region.x0)}px,
-                    ${this._handle.screenPosition.y + (isVertical ? usPosition.y - region.y0 : 0)}px,
+                    ${this._handle.screenPosition.x - (isVertical ? usPosition.x - region.x0 : 0)}px,
+                    ${this._handle.screenPosition.y + (isVertical ? 0 : usPosition.y - region.y0)}px,
                     0
-                ) rotate(${isVertical ? Math.PI / 2 : 0}rad)`;
-            this._line.style.width = (isVertical ? region.y1 - region.y0 : region.x1 - region.x0) + 'px';
+                ) rotate(${isVertical ? 0 : Math.PI / 2}rad)`;
+            this._line.style.width = (isVertical ? region.x1 - region.x0 : region.y1 - region.y0) + 'px';
             this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
         }
 
