@@ -19,18 +19,19 @@ export default class WidgetsCss {
             height: 1px;
             margin-top: -0.5px; /* height / 2 */
         }
-        .widgets-line:before { /* for dragging */
+        .widgets-dashline {
+            position: absolute;
+            border-top: 1px dashed;
+            margin-top: -0.5px; /* border / 2 */
+        }
+        .widgets-line:before,
+        .widgets-dashline:before { /* for dragging */
             content: " ";
             position: absolute;
             height: 12px;
             left: 0;
             right: 0;
             margin-top: -6px;
-        }
-        .widgets-dashline {
-            position: absolute;
-            border-top: 1px dashed;
-            margin-top: -1px; /* border */
         }
         .widgets-rectangle {
             position: absolute;

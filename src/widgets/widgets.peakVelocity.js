@@ -20,6 +20,9 @@ const widgetsPeakVelocity = (three = window.THREE) => {
 
             // incoming parameters (+ initialRegion, lps2IJK)
             this._regions = this._params.ultrasoundRegions || [];
+            if (this._regions.length < 1) {
+                throw new Error('Ultrasound regions should not be empty!');
+            }
 
             // outgoing values
             this._velocity = null;
@@ -29,12 +32,14 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             this._controls.enabled = false; // controls should be disabled for widgets with a single handle
             this._initialized = false; // set to true onEnd
             this._active = true;
-            this._moving = true;
             this._domHovered = true;
             this._initialRegion = this.getRegionByXY(
                 this._regions,
                 CoreUtils.worldToData(this._params.lps2IJK, this._params.initialPoint)
             );
+            if (!this._initialRegion) {
+                throw new Error('Invalid initial UltraSound region!');
+            }
 
             // dom stuff
             this._line = null;
@@ -96,8 +101,7 @@ const widgetsPeakVelocity = (three = window.THREE) => {
 
             this._active = this._handle.active || this._domHovered;
 
-            if (this._domHovered) {
-                this._moving = true;
+            if (this._active) {
                 this._controls.enabled = false;
             }
 
@@ -105,28 +109,32 @@ const widgetsPeakVelocity = (three = window.THREE) => {
         }
 
         onMove(evt) {
+            let isCorrect = true;
+
             if (this._active) {
                 const prevPosition = this._moveHandle.worldPosition.clone();
 
-                this._dragged = true;
                 this._moveHandle.onMove(evt, true);
 
-                if (this._moving) {
-                    const shift = this._handle.worldPosition.clone().add(
-                            this._moveHandle.worldPosition.clone().sub(prevPosition)
-                        );
+                const shift = this._handle.worldPosition.clone().add(
+                        this._moveHandle.worldPosition.clone().sub(prevPosition)
+                    );
 
-                    if (this.isCorrectRegion(shift)) {
-                        this._handle.worldPosition.copy(shift);
-                    }
+                if (!this.isCorrectRegion(shift)) {
+                    isCorrect = false;
+                    this._moveHandle.worldPosition.copy(prevPosition);
+                } else if (!this._handle.active) {
+                    this._handle.worldPosition.copy(shift);
                 }
+                this._dragged = true;
             } else {
                 this.onHover(null);
             }
 
-            this._handle.onMove(evt);
-
-            this.update();
+            if (isCorrect) {
+                this._handle.onMove(evt);
+                this.update();
+            }
         }
 
         onEnd() {
@@ -138,30 +146,16 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             }
 
             this._initialized = true;
-            this._active = this._handle.active;
+            this._active = false;
             this._dragged = false;
-            this._moving = false;
-            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
 
             this.update();
         }
 
         isCorrectRegion(position) {
-            if (this._regions.length < 1) {
-                return false;
-            }
-
             const region = this.getRegionByXY(this._regions, CoreUtils.worldToData(this._params.lps2IJK, position));
 
-            if (region === null || region !== this._initialRegion || this._regions[region].unitsY !== 'cm/sec') {
-                this._container.style.cursor = 'not-allowed';
-
-                return false;
-            }
-
-            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
-
-            return true;
+            return region !== null && region === this._initialRegion & this._regions[region].unitsY === 'cm/sec';
         }
 
         create() {
@@ -220,8 +214,8 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             const transform = this.adjustLabelTransform(this._label, this._handle.screenPosition, true);
 
             this._line.style.transform =
-                `translate3D(${transform.x - point.x - region.axisX - region.x0 * 2}px, ${transform.y}px, 0)`;
-            this._line.style.width = (region.x1 - region.x0) + 'px';
+                `translate3D(${transform.x - (point.x - region.x0) * this._camera.zoom}px, ${transform.y}px, 0)`;
+            this._line.style.width = (region.x1 - region.x0) * this._camera.zoom + 'px';
             this._label.style.transform = `translate3D(${transform.x + 10}px, ${transform.y + 10}px, 0)`;
         }
 
