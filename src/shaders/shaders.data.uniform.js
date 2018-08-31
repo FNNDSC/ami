@@ -1,5 +1,4 @@
-import {Matrix4} from 'three';
-
+import {Matrix4} from 'three/src/math/Matrix4';
 
 /**
  * @module shaders/data

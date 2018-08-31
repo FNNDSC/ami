@@ -74,6 +74,9 @@ import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
       this._uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
       this._uniforms.uTextureSize.value = this._stack.textureSize;
       this._uniforms.uTextureContainer.value = this._textures;
+      if (this._stack.textureUnits > 8) {
+        this._uniforms.uTextureContainer.length = 14;
+      }
       this._uniforms.uWorldToData.value = this._stack.lps2IJK;
       this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
       this._uniforms.uPixelType.value = this._stack.pixelType;

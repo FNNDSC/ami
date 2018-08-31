@@ -2,7 +2,7 @@
 
 import ModelsFrame from '../../src/models/models.frame';
 
-import {Vector3} from 'three';
+import {Vector3} from 'three/src/math/Vector3';
 
 describe('Models.frame', function() {
   let validFrame;
