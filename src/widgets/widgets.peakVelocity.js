@@ -35,7 +35,7 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             this._domHovered = true;
             this._initialRegion = this.getRegionByXY(
                 this._regions,
-                CoreUtils.worldToData(this._params.lps2IJK, this._params.initialPoint)
+                CoreUtils.worldToData(this._params.lps2IJK, this._params.worldPosition)
             );
             if (!this._initialRegion) {
                 throw new Error('Invalid initial UltraSound region!');

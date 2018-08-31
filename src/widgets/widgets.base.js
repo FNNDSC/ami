@@ -19,7 +19,7 @@ const widgetsBase = (three = window.THREE) => {
       // params: hideMesh (bool), hideHandleMesh (bool), stack (ModelsStack), calibrationFactor (number),
       //   lps2IJK (Matrix4), pixelSpacing (number), ultrasoundRegions (Array<Object>)
       this._params = params || {};
-      if (this._params.hideMesh === true) {
+      if (params.hideMesh === true) {
         this.visible = false;
       }
 
@@ -57,7 +57,9 @@ const widgetsBase = (three = window.THREE) => {
       this._container = controls.domElement;
 
       this._worldPosition = new three.Vector3(); // LPS position
-      if (this._targetMesh !== null) {
+      if (params.worldPosition) {
+        this._worldPosition.copy(params.worldPosition);
+      } else if (this._targetMesh !== null) {
         this._worldPosition.copy(this._targetMesh.position);
       }
     }
