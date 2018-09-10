@@ -315,7 +315,7 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
             this._dt = dtKoeff === 1
                 ? Number.POSITIVE_INFINITY
                 : Math.abs(vMaxTime - (time0 - dtKoeff * time1) / (1 - dtKoeff)) * 1000;
-            this._ds = this._dt === 0 ? Number.POSITIVE_INFINITY : this._vMax / this._dt;
+            this._ds = this._dt === 0 ? Number.POSITIVE_INFINITY : this._vMax / this._dt * 1000;
         }
 
         updateMeshColor() {
