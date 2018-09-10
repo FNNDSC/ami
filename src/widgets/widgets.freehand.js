@@ -224,21 +224,21 @@ const widgetsFreehand = (three = window.THREE) => {
 
     createDOM() {
         this._label = document.createElement('div');
-        this._label.class = 'widgets-label';
+        this._label.className = 'widgets-label';
 
         // measurements
         const measurementsContainer = document.createElement('div');
         // Mean / SD
         let meanSDContainer = document.createElement('div');
-        meanSDContainer.class = 'mean-sd';
+        meanSDContainer.className = 'mean-sd';
         measurementsContainer.appendChild(meanSDContainer);
         // Max / Min
         let maxMinContainer = document.createElement('div');
-        maxMinContainer.class = 'max-min';
+        maxMinContainer.className = 'max-min';
         measurementsContainer.appendChild(maxMinContainer);
         // Area
         let areaContainer = document.createElement('div');
-        areaContainer.class = 'area';
+        areaContainer.className = 'area';
         measurementsContainer.appendChild(areaContainer);
 
         this._label.appendChild(measurementsContainer);
@@ -251,7 +251,7 @@ const widgetsFreehand = (three = window.THREE) => {
     createLine() {
         const line = document.createElement('div');
 
-        line.class = 'widgets-line';
+        line.className = 'widgets-line';
         line.addEventListener('mouseenter', this.onHover);
         line.addEventListener('mouseleave', this.onHover);
         this._lines.push(line);

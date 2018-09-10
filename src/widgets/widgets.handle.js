@@ -217,7 +217,7 @@ const widgetsHandle = (three = window.THREE) => {
 
   createDOM() {
     this._dom = document.createElement('div');
-    this._dom.class = 'widgets-handle';
+    this._dom.className = 'widgets-handle';
 
     this._dom.style.transform =`translate3D(
       ${this._screenPosition.x}px,

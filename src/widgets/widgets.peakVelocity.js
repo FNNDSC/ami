@@ -165,21 +165,21 @@ const widgetsPeakVelocity = (three = window.THREE) => {
 
         createDOM() {
             this._line = document.createElement('div');
-            this._line.class = 'widgets-dashline';
+            this._line.className = 'widgets-dashline';
             this._container.appendChild(this._line);
 
             this._label = document.createElement('div');
-            this._label.class = 'widgets-label';
+            this._label.className = 'widgets-label';
 
             // Measurements
             let measurementsContainer = document.createElement('div');
             // Peak Velocity
             let pvContainer = document.createElement('div');
-            pvContainer.class = 'peakVelocity';
+            pvContainer.className = 'peakVelocity';
             measurementsContainer.appendChild(pvContainer);
             // Gradient
             let gradientContainer = document.createElement('div');
-            gradientContainer.class = 'gradient';
+            gradientContainer.className = 'gradient';
             measurementsContainer.appendChild(gradientContainer);
 
             this._label.appendChild(measurementsContainer);

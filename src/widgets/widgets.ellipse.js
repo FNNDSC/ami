@@ -207,29 +207,29 @@ const widgetsEllipse = (three = window.THREE) => {
 
     createDOM() {
         this._rectangle = document.createElement('div');
-        this._rectangle.class = 'widgets-rectangle-helper';
+        this._rectangle.className = 'widgets-rectangle-helper';
         this._container.appendChild(this._rectangle);
 
         this._ellipse = document.createElement('div');
-        this._ellipse.class = 'widgets-ellipse';
+        this._ellipse.className = 'widgets-ellipse';
         this._container.appendChild(this._ellipse);
 
         this._label = document.createElement('div');
-        this._label.class = 'widgets-label';
+        this._label.className = 'widgets-label';
 
         // measurements
         const measurementsContainer = document.createElement('div');
         // Mean / SD
         let meanSDContainer = document.createElement('div');
-        meanSDContainer.class = 'mean-sd';
+        meanSDContainer.className = 'mean-sd';
         measurementsContainer.appendChild(meanSDContainer);
         // Max / Min
         let maxMinContainer = document.createElement('div');
-        maxMinContainer.class = 'max-min';
+        maxMinContainer.className = 'max-min';
         measurementsContainer.appendChild(maxMinContainer);
         // Area
         let areaContainer = document.createElement('div');
-        areaContainer.class = 'area';
+        areaContainer.className = 'area';
         measurementsContainer.appendChild(areaContainer);
 
         this._label.appendChild(measurementsContainer);

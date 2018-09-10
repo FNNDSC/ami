@@ -230,16 +230,16 @@ const widgetsAnnotation = (three = window.THREE) => {
 
     createDOM() {
       this._line = document.createElement('div');
-      this._line.class = 'widgets-line';
+      this._line.className = 'widgets-line';
       this._container.appendChild(this._line);
 
       this._dashline = document.createElement('div');
-      this._dashline.class = 'widgets-dashline';
+      this._dashline.className = 'widgets-dashline';
       this._dashline.style.display = 'none';
       this._container.appendChild(this._dashline);
 
       this._label = document.createElement('div');
-      this._label.class = 'widgets-label';
+      this._label.className = 'widgets-label';
       this._label.style.display = 'none';
       this._container.appendChild(this._label);
 

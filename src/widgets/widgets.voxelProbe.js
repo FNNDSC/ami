@@ -138,21 +138,21 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
   createDOM() {
     this._label = document.createElement('div');
-    this._label.class = 'widgets-label';
+    this._label.className = 'widgets-label';
 
     // measurements
     let measurementsContainer = document.createElement('div');
     // LPS
     let lpsContainer = document.createElement('div');
-    lpsContainer.class = 'lpsPosition';
+    lpsContainer.className = 'lpsPosition';
     measurementsContainer.appendChild(lpsContainer);
     // IJK
     let ijkContainer = document.createElement('div');
-    ijkContainer.class = 'ijkPosition';
+    ijkContainer.className = 'ijkPosition';
     measurementsContainer.appendChild(ijkContainer);
     // Value
     let valueContainer = document.createElement('div');
-    valueContainer.class = 'value';
+    valueContainer.className = 'value';
     measurementsContainer.appendChild(valueContainer);
 
     this._label.appendChild(measurementsContainer);

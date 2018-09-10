@@ -224,15 +224,15 @@ const widgetsAngle = (three = window.THREE) => {
 
     createDOM() {
         this._line = document.createElement('div');
-        this._line.class = 'widgets-line';
+        this._line.className = 'widgets-line';
         this._container.appendChild(this._line);
 
         this._line2 = document.createElement('div');
-        this._line2.class = 'widgets-line';
+        this._line2.className = 'widgets-line';
         this._container.appendChild(this._line2);
 
         this._label = document.createElement('div');
-        this._label.class = 'widgets-label';
+        this._label.className = 'widgets-label';
         this._container.appendChild(this._label);
 
         this.updateDOMColor();

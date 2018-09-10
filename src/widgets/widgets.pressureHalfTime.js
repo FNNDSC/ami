@@ -226,18 +226,18 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
 
         createDOM() {
             this._line = document.createElement('div');
-            this._line.class = 'widgets-line';
+            this._line.className = 'widgets-line';
             this._container.appendChild(this._line);
 
             this._label = document.createElement('div');
-            this._label.class = 'widgets-label';
+            this._label.className = 'widgets-label';
 
             const measurementsContainer = document.createElement('div');
 
             ['vmax', 'gmax', 'pht', 'mva', 'dt', 'ds'].forEach((name) => {
                 const div = document.createElement('div');
 
-                div.class = name;
+                div.className = name;
                 measurementsContainer.appendChild(div);
             });
             this._label.appendChild(measurementsContainer);
