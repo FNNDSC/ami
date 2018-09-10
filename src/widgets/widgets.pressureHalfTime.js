@@ -142,11 +142,9 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
                 if (!this.isCorrectRegion(shift)) {
                     isCorrect = false;
                     this._moveHandle.worldPosition.copy(prevPosition);
-                } else {
+                } else if (!this._handles[0].active && !this._handles[1].active) {
                     this._handles.slice(0, -1).forEach((handle) => {
-                        if (!handle.active) {
-                            handle.worldPosition.add(shift);
-                        }
+                        handle.worldPosition.add(shift);
                     });
                 }
                 this._dragged = true;
@@ -191,15 +189,26 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
         }
 
         isCorrectRegion(shift) {
-            return this._handles.slice(0, -1).some((handle) => {
-                    const region = this.getRegionByXY(
-                            this._regions,
-                            CoreUtils.worldToData(this._params.lps2IJK, handle.worldPosition.clone().add(shift))
-                        );
+            const inActive = !(this._handles[0].active || this._handles[1].active);
+            let isCorrect = true;
 
-                    return region !== null && region === this._initialRegion
-                        && this._regions[region].unitsY === 'cm/sec';
-                });
+            if (this._handles[0].active || inActive) {
+                isCorrect = isCorrect && this.checkHandle(0, shift);
+            }
+            if (this._handles[1].active || inActive) {
+                isCorrect = isCorrect && this.checkHandle(1, shift);
+            }
+
+            return isCorrect;
+        }
+
+        checkHandle(index, shift) {
+            const region = this.getRegionByXY(
+                    this._regions,
+                    CoreUtils.worldToData(this._params.lps2IJK, this._handles[index].worldPosition.clone().add(shift))
+                );
+
+            return region !== null && region === this._initialRegion && this._regions[region].unitsY === 'cm/sec';
         }
 
         create() {
@@ -296,13 +305,17 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
             this._gMax = 4 * Math.pow(this._vMax, 2);
 
             const phtVelocity = this._vMax / Math.sqrt(2);
-            const phtKoeff = (velocity0 - phtVelocity) / (phtVelocity - velocity1);
+            const phtKoeff = (velocity0 - phtVelocity) / (velocity1 - phtVelocity);
             const dtKoeff = velocity0 / velocity1;
 
-            this._pht = phtKoeff === 1 ? 0 : vMaxTime - (time0 + phtKoeff * time1) / (1 + phtKoeff);
+            this._pht = phtKoeff === 1
+                ? Number.POSITIVE_INFINITY
+                : Math.abs(vMaxTime - (time0 - phtKoeff * time1) / (1 - phtKoeff)) * 1000;
             this._mva = 220 / this._pht;
-            this._dt = dtKoeff === 1 ? 0 : vMaxTime - (time0 - dtKoeff * time1) / (1 - dtKoeff);
-            this._ds = this._dt === 0 ? null : this._vMax / this._dt * 1000;
+            this._dt = dtKoeff === 1
+                ? Number.POSITIVE_INFINITY
+                : Math.abs(vMaxTime - (time0 - dtKoeff * time1) / (1 - dtKoeff)) * 1000;
+            this._ds = this._dt === 0 ? Number.POSITIVE_INFINITY : this._vMax / this._dt;
         }
 
         updateMeshColor() {
@@ -328,12 +341,12 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
             this._line.style.width = lineData.length + 'px';
 
             // update label
-            this._label.querySelector('.vmax').innerHTML = `${this._vMax.toFixed(2)} m/s`;
-            this._label.querySelector('.gmax').innerHTML = `${this._gMax.toFixed(2)} mmhg`;
-            this._label.querySelector('.pht').innerHTML = `${this._pht.toFixed(1)} ms`;
-            this._label.querySelector('.mva').innerHTML = `${this._mva.toFixed(2)} cm²`;
-            this._label.querySelector('.dt').innerHTML = `${this._dt.toFixed(1)} ms`;
-            this._label.querySelector('.ds').innerHTML = this._ds === null ? 'NA' : `${this._ds.toFixed(2)} m/s²`;
+            this._label.querySelector('.vmax').innerHTML = `Vmax: ${this._vMax.toFixed(2)} m/s`;
+            this._label.querySelector('.gmax').innerHTML = `Gmax: ${this._gMax.toFixed(2)} mmhg`;
+            this._label.querySelector('.pht').innerHTML = `PHT: ${this._pht.toFixed(1)} ms`;
+            this._label.querySelector('.mva').innerHTML = `MVA: ${this._mva.toFixed(2)} cm²`;
+            this._label.querySelector('.dt').innerHTML = `DT: ${this._dt.toFixed(1)} ms`;
+            this._label.querySelector('.ds').innerHTML = `DS: ${this._ds.toFixed(2)} m/s²`;
 
             let angle = Math.abs(lineData.transformAngle);
 

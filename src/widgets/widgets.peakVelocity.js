@@ -194,20 +194,18 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             this._handle.update();
             this._worldPosition.copy(this._handle.worldPosition);
 
-            // calculate values
-            const usPosition = this.getUsPoint(
-                    this._regions,
-                    CoreUtils.worldToData(this._params.lps2IJK, this._worldPosition)
-                );
-
-            this._velocity = Math.abs(usPosition.y / 100);
-            this._gradient = 4 * Math.pow(this._velocity, 2);
-
             this.updateDOM();
         }
 
         updateDOM() {
             this.updateDOMColor();
+
+            const point = CoreUtils.worldToData(this._params.lps2IJK, this._worldPosition);
+            const region = this._regions[this.getRegionByXY(this._regions, point)];
+            const usPosition = this.getPointInRegion(region, point);
+
+            this._velocity = Math.abs(usPosition.y / 100);
+            this._gradient = 4 * Math.pow(this._velocity, 2);
 
             // content
             this._label.querySelector('.peakVelocity').innerHTML = `${this._velocity.toFixed(2)} m/s`;
