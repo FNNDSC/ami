@@ -16,15 +16,17 @@ const widgetsCrossRuler = (three = window.THREE) => {
 
         this._widgetType = 'CrossRuler';
 
+        // incoming parameters
         this._calibrationFactor = params.calibrationFactor || null;
 
         this._distances = null; // from intersection point to handles
         this._line01 = null; // vector from 0 to 1st handle
         this._normal = null; // normal vector to line01
 
+        // outgoing values
         this._distance = null;
         this._distance2 = null;
-        this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'mm';
+        this._units = !this._calibrationFactor && !params.pixelSpacing ? 'units' : 'mm';
 
         this._domHovered = false;
         this._moving = false;
@@ -133,8 +135,8 @@ const widgetsCrossRuler = (three = window.THREE) => {
             this._moveHandle.onMove(evt, true);
 
             if (this._moving) {
-                this._handles.slice(0, -1).forEach((elem, ind) => {
-                    this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                this._handles.slice(0, -1).forEach((handle) => {
+                    handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
                 });
             }
         } else {
@@ -225,19 +227,19 @@ const widgetsCrossRuler = (three = window.THREE) => {
 
     createDOM() {
         this._line = document.createElement('div');
-        this._line.setAttribute('class', 'widgets-line');
+        this._line.class = 'widgets-line';
         this._container.appendChild(this._line);
 
         this._line2 = document.createElement('div');
-        this._line2.setAttribute('class', 'widgets-line');
+        this._line2.class = 'widgets-line';
         this._container.appendChild(this._line2);
 
         this._label = document.createElement('div');
-        this._label.setAttribute('class', 'widgets-label');
+        this._label.class = 'widgets-label';
         this._container.appendChild(this._label);
 
         this._label2 = document.createElement('div');
-        this._label2.setAttribute('class', 'widgets-label');
+        this._label2.class = 'widgets-label';
         this._container.appendChild(this._label2);
 
         this.updateDOMColor();

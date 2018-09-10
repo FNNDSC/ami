@@ -16,10 +16,12 @@ const widgetsRuler = (three = window.THREE) => {
 
     this._widgetType = 'Ruler';
 
+    // incoming parameters
     this._calibrationFactor = params.calibrationFactor || null;
 
+    // outgoing values
     this._distance = null;
-    this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'mm';
+    this._units = !this._calibrationFactor && !params.pixelSpacing ? 'units' : 'mm';
 
     this._moving = false;
     this._domHovered = false;
@@ -121,8 +123,8 @@ const widgetsRuler = (three = window.THREE) => {
       this._moveHandle.onMove(evt, true);
 
       if (this._moving) {
-        this._handles.slice(0, -1).forEach((elem, ind) => {
-          this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+        this._handles.slice(0, -1).forEach((handle) => {
+            handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
         });
       }
     } else {
@@ -161,6 +163,7 @@ const widgetsRuler = (three = window.THREE) => {
     this._active = this._handles[0].active || this._handles[1].active;
     this._dragged = false;
     this._moving = false;
+
     this.update();
   }
 
@@ -189,11 +192,11 @@ const widgetsRuler = (three = window.THREE) => {
 
   createDOM() {
     this._line = document.createElement('div');
-    this._line.setAttribute('class', 'widgets-line');
+    this._line.class = 'widgets-line';
     this._container.appendChild(this._line);
 
     this._label = document.createElement('div');
-    this._label.setAttribute('class', 'widgets-label');
+    this._label.class = 'widgets-label';
     this._container.appendChild(this._label);
 
     this.updateDOMColor();
@@ -218,6 +221,18 @@ const widgetsRuler = (three = window.THREE) => {
     // update handles
     this._handles[0].update();
     this._handles[1].update();
+
+    // calculate values
+    const distanceData = this.getDistanceData(
+        this._handles[0].worldPosition,
+        this._handles[1].worldPosition,
+        this._calibrationFactor
+      );
+
+    this._distance = distanceData.distance;
+    if (distanceData.units) {
+      this._units = distanceData.units;
+    }
 
     // mesh stuff
     this.updateMeshColor();
@@ -249,17 +264,6 @@ const widgetsRuler = (three = window.THREE) => {
     this._line.style.width = lineData.length + 'px';
 
     // update label
-    const distanceData = this.getDistanceData(
-      this._handles[0].worldPosition,
-      this._handles[1].worldPosition,
-      this._calibrationFactor
-    );
-
-    this._distance = distanceData.distance;
-    if (distanceData.units) {
-      this._units = distanceData.units;
-    }
-
     if (this._units === 'units' && !this._label.hasAttribute('title')) {
       this._label.setAttribute('title', 'Calibration is required to display the distance in mm');
       this._label.style.color = this._colors.error;

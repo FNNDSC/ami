@@ -16,8 +16,12 @@ const widgetsAngle = (three = window.THREE) => {
 
         this._widgetType = 'Angle';
 
+        // outgoing values
+        this._opangle = null;
+
         this._moving = false;
         this._domHovered = false;
+        this._defaultAngle = true;
 
         // mesh stuff
         this._material = null;
@@ -31,9 +35,6 @@ const widgetsAngle = (three = window.THREE) => {
         this._line = null;
         this._line2 = null;
         this._label = null;
-
-        this._opangle = null;
-        this._defaultAngle = true;
 
         // add handles
         this._handles = [];
@@ -132,8 +133,8 @@ const widgetsAngle = (three = window.THREE) => {
             this._moveHandle.onMove(evt, true);
 
             if (this._moving) {
-                this._handles.slice(0, -1).forEach((elem, ind) => {
-                    this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                this._handles.slice(0, -1).forEach((handle) => {
+                    handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
                 });
             }
         } else {
@@ -223,15 +224,15 @@ const widgetsAngle = (three = window.THREE) => {
 
     createDOM() {
         this._line = document.createElement('div');
-        this._line.setAttribute('class', 'widgets-line');
+        this._line.class = 'widgets-line';
         this._container.appendChild(this._line);
 
         this._line2 = document.createElement('div');
-        this._line2.setAttribute('class', 'widgets-line');
+        this._line2.class = 'widgets-line';
         this._container.appendChild(this._line2);
 
         this._label = document.createElement('div');
-        this._label.setAttribute('class', 'widgets-label');
+        this._label.class = 'widgets-label';
         this._container.appendChild(this._label);
 
         this.updateDOMColor();
@@ -262,6 +263,11 @@ const widgetsAngle = (three = window.THREE) => {
         this._handles[0].update();
         this._handles[1].update();
         this._handles[2].update();
+
+        // calculate values
+        this._opangle = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition).angleTo(
+            this._handles[1].worldPosition.clone().sub(this._handles[2].worldPosition)) * 180 / Math.PI || 0.0;
+        this._opangle = this._defaultAngle ? this._opangle : 360 - this._opangle;
 
         // mesh stuff
         this.updateMeshColor();
@@ -306,10 +312,6 @@ const widgetsAngle = (three = window.THREE) => {
         this._line2.style.width = line2Data.length + 'px';
 
         // update angle and label
-        this._opangle = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition).angleTo(
-            this._handles[1].worldPosition.clone().sub(this._handles[2].worldPosition)) * 180 / Math.PI || 0.0;
-        this._opangle = this._defaultAngle ? this._opangle : 360 - this._opangle;
-
         this._label.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
         let paddingNormVector = lineData.line.clone().add(line2Data.line).normalize().negate();

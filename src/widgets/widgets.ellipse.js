@@ -17,9 +17,11 @@ const widgetsEllipse = (three = window.THREE) => {
 
         this._widgetType = 'Ellipse';
 
+        // incoming parameters (+ frameIndex)
         this._stack = params.stack;
         this._calibrationFactor = params.calibrationFactor || null;
 
+        // outgoing values
         this._area = null;
         this._units = !this._calibrationFactor && !params.stack.frame[params.frameIndex].pixelSpacing ? 'units' : 'cm²';
 
@@ -128,8 +130,8 @@ const widgetsEllipse = (three = window.THREE) => {
             this._moveHandle.onMove(evt, true);
 
             if (this._moving) {
-                this._handles.slice(0, -1).forEach((elem, ind) => {
-                    this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                this._handles.slice(0, -1).forEach((handle) => {
+                    handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
                 });
             }
 
@@ -205,29 +207,29 @@ const widgetsEllipse = (three = window.THREE) => {
 
     createDOM() {
         this._rectangle = document.createElement('div');
-        this._rectangle.setAttribute('class', 'widgets-rectangle-helper');
+        this._rectangle.class = 'widgets-rectangle-helper';
         this._container.appendChild(this._rectangle);
 
         this._ellipse = document.createElement('div');
-        this._ellipse.setAttribute('class', 'widgets-ellipse');
+        this._ellipse.class = 'widgets-ellipse';
         this._container.appendChild(this._ellipse);
 
         this._label = document.createElement('div');
-        this._label.setAttribute('class', 'widgets-label');
+        this._label.class = 'widgets-label';
 
-        // measurenents
+        // measurements
         const measurementsContainer = document.createElement('div');
         // Mean / SD
         let meanSDContainer = document.createElement('div');
-        meanSDContainer.setAttribute('class', 'mean-sd');
+        meanSDContainer.class = 'mean-sd';
         measurementsContainer.appendChild(meanSDContainer);
         // Max / Min
         let maxMinContainer = document.createElement('div');
-        maxMinContainer.setAttribute('class', 'max-min');
+        maxMinContainer.class = 'max-min';
         measurementsContainer.appendChild(maxMinContainer);
         // Area
         let areaContainer = document.createElement('div');
-        areaContainer.setAttribute('class', 'area');
+        areaContainer.class = 'area';
         measurementsContainer.appendChild(areaContainer);
 
         this._label.appendChild(measurementsContainer);

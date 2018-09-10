@@ -8,6 +8,7 @@ import Ellipse, {widgetsEllipse} from './widgets.ellipse';
 import Freehand, {widgetsFreehand} from './widgets.freehand';
 import Handle, {widgetsHandle} from './widgets.handle';
 import PeakVelocity, {widgetsPeakVelocity} from './widgets.peakVelocity';
+import PressureHalfTime, {widgetsPressureHalfTime} from './widgets.pressureHalfTime';
 import Polygon, {widgetsPolygon} from './widgets.polygon';
 import Rectangle, {widgetsRectangle} from './widgets.rectangle';
 import Ruler, {widgetsRuler} from './widgets.ruler';
@@ -31,6 +32,8 @@ export {
     widgetsHandle as handleWidgetFactory,
     PeakVelocity as PeakVelocityWidget,
     widgetsPeakVelocity as peakVelocityWidgetFactory,
+    PressureHalfTime as PressureHalfTimeWidget,
+    widgetsPressureHalfTime as pressureHalfTimeWidgetFactory,
     Polygon as PolygonWidget,
     widgetsPolygon as polygonWidgetFactory,
     Rectangle as RectangleWidget,

@@ -16,11 +16,13 @@ const widgetsBiruler = (three = window.THREE) => {
 
             this._widgetType = 'BiRuler';
 
+            // incoming parameters
             this._calibrationFactor = params.calibrationFactor || null;
 
+            // outgoing values
             this._distance = null;
             this._distance2 = null;
-            this._units = !this._calibrationFactor && !this._params.pixelSpacing ? 'units' : 'mm';
+            this._units = !this._calibrationFactor && !params.pixelSpacing ? 'units' : 'mm';
 
             // mesh stuff
             this._material = null;
@@ -166,23 +168,23 @@ const widgetsBiruler = (three = window.THREE) => {
 
         createDOM() {
             this._line = document.createElement('div');
-            this._line.setAttribute('class', 'widgets-line');
+            this._line.class = 'widgets-line';
             this._container.appendChild(this._line);
 
             this._label = document.createElement('div');
-            this._label.setAttribute('class', 'widgets-label');
+            this._label.class = 'widgets-label';
             this._container.appendChild(this._label);
 
             this._line2 = document.createElement('div');
-            this._line2.setAttribute('class', 'widgets-line');
+            this._line2.class = 'widgets-line';
             this._container.appendChild(this._line2);
 
             this._label2 = document.createElement('div');
-            this._label2.setAttribute('class', 'widgets-label');
+            this._label2.class = 'widgets-label';
             this._container.appendChild(this._label2);
 
             this._dashline = document.createElement('div');
-            this._dashline.setAttribute('class', 'widgets-dashline');
+            this._dashline.class = 'widgets-dashline';
             this._container.appendChild(this._dashline);
 
             this.updateDOMColor();

@@ -16,7 +16,7 @@ const widgetsHandle = (three = window.THREE) => {
 
     this._widgetType = 'Handle';
 
-    if (this._params.hideHandleMesh === true) {
+    if (params.hideHandleMesh === true) {
       this.visible = false;
     }
 
@@ -217,7 +217,7 @@ const widgetsHandle = (three = window.THREE) => {
 
   createDOM() {
     this._dom = document.createElement('div');
-    this._dom.setAttribute('class', 'widgets-handle');
+    this._dom.class = 'widgets-handle';
 
     this._dom.style.transform =`translate3D(
       ${this._screenPosition.x}px,

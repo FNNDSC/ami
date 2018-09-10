@@ -17,9 +17,11 @@ const widgetsPolygon = (three = window.THREE) => {
 
         this._widgetType = 'Polygon';
 
+        // incoming parameters (+ frameIndex)
         this._stack = params.stack;
         this._calibrationFactor = params.calibrationFactor || null;
 
+        // outgoing values
         this._area = null;
         this._units = !this._calibrationFactor && !params.stack.frame[params.frameIndex].pixelSpacing ? 'units' : 'cm²';
 
@@ -156,8 +158,8 @@ const widgetsPolygon = (three = window.THREE) => {
                 this._moveHandle.onMove(evt, true);
 
                 if (this._moving) {
-                    this._handles.forEach((elem, ind) => {
-                        this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                    this._handles.forEach((handle) => {
+                        handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
                     });
                 }
             }
@@ -245,21 +247,21 @@ const widgetsPolygon = (three = window.THREE) => {
         this.createLine();
 
         this._label = document.createElement('div');
-        this._label.setAttribute('class', 'widgets-label');
+        this._label.class = 'widgets-label';
 
-        // measurenents
+        // measurements
         const measurementsContainer = document.createElement('div');
         // Mean / SD
         let meanSDContainer = document.createElement('div');
-        meanSDContainer.setAttribute('class', 'mean-sd');
+        meanSDContainer.class = 'mean-sd';
         measurementsContainer.appendChild(meanSDContainer);
         // Max / Min
         let maxMinContainer = document.createElement('div');
-        maxMinContainer.setAttribute('class', 'max-min');
+        maxMinContainer.class = 'max-min';
         measurementsContainer.appendChild(maxMinContainer);
         // Area
         let areaContainer = document.createElement('div');
-        areaContainer.setAttribute('class', 'area');
+        areaContainer.class = 'area';
         measurementsContainer.appendChild(areaContainer);
 
         this._label.appendChild(measurementsContainer);
@@ -272,7 +274,7 @@ const widgetsPolygon = (three = window.THREE) => {
     createLine() {
         const line = document.createElement('div');
 
-        line.setAttribute('class', 'widgets-line');
+        line.class = 'widgets-line';
         line.addEventListener('mouseenter', this.onHover);
         line.addEventListener('mouseleave', this.onHover);
         this._lines.push(line);

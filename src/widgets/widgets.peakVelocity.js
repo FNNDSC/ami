@@ -18,8 +18,8 @@ const widgetsPeakVelocity = (three = window.THREE) => {
 
             this._widgetType = 'PeakVelocity';
 
-            // incoming parameters (+ initialRegion, lps2IJK)
-            this._regions = this._params.ultrasoundRegions || [];
+            // incoming parameters (+ lps2IJK)
+            this._regions = params.ultrasoundRegions || [];
             if (this._regions.length < 1) {
                 throw new Error('Ultrasound regions should not be empty!');
             }
@@ -35,7 +35,7 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             this._domHovered = true;
             this._initialRegion = this.getRegionByXY(
                 this._regions,
-                CoreUtils.worldToData(this._params.lps2IJK, this._params.worldPosition)
+                CoreUtils.worldToData(params.lps2IJK, params.worldPosition)
             );
             if (!this._initialRegion) {
                 throw new Error('Invalid initial UltraSound region!');
@@ -116,15 +116,13 @@ const widgetsPeakVelocity = (three = window.THREE) => {
 
                 this._moveHandle.onMove(evt, true);
 
-                const shift = this._handle.worldPosition.clone().add(
-                        this._moveHandle.worldPosition.clone().sub(prevPosition)
-                    );
+                const shift = this._moveHandle.worldPosition.clone().sub(prevPosition);
 
                 if (!this.isCorrectRegion(shift)) {
                     isCorrect = false;
                     this._moveHandle.worldPosition.copy(prevPosition);
                 } else if (!this._handle.active) {
-                    this._handle.worldPosition.copy(shift);
+                    this._handle.worldPosition.add(shift);
                 }
                 this._dragged = true;
             } else {
@@ -152,10 +150,13 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             this.update();
         }
 
-        isCorrectRegion(position) {
-            const region = this.getRegionByXY(this._regions, CoreUtils.worldToData(this._params.lps2IJK, position));
+        isCorrectRegion(shift) {
+            const region = this.getRegionByXY(
+                    this._regions,
+                    CoreUtils.worldToData(this._params.lps2IJK, this._handle.worldPosition.clone().add(shift))
+                );
 
-            return region !== null && region === this._initialRegion & this._regions[region].unitsY === 'cm/sec';
+            return region !== null && region === this._initialRegion && this._regions[region].unitsY === 'cm/sec';
         }
 
         create() {
@@ -164,21 +165,21 @@ const widgetsPeakVelocity = (three = window.THREE) => {
 
         createDOM() {
             this._line = document.createElement('div');
-            this._line.setAttribute('class', 'widgets-dashline');
+            this._line.class = 'widgets-dashline';
             this._container.appendChild(this._line);
 
             this._label = document.createElement('div');
-            this._label.setAttribute('class', 'widgets-label');
+            this._label.class = 'widgets-label';
 
-            // Measurenents
+            // Measurements
             let measurementsContainer = document.createElement('div');
             // Peak Velocity
             let pvContainer = document.createElement('div');
-            pvContainer.setAttribute('id', 'peakVelocity');
+            pvContainer.class = 'peakVelocity';
             measurementsContainer.appendChild(pvContainer);
             // Gradient
             let gradientContainer = document.createElement('div');
-            gradientContainer.setAttribute('id', 'gradient');
+            gradientContainer.class = 'gradient';
             measurementsContainer.appendChild(gradientContainer);
 
             this._label.appendChild(measurementsContainer);
@@ -193,22 +194,24 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             this._handle.update();
             this._worldPosition.copy(this._handle.worldPosition);
 
+            // calculate values
+            const usPosition = this.getUsPoint(
+                    this._regions,
+                    CoreUtils.worldToData(this._params.lps2IJK, this._worldPosition)
+                );
+
+            this._velocity = Math.abs(usPosition.y / 100);
+            this._gradient = 4 * Math.pow(this._velocity, 2);
+
             this.updateDOM();
         }
 
         updateDOM() {
             this.updateDOMColor();
 
-            const point = CoreUtils.worldToData(this._params.lps2IJK, this._worldPosition);
-            const region = this._regions[this.getRegionByXY(this._regions, point)];
-            const usPosition = this.getPointInRegion(region, point);
-
             // content
-            this._velocity = Math.abs(usPosition.y / 100);
-            this._gradient = 4 * Math.pow(this._velocity, 2);
-
-            this._label.querySelector('#peakVelocity').innerHTML = `${this._velocity.toFixed(2)} m/s`;
-            this._label.querySelector('#gradient').innerHTML = `${this._gradient.toFixed(2)} mmhg`;
+            this._label.querySelector('.peakVelocity').innerHTML = `${this._velocity.toFixed(2)} m/s`;
+            this._label.querySelector('.gradient').innerHTML = `${this._gradient.toFixed(2)} mmhg`;
 
             // position
             const transform = this.adjustLabelTransform(this._label, this._handle.screenPosition, true);

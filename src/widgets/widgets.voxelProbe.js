@@ -18,6 +18,7 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
     this._widgetType = 'VoxelProbe';
 
+    // incoming parameters
     this._stack = params.stack;
 
     this._container.style.cursor = 'pointer';
@@ -137,21 +138,21 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
   createDOM() {
     this._label = document.createElement('div');
-    this._label.setAttribute('class', 'widgets-label');
+    this._label.class = 'widgets-label';
 
-    // measurenents
+    // measurements
     let measurementsContainer = document.createElement('div');
     // LPS
     let lpsContainer = document.createElement('div');
-    lpsContainer.setAttribute('id', 'lpsPosition');
+    lpsContainer.class = 'lpsPosition';
     measurementsContainer.appendChild(lpsContainer);
     // IJK
     let ijkContainer = document.createElement('div');
-    ijkContainer.setAttribute('id', 'ijkPosition');
+    ijkContainer.class = 'ijkPosition';
     measurementsContainer.appendChild(ijkContainer);
     // Value
     let valueContainer = document.createElement('div');
-    valueContainer.setAttribute('id', 'value');
+    valueContainer.class = 'value';
     measurementsContainer.appendChild(valueContainer);
 
     this._label.appendChild(measurementsContainer);
@@ -191,9 +192,9 @@ const widgetsVoxelprobe = (three = window.THREE) => {
   }
 
   updateDOMContent() {
-    const rasContainer = this._label.querySelector('#lpsPosition');
-    const ijkContainer = this._label.querySelector('#ijkPosition');
-    const valueContainer = this._label.querySelector('#value');
+    const rasContainer = this._label.querySelector('.lpsPosition');
+    const ijkContainer = this._label.querySelector('.ijkPosition');
+    const valueContainer = this._label.querySelector('.value');
 
     rasContainer.innerHTML = `LPS: 
       ${this._voxel.worldCoordinates.x.toFixed(2)} :

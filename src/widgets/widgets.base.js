@@ -16,8 +16,8 @@ const widgetsBase = (three = window.THREE) => {
 
       this._widgetType = 'Base';
 
-      // params: hideMesh (bool), hideHandleMesh (bool), stack (ModelsStack), calibrationFactor (number),
-      //   lps2IJK (Matrix4), pixelSpacing (number), ultrasoundRegions (Array<Object>)
+      // params: hideMesh (bool), hideHandleMesh (bool), stack (ModelsStack), frameIndex (number),
+      //   calibrationFactor (number), lps2IJK (Matrix4), pixelSpacing (number), ultrasoundRegions (Array<Object>)
       this._params = params || {};
       if (params.hideMesh === true) {
         this.visible = false;
@@ -26,7 +26,7 @@ const widgetsBase = (three = window.THREE) => {
       const elementStyle = document.getElementById('ami-widgets');
       if (elementStyle === null) {
         const styleEl = document.createElement('style');
-        styleEl.setAttribute('id', 'ami-widgets');
+        styleEl.id = 'ami-widgets';
         styleEl.innerHTML = WidgetsCss.code;
         document.head.appendChild(styleEl);
       }
@@ -113,7 +113,7 @@ const widgetsBase = (three = window.THREE) => {
       return result;
     }
 
-     /**ё
+     /**
       * Get point inside ultrasound region by screen coordinates.
       *
       * @param {Object}  region US region data
@@ -130,6 +130,18 @@ const widgetsBase = (three = window.THREE) => {
          (point.x - region.x0 - region.axisX) * region.deltaX,
          (point.y - region.y0 - region.axisY) * region.deltaY
        );
+     }
+
+     /**
+      * Get point's ultrasound coordinates by screen coordinates.
+      *
+      * @param {Array}   regions US regions
+      * @param {Vector3} point   Screen coordinates
+      *
+      * @returns {Vector2|null}
+      */
+     getUsPoint(regions, point) {
+       return this.getPointInRegion(regions[this.getRegionByXY(regions, point)], point);
      }
 
     /**
