@@ -31,9 +31,17 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._envTi = null; // Envelope Duration (Env.Ti)
             this._vti = null; // Velocity Time Integral (VTI)
 
-            this._domHovered = true;
             this._initialized = false; // set to true onEnd if number of handles > 2
             this._isHandleActive = true;
+            this._domHovered = true;
+            this._initialRegion = this.getRegionByXY(
+                this._regions,
+                CoreUtils.worldToData(params.lps2IJK, params.worldPosition)
+            );
+            if (!this._initialRegion) {
+                throw new Error('Invalid initial UltraSound region!');
+            }
+            this._usPoints = [];
 
             // mesh stuff
             this._material = null;
@@ -135,25 +143,20 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
                 }
 
                 if (!this._initialized) {
+                    this._handles[this._handles.length - 1].hovered = false;
+                    this._handles[this._handles.length - 1].active = false;
+                    this._handles[this._handles.length - 1].tracking = false;
+
                     const WidgetsHandle = widgetsHandleFactory(three);
                     let handle = new WidgetsHandle(this._targetMesh, this._controls, this._params);
 
-                    handle.worldPosition.copy(this._worldPosition);
                     handle.hovered = true;
                     handle.active = true;
                     handle.tracking = true;
                     this.add(handle);
                     this._handles.push(handle);
 
-                    this._handles[this._handles.length - 1].hovered = false;
-                    this._handles[this._handles.length - 1].active = false;
-                    this._handles[this._handles.length - 1].tracking = false;
-
                     this.createLine();
-
-                    if (this._handles.length > 2) {
-                        this.pushPopHandle();
-                    }
                 } else {
                     if (this._mesh) {
                         this.remove(this._mesh);
@@ -168,8 +171,10 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
                         this._handles.forEach((handle) => {
                             handle.worldPosition.add(shift);
                         });
+                        this._isHandleActive = false;
                         this._handles[this._handles.length - 2].active = false;
                         this._handles[this._handles.length - 1].active = false;
+                        this._controls.enabled = false;
                     }
                 }
                 this._dragged = true;
@@ -180,6 +185,9 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._handles.forEach((elem) => {
                 elem.onMove(evt);
             });
+            if (this.active && this._handles.length > 2) {
+                this.pushPopHandle();
+            }
             this.update();
         }
 
@@ -203,7 +211,9 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
                 this._handles[this._handles.length - 1].tracking = false;
             }
 
-            this.finalize();
+            if (this._dragged || !this._initialized) {
+                this.finalize();
+            }
 
             if (!this._dragged && this._active) {
                 this._selected = !this._selected; // change state if there was no dragging
@@ -214,7 +224,6 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._dragged = false;
             this._initialized = true;
 
-            this.updateMesh();
             this.updateDOMContent();
             this.update();
         }
@@ -241,14 +250,24 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
         }
 
         create() {
-            this.createMaterial();
+            this.createMesh();
             this.createDOM();
         }
 
-        createMaterial() {
-            this._material = new three.MeshBasicMaterial({side: three.DoubleSide});
-            this._material.transparent = true;
-            this._material.opacity = 0.2;
+        createMesh() {
+            // geometry
+            this._geometry = new three.Geometry();
+
+            // material
+            this._material = new three.LineBasicMaterial();
+
+            this.updateMeshColor();
+
+            // mesh
+            this._mesh = new three.Line(this._geometry, this._material);
+            this._mesh.visible = true;
+
+            this.add(this._mesh);
         }
 
         createDOM() {
@@ -307,9 +326,11 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
         }
 
         finalize() {
-            if (this.initialized) { // remove old axis handles
-                this._handles.pop();
-                this._handles.pop();
+            if (this._initialized) { // remove old axis handles
+                this._handles.splice(-2).forEach((elem) => {
+                    this.remove(elem);
+                    elem.free();
+                });
             }
 
             const pointF = CoreUtils.worldToData(this._params.lps2IJK, this._handles[0]._worldPosition);
@@ -325,6 +346,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
 
             pointF.y = axisY;
             pointL.y = axisY;
+            this._usPoints = [pointL.clone(), pointF.clone()];
 
             params.worldPosition = pointL.applyMatrix4(this._params.ijk2LPS); // projection of last point on Y axis
             this._handles.push(new WidgetsHandle(this._targetMesh, this._controls, params));
@@ -339,20 +361,6 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             }
         }
 
-        hideDOM() {
-            this._handles.forEach((elem) => elem.hideDOM());
-
-            this._lines.forEach((elem) => elem.style.display = 'none');
-            this._label.style.display = 'none';
-        }
-
-        showDOM() {
-            this._handles.forEach((elem) => elem.showDOM());
-
-            this._lines.forEach((elem) => elem.style.display = '');
-            this._label.style.display = '';
-        }
-
         update() {
             this.updateColor();
 
@@ -360,8 +368,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._handles.forEach((elem) => elem.update());
 
             // mesh stuff
-            this.updateMeshColor();
-            this.updateMeshPosition();
+            this.updateMesh();
 
             // DOM stuff
             this.updateDOMColor();
@@ -379,6 +386,9 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             let pTime;
             let totalTime = 0;
 
+            this._vMax = 0;
+            this._vMean = 0;
+            this._gMean = 0;
             this._handles.slice(0, -2).forEach((elem) => {
                 const usPosition = this.getPointInRegion(
                         region,
@@ -407,99 +417,33 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
                 pVelocity = velocity;
                 pGradient = gradient;
                 pTime = usPosition.x;
+                this._usPoints.push(usPosition);
             });
 
             this._gMax = 4 * Math.pow(this._vMax, 2);
             this._vMean /= totalTime;
             this._gMean /= totalTime;
             this._envTi = (minMax[1] - minMax[0]) * 1000;
-            this._vti = CoreUtils.getGeometryArea(this._geometry) * region.deltaY; // TODO!?
+            this._vti = this.getArea(this._usPoints);
 
             if (minMax[1] - minMax[0] < totalTime) {
                 this._shapeWarn = true;
             }
         }
 
-        updateMesh() { // geometry
-            if (this._mesh) {
-                this.remove(this._mesh);
+        updateMesh() {
+            if (this._geometry) {
+                this._geometry.vertices = [];
+                this._handles.forEach((elem) => this._geometry.vertices.push(elem.worldPosition));
+                this._geometry.verticesNeedUpdate = true;
             }
-
-            let points = [];
-            this._handles.forEach((elem) => points.push(elem.worldPosition));
-
-            let center = CoreUtils.centerOfMass(points);
-            let direction = new three.Vector3().crossVectors(
-                new three.Vector3().subVectors(points[0], center), // side 1
-                new three.Vector3().subVectors(points[1], center) // side 2
-            );
-
-            // direction from first point to center
-            let referenceDirection = new three.Vector3().subVectors(points[0], center).normalize();
-            let base = new three.Vector3().crossVectors(referenceDirection, direction).normalize();
-            let orderedpoints = [];
-
-            // other lines // if inter, return location + angle
-            for (let j = 0; j < points.length; j++) {
-                let point = new three.Vector3(points[j].x, points[j].y, points[j].z);
-                point.direction = new three.Vector3().subVectors(points[j], center).normalize();
-
-                let x = referenceDirection.dot(point.direction);
-                let y = base.dot(point.direction);
-                point.xy = {x, y};
-                point.angle = Math.atan2(y, x) * (180 / Math.PI);
-
-                orderedpoints.push(point);
-            }
-
-            // override to catch console.warn "THREE.ShapeUtils: Unable to triangulate polygon! in triangulate()"
-            this._shapeWarn = false;
-            const oldWarn = console.warn;
-            console.warn = function(...rest) {
-                if (rest[0] === 'three.ShapeUtils: Unable to triangulate polygon! in triangulate()') {
-                    this._shapeWarn = true;
-                }
-                return oldWarn.apply(console, rest);
-            }.bind(this);
-
-            // create the shape
-            let shape = new three.Shape();
-            // move to first point!
-            shape.moveTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
-
-            // loop through all points!
-            for (let l = 1; l < orderedpoints.length; l++) {
-                // project each on plane!
-                shape.lineTo(orderedpoints[l].xy.x, orderedpoints[l].xy.y);
-            }
-
-            // close the shape!
-            shape.lineTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
-
-            this._geometry = new three.ShapeGeometry(shape);
-
-            console.warn = oldWarn;
-
-            this._geometry.vertices = orderedpoints;
-            this._geometry.verticesNeedUpdate = true;
-            this._geometry.elementsNeedUpdate = true;
 
             this.updateMeshColor();
-
-            this._mesh = new three.Mesh(this._geometry, this._material);
-            this._mesh.visible = true;
-            this.add(this._mesh);
         }
 
         updateMeshColor() {
             if (this._material) {
                 this._material.color.set(this._color);
-            }
-        }
-
-        updateMeshPosition() {
-            if (this._geometry) {
-                this._geometry.verticesNeedUpdate = true;
             }
         }
 
@@ -580,6 +524,20 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._label.style.transform = `translate3D(${labelPosition.x}px, ${labelPosition.y}px, 0)`;
         }
 
+        hideDOM() {
+            this._handles.forEach((elem) => elem.hideDOM());
+
+            this._lines.forEach((elem) => elem.style.display = 'none');
+            this._label.style.display = 'none';
+        }
+
+        showDOM() {
+            this._handles.forEach((elem) => elem.showDOM());
+
+            this._lines.forEach((elem) => elem.style.display = '');
+            this._label.style.display = '';
+        }
+
         free() {
             this.removeEventListeners();
 
@@ -588,6 +546,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
                 elem.free();
             });
             this._handles = [];
+            this._usPoints = [];
 
             this.remove(this._moveHandle);
             this._moveHandle.free();
@@ -602,18 +561,14 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._container.removeChild(this._label);
 
             // mesh, geometry, material
-            if (this._mesh) {
-                this.remove(this._mesh);
-                this._mesh.geometry.dispose();
-                this._mesh.geometry = null;
-                this._mesh.material.dispose();
-                this._mesh.material = null;
-                this._mesh = null;
-            }
-            if (this._geometry) {
-                this._geometry.dispose();
-                this._geometry = null;
-            }
+            this.remove(this._mesh);
+            this._mesh.geometry.dispose();
+            this._mesh.geometry = null;
+            this._mesh.material.dispose();
+            this._mesh.material = null;
+            this._mesh = null;
+            this._geometry.dispose();
+            this._geometry = null;
             this._material.vertexShader = null;
             this._material.fragmentShader = null;
             this._material.uniforms = null;

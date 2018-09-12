@@ -423,6 +423,7 @@ export default class CoreUtils {
 
   /**
    * Calculate shape area (sum of triangle polygons area).
+   * May be inaccurate or completely wrong for some shapes.
    *
    * @param {THREE.Geometry} geometry
    *

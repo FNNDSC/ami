@@ -92,6 +92,25 @@ const widgetsBase = (three = window.THREE) => {
     }
 
     /**
+     * Get area of polygon.
+     *
+     * @param {Array} points Ordered vertices' coordinates
+     *
+     * @returns {Number}
+     */
+    getArea(points) {
+      let area = 0;
+      let j = points.length - 1; // the last vertex is the 'previous' one to the first
+
+      for (var i = 0; i < points.length; i++) {
+        area += (points[j].x + points[i].x) * (points[j].y - points[i].y);
+        j = i;  // j is the previous vertex to i
+      }
+
+      return Math.abs(area / 2);
+    }
+
+    /**
      * Get index of ultrasound region by data coordinates.
      *
      * @param {Array}   regions US regions

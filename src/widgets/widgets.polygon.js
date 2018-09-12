@@ -133,10 +133,10 @@ const widgetsPolygon = (three = window.THREE) => {
                 this._handles[numHandles-1].hovered = false;
                 this._handles[numHandles-1].active = false;
                 this._handles[numHandles-1].tracking = false;
-                const WidgetsHandle = widgetsHandleFactory(three);
 
+                const WidgetsHandle = widgetsHandleFactory(three);
                 let handle = new WidgetsHandle(this._targetMesh, this._controls, this._params);
-                handle.worldPosition.copy(this._worldPosition);
+
                 handle.hovered = true;
                 handle.active = true;
                 handle.tracking = true;
@@ -236,6 +236,8 @@ const widgetsPolygon = (three = window.THREE) => {
     }
 
     createMaterial() {
+        // TODO! use Line
+
         this._material = new three.MeshBasicMaterial({side: THREE.DoubleSide});
         this._material.transparent = true;
         this._material.opacity = 0.2;

@@ -200,7 +200,7 @@ const widgetsAngle = (three = window.THREE) => {
         this._geometry.vertices.push(this._handles[1].worldPosition);
 
         // geometry
-        this._geometry2 = new three.Geometry();
+        this._geometry2 = new three.Geometry(); // TODO! replace seconds with LineSegments
         this._geometry2.vertices.push(this._handles[1].worldPosition);
         this._geometry2.vertices.push(this._handles[2].worldPosition);
 
