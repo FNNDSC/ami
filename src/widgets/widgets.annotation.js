@@ -46,7 +46,6 @@ const widgetsAnnotation = (three = window.THREE) => {
       const WidgetsHandle = widgetsHandleFactory(three);
       for (let i = 0; i < 2; i++) {
         handle = new WidgetsHandle(targetMesh, controls, params);
-        handle.worldPosition.copy(this._worldPosition);
         this.add(handle);
         this._handles.push(handle);
       }

@@ -44,12 +44,10 @@ const widgetsPolygon = (three = window.THREE) => {
         const WidgetsHandle = widgetsHandleFactory(three);
 
         let handle = new WidgetsHandle(targetMesh, controls, params);
-        handle.worldPosition.copy(this._worldPosition);
         this.add(handle);
         this._handles.push(handle);
 
         this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
-        this._moveHandle.worldPosition.copy(this._worldPosition);
         this.add(this._moveHandle);
         this._moveHandle.hide();
 
@@ -451,7 +449,7 @@ const widgetsPolygon = (three = window.THREE) => {
             title += 'Values may be incorrect due to triangulation error.';
         }
         if (title !== '' && !this._label.hasAttribute('title')) {
-            this._label.setAttribute('title', 'Calibration is required to display the area in cm²');
+            this._label.setAttribute('title', title);
             this._label.style.color = this._colors.error;
         } else if (title === '' && this._label.hasAttribute('title')) {
             this._label.removeAttribute('title');

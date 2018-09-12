@@ -44,7 +44,6 @@ const widgetsRectangle = (three = window.THREE) => {
         let handle;
         for (let i = 0; i < 2; i++) {
             handle = new WidgetsHandle(targetMesh, controls, params);
-            handle.worldPosition.copy(this._worldPosition);
             this.add(handle);
             this._handles.push(handle);
         }
@@ -52,7 +51,6 @@ const widgetsRectangle = (three = window.THREE) => {
         this._handles[1].tracking = true;
 
         this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
-        this._moveHandle.worldPosition.copy(this._worldPosition);
         this.add(this._moveHandle);
         this._handles.push(this._moveHandle);
         this._moveHandle.hide();

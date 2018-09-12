@@ -34,11 +34,9 @@ const widgetsVoxelprobe = (three = window.THREE) => {
     // handle (represent voxel)
     const WidgetsHandle = widgetsHandleFactory(three);
     this._handle = new WidgetsHandle(targetMesh, controls, params);
-    this._handle.worldPosition.copy(this._worldPosition);
     this.add(this._handle);
 
     this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
-    this._moveHandle.worldPosition.copy(this._worldPosition);
     this.add(this._moveHandle);
     this._moveHandle.hide();
 

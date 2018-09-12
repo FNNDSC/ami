@@ -48,11 +48,9 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             // handle (represent line)
             const WidgetsHandle = widgetsHandleFactory(three);
             this._handle = new WidgetsHandle(targetMesh, controls, params);
-            this._handle.worldPosition.copy(this._worldPosition);
             this.add(this._handle);
 
             this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
-            this._moveHandle.worldPosition.copy(this._worldPosition);
             this.add(this._moveHandle);
             this._moveHandle.hide();
 
@@ -101,7 +99,7 @@ const widgetsPeakVelocity = (three = window.THREE) => {
 
             this._active = this._handle.active || this._domHovered;
 
-            if (this._active) {
+            if (this._domHovered) {
                 this._controls.enabled = false;
             }
 
@@ -109,8 +107,6 @@ const widgetsPeakVelocity = (three = window.THREE) => {
         }
 
         onMove(evt) {
-            let isCorrect = true;
-
             if (this._active) {
                 const prevPosition = this._moveHandle.worldPosition.clone();
 
@@ -119,9 +115,12 @@ const widgetsPeakVelocity = (three = window.THREE) => {
                 const shift = this._moveHandle.worldPosition.clone().sub(prevPosition);
 
                 if (!this.isCorrectRegion(shift)) {
-                    isCorrect = false;
                     this._moveHandle.worldPosition.copy(prevPosition);
-                } else if (!this._handle.active) {
+
+                    return;
+                }
+
+                if (!this._handle.active) {
                     this._handle.worldPosition.add(shift);
                 }
                 this._dragged = true;
@@ -129,10 +128,8 @@ const widgetsPeakVelocity = (three = window.THREE) => {
                 this.onHover(null);
             }
 
-            if (isCorrect) {
-                this._handle.onMove(evt);
-                this.update();
-            }
+            this._handle.onMove(evt);
+            this.update();
         }
 
         onEnd() {

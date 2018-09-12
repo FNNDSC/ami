@@ -57,7 +57,6 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
             let handle;
             for (let i = 0; i < 2; i++) {
                 handle = new WidgetsHandle(targetMesh, controls, params);
-                handle.worldPosition.copy(this._worldPosition);
                 this.add(handle);
                 this._handles.push(handle);
             }
@@ -65,7 +64,6 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
             this._handles[1].tracking = true;
 
             this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
-            this._moveHandle.worldPosition.copy(this._worldPosition);
             this.add(this._moveHandle);
             this._handles.push(this._moveHandle);
             this._moveHandle.hide();
@@ -122,7 +120,7 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
 
             this._active = this._handles[0].active || this._handles[1].active || this._domHovered;
 
-            if (this._active && !this._handles[1].tracking) {
+            if (this._domHovered) {
                 this._controls.enabled = false;
             }
 
@@ -130,8 +128,6 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
         }
 
         onMove(evt) {
-            let isCorrect = true;
-
             if (this._active) {
                 const prevPosition = this._moveHandle.worldPosition.clone();
 
@@ -140,9 +136,12 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
                 const shift = this._moveHandle.worldPosition.clone().sub(prevPosition);
 
                 if (!this.isCorrectRegion(shift)) {
-                    isCorrect = false;
                     this._moveHandle.worldPosition.copy(prevPosition);
-                } else if (!this._handles[0].active && !this._handles[1].active) {
+
+                    return;
+                }
+
+                if (!this._handles[0].active && !this._handles[1].active) {
                     this._handles.slice(0, -1).forEach((handle) => {
                         handle.worldPosition.add(shift);
                     });
@@ -152,11 +151,9 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
                 this.onHover(null);
             }
 
-            if (isCorrect) {
-                this._handles[0].onMove(evt);
-                this._handles[1].onMove(evt);
-                this.update();
-            }
+            this._handles[0].onMove(evt);
+            this._handles[1].onMove(evt);
+            this.update();
         }
 
         onEnd() {

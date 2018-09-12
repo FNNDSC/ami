@@ -46,7 +46,6 @@ const widgetsBiruler = (three = window.THREE) => {
             const WidgetsHandle = widgetsHandleFactory(three);
             for (let i = 0; i < 4; i++) {
                 handle = new WidgetsHandle(targetMesh, controls, params);
-                handle.worldPosition.copy(this._worldPosition);
                 this.add(handle);
                 this._handles.push(handle);
             }

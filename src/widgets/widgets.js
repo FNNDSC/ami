@@ -12,6 +12,7 @@ import PressureHalfTime, {widgetsPressureHalfTime} from './widgets.pressureHalfT
 import Polygon, {widgetsPolygon} from './widgets.polygon';
 import Rectangle, {widgetsRectangle} from './widgets.rectangle';
 import Ruler, {widgetsRuler} from './widgets.ruler';
+import VelocityTimeIntegral, {widgetsVelocityTimeIntegral} from './widgets.velocityTimeIntegral';
 import VoxelProbe, {widgetsVoxelprobe} from './widgets.voxelProbe';
 
 export {
@@ -40,6 +41,8 @@ export {
     widgetsRectangle as rectangleWidgetFactory,
     Ruler as RulerWidget,
     widgetsRuler as rulerWidgetFactory,
+    VelocityTimeIntegral as VelocityTimeIntegralWidget,
+    widgetsVelocityTimeIntegral as velocityTimeIntegralWidgetFactory,
     VoxelProbe as VoxelProbeWidget,
     widgetsVoxelprobe as voxelprobeWidgetFactory,
 };

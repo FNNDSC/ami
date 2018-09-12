@@ -92,10 +92,10 @@ const widgetsBase = (three = window.THREE) => {
     }
 
     /**
-     * Get index of ultrasound region by screen coordinates.
+     * Get index of ultrasound region by data coordinates.
      *
      * @param {Array}   regions US regions
-     * @param {Vector3} point   Screen coordinates
+     * @param {Vector3} point   Data coordinates
      *
      * @returns {Number|null}
      */
@@ -114,10 +114,10 @@ const widgetsBase = (three = window.THREE) => {
     }
 
      /**
-      * Get point inside ultrasound region by screen coordinates.
+      * Get point inside ultrasound region by data coordinates.
       *
       * @param {Object}  region US region data
-      * @param {Vector3} point  Screen coordinates
+      * @param {Vector3} point  Data coordinates
       *
       * @returns {Vector2|null}
       */
@@ -133,10 +133,10 @@ const widgetsBase = (three = window.THREE) => {
      }
 
      /**
-      * Get point's ultrasound coordinates by screen coordinates.
+      * Get point's ultrasound coordinates by data coordinates.
       *
       * @param {Array}   regions US regions
-      * @param {Vector3} point   Screen coordinates
+      * @param {Vector3} point   Data coordinates
       *
       * @returns {Vector2|null}
       */
@@ -147,8 +147,8 @@ const widgetsBase = (three = window.THREE) => {
     /**
      * Get distance between points inside ultrasound region.
      *
-     * @param {Vector3} pointA Begin screen coordinates
-     * @param {Vector3} pointB End screen coordinates
+     * @param {Vector3} pointA Begin data coordinates
+     * @param {Vector3} pointB End data coordinates
      *
      * @returns {Number|null}
      */

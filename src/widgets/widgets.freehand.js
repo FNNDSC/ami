@@ -43,12 +43,10 @@ const widgetsFreehand = (three = window.THREE) => {
         const WidgetsHandle = widgetsHandleFactory(three);
 
         let handle = new WidgetsHandle(targetMesh, controls, params);
-        handle.worldPosition.copy(this._worldPosition);
         this.add(handle);
         this._handles.push(handle);
 
         this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
-        this._moveHandle.worldPosition.copy(this._worldPosition);
         this.add(this._moveHandle);
         this._moveHandle.hide();
 
@@ -172,28 +170,26 @@ const widgetsFreehand = (three = window.THREE) => {
     }
 
     onEnd() {
-        let numHandles = this._handles.length;
-
-        if (numHandles < 3) {
+        if (this._handles.length < 3) {
             return;
         }
 
         let active = false;
 
-        this._handles.slice(0, numHandles-1).forEach((elem) => {
+        this._handles.slice(0, -1).forEach((elem) => {
             elem.onEnd();
             active = active || elem.active;
         });
 
         // Last Handle
-        if (this._dragged || !this._handles[numHandles-1].tracking) {
-            this._handles[numHandles-1].tracking = false;
-            this._handles[numHandles-1].onEnd();
+        if (this._dragged || !this._handles[this._handles.length - 1].tracking) {
+            this._handles[this._handles.length - 1].tracking = false;
+            this._handles[this._handles.length - 1].onEnd();
         } else {
-            this._handles[numHandles-1].tracking = false;
+            this._handles[this._handles.length - 1].tracking = false;
         }
 
-        if (this._lines.length < numHandles) {
+        if (this._lines.length < this._handles.length) {
             this.createLine();
         }
 
@@ -201,7 +197,7 @@ const widgetsFreehand = (three = window.THREE) => {
             this._selected = !this._selected; // change state if there was no dragging
             this._handles.forEach((elem) => elem.selected = this._selected);
         }
-        this._active = active || this._handles[numHandles-1].active;
+        this._active = active || this._handles[this._handles.length - 1].active;
         this._dragged = false;
         this._moving = false;
         this._initialized = true;
@@ -390,9 +386,7 @@ const widgetsFreehand = (three = window.THREE) => {
             this._handles[this._handles.length-2] = newhandle;
             this._handles.pop();
 
-            let tempLine = this._lines.pop();
-            tempLine.style.display = 'none';
-            this._container.removeChild(tempLine);
+            this._container.removeChild(this._lines.pop());
         }
 
         return isOnLine;
@@ -457,7 +451,7 @@ const widgetsFreehand = (three = window.THREE) => {
             title += 'Values may be incorrect due to triangulation error.';
         }
         if (title !== '' && !this._label.hasAttribute('title')) {
-            this._label.setAttribute('title', 'Calibration is required to display the area in cm²');
+            this._label.setAttribute('title', title);
             this._label.style.color = this._colors.error;
         } else if (title === '' && this._label.hasAttribute('title')) {
             this._label.removeAttribute('title');
@@ -551,7 +545,6 @@ const widgetsFreehand = (three = window.THREE) => {
 
         super.free();
     }
-
 
     get targetMesh() {
         return this._targetMesh;
