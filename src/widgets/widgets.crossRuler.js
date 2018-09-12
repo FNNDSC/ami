@@ -33,11 +33,8 @@ const widgetsCrossRuler = (three = window.THREE) => {
 
         // mesh stuff
         this._material = null;
-        this._material2 = null;
         this._geometry = null;
-        this._geometry2 = null;
         this._mesh = null;
-        this._mesh2 = null;
 
         // dom stuff
         this._line = null;
@@ -199,28 +196,22 @@ const widgetsCrossRuler = (three = window.THREE) => {
     createMesh() {
         // geometry
         this._geometry = new three.Geometry();
-        this._geometry.vertices.push(this._handles[0].worldPosition);
-        this._geometry.vertices.push(this._handles[1].worldPosition);
-
-        // geometry
-        this._geometry2 = new three.Geometry(); // TODO! replace seconds with LineSegments
-        this._geometry2.vertices.push(this._handles[2].worldPosition);
-        this._geometry2.vertices.push(this._handles[3].worldPosition);
+        this._geometry.vertices = [
+            this._handles[0].worldPosition,
+            this._handles[1].worldPosition,
+            this._handles[2].worldPosition,
+            this._handles[3].worldPosition,
+        ];
 
         // material
         this._material = new three.LineBasicMaterial();
-        this._material2 = new three.LineBasicMaterial();
 
         this.updateMeshColor();
 
         // mesh
-        this._mesh = new three.Line(this._geometry, this._material);
+        this._mesh = new three.LineSegments(this._geometry, this._material);
         this._mesh.visible = true;
-        this._mesh2 = new three.Line(this._geometry2, this._material2);
-        this._mesh2.visible = true;
-
         this.add(this._mesh);
-        this.add(this._mesh2);
     }
 
     createDOM() {
@@ -280,17 +271,11 @@ const widgetsCrossRuler = (three = window.THREE) => {
         if (this._material) {
             this._material.color.set(this._color);
         }
-        if (this._material2) {
-            this._material2.color.set(this._color);
-        }
     }
 
     updateMeshPosition() {
         if (this._geometry) {
             this._geometry.verticesNeedUpdate = true;
-        }
-        if (this._geometry2) {
-            this._geometry2.verticesNeedUpdate = true;
         }
     }
 
@@ -420,19 +405,6 @@ const widgetsCrossRuler = (three = window.THREE) => {
         this._material.uniforms = null;
         this._material.dispose();
         this._material = null;
-        this.remove(this._mesh2);
-        this._mesh2.geometry.dispose();
-        this._mesh2.geometry = null;
-        this._mesh2.material.dispose();
-        this._mesh2.material = null;
-        this._mesh2 = null;
-        this._geometry2.dispose();
-        this._geometry2 = null;
-        this._material2.vertexShader = null;
-        this._material2.fragmentShader = null;
-        this._material2.uniforms = null;
-        this._material2.dispose();
-        this._material2 = null;
 
         super.free();
     }

@@ -32,7 +32,7 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             this._controls.enabled = false; // controls should be disabled for widgets with a single handle
             this._initialized = false; // set to true onEnd
             this._active = true;
-            this._domHovered = true;
+            this._domHovered = false;
             this._initialRegion = this.getRegionByXY(
                 this._regions,
                 CoreUtils.worldToData(params.lps2IJK, params.worldPosition)

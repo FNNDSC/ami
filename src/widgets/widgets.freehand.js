@@ -202,7 +202,6 @@ const widgetsFreehand = (three = window.THREE) => {
         this._moving = false;
         this._initialized = true;
 
-        this.updateMesh();
         this.updateDOMContent();
         this.update();
     }
@@ -213,11 +212,7 @@ const widgetsFreehand = (three = window.THREE) => {
     }
 
     createMaterial() {
-        // TODO! use Line
-
-        this._material = new three.MeshBasicMaterial({side: three.DoubleSide});
-        this._material.transparent = true;
-        this._material.opacity = 0.2;
+        this._material = new three.LineBasicMaterial();
     }
 
     createDOM() {
@@ -277,77 +272,22 @@ const widgetsFreehand = (three = window.THREE) => {
         this._handles.forEach((elem) => elem.update());
 
         // mesh stuff
-        this.updateMeshColor();
-        this.updateMeshPosition();
+        this.updateMesh();
 
         // DOM stuff
         this.updateDOMColor();
         this.updateDOMPosition();
     }
 
-    updateMesh() { // geometry
+    updateMesh() {
         if (this._mesh) {
             this.remove(this._mesh);
         }
 
-        let points = [];
-        this._handles.forEach((elem) => points.push(elem.worldPosition));
-
-        let center = CoreUtils.centerOfMass(points);
-        let direction = new three.Vector3().crossVectors(
-            new three.Vector3().subVectors(points[0], center), // side 1
-            new three.Vector3().subVectors(points[1], center) // side 2
-        );
-
-        // direction from first point to center
-        let referenceDirection = new three.Vector3().subVectors(points[0], center).normalize();
-        let base = new three.Vector3().crossVectors(referenceDirection, direction).normalize();
-        let orderedpoints = [];
-
-        // other lines // if inter, return location + angle
-        for (let j = 0; j < points.length; j++) {
-            let point = new three.Vector3(points[j].x, points[j].y, points[j].z);
-            point.direction = new three.Vector3().subVectors(points[j], center).normalize();
-
-            let x = referenceDirection.dot(point.direction);
-            let y = base.dot(point.direction);
-            point.xy = {x, y};
-            point.angle = Math.atan2(y, x) * (180 / Math.PI);
-
-            orderedpoints.push(point);
-        }
-
-        // override to catch console.warn "THREE.ShapeUtils: Unable to triangulate polygon! in triangulate()"
-        this._shapeWarn = false;
-        const oldWarn = console.warn;
-        console.warn = function(...rest) {
-            if (rest[0] === 'three.ShapeUtils: Unable to triangulate polygon! in triangulate()') {
-                this._shapeWarn = true;
-            }
-            return oldWarn.apply(console, rest);
-        }.bind(this);
-
-        // create the shape
-        let shape = new three.Shape();
-        // move to first point!
-        shape.moveTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
-
-        // loop through all points!
-        for (let l = 1; l < orderedpoints.length; l++) {
-            // project each on plane!
-            shape.lineTo(orderedpoints[l].xy.x, orderedpoints[l].xy.y);
-        }
-
-        // close the shape!
-        shape.lineTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
-
-        this._geometry = new three.ShapeGeometry(shape);
-
-        console.warn = oldWarn;
-
-        this._geometry.vertices = orderedpoints;
+        this._geometry = new three.Geometry();
+        this._handles.forEach((elem) => this._geometry.vertices.push(elem.worldPosition));
+        this._geometry.vertices.push(this._handles[0].worldPosition);
         this._geometry.verticesNeedUpdate = true;
-        this._geometry.elementsNeedUpdate = true;
 
         this.updateMeshColor();
 
@@ -359,12 +299,6 @@ const widgetsFreehand = (three = window.THREE) => {
     updateMeshColor() {
         if (this._material) {
             this._material.color.set(this._color);
-        }
-    }
-
-    updateMeshPosition() {
-        if (this._geometry) {
-            this._geometry.verticesNeedUpdate = true;
         }
     }
 
@@ -416,7 +350,7 @@ const widgetsFreehand = (three = window.THREE) => {
 
         const regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
-        this._area = CoreUtils.getGeometryArea(this._geometry);
+        this._area = this.getArea(this._geometry.vertices.slice(0, -1));
         if (this._calibrationFactor) {
             this._area *= Math.pow(this._calibrationFactor, 2);
         } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
@@ -449,9 +383,6 @@ const widgetsFreehand = (three = window.THREE) => {
 
         let title = this._units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
-        if (this._shapeWarn) {
-            title += 'Values may be incorrect due to triangulation error.';
-        }
         if (title !== '' && !this._label.hasAttribute('title')) {
             this._label.setAttribute('title', title);
             this._label.style.color = this._colors.error;

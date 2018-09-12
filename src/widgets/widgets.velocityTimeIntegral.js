@@ -33,7 +33,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
 
             this._initialized = false; // set to true onEnd if number of handles > 2
             this._isHandleActive = true;
-            this._domHovered = true;
+            this._domHovered = false;
             this._initialRegion = this.getRegionByXY(
                 this._regions,
                 CoreUtils.worldToData(params.lps2IJK, params.worldPosition)
@@ -250,24 +250,12 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
         }
 
         create() {
-            this.createMesh();
+            this.createMaterial();
             this.createDOM();
         }
 
-        createMesh() {
-            // geometry
-            this._geometry = new three.Geometry();
-
-            // material
+        createMaterial() {
             this._material = new three.LineBasicMaterial();
-
-            this.updateMeshColor();
-
-            // mesh
-            this._mesh = new three.Line(this._geometry, this._material);
-            this._mesh.visible = true;
-
-            this.add(this._mesh);
         }
 
         createDOM() {
@@ -346,7 +334,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
 
             pointF.y = axisY;
             pointL.y = axisY;
-            this._usPoints = [pointL.clone(), pointF.clone()];
+            this._usPoints = [this.getPointInRegion(region, pointL), this.getPointInRegion(region, pointF)];
 
             params.worldPosition = pointL.applyMatrix4(this._params.ijk2LPS); // projection of last point on Y axis
             this._handles.push(new WidgetsHandle(this._targetMesh, this._controls, params));
@@ -423,22 +411,27 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._gMax = 4 * Math.pow(this._vMax, 2);
             this._vMean /= totalTime;
             this._gMean /= totalTime;
-            this._envTi = (minMax[1] - minMax[0]) * 1000;
+            this._envTi = totalTime * 1000;
             this._vti = this.getArea(this._usPoints);
 
-            if (minMax[1] - minMax[0] < totalTime) {
-                this._shapeWarn = true;
-            }
+            this._shapeWarn = (minMax[1] - minMax[0]) !== totalTime;
         }
 
         updateMesh() {
-            if (this._geometry) {
-                this._geometry.vertices = [];
-                this._handles.forEach((elem) => this._geometry.vertices.push(elem.worldPosition));
-                this._geometry.verticesNeedUpdate = true;
+            if (this._mesh) {
+                this.remove(this._mesh);
             }
 
+            this._geometry = new three.Geometry();
+            this._handles.forEach((elem) => this._geometry.vertices.push(elem.worldPosition));
+            this._geometry.vertices.push(this._handles[0].worldPosition);
+            this._geometry.verticesNeedUpdate = true;
+
             this.updateMeshColor();
+
+            this._mesh = new three.Line(this._geometry, this._material);
+            this._mesh.visible = true;
+            this.add(this._mesh);
         }
 
         updateMeshColor() {
@@ -561,14 +554,18 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._container.removeChild(this._label);
 
             // mesh, geometry, material
-            this.remove(this._mesh);
-            this._mesh.geometry.dispose();
-            this._mesh.geometry = null;
-            this._mesh.material.dispose();
-            this._mesh.material = null;
-            this._mesh = null;
-            this._geometry.dispose();
-            this._geometry = null;
+            if (this._mesh) {
+                this.remove(this._mesh);
+                this._mesh.geometry.dispose();
+                this._mesh.geometry = null;
+                this._mesh.material.dispose();
+                this._mesh.material = null;
+                this._mesh = null;
+            }
+            if (this._geometry) {
+                this._geometry.dispose();
+                this._geometry = null;
+            }
             this._material.vertexShader = null;
             this._material.fragmentShader = null;
             this._material.uniforms = null;

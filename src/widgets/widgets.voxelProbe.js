@@ -26,7 +26,7 @@ const widgetsVoxelprobe = (three = window.THREE) => {
     this._initialized = false; // set to true onEnd
     this._active = true;
     this._moving = true;
-    this._domHovered = true;
+    this._domHovered = false;
 
     // dom stuff
     this._label = null;

@@ -32,7 +32,7 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
             this._dt = null; // Deceleration Time (DT)
             this._ds = null; // Deceleration Slope (DS)
 
-            this._domHovered = true;
+            this._domHovered = false;
             this._initialRegion = this.getRegionByXY(
                 this._regions,
                 CoreUtils.worldToData(params.lps2IJK, params.worldPosition)
