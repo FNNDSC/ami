@@ -30,6 +30,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._gMean = null; // Mean Gradient (Gmean)
             this._envTi = null; // Envelope Duration (Env.Ti)
             this._vti = null; // Velocity Time Integral (VTI)
+            this._extraInfo = null; // extra information which is added to label
 
             this._initialized = false; // set to true onEnd if number of handles > 2
             this._isHandleActive = true;
@@ -260,7 +261,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
 
             const measurementsContainer = document.createElement('div');
 
-            ['vmax', 'vmean', 'gmax', 'gmean', 'envti', 'vti'].forEach((name) => {
+            ['vmax', 'vmean', 'gmax', 'gmean', 'envti', 'vti', 'info'].forEach((name) => {
                 const div = document.createElement('div');
 
                 div.className = name;
@@ -456,6 +457,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             const gMeanContainer = this._label.querySelector('.gmean');
             const envTiContainer = this._label.querySelector('.envti');
             const vtiContainer = this._label.querySelector('.vti');
+            const infoContainer = this._label.querySelector('.info');
 
             if (clear) {
                 vMaxContainer.innerHTML = '';
@@ -464,6 +466,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
                 gMeanContainer.innerHTML = '';
                 envTiContainer.innerHTML = '';
                 vtiContainer.innerHTML = '';
+                infoContainer.innerHTML = '';
 
                 return;
             }
@@ -484,6 +487,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             gMeanContainer.innerHTML = `Gmean: ${this._gMean.toFixed(2)} mmhg`;
             envTiContainer.innerHTML = `Env.Ti: ${this._envTi.toFixed(1)} ms`;
             vtiContainer.innerHTML = `VTI: ${this._vti.toFixed(2)} cm`;
+            infoContainer.innerHTML = this._extraInfo;
         }
 
         updateDOMPosition() {
@@ -607,6 +611,15 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._handles.forEach((elem) => elem._worldPosition.copy(worldPosition));
             this._worldPosition.copy(worldPosition);
             this.update();
+        }
+
+        get extraInfo() {
+            return this._extraInfo;
+        }
+
+        set extraInfo(info) {
+            this._extraInfo = info;
+            this._label.querySelector('.info').innerHTML = info;
         }
     };
 };

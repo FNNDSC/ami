@@ -323,6 +323,13 @@ const widgetsRuler = (three = window.THREE) => {
     super.free();
   }
 
+  getMeasurements() {
+    return {
+      distance: this._distance,
+      units: this._units,
+    };
+  }
+
   get targetMesh() {
     return this._targetMesh;
   }
@@ -352,10 +359,6 @@ const widgetsRuler = (three = window.THREE) => {
     this._calibrationFactor = calibrationFactor;
     this._units = 'mm';
     this.update();
-  }
-
-  get distance() {
-    return this._distance;
   }
   };
 };

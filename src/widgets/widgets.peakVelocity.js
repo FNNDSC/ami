@@ -248,6 +248,13 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             super.free();
         }
 
+        getMeasurements() {
+            return {
+                velocity: this._velocity,
+                gradient: this._gradient,
+            }
+        }
+
         get targetMesh() {
             return this._targetMesh;
         }
@@ -279,14 +286,6 @@ const widgetsPeakVelocity = (three = window.THREE) => {
             this._controls.enabled = !this._active;
 
             this.update();
-        }
-
-        get velocity() {
-            return this._velocity;
-        }
-
-        get gradient() {
-            return this._gradient;
         }
     };
 };

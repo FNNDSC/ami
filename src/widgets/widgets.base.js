@@ -317,6 +317,13 @@ const widgetsBase = (three = window.THREE) => {
       }
     }
 
+    setDefaultColor(color) {
+      this._colors.default = color;
+      if (this._handles) {
+          this._handles.forEach((elem) => elem._colors.default = color);
+      }
+    }
+
     show() {
       this.showDOM();
       this.showMesh();

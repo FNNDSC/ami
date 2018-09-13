@@ -417,6 +417,13 @@ const widgetsEllipse = (three = window.THREE) => {
         super.free();
     }
 
+    getMeasurements() {
+        return {
+            area: this._area,
+            units: this._units,
+        }
+    }
+
     get targetMesh() {
         return this._targetMesh;
     }
@@ -446,10 +453,6 @@ const widgetsEllipse = (three = window.THREE) => {
         this._calibrationFactor = calibrationFactor;
         this._units = 'cm²';
         this.update();
-    }
-
-    get area() {
-        return this._area;
     }
   };
 };

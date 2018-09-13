@@ -552,11 +552,6 @@ const widgetsCrossRuler = (three = window.THREE) => {
         this.update();
     }
 
-    setDefaultColor(color) {
-        this._colors.default = color;
-        this._handles.forEach((elem) => elem._colors.default = color);
-    }
-
     get targetMesh() {
         return this._targetMesh;
     }
