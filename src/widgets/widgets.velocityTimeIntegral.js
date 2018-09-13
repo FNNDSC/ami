@@ -158,10 +158,6 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
 
                     this.createLine();
                 } else {
-                    if (this._mesh) {
-                        this.remove(this._mesh);
-                    }
-
                     this.updateDOMContent(true);
 
                     if (!this._isHandleActive

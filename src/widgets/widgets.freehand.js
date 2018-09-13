@@ -115,16 +115,15 @@ const widgetsFreehand = (three = window.THREE) => {
     }
 
     onMove(evt) {
-        let numHandles = this._handles.length;
         let hovered = false;
 
         if (this.active) {
             this._dragged = true;
 
             if (!this._initialized) {
-                this._handles[numHandles - 1].hovered = false;
-                this._handles[numHandles - 1].active = false;
-                this._handles[numHandles - 1].tracking = false;
+                this._handles[this._handles.length - 1].hovered = false;
+                this._handles[this._handles.length - 1].active = false;
+                this._handles[this._handles.length - 1].tracking = false;
 
                 const WidgetsHandle = widgetsHandleFactory(three);
                 let handle = new WidgetsHandle(this._targetMesh, this._controls, this._params);
@@ -139,13 +138,11 @@ const widgetsFreehand = (three = window.THREE) => {
             } else {
                 const prevPosition = this._moveHandle.worldPosition.clone();
 
+                this._moveHandle.onMove(evt, true);
                 if (this._mesh) {
                     this.remove(this._mesh);
                 }
                 this.updateDOMContent(true);
-
-                this._moveHandle.onMove(evt, true);
-
                 if (this._moving) {
                     this._handles.forEach((handle) => {
                         handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
@@ -202,6 +199,7 @@ const widgetsFreehand = (three = window.THREE) => {
         this._moving = false;
         this._initialized = true;
 
+        this.updateMesh();
         this.updateDOMContent();
         this.update();
     }
@@ -212,7 +210,9 @@ const widgetsFreehand = (three = window.THREE) => {
     }
 
     createMaterial() {
-        this._material = new three.LineBasicMaterial();
+        this._material = new three.MeshBasicMaterial({side: three.DoubleSide});
+        this._material.transparent = true;
+        this._material.opacity = 0.2;
     }
 
     createDOM() {
@@ -272,7 +272,8 @@ const widgetsFreehand = (three = window.THREE) => {
         this._handles.forEach((elem) => elem.update());
 
         // mesh stuff
-        this.updateMesh();
+        this.updateMeshColor();
+        this.updateMeshPosition();
 
         // DOM stuff
         this.updateDOMColor();
@@ -284,10 +285,64 @@ const widgetsFreehand = (three = window.THREE) => {
             this.remove(this._mesh);
         }
 
-        this._geometry = new three.Geometry();
-        this._handles.forEach((elem) => this._geometry.vertices.push(elem.worldPosition));
-        this._geometry.vertices.push(this._handles[0].worldPosition);
+        let points = [];
+
+        this._handles.forEach((elem) => points.push(elem.worldPosition));
+
+        let center = CoreUtils.centerOfMass(points);
+        // direction from first point to center
+        let referenceDirection = new three.Vector3().subVectors(points[0], center).normalize();
+        let direction = new three.Vector3().crossVectors(
+                new three.Vector3().subVectors(points[0], center), // side 1
+                new three.Vector3().subVectors(points[1], center) // side 2
+            );
+        let base = new three.Vector3().crossVectors(referenceDirection, direction).normalize();
+        let orderedpoints = [];
+
+        // other lines // if inter, return location + angle
+        for (let j = 0; j < points.length; j++) {
+            let point = new three.Vector3(points[j].x, points[j].y, points[j].z);
+            point.direction = new three.Vector3().subVectors(points[j], center).normalize();
+
+            let x = referenceDirection.dot(point.direction);
+            let y = base.dot(point.direction);
+            point.xy = {x, y};
+            point.angle = Math.atan2(y, x) * (180 / Math.PI);
+
+            orderedpoints.push(point);
+        }
+
+        // override to catch console.warn "THREE.ShapeUtils: Unable to triangulate polygon! in triangulate()"
+        this._shapeWarn = false;
+        const oldWarn = console.warn;
+        console.warn = function(...rest) {
+            if (rest[0] === 'three.ShapeUtils: Unable to triangulate polygon! in triangulate()') {
+                this._shapeWarn = true;
+            }
+            return oldWarn.apply(console, rest);
+        }.bind(this);
+
+        // create the shape
+        let shape = new three.Shape();
+        // move to first point!
+        shape.moveTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
+
+        // loop through all points!
+        for (let l = 1; l < orderedpoints.length; l++) {
+            // project each on plane!
+            shape.lineTo(orderedpoints[l].xy.x, orderedpoints[l].xy.y);
+        }
+
+        // close the shape!
+        shape.lineTo(orderedpoints[0].xy.x, orderedpoints[0].xy.y);
+
+        this._geometry = new three.ShapeGeometry(shape);
+
+        console.warn = oldWarn;
+
+        this._geometry.vertices = orderedpoints;
         this._geometry.verticesNeedUpdate = true;
+        this._geometry.elementsNeedUpdate = true;
 
         this.updateMeshColor();
 
@@ -299,6 +354,12 @@ const widgetsFreehand = (three = window.THREE) => {
     updateMeshColor() {
         if (this._material) {
             this._material.color.set(this._color);
+        }
+    }
+
+    updateMeshPosition() {
+        if (this._geometry) {
+            this._geometry.verticesNeedUpdate = true;
         }
     }
 
@@ -350,7 +411,7 @@ const widgetsFreehand = (three = window.THREE) => {
 
         const regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
-        this._area = this.getArea(this._geometry.vertices.slice(0, -1));
+        this._area = this.getArea(this._geometry.vertices);
         if (this._calibrationFactor) {
             this._area *= Math.pow(this._calibrationFactor, 2);
         } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
@@ -383,6 +444,9 @@ const widgetsFreehand = (three = window.THREE) => {
 
         let title = this._units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
+        if (this._shapeWarn) {
+            title += 'Values may be incorrect due to triangulation error.';
+        }
         if (title !== '' && !this._label.hasAttribute('title')) {
             this._label.setAttribute('title', title);
             this._label.style.color = this._colors.error;

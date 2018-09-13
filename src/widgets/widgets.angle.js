@@ -196,8 +196,8 @@ const widgetsAngle = (three = window.THREE) => {
         this._geometry.vertices = [
             this._handles[0].worldPosition,
             this._handles[1].worldPosition,
+            this._handles[1].worldPosition,
             this._handles[2].worldPosition,
-            this._handles[3].worldPosition,
         ];
 
         // material
