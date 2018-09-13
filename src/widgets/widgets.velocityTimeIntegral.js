@@ -364,7 +364,12 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
                     this._regions,
                     CoreUtils.worldToData(this._params.lps2IJK, this._handles[0]._worldPosition)
                 )];
-            const minMax = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
+            const boundaries = {
+                    xMin: Number.POSITIVE_INFINITY,
+                    xMax: Number.NEGATIVE_INFINITY,
+                    yMin: Number.POSITIVE_INFINITY,
+                    yMax: Number.NEGATIVE_INFINITY,
+                };
             let pVelocity;
             let pGradient;
             let pTime;
@@ -373,7 +378,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._vMax = 0;
             this._vMean = 0;
             this._gMean = 0;
-            this._usPoints.splice(0, 2);
+            this._usPoints.splice(2);
             this._handles.slice(0, -2).forEach((elem) => {
                 const usPosition = this.getPointInRegion(
                         region,
@@ -385,12 +390,11 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
                 if (this._vMax === null || velocity > this._vMax) {
                     this._vMax = velocity;
                 }
-                if (usPosition.x < minMax[0]) {
-                    minMax[0] = usPosition.x;
-                }
-                if (usPosition.x > minMax[1]) {
-                    minMax[1] = usPosition.x;
-                }
+                boundaries.xMin = Math.min(usPosition.x, boundaries.xMin);
+                boundaries.xMax = Math.max(usPosition.x, boundaries.xMax);
+                boundaries.yMin = Math.min(usPosition.y, boundaries.yMin);
+                boundaries.yMax = Math.max(usPosition.y, boundaries.yMax);
+
                 if (pTime) {
                     const length = Math.abs(usPosition.x - pTime);
 
@@ -411,7 +415,8 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._envTi = totalTime * 1000;
             this._vti = this.getArea(this._usPoints);
 
-            this._shapeWarn = (minMax[1] - minMax[0]) !== totalTime;
+            this._shapeWarn = (boundaries.xMax - boundaries.xMin) !== totalTime
+                || (boundaries.yMin < 0) !== (boundaries.yMax < 0);
         }
 
         updateMesh() {
