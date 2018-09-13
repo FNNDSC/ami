@@ -190,6 +190,11 @@ const widgetsFreehand = (three = window.THREE) => {
             this.createLine();
         }
 
+        if (this._dragged || !this._initialized) {
+            this.updateMesh();
+            this.updateDOMContent();
+        }
+
         if (!this._dragged && this._active) {
             this._selected = !this._selected; // change state if there was no dragging
             this._handles.forEach((elem) => elem.selected = this._selected);
@@ -199,8 +204,6 @@ const widgetsFreehand = (three = window.THREE) => {
         this._moving = false;
         this._initialized = true;
 
-        this.updateMesh();
-        this.updateDOMContent();
         this.update();
     }
 
@@ -411,7 +414,7 @@ const widgetsFreehand = (three = window.THREE) => {
 
         const regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
-        this._area = this.getArea(this._geometry.vertices);
+        this._area = CoreUtils.getGeometryArea(this._geometry); // this.getArea result is changed on dragging
         if (this._calibrationFactor) {
             this._area *= Math.pow(this._calibrationFactor, 2);
         } else if (regions && regions.length > 0 && this._stack.lps2IJK) {

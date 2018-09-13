@@ -209,6 +209,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
 
             if (this._dragged || !this._initialized) {
                 this.finalize();
+                this.updateDOMContent();
             }
 
             if (!this._dragged && this._active) {
@@ -220,7 +221,6 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._dragged = false;
             this._initialized = true;
 
-            this.updateDOMContent();
             this.update();
         }
 
@@ -373,6 +373,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             this._vMax = 0;
             this._vMean = 0;
             this._gMean = 0;
+            this._usPoints.splice(0, 2);
             this._handles.slice(0, -2).forEach((elem) => {
                 const usPosition = this.getPointInRegion(
                         region,

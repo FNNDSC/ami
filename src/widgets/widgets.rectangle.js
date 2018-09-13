@@ -166,7 +166,7 @@ const widgetsRectangle = (three = window.THREE) => {
         this._dragged = false;
         this._moving = false;
 
-        this.updateRoI();
+        this.updateRoI(); // TODO: if (this._dragged || !this._initialized)
         this.update();
     }
 
