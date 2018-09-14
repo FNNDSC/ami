@@ -248,7 +248,6 @@ const widgetsAngle = (three = window.THREE) => {
     update() {
         this.updateColor();
 
-        // update handles
         this._handles[0].update();
         this._handles[1].update();
         this._handles[2].update();
@@ -258,13 +257,10 @@ const widgetsAngle = (three = window.THREE) => {
             this._handles[1].worldPosition.clone().sub(this._handles[2].worldPosition)) * 180 / Math.PI || 0.0;
         this._opangle = this._defaultAngle ? this._opangle : 360 - this._opangle;
 
-        // mesh stuff
         this.updateMeshColor();
         this.updateMeshPosition();
 
-        // DOM stuff
-        this.updateDOMColor();
-        this.updateDOMPosition();
+        this.updateDOM();
     }
 
     updateMeshColor() {
@@ -279,7 +275,9 @@ const widgetsAngle = (three = window.THREE) => {
         }
     }
 
-    updateDOMPosition() {
+    updateDOM() {
+        this.updateDOMColor();
+
         // update first line
         const lineData = this.getLineData(this._handles[1].screenPosition, this._handles[0].screenPosition);
 

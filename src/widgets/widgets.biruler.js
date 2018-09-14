@@ -203,16 +203,12 @@ const widgetsBiruler = (three = window.THREE) => {
         update() {
             this.updateColor();
 
-            // update handles
             this._handles.forEach((elem) => elem.update());
 
-            // mesh stuff
             this.updateMeshColor();
             this.updateMeshPosition();
 
-            // DOM stuff
-            this.updateDOMColor();
-            this.updateDOMPosition();
+            this.updateDOM();
         }
 
         updateMeshColor() {
@@ -227,7 +223,9 @@ const widgetsBiruler = (three = window.THREE) => {
             }
         }
 
-        updateDOMPosition() {
+        updateDOM() {
+            this.updateDOMColor();
+
             // update first line
             const lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 

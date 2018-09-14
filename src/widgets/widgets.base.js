@@ -322,6 +322,7 @@ const widgetsBase = (three = window.THREE) => {
       if (this._handles) {
           this._handles.forEach((elem) => elem._colors.default = color);
       }
+      this.update();
     }
 
     show() {

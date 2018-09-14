@@ -238,18 +238,13 @@ const widgetsRectangle = (three = window.THREE) => {
     update() {
         this.updateColor();
 
-        // update handles
         this._handles[0].update();
         this._handles[1].update();
 
-        // mesh stuff
         this.updateMeshColor();
         this.updateMeshPosition();
 
-        // DOM stuff
-        this.updateDOMColor();
-        this.updateDOMContent();
-        this.updateDOMPosition();
+        this.updateDOM();
     }
 
     updateMeshColor() {
@@ -274,11 +269,6 @@ const widgetsRectangle = (three = window.THREE) => {
         }
     }
 
-    updateDOMColor() {
-        this._rectangle.style.borderColor = this._color;
-        this._label.style.borderColor = this._color;
-    }
-
     updateRoI(clear) {
         const meanSDContainer = this._label.querySelector('.mean-sd');
         const maxMinContainer = this._label.querySelector('.max-min');
@@ -301,7 +291,14 @@ const widgetsRectangle = (three = window.THREE) => {
         }
     }
 
-    updateDOMContent() {
+    updateDOMColor() {
+        this._rectangle.style.borderColor = this._color;
+        this._label.style.borderColor = this._color;
+    }
+
+    updateDOM() {
+        this.updateDOMColor();
+
         const regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
         this._area = CoreUtils.getGeometryArea(this._geometry);
@@ -340,9 +337,7 @@ const widgetsRectangle = (three = window.THREE) => {
             this._label.style.color = this._colors.text;
         }
         this._label.querySelector('.area').innerHTML = `Area: ${this._area.toFixed(2)} ${this._units}`;
-    }
 
-    updateDOMPosition() {
         const rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition);
         const labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(
                 rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));

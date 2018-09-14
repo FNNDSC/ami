@@ -255,16 +255,12 @@ const widgetsCrossRuler = (three = window.THREE) => {
     update() {
         this.updateColor();
 
-        // update handles
         this._handles.slice(0, -1).forEach((elem) => elem.update());
 
-        // mesh stuff
         this.updateMeshColor();
         this.updateMeshPosition();
 
-        // DOM stuff
-        this.updateDOMColor();
-        this.updateDOMPosition();
+        this.updateDOM();
     }
 
     updateMeshColor() {
@@ -279,7 +275,9 @@ const widgetsCrossRuler = (three = window.THREE) => {
         }
     }
 
-    updateDOMPosition() {
+    updateDOM() {
+        this.updateDOMColor();
+
         // update first line
         const lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 

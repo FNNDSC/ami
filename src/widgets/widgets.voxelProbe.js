@@ -168,10 +168,7 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
     this.updateVoxel(); // set data coordinates && value
 
-    // update dom
-    this.updateDOMContent();
-    this.updateDOMColor();
-    this.updateDOMPosition();
+    this.updateDOM();
   }
 
   updateVoxel() {
@@ -189,7 +186,7 @@ const widgetsVoxelprobe = (three = window.THREE) => {
         this._stack.rescaleIntercept).toFixed();
   }
 
-  updateDOMContent() {
+  updateDOM() {
     const rasContainer = this._label.querySelector('.lpsPosition');
     const ijkContainer = this._label.querySelector('.ijkPosition');
     const valueContainer = this._label.querySelector('.value');
@@ -203,9 +200,9 @@ const widgetsVoxelprobe = (three = window.THREE) => {
       ${this._voxel.dataCoordinates.y} :
       ${this._voxel.dataCoordinates.z}`;
     valueContainer.innerHTML = `Value: ${this._voxel.value}`;
-  }
 
-  updateDOMPosition() {
+    this.updateDOMColor();
+
     const transform = this.adjustLabelTransform(this._label, this._handle.screenPosition, true);
 
     this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;

@@ -269,17 +269,14 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
         update() {
             this.updateColor();
 
-            // update handles
             this._handles[0].update();
             this._handles[1].update();
 
             this.updateValues();
 
-            // mesh stuff
             this.updateMeshColor();
             this.updateMeshPosition();
 
-            // DOM stuff
             this.updateDOM();
         }
 

@@ -248,17 +248,13 @@ const widgetsAnnotation = (three = window.THREE) => {
     update() {
       this.updateColor();
 
-      // update handles
       this._handles[0].update();
       this._handles[1].update();
 
-      // mesh stuff
       this.updateMeshColor();
       this.updateMeshPosition();
 
-      // DOM stuff
-      this.updateDOMColor();
-      this.updateDOMPosition();
+      this.updateDOM();
     }
 
     updateMeshColor() {
@@ -278,7 +274,9 @@ const widgetsAnnotation = (three = window.THREE) => {
       }
     }
 
-    updateDOMPosition() {
+    updateDOM() {
+      this.updateDOMColor();
+
       // update line
       const lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 

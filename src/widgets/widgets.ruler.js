@@ -216,7 +216,6 @@ const widgetsRuler = (three = window.THREE) => {
   update() {
     this.updateColor();
 
-    // update handles
     this._handles[0].update();
     this._handles[1].update();
 
@@ -232,13 +231,10 @@ const widgetsRuler = (three = window.THREE) => {
       this._units = distanceData.units;
     }
 
-    // mesh stuff
     this.updateMeshColor();
     this.updateMeshPosition();
 
-    // DOM stuff
-    this.updateDOMColor();
-    this.updateDOMPosition();
+    this.updateDOM();
   }
 
   updateMeshColor() {
@@ -253,7 +249,9 @@ const widgetsRuler = (three = window.THREE) => {
     }
   }
 
-  updateDOMPosition() {
+  updateDOM() {
+    this.updateDOMColor();
+
     // update line
     const lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 
