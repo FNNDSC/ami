@@ -134,7 +134,7 @@ export default class ModelsSeries extends ModelsBase {
   sortStack() {
     if (this._stackSorted || this._stack.length === 0) return;
     let stackArray = this._stack;
-    for (let i = 1; i < stackArray.length; i++) stackArray[0]._frame = stackArray[0]._frame.concat(stackArray[i]._frame);
+    // for (let i = 1; i < stackArray.length; i++) stackArray[0]._frame = stackArray[0]._frame.concat(stackArray[i]._frame);
     stackArray.length = 1;
 
     let firstEchoNumber = stackArray[0]._frame[0]._echoNumber;
