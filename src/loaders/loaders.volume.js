@@ -294,6 +294,7 @@ export default class LoadersVolumes extends LoadersBase {
         Parser = ParsersNifti;
         break;
       case 'DCM':
+      case 'DIC':
       case 'DICOM':
       case 'IMA':
       case '':
