@@ -17,8 +17,8 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
 
             this._widgetType = 'VelocityTimeIntegral';
 
-            // incoming parameters (+ ijk2LPS, lps2IJK, pixelSpacing)
-            this._regions = params.ultrasoundRegions || [];
+            // incoming parameters (+ ijk2LPS, lps2IJK, worldPosition)
+            this._regions = params.ultrasoundRegions || []; // required
             if (this._regions.length < 1) {
                 throw new Error('Ultrasound regions should not be empty!');
             }
@@ -327,7 +327,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
             const axisY = region.y0 + (region.axisY || 0); // data coordinate equal to US region's zero Y coordinate
 
             const WidgetsHandle = widgetsHandleFactory(three);
-            const params = { hideHandleMesh: this._params.hideHandleMesh };
+            const params = { hideHandleMesh: this._params.hideHandleMesh || false };
 
             pointF.y = axisY;
             pointL.y = axisY;

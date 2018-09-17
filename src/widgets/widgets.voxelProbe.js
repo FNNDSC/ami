@@ -18,8 +18,8 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
     this._widgetType = 'VoxelProbe';
 
-    // incoming parameters
-    this._stack = params.stack;
+    // incoming parameters (optional: worldPosition)
+    this._stack = params.stack; // required
 
     this._container.style.cursor = 'pointer';
     this._controls.enabled = false; // controls should be disabled for widgets with a single handle

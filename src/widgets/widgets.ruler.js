@@ -16,7 +16,7 @@ const widgetsRuler = (three = window.THREE) => {
 
     this._widgetType = 'Ruler';
 
-    // incoming parameters
+    // incoming parameters (optional: lps2IJK, pixelSpacing, ultrasoundRegions, worldPosition)
     this._calibrationFactor = params.calibrationFactor || null;
 
     // outgoing values

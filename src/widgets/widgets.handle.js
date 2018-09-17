@@ -16,6 +16,7 @@ const widgetsHandle = (three = window.THREE) => {
 
     this._widgetType = 'Handle';
 
+    // incoming parameters (optional: worldPosition)
     if (params.hideHandleMesh === true) {
       this.visible = false;
     }

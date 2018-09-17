@@ -18,8 +18,8 @@ const widgetsPressureHalfTime = (three = window.THREE) => {
 
             this._widgetType = 'PressureHalfTime';
 
-            // incoming parameters (+ lps2IJK)
-            this._regions = params.ultrasoundRegions || [];
+            // incoming parameters (required: lps2IJK, worldPosition)
+            this._regions = params.ultrasoundRegions || []; // required
             if (this._regions.length < 1) {
                 throw new Error('Ultrasound regions should not be empty!');
             }

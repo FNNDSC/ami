@@ -17,8 +17,8 @@ const widgetsEllipse = (three = window.THREE) => {
 
         this._widgetType = 'Ellipse';
 
-        // incoming parameters (+ frameIndex)
-        this._stack = params.stack;
+        // incoming parameters (optional: frameIndex, worldPosition)
+        this._stack = params.stack; // required
         this._calibrationFactor = params.calibrationFactor || null;
 
         // outgoing values

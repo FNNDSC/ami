@@ -16,8 +16,10 @@ const widgetsBase = (three = window.THREE) => {
 
       this._widgetType = 'Base';
 
-      // params: hideMesh (bool), hideHandleMesh (bool), stack (ModelsStack), frameIndex (number),
-      //   calibrationFactor (number), lps2IJK (Matrix4), pixelSpacing (number), ultrasoundRegions (Array<Object>)
+      // List of supported parameters:
+      //   calibrationFactor (number), frameIndex (number), hideMesh (bool), hideHandleMesh (bool),
+      //   ijk2LPS (Matrix4), lps2IJK (Matrix4), pixelSpacing (number), stack (ModelsStack),
+      //   ultrasoundRegions (Array<Object>), worldPosition (Vector3)
       this._params = params || {};
       if (params.hideMesh === true) {
         this.visible = false;

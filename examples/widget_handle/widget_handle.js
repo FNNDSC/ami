@@ -164,20 +164,18 @@ window.onload = function() {
 
       let widget = null;
       switch (guiObjects.type) {
-        case 'Handle':
-          widget = new WidgetsHandle(stackHelper.slice.mesh, controls);
-          break;
         case 'VoxelProbe':
           widget = new WidgetsVoxelProbe(stackHelper.slice.mesh, controls, {
-            frameIndex: stackHelper.index,
-            stack: stack
+            stack: stack,
+            worldPosition: intersects[0].point
           });
           break;
         case 'Ruler':
           widget = new WidgetsRuler(stackHelper.slice.mesh, controls, {
             lps2IJK: stack.lps2IJK,
             pixelSpacing: stack.frame[stackHelper.index].pixelSpacing,
-            ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions
+            ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions,
+            worldPosition: intersects[0].point
           });
           break;
         case 'CrossRuler':
@@ -191,44 +189,49 @@ window.onload = function() {
           widget = new WidgetsBiRuler(stackHelper.slice.mesh, controls, {
             lps2IJK: stack.lps2IJK,
             pixelSpacing: stack.frame[stackHelper.index].pixelSpacing,
-            ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions
+            ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions,
+            worldPosition: intersects[0].point
           });
           break;
         case 'Angle':
-          widget = new WidgetsAngle(stackHelper.slice.mesh, controls);
+          widget = new WidgetsAngle(stackHelper.slice.mesh, controls, { worldPosition: intersects[0].point });
           break;
         case 'Rectangle':
           widget = new WidgetsRectangle(stackHelper.slice.mesh, controls, {
             frameIndex: stackHelper.index,
-            stack: stack
+            stack: stack,
+            worldPosition: intersects[0].point
           });
           break;
         case 'Ellipse':
           widget = new WidgetsEllipse(stackHelper.slice.mesh, controls, {
             frameIndex: stackHelper.index,
-            stack: stack
+            stack: stack,
+            worldPosition: intersects[0].point
           });
           break;
         case 'Polygon':
           widget = new WidgetsPolygon(stackHelper.slice.mesh, controls, {
             frameIndex: stackHelper.index,
-            stack: stack
+            stack: stack,
+            worldPosition: intersects[0].point
           });
           break;
         case 'Freehand':
           widget = new WidgetsFreehand(stackHelper.slice.mesh, controls, {
             frameIndex: stackHelper.index,
-            stack: stack
+            stack: stack,
+            worldPosition: intersects[0].point
           });
           break;
         case 'Annotation':
-          widget = new WidgetsAnnotation(stackHelper.slice.mesh, controls);
+          widget = new WidgetsAnnotation(stackHelper.slice.mesh, controls, { worldPosition: intersects[0].point });
           break;
+        case 'Handle':
         default:
-          widget = new WidgetsHandle(stackHelper.slice.mesh, controls);
+          widget = new WidgetsHandle(stackHelper.slice.mesh, controls, { worldPosition: intersects[0].point });
       }
 
-      widget.worldPosition = intersects[0].point;
       widgets.push(widget);
       scene.add(widget);
     });

@@ -16,6 +16,8 @@ const widgetsAngle = (three = window.THREE) => {
 
         this._widgetType = 'Angle';
 
+        // incoming parameters (optional: worldPosition)
+
         // outgoing values
         this._opangle = null;
 
