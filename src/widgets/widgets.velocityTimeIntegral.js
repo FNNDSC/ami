@@ -324,7 +324,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
                     this._handles[this._handles.length - 1]._worldPosition
                 );
             const region = this._regions[this.getRegionByXY(this._regions, pointF)];
-            const axisY = region.y0 + region.axisY; // data coordinate equal to US region's zero Y coordinate
+            const axisY = region.y0 + (region.axisY || 0); // data coordinate equal to US region's zero Y coordinate
 
             const WidgetsHandle = widgetsHandleFactory(three);
             const params = { hideHandleMesh: this._params.hideHandleMesh };

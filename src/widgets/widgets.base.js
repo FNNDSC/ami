@@ -146,8 +146,8 @@ const widgetsBase = (three = window.THREE) => {
        }
 
        return new three.Vector2(
-         (point.x - region.x0 - region.axisX) * region.deltaX,
-         (point.y - region.y0 - region.axisY) * region.deltaY
+         (point.x - region.x0 - (region.axisX || 0)) * region.deltaX,
+         (point.y - region.y0 - (region.axisY || 0)) * region.deltaY
        );
      }
 
