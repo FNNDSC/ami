@@ -2,6 +2,8 @@
 import ParsersVolume from './parsers.volume';
 import * as OpenJPEG from 'OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js';
 
+import {RLEDecoder} from '../decoders/decoders.rle';
+
 let DicomParser = require('dicom-parser');
 let Jpeg = require('jpeg-lossless-decoder-js');
 let JpegBaseline = require('../../external/scripts/jpeg');
@@ -750,6 +752,11 @@ let frameTime;
       // JPEG 2000 Lossy
       return this._decodeJ2K(frameIndex);
     } else if (
+        transferSyntaxUID === '1.2.840.10008.1.2.5'
+        // decodeRLE
+      ) {
+        return this._decodeRLE(frameIndex);
+      } else if (
       transferSyntaxUID === '1.2.840.10008.1.2.4.57' ||
       // JPEG Lossless, Nonhierarchical (Processes 14)
       transferSyntaxUID === '1.2.840.10008.1.2.4.70') {
@@ -922,6 +929,34 @@ let frameTime;
     }
 
     return this._decodeOpenJPEG(frameIndex);
+  }
+
+  _decodeRLE(frameIndex = 0) {
+    const bitsAllocated = this.bitsAllocated(frameIndex);
+    const planarConfiguration = this.planarConfiguration();
+    const columns = this.columns();
+    const rows = this.rows();
+    const samplesPerPixel = this.samplesPerPixel(frameIndex);
+    const pixelRepresentation = this.pixelRepresentation(frameIndex);
+    
+    // format data for the RLE decoder
+    const imageFrame = {
+      pixelRepresentation,
+      bitsAllocated,
+      planarConfiguration,
+      columns,
+      rows,
+      samplesPerPixel,
+    };
+
+    const pixelData =  DicomParser.readEncapsulatedPixelDataFromFragments(
+      this._dataSet,
+      this._dataSet.elements.x7fe00010,
+      frameIndex
+    );
+
+    const decoded = RLEDecoder(imageFrame, pixelData);
+    return decoded.pixelData;
   }
 
   // from cornerstone
