@@ -37,7 +37,7 @@ const widgetsPeakVelocity = (three = window.THREE) => {
                 this._regions,
                 CoreUtils.worldToData(params.lps2IJK, params.worldPosition)
             );
-            if (!this._initialRegion) {
+            if (this._initialRegion === null) {
                 throw new Error('Invalid initial UltraSound region!');
             }
 
@@ -223,11 +223,13 @@ const widgetsPeakVelocity = (three = window.THREE) => {
         }
 
         hideDOM() {
+            this._line.style.display = 'none';
             this._label.style.display = 'none';
             this._handle.hideDOM();
         }
 
         showDOM() {
+            this._line.style.display = '';
             this._label.style.display = '';
             this._handle.showDOM();
         }

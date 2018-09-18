@@ -39,7 +39,7 @@ const widgetsVelocityTimeIntegral = (three = window.THREE) => {
                 this._regions,
                 CoreUtils.worldToData(params.lps2IJK, params.worldPosition)
             );
-            if (!this._initialRegion) {
+            if (this._initialRegion === null) {
                 throw new Error('Invalid initial UltraSound region!');
             }
             this._usPoints = [];
