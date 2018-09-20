@@ -456,6 +456,8 @@ export default class ModelsStack extends ModelsBase {
    */
   merge(stack) {
     if (this._stackID === stack.stackID &&
+        // TODO: stacks with numberOfFrames > 1 shouldn't be merged until textureSize 8K+ is fully supported
+        this._numberOfFrames === 1 && stack._numberOfFrames === 1 && // TODO: should be option based condition
         this._frame[0].columns === stack.frame[0].columns &&
         this._frame[0].rows === stack.frame[0].rows &&
         this._xCosine.equals(stack.xCosine) &&
