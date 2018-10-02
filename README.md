@@ -221,10 +221,11 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 | ✅ Volume Rendering | ✅ Nifti     | ✅  TRK           | 🔶 Ruler (2D/3D)        |
 | ✅ Lookup Tables    | ✅  MHD/(Z)RAW   | ✅  FSM           | 🔶 Orientation (2D/3D)  |
 | 🔶 Label Maps       | ✅  MGH/MGZ   | ❌ CURV          | 🔶 Angle (2D/3D)        |
-|                    | ❌ JPEG      |                  |                         |
+|                      | ❌ JPEG      |                  |                         |
 
 ## Usage
-
+ - There are a lot of usages from a variety of fields, it has support for everything you would want. 
+ - Just read carefully ;)
 ### Pre-requisites
 
 - ES2015 promises support. (consider using polyfills if needed)
