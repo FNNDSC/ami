@@ -62,12 +62,12 @@ fs.readdir(sourceDir, (error, files) => {
         let destFile = targetDir + file + '/' + 'index.html';
         const sourceContentHtml = fs.readFileSync(sourceDir + file + '/' + file + '.html', 'utf8');
 
-        let targetHtml = sourceHtml.replace(/##template.name##/gi, targetName === 'lessons' ? 'demo' : file);
+        let targetHtml = sourceHtml.replace(/##template.name##/gi, file);
         targetHtml = targetHtml.replace('##template.target##', file);
         targetHtml = targetHtml.replace('##three.version##', threeVersion);
         targetHtml = targetHtml.replace('##template.mode##', targetName.toProperCase());
         targetHtml = targetHtml.replace('##template.content##', sourceContentHtml);
-        targetHtml = targetHtml.replace('##template.ami', targetName === 'lessons' ? demoAmi(targetMode) : '');
+        targetHtml = targetHtml.replace('##template.ami', '');
 
         let gaScript = '';
         if (process.env.NODE_GA) {
@@ -79,21 +79,5 @@ fs.readdir(sourceDir, (error, files) => {
             if (err) throw err;
             console.log('Write: ' + destFile);
         });
-
-        if (targetName === 'lessons') {
-            const sourceDemoHtml = fs.readFileSync(_sourceDemoFile, 'utf8');
-
-            destFile = targetDir + file + '/' + 'demo.html';
-            let targetHtml = sourceDemoHtml;
-            targetHtml = targetHtml.replace('##three.version##', threeVersion);
-            targetHtml = targetHtml.replace('##template.content##', sourceContentHtml);
-            targetHtml = targetHtml.replace('##template.ami', demoAmi(targetMode));
-            targetHtml = targetHtml.replace('##google.analytics##', analytics(file, gaKey));
-
-            fs.writeFile(destFile, targetHtml, err => {
-                if (err) throw err;
-                console.log('Write: ' + destFile);
-            });
-        }
     });
 });

@@ -305,17 +305,6 @@ $> yarn example geometries_slice
 
 ```
 
-To run lessons (browserify/babelify/serve the lesson)
-
-```bash
-
-$> yarn lesson <lesson number>
-
-# run lesson 00
-$> yarn lesson 00
-
-```
-
 Build standalone library to `lib/`
 
 ```bash
