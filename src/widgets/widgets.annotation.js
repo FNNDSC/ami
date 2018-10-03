@@ -12,10 +12,13 @@ const widgetsAnnotation = (three = window.THREE) => {
 
   const Constructor = widgetsBase(three);
   return class extends Constructor {
-    constructor(targetMesh, controls) {
-      super(targetMesh, controls);
+    constructor(targetMesh, controls, params) {
+      super(targetMesh, controls, params);
 
       this._widgetType = 'Annotation';
+
+      // incoming parameters (optional: worldPosition)
+
       this._initialized = false; // set to true when the name of the label is entered
       this._movinglabel = null; // bool that turns true when the label is moving with the mouse
       this._labelmoved = false; // bool that turns true once the label is moved by the user (at least once)
@@ -44,8 +47,7 @@ const widgetsAnnotation = (three = window.THREE) => {
       let handle;
       const WidgetsHandle = widgetsHandleFactory(three);
       for (let i = 0; i < 2; i++) {
-        handle = new WidgetsHandle(targetMesh, controls);
-        handle.worldPosition.copy(this._worldPosition);
+        handle = new WidgetsHandle(targetMesh, controls, params);
         this.add(handle);
         this._handles.push(handle);
       }
@@ -101,9 +103,7 @@ const widgetsAnnotation = (three = window.THREE) => {
       if (this._labelhovered) { // if label hovered then it should be moved
         // save mouse coordinates offset from label center
         const offsets = this.getMouseOffsets(evt, this._container);
-
-
-const paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelOffset);
+        const paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelOffset);
 
         this._mouseLabelOffset = new three.Vector3(offsets.screenX - paddingPoint.x, offsets.screenY - paddingPoint.y, 0);
         this._movinglabel = true;
@@ -231,16 +231,16 @@ const paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelOffs
 
     createDOM() {
       this._line = document.createElement('div');
-      this._line.setAttribute('class', 'widgets-line');
+      this._line.className = 'widgets-line';
       this._container.appendChild(this._line);
 
       this._dashline = document.createElement('div');
-      this._dashline.setAttribute('class', 'widgets-dashline');
+      this._dashline.className = 'widgets-dashline';
       this._dashline.style.display = 'none';
       this._container.appendChild(this._dashline);
 
       this._label = document.createElement('div');
-      this._label.setAttribute('class', 'widgets-label');
+      this._label.className = 'widgets-label';
       this._label.style.display = 'none';
       this._container.appendChild(this._label);
 
@@ -250,17 +250,13 @@ const paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelOffs
     update() {
       this.updateColor();
 
-      // update handles
       this._handles[0].update();
       this._handles[1].update();
 
-      // mesh stuff
       this.updateMeshColor();
       this.updateMeshPosition();
 
-      // DOM stuff
-      this.updateDOMColor();
-      this.updateDOMPosition();
+      this.updateDOM();
     }
 
     updateMeshColor() {
@@ -280,7 +276,9 @@ const paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelOffs
       }
     }
 
-    updateDOMPosition() {
+    updateDOM() {
+      this.updateDOMColor();
+
       // update line
       const lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 
@@ -290,14 +288,10 @@ const paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelOffs
 
       // update label
       const paddingVector = lineData.line.multiplyScalar(0.5);
-
-
-const paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelmoved
+      const paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelmoved
           ? this._labelOffset // if the label is moved, then its position is defined by labelOffset
-          : paddingVector);
- // otherwise it's placed in the center of the line
-
-const labelPosition = this.adjustLabelTransform(this._label, paddingPoint);
+          : paddingVector); // otherwise it's placed in the center of the line
+      const labelPosition = this.adjustLabelTransform(this._label, paddingPoint);
 
       this._label.style.transform = `translate3D(${labelPosition.x}px, ${labelPosition.y}px, 0)`;
 
@@ -308,12 +302,8 @@ const labelPosition = this.adjustLabelTransform(this._label, paddingPoint);
 
       // update dash line
       let minLine = this.getLineData(this._handles[0].screenPosition, paddingPoint);
-
-
-let lineCL = this.getLineData(lineData.center, paddingPoint);
-
-
-let line1L = this.getLineData(this._handles[1].screenPosition, paddingPoint);
+      let lineCL = this.getLineData(lineData.center, paddingPoint);
+      let line1L = this.getLineData(this._handles[1].screenPosition, paddingPoint);
 
       if (minLine.length > lineCL.length) {
           minLine = lineCL;
@@ -337,18 +327,14 @@ let line1L = this.getLineData(this._handles[1].screenPosition, paddingPoint);
       this._line.style.display = 'none';
       this._dashline.style.display = 'none';
       this._label.style.display = 'none';
-      this._handles.forEach(function(elem) {
-        elem.hideDOM();
-      });
+      this._handles.forEach((elem) => elem.hideDOM());
     }
 
     showDOM() {
       this._line.style.display = '';
       this._dashline.style.display = '';
       this._label.style.display = '';
-      this._handles.forEach(function(elem) {
-        elem.showDOM();
-      });
+      this._handles.forEach((elem) => elem.showDOM());
     }
 
     free() {
@@ -396,9 +382,7 @@ let line1L = this.getLineData(this._handles[1].screenPosition, paddingPoint);
 
     set targetMesh(targetMesh) {
       this._targetMesh = targetMesh;
-      this._handles.forEach(function(elem) {
-        elem.targetMesh = targetMesh;
-      });
+      this._handles.forEach((elem) => elem.targetMesh = targetMesh);
       this.update();
     }
 

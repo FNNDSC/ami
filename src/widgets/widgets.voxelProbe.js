@@ -13,29 +13,30 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
   const Constructor = widgetsBase(three);
   return class extends Constructor {
-  constructor(targetMesh, controls, stack) {
-    super(targetMesh, controls);
-
-    this._stack = stack;
+  constructor(targetMesh, controls, params) {
+    super(targetMesh, controls, params);
 
     this._widgetType = 'VoxelProbe';
+
+    // incoming parameters (optional: worldPosition)
+    this._stack = params.stack; // required
+
+    this._container.style.cursor = 'pointer';
     this._controls.enabled = false; // controls should be disabled for widgets with a single handle
     this._initialized = false; // set to true onEnd
-    this._moving = false;
+    this._active = true;
+    this._moving = true;
+    this._domHovered = false;
 
     // dom stuff
     this._label = null;
-    this._domDisplayed = true;
-    this._domHovered = false;
 
     // handle (represent voxel)
     const WidgetsHandle = widgetsHandleFactory(three);
-    this._handle = new WidgetsHandle(targetMesh, controls);
-    this._handle.worldPosition.copy(this._worldPosition);
+    this._handle = new WidgetsHandle(targetMesh, controls, params);
     this.add(this._handle);
 
-    this._moveHandle = new WidgetsHandle(targetMesh, controls);
-    this._moveHandle.worldPosition.copy(this._worldPosition);
+    this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
     this.add(this._moveHandle);
     this._moveHandle.hide();
 
@@ -135,21 +136,21 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
   createDOM() {
     this._label = document.createElement('div');
-    this._label.setAttribute('class', 'widgets-label');
+    this._label.className = 'widgets-label';
 
-    // measurenents
+    // measurements
     let measurementsContainer = document.createElement('div');
     // LPS
     let lpsContainer = document.createElement('div');
-    lpsContainer.setAttribute('id', 'lpsPosition');
+    lpsContainer.className = 'lpsPosition';
     measurementsContainer.appendChild(lpsContainer);
     // IJK
     let ijkContainer = document.createElement('div');
-    ijkContainer.setAttribute('id', 'ijkPosition');
+    ijkContainer.className = 'ijkPosition';
     measurementsContainer.appendChild(ijkContainer);
     // Value
     let valueContainer = document.createElement('div');
-    valueContainer.setAttribute('id', 'value');
+    valueContainer.className = 'value';
     measurementsContainer.appendChild(valueContainer);
 
     this._label.appendChild(measurementsContainer);
@@ -167,10 +168,7 @@ const widgetsVoxelprobe = (three = window.THREE) => {
 
     this.updateVoxel(); // set data coordinates && value
 
-    // update dom
-    this.updateDOMContent();
-    this.updateDOMColor();
-    this.updateDOMPosition();
+    this.updateDOM();
   }
 
   updateVoxel() {
@@ -188,14 +186,10 @@ const widgetsVoxelprobe = (three = window.THREE) => {
         this._stack.rescaleIntercept).toFixed();
   }
 
-  updateDOMContent() {
-    const rasContainer = this._label.querySelector('#lpsPosition');
-
-
-const ijkContainer = this._label.querySelector('#ijkPosition');
-
-
-const valueContainer = this._label.querySelector('#value');
+  updateDOM() {
+    const rasContainer = this._label.querySelector('.lpsPosition');
+    const ijkContainer = this._label.querySelector('.ijkPosition');
+    const valueContainer = this._label.querySelector('.value');
 
     rasContainer.innerHTML = `LPS: 
       ${this._voxel.worldCoordinates.x.toFixed(2)} :
@@ -206,9 +200,9 @@ const valueContainer = this._label.querySelector('#value');
       ${this._voxel.dataCoordinates.y} :
       ${this._voxel.dataCoordinates.z}`;
     valueContainer.innerHTML = `Value: ${this._voxel.value}`;
-  }
 
-  updateDOMPosition() {
+    this.updateDOMColor();
+
     const transform = this.adjustLabelTransform(this._label, this._handle.screenPosition, true);
 
     this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
@@ -230,6 +224,7 @@ const valueContainer = this._label.querySelector('#value');
 
     this._container.removeChild(this._label);
 
+    this._stack = null;
     this._voxel = null;
 
     super.free();
@@ -262,6 +257,7 @@ const valueContainer = this._label.querySelector('#value');
 
   set worldPosition(worldPosition) {
     this._handle.worldPosition.copy(worldPosition);
+    this._moveHandle.worldPosition.copy(worldPosition);
     this._worldPosition.copy(worldPosition);
     this.update();
   }
@@ -275,33 +271,6 @@ const valueContainer = this._label.querySelector('#value');
     this._controls.enabled = !this._active;
 
     this.update();
-  }
-
-  set showVoxel(showVoxel) {
-    this._showVoxel = showVoxel;
-    this.update();
-  }
-
-  get showVoxel() {
-    return this._showVoxel;
-  }
-
-  set showDomSVG(showDomSVG) {
-    this._showDomSVG = showDomSVG;
-    this.update();
-  }
-
-  get showDomSVG() {
-    return this._showDomSVG;
-  }
-
-  set showDomMeasurements(showDomMeasurements) {
-    this._showDomMeasurements = showDomMeasurements;
-    this.update();
-  }
-
-  get showDomMeasurements() {
-    return this._showDomMeasurements;
   }
 };
 };
