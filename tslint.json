@@ -1,0 +1,28 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended",
+        "tslint-eslint-rules"
+    ],
+        "linterOptions": {
+        "exclude": [
+            "./assets/",
+            "./bower_compnents/",
+            "./build/",
+            "./dist/",
+            "./external/",
+            "./src/controls"
+        ]
+    },
+    "jsRules": {},
+    "rules": {
+        "quotemark": [true, "single", "double", "prefer-template"],
+        "no-var-requires": false,
+        "space-within-parens": [true, 0],
+        "max-len": ["off", 80],
+        "valid-jsdoc": "off",
+        "no-console": true,
+        "no-empty": true
+    },
+    "rulesDirectory": []
+}
