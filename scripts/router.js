@@ -19,17 +19,11 @@ if (process.argv[2] && process.argv[3]) {
             });
         });
     } else {
-        const file = mode === 'lessons' ? 'demo.js' : `${target}.js`;
         let directory = `${mode}/${target}`;
         let name = target;
 
         let buildAmi = '';
         let generateIndexFiles = '';
-        // also watch AMI if lessons mode
-        if (mode === 'lessons') {
-            buildAmi = ' & npm run dev:ami && npm run build:clean:hot';
-            name = 'demo';
-        }
 
         let webpackCmd =
             'webpack-dev-server --config webpack.config.build.js --hot --inline --progress --open --host 0.0.0.0 ' + buildAmi;
@@ -41,10 +35,7 @@ if (process.argv[2] && process.argv[3]) {
             directory = 'dist/' + directory;
         }
 
-        if (
-            !fs.existsSync(directory + '/index.html') ||
-            (mode === 'lessons' && !fs.existsSync(directory + '/demo.html'))
-        ) {
+        if (!fs.existsSync(directory + '/index.html')) {
             generateIndexFiles = 'npm run gen:index:' + mode + ' &&';
         }
 

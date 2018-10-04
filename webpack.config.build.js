@@ -1,4 +1,4 @@
-const mode = process.env.NODE_ENV !== 'production' ? 'development' : 'production' ;
+const mode = process.env.NODE_ENV !== 'production' ? 'development' : 'production';
 
 const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
