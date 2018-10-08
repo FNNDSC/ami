@@ -7,7 +7,7 @@ const WatchLiveReloadPlugin = require('webpack-watch-livereload-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 
 const config = {
-    entry: ['./src/ami.js'],
+    entry: ['./src/ami.ts'],
     devtool: 'source-map',
     output: {
         path: path.resolve(__dirname, 'build'),
@@ -19,7 +19,7 @@ const config = {
     mode,
     resolve: {
         modules: [path.resolve(__dirname, 'src'), 'node_modules'],
-        extensions: ['.js', '.jsx', '.css', '.html', '.scss', '.json'],
+        extensions: ['.ts', '.tsx', '.js', '.jsx', '.css', '.html', '.scss', '.json'],
         alias: {
             base: path.resolve(__dirname, 'src'),
             pako: path.resolve(__dirname, 'node_modules', 'pako'),
@@ -33,6 +33,11 @@ const config = {
                 include: [path.resolve(__dirname, 'src')],
                 exclude: [/node_modules/, 'external/**/*'],
             },
+            {
+                test: /\.tsx?$/,
+                loader: 'ts-loader',
+                exclude: ['external/**/*'],
+            },
         ],
     },
     node: {
@@ -41,11 +46,11 @@ const config = {
     plugins: [],
     optimization: {
         minimizer: [
-          new UglifyJsPlugin({
+            new UglifyJsPlugin({
             parallel: true,
-          })
-        ]
-      }
+            }),
+        ],
+    },
 };
 
 if (process.env.NODE_WEBPACK_TARGET) {
