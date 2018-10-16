@@ -1,0 +1,10 @@
+{
+  "name": "ami-lesson-00",
+  "version": "1.0.0",
+  "description": "Load DICOM files",
+  "main": "index.html",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {},
+  "keywords": []
+}
