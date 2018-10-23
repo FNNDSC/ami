@@ -2,6 +2,8 @@
 import ParsersVolume from './parsers.volume';
 import * as OpenJPEG from 'OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js';
 
+import {RLEDecoder} from '../decoders/decoders.rle';
+
 let DicomParser = require('dicom-parser');
 let Jpeg = require('jpeg-lossless-decoder-js');
 let JpegBaseline = require('../../external/scripts/jpeg');
@@ -450,14 +452,37 @@ export default class ParsersDicom extends ParsersVolume {
     return pixelSpacing;
   }
 
+  ultrasoundRegions(frameIndex = 0) {
+    const sequence = this._dataSet.elements['x00186011'];
+
+    if (!sequence || !sequence.items) {
+      return [];
+    }
+
+    const ultrasoundRegions = [];
+
+    sequence.items.forEach((item) => {
+        ultrasoundRegions.push({
+          x0: item.dataSet.uint32('x00186018'),
+          y0: item.dataSet.uint32('x0018601a'),
+          x1: item.dataSet.uint32('x0018601c'),
+          y1: item.dataSet.uint32('x0018601e'),
+          axisX: item.dataSet.int32('x00186020') || null, // optional
+          axisY: item.dataSet.int32('x00186022') || null, // optional
+          unitsX: this._getUnitsName(item.dataSet.uint16('x00186024')),
+          unitsY: this._getUnitsName(item.dataSet.uint16('x00186026')),
+          deltaX: item.dataSet.double('x0018602c'),
+          deltaY: item.dataSet.double('x0018602e')
+        });
+    });
+
+    return ultrasoundRegions;
+  }
+
   frameTime(frameIndex = 0) {
     let frameIncrementPointer = this._dataSet.uint16('x00280009', 1);
-
-
-let frameRate = this._dataSet.intString('x00082144');
-
-
-let frameTime;
+    let frameRate = this._dataSet.intString('x00082144');
+    let frameTime;
 
     if (typeof frameIncrementPointer === 'number') {
       frameIncrementPointer = frameIncrementPointer.toString(16);
@@ -725,8 +750,6 @@ let frameTime;
 
       if (dataInGroupSequence !== null) {
         return dataInGroupSequence.floatString(tag);
-      } else {
-        return null;
       }
     }
 
@@ -750,6 +773,11 @@ let frameTime;
       // JPEG 2000 Lossy
       return this._decodeJ2K(frameIndex);
     } else if (
+        transferSyntaxUID === '1.2.840.10008.1.2.5'
+        // decodeRLE
+      ) {
+        return this._decodeRLE(frameIndex);
+      } else if (
       transferSyntaxUID === '1.2.840.10008.1.2.4.57' ||
       // JPEG Lossless, Nonhierarchical (Processes 14)
       transferSyntaxUID === '1.2.840.10008.1.2.4.70') {
@@ -780,7 +808,7 @@ let frameTime;
     }
   }
 
-  // https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/imageLoader/wadouri/getEncapsulatedImageFrame.js
+  // github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/imageLoader/wadouri/getEncapsulatedImageFrame.js
   framesAreFragmented() {
     const numberOfFrames = this._dataSet.intString('x00280008');
     const pixelDataElement = this._dataSet.elements.x7fe00010;
@@ -924,6 +952,34 @@ let frameTime;
     return this._decodeOpenJPEG(frameIndex);
   }
 
+  _decodeRLE(frameIndex = 0) {
+    const bitsAllocated = this.bitsAllocated(frameIndex);
+    const planarConfiguration = this.planarConfiguration();
+    const columns = this.columns();
+    const rows = this.rows();
+    const samplesPerPixel = this.samplesPerPixel(frameIndex);
+    const pixelRepresentation = this.pixelRepresentation(frameIndex);
+    
+    // format data for the RLE decoder
+    const imageFrame = {
+      pixelRepresentation,
+      bitsAllocated,
+      planarConfiguration,
+      columns,
+      rows,
+      samplesPerPixel,
+    };
+
+    const pixelData =  DicomParser.readEncapsulatedPixelDataFromFragments(
+      this._dataSet,
+      this._dataSet.elements.x7fe00010,
+      frameIndex
+    );
+
+    const decoded = RLEDecoder(imageFrame, pixelData);
+    return decoded.pixelData;
+  }
+
   // from cornerstone
   _decodeJPEGLossless(frameIndex = 0) {
     let encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
@@ -931,7 +987,12 @@ let frameTime;
     let bitsAllocated = this.bitsAllocated(frameIndex);
     let byteOutput = bitsAllocated <= 8 ? 1 : 2;
     let decoder = new Jpeg.lossless.Decoder();
-    let decompressedData = decoder.decode(encodedPixelData.buffer, encodedPixelData.byteOffset, encodedPixelData.length, byteOutput);
+    let decompressedData = decoder.decode(
+        encodedPixelData.buffer,
+        encodedPixelData.byteOffset,
+        encodedPixelData.length,
+        byteOutput
+    );
 
     if (pixelRepresentation === 0) {
       if (byteOutput === 2) {
@@ -1146,5 +1207,25 @@ let frameTime;
     }
 
     return frame;
+  }
+
+  _getUnitsName(value) {
+    const units = {
+      0: 'none',
+      1: 'percent',
+      2: 'dB',
+      3: 'cm',
+      4: 'seconds',
+      5: 'hertz',
+      6: 'dB/seconds',
+      7: 'cm/sec',
+      8: 'cm2',
+      9: 'cm2/sec',
+      10: 'cm3',
+      11: 'cm3/sec',
+      12: 'degrees'
+    };
+
+    return units.hasOwnProperty(value) ? units[value] : 'none';
   }
 }

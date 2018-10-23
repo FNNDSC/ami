@@ -27577,7 +27577,7 @@ module.exports = g;
 /*! exports provided: name, version, main, keywords, author, license, repository, config, sideEffects, dependencies, scripts, devDependencies, engines, default */
 /***/ (function(module) {
 
-module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"93","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.92.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","lesson":"node ./scripts/router.js lessons","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","gen:index:lessons":"node ./scripts/genIndexFiles.js lessons","gen:index:lessons:cdn":"node ./scripts/genIndexFiles.js lessons cdn","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples && echo 'hi'","lint":"eslint src/**/*.js --fix","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"^5.2.0","eslint-config-google":"latest","gh-pages":"^1.2.0","glslify":"5.1.0","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^3.1.5","webpack-cli":"^3.1.0","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
+module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"93","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.92.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples && echo 'hi'","lint":"eslint src/**/*.js --fix","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"^5.2.0","eslint-config-google":"latest","gh-pages":"^1.2.0","glslify":"5.1.0","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^3.1.5","webpack-cli":"^3.1.0","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
 
 /***/ }),
 
@@ -30963,6 +30963,186 @@ var Validators = function () {
 
 /***/ }),
 
+/***/ "./src/decoders/decoders.rle.js":
+/*!**************************************!*\
+  !*** ./src/decoders/decoders.rle.js ***!
+  \**************************************/
+/*! exports provided: RLEDecoder */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RLEDecoder", function() { return RLEDecoder; });
+// from dicom wadoo loader
+// https://github.com/cornerstonejs/cornerstoneWADOImageLoader/blob/master/src/shared/decoders/decodeRLE.js
+function decodeRLE(imageFrame, pixelData) {
+  if (imageFrame.bitsAllocated === 8) {
+    if (imageFrame.planarConfiguration) {
+      return decode8Planar(imageFrame, pixelData);
+    }
+
+    return decode8(imageFrame, pixelData);
+  } else if (imageFrame.bitsAllocated === 16) {
+    return decode16(imageFrame, pixelData);
+  }
+
+  throw new Error('unsupported pixel format for RLE');
+}
+
+function decode8(imageFrame, pixelData) {
+  var frameData = pixelData;
+  var frameSize = imageFrame.rows * imageFrame.columns;
+  var outFrame = new ArrayBuffer(frameSize * imageFrame.samplesPerPixel);
+  var header = new DataView(frameData.buffer, frameData.byteOffset);
+  var data = new Int8Array(frameData.buffer, frameData.byteOffset);
+  var out = new Int8Array(outFrame);
+
+  var outIndex = 0;
+  var numSegments = header.getInt32(0, true);
+
+  for (var s = 0; s < numSegments; ++s) {
+    outIndex = s;
+
+    var inIndex = header.getInt32((s + 1) * 4, true);
+    var maxIndex = header.getInt32((s + 2) * 4, true);
+
+    if (maxIndex === 0) {
+      maxIndex = frameData.length;
+    }
+
+    var endOfSegment = frameSize * numSegments;
+
+    while (inIndex < maxIndex) {
+      var n = data[inIndex++];
+
+      if (n >= 0 && n <= 127) {
+        // copy n bytes
+        for (var i = 0; i < n + 1 && outIndex < endOfSegment; ++i) {
+          out[outIndex] = data[inIndex++];
+          outIndex += imageFrame.samplesPerPixel;
+        }
+      } else if (n <= -1 && n >= -127) {
+        var value = data[inIndex++];
+        // run of n bytes
+
+        for (var j = 0; j < -n + 1 && outIndex < endOfSegment; ++j) {
+          out[outIndex] = value;
+          outIndex += imageFrame.samplesPerPixel;
+        }
+      } /* else if (n === -128) {
+        } // do nothing */
+    }
+  }
+  imageFrame.pixelData = new Uint8Array(outFrame);
+
+  return imageFrame;
+}
+
+function decode8Planar(imageFrame, pixelData) {
+  var frameData = pixelData;
+  var frameSize = imageFrame.rows * imageFrame.columns;
+  var outFrame = new ArrayBuffer(frameSize * imageFrame.samplesPerPixel);
+  var header = new DataView(frameData.buffer, frameData.byteOffset);
+  var data = new Int8Array(frameData.buffer, frameData.byteOffset);
+  var out = new Int8Array(outFrame);
+
+  var outIndex = 0;
+  var numSegments = header.getInt32(0, true);
+
+  for (var s = 0; s < numSegments; ++s) {
+    outIndex = s * frameSize;
+
+    var inIndex = header.getInt32((s + 1) * 4, true);
+    var maxIndex = header.getInt32((s + 2) * 4, true);
+
+    if (maxIndex === 0) {
+      maxIndex = frameData.length;
+    }
+
+    var endOfSegment = frameSize * numSegments;
+
+    while (inIndex < maxIndex) {
+      var n = data[inIndex++];
+
+      if (n >= 0 && n <= 127) {
+        // copy n bytes
+        for (var i = 0; i < n + 1 && outIndex < endOfSegment; ++i) {
+          out[outIndex] = data[inIndex++];
+          outIndex++;
+        }
+      } else if (n <= -1 && n >= -127) {
+        var value = data[inIndex++];
+        // run of n bytes
+
+        for (var j = 0; j < -n + 1 && outIndex < endOfSegment; ++j) {
+          out[outIndex] = value;
+          outIndex++;
+        }
+      } /* else if (n === -128) {
+        } // do nothing */
+    }
+  }
+  imageFrame.pixelData = new Uint8Array(outFrame);
+
+  return imageFrame;
+}
+
+function decode16(imageFrame, pixelData) {
+  var frameData = pixelData;
+  var frameSize = imageFrame.rows * imageFrame.columns;
+
+  var outFrame = new ArrayBuffer(frameSize * imageFrame.samplesPerPixel * 2);
+
+  var header = new DataView(frameData.buffer, frameData.byteOffset);
+  var data = new Int8Array(frameData.buffer, frameData.byteOffset);
+
+  var out = new Int8Array(outFrame);
+
+  var numSegments = header.getInt32(0, true);
+
+  for (var s = 0; s < numSegments; ++s) {
+    var outIndex = 0;
+    var highByte = s === 0 ? 1 : 0;
+
+    var inIndex = header.getInt32((s + 1) * 4, true);
+    var maxIndex = header.getInt32((s + 2) * 4, true);
+
+    if (maxIndex === 0) {
+      maxIndex = frameData.length;
+    }
+
+    while (inIndex < maxIndex) {
+      var n = data[inIndex++];
+
+      if (n >= 0 && n <= 127) {
+        for (var i = 0; i < n + 1 && outIndex < frameSize; ++i) {
+          out[outIndex * 2 + highByte] = data[inIndex++];
+          outIndex++;
+        }
+      } else if (n <= -1 && n >= -127) {
+        var value = data[inIndex++];
+
+        for (var j = 0; j < -n + 1 && outIndex < frameSize; ++j) {
+          out[outIndex * 2 + highByte] = value;
+          outIndex++;
+        }
+      } /* else if (n === -128) {
+        } // do nothing */
+    }
+  }
+  if (imageFrame.pixelRepresentation === 0) {
+    imageFrame.pixelData = new Uint16Array(outFrame);
+  } else {
+    imageFrame.pixelData = new Int16Array(outFrame);
+  }
+
+  return imageFrame;
+}
+
+var RLEDecoder = decodeRLE;
+
+/***/ }),
+
 /***/ "./src/geometries/geometries.js":
 /*!**************************************!*\
   !*** ./src/geometries/geometries.js ***!
@@ -33063,6 +33243,9 @@ var helpersSlice = function helpersSlice() {
         // compute texture if material exist
         this._prepareTexture();
         this._uniforms.uTextureContainer.value = this._textures;
+        if (this._stack.textureUnits > 8) {
+          this._uniforms.uTextureContainer.length = 14;
+        }
 
         this._createMaterial({
           side: three.DoubleSide
@@ -34136,6 +34319,9 @@ var helpersVolumeRendering = function helpersVolumeRendering() {
       this._uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
       this._uniforms.uTextureSize.value = this._stack.textureSize;
       this._uniforms.uTextureContainer.value = this._textures;
+      if (this._stack.textureUnits > 8) {
+        this._uniforms.uTextureContainer.length = 14;
+      }
       this._uniforms.uWorldToData.value = this._stack.lps2IJK;
       this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
       this._uniforms.uPixelType.value = this._stack.pixelType;
@@ -35000,6 +35186,7 @@ var LoadersVolumes = function (_LoadersBase) {
         Parser = _parsers_parsers_nifti__WEBPACK_IMPORTED_MODULE_7__["default"];
         break;
       case 'DCM':
+      case 'DIC':
       case 'DICOM':
       case 'IMA':
       case '':
@@ -36442,7 +36629,8 @@ var ModelsStack = function (_ModelsBase) {
     _this._pixelRepresentation = 0;
 
     _this._textureSize = 4096;
-    _this._nbTextures = 7;
+    _this._textureUnits = 7;
+
     _this._rawData = [];
 
     _this._windowCenter = 0;
@@ -36869,6 +37057,11 @@ var ModelsStack = function (_ModelsBase) {
       voxelIndexStop = nbVoxels;
     }
 
+    if (this._textureUnits < requiredTextures) {
+      console.warn('Insufficient number of supported textures. Some frames will not be packed.');
+      requiredTextures = this._textureUnits;
+    }
+
     for (var ii = 0; ii < requiredTextures; ii++) {
       var packed = this._packTo8Bits(this._numberOfChannels, this._frame, this._textureSize, voxelIndexStart, voxelIndexStop);
       this._textureType = packed.textureType;
@@ -37281,6 +37474,14 @@ var ModelsStack = function (_ModelsBase) {
       return this._textureSize;
     }
   }, {
+    key: 'textureUnits',
+    set: function set(textureUnits) {
+      this._textureUnits = textureUnits;
+    },
+    get: function get() {
+      return this._textureUnits;
+    }
+  }, {
     key: 'textureType',
     set: function set(textureType) {
       this._textureType = textureType;
@@ -37554,6 +37755,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _parsers_volume__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./parsers.volume */ "./src/parsers/parsers.volume.js");
 /* harmony import */ var OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js */ "./node_modules/OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js");
 /* harmony import */ var OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _decoders_decoders_rle__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../decoders/decoders.rle */ "./src/decoders/decoders.rle.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -37561,6 +37763,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /** * Imports ***/
+
+
 
 
 
@@ -38370,7 +38574,11 @@ var ParsersDicom = function (_ParsersVolume) {
     transferSyntaxUID === '1.2.840.10008.1.2.4.91') {
       // JPEG 2000 Lossy
       return this._decodeJ2K(frameIndex);
-    } else if (transferSyntaxUID === '1.2.840.10008.1.2.4.57' ||
+    } else if (transferSyntaxUID === '1.2.840.10008.1.2.5'
+    // decodeRLE
+    ) {
+        return this._decodeRLE(frameIndex);
+      } else if (transferSyntaxUID === '1.2.840.10008.1.2.4.57' ||
     // JPEG Lossless, Nonhierarchical (Processes 14)
     transferSyntaxUID === '1.2.840.10008.1.2.4.70') {
       // JPEG Lossless, Nonhierarchical (Processes 14 [Selection 1])
@@ -38537,6 +38745,32 @@ var ParsersDicom = function (_ParsersVolume) {
     }
 
     return this._decodeOpenJPEG(frameIndex);
+  };
+
+  ParsersDicom.prototype._decodeRLE = function _decodeRLE() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    var bitsAllocated = this.bitsAllocated(frameIndex);
+    var planarConfiguration = this.planarConfiguration();
+    var columns = this.columns();
+    var rows = this.rows();
+    var samplesPerPixel = this.samplesPerPixel(frameIndex);
+    var pixelRepresentation = this.pixelRepresentation(frameIndex);
+
+    // format data for the RLE decoder
+    var imageFrame = {
+      pixelRepresentation: pixelRepresentation,
+      bitsAllocated: bitsAllocated,
+      planarConfiguration: planarConfiguration,
+      columns: columns,
+      rows: rows,
+      samplesPerPixel: samplesPerPixel
+    };
+
+    var pixelData = DicomParser.readEncapsulatedPixelDataFromFragments(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
+
+    var decoded = Object(_decoders_decoders_rle__WEBPACK_IMPORTED_MODULE_2__["RLEDecoder"])(imageFrame, pixelData);
+    return decoded.pixelData;
   };
 
   // from cornerstone
@@ -42024,7 +42258,13 @@ var Texture3d = function (_ShadersBase) {
   };
 
   Texture3d.prototype.computeDefinition = function computeDefinition() {
-    this._definition = '\nvoid ' + this._name + '(in ivec3 dataCoordinates, out vec4 dataValue, out int offset){\n    \n  int index = dataCoordinates.x\n            + dataCoordinates.y * uDataDimensions.x\n            + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;\n  int indexP = int(index/uPackedPerPixel);\n  offset = index - int(uPackedPerPixel)*indexP;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = uTextureSize*uTextureSize;\n  int textureIndex = int(floor(float(indexP) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = indexP - voxelsPerTexture*textureIndex;\n  float textureIndexF = float(textureIndex);\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(uTextureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(uTextureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(uTextureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(uTextureSize);\n\n  // get rid of if statements\n  dataValue = vec4(0.) +\n    step( abs( textureIndexF - 0.0 ), 0.0 ) * texture2D(uTextureContainer[0], uv) +\n    step( abs( textureIndexF - 1.0 ), 0.0 ) * texture2D(uTextureContainer[1], uv) +\n    step( abs( textureIndexF - 2.0 ), 0.0 ) * texture2D(uTextureContainer[2], uv) +\n    step( abs( textureIndexF - 3.0 ), 0.0 ) * texture2D(uTextureContainer[3], uv) +\n    step( abs( textureIndexF - 4.0 ), 0.0 ) * texture2D(uTextureContainer[4], uv) +\n    step( abs( textureIndexF - 5.0 ), 0.0 ) * texture2D(uTextureContainer[5], uv) +\n    step( abs( textureIndexF - 6.0 ), 0.0 ) * texture2D(uTextureContainer[6], uv);\n\n}\n    ';
+    var content = '\n      step( abs( textureIndexF - 0.0 ), 0.0 ) * texture2D(uTextureContainer[0], uv) +\n      step( abs( textureIndexF - 1.0 ), 0.0 ) * texture2D(uTextureContainer[1], uv) +\n      step( abs( textureIndexF - 2.0 ), 0.0 ) * texture2D(uTextureContainer[2], uv) +\n      step( abs( textureIndexF - 3.0 ), 0.0 ) * texture2D(uTextureContainer[3], uv) +\n      step( abs( textureIndexF - 4.0 ), 0.0 ) * texture2D(uTextureContainer[4], uv) +\n      step( abs( textureIndexF - 5.0 ), 0.0 ) * texture2D(uTextureContainer[5], uv) +\n      step( abs( textureIndexF - 6.0 ), 0.0 ) * texture2D(uTextureContainer[6], uv)';
+
+    if (this._base._uniforms.uTextureContainer.length === 14) {
+      content += ' +\n      step( abs( textureIndexF - 7.0 ), 0.0 ) * texture2D(uTextureContainer[7], uv) +\n      step( abs( textureIndexF - 8.0 ), 0.0 ) * texture2D(uTextureContainer[8], uv) +\n      step( abs( textureIndexF - 9.0 ), 0.0 ) * texture2D(uTextureContainer[9], uv) +\n      step( abs( textureIndexF - 10.0 ), 0.0 ) * texture2D(uTextureContainer[10], uv) +\n      step( abs( textureIndexF - 11.0 ), 0.0 ) * texture2D(uTextureContainer[11], uv) +\n      step( abs( textureIndexF - 12.0 ), 0.0 ) * texture2D(uTextureContainer[12], uv) +\n      step( abs( textureIndexF - 13.0 ), 0.0 ) * texture2D(uTextureContainer[13], uv)';
+    }
+
+    this._definition = '\nvoid ' + this._name + '(in ivec3 dataCoordinates, out vec4 dataValue, out int offset){\n    \n  int index = dataCoordinates.x\n            + dataCoordinates.y * uDataDimensions.x\n            + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;\n  int indexP = int(index/uPackedPerPixel);\n  offset = index - int(uPackedPerPixel)*indexP;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = uTextureSize*uTextureSize;\n  int textureIndex = int(floor(float(indexP) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = indexP - voxelsPerTexture*textureIndex;\n  float textureIndexF = float(textureIndex);\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(uTextureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(uTextureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(uTextureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(uTextureSize);\n\n  // get rid of if statements\n  dataValue = vec4(0.) + ' + content + ';\n\n}\n    ';
   };
 
   return Texture3d;

@@ -11,14 +11,20 @@ const widgetsHandle = (three = window.THREE) => {
 
    const Constructor = widgetsBase(three);
    return class extends Constructor {
-  constructor(targetMesh, controls) {
-    super(targetMesh, controls);
+  constructor(targetMesh, controls, params) {
+    super(targetMesh, controls, params);
 
     this._widgetType = 'Handle';
+
+    // incoming parameters (optional: worldPosition)
+    if (params.hideHandleMesh === true) {
+      this.visible = false;
+    }
+
     // if no target mesh, use plane for FREE dragging.
     this._plane = {
-        position: new three.Vector3(),
-        direction: new three.Vector3(),
+      position: new three.Vector3(),
+      direction: new three.Vector3(),
     };
     this._offset = new three.Vector3();
     this._raycaster = new three.Raycaster();
@@ -35,15 +41,13 @@ const widgetsHandle = (three = window.THREE) => {
     this._material = null;
     this._geometry = null;
     this._mesh = null;
-    this._meshDisplayed = true;
     this._meshHovered = false;
-    this._meshStyle = 'sphere'; // cube, etc.
+    // this._meshStyle = 'sphere'; // cube, etc.
 
     // dom stuff
     this._dom = null;
-    this._domDisplayed = true;
     this._domHovered = false;
-    this._domStyle = 'circle'; // square, triangle
+    // this._domStyle = 'circle'; // square, triangle
 
     this._screenPosition = this.worldToScreen(this._worldPosition);
 
@@ -214,7 +218,7 @@ const widgetsHandle = (three = window.THREE) => {
 
   createDOM() {
     this._dom = document.createElement('div');
-    this._dom.setAttribute('class', 'widgets-handle');
+    this._dom.className = 'widgets-handle';
 
     this._dom.style.transform =`translate3D(
       ${this._screenPosition.x}px,
@@ -262,6 +266,14 @@ const widgetsHandle = (three = window.THREE) => {
 
   updateDOMColor() {
     this._dom.style.borderColor = this._color;
+  }
+
+  showMesh() {
+    if (this._params.hideMesh === true || this._params.hideHandleMesh === true) {
+      return;
+    }
+
+    this.visible = true;
   }
 
   free() {

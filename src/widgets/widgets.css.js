@@ -10,7 +10,7 @@ export default class WidgetsCss {
             border-radius: 50%;
             width: 10px;
             height: 10px;
-            margin: -5.5px; /* border + width / 2 */
+            margin: -6px; /* border + width / 2 */
             z-index: 3;
         }
         .widgets-line {
@@ -19,18 +19,19 @@ export default class WidgetsCss {
             height: 1px;
             margin-top: -0.5px; /* height / 2 */
         }
-        .widgets-line:before { /* for dragging */
-            content: " ";
-            position: absolute;
-            height: 11.5px;
-            left: 0;
-            right: 0;
-            margin-top: -5px;
-        }
         .widgets-dashline {
             position: absolute;
             border-top: 1px dashed;
-            margin-top: -1px; /* border */
+            margin-top: -0.5px; /* border / 2 */
+        }
+        .widgets-line:before,
+        .widgets-dashline:before { /* for dragging */
+            content: " ";
+            position: absolute;
+            height: 12px;
+            left: 0;
+            right: 0;
+            margin-top: -6px;
         }
         .widgets-rectangle {
             position: absolute;

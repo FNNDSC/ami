@@ -12,12 +12,19 @@ const widgetsEllipse = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-    constructor(targetMesh, controls, stack) {
-        super(targetMesh, controls);
-
-        this._stack = stack;
+    constructor(targetMesh, controls, params) {
+        super(targetMesh, controls, params);
 
         this._widgetType = 'Ellipse';
+
+        // incoming parameters (optional: frameIndex, worldPosition)
+        this._stack = params.stack; // required
+        this._calibrationFactor = params.calibrationFactor || null;
+
+        // outgoing values
+        this._area = null;
+        this._units = !this._calibrationFactor && !params.stack.frame[params.frameIndex].pixelSpacing ? 'units' : 'cm²';
+
         this._moving = false;
         this._domHovered = false;
 
@@ -37,16 +44,14 @@ const widgetsEllipse = (three = window.THREE) => {
         let handle;
         const WidgetsHandle = widgetsHandleFactory(three);
         for (let i = 0; i < 2; i++) {
-            handle = new WidgetsHandle(targetMesh, controls);
-            handle.worldPosition.copy(this._worldPosition);
+            handle = new WidgetsHandle(targetMesh, controls, params);
             this.add(handle);
             this._handles.push(handle);
         }
         this._handles[1].active = true;
         this._handles[1].tracking = true;
 
-        this._moveHandle = new WidgetsHandle(targetMesh, controls);
-        this._moveHandle.worldPosition.copy(this._worldPosition);
+        this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
         this.add(this._moveHandle);
         this._handles.push(this._moveHandle);
         this._moveHandle.hide();
@@ -123,9 +128,9 @@ const widgetsEllipse = (three = window.THREE) => {
             this._moveHandle.onMove(evt, true);
 
             if (this._moving) {
-                this._handles.slice(0, -1).forEach(function(elem, ind) {
-                    this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                }, this);
+                this._handles.slice(0, -1).forEach((handle) => {
+                    handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                });
             }
 
             this.updateRoI(true);
@@ -166,14 +171,12 @@ const widgetsEllipse = (three = window.THREE) => {
         this._dragged = false;
         this._moving = false;
 
-        this.updateRoI();
+        this.updateRoI(); // TODO: if (this._dragged || !this._initialized)
         this.update();
     }
 
     hideDOM() {
-        this._handles.forEach(function(elem) {
-            elem.hideDOM();
-        });
+        this._handles.forEach((elem) => elem.hideDOM());
 
         this._rectangle.style.display = 'none';
         this._ellipse.style.display = 'none';
@@ -202,29 +205,29 @@ const widgetsEllipse = (three = window.THREE) => {
 
     createDOM() {
         this._rectangle = document.createElement('div');
-        this._rectangle.setAttribute('class', 'widgets-rectangle-helper');
+        this._rectangle.className = 'widgets-rectangle-helper';
         this._container.appendChild(this._rectangle);
 
         this._ellipse = document.createElement('div');
-        this._ellipse.setAttribute('class', 'widgets-ellipse');
+        this._ellipse.className = 'widgets-ellipse';
         this._container.appendChild(this._ellipse);
 
         this._label = document.createElement('div');
-        this._label.setAttribute('class', 'widgets-label');
+        this._label.className = 'widgets-label';
 
-        // measurenents
+        // measurements
         const measurementsContainer = document.createElement('div');
         // Mean / SD
         let meanSDContainer = document.createElement('div');
-        meanSDContainer.setAttribute('class', 'mean-sd');
+        meanSDContainer.className = 'mean-sd';
         measurementsContainer.appendChild(meanSDContainer);
         // Max / Min
         let maxMinContainer = document.createElement('div');
-        maxMinContainer.setAttribute('class', 'max-min');
+        maxMinContainer.className = 'max-min';
         measurementsContainer.appendChild(maxMinContainer);
         // Area
         let areaContainer = document.createElement('div');
-        areaContainer.setAttribute('class', 'area');
+        areaContainer.className = 'area';
         measurementsContainer.appendChild(areaContainer);
 
         this._label.appendChild(measurementsContainer);
@@ -237,18 +240,13 @@ const widgetsEllipse = (three = window.THREE) => {
     update() {
         this.updateColor();
 
-        // update handles
         this._handles[0].update();
         this._handles[1].update();
 
-        // mesh stuff
         this.updateMeshColor();
         this.updateMeshPosition();
 
-        // DOM stuff
-        this.updateDOMColor();
-        this.updateDOMContent();
-        this.updateDOMPosition();
+        this.updateDOM();
     }
 
     updateMeshColor() {
@@ -263,12 +261,8 @@ const widgetsEllipse = (three = window.THREE) => {
         }
 
         const vec01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition);
-
-
-const height = vec01.clone().projectOnVector(this._camera.up).length();
-
-
-const width = vec01.clone().projectOnVector(this._camera._right).length();
+        const height = vec01.clone().projectOnVector(this._camera.up).length();
+        const width = vec01.clone().projectOnVector(this._camera._right).length();
 
         if (width === 0 || height === 0) {
             return;
@@ -283,12 +277,6 @@ const width = vec01.clone().projectOnVector(this._camera._right).length();
         this._mesh.rotation.copy(this._camera.rotation);
         this._mesh.visible = true;
         this.add(this._mesh);
-    }
-
-    updateDOMColor() {
-        this._rectangle.style.borderColor = this._color;
-        this._ellipse.style.borderColor = this._color;
-        this._label.style.borderColor = this._color;
     }
 
     updateRoI(clear) {
@@ -317,30 +305,60 @@ const width = vec01.clone().projectOnVector(this._camera._right).length();
         }
     }
 
-    updateDOMContent() {
+    updateDOMColor() {
+        this._rectangle.style.borderColor = this._color;
+        this._ellipse.style.borderColor = this._color;
+        this._label.style.borderColor = this._color;
+    }
+
+    updateDOM() {
         if (!this._geometry) {
             return;
         }
 
-        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
-        let title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+        this.updateDOMColor();
 
-        if (title !== '') {
-            this._label.setAttribute('title', title);
+        const regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
+
+        this._area = CoreUtils.getGeometryArea(this._geometry);
+        if (this._calibrationFactor) {
+            this._area *= Math.pow(this._calibrationFactor, 2);
+        } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
+            const region0 = this.getRegionByXY(
+                regions,
+                CoreUtils.worldToData(this._stack.lps2IJK, this._handles[0].worldPosition)
+            );
+            const region1 = this.getRegionByXY(
+                regions,
+                CoreUtils.worldToData(this._stack.lps2IJK, this._handles[1].worldPosition)
+            );
+
+            if (region0 !== null && region1 !== null && region0 === region1
+                && regions[region0].unitsX === 'cm' && regions[region0].unitsY === 'cm'
+            ) {
+                this._area *= Math.pow(regions[region0].deltaX, 2);
+                this._units = 'cm²';
+            } else if (this._stack.frame[this._params.frameIndex].pixelSpacing) {
+                this._area /= 100;
+                this._units = 'cm²';
+            } else {
+                this._units = 'units';
+            }
+        } else if (this._units === 'cm²') {
+            this._area /= 100;
+        }
+
+        if (this._units === 'units' && !this._label.hasAttribute('title')) {
+            this._label.setAttribute('title', 'Calibration is required to display the area in cm²');
             this._label.style.color = this._colors.error;
-        } else {
+        } else if (this._units !== 'units' && this._label.hasAttribute('title')) {
             this._label.removeAttribute('title');
             this._label.style.color = this._colors.text;
         }
-        this._label.querySelector('.area').innerHTML =
-            `Area: ${(CoreUtils.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
-    }
+        this._label.querySelector('.area').innerHTML = `Area: ${this._area.toFixed(2)} ${this._units}`;
 
-    updateDOMPosition() {
         const rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition);
-
-
-const labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(
+        const labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(
                 rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));
 
         // update rectangle
@@ -389,7 +407,16 @@ const labelTransform = this.adjustLabelTransform(this._label, this._handles[1].s
         this._material.dispose();
         this._material = null;
 
+        this._stack = null;
+
         super.free();
+    }
+
+    getMeasurements() {
+        return {
+            area: this._area,
+            units: this._units,
+        }
     }
 
     get targetMesh() {
@@ -398,9 +425,7 @@ const labelTransform = this.adjustLabelTransform(this._label, this._handles[1].s
 
     set targetMesh(targetMesh) {
         this._targetMesh = targetMesh;
-        this._handles.forEach(function(elem) {
-            elem.targetMesh = targetMesh;
-        });
+        this._handles.forEach((elem) => elem.targetMesh = targetMesh);
         this.update();
     }
 
@@ -412,6 +437,16 @@ const labelTransform = this.adjustLabelTransform(this._label, this._handles[1].s
         this._handles[0].worldPosition.copy(worldPosition);
         this._handles[1].worldPosition.copy(worldPosition);
         this._worldPosition.copy(worldPosition);
+        this.update();
+    }
+
+    get calibrationFactor() {
+        return this._calibrationFactor;
+    }
+
+    set calibrationFactor(calibrationFactor) {
+        this._calibrationFactor = calibrationFactor;
+        this._units = 'cm²';
         this.update();
     }
   };

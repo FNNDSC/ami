@@ -12,12 +12,19 @@ const widgetsFreehand = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-    constructor(targetMesh, controls, stack) {
-        super(targetMesh, controls);
-
-        this._stack = stack;
+    constructor(targetMesh, controls, params) {
+        super(targetMesh, controls, params);
 
         this._widgetType = 'Freehand';
+
+        // incoming parameters (optional: frameIndex, worldPosition)
+        this._stack = params.stack; // required
+        this._calibrationFactor = params.calibrationFactor || null;
+
+        // outgoing values
+        this._area = null;
+        this._units = !this._calibrationFactor && !params.stack.frame[params.frameIndex].pixelSpacing ? 'units' : 'cm²';
+
         this._initialized = false; // set to true onEnd if number of handles > 2
         this._moving = false;
         this._domHovered = false;
@@ -35,13 +42,11 @@ const widgetsFreehand = (three = window.THREE) => {
         this._handles = [];
         const WidgetsHandle = widgetsHandleFactory(three);
 
-        let handle = new WidgetsHandle(targetMesh, controls);
-        handle.worldPosition.copy(this._worldPosition);
+        let handle = new WidgetsHandle(targetMesh, controls, params);
         this.add(handle);
         this._handles.push(handle);
 
-        this._moveHandle = new WidgetsHandle(targetMesh, controls);
-        this._moveHandle.worldPosition.copy(this._worldPosition);
+        this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
         this.add(this._moveHandle);
         this._moveHandle.hide();
 
@@ -76,9 +81,7 @@ const widgetsFreehand = (three = window.THREE) => {
 
         let hovered = false;
 
-        this._handles.forEach(function(elem) {
-            hovered = hovered || elem.hovered;
-        });
+        this._handles.forEach((elem) => hovered = hovered || elem.hovered);
 
         this._hovered = hovered || this._domHovered;
         this._container.style.cursor = this._hovered ? 'pointer' : 'default';
@@ -96,7 +99,7 @@ const widgetsFreehand = (three = window.THREE) => {
         let active = false;
 
         this._moveHandle.onMove(evt, true);
-        this._handles.forEach(function(elem) {
+        this._handles.forEach((elem) => {
             elem.onStart(evt);
             active = active || elem.active;
         });
@@ -112,22 +115,19 @@ const widgetsFreehand = (three = window.THREE) => {
     }
 
     onMove(evt) {
-        let numHandles = this._handles.length;
-
-
-let hovered = false;
+        let hovered = false;
 
         if (this.active) {
             this._dragged = true;
 
             if (!this._initialized) {
-                this._handles[numHandles - 1].hovered = false;
-                this._handles[numHandles - 1].active = false;
-                this._handles[numHandles - 1].tracking = false;
+                this._handles[this._handles.length - 1].hovered = false;
+                this._handles[this._handles.length - 1].active = false;
+                this._handles[this._handles.length - 1].tracking = false;
 
                 const WidgetsHandle = widgetsHandleFactory(three);
-                let handle = new WidgetsHandle(this._targetMesh, this._controls);
-                handle.worldPosition.copy(this._worldPosition);
+                let handle = new WidgetsHandle(this._targetMesh, this._controls, this._params);
+
                 handle.hovered = true;
                 handle.active = true;
                 handle.tracking = true;
@@ -138,22 +138,20 @@ let hovered = false;
             } else {
                 const prevPosition = this._moveHandle.worldPosition.clone();
 
+                this._moveHandle.onMove(evt, true);
                 if (this._mesh) {
                     this.remove(this._mesh);
                 }
                 this.updateDOMContent(true);
-
-                this._moveHandle.onMove(evt, true);
-
                 if (this._moving) {
-                    this._handles.forEach(function(elem, ind) {
-                        this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                    }, this);
+                    this._handles.forEach((handle) => {
+                        handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                    });
                 }
             }
         }
 
-        this._handles.forEach(function(elem) {
+        this._handles.forEach((elem) => {
             elem.onMove(evt);
             hovered = hovered || elem.hovered;
         });
@@ -169,44 +167,43 @@ let hovered = false;
     }
 
     onEnd() {
-        let numHandles = this._handles.length;
-
-        if (numHandles < 3) {
+        if (this._handles.length < 3) {
             return;
         }
 
         let active = false;
 
-        this._handles.slice(0, numHandles-1).forEach(function(elem) {
+        this._handles.slice(0, -1).forEach((elem) => {
             elem.onEnd();
             active = active || elem.active;
         });
 
         // Last Handle
-        if (this._dragged || !this._handles[numHandles-1].tracking) {
-            this._handles[numHandles-1].tracking = false;
-            this._handles[numHandles-1].onEnd();
+        if (this._dragged || !this._handles[this._handles.length - 1].tracking) {
+            this._handles[this._handles.length - 1].tracking = false;
+            this._handles[this._handles.length - 1].onEnd();
         } else {
-            this._handles[numHandles-1].tracking = false;
+            this._handles[this._handles.length - 1].tracking = false;
         }
 
-        if (this._lines.length < numHandles) {
+        if (this._lines.length < this._handles.length) {
             this.createLine();
+        }
+
+        if (this._dragged || !this._initialized) {
+            this.updateMesh();
+            this.updateDOMContent();
         }
 
         if (!this._dragged && this._active) {
             this._selected = !this._selected; // change state if there was no dragging
-            this._handles.forEach(function(elem) {
-                elem.selected = this._selected;
-            }, this);
+            this._handles.forEach((elem) => elem.selected = this._selected);
         }
-        this._active = active || this._handles[numHandles-1].active;
+        this._active = active || this._handles[this._handles.length - 1].active;
         this._dragged = false;
         this._moving = false;
         this._initialized = true;
 
-        this.updateMesh();
-        this.updateDOMContent();
         this.update();
     }
 
@@ -223,21 +220,21 @@ let hovered = false;
 
     createDOM() {
         this._label = document.createElement('div');
-        this._label.setAttribute('class', 'widgets-label');
+        this._label.className = 'widgets-label';
 
-        // measurenents
+        // measurements
         const measurementsContainer = document.createElement('div');
         // Mean / SD
         let meanSDContainer = document.createElement('div');
-        meanSDContainer.setAttribute('class', 'mean-sd');
+        meanSDContainer.className = 'mean-sd';
         measurementsContainer.appendChild(meanSDContainer);
         // Max / Min
         let maxMinContainer = document.createElement('div');
-        maxMinContainer.setAttribute('class', 'max-min');
+        maxMinContainer.className = 'max-min';
         measurementsContainer.appendChild(maxMinContainer);
         // Area
         let areaContainer = document.createElement('div');
-        areaContainer.setAttribute('class', 'area');
+        areaContainer.className = 'area';
         measurementsContainer.appendChild(areaContainer);
 
         this._label.appendChild(measurementsContainer);
@@ -250,7 +247,7 @@ let hovered = false;
     createLine() {
         const line = document.createElement('div');
 
-        line.setAttribute('class', 'widgets-line');
+        line.className = 'widgets-line';
         line.addEventListener('mouseenter', this.onHover);
         line.addEventListener('mouseleave', this.onHover);
         this._lines.push(line);
@@ -258,24 +255,16 @@ let hovered = false;
     }
 
     hideDOM() {
-        this._handles.forEach(function(elem) {
-            elem.hideDOM();
-        });
+        this._handles.forEach((elem) => elem.hideDOM());
 
-        this._lines.forEach(function(elem) {
-            elem.style.display = 'none';
-        });
+        this._lines.forEach((elem) => elem.style.display = 'none');
         this._label.style.display = 'none';
     }
 
     showDOM() {
-        this._handles.forEach(function(elem) {
-            elem.showDOM();
-        });
+        this._handles.forEach((elem) => elem.showDOM());
 
-        this._lines.forEach(function(elem) {
-            elem.style.display = '';
-        });
+        this._lines.forEach((elem) => elem.style.display = '');
         this._label.style.display = '';
     }
 
@@ -283,9 +272,7 @@ let hovered = false;
         this.updateColor();
 
         // update handles
-        this._handles.forEach(function(elem) {
-            elem.update();
-        });
+        this._handles.forEach((elem) => elem.update());
 
         // mesh stuff
         this.updateMeshColor();
@@ -296,24 +283,22 @@ let hovered = false;
         this.updateDOMPosition();
     }
 
-    updateMesh() { // geometry
+    updateMesh() {
         if (this._mesh) {
             this.remove(this._mesh);
         }
 
         let points = [];
-        this._handles.forEach(function(elem) {
-            points.push(elem.worldPosition);
-        });
+
+        this._handles.forEach((elem) => points.push(elem.worldPosition));
 
         let center = CoreUtils.centerOfMass(points);
-        let direction = new three.Vector3().crossVectors(
-            new three.Vector3().subVectors(points[0], center), // side 1
-            new three.Vector3().subVectors(points[1], center) // side 2
-        );
-
         // direction from first point to center
         let referenceDirection = new three.Vector3().subVectors(points[0], center).normalize();
+        let direction = new three.Vector3().crossVectors(
+                new three.Vector3().subVectors(points[0], center), // side 1
+                new three.Vector3().subVectors(points[1], center) // side 2
+            );
         let base = new three.Vector3().crossVectors(referenceDirection, direction).normalize();
         let orderedpoints = [];
 
@@ -389,12 +374,8 @@ let hovered = false;
 
     pushPopHandle() {
         let handle0 = this._handles[this._handles.length-3];
-
-
-let handle1 = this._handles[this._handles.length-2];
-
-
-let newhandle = this._handles[this._handles.length-1];
+        let handle1 = this._handles[this._handles.length-2];
+        let newhandle = this._handles[this._handles.length-1];
 
         let isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
 
@@ -405,9 +386,7 @@ let newhandle = this._handles[this._handles.length-1];
             this._handles[this._handles.length-2] = newhandle;
             this._handles.pop();
 
-            let tempLine = this._lines.pop();
-            tempLine.style.display = 'none';
-            this._container.removeChild(tempLine);
+            this._container.removeChild(this._lines.pop());
         }
 
         return isOnLine;
@@ -415,21 +394,15 @@ let newhandle = this._handles[this._handles.length-1];
 
     updateDOMColor() {
         if (this._handles.length >= 2) {
-            this._lines.forEach(function(elem) {
-                elem.style.backgroundColor = this._color;
-            }, this);
+            this._lines.forEach((elem) => elem.style.backgroundColor = this._color);
         }
         this._label.style.borderColor = this._color;
     }
 
     updateDOMContent(clear) {
         const meanSDContainer = this._label.querySelector('.mean-sd');
-
-
-const maxMinContainer = this._label.querySelector('.max-min');
-
-
-const areaContainer = this._label.querySelector('.area');
+        const maxMinContainer = this._label.querySelector('.max-min');
+        const areaContainer = this._label.querySelector('.area');
 
         if (clear) {
             meanSDContainer.innerHTML = '';
@@ -439,18 +412,48 @@ const areaContainer = this._label.querySelector('.area');
             return;
         }
 
-        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
+        const regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
+        this._area = CoreUtils.getGeometryArea(this._geometry); // this.getArea result is changed on dragging
+        if (this._calibrationFactor) {
+            this._area *= Math.pow(this._calibrationFactor, 2);
+        } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
+            let same = true;
+            let cRegion;
+            let pRegion;
 
-let title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+            this._handles.forEach((elem) => {
+                cRegion = this.getRegionByXY(regions, CoreUtils.worldToData(this._stack.lps2IJK, elem.worldPosition));
+                if (cRegion === null || regions[cRegion].unitsX !== 'cm'
+                    || (pRegion !== undefined && pRegion !== cRegion)
+                ) {
+                    same = false;
+                }
+                pRegion = cRegion;
+            });
+
+            if (same) {
+                this._area *= Math.pow(regions[cRegion].deltaX, 2);
+                this._units = 'cm²';
+            } else if (this._stack.frame[this._params.frameIndex].pixelSpacing) {
+                this._area /= 100;
+                this._units = 'cm²';
+            } else {
+                this._units = 'units';
+            }
+        } else if (this._units === 'cm²') {
+            this._area /= 100;
+        }
+
+        let title = this._units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
         if (this._shapeWarn) {
             title += 'Values may be incorrect due to triangulation error.';
         }
-        if (title !== '') {
+        if (title !== '' && !this._label.hasAttribute('title')) {
             this._label.setAttribute('title', title);
             this._label.style.color = this._colors.error;
-        } else {
+        } else if (title === '' && this._label.hasAttribute('title')) {
             this._label.removeAttribute('title');
             this._label.style.color = this._colors.text;
         }
@@ -464,7 +467,7 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
             meanSDContainer.innerHTML = '';
             maxMinContainer.innerHTML = '';
         }
-        areaContainer.innerHTML = `Area: ${(GeometriesSlice.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+        areaContainer.innerHTML = `Area: ${this._area.toFixed(2)} ${this._units}`;
     }
 
     updateDOMPosition() {
@@ -474,7 +477,7 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
         // update lines and get coordinates of lowest handle
         let labelPosition = null;
 
-        this._lines.forEach(function(elem, ind) {
+        this._lines.forEach((elem, ind) => {
             const lineData = this.getLineData(this._handles[ind].screenPosition,
                     this._handles[ind + 1 === this._handles.length ? 0 : ind + 1].screenPosition);
 
@@ -485,7 +488,7 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
             if (labelPosition === null || labelPosition.y < this._handles[ind].screenPosition.y) {
                 labelPosition = this._handles[ind].screenPosition.clone();
             }
-        }, this);
+        });
 
         if (!this._initialized) {
             return;
@@ -511,11 +514,11 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
         this._moveHandle.free();
         this._moveHandle = null;
 
-        this._lines.forEach(function(elem) {
+        this._lines.forEach((elem) => {
             elem.removeEventListener('mouseenter', this.onHover);
             elem.removeEventListener('mouseleave', this.onHover);
             this._container.removeChild(elem);
-        }, this);
+        });
         this._lines = [];
         this._container.removeChild(this._label);
 
@@ -538,9 +541,17 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
         this._material.dispose();
         this._material = null;
 
+        this._stack = null;
+
         super.free();
     }
 
+    getMeasurements() {
+        return {
+            area: this._area,
+            units: this._units,
+        }
+    }
 
     get targetMesh() {
         return this._targetMesh;
@@ -548,9 +559,7 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
 
     set targetMesh(targetMesh) {
         this._targetMesh = targetMesh;
-        this._handles.forEach(function(elem) {
-            elem.targetMesh = targetMesh;
-        });
+        this._handles.forEach((elem) => elem.targetMesh = targetMesh);
         this._moveHandle.targetMesh = targetMesh;
         this.update();
     }
@@ -560,10 +569,18 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
     }
 
     set worldPosition(worldPosition) {
-        this._handles.forEach(function(elem) {
-            elem._worldPosition.copy(worldPosition);
-        }, this);
+        this._handles.forEach((elem) => elem._worldPosition.copy(worldPosition));
         this._worldPosition.copy(worldPosition);
+        this.update();
+    }
+
+    get calibrationFactor() {
+        return this._calibrationFactor;
+    }
+
+    set calibrationFactor(calibrationFactor) {
+        this._calibrationFactor = calibrationFactor;
+        this._units = 'cm²';
         this.update();
     }
   };

@@ -206,6 +206,7 @@ export default class LoadersVolumes extends LoadersBase {
     frame.index = i;
     frame.invert = stack.invert;
     frame.frameTime = dataParser.frameTime(i);
+    frame.ultrasoundRegions = dataParser.ultrasoundRegions(i);
     frame.rows = dataParser.rows(i);
     frame.columns = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;
@@ -294,6 +295,7 @@ export default class LoadersVolumes extends LoadersBase {
         Parser = ParsersNifti;
         break;
       case 'DCM':
+      case 'DIC':
       case 'DICOM':
       case 'IMA':
       case '':

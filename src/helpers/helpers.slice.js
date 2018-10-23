@@ -385,6 +385,9 @@ const helpersSlice = (three = window.THREE) => {
         // compute texture if material exist
         this._prepareTexture();
         this._uniforms.uTextureContainer.value = this._textures;
+        if (this._stack.textureUnits > 8) {
+          this._uniforms.uTextureContainer.length = 14;
+        }
 
         this._createMaterial({
           side: three.DoubleSide,

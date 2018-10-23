@@ -11,28 +11,29 @@ const widgetsAngle = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-    constructor(targetMesh, controls) {
-        super(targetMesh, controls);
+    constructor(targetMesh, controls, params) {
+        super(targetMesh, controls, params);
 
         this._widgetType = 'Angle';
+
+        // incoming parameters (optional: worldPosition)
+
+        // outgoing values
+        this._opangle = null;
+
         this._moving = false;
         this._domHovered = false;
+        this._defaultAngle = true;
 
         // mesh stuff
         this._material = null;
-        this._material2 = null;
         this._geometry = null;
-        this._geometry2 = null;
         this._mesh = null;
-        this._mesh2 = null;
 
         // dom stuff
         this._line = null;
         this._line2 = null;
         this._label = null;
-
-        this._opangle = null;
-        this._defaultAngle = true;
 
         // add handles
         this._handles = [];
@@ -40,8 +41,7 @@ const widgetsAngle = (three = window.THREE) => {
         let handle;
         const WidgetsHandle = widgetsHandleFactory(three);
         for (let i = 0; i < 3; i++) {
-            handle = new WidgetsHandle(targetMesh, controls);
-            handle.worldPosition.copy(this._worldPosition);
+            handle = new WidgetsHandle(targetMesh, controls, params);
             this.add(handle);
             this._handles.push(handle);
         }
@@ -50,8 +50,7 @@ const widgetsAngle = (three = window.THREE) => {
         this._handles[2].active = true;
         this._handles[2].tracking = true;
 
-        this._moveHandle = new WidgetsHandle(targetMesh, controls);
-        this._moveHandle.worldPosition.copy(this._worldPosition);
+        this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
         this.add(this._moveHandle);
         this._handles.push(this._moveHandle);
         this._moveHandle.hide();
@@ -131,9 +130,9 @@ const widgetsAngle = (three = window.THREE) => {
             this._moveHandle.onMove(evt, true);
 
             if (this._moving) {
-                this._handles.slice(0, -1).forEach(function(elem, ind) {
-                    this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                }, this);
+                this._handles.slice(0, -1).forEach((handle) => {
+                    handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                });
             }
         } else {
             this.onHover(null);
@@ -196,41 +195,35 @@ const widgetsAngle = (three = window.THREE) => {
     createMesh() {
         // geometry
         this._geometry = new three.Geometry();
-        this._geometry.vertices.push(this._handles[0].worldPosition);
-        this._geometry.vertices.push(this._handles[1].worldPosition);
-
-        // geometry
-        this._geometry2 = new three.Geometry();
-        this._geometry2.vertices.push(this._handles[1].worldPosition);
-        this._geometry2.vertices.push(this._handles[2].worldPosition);
+        this._geometry.vertices = [
+            this._handles[0].worldPosition,
+            this._handles[1].worldPosition,
+            this._handles[1].worldPosition,
+            this._handles[2].worldPosition,
+        ];
 
         // material
         this._material = new three.LineBasicMaterial();
-        this._material2 = new three.LineBasicMaterial();
 
         this.updateMeshColor();
 
         // mesh
-        this._mesh = new three.Line(this._geometry, this._material);
+        this._mesh = new three.LineSegments(this._geometry, this._material);
         this._mesh.visible = true;
-        this._mesh2 = new three.Line(this._geometry2, this._material2);
-        this._mesh2.visible = true;
-
         this.add(this._mesh);
-        this.add(this._mesh2);
     }
 
     createDOM() {
         this._line = document.createElement('div');
-        this._line.setAttribute('class', 'widgets-line');
+        this._line.className = 'widgets-line';
         this._container.appendChild(this._line);
 
         this._line2 = document.createElement('div');
-        this._line2.setAttribute('class', 'widgets-line');
+        this._line2.className = 'widgets-line';
         this._container.appendChild(this._line2);
 
         this._label = document.createElement('div');
-        this._label.setAttribute('class', 'widgets-label');
+        this._label.className = 'widgets-label';
         this._container.appendChild(this._label);
 
         this.updateDOMColor();
@@ -241,9 +234,7 @@ const widgetsAngle = (three = window.THREE) => {
         this._line2.style.display = 'none';
         this._label.style.display = 'none';
 
-        this._handles.forEach(function(elem) {
-          elem.hideDOM();
-        });
+        this._handles.forEach((elem) => elem.hideDOM());
     }
 
     showDOM() {
@@ -259,26 +250,24 @@ const widgetsAngle = (three = window.THREE) => {
     update() {
         this.updateColor();
 
-        // update handles
         this._handles[0].update();
         this._handles[1].update();
         this._handles[2].update();
 
-        // mesh stuff
+        // calculate values
+        this._opangle = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition).angleTo(
+            this._handles[1].worldPosition.clone().sub(this._handles[2].worldPosition)) * 180 / Math.PI || 0.0;
+        this._opangle = this._defaultAngle ? this._opangle : 360 - this._opangle;
+
         this.updateMeshColor();
         this.updateMeshPosition();
 
-        // DOM stuff
-        this.updateDOMColor();
-        this.updateDOMPosition();
+        this.updateDOM();
     }
 
     updateMeshColor() {
         if (this._material) {
             this._material.color.set(this._color);
-        }
-        if (this._material2) {
-            this._material2.color.set(this._color);
         }
     }
 
@@ -286,12 +275,11 @@ const widgetsAngle = (three = window.THREE) => {
         if (this._geometry) {
             this._geometry.verticesNeedUpdate = true;
         }
-        if (this._geometry2) {
-            this._geometry2.verticesNeedUpdate = true;
-        }
     }
 
-    updateDOMPosition() {
+    updateDOM() {
+        this.updateDOMColor();
+
         // update first line
         const lineData = this.getLineData(this._handles[1].screenPosition, this._handles[0].screenPosition);
 
@@ -307,16 +295,10 @@ const widgetsAngle = (three = window.THREE) => {
         this._line2.style.width = line2Data.length + 'px';
 
         // update angle and label
-        this._opangle = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition).angleTo(
-            this._handles[1].worldPosition.clone().sub(this._handles[2].worldPosition)) * 180 / Math.PI || 0.0;
-        this._opangle = this._defaultAngle ? this._opangle : 360 - this._opangle;
-
         this._label.innerHTML = `${this._opangle.toFixed(2)}&deg;`;
 
         let paddingNormVector = lineData.line.clone().add(line2Data.line).normalize().negate();
-
-
-let normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
+        let normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
 
         if (normAngle > Math.PI / 2) {
             normAngle = Math.PI - normAngle;
@@ -325,12 +307,8 @@ let normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
         const labelPadding = Math.tan(normAngle) < this._label.offsetHeight / this._label.offsetWidth
                 ? (this._label.offsetWidth / 2) / Math.cos(normAngle) + 15 // 15px padding
                 : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - normAngle) + 15;
-
-
-const paddingPoint = this._handles[1].screenPosition.clone().add(paddingNormVector.multiplyScalar(labelPadding));
-
-
-const transform = this.adjustLabelTransform(this._label, paddingPoint);
+        const paddingPoint = this._handles[1].screenPosition.clone().add(paddingNormVector.multiplyScalar(labelPadding));
+        const transform = this.adjustLabelTransform(this._label, paddingPoint);
 
         this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
     }
@@ -368,19 +346,6 @@ const transform = this.adjustLabelTransform(this._label, paddingPoint);
         this._material.uniforms = null;
         this._material.dispose();
         this._material = null;
-        this.remove(this._mesh2);
-        this._mesh2.geometry.dispose();
-        this._mesh2.geometry = null;
-        this._mesh2.material.dispose();
-        this._mesh2.material = null;
-        this._mesh2 = null;
-        this._geometry2.dispose();
-        this._geometry2 = null;
-        this._material2.vertexShader = null;
-        this._material2.fragmentShader = null;
-        this._material2.uniforms = null;
-        this._material2.dispose();
-        this._material2 = null;
 
         super.free();
     }
@@ -395,9 +360,7 @@ const transform = this.adjustLabelTransform(this._label, paddingPoint);
 
     set targetMesh(targetMesh) {
         this._targetMesh = targetMesh;
-        this._handles.forEach(function(elem) {
-            elem.targetMesh = targetMesh;
-        });
+        this._handles.forEach((elem) => elem.targetMesh = targetMesh);
         this.update();
     }
 
