@@ -38,6 +38,11 @@ import ParsersMgh from '../parsers/parsers.mgh';
  * );
  */
 export default class LoadersVolumes extends LoadersBase {
+  constructor(){
+    super(...arguments);
+    this._errorNumber = 0;
+  }
+
   /**
    * Parse response.
    * response is formated as:
@@ -200,55 +205,66 @@ export default class LoadersVolumes extends LoadersBase {
    * @param {promise.reject} reject - promise reject args
    */
   parseFrame(series, stack, url, i, dataParser, resolve, reject) {
-    let frame = new ModelsFrame();
-    frame.sopInstanceUID = dataParser.sopInstanceUID(i);
-    frame.url = url;
-    frame.index = i;
-    frame.invert = stack.invert;
-    frame.frameTime = dataParser.frameTime(i);
-    frame.ultrasoundRegions = dataParser.ultrasoundRegions(i);
-    frame.rows = dataParser.rows(i);
-    frame.columns = dataParser.columns(i);
-    frame.numberOfChannels = stack.numberOfChannels;
-    frame.pixelPaddingValue = dataParser.pixelPaddingValue(i);
-    frame.pixelRepresentation = stack.pixelRepresentation;
-    frame.pixelType = stack.pixelType;
-    frame.pixelData = dataParser.extractPixelData(i);
-    frame.pixelSpacing = dataParser.pixelSpacing(i);
-    frame.spacingBetweenSlices = dataParser.spacingBetweenSlices(i);
-    frame.sliceThickness = dataParser.sliceThickness(i);
-    frame.imageOrientation = dataParser.imageOrientation(i);
-    frame.rightHanded = dataParser.rightHanded();
-    stack.rightHanded = frame.rightHanded;
-    if (frame.imageOrientation === null) {
-      frame.imageOrientation = [1, 0, 0, 0, 1, 0];
+    try {
+      let frame = new ModelsFrame();
+      frame.sopInstanceUID = dataParser.sopInstanceUID(i);
+      frame.url = url;
+      frame.index = i;
+      frame.invert = stack.invert;
+      frame.frameTime = dataParser.frameTime(i);
+      frame.ultrasoundRegions = dataParser.ultrasoundRegions(i);
+      frame.rows = dataParser.rows(i);
+      frame.columns = dataParser.columns(i);
+      frame.numberOfChannels = stack.numberOfChannels;
+      frame.pixelPaddingValue = dataParser.pixelPaddingValue(i);
+      frame.pixelRepresentation = stack.pixelRepresentation;
+      frame.pixelType = stack.pixelType;
+      frame.pixelData = dataParser.extractPixelData(i);
+      frame.pixelSpacing = dataParser.pixelSpacing(i);
+      frame.spacingBetweenSlices = dataParser.spacingBetweenSlices(i);
+      frame.sliceThickness = dataParser.sliceThickness(i);
+      frame.imageOrientation = dataParser.imageOrientation(i);
+      frame.rightHanded = dataParser.rightHanded();
+      stack.rightHanded = frame.rightHanded;
+      if (frame.imageOrientation === null) {
+        frame.imageOrientation = [1, 0, 0, 0, 1, 0];
+      }
+      frame.imagePosition = dataParser.imagePosition(i);
+      /*
+      null ImagePosition should not be handle here
+      if (frame.imagePosition === null) {
+        frame.imagePosition = [0, 0, i];
+      }*/
+      frame.dimensionIndexValues = dataParser.dimensionIndexValues(i);
+      frame.bitsAllocated = dataParser.bitsAllocated(i);
+      frame.instanceNumber = dataParser.instanceNumber(i);
+      frame.windowCenter = dataParser.windowCenter(i);
+      frame.windowWidth = dataParser.windowWidth(i);
+      frame.rescaleSlope = dataParser.rescaleSlope(i);
+      frame.rescaleIntercept = dataParser.rescaleIntercept(i);
+      // should pass frame index for consistency...
+      frame.minMax = dataParser.minMaxPixelData(frame.pixelData);
+
+      // if series.mo
+      if (series.modality === 'SEG') {
+        frame.referencedSegmentNumber = dataParser.referencedSegmentNumber(i);
+      }
+
+      stack.frame.push(frame);
+
+      // update status
+      this._parsed = i + 1;
+      this._totalParsed = series.numberOfFrames;
+    } catch (e) {
+      this._errorNumber++
+      console.warn('errorNumber:' + this._errorNumber, e);
+      this.emit('parse-error', {
+        file: url,
+        time: new Date(),
+        error: e,
+      });
+      reject(e);
     }
-    frame.imagePosition = dataParser.imagePosition(i);
-    /*
-    null ImagePosition should not be handle here
-    if (frame.imagePosition === null) {
-      frame.imagePosition = [0, 0, i];
-    }*/
-    frame.dimensionIndexValues = dataParser.dimensionIndexValues(i);
-    frame.bitsAllocated = dataParser.bitsAllocated(i);
-    frame.instanceNumber = dataParser.instanceNumber(i);
-    frame.windowCenter = dataParser.windowCenter(i);
-    frame.windowWidth = dataParser.windowWidth(i);
-    frame.rescaleSlope = dataParser.rescaleSlope(i);
-    frame.rescaleIntercept = dataParser.rescaleIntercept(i);
-    // should pass frame index for consistency...
-    frame.minMax = dataParser.minMaxPixelData(frame.pixelData);
-
-    // if series.mo
-    if (series.modality === 'SEG') {
-      frame.referencedSegmentNumber = dataParser.referencedSegmentNumber(i);
-    }
-
-    stack.frame.push(frame);
-
-    // update status
-    this._parsed = i + 1;
-    this._totalParsed = series.numberOfFrames;
 
     // will be removed after eventer set up
     if (this._progressBar) {
@@ -260,6 +276,7 @@ export default class LoadersVolumes extends LoadersBase {
       file: url,
       total: this._totalParsed,
       parsed: this._parsed,
+      errorNumber: this._errorNumber,
       time: new Date(),
     });
 
@@ -269,6 +286,7 @@ export default class LoadersVolumes extends LoadersBase {
         file: url,
         total: this._totalParsed,
         parsed: this._parsed,
+        errorNumber: this._errorNumber,
         time: new Date(),
       });
 
