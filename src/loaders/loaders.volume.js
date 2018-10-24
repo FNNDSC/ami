@@ -38,11 +38,6 @@ import ParsersMgh from '../parsers/parsers.mgh';
  * );
  */
 export default class LoadersVolumes extends LoadersBase {
-  constructor(){
-    super(...arguments);
-    this._errorNumber = 0;
-  }
-
   /**
    * Parse response.
    * response is formated as:
