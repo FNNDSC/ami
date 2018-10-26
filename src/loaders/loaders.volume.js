@@ -251,8 +251,8 @@ export default class LoadersVolumes extends LoadersBase {
       this._parsed = i + 1;
       this._totalParsed = series.numberOfFrames;
     } catch (e) {
-      this._errorNumber++
-      console.warn('errorNumber:' + this._errorNumber, e);
+      this._errored++
+      console.warn('errored:' + this._errored, e);
       this.emit('parse-error', {
         file: url,
         time: new Date(),
@@ -271,7 +271,7 @@ export default class LoadersVolumes extends LoadersBase {
       file: url,
       total: this._totalParsed,
       parsed: this._parsed,
-      errorNumber: this._errorNumber,
+      errored: this._errored,
       time: new Date(),
     });
 
@@ -281,7 +281,7 @@ export default class LoadersVolumes extends LoadersBase {
         file: url,
         total: this._totalParsed,
         parsed: this._parsed,
-        errorNumber: this._errorNumber,
+        errored: this._errored,
         time: new Date(),
       });
 
