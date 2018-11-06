@@ -252,8 +252,9 @@ export default class ModelsStack extends ModelsBase {
     this._rescaleSlope = middleFrame.rescaleSlope || 1;
     this._rescaleIntercept = middleFrame.rescaleIntercept || 0;
 
+    this.computeByAllFrames();
+
     // rescale/slope min max
-    this.computeMinMaxIntensities();
     this._minMax[0] = CoreUtils.rescaleSlopeIntercept(
       this._minMax[0],
       this._rescaleSlope,
@@ -405,23 +406,25 @@ export default class ModelsStack extends ModelsBase {
   }
 
   /**
-   * Find min and max intensities among all frames.
+   * Find min and max intensities and max numberOfChannels among all frames.
    */
-  computeMinMaxIntensities() {
-    // what about colors!!!!?
-    // we ignore values if NaNs
-    // https://github.com/FNNDSC/ami/issues/185
+  computeByAllFrames() {
     for (let i = 0; i < this._frame.length; i++) {
       // get min/max
       let min = this._frame[i].minMax[0];
+      let max = this._frame[i].minMax[1];
+      // what about colors!!!!?
+      // we ignore values if NaNs
+      // https://github.com/FNNDSC/ami/issues/185
       if (!Number.isNaN(min)) {
         this._minMax[0] = Math.min(this._minMax[0], min);
       }
-
-      let max = this._frame[i].minMax[1];
       if (!Number.isNaN(max)) {
         this._minMax[1] = Math.max(this._minMax[1], max);
       }
+
+      // get max numberOfChannels (for correct packing)
+      this._numberOfChannels = Math.max(this._numberOfChannels, this._frame[i].numberOfChannels);
     }
   }
 
@@ -646,12 +649,14 @@ export default class ModelsStack extends ModelsBase {
         frameIndex = ~~(i / frameDimension);
         inFrameIndex = i % (frameDimension);
 
-        data[3 * packIndex] =
-          frame[frameIndex].pixelData[3 * inFrameIndex];
-        data[3 * packIndex + 1] =
-          frame[frameIndex].pixelData[3 * inFrameIndex + 1];
-        data[3 * packIndex + 2] =
-          frame[frameIndex].pixelData[3 * inFrameIndex + 2];
+        if (frame[frameIndex].numberOfChannels === 3) {
+          data[3 * packIndex] = frame[frameIndex].pixelData[3 * inFrameIndex];
+          data[3 * packIndex + 1] = frame[frameIndex].pixelData[3 * inFrameIndex + 1];
+          data[3 * packIndex + 2] = frame[frameIndex].pixelData[3 * inFrameIndex + 2];
+        } else {
+          data[3 * packIndex] = data[3 * packIndex + 1] = data[3 * packIndex + 2] =
+            frame[frameIndex].pixelData[inFrameIndex];
+        }
         packIndex++;
       }
 
