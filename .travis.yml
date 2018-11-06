@@ -1,21 +1,19 @@
 language: node_js
 node_js:
-  - 10.7.0
+- 10.7.0
 sudo: required
 cache:
   yarn: true
   directories:
-    - node_modules
+  - node_modules
 script:
-  - yarn ami
+- yarn ami
 notifications:
   slack: fnndsc:UohaXDsjFDVqZj5IfdC88XRa
 deploy:
-  provider: npm
   email: nicolas@eunate.ch
-  skip_cleanup: true
-  tag: next
-  on:
-    branch: dev
   api_key:
-    secure: lQRW2XBkKuy9RT9mdbp3Xogov3WLeACsy5Q6jBQf67ZU42jUJPGihUApJdSVPBS98XXkJtAKHT1oozRd5mL0La6em3c9k91FxFuR/XQjqlyMmWvdeumv7IEVoFsN6ryKR268R0i2ZM5b5IRyaXTznIGlc13D9R1Bu4sXNvhSJRs=
+    secure: Eg0g+2DyemulryOBVkYGU5BDu0UOSKKhKticgSMryH3oxCkXpR303saSGbt6xGwv4k6tW+RR2TgFB4LdgI4XtFOSquH3+n7b38iZKFb/bil2TiN15aEGwQ/PBqnm7Yw8g/rLuhqn6GhS79scfp6kzxEPenWvAQanS1P06KAWxXg=
+  on:
+    repo: FNNDSC/ami
+    branch: dev
