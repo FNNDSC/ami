@@ -12,6 +12,8 @@ notifications:
   slack: fnndsc:UohaXDsjFDVqZj5IfdC88XRa
 deploy:
   email: nicolas@eunate.ch
+  skip_cleanup: true
+  tag: next
   api_key:
     secure: Eg0g+2DyemulryOBVkYGU5BDu0UOSKKhKticgSMryH3oxCkXpR303saSGbt6xGwv4k6tW+RR2TgFB4LdgI4XtFOSquH3+n7b38iZKFb/bil2TiN15aEGwQ/PBqnm7Yw8g/rLuhqn6GhS79scfp6kzxEPenWvAQanS1P06KAWxXg=
   on:
