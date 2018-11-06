@@ -11,6 +11,7 @@ script:
 notifications:
   slack: fnndsc:UohaXDsjFDVqZj5IfdC88XRa
 deploy:
+  provider: npm
   email: nicolas@eunate.ch
   skip_cleanup: true
   tag: next
