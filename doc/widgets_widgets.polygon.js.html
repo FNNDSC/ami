@@ -30,7 +30,6 @@
 import {widgetsHandle as widgetsHandleFactory} from './widgets.handle';
 import CoreUtils from '../core/core.utils';
 
-
 /**
  * @module widgets/polygon
  */
@@ -41,12 +40,19 @@ const widgetsPolygon = (three = window.THREE) => {
 
     const Constructor = widgetsBase(three);
     return class extends Constructor {
-    constructor(targetMesh, controls, stack) {
-        super(targetMesh, controls);
-
-        this._stack = stack;
+    constructor(targetMesh, controls, params) {
+        super(targetMesh, controls, params);
 
         this._widgetType = 'Polygon';
+
+        // incoming parameters (optional: frameIndex, worldPosition)
+        this._stack = params.stack; // required
+        this._calibrationFactor = params.calibrationFactor || null;
+
+        // outgoing values
+        this._area = null;
+        this._units = !this._calibrationFactor &amp;&amp; !params.stack.frame[params.frameIndex].pixelSpacing ? 'units' : 'cm²';
+
         this._initialized = false; // set to true onDblClick if number of handles > 2
         this._newHandleRequired = true; // should handle be created onMove?
         this._moving = false;
@@ -65,13 +71,11 @@ const widgetsPolygon = (three = window.THREE) => {
         this._handles = [];
         const WidgetsHandle = widgetsHandleFactory(three);
 
-        let handle = new WidgetsHandle(targetMesh, controls);
-        handle.worldPosition.copy(this._worldPosition);
+        let handle = new WidgetsHandle(targetMesh, controls, params);
         this.add(handle);
         this._handles.push(handle);
 
-        this._moveHandle = new WidgetsHandle(targetMesh, controls);
-        this._moveHandle.worldPosition.copy(this._worldPosition);
+        this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
         this.add(this._moveHandle);
         this._moveHandle.hide();
 
@@ -109,9 +113,7 @@ const widgetsPolygon = (three = window.THREE) => {
 
         let hovered = false;
 
-        this._handles.forEach(function(elem) {
-            hovered = hovered || elem.hovered;
-        });
+        this._handles.forEach((elem) => hovered = hovered || elem.hovered);
 
         this._hovered = hovered || this._domHovered;
         this._container.style.cursor = this._hovered ? 'pointer' : 'default';
@@ -128,7 +130,7 @@ const widgetsPolygon = (three = window.THREE) => {
     onStart(evt) {
         let active = false;
 
-        this._handles.forEach(function(elem) {
+        this._handles.forEach((elem) => {
             elem.onStart(evt);
             active = active || elem.active;
         });
@@ -149,22 +151,19 @@ const widgetsPolygon = (three = window.THREE) => {
     }
 
     onMove(evt) {
-        let numHandles = this._handles.length;
-
-
-let hovered = false;
+        let hovered = false;
 
         if (this.active) {
             this._dragged = true;
 
             if (this._newHandleRequired &amp;&amp; !this._initialized) {
-                this._handles[numHandles-1].hovered = false;
-                this._handles[numHandles-1].active = false;
-                this._handles[numHandles-1].tracking = false;
-                const WidgetsHandle = widgetsHandleFactory(three);
+                this._handles[this._handles.length - 1].hovered = false;
+                this._handles[this._handles.length - 1].active = false;
+                this._handles[this._handles.length - 1].tracking = false;
 
-                let handle = new WidgetsHandle(this._targetMesh, this._controls);
-                handle.worldPosition.copy(this._worldPosition);
+                const WidgetsHandle = widgetsHandleFactory(three);
+                let handle = new WidgetsHandle(this._targetMesh, this._controls, this._params);
+
                 handle.hovered = true;
                 handle.active = true;
                 handle.tracking = true;
@@ -176,22 +175,20 @@ let hovered = false;
             } else {
                 const prevPosition = this._moveHandle.worldPosition.clone();
 
+                this._moveHandle.onMove(evt, true);
                 if (this._mesh) {
                     this.remove(this._mesh);
                 }
                 this.updateDOMContent(true);
-
-                this._moveHandle.onMove(evt, true);
-
                 if (this._moving) {
-                    this._handles.forEach(function(elem, ind) {
-                        this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                    }, this);
+                    this._handles.forEach((handle) => {
+                        handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+                    });
                 }
             }
         }
 
-        this._handles.forEach(function(elem) {
+        this._handles.forEach((elem) => {
             elem.onMove(evt);
             hovered = hovered || elem.hovered;
         });
@@ -204,9 +201,7 @@ let hovered = false;
 
     onEnd() {
         let numHandles = this._handles.length;
-
-
-let active = false;
+        let active = false;
 
         if (!this._initialized &amp;&amp; numHandles > 1 &amp;&amp;
             this._handles[numHandles-2].screenPosition.distanceTo(this._handles[numHandles - 1].screenPosition) &lt; 10
@@ -214,7 +209,7 @@ let active = false;
             return;
         }
 
-        this._handles.forEach(function(elem) {
+        this._handles.forEach((elem) => {
             elem.onEnd();
             active = active || elem.active;
         });
@@ -225,18 +220,19 @@ let active = false;
             return;
         }
 
+        if (this._dragged) {
+            this.updateMesh();
+            this.updateDOMContent();
+        }
+
         if (!this._dragged &amp;&amp; this._active) {
             this._selected = !this._selected; // change state if there was no dragging
-            this._handles.forEach(function(elem) {
-                elem.selected = this._selected;
-            }, this);
+            this._handles.forEach((elem) => elem.selected = this._selected);
         }
         this._active = active || this._handles[numHandles-1].active;
         this._dragged = false;
         this._moving = false;
 
-        this.updateMesh();
-        this.updateDOMContent();
         this.update();
     }
 
@@ -250,9 +246,7 @@ let active = false;
         }
 
         this._handles[numHandles-1].tracking = false;
-        this._handles.forEach(function(elem) {
-            elem.onEnd();
-        });
+        this._handles.forEach((elem) => elem.onEnd());
 
         this._active = false;
         this._dragged = false;
@@ -279,21 +273,21 @@ let active = false;
         this.createLine();
 
         this._label = document.createElement('div');
-        this._label.setAttribute('class', 'widgets-label');
+        this._label.className = 'widgets-label';
 
-        // measurenents
+        // measurements
         const measurementsContainer = document.createElement('div');
         // Mean / SD
         let meanSDContainer = document.createElement('div');
-        meanSDContainer.setAttribute('class', 'mean-sd');
+        meanSDContainer.className = 'mean-sd';
         measurementsContainer.appendChild(meanSDContainer);
         // Max / Min
         let maxMinContainer = document.createElement('div');
-        maxMinContainer.setAttribute('class', 'max-min');
+        maxMinContainer.className = 'max-min';
         measurementsContainer.appendChild(maxMinContainer);
         // Area
         let areaContainer = document.createElement('div');
-        areaContainer.setAttribute('class', 'area');
+        areaContainer.className = 'area';
         measurementsContainer.appendChild(areaContainer);
 
         this._label.appendChild(measurementsContainer);
@@ -306,7 +300,7 @@ let active = false;
     createLine() {
         const line = document.createElement('div');
 
-        line.setAttribute('class', 'widgets-line');
+        line.className = 'widgets-line';
         line.addEventListener('mouseenter', this.onHover);
         line.addEventListener('mouseleave', this.onHover);
         this._lines.push(line);
@@ -314,24 +308,16 @@ let active = false;
     }
 
     hideDOM() {
-        this._handles.forEach(function(elem) {
-            elem.hideDOM();
-        });
+        this._handles.forEach((elem) => elem.hideDOM());
 
-        this._lines.forEach(function(elem) {
-            elem.style.display = 'none';
-        });
+        this._lines.forEach((elem) => elem.style.display = 'none');
         this._label.style.display = 'none';
     }
 
     showDOM() {
-        this._handles.forEach(function(elem) {
-            elem.showDOM();
-        });
+        this._handles.forEach((elem) => elem.showDOM());
 
-        this._lines.forEach(function(elem) {
-            elem.style.display = '';
-        });
+        this._lines.forEach((elem) => elem.style.display = '');
         this._label.style.display = '';
     }
 
@@ -339,9 +325,7 @@ let active = false;
         this.updateColor();
 
         // update handles
-        this._handles.forEach(function(elem) {
-            elem.update();
-        });
+        this._handles.forEach((elem) => elem.update());
 
         // mesh stuff
         this.updateMeshColor();
@@ -352,15 +336,14 @@ let active = false;
         this.updateDOMPosition();
     }
 
-    updateMesh() { // geometry
+    updateMesh() {
         if (this._mesh) {
             this.remove(this._mesh);
         }
 
         let points = [];
-        this._handles.forEach(function(elem) {
-            points.push(elem.worldPosition);
-        });
+
+        this._handles.forEach((elem) => points.push(elem.worldPosition));
 
         let center = CoreUtils.centerOfMass(points);
         // direction from first point to center
@@ -439,20 +422,14 @@ let active = false;
     }
 
     updateDOMColor() {
-        this._lines.forEach(function(elem) {
-            elem.style.backgroundColor = this._color;
-        }, this);
+        this._lines.forEach((elem) => elem.style.backgroundColor = this._color);
         this._label.style.borderColor = this._color;
     }
 
     updateDOMContent(clear) {
         const meanSDContainer = this._label.querySelector('.mean-sd');
-
-
-const maxMinContainer = this._label.querySelector('.max-min');
-
-
-const areaContainer = this._label.querySelector('.area');
+        const maxMinContainer = this._label.querySelector('.max-min');
+        const areaContainer = this._label.querySelector('.area');
 
         if (clear) {
             meanSDContainer.innerHTML = '';
@@ -462,18 +439,48 @@ const areaContainer = this._label.querySelector('.area');
             return;
         }
 
-        let units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
+        const regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
+        this._area = CoreUtils.getGeometryArea(this._geometry); // this.getArea result is changed on dragging
+        if (this._calibrationFactor) {
+            this._area *= Math.pow(this._calibrationFactor, 2);
+        } else if (regions &amp;&amp; regions.length > 0 &amp;&amp; this._stack.lps2IJK) {
+            let same = true;
+            let cRegion;
+            let pRegion;
 
-let title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+            this._handles.forEach((elem) => {
+                cRegion = this.getRegionByXY(regions, CoreUtils.worldToData(this._stack.lps2IJK, elem.worldPosition));
+                if (cRegion === null || regions[cRegion].unitsX !== 'cm'
+                    || (pRegion !== undefined &amp;&amp; pRegion !== cRegion)
+                ) {
+                    same = false;
+                }
+                pRegion = cRegion;
+            });
+
+            if (same) {
+                this._area *= Math.pow(regions[cRegion].deltaX, 2);
+                this._units = 'cm²';
+            } else if (this._stack.frame[this._params.frameIndex].pixelSpacing) {
+                this._area /= 100;
+                this._units = 'cm²';
+            } else {
+                this._units = 'units';
+            }
+        } else if (this._units === 'cm²') {
+            this._area /= 100;
+        }
+
+        let title = this._units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
         if (this._shapeWarn) {
             title += 'Values may be incorrect due to triangulation error.';
         }
-        if (title !== '') {
+        if (title !== '' &amp;&amp; !this._label.hasAttribute('title')) {
             this._label.setAttribute('title', title);
             this._label.style.color = this._colors.error;
-        } else {
+        } else if (title === '' &amp;&amp; this._label.hasAttribute('title')) {
             this._label.removeAttribute('title');
             this._label.style.color = this._colors.text;
         }
@@ -487,14 +494,14 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
             meanSDContainer.innerHTML = '';
             maxMinContainer.innerHTML = '';
         }
-        areaContainer.innerHTML = `Area: ${(CoreUtils.getGeometryArea(this._geometry)/100).toFixed(2)} ${units}`;
+        areaContainer.innerHTML = `Area: ${this._area.toFixed(2)} ${this._units}`;
     }
 
     updateDOMPosition() {
         // update lines and get coordinates of lowest handle
         let labelPosition = null;
 
-        this._lines.forEach(function(elem, ind) {
+        this._lines.forEach((elem, ind) => {
             const lineData = this.getLineData(this._handles[ind].screenPosition,
                 this._handles[ind + 1 === this._handles.length ? 0 : ind + 1].screenPosition);
 
@@ -505,7 +512,7 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
             if (labelPosition === null || labelPosition.y &lt; this._handles[ind].screenPosition.y) {
                 labelPosition = this._handles[ind].screenPosition.clone();
             }
-        }, this);
+        });
 
         if (!this._initialized) {
             return;
@@ -531,11 +538,11 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
         this._moveHandle.free();
         this._moveHandle = null;
 
-        this._lines.forEach(function(elem) {
+        this._lines.forEach((elem) => {
             elem.removeEventListener('mouseenter', this.onHover);
             elem.removeEventListener('mouseleave', this.onHover);
             this._container.removeChild(elem);
-        }, this);
+        });
         this._lines = [];
         this._container.removeChild(this._label);
 
@@ -558,9 +565,17 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
         this._material.dispose();
         this._material = null;
 
+        this._stack = null;
+
         super.free();
     }
 
+    getMeasurements() {
+        return {
+            area: this._area,
+            units: this._units,
+        }
+    }
 
     get targetMesh() {
         return this._targetMesh;
@@ -568,9 +583,7 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
 
     set targetMesh(targetMesh) {
         this._targetMesh = targetMesh;
-        this._handles.forEach(function(elem) {
-            elem.targetMesh = targetMesh;
-        });
+        this._handles.forEach((elem) => elem.targetMesh = targetMesh);
         this._moveHandle.targetMesh = targetMesh;
         this.update();
     }
@@ -580,10 +593,18 @@ let title = units === 'units' ? 'Calibration is required to display the area in 
     }
 
     set worldPosition(worldPosition) {
-        this._handles.forEach(function(elem) {
-            elem._worldPosition.copy(worldPosition);
-        }, this);
+        this._handles.forEach((elem) => elem.worldPosition.copy(worldPosition));
         this._worldPosition.copy(worldPosition);
+        this.update();
+    }
+
+    get calibrationFactor() {
+        return this._calibrationFactor;
+    }
+
+    set calibrationFactor(calibrationFactor) {
+        this._calibrationFactor = calibrationFactor;
+        this._units = 'cm²';
         this.update();
     }
   };
@@ -601,13 +622,13 @@ export default widgetsPolygon();
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Abstract%2520Widget.html">Abstract Widget</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-CSS%2520Code%2520for%2520all%2520Widgets.html">CSS Code for all Widgets</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_contour.html">helpers/contour</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_mgh.html">parsers/mgh</a></li><li><a href="module-parsers_mhd.html">parsers/mhd</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-presets_segmentation.html">presets/segmentation</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets_angle.html">widgets/angle</a></li><li><a href="module-widgets_annotation.html">widgets/annotation</a></li><li><a href="module-widgets_biruler.html">widgets/biruler</a></li><li><a href="module-widgets_crossRuler.html">widgets/crossRuler</a></li><li><a href="module-widgets_ellipse.html">widgets/ellipse</a></li><li><a href="module-widgets_freehand.html">widgets/freehand</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_polygon.html">widgets/polygon</a></li><li><a href="module-widgets_rectangle.html">widgets/rectangle</a></li><li><a href="module-widgets_ruler.html">widgets/ruler</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="Unpack.html">Unpack</a></li></ul><h3>Global</h3><ul><li><a href="global.html#cielab2RGB">cielab2RGB</a></li><li><a href="global.html#cielab2XYZ">cielab2XYZ</a></li><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#segmentation">segmentation</a></li><li><a href="global.html#uniforms">uniforms</a></li><li><a href="global.html#xyz2RGB">xyz2RGB</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Abstract%2520Widget.html">Abstract Widget</a></li><li><a href="module-cameras_orthographic.html">cameras/orthographic</a></li><li><a href="module-core_intersections.html">core/intersections</a></li><li><a href="module-core_pack.html">core/pack</a></li><li><a href="module-core_utils.html">core/utils</a></li><li><a href="module-core_validators.html">core/validators</a></li><li><a href="module-CSS%2520Code%2520for%2520all%2520Widgets.html">CSS Code for all Widgets</a></li><li><a href="module-geometries_slice.html">geometries/slice</a></li><li><a href="module-geometries_voxel.html">geometries/voxel</a></li><li><a href="module-helpers_border.html">helpers/border</a></li><li><a href="module-helpers_boundingbox.html">helpers/boundingbox</a></li><li><a href="module-helpers_contour.html">helpers/contour</a></li><li><a href="module-helpers_dummy.html">helpers/dummy</a></li><li><a href="module-helpers_localizer.html">helpers/localizer</a></li><li><a href="module-helpers_lut.html">helpers/lut</a></li><li><a href="module-helpers_material_mixin.html">helpers/material/mixin</a></li><li><a href="module-helpers_progressBar.html">helpers/progressBar</a></li><li><a href="module-helpers_slice.html">helpers/slice</a></li><li><a href="module-helpers_stack.html">helpers/stack</a></li><li><a href="module-helpers_volumerendering.html">helpers/volumerendering</a></li><li><a href="module-helpers_x_interactor.html">helpers/x/interactor</a></li><li><a href="module-helpers_x_mesh.html">helpers/x/mesh</a></li><li><a href="module-helpers_x_renderer2d.html">helpers/x/renderer2d</a></li><li><a href="module-helpers_x_renderer3d.html">helpers/x/renderer3d</a></li><li><a href="module-helpers_x_volume.html">helpers/x/volume</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-loaders_volumes.html">loaders/volumes</a></li><li><a href="module-models_base.html">models/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-models_voxel.html">models/voxel</a></li><li><a href="module-parsers_dicom.html">parsers/dicom</a></li><li><a href="module-parsers_mgh.html">parsers/mgh</a></li><li><a href="module-parsers_mhd.html">parsers/mhd</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="module-parsers_volume.html">parsers/volume</a></li><li><a href="module-presets_segmentation.html">presets/segmentation</a></li><li><a href="module-shaders_data.html">shaders/data</a></li><li><a href="module-shaders_localizer_uniforms.html">shaders/localizer/uniforms</a></li><li><a href="module-widgets_angle.html">widgets/angle</a></li><li><a href="module-widgets_annotation.html">widgets/annotation</a></li><li><a href="module-widgets_biruler.html">widgets/biruler</a></li><li><a href="module-widgets_crossRuler.html">widgets/crossRuler</a></li><li><a href="module-widgets_ellipse.html">widgets/ellipse</a></li><li><a href="module-widgets_freehand.html">widgets/freehand</a></li><li><a href="module-widgets_handle.html">widgets/handle</a></li><li><a href="module-widgets_polygon.html">widgets/polygon</a></li><li><a href="module-widgets_pressureHalfTime.html">widgets/pressureHalfTime</a></li><li><a href="module-widgets_rectangle.html">widgets/rectangle</a></li><li><a href="module-widgets_ruler.html">widgets/ruler</a></li><li><a href="module-widgets_velocityTimeIntegral.html">widgets/velocityTimeIntegral</a></li><li><a href="module-widgets_voxelProbe.html">widgets/voxelProbe</a></li><li><a href="widgets_peakVelocity%2520.html">widgets/peakVelocity </a></li></ul><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li><li><a href="module-loaders_base.html">loaders/base</a></li><li><a href="module-models_frame.html">models/frame</a></li><li><a href="module-models_series.html">models/series</a></li><li><a href="module-models_stack.html">models/stack</a></li><li><a href="module-parsers_nifti.html">parsers/nifti</a></li><li><a href="Unpack.html">Unpack</a></li></ul><h3>Global</h3><ul><li><a href="global.html#cielab2RGB">cielab2RGB</a></li><li><a href="global.html#cielab2XYZ">cielab2XYZ</a></li><li><a href="global.html#compute">compute</a></li><li><a href="global.html#functions">functions</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#PAKO">PAKO</a></li><li><a href="global.html#segmentation">segmentation</a></li><li><a href="global.html#uniforms">uniforms</a></li><li><a href="global.html#xyz2RGB">xyz2RGB</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.0-dev</a> on Thu Aug 02 2018 11:19:42 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.0-dev</a> on Tue Nov 06 2018 17:50:54 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

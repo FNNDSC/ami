@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: widgets/widgets.biruler.js</title>
+    <title>JSDoc: Source: widgets/widgets.pressureHalfTime.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: widgets/widgets.biruler.js</h1>
+    <h1 class="page-title">Source: widgets/widgets.pressureHalfTime.js</h1>
 
     
 
@@ -28,29 +28,46 @@
         <article>
             <pre class="prettyprint source linenums"><code>import {widgetsBase} from './widgets.base';
 import {widgetsHandle as widgetsHandleFactory} from './widgets.handle';
+import CoreUtils from "../core/core.utils";
 
 /**
- * @module widgets/biruler
+ * @module widgets/pressureHalfTime
  */
-const widgetsBiruler = (three = window.THREE) => {
+const widgetsPressureHalfTime = (three = window.THREE) => {
     if (three === undefined || three.Object3D === undefined) {
-      return null;
+        return null;
     }
 
     const Constructor = widgetsBase(three);
+
     return class extends Constructor {
         constructor(targetMesh, controls, params) {
             super(targetMesh, controls, params);
 
-            this._widgetType = 'BiRuler';
+            this._widgetType = 'PressureHalfTime';
 
-            // incoming parameters (optional: lps2IJK, pixelSpacing, ultrasoundRegions, worldPosition)
-            this._calibrationFactor = params.calibrationFactor || null;
+            // incoming parameters (required: lps2IJK, worldPosition)
+            this._regions = params.ultrasoundRegions || []; // required
+            if (this._regions.length &lt; 1) {
+                throw new Error('Ultrasound regions should not be empty!');
+            }
 
             // outgoing values
-            this._distance = null;
-            this._distance2 = null;
-            this._units = !this._calibrationFactor &amp;&amp; !params.pixelSpacing ? 'units' : 'mm';
+            this._vMax = null; // Maximum Velocity (Vmax)
+            this._gMax = null; // Maximum Gradient (Gmax)
+            this._pht = null; // Pressure Half Time (PHT)
+            this._mva = null; // Mitral Valve Area (MVA)
+            this._dt = null; // Deceleration Time (DT)
+            this._ds = null; // Deceleration Slope (DS)
+
+            this._domHovered = false;
+            this._initialRegion = this.getRegionByXY(
+                this._regions,
+                CoreUtils.worldToData(params.lps2IJK, params.worldPosition)
+            );
+            if (this._initialRegion === null) {
+                throw new Error('Invalid initial UltraSound region!');
+            }
 
             // mesh stuff
             this._material = null;
@@ -60,65 +77,115 @@ const widgetsBiruler = (three = window.THREE) => {
             // dom stuff
             this._line = null;
             this._label = null;
-            this._line2 = null;
-            this._label2 = null;
-            this._dashline = null;
 
             // add handles
             this._handles = [];
+            const WidgetsHandle = widgetsHandleFactory(three);
 
             let handle;
-            const WidgetsHandle = widgetsHandleFactory(three);
-            for (let i = 0; i &lt; 4; i++) {
+            for (let i = 0; i &lt; 2; i++) {
                 handle = new WidgetsHandle(targetMesh, controls, params);
                 this.add(handle);
                 this._handles.push(handle);
             }
             this._handles[1].active = true;
             this._handles[1].tracking = true;
-            this._handles[3].active = true;
-            this._handles[3].tracking = true;
+
+            this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
+            this.add(this._moveHandle);
+            this._handles.push(this._moveHandle);
+            this._moveHandle.hide();
 
             this.create();
 
             this.onMove = this.onMove.bind(this);
+            this.onHover = this.onHover.bind(this);
             this.addEventListeners();
         }
 
         addEventListeners() {
             this._container.addEventListener('wheel', this.onMove);
+
+            this._line.addEventListener('mouseenter', this.onHover);
+            this._line.addEventListener('mouseleave', this.onHover);
+            this._label.addEventListener('mouseenter', this.onHover);
+            this._label.addEventListener('mouseleave', this.onHover);
         }
 
         removeEventListeners() {
             this._container.removeEventListener('wheel', this.onMove);
+
+            this._line.removeEventListener('mouseenter', this.onHover);
+            this._line.removeEventListener('mouseleave', this.onHover);
+            this._label.removeEventListener('mouseenter', this.onHover);
+            this._label.removeEventListener('mouseleave', this.onHover);
+        }
+
+        onHover(evt) {
+            if (evt) {
+                this.hoverDom(evt);
+            }
+
+            this.hoverMesh();
+
+            this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._domHovered;
+            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+        }
+
+        hoverMesh() {
+            // check raycast intersection, do we want to hover on mesh or just css?
+        }
+
+        hoverDom(evt) {
+            this._domHovered = (evt.type === 'mouseenter');
         }
 
         onStart(evt) {
-            this._handles.forEach((elem) => elem.onStart(evt));
+            this._moveHandle.onMove(evt, true);
 
-            this._active = this._handles[0].active || this._handles[1].active ||
-                this._handles[2].active || this._handles[3].active;
+            this._handles[0].onStart(evt);
+            this._handles[1].onStart(evt);
+
+            this._active = this._handles[0].active || this._handles[1].active || this._domHovered;
+
+            if (this._domHovered) {
+                this._controls.enabled = false;
+            }
 
             this.update();
         }
 
         onMove(evt) {
             if (this._active) {
+                const prevPosition = this._moveHandle.worldPosition.clone();
+
+                this._moveHandle.onMove(evt, true);
+
+                const shift = this._moveHandle.worldPosition.clone().sub(prevPosition);
+
+                if (!this.isCorrectRegion(shift)) {
+                    this._moveHandle.worldPosition.copy(prevPosition);
+
+                    return;
+                }
+
+                if (!this._handles[0].active &amp;&amp; !this._handles[1].active) {
+                    this._handles.slice(0, -1).forEach((handle) => {
+                        handle.worldPosition.add(shift);
+                    });
+                }
                 this._dragged = true;
             } else {
-                this._hovered = this._handles[0].hovered || this._handles[1].hovered ||
-                    this._handles[2].hovered || this._handles[3].hovered;
-                this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+                this.onHover(null);
             }
 
-            this._handles.forEach((elem) => elem.onMove(evt));
-
+            this._handles[0].onMove(evt);
+            this._handles[1].onMove(evt);
             this.update();
         }
 
         onEnd() {
-            this._handles[0].onEnd();
-            this._handles[2].onEnd();
+            this._handles[0].onEnd(); // First Handle
 
             if (this._handles[1].tracking &amp;&amp;
                 this._handles[0].screenPosition.distanceTo(this._handles[1].screenPosition) &lt; 10
@@ -126,22 +193,10 @@ const widgetsBiruler = (three = window.THREE) => {
                 return;
             }
 
-            if (!this._dragged &amp;&amp; this._active &amp;&amp; !this._handles[3].tracking) {
+            if (!this._dragged &amp;&amp; this._active &amp;&amp; !this._handles[1].tracking) {
                 this._selected = !this._selected; // change state if there was no dragging
                 this._handles[0].selected = this._selected;
-                this._handles[2].selected = this._selected;
             }
-
-            // Fourth Handle
-            if (this._handles[1].active) {
-                this._handles[3].onEnd();
-            } else if (this._dragged || !this._handles[3].tracking) {
-                this._handles[3].tracking = false;
-                this._handles[3].onEnd();
-            } else {
-                this._handles[3].tracking = false;
-            }
-            this._handles[3].selected = this._selected;
 
             // Second Handle
             if (this._dragged || !this._handles[1].tracking) {
@@ -152,10 +207,33 @@ const widgetsBiruler = (three = window.THREE) => {
             }
             this._handles[1].selected = this._selected;
 
-            this._active = this._handles[0].active || this._handles[1].active ||
-                this._handles[2].active || this._handles[3].active;
+            this._active = this._handles[0].active || this._handles[1].active;
             this._dragged = false;
+
             this.update();
+        }
+
+        isCorrectRegion(shift) {
+            const inActive = !(this._handles[0].active || this._handles[1].active);
+            let isCorrect = true;
+
+            if (this._handles[0].active || inActive) {
+                isCorrect = isCorrect &amp;&amp; this.checkHandle(0, shift);
+            }
+            if (this._handles[1].active || inActive) {
+                isCorrect = isCorrect &amp;&amp; this.checkHandle(1, shift);
+            }
+
+            return isCorrect;
+        }
+
+        checkHandle(index, shift) {
+            const region = this.getRegionByXY(
+                    this._regions,
+                    CoreUtils.worldToData(this._params.lps2IJK, this._handles[index].worldPosition.clone().add(shift))
+                );
+
+            return region !== null &amp;&amp; region === this._initialRegion &amp;&amp; this._regions[region].unitsY === 'cm/sec';
         }
 
         create() {
@@ -166,12 +244,7 @@ const widgetsBiruler = (three = window.THREE) => {
         createMesh() {
             // geometry
             this._geometry = new three.Geometry();
-            this._geometry.vertices = [
-                this._handles[0].worldPosition,
-                this._handles[1].worldPosition,
-                this._handles[2].worldPosition,
-                this._handles[3].worldPosition,
-            ];
+            this._geometry.vertices = [this._handles[0].worldPosition, this._handles[1].worldPosition];
 
             // material
             this._material = new three.LineBasicMaterial();
@@ -179,8 +252,9 @@ const widgetsBiruler = (three = window.THREE) => {
             this.updateMeshColor();
 
             // mesh
-            this._mesh = new three.LineSegments(this._geometry, this._material);
+            this._mesh = new three.Line(this._geometry, this._material);
             this._mesh.visible = true;
+
             this.add(this._mesh);
         }
 
@@ -191,19 +265,18 @@ const widgetsBiruler = (three = window.THREE) => {
 
             this._label = document.createElement('div');
             this._label.className = 'widgets-label';
+
+            const measurementsContainer = document.createElement('div');
+
+            ['vmax', 'gmax', 'pht', 'mva', 'dt', 'ds'].forEach((name) => {
+                const div = document.createElement('div');
+
+                div.className = name;
+                measurementsContainer.appendChild(div);
+            });
+            this._label.appendChild(measurementsContainer);
+
             this._container.appendChild(this._label);
-
-            this._line2 = document.createElement('div');
-            this._line2.className = 'widgets-line';
-            this._container.appendChild(this._line2);
-
-            this._label2 = document.createElement('div');
-            this._label2.className = 'widgets-label';
-            this._container.appendChild(this._label2);
-
-            this._dashline = document.createElement('div');
-            this._dashline.className = 'widgets-dashline';
-            this._container.appendChild(this._dashline);
 
             this.updateDOMColor();
         }
@@ -211,32 +284,60 @@ const widgetsBiruler = (three = window.THREE) => {
         hideDOM() {
             this._line.style.display = 'none';
             this._label.style.display = 'none';
-            this._line2.style.display = 'none';
-            this._label2.style.display = 'none';
-            this._dashline.style.display = 'none';
-
             this._handles.forEach((elem) => elem.hideDOM());
         }
 
         showDOM() {
             this._line.style.display = '';
             this._label.style.display = '';
-            this._line2.style.display = '';
-            this._label2.style.display = '';
-            this._dashline.style.display = '';
-
-            this._handles.forEach((elem) => elem.showDOM());
+            this._handles[0].showDOM();
+            this._handles[1].showDOM();
         }
 
         update() {
             this.updateColor();
 
-            this._handles.forEach((elem) => elem.update());
+            this._handles[0].update();
+            this._handles[1].update();
+
+            this.updateValues();
 
             this.updateMeshColor();
             this.updateMeshPosition();
 
             this.updateDOM();
+        }
+
+        updateValues() {
+            const usPosition0 = this.getUsPoint(
+                    this._regions,
+                    CoreUtils.worldToData(this._params.lps2IJK, this._handles[0].worldPosition)
+                );
+            const usPosition1 = this.getUsPoint(
+                    this._regions,
+                    CoreUtils.worldToData(this._params.lps2IJK, this._handles[1].worldPosition)
+                );
+            const velocity0 = Math.abs(usPosition0.y / 100);
+            const velocity1 = Math.abs(usPosition1.y / 100);
+            const time0 = Math.abs(usPosition0.x);
+            const time1 = Math.abs(usPosition1.x);
+            const vMaxTime = this._vMax === velocity0 ? time0 : time1;
+
+            this._vMax = Math.max(velocity0, velocity1);
+            this._gMax = 4 * Math.pow(this._vMax, 2);
+
+            const phtVelocity = this._vMax / Math.sqrt(2);
+            const phtKoeff = (velocity0 - phtVelocity) / (velocity1 - phtVelocity);
+            const dtKoeff = velocity0 / velocity1;
+
+            this._pht = phtKoeff === 1
+                ? Number.POSITIVE_INFINITY
+                : Math.abs(vMaxTime - (time0 - phtKoeff * time1) / (1 - phtKoeff)) * 1000;
+            this._mva = 220 / this._pht;
+            this._dt = dtKoeff === 1
+                ? Number.POSITIVE_INFINITY
+                : Math.abs(vMaxTime - (time0 - dtKoeff * time1) / (1 - dtKoeff)) * 1000;
+            this._ds = this._dt === 0 ? Number.POSITIVE_INFINITY : this._vMax / this._dt * 1000;
         }
 
         updateMeshColor() {
@@ -254,115 +355,42 @@ const widgetsBiruler = (three = window.THREE) => {
         updateDOM() {
             this.updateDOMColor();
 
-            // update first line
+            // update line
             const lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 
             this._line.style.transform =`translate3D(${lineData.transformX}px, ${lineData.transformY}px, 0)
                 rotate(${lineData.transformAngle}rad)`;
             this._line.style.width = lineData.length + 'px';
 
-            // update second line
-            const line2Data = this.getLineData(this._handles[2].screenPosition, this._handles[3].screenPosition);
-
-            this._line2.style.transform =`translate3D(${line2Data.transformX}px, ${line2Data.transformY}px, 0)
-                rotate(${line2Data.transformAngle}rad)`;
-            this._line2.style.width = line2Data.length + 'px';
-
-            // update dash line
-            const line1Center = this._handles[0].worldPosition.clone()
-                    .add(this._handles[1].worldPosition).multiplyScalar(0.5);
-            const line2Center = this._handles[2].worldPosition.clone()
-                    .add(this._handles[3].worldPosition).multiplyScalar(0.5);
-            const dashLineData = this.getLineData(this.worldToScreen(line1Center), this.worldToScreen(line2Center));
-
-            this._dashline.style.transform =`translate3D(${dashLineData.transformX}px, ${dashLineData.transformY}px, 0)
-                rotate(${dashLineData.transformAngle}rad)`;
-            this._dashline.style.width = dashLineData.length + 'px';
-
-            // update labels
-            const distanceData = this.getDistanceData(
-                this._handles[0].worldPosition,
-                this._handles[1].worldPosition,
-                this._calibrationFactor
-            );
-            const distanceData2 = this.getDistanceData(
-                this._handles[2].worldPosition,
-                this._handles[3].worldPosition,
-                this._calibrationFactor
-            );
-            const title = 'Calibration is required to display the distance in mm';
-
-            this._distance = distanceData.distance;
-            this._distance2 = distanceData2.distance;
-            if (distanceData.units &amp;&amp; distanceData2.units &amp;&amp; distanceData.units === distanceData2.units) {
-                this._units = distanceData.units;
-            } else {
-                if (!distanceData.units) {
-                    distanceData.units = this._units;
-                }
-                if (!distanceData2.units) {
-                    distanceData2.units = this._units;
-                }
-            }
-
-            if (distanceData.units === 'units' &amp;&amp; !this._label.hasAttribute('title')) {
-                this._label.setAttribute('title', title);
-                this._label.style.color = this._colors.error;
-            } else if (distanceData.units !== 'units' &amp;&amp; this._label.hasAttribute('title')) {
-                this._label.removeAttribute('title');
-                this._label.style.color = this._colors.text;
-            }
-            if (distanceData2.units === 'units' &amp;&amp; !this._label2.hasAttribute('title')) {
-                this._label2.setAttribute('title', title);
-                this._label2.style.color = this._colors.error;
-            } else if (distanceData2.units !== 'units' &amp;&amp; this._label2.hasAttribute('title')) {
-                this._label2.removeAttribute('title');
-                this._label2.style.color = this._colors.text;
-            }
-            this._label.innerHTML = `${this._distance.toFixed(2)} ${distanceData.units}`;
-            this._label2.innerHTML = `${this._distance2.toFixed(2)} ${distanceData2.units}`;
+            // update label
+            this._label.querySelector('.vmax').innerHTML = `Vmax: ${this._vMax.toFixed(2)} m/s`;
+            this._label.querySelector('.gmax').innerHTML = `Gmax: ${this._gMax.toFixed(2)} mmhg`;
+            this._label.querySelector('.pht').innerHTML = `PHT: ${this._pht.toFixed(1)} ms`;
+            this._label.querySelector('.mva').innerHTML = `MVA: ${this._mva.toFixed(2)} cm²`;
+            this._label.querySelector('.dt').innerHTML = `DT: ${this._dt.toFixed(1)} ms`;
+            this._label.querySelector('.ds').innerHTML = `DS: ${this._ds.toFixed(2)} m/s²`;
 
             let angle = Math.abs(lineData.transformAngle);
+
             if (angle > Math.PI / 2) {
                 angle = Math.PI - angle;
             }
 
             const labelPadding = Math.tan(angle) &lt; this._label.offsetHeight / this._label.offsetWidth
-                    ? (this._label.offsetWidth / 2) / Math.cos(angle) + 15 // 5px for each handle + padding
-                    : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle) + 15;
+                ? (this._label.offsetWidth / 2) / Math.cos(angle) + 15 // 5px for each handle + padding
+                : (this._label.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle) + 15;
             const paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
             const paddingPoint = lineData.length > labelPadding * 2
-                    ? this._handles[1].screenPosition.clone().sub(paddingVector)
-                    : this._handles[1].screenPosition.clone().add(paddingVector);
+                ? this._handles[1].screenPosition.clone().sub(paddingVector)
+                : this._handles[1].screenPosition.clone().add(paddingVector);
             const transform = this.adjustLabelTransform(this._label, paddingPoint);
 
             this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
-
-            let angle2 = Math.abs(line2Data.transformAngle);
-            if (angle2 > Math.PI / 2) {
-                angle2 = Math.PI - angle2;
-            }
-
-            const label2Padding = Math.tan(angle2) &lt; this._label2.offsetHeight / this._label2.offsetWidth
-                ? (this._label2.offsetWidth / 2) / Math.cos(angle2) + 15 // 5px for each handle + padding
-                : (this._label2.offsetHeight / 2) / Math.cos(Math.PI / 2 - angle2) + 15;
-            const paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding);
-            const paddingPoint2 = line2Data.length > label2Padding * 2
-                    ? this._handles[3].screenPosition.clone().sub(paddingVector2)
-                    : this._handles[3].screenPosition.clone().add(paddingVector2);
-            const transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
-
-            this._label2.style.transform = `translate3D(${transform2.x}px, ${transform2.y}px, 0)`;
         }
 
         updateDOMColor() {
             this._line.style.backgroundColor = this._color;
             this._label.style.borderColor = this._color;
-
-            this._line2.style.backgroundColor = this._color;
-            this._label2.style.borderColor = this._color;
-
-            this._dashline.style.borderTop = '1.5px dashed ' + this._color;
         }
 
         free() {
@@ -376,9 +404,6 @@ const widgetsBiruler = (three = window.THREE) => {
 
             this._container.removeChild(this._line);
             this._container.removeChild(this._label);
-            this._container.removeChild(this._line2);
-            this._container.removeChild(this._label2);
-            this._container.removeChild(this._dashline);
 
             // mesh, geometry, material
             this.remove(this._mesh);
@@ -398,16 +423,15 @@ const widgetsBiruler = (three = window.THREE) => {
             super.free();
         }
 
-        /**
-         * Get length of rulers
-         *
-         * @return {Array}
-         */
-        getDistances() {
-            return [
-                this._distance,
-                this._distance2,
-            ];
+        getMeasurements() {
+            return {
+                vMax: this._vMax,
+                gMax: this._gMax,
+                pht: this._pht,
+                mva: this._mva,
+                dt: this._dt,
+                ds: this._ds,
+            };
         }
 
         get targetMesh() {
@@ -425,33 +449,16 @@ const widgetsBiruler = (three = window.THREE) => {
         }
 
         set worldPosition(worldPosition) {
-            this._handles.forEach((elem) => elem.worldPosition.copy(worldPosition));
+            this._handles[0].worldPosition.copy(worldPosition);
+            this._handles[1].worldPosition.copy(worldPosition);
             this._worldPosition.copy(worldPosition);
             this.update();
-        }
-
-        get calibrationFactor() {
-            return this._calibrationFactor;
-        }
-
-        set calibrationFactor(calibrationFactor) {
-            this._calibrationFactor = calibrationFactor;
-            this._units = 'mm';
-            this.update();
-        }
-
-        get shotestDistance() {
-            return ((this._distance &lt; this._distance2) ? this._distance : this._distance2);
-        }
-
-        get longestDistance() {
-            return ((this._distance > this._distance2) ? this._distance : this._distance2);
         }
     };
 };
 
-export {widgetsBiruler};
-export default widgetsBiruler();
+export {widgetsPressureHalfTime};
+export default widgetsPressureHalfTime();
 </code></pre>
         </article>
     </section>
