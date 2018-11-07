@@ -42,13 +42,14 @@ upload_files() {
 
 # }
 
-# update_ghpage() {
-
-# }
+update_ghpage() {
+  yarn deploy
+}
 
 setup_git
 make_version
 upload_files
+update_ghpage
 
 #   provider: npm
 #   tag: next
