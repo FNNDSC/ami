@@ -40,6 +40,7 @@ export default class LoadersBase extends EventEmitter {
     this._totalLoaded = -1;
     this._parsed = -1;
     this._totalParsed = -1;
+    this._errored = 0;
 
     this._data = [];
 
