@@ -32,11 +32,11 @@ make_version() {
   # Run the deploy build and increment the package versions
   # %s is the placeholder for the created tag
   # Update pacakge.json
-  VERSION=$(npm version minor --no-git-tag-version -m "chore: update version ($VERSION) %s [skip ci]")
+  VERSION=$(npm version minor --no-git-tag-version)
 
   # Update the build
   yarn dist:ami
-  git commit -am "chore: update build ($VERSION)[skip ci]"
+  git commit -am "chore: update version ($VERSION)[skip ci]"
 
   # Tag the new build
   git tag $VERSION
