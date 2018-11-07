@@ -27,7 +27,7 @@ make_version() {
   
   # Run the deploy build and increment the package versions
   # %s is the placeholder for the created tag
-  npm version minor -m "chore: release version %s"
+  npm version minor -m "chore: release version %s [skip ci]"
 }
 
 upload_files() {
@@ -38,9 +38,9 @@ upload_files() {
   git push --tags
 }
 
-# update_npm() {
-
-# }
+update_npm() {
+  npm publish . --tag next
+}
 
 update_ghpage() {
   yarn deploy
@@ -49,9 +49,5 @@ update_ghpage() {
 setup_git
 make_version
 upload_files
+update_npm
 update_ghpage
-
-#   provider: npm
-#   tag: next
-#   api_key:
-#     secure: Eg0g+2DyemulryOBVkYGU5BDu0UOSKKhKticgSMryH3oxCkXpR303saSGbt6xGwv4k6tW+RR2TgFB4LdgI4XtFOSquH3+n7b38iZKFb/bil2TiN15aEGwQ/PBqnm7Yw8g/rLuhqn6GhS79scfp6kzxEPenWvAQanS1P06KAWxXg=
