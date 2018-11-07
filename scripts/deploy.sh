@@ -38,13 +38,13 @@ upload_files() {
   git push --tags
 }
 
-update_npm() {
+# update_npm() {
 
-}
+# }
 
-update_ghpage() {
+# update_ghpage() {
 
-}
+# }
 
 setup_git
 make_version
