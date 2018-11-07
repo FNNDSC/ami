@@ -46,7 +46,6 @@ update_ghpage() {
 
 }
 
-echo $TRAVIS_BRANCH
 setup_git
 make_version
 upload_files
