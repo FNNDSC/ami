@@ -45,7 +45,7 @@ module.exports = function(karma) {
           {
             test: /\.js$/,
             loader: 'babel-loader',
-            exclude: [/node_modules/, 'external/**/*'],
+            exclude: [/node_modules/, /external/],
           },
         ],
       },
