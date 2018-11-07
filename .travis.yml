@@ -16,5 +16,5 @@ deploy:
   script: scripts/deploy.sh
   on:
     repo: FNNDSC/ami
-    branch: dev
+    branch: master
     tags: false
