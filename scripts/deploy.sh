@@ -1,5 +1,9 @@
 #!/bin/sh
 
+#
+# Credits to https://dev.to/jeffreymfarley/deploy-atomically-with-travis--npm-68b
+#
+
 setup_git() {
   # Set the user name and email to match the API token holder
   # This will make sure the git commits will have the correct photo
@@ -20,14 +24,22 @@ make_version() {
   # It could be "dirty" if
   # 1. package-lock.json is not aligned with package.json
   # 2. npm install is run
-  git commit -am "chore: update build [skip ci]"
+  git checkout -- .
   
   # Echo the status to the log so that we can see it is OK
   git status
   
   # Run the deploy build and increment the package versions
   # %s is the placeholder for the created tag
-  npm version minor -m "chore: release version %s [skip ci]"
+  # Update pacakge.json
+  npm version minor --no-git-tag-version -m "chore: update to version %s [skip ci]"
+
+  # Update the build
+  yarn ami
+  commit -am "chore: update build [skip ci]"
+
+  # Tag the new build
+  npm version minor --allow-same-version -m "chore: release version %s [skip ci]"
 }
 
 upload_files() {
