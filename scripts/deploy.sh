@@ -39,6 +39,7 @@ upload_files() {
 }
 
 update_npm() {
+  cp .npmrc.template $HOME/.npmrc
   npm publish . --tag next
 }
 

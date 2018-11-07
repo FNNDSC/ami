@@ -1,0 +1,3 @@
+always-auth=true
+tag-version-prefix=""
+//registry.npmjs.org/:_authToken=${NPM_API_TOKEN}
