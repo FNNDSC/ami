@@ -25,17 +25,6 @@
     </a>
 </p>
 
-----------
-
-```diff
-
-**AMI Alpha** is now available for developer preview.
-Please submit pull request, open issues or contact us for any question, feature request, etc.
-
-- <Important Note>
--  Developer preview means that the API might change but you can already build cool apps with AMI.
-
-```
 
 ----------
 
@@ -55,13 +44,12 @@ Please submit pull request, open issues or contact us for any question, feature 
 <tr>
   <!-- Lesson 00 -->
   <td valign="middle" width="100">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/00#run' target=_blank>
-      <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/00/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">
-      <img src="http://xtk.github.com/fiddlelogo_small2.png">
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/00' target=_blank>
+      <img src="https://cdn.rawgit.com/fnndsc/ami/master/lessons/00/assets/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">
     </a>
   </td>
   <td valign="top" width="326">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/00#run'>
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/00'>
       <b>Lesson 00: Load</b>
     </a>
     <div>
@@ -71,13 +59,12 @@ Please submit pull request, open issues or contact us for any question, feature 
 
   <!-- Lesson 01 -->
   <td valign="middle" width="100">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/01#run' target=_blank>
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/01' target=_blank>
       <img src="https://cloud.githubusercontent.com/assets/214063/14734707/8963a142-086c-11e6-99e2-35125f5ebb83.gif" style="width:128x, height:128px" alt="lesson01" title="Click me!">
-      <img src="http://xtk.github.com/fiddlelogo_small2.png">
     </a>
   </td>
   <td valign="top" width="326">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/01#run'>
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/01'>
       <b>Lesson 01: Visualize 3D</b>
     </a>
     <div>
@@ -89,13 +76,12 @@ Please submit pull request, open issues or contact us for any question, feature 
 <tr>
   <!-- Lesson 02 -->
   <td valign="middle" width="100">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run' target=_blank>
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/02' target=_blank>
       <img src="https://cloud.githubusercontent.com/assets/214063/14734782/1aa3006c-086d-11e6-9f56-6476e5ac6188.gif" style="width:128x, height:128px" alt="lesson00" title="Click me!">
-      <img src="http://xtk.github.com/fiddlelogo_small2.png">
     </a>
   </td>
   <td valign="top" width="326">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/02#run'>
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/02'>
       <b>Lesson 02: Mesh</b>
     </a>
     <div>
@@ -105,13 +91,12 @@ Please submit pull request, open issues or contact us for any question, feature 
 
   <!-- Lesson 03 -->
   <td valign="middle" width="100">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/03#run' target=_blank>
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/03' target=_blank>
       <img src="https://cloud.githubusercontent.com/assets/214063/14734860/99882c22-086d-11e6-99ae-16b7e5371f40.gif" style="width:128x, height:128px" alt="lesson00" title="Click me!">
-      <img src="http://xtk.github.com/fiddlelogo_small2.png">
     </a>
   </td>
   <td valign="top" width="326">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/03#run'>
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/03'>
       <b>Lesson 03: Visualize 2D</b>
     </a>
     <div>
@@ -122,13 +107,12 @@ Please submit pull request, open issues or contact us for any question, feature 
 <tr>
   <!-- Lesson 04 -->
   <td valign="middle" width="100">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/04#run' target=_blank>
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/04' target=_blank>
       <img src="https://cloud.githubusercontent.com/assets/214063/16259390/b04a7d96-3862-11e6-8937-3019b913a21f.gif" style="width:128x, height:128px" alt="lesson00" title="Click me!">
-      <img src="http://xtk.github.com/fiddlelogo_small2.png">
     </a>
   </td>
   <td valign="top" width="326">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/04#run' target=_blank>
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/04' target=_blank>
       <b>Lesson 04: Labelmap</b>
     </a>
     <div>
@@ -155,13 +139,12 @@ Please submit pull request, open issues or contact us for any question, feature 
 <tr>
   <!-- Lesson 06 -->
   <td valign="middle" width="100">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/06#run' target=_blank>
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/06' target=_blank>
       <img src="https://cloud.githubusercontent.com/assets/214063/20212355/fdf512b2-a802-11e6-884d-bfafd0a1ec7d.gif" style="width:128x, height:128px" alt="lesson00" title="Click me!">
-      <img src="http://xtk.github.com/fiddlelogo_small2.png">
     </a>
   </td>
   <td valign="top" width="326">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/06#run'>
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/06'>
       <b>Lesson 06: Volume Rendering</b>
     </a>
     <div>
@@ -188,13 +171,12 @@ Please submit pull request, open issues or contact us for any question, feature 
 <tr>
   <!-- Lesson 08 -->
   <td valign="middle" width="100">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/08#run' target=_blank>
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/08' target=_blank>
       <img src="https://cloud.githubusercontent.com/assets/214063/20597899/9b7ec102-b246-11e6-804b-be8ac6dc9a68.gif" style="width:128x, height:128px" alt="lesson00" title="Click me!">
-      <img src="http://xtk.github.com/fiddlelogo_small2.png">
     </a>
   </td>
   <td valign="top" width="326">
-    <a href='http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/08#run'>
+    <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/08'>
       <b>Lesson 08: Custom progress bar</b>
     </a>
     <div>
@@ -220,7 +202,7 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 | ✅ 3D Visualization | ✅ NRRD      | ✅ STL (THREEJS) | 🔶 Probe (2D/3D)        |
 | ✅ Volume Rendering | ✅ Nifti     | ✅  TRK           | 🔶 Ruler (2D/3D)        |
 | ✅ Lookup Tables    | ✅  MHD/(Z)RAW   | ✅  FSM           | 🔶 Orientation (2D/3D)  |
-| 🔶 Label Maps       | ✅  MGH/MGZ   | ❌ CURV          | 🔶 Angle (2D/3D)        |
+| ✅ Label Maps       | ✅  MGH/MGZ   | ❌ CURV          | 🔶 Angle (2D/3D)        |
 |                    | ❌ JPEG      |                  |                         |
 
 ## Usage
