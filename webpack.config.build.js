@@ -31,12 +31,12 @@ const config = {
         test: /\.js$/,
         loader: 'babel-loader',
         include: [path.resolve(__dirname, 'src')],
-        exclude: [/node_modules/, 'external/**/*'],
+        exclude: [/node_modules/, /external/],
       },
       {
         test: /\.tsx?$/,
         loader: 'ts-loader',
-        exclude: ['external/**/*'],
+        exclude: [/external/],
       },
     ],
   },
@@ -50,6 +50,7 @@ const config = {
         parallel: true,
       }),
     ],
+    concatenateModules: false,
   },
 };
 
