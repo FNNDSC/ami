@@ -50,4 +50,4 @@ setup_git
 make_version
 upload_files
 update_npm
-update_ghpage
+# update_ghpage
