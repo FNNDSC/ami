@@ -29,8 +29,6 @@
     "url": "https://fnndsc.github.io/ami"
   },
   "config": {
-    "threeVersion": "93",
-    "amiCDN": "https://cdnjs.cloudflare.com/ajax/libs/ami.js",
     "gaKey": "UA-39303022-3",
     "babel": "--module-bind js=babel-loader --colors --display-error-details"
   },
@@ -64,7 +62,7 @@
     "nifti-reader-js": "v0.5.3",
     "nrrd-js": "^0.2.1",
     "pako": "1.0.1",
-    "three": "0.92.0"
+    "three": "latest"
   },
   "scripts": {
     "precommit": "lint-staged",

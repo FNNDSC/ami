@@ -12,7 +12,7 @@ module.exports = function(karma) {
     // list of files / patterns to load in the browser
     files: [
       'https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js',
-      `https://cdnjs.cloudflare.com/ajax/libs/three.js/${packageJSON.config.threeVersion}/three.js`,
+      `https://unpkg.com/three@latest/build/three.min.js`,
       // ,
       // 'src/core/*.spec.js',
       'specs/**/*.spec.js',

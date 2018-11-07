@@ -45,7 +45,7 @@
   <!-- Lesson 00 -->
   <td valign="middle" width="100">
     <a href='https://codesandbox.io/s/github/FNNDSC/ami/tree/master/lessons/00' target=_blank>
-      <img src="unpkg.com/ami.js@next/lessons/00/assets/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">
+      <img src="https://unpkg.com/ami.js@next/lessons/00/assets/thumbnail-128x128.jpg" alt="lesson00" title="Click me!">
     </a>
   </td>
   <td valign="top" width="326">
