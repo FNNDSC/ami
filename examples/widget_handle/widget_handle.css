@@ -1,35 +1,35 @@
 #stats {
   position: absolute;
-  top:0;
+  top: 0;
   left: 0;
 }
 
 #r3d {
   background-color: #000;
-  left: 10;
-  right: 20;
-  top: 30;
-  bottom: 40;
+  left: 10px;
+  right: 20px;
+  top: 30px;
+  bottom: 40px;
   position: absolute;
-  overflow:hidden;
+  overflow: hidden;
 }
 
 #my-gui-container {
   position: fixed;
   top: 20px;
   right: 20px;
-  z-index:1;
+  z-index: 1;
 }
 
 .AMI.Widget {
   font-size: 14px;
 }
 
-body{
+body {
   font-family: source-code-pro, sans-serif;
   background-color: #bdbdbd;
 }
 
-*{
+* {
   box-sizing: border-box;
 }

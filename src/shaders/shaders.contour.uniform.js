@@ -1,26 +1,30 @@
-
 /**
  * @module shaders/data
  */
 export default class ShadersUniform {
   static uniforms() {
     return {
-      'uCanvasWidth': {
+      uCanvasWidth: {
         type: 'f',
-        value: 0.,
+        value: 0,
         typeGLSL: 'float',
       },
-      'uCanvasHeight': {
+      uCanvasHeight: {
         type: 'f',
-        value: 0.,
+        value: 0,
         typeGLSL: 'float',
       },
-      'uWidth': {
+      uWidth: {
         type: 'f',
-        value: 1.,
+        value: 1,
         typeGLSL: 'float',
       },
-      'uTextureFilled': {
+      uOpacity: {
+        type: 'f',
+        value: 1,
+        typeGLSL: 'float',
+      },
+      uTextureFilled: {
         type: 't',
         value: [],
         typeGLSL: 'sampler2D',

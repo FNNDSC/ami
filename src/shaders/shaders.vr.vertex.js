@@ -1,6 +1,6 @@
 export default class ShadersVertex {
   compute() {
-      return `
+    return `
 varying vec4 vPos;
 
 //

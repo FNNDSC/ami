@@ -1,7 +1,8 @@
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
 
-let NiftiReader = require('nifti-reader-js');
+import NiftiReader from 'nifti-reader-js/src/nifti';
+
 /**
  * @module parsers/nifti
  */
@@ -10,9 +11,9 @@ export default class ParsersNifti extends ParsersVolume {
     super();
 
     /**
-      * @member
-      * @type {arraybuffer}
-    */
+     * @member
+     * @type {arraybuffer}
+     */
     this._id = id;
     this._arrayBuffer = data.buffer;
     this._url = data.url;
@@ -27,10 +28,10 @@ export default class ParsersNifti extends ParsersVolume {
 
     if (NiftiReader.isNIFTI(this._arrayBuffer)) {
       this._dataSet = NiftiReader.readHeader(this._arrayBuffer);
-      this._niftiImage =
-        NiftiReader.readImage(this._dataSet, this._arrayBuffer);
+      this._niftiImage = NiftiReader.readImage(this._dataSet, this._arrayBuffer);
     } else {
-      throw 'parsers.nifti could not parse the file';
+      const error = new Error('parsers.nifti could not parse the file');
+      throw error;
     }
   }
 
@@ -73,7 +74,7 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   pixelType(frameIndex = 0) {
-        // papaya.volume.nifti.NIFTI_TYPE_UINT8           = 2;
+    // papaya.volume.nifti.NIFTI_TYPE_UINT8           = 2;
     // papaya.volume.nifti.NIFTI_TYPE_INT16           = 4;
     // papaya.volume.nifti.NIFTI_TYPE_INT32           = 8;
     // papaya.volume.nifti.NIFTI_TYPE_FLOAT32        = 16;
@@ -92,9 +93,11 @@ export default class ParsersNifti extends ParsersVolume {
     // 0 integer, 1 float
 
     let pixelType = 0;
-    if (this._dataSet.datatypeCode === 16 ||
+    if (
+      this._dataSet.datatypeCode === 16 ||
       this._dataSet.datatypeCode === 64 ||
-      this._dataSet.datatypeCode === 1536) {
+      this._dataSet.datatypeCode === 1536
+    ) {
       pixelType = 1;
     }
     return pixelType;
@@ -105,35 +108,79 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   pixelSpacing(frameIndex = 0) {
-    return [
-      this._dataSet.pixDims[1],
-      this._dataSet.pixDims[2],
-      this._dataSet.pixDims[3],
-      ];
+    return [this._dataSet.pixDims[1], this._dataSet.pixDims[2], this._dataSet.pixDims[3]];
   }
 
   sliceThickness() {
     // should be a string...
-    return null;// this._dataSet.pixDims[3].toString();
+    return null; // this._dataSet.pixDims[3].toString();
   }
 
   imageOrientation(frameIndex = 0) {
-    // window.console.log(this._dataSet);
     // http://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1.h
     // http://nifti.nimh.nih.gov/pub/dist/src/niftilib/nifti1_io.c
     if (this._dataSet.qform_code > 0) {
+      // METHOD 2 (used when qform_code > 0, which should be the "normal" case):
+      // ---------------------------------------------------------------------
+      // The (x,y,z) coordinates are given by the pixdim[] scales, a rotation
+      // matrix, and a shift.  This method is intended to represent
+      // "scanner-anatomical" coordinates, which are often embedded in the
+      // image header (e.g., DICOM fields (0020,0032), (0020,0037), (0028,0030),
+      // and (0018,0050)), and represent the nominal orientation and location of
+      // the data.  This method can also be used to represent "aligned"
+      // coordinates, which would typically result from some post-acquisition
+      // alignment of the volume to a standard orientation (e.g., the same
+      // subject on another day, or a rigid rotation to true anatomical
+      // orientation from the tilted position of the subject in the scanner).
+      // The formula for (x,y,z) in terms of header parameters and (i,j,k) is:
+
+      //   [ x ]   [ R11 R12 R13 ] [        pixdim[1] * i ]   [ qoffset_x ]
+      //   [ y ] = [ R21 R22 R23 ] [        pixdim[2] * j ] + [ qoffset_y ]
+      //   [ z ]   [ R31 R32 R33 ] [ qfac * pixdim[3] * k ]   [ qoffset_z ]
+
+      // The qoffset_* shifts are in the NIFTI-1 header.  Note that the center
+      // of the (i,j,k)=(0,0,0) voxel (first value in the dataset array) is
+      // just (x,y,z)=(qoffset_x,qoffset_y,qoffset_z).
+
+      // The rotation matrix R is calculated from the quatern_* parameters.
+      // This calculation is described below.
+
+      // The scaling factor qfac is either 1 or -1.  The rotation matrix R
+      // defined by the quaternion parameters is "proper" (has determinant 1).
+      // This may not fit the needs of the data; for example, if the image
+      // grid is
+      //   i increases from Left-to-Right
+      //   j increases from Anterior-to-Posterior
+      //   k increases from Inferior-to-Superior
+      // Then (i,j,k) is a left-handed triple.  In this example, if qfac=1,
+      // the R matrix would have to be
+
+      //   [  1   0   0 ]
+      //   [  0  -1   0 ]  which is "improper" (determinant = -1).
+      //   [  0   0   1 ]
+
+      // If we set qfac=-1, then the R matrix would be
+
+      //   [  1   0   0 ]
+      //   [  0  -1   0 ]  which is proper.
+      //   [  0   0  -1 ]
+
+      // This R matrix is represented by quaternion [a,b,c,d] = [0,1,0,0]
+      // (which encodes a 180 degree rotation about the x-axis).
       // https://github.com/Kitware/ITK/blob/master/Modules/IO/NIFTI/src/itkNiftiImageIO.cxx
       let a = 0.0;
       let b = this._dataSet.quatern_b;
       let c = this._dataSet.quatern_c;
       let d = this._dataSet.quatern_d;
       // compute a
-      a = 1.0 - (b*b + c*c + d*d);
+      a = 1.0 - (b * b + c * c + d * d);
       if (a < 0.0000001) {
-                   /* special case */
+        /* special case */
 
-        a = 1.0 / Math.sqrt(b*b+c*c+d*d);
-        b *= a; c *= a; d *= a; /* normalize (b,c,d) vector */
+        a = 1.0 / Math.sqrt(b * b + c * c + d * d);
+        b *= a;
+        c *= a;
+        d *= a; /* normalize (b,c,d) vector */
         a = 0.0; /* a = 0 ==> 180 degree rotation */
       } else {
         a = Math.sqrt(a); /* angle = 2*arccos(a) */
@@ -143,43 +190,57 @@ export default class ParsersNifti extends ParsersVolume {
         this._rightHanded = false;
       }
 
-       return [
-          -(a*a+b*b-c*c-d*d),
-          -2*(b*c+a*d),
-          2*(b*d-a*c),
-          -2*(b*c-a*d),
-          -(a*a+c*c-b*b-d*d),
-          2*(c*d+a*b),
-        ];
+      return [
+        -(a * a + b * b - c * c - d * d),
+        -2 * (b * c + a * d),
+        2 * (b * d - a * c),
+        -2 * (b * c - a * d),
+        -(a * a + c * c - b * b - d * d),
+        2 * (c * d + a * b),
+      ];
     } else if (this._dataSet.sform_code > 0) {
-      console.log('sform > 0');
+      // METHOD 3 (used when sform_code > 0):
+      // -----------------------------------
+      // The (x,y,z) coordinates are given by a general affine transformation
+      // of the (i,j,k) indexes:
 
-      let sx = this._dataSet.srow_x;
-      let sy = this._dataSet.srow_y;
-      let sz = this._dataSet.srow_z;
-      // fill IJKToRAS
-      // goog.vec.Mat4.setRowValues(IJKToRAS, 0, sx[0], sx[1], sx[2], sx[3]);
-      // goog.vec.Mat4.setRowValues(IJKToRAS, 1, sy[0], sy[1], sy[2], sy[3]);
-      // goog.vec.Mat4.setRowValues(IJKToRAS, 2, sz[0], sz[1], sz[2], sz[3]);
+      //   x = srow_x[0] * i + srow_x[1] * j + srow_x[2] * k + srow_x[3]
+      //   y = srow_y[0] * i + srow_y[1] * j + srow_y[2] * k + srow_y[3]
+      //   z = srow_z[0] * i + srow_z[1] * j + srow_z[2] * k + srow_z[3]
+
+      // The srow_* vectors are in the NIFTI_1 header.  Note that no use is
+      // made of pixdim[] in this method.
+      const rowX = [
+        -this._dataSet.affine[0][0],
+        -this._dataSet.affine[0][1],
+        this._dataSet.affine[0][2],
+      ];
+      const rowY = [
+        -this._dataSet.affine[1][0],
+        -this._dataSet.affine[1][1],
+        this._dataSet.affine[0][2],
+      ];
+      return [...rowX, ...rowY];
     } else if (this._dataSet.qform_code === 0) {
-      console.log('qform === 0');
-
-
-      // fill IJKToRAS
-      // goog.vec.Mat4.setRowValues(IJKToRAS, 0, MRI.pixdim[1], 0, 0, 0);
-      // goog.vec.Mat4.setRowValues(IJKToRAS, 1, 0, MRI.pixdim[2], 0, 0);
-      // goog.vec.Mat4.setRowValues(IJKToRAS, 2, 0, 0, MRI.pixdim[3], 0);
+      // METHOD 1 (the "old" way, used only when qform_code = 0):
+      // -------------------------------------------------------
+      // The coordinate mapping from (i,j,k) to (x,y,z) is the ANALYZE
+      // 7.5 way.  This is a simple scaling relationship:
+      //   x = pixdim[1] * i
+      //   y = pixdim[2] * j
+      //   z = pixdim[3] * k
+      // No particular spatial orientation is attached to these (x,y,z)
+      // coordinates.  (NIFTI-1 does not have the ANALYZE 7.5 orient field,
+      // which is not general and is often not set properly.)  This method
+      // is not recommended, and is present mainly for compatibility with
+      // ANALYZE 7.5 files.
     }
     return [1, 0, 0, 0, 1, 0];
   }
 
   imagePosition(frameIndex = 0) {
     // qoffset is RAS
-    return [
-      -this._dataSet.qoffset_x,
-      -this._dataSet.qoffset_y,
-      this._dataSet.qoffset_z,
-    ];
+    return [-this._dataSet.qoffset_x, -this._dataSet.qoffset_y, this._dataSet.qoffset_z];
   }
 
   dimensionIndexValues(frameIndex = 0) {
@@ -205,7 +266,7 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   rescaleIntercept(frameIndex = 0) {
-    return this._dataSet.scl_intercept;
+    return this._dataSet.scl_inter;
   }
 
   extractPixelData(frameIndex = 0) {
@@ -230,8 +291,7 @@ export default class ParsersNifti extends ParsersVolume {
     // papaya.volume.nifti.NIFTI_TYPE_COMPLEX256   = 2048;
 
     let numberOfChannels = this.numberOfChannels();
-    let numPixels =
-      this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
     // if( !this.rightHanded() ){
     //   frameIndex = this.numberOfFrames() - 1 - frameIndex;
     // }
@@ -268,15 +328,19 @@ export default class ParsersNifti extends ParsersVolume {
     } else if (this._dataSet.datatypeCode === 16) {
       // signed float 32 bit
       frameOffset = frameOffset * 4;
-      return new Float32Array(buffer, frameOffset, numPixels);
+      const data = new Float32Array(buffer, frameOffset, numPixels);
+      for (let i = 0; i < data.length; i++) {
+        if (data[i] === Infinity || data[i] === -Infinity) {
+          data[i] = 0;
+        }
+      }
+      return data;
     } else {
-      console.log(
-        `Unknown data type: datatypeCode : ${this._dataSet.datatypeCode}`);
+      window.console.warn(`Unknown data type: datatypeCode : ${this._dataSet.datatypeCode}`);
     }
   }
 
   _reorderData() {
-    window.console.log('re-order');
     let numberOfChannels = this.numberOfChannels();
     let numPixels = this.rows() * this.columns() * numberOfChannels;
     let buffer = this._niftiImage;

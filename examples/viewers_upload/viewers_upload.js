@@ -63,9 +63,13 @@ function init() {
   scene = new THREE.Scene();
   // camera
   camera = new CamerasOrthographic(
-    threeD.clientWidth / -2, threeD.clientWidth / 2,
-    threeD.clientHeight / 2, threeD.clientHeight / -2,
-    0.1, 10000);
+    threeD.clientWidth / -2,
+    threeD.clientWidth / 2,
+    threeD.clientHeight / 2,
+    threeD.clientHeight / -2,
+    0.1,
+    10000
+  );
 
   // controls
   controls = new ControlsOrthographic(camera, threeD);
@@ -77,6 +81,11 @@ function init() {
 }
 
 window.onload = function() {
+  // notify puppeteer to take screenshot
+  const puppetDiv = document.createElement('div');
+  puppetDiv.setAttribute('id', 'puppeteer');
+  document.body.appendChild(puppetDiv);
+
   // hookup load button
   document.getElementById('buttoninput').onclick = function() {
     document.getElementById('filesinput').click();
@@ -105,22 +114,35 @@ window.onload = function() {
     let stack = stackHelper._stack;
 
     let gui = new dat.GUI({
-            autoPlace: false,
-          });
+      autoPlace: false,
+    });
 
     let customContainer = document.getElementById('my-gui-container');
     customContainer.appendChild(gui.domElement);
 
     let stackFolder = gui.addFolder('Stack');
-    stackFolder.add(
-      stackHelper.slice, 'windowWidth', 1, stack.minMax[1] - stack.minMax[0])
-      .step(1).listen();
-    stackFolder.add(
-      stackHelper.slice, 'windowCenter', stack.minMax[0], stack.minMax[1])
-      .step(1).listen();
+    stackFolder
+      .add(stackHelper.slice, 'windowWidth', 1, stack.minMax[1] - stack.minMax[0])
+      .step(1)
+      .listen();
+    stackFolder
+      .add(stackHelper.slice, 'windowCenter', stack.minMax[0], stack.minMax[1])
+      .step(1)
+      .listen();
+    stackFolder
+      .add(stackHelper.slice, 'lowerThreshold', stack.minMax[0], stack.minMax[1])
+      .step(1)
+      .listen();
+    stackFolder
+      .add(stackHelper.slice, 'upperThreshold', stack.minMax[0], stack.minMax[1])
+      .step(1)
+      .listen();
     stackFolder.add(stackHelper.slice, 'intensityAuto').listen();
     stackFolder.add(stackHelper.slice, 'invert');
-    stackFolder.add(stackHelper.slice, 'interpolation', 0, 1).step(1).listen();
+    stackFolder
+      .add(stackHelper.slice, 'interpolation', 0, 1)
+      .step(1)
+      .listen();
 
     // CREATE LUT
     lut = new HelpersLut(
@@ -128,11 +150,11 @@ window.onload = function() {
       'default',
       'linear',
       [[0, 0, 0, 0], [1, 1, 1, 1]],
-      [[0, 1], [1, 1]]);
+      [[0, 1], [1, 1]]
+    );
     lut.luts = HelpersLut.presetLuts();
 
-    let lutUpdate = stackFolder.add(
-      stackHelper.slice, 'lut', lut.lutsAvailable());
+    let lutUpdate = stackFolder.add(stackHelper.slice, 'lut', lut.lutsAvailable());
     lutUpdate.onChange(function(value) {
       lut.lut = value;
       stackHelper.slice.lutTexture = lut.texture;
@@ -143,8 +165,10 @@ window.onload = function() {
       stackHelper.slice.lutTexture = lut.texture;
     });
 
-    let index = stackFolder.add(
-      stackHelper, 'index', 0, stack.dimensionsIJK.z - 1).step(1).listen();
+    let index = stackFolder
+      .add(stackHelper, 'index', 0, stack.dimensionsIJK.z - 1)
+      .step(1)
+      .listen();
     stackFolder.open();
 
     // camera
@@ -161,7 +185,10 @@ window.onload = function() {
       updateLabels(camera.directionsLabel, stack.modality);
     });
 
-    let angle = cameraFolder.add(camera, 'angle', 0, 360).step(1).listen();
+    let angle = cameraFolder
+      .add(camera, 'angle', 0, 360)
+      .step(1)
+      .listen();
     angle.onChange(function() {
       updateLabels(camera.directionsLabel, stack.modality);
     });
@@ -172,8 +199,12 @@ window.onload = function() {
       updateLabels(camera.directionsLabel, stack.modality);
     });
 
-    let orientationUpdate = cameraFolder.add(
-      camUtils, 'orientation', ['default', 'axial', 'coronal', 'sagittal']);
+    let orientationUpdate = cameraFolder.add(camUtils, 'orientation', [
+      'default',
+      'axial',
+      'coronal',
+      'sagittal',
+    ]);
     orientationUpdate.onChange(function(value) {
       camera.orientation = value;
       camera.update();
@@ -182,11 +213,10 @@ window.onload = function() {
       updateLabels(camera.directionsLabel, stack.modality);
 
       index.__max = stackHelper.orientationMaxIndex;
-      stackHelper.index = Math.floor(index.__max/2);
+      stackHelper.index = Math.floor(index.__max / 2);
     });
 
-    let conventionUpdate = cameraFolder.add(
-      camUtils, 'convention', ['radio', 'neuro']);
+    let conventionUpdate = cameraFolder.add(camUtils, 'convention', ['radio', 'neuro']);
     conventionUpdate.onChange(function(value) {
       camera.convention = value;
       camera.update();
@@ -267,15 +297,13 @@ window.onload = function() {
 
         if (Math.abs(event.clientX - drag.start.x) > threshold) {
           // window width
-          stackHelper.slice.windowWidth +=
-            dynamicRange * (event.clientX - drag.start.x);
+          stackHelper.slice.windowWidth += dynamicRange * (event.clientX - drag.start.x);
           drag.start.x = event.clientX;
         }
 
         if (Math.abs(event.clientY - drag.start.y) > threshold) {
           // window center
-          stackHelper.slice.windowCenter -=
-            dynamicRange * (event.clientY - drag.start.y);
+          stackHelper.slice.windowCenter -= dynamicRange * (event.clientY - drag.start.y);
           drag.start.y = event.clientY;
         }
       }
@@ -300,28 +328,25 @@ window.onload = function() {
     stackHelper.border.visible = false;
     scene.add(stackHelper);
 
-    console.log(stackHelper.stack);
-
     // set camera
     let worldbb = stack.worldBoundingBox();
     let lpsDims = new THREE.Vector3(
-      (worldbb[1] - worldbb[0])/2,
-      (worldbb[3] - worldbb[2])/2,
-      (worldbb[5] - worldbb[4])/2
+      (worldbb[1] - worldbb[0]) / 2,
+      (worldbb[3] - worldbb[2]) / 2,
+      (worldbb[5] - worldbb[4]) / 2
     );
 
     // box: {halfDimensions, center}
     let box = {
       center: stack.worldCenter().clone(),
-      halfDimensions:
-        new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+      halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
     };
 
     // init and zoom
     let canvas = {
-        width: threeD.clientWidth,
-        height: threeD.clientHeight,
-      };
+      width: threeD.clientWidth,
+      height: threeD.clientHeight,
+    };
 
     camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
     camera.box = box;
@@ -363,28 +388,30 @@ window.onload = function() {
      * Load sequence
      */
     function loadSequence(index, files) {
-      return Promise.resolve()
-        // load the file
-        .then(function() {
-          return new Promise(function(resolve, reject) {
-            let myReader = new FileReader();
-            // should handle errors too...
-            myReader.addEventListener('load', function(e) {
-              resolve(e.target.result);
+      return (
+        Promise.resolve()
+          // load the file
+          .then(function() {
+            return new Promise(function(resolve, reject) {
+              let myReader = new FileReader();
+              // should handle errors too...
+              myReader.addEventListener('load', function(e) {
+                resolve(e.target.result);
+              });
+              myReader.readAsArrayBuffer(files[index]);
             });
-            myReader.readAsArrayBuffer(files[index]);
-          });
-        })
-        .then(function(buffer) {
-          return loader.parse({url: files[index].name, buffer});
-        })
-        .then(function(series) {
-          seriesContainer.push(series);
-        })
-        .catch(function(error) {
-          window.console.log('oops... something went wrong...');
-          window.console.log(error);
-        });
+          })
+          .then(function(buffer) {
+            return loader.parse({ url: files[index].name, buffer });
+          })
+          .then(function(series) {
+            seriesContainer.push(series);
+          })
+          .catch(function(error) {
+            window.console.log('oops... something went wrong...');
+            window.console.log(error);
+          })
+      );
     }
 
     /**
@@ -402,15 +429,14 @@ window.onload = function() {
               resolve(e.target.result);
             });
             myReader.readAsArrayBuffer(files[i].file);
-          })
-          .then(function(buffer) {
-            return {url: files[i].file.name, buffer};
+          }).then(function(buffer) {
+            return { url: files[i].file.name, buffer };
           })
         );
       }
 
       return Promise.all(fetchSequence)
-        .then((rawdata) => {
+        .then(rawdata => {
           return loader.parse(rawdata);
         })
         .then(function(series) {
@@ -429,13 +455,15 @@ window.onload = function() {
     // convert object into array
     for (let i = 0; i < evt.target.files.length; i++) {
       let dataUrl = CoreUtils.parseUrl(evt.target.files[i].name);
-      if (dataUrl.extension.toUpperCase() === 'MHD' ||
-          dataUrl.extension.toUpperCase() === 'RAW') {
-        dataGroups.push(
-          {
-            file: evt.target.files[i],
-            extension: dataUrl.extension.toUpperCase(),
-          });
+      if (
+        dataUrl.extension.toUpperCase() === 'MHD' ||
+        dataUrl.extension.toUpperCase() === 'RAW' ||
+        dataUrl.extension.toUpperCase() === 'ZRAW'
+      ) {
+        dataGroups.push({
+          file: evt.target.files[i],
+          extension: dataUrl.extension.toUpperCase(),
+        });
       } else {
         data.push(evt.target.files[i]);
       }
@@ -446,34 +474,28 @@ window.onload = function() {
       // if raw/mhd pair
       const mhdFile = dataGroups.filter(_filterByExtension.bind(null, 'MHD'));
       const rawFile = dataGroups.filter(_filterByExtension.bind(null, 'RAW'));
-      if (mhdFile.length === 1 &&
-          rawFile.length === 1) {
-      loadSequenceContainer.push(
-        loadSequenceGroup(dataGroups)
-      );
+      const zrawFile = dataGroups.filter(_filterByExtension.bind(null, 'ZRAW'));
+      if (mhdFile.length === 1 && (rawFile.length === 1 || zrawFile.length === 1)) {
+        loadSequenceContainer.push(loadSequenceGroup(dataGroups));
       }
     }
 
     // load the rest of the files
     for (let i = 0; i < data.length; i++) {
-      loadSequenceContainer.push(
-        loadSequence(i, data)
-      );
+      loadSequenceContainer.push(loadSequence(i, data));
     }
 
     // run the load sequence
     // load sequence for all files
-    Promise
-    .all(loadSequenceContainer)
-    .then(function() {
-      handleSeries(seriesContainer);
-    })
-    .catch(function(error) {
-      window.console.log('oops... something went wrong...');
-      window.console.log(error);
-    });
+    Promise.all(loadSequenceContainer)
+      .then(function() {
+        handleSeries(seriesContainer);
+      })
+      .catch(function(error) {
+        window.console.log('oops... something went wrong...');
+        window.console.log(error);
+      });
   }
   // hook up file input listener
-  document.getElementById('filesinput')
-    .addEventListener('change', readMultipleFiles, false);
+  document.getElementById('filesinput').addEventListener('change', readMultipleFiles, false);
 };

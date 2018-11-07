@@ -5,42 +5,39 @@ import ParsersDicom from '../../src/parsers/parsers.dicom';
 let datasets = [];
 
 function testObjectTemplate(
-    name,
-    from,
-    url,
-
-    modality,
-    seriesInstanceUID,
-    studyInstanceUID,
-    transferSyntaxUID,
-    numberOfFrames,
-    numberOfChannels,
-
-    photometricInterpretation,
-    planarConfiguration,
-    samplesPerPixel,
-    imageOrientation,
-    imagePosition,
-    pixelSpacing,
-    sopInstanceUID,
-    sliceThickness,
-    rows,
-    columns,
-    pixelRepresentation,
-    bitsAllocated,
-    highBit,
-    rescaleIntercept,
-    rescaleSlope,
-    windowCenter,
-    windowWidth,
-    dimensionIndexValues,
-    instanceNumber,
-    pixelAspectRatio,
-    inStackPositionNumber,
-    stackID,
-
-    minMax
-    ){
+  name,
+  from,
+  url,
+  modality,
+  seriesInstanceUID,
+  studyInstanceUID,
+  transferSyntaxUID,
+  numberOfFrames,
+  numberOfChannels,
+  photometricInterpretation,
+  planarConfiguration,
+  samplesPerPixel,
+  imageOrientation,
+  imagePosition,
+  pixelSpacing,
+  sopInstanceUID,
+  sliceThickness,
+  rows,
+  columns,
+  pixelRepresentation,
+  bitsAllocated,
+  highBit,
+  rescaleIntercept,
+  rescaleSlope,
+  windowCenter,
+  windowWidth,
+  dimensionIndexValues,
+  instanceNumber,
+  pixelAspectRatio,
+  inStackPositionNumber,
+  stackID,
+  minMax
+) {
   return {
     // general info
     name,
@@ -82,7 +79,7 @@ function testObjectTemplate(
     stackID,
 
     // computed values
-    minMax
+    minMax,
   };
 }
 
@@ -96,7 +93,9 @@ let data1 = testObjectTemplate(
   'MR',
   '1.3.46.670589.11.5730.5.0.10204.2010041914320789246',
   '1.3.46.670589.11.5730.5.0.7888.2010041913494343000',
-  '1.2.840.10008.1.2.1', 60, 1,
+  '1.2.840.10008.1.2.1',
+  60,
+  1,
 
   // Stack specific
 
@@ -127,7 +126,7 @@ let data1 = testObjectTemplate(
   // computed values
   [0, 437]
 );
-//datasets.push(data1);
+// datasets.push(data1);
 
 let data2 = testObjectTemplate(
   'Osirix test',
@@ -169,7 +168,7 @@ let data2 = testObjectTemplate(
   null,
 
   // computed values
-  [0, 2402]
+  [0, 2403]
 );
 datasets.push(data2);
 
@@ -284,7 +283,7 @@ let data5 = testObjectTemplate(
   null,
   1,
   [1, 0, 0, 0, 1, 0],
-  [ -201, -59, -679.800049 ],
+  [-201, -59, -679.800049],
   [0.78125, 0.78125],
   '1.2.276.0.7230010.3.1.4.0.14020.1415374328.261594',
   1,
@@ -297,7 +296,7 @@ let data5 = testObjectTemplate(
   null,
   null,
   null,
-  [ 1, 1 ],
+  [1, 1],
   1,
   null,
   1,
@@ -328,8 +327,8 @@ let data6 = testObjectTemplate(
   'MONOCHROME2',
   null,
   1,
-  [ 1, 0, 0, 0, 1, 0 ],
-  [ -102.497, -140.594, -44.4881 ],
+  [1, 0, 0, 0, 1, 0],
+  [-102.497, -140.594, -44.4881],
   [0.8594, 0.8594],
   '1.2.840.113619.2.176.3596.6688992.23495.1176381733.338',
   5,
@@ -373,9 +372,9 @@ let data7 = testObjectTemplate(
   'MONOCHROME2',
   null,
   1,
-  [ 1, 0, 0, 0, 0.998135, -0.061049 ],
-  [ -110, -130.495, 12.981 ],
-  [ 0.429688, 0.429688 ],
+  [1, 0, 0, 0, 0.998135, -0.061049],
+  [-110, -130.495, 12.981],
+  [0.429688, 0.429688],
   '1.2.840.113619.2.327.3.3020574471.558.1462106543.539.1',
   5,
   512,
@@ -398,13 +397,56 @@ let data7 = testObjectTemplate(
 );
 datasets.push(data7);
 
+let data8 = testObjectTemplate(
+  'CT - 16 signed - J2K',
+  'https://github.com/JSibir',
+  '/base/data/dicom/j2k.dcm',
+
+  // Series specific
+  'CT',
+  '1.2.826.0.1.3680043.8.1055.1.20180712112828803.224611704.1988781',
+  '1.2.826.0.1.3680043.8.1055.1.20180712112828803.692544054.3197507',
+  '1.2.840.10008.1.2.4.90', // ??
+  null,
+  1,
+
+  // Stack specific
+
+  // Frame specific
+  'MONOCHROME2',
+  0,
+  1,
+  [1, 6.123031769e-17, 0, 0, 0, -1],
+  [-255.5, -188, -80.5],
+  [1, 1],
+  '1.2.826.0.1.3680043.8.1055.1.20180712112828808.300708002.7366050',
+  1,
+  512,
+  512,
+  0,
+  16,
+  11,
+  -1024,
+  1,
+  50,
+  350,
+  null,
+  1,
+  null,
+  null,
+  null,
+
+  // computed values
+  [0, 2003]
+);
+datasets.push(data8);
+
 function dicomTestSequence(referenceDataset) {
   describe(referenceDataset.name, () => {
-
     // before each, load the data...
     let parser;
 
-    beforeEach((done) => {
+    beforeEach(done => {
       // originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
       // jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
@@ -412,14 +454,17 @@ function dicomTestSequence(referenceDataset) {
       let oReq = new XMLHttpRequest();
       oReq.open('GET', referenceDataset.url, true);
       oReq.responseType = 'arraybuffer';
-      
+
       oReq.onload = () => {
         let buffer = oReq.response;
         if (buffer) {
-          parser = new ParsersDicom({
-            url: referenceDataset.url,
-            buffer}
-          , 0);
+          parser = new ParsersDicom(
+            {
+              url: referenceDataset.url,
+              buffer,
+            },
+            0
+          );
           done();
         }
       };
@@ -550,7 +595,9 @@ function dicomTestSequence(referenceDataset) {
 
       it('Dimension index values: ' + referenceDataset.dimensionIndexValues, () => {
         let frameIndex = 0;
-        expect(parser.dimensionIndexValues(frameIndex)).toEqual(referenceDataset.dimensionIndexValues);
+        expect(parser.dimensionIndexValues(frameIndex)).toEqual(
+          referenceDataset.dimensionIndexValues
+        );
       });
 
       it('Instance number: ' + referenceDataset.instanceNumber, () => {
@@ -565,7 +612,9 @@ function dicomTestSequence(referenceDataset) {
 
       it('In stack position number: ' + referenceDataset.inStackPositionNumber, () => {
         let frameIndex = 0;
-        expect(parser.inStackPositionNumber(frameIndex)).toEqual(referenceDataset.inStackPositionNumber);
+        expect(parser.inStackPositionNumber(frameIndex)).toEqual(
+          referenceDataset.inStackPositionNumber
+        );
       });
 
       it('Stack id: ' + referenceDataset.stackID, () => {
@@ -576,17 +625,15 @@ function dicomTestSequence(referenceDataset) {
   });
 }
 
-//dPixelData
 // get pixel data, decompress
 // length output
 // min/max
 function pixelDataTestSequence(referenceDataset) {
   describe(referenceDataset.name, function() {
-
     // before each, load the data...
     let parser;
 
-    beforeEach((done) => {
+    beforeEach(done => {
       // originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
       // jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
@@ -594,14 +641,17 @@ function pixelDataTestSequence(referenceDataset) {
       let oReq = new XMLHttpRequest();
       oReq.open('GET', referenceDataset.url, true);
       oReq.responseType = 'arraybuffer';
-      
+
       oReq.onload = () => {
         let buffer = oReq.response;
         if (buffer) {
-          parser = new ParsersDicom({
-            url: referenceDataset.url,
-            buffer}
-          , 0);
+          parser = new ParsersDicom(
+            {
+              url: referenceDataset.url,
+              buffer,
+            },
+            0
+          );
           done();
         }
       };
@@ -609,7 +659,6 @@ function pixelDataTestSequence(referenceDataset) {
     });
 
     describe('Parse pixel data', function() {
-
       // it('Decompress pixel data', function() {
       //   let frameIndex = 0;
       //   let pixelData = parser.decompressPixelData(frameIndex);

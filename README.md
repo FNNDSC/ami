@@ -1,15 +1,11 @@
 <p align="center">
-  <img src="https://cloud.githubusercontent.com/assets/214063/23213764/78ade038-f90c-11e6-8208-4fcade5f3832.png" width="60%">
+  <img src="https://user-images.githubusercontent.com/214063/46479857-4cd66e80-c7f0-11e8-9585-5748409c9490.png" width="60%">
 </p>
 
 <p align="center">
     <a href="https://travis-ci.org/FNNDSC/ami">
         <img src="https://travis-ci.org/FNNDSC/ami.svg"
              alt="Build Status">
-    </a>
-    <a href="https://codeclimate.com/github/FNNDSC/ami">
-        <img src="https://codeclimate.com/github/FNNDSC/ami/badges/gpa.svg"
-             alt="Code Climate">
     </a>
      <a href="https://cdnjs.com/libraries/ami.js">
         <img src="https://img.shields.io/cdnjs/v/ami.js.svg"
@@ -23,7 +19,7 @@
         <img src="https://img.shields.io/npm/dm/ami.js.svg"
              alt="NPM Downloads per Month">
     </a>
-    <a href="http://slack.babymri.org">
+    <a href="https://join.slack.com/t/amijs/shared_invite/enQtNDU5MTQ1OTMzMDYxLWE5NTBlMWM2ZjhlYjVkNzZmZDg3YTdjYzQxYWI3NTY4NmIyZGY5MmQyYjE4NmQyOGZkY2NlYzY1MTk5ZDFmNWY">
         <img src="https://img.shields.io/badge/slack-join-blue.svg"
              alt="Slack">
     </a>
@@ -47,7 +43,7 @@ Please submit pull request, open issues or contact us for any question, feature 
 
 1. [Hello AMI](#hello-ami)
 2. [Features](#features)
-3. [Usage](#npm)
+3. [Usage](#yarn)
 4. [Developer corner](#developer-corner)
 5. [Change log](#change-log)
 6. [Credits](#credits)
@@ -222,9 +218,9 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 |--------------------|--------------|------------------|------------------------|
 | ✅ 2D Visulization  | ✅ Dicom     | ✅ VTK (THREEJS) | 🔶 Handle (2D/3D)       |
 | ✅ 3D Visualization | ✅ NRRD      | ✅ STL (THREEJS) | 🔶 Probe (2D/3D)        |
-| ✅ Volume Rendering | ✅ Nifti     | 🔶 TRK           | 🔶 Ruler (2D/3D)        |
-| ✅ Lookup Tables    | ✅  MHD/RAW   | ❌ FSM           | 🔶 Orientation (2D/3D)  |
-| 🔶 Label Maps       | ❌ MGH/MGZ   | ❌ CURV          | 🔶 Angle (2D/3D)        |
+| ✅ Volume Rendering | ✅ Nifti     | ✅  TRK           | 🔶 Ruler (2D/3D)        |
+| ✅ Lookup Tables    | ✅  MHD/(Z)RAW   | ✅  FSM           | 🔶 Orientation (2D/3D)  |
+| 🔶 Label Maps       | ✅  MGH/MGZ   | ❌ CURV          | 🔶 Angle (2D/3D)        |
 |                    | ❌ JPEG      |                  |                         |
 
 ## Usage
@@ -240,7 +236,7 @@ Volume rendering, 2D viewer, arbitrary reslicing and more examples and advanced 
 
 ```
 
-### NPM
+### Yarn
 
 ```bash
 
@@ -253,7 +249,7 @@ $> yarn add ami.js
 ```javascript
 
 // app.js
-const AMI = require('ami.js');
+import * as AMI form 'ami.js';
 window.console.log('Ready to rock!!');
 
 ```
@@ -262,8 +258,17 @@ window.console.log('Ready to rock!!');
 
 Check-out the [lessons](#lessons) to get started quickly.
 
-Add AMI in your index.html **after** THREEJS.
 
+**New:** Use the new factory not to have to include `three` in index.html.
+```javascript
+import * as THREE from 'three';
+import {stackHelperFactory} from 'ami.js';
+
+const StackHelper = stackHelperFactory(THREE);
+const stackHelper = new StackHelper();
+```
+
+Add AMI in your index.html **after** THREEJS.
 ```html
 
 <!-- index.html -->
@@ -272,7 +277,7 @@ Add AMI in your index.html **after** THREEJS.
 <script src="app.js"></script>
 
 #app.js
-const AMI = AMI.default;
+const AMI = AMI;
 window.console.log('Ready to rock!!');
 
 ```
@@ -297,17 +302,6 @@ $> yarn example <examples name>
 
 #run the geometries_slice example
 $> yarn example geometries_slice
-
-```
-
-To run lessons (browserify/babelify/serve the lesson)
-
-```bash
-
-$> yarn lesson <lesson number>
-
-# run lesson 00
-$> yarn lesson 00
 
 ```
 
@@ -402,6 +396,7 @@ AMI would not exist without them:
 
 # Citations
 ### 2017
+- [From brain imaging to weather imaging - McCaie - informaticslab, Met Office (blog post)](http://www.informaticslab.co.uk/side-projects/weather/3d/visualisations/2017/04/04/from-brain-imaging-to-weather-imaging.html)
 - [Medical imaging in the browser with the A* Medical Imaging (AMI) toolkit. - Rannou et al. - ESMRMB 2017 (poster)](http://epostersonline.com/esmrmb2017/node/3443)
 - [Reusable Client-Side JavaScript Modules for Immersive Web-Based Real-Time Collaborative Neuroimage Visualization - Bernal-Rusiel et al. - Frontiers in Neuroinformatics 2017 (article)](http://journal.frontiersin.org/article/10.3389/fninf.2017.00032/full)
 ### 2016

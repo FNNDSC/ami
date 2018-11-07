@@ -10,6 +10,7 @@ import ParsersDicom from '../parsers/parsers.dicom';
 import ParsersMhd from '../parsers/parsers.mhd';
 import ParsersNifti from '../parsers/parsers.nifti';
 import ParsersNrrd from '../parsers/parsers.nrrd';
+import ParsersMgh from '../parsers/parsers.mgh';
 
 /**
  *
@@ -32,7 +33,7 @@ import ParsersNrrd from '../parsers/parsers.nrrd';
  *   // Function when resource is loaded
  *   function(object) {
  *     //scene.add( object );
- *     window.console.log(object);
+ *     console.log(object);
  *   }
  * );
  */
@@ -53,133 +54,132 @@ export default class LoadersVolumes extends LoadersBase {
       file: response.url,
       time: new Date(),
     });
+
     // give a chance to the UI to update because
     // after the rendering will be blocked with intensive JS
     // will be removed after eventer set up
     if (this._progressBar) {
-      this._progressBar.update(0, 100, 'parse');
+      this._progressBar.update(0, 100, 'parse', response.url);
     }
 
-    return new Promise(
-      (resolve, reject) => {
-        window.setTimeout(
-          () => {
-            resolve(new Promise((resolve, reject) => {
-              let data = response;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(
+          new Promise((resolve, reject) => {
+            let data = response;
 
-              if (!Array.isArray(data)) {
-                data = [data];
+            if (!Array.isArray(data)) {
+              data = [data];
+            }
+
+            data.forEach(dataset => {
+              this._preprocess(dataset);
+            });
+
+            if (data.length === 1) {
+              data = data[0];
+            } else {
+              // if raw/mhd pair
+              let mhdFile = data.filter(this._filterByExtension.bind(null, 'MHD'));
+              let rawFile = data.filter(this._filterByExtension.bind(null, 'RAW'));
+              if (data.length === 2 && mhdFile.length === 1 && rawFile.length === 1) {
+                data.url = mhdFile[0].url;
+                data.extension = mhdFile[0].extension;
+                data.mhdBuffer = mhdFile[0].buffer;
+                data.rawBuffer = rawFile[0].buffer;
               }
+            }
 
-              data.forEach((dataset) => {
-                this._preprocess(dataset);
+            let Parser = this._parser(data.extension);
+            if (!Parser) {
+              // emit 'parse-error' event
+              this.emit('parse-error', {
+                file: response.url,
+                time: new Date(),
+                error: data.filename + 'can not be parsed.',
               });
+              reject(data.filename + ' can not be parsed.');
+            }
 
-              if (data.length === 1) {
-                data = data[0];
-              } else {
-                // if raw/mhd pair
-                let mhdFile =
-                  data.filter(this._filterByExtension.bind(null, 'MHD'));
-                let rawFile =
-                  data.filter(this._filterByExtension.bind(null, 'RAW'));
-                if (data.length === 2 &&
-                    mhdFile.length === 1 &&
-                    rawFile.length === 1) {
-                  data.url = mhdFile[0].url;
-                  data.extension = mhdFile[0].extension;
-                  data.mhdBuffer = mhdFile[0].buffer;
-                  data.rawBuffer = rawFile[0].buffer;
-                }
-              }
+            // check extension
+            let volumeParser = null;
+            try {
+              volumeParser = new Parser(data, 0);
+            } catch (e) {
+              console.warn(e);
+              // emit 'parse-error' event
+              this.emit('parse-error', {
+                file: response.url,
+                time: new Date(),
+                error: e,
+              });
+              reject(e);
+            }
 
-              let Parser = this._parser(data.extension);
-              if (!Parser) {
-                // emit 'parse-error' event
-                this.emit('parse-error', {
-                  file: response.url,
-                  time: new Date(),
-                  error: data.filename + 'can not be parsed.',
-                });
-                reject(data.filename + ' can not be parsed.');
-              }
+            // create a series
+            let series = new ModelsSeries();
+            // global information
+            series.seriesInstanceUID = volumeParser.seriesInstanceUID();
+            series.transferSyntaxUID = volumeParser.transferSyntaxUID();
+            series.seriesDate = volumeParser.seriesDate();
+            series.seriesDescription = volumeParser.seriesDescription();
+            series.studyDate = volumeParser.studyDate();
+            series.studyDescription = volumeParser.studyDescription();
+            series.numberOfFrames = volumeParser.numberOfFrames();
+            if (!series.numberOfFrames) {
+              series.numberOfFrames = 1;
+            }
+            series.numberOfChannels = volumeParser.numberOfChannels();
+            series.modality = volumeParser.modality();
+            // if it is a segmentation, attach extra information
+            if (series.modality === 'SEG') {
+              // colors
+              // labels
+              // etc.
+              series.segmentationType = volumeParser.segmentationType();
+              series.segmentationSegments = volumeParser.segmentationSegments();
+            }
+            // patient information
+            series.patientID = volumeParser.patientID();
+            series.patientName = volumeParser.patientName();
+            series.patientAge = volumeParser.patientAge();
+            series.patientBirthdate = volumeParser.patientBirthdate();
+            series.patientSex = volumeParser.patientSex();
 
-              // check extension
-              let volumeParser = null;
-              try {
-                volumeParser = new Parser(data, 0);
-              } catch (e) {
-                window.console.log(e);
-                // emit 'parse-error' event
-                this.emit('parse-error', {
-                  file: response.url,
-                  time: new Date(),
-                  error: e,
-                });
-                reject(e);
-              }
+            // just create 1 dummy stack for now
+            let stack = new ModelsStack();
+            stack.numberOfChannels = volumeParser.numberOfChannels();
+            stack.pixelRepresentation = volumeParser.pixelRepresentation();
+            stack.pixelType = volumeParser.pixelType();
+            stack.invert = volumeParser.invert();
+            stack.spacingBetweenSlices = volumeParser.spacingBetweenSlices();
+            stack.modality = series.modality;
+            // if it is a segmentation, attach extra information
+            if (stack.modality === 'SEG') {
+              // colors
+              // labels
+              // etc.
+              stack.segmentationType = series.segmentationType;
+              stack.segmentationSegments = series.segmentationSegments;
+            }
+            series.stack.push(stack);
+            // recursive call for each frame
+            // better than for loop to be able
+            // to update dom with "progress" callback
+            setTimeout(
+              this.parseFrameClosure(series, stack, response.url, 0, volumeParser, resolve, reject),
+              0
+            );
+          })
+        );
+      }, 10);
+    });
+  }
 
-              // create a series
-              let series = new ModelsSeries();
-              // global information
-              series.seriesInstanceUID = volumeParser.seriesInstanceUID();
-              series.transferSyntaxUID = volumeParser.transferSyntaxUID();
-              series.seriesDate = volumeParser.seriesDate();
-              series.seriesDescription = volumeParser.seriesDescription();
-              series.studyDate = volumeParser.studyDate();
-              series.studyDescription = volumeParser.studyDescription();
-              series.numberOfFrames = volumeParser.numberOfFrames();
-              if (!series.numberOfFrames) {
-                series.numberOfFrames = 1;
-              }
-              series.numberOfChannels = volumeParser.numberOfChannels();
-              series.modality = volumeParser.modality();
-              // if it is a segmentation, attach extra information
-              if (series.modality === 'SEG') {
-                // colors
-                // labels
-                // etc.
-                series.segmentationType = volumeParser.segmentationType();
-                series.segmentationSegments =
-                  volumeParser.segmentationSegments();
-              }
-              // patient information
-              series.patientID = volumeParser.patientID();
-              series.patientName = volumeParser.patientName();
-              series.patientAge = volumeParser.patientAge();
-              series.patientBirthdate = volumeParser.patientBirthdate();
-              series.patientSex = volumeParser.patientSex();
-
-              // just create 1 dummy stack for now
-              let stack = new ModelsStack();
-              stack.numberOfChannels = volumeParser.numberOfChannels();
-              stack.pixelRepresentation =
-                volumeParser.pixelRepresentation();
-              stack.pixelType = volumeParser.pixelType();
-              stack.invert = volumeParser.invert();
-              stack.spacingBetweenSlices =
-                volumeParser.spacingBetweenSlices();
-              stack.modality = series.modality;
-              // if it is a segmentation, attach extra information
-              if (stack.modality === 'SEG') {
-                // colors
-                // labels
-                // etc.
-                stack.segmentationType = series.segmentationType;
-                stack.segmentationSegments = series.segmentationSegments;
-              }
-              series.stack.push(stack);
-              // recursive call for each frame
-              // better than for loop to be able
-              // to update dom with "progress" callback
-              setTimeout(
-                this.parseFrame(
-                  series, stack, response.url, 0,
-                  volumeParser, resolve, reject), 0);
-            }));
-          }, 10);
-      }
-    );
+  parseFrameClosure(series, stack, url, i, dataParser, resolve, reject) {
+    return () => {
+      this.parseFrame(series, stack, url, i, dataParser, resolve, reject);
+    };
   }
 
   /**
@@ -197,9 +197,13 @@ export default class LoadersVolumes extends LoadersBase {
     frame.sopInstanceUID = dataParser.sopInstanceUID(i);
     frame.url = url;
     frame.index = i;
+    frame.invert = stack.invert;
+    frame.frameTime = dataParser.frameTime(i);
+    frame.ultrasoundRegions = dataParser.ultrasoundRegions(i);
     frame.rows = dataParser.rows(i);
     frame.columns = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;
+    frame.pixelPaddingValue = dataParser.pixelPaddingValue(i);
     frame.pixelRepresentation = stack.pixelRepresentation;
     frame.pixelType = stack.pixelType;
     frame.pixelData = dataParser.extractPixelData(i);
@@ -213,9 +217,11 @@ export default class LoadersVolumes extends LoadersBase {
       frame.imageOrientation = [1, 0, 0, 0, 1, 0];
     }
     frame.imagePosition = dataParser.imagePosition(i);
+    /*
+    null ImagePosition should not be handle here
     if (frame.imagePosition === null) {
       frame.imagePosition = [0, 0, i];
-    }
+    }*/
     frame.dimensionIndexValues = dataParser.dimensionIndexValues(i);
     frame.bitsAllocated = dataParser.bitsAllocated(i);
     frame.instanceNumber = dataParser.instanceNumber(i);
@@ -239,7 +245,7 @@ export default class LoadersVolumes extends LoadersBase {
 
     // will be removed after eventer set up
     if (this._progressBar) {
-      this._progressBar.update(this._parsed, this._totalParsed, 'parse');
+      this._progressBar.update(this._parsed, this._totalParsed, 'parse', url);
     }
 
     // emit 'parsing' event
@@ -262,8 +268,8 @@ export default class LoadersVolumes extends LoadersBase {
       resolve(series);
     } else {
       setTimeout(
-        this.parseFrame(
-          series, stack, url, this._parsed, dataParser, resolve, reject), 0
+        this.parseFrameClosure(series, stack, url, this._parsed, dataParser, resolve, reject),
+        0
       );
     }
   }
@@ -282,6 +288,7 @@ export default class LoadersVolumes extends LoadersBase {
         Parser = ParsersNifti;
         break;
       case 'DCM':
+      case 'DIC':
       case 'DICOM':
       case 'IMA':
       case '':
@@ -293,13 +300,16 @@ export default class LoadersVolumes extends LoadersBase {
       case 'NRRD':
         Parser = ParsersNrrd;
         break;
+      case 'MGH':
+      case 'MGZ':
+        Parser = ParsersMgh;
+        break;
       default:
-        window.console.log('unsupported extension: ' + extension);
+        console.warn('unsupported extension: ' + extension);
         return false;
     }
     return Parser;
   }
-
 
   /**
    * Pre-process data to be parsed (find data type and de-compress)
@@ -316,12 +326,24 @@ export default class LoadersVolumes extends LoadersBase {
     // unzip if extension is '.gz'
     if (data.extension === 'gz') {
       data.gzcompressed = true;
-      data.extension =
-        data.filename.split('.gz').shift().split('.').pop();
-      let decompressedData = PAKO.inflate(data.buffer);
-      data.buffer = decompressedData.buffer;
+      data.extension = data.filename
+        .split('.gz')
+        .shift()
+        .split('.')
+        .pop();
+    } else if (data.extension === 'mgz') {
+      data.gzcompressed = true;
+      data.extension = 'mgh';
+    } else if (data.extension === 'zraw') {
+      data.gzcompressed = true;
+      data.extension = 'raw';
     } else {
       data.gzcompressed = false;
+    }
+
+    if (data.gzcompressed) {
+      let decompressedData = PAKO.inflate(data.buffer);
+      data.buffer = decompressedData.buffer;
     }
   }
 

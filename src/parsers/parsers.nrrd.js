@@ -1,6 +1,6 @@
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
-import {Vector3} from 'three';
+import { Vector3 } from 'three/src/math/Vector3';
 
 let pako = require('pako');
 let NrrdReader = require('nrrd-js');
@@ -18,9 +18,9 @@ export default class ParsersNifti extends ParsersVolume {
     super();
 
     /**
-      * @member
-      * @type {arraybuffer}
-    */
+     * @member
+     * @type {arraybuffer}
+     */
     this._id = id;
     this._arrayBuffer = data.buffer;
     this._url = data.url;
@@ -32,8 +32,6 @@ export default class ParsersNifti extends ParsersVolume {
     } catch (error) {
       window.console.log('ooops... :(');
     }
-
-    window.console.log(this._dataSet);
   }
 
   /**
@@ -42,9 +40,11 @@ export default class ParsersNifti extends ParsersVolume {
    * @return {*}
    */
   rightHanded() {
-    if (this._dataSet.space.match(/^right-anterior-superior/) ||
-        this._dataSet.space.match(/^left-posterior-superior/)) {
-     this._rightHanded = true;
+    if (
+      this._dataSet.space.match(/^right-anterior-superior/) ||
+      this._dataSet.space.match(/^left-posterior-superior/)
+    ) {
+      this._rightHanded = true;
     } else {
       this._rightHanded = false;
     }
@@ -140,17 +140,23 @@ export default class ParsersNifti extends ParsersVolume {
   bitsAllocated(frameIndex = 0) {
     let bitsAllocated = 1;
 
-    if (this._dataSet.type === 'int8' ||
-       this._dataSet.type === 'uint8' ||
-       this._dataSet.type === 'char') {
+    if (
+      this._dataSet.type === 'int8' ||
+      this._dataSet.type === 'uint8' ||
+      this._dataSet.type === 'char'
+    ) {
       bitsAllocated = 8;
-    } else if (this._dataSet.type === 'int16' ||
+    } else if (
+      this._dataSet.type === 'int16' ||
       this._dataSet.type === 'uint16' ||
-      this._dataSet.type === 'short') {
+      this._dataSet.type === 'short'
+    ) {
       bitsAllocated = 16;
-    } else if (this._dataSet.type === 'int32' ||
+    } else if (
+      this._dataSet.type === 'int32' ||
       this._dataSet.type === 'uint32' ||
-      this._dataSet.type === 'float') {
+      this._dataSet.type === 'float'
+    ) {
       bitsAllocated = 32;
     }
 
@@ -166,19 +172,22 @@ export default class ParsersNifti extends ParsersVolume {
    */
   pixelSpacing(frameIndex = 0) {
     const x = new Vector3(
-      this._dataSet.spaceDirections[1][0],
-      this._dataSet.spaceDirections[1][1],
-      this._dataSet.spaceDirections[1][2]);
+      this._dataSet.spaceDirections[0][0],
+      this._dataSet.spaceDirections[0][1],
+      this._dataSet.spaceDirections[0][2]
+    );
 
     const y = new Vector3(
-      this._dataSet.spaceDirections[2][0],
-      this._dataSet.spaceDirections[2][1],
-      this._dataSet.spaceDirections[2][2]);
+      this._dataSet.spaceDirections[1][0],
+      this._dataSet.spaceDirections[1][1],
+      this._dataSet.spaceDirections[1][2]
+    );
 
     const z = new Vector3(
       this._dataSet.spaceDirections[2][0],
       this._dataSet.spaceDirections[2][1],
-      this._dataSet.spaceDirections[2][2]);
+      this._dataSet.spaceDirections[2][2]
+    );
 
     return [x.length(), y.length(), z.length()];
   }
@@ -197,19 +206,18 @@ export default class ParsersNifti extends ParsersVolume {
     let x = new Vector3(
       this._dataSet.spaceDirections[0][0] * invertX,
       this._dataSet.spaceDirections[0][1] * invertY,
-      this._dataSet.spaceDirections[0][2]);
+      this._dataSet.spaceDirections[0][2]
+    );
     x.normalize();
 
     let y = new Vector3(
       this._dataSet.spaceDirections[1][0] * invertX,
       this._dataSet.spaceDirections[1][1] * invertY,
-      this._dataSet.spaceDirections[1][2]);
+      this._dataSet.spaceDirections[1][2]
+    );
     y.normalize();
 
-    return [
-      x.x, x.y, x.z,
-      y.x, y.y, y.z,
-      ];
+    return [x.x, x.y, x.z, y.x, y.y, y.z];
   }
 
   /**
@@ -248,16 +256,14 @@ export default class ParsersNifti extends ParsersVolume {
   _decompressUncompressed(frameIndex = 0) {
     let buffer = this._dataSet.buffer;
     const numberOfChannels = this.numberOfChannels();
-    const numPixels =
-      this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    const numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
     if (!this.rightHanded()) {
       frameIndex = this.numberOfFrames() - 1 - frameIndex;
     }
     let frameOffset = frameIndex * numPixels;
 
     // unpack data if needed
-    if (this._unpackedData === null &&
-      this._dataSet.encoding === 'gzip') {
+    if (this._unpackedData === null && this._dataSet.encoding === 'gzip') {
       let unpackedData = pako.inflate(this._dataSet.buffer);
       this._unpackedData = unpackedData.buffer;
       buffer = this._unpackedData;
@@ -265,15 +271,11 @@ export default class ParsersNifti extends ParsersVolume {
       buffer = this._unpackedData;
     }
 
-    if (this._dataSet.type === 'int8' ||
-       this._dataSet.type === 'char') {
-      frameOffset = frameOffset;
+    if (this._dataSet.type === 'int8' || this._dataSet.type === 'char') {
       return new Int8Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.type === 'uint8') {
-      frameOffset = frameOffset;
       return new Uint8Array(buffer, frameOffset, numPixels);
-    } else if (this._dataSet.type === 'int16' ||
-       this._dataSet.type === 'short') {
+    } else if (this._dataSet.type === 'int16' || this._dataSet.type === 'short') {
       frameOffset = frameOffset * 2;
       return new Int16Array(buffer, frameOffset, numPixels);
     } else if (this._dataSet.type === 'uint16') {

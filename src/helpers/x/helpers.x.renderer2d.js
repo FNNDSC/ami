@@ -4,10 +4,10 @@
 import CamerasOrthographic from '../../cameras/cameras.orthographic';
 import ControlsOrthographic from '../../controls/controls.trackballortho';
 
-import {Vector3} from 'three';
+import { Vector3 } from 'three/src/math/Vector3';
 
 export default class {
-  constructor(containerId='r2d', orientation='default') {
+  constructor(containerId = 'r2d', orientation = 'default') {
     this._container = null;
     this._renderer = null;
     this._camera = null;
@@ -64,17 +64,21 @@ export default class {
     this._renderer = new THREE.WebGLRenderer({
       antialias: true,
     });
-    this._renderer.setSize(this._container.clientWidth,
-      this._container.clientHeight);
+    this._renderer.setSize(this._container.clientWidth, this._container.clientHeight);
     this._renderer.setClearColor(0x212121, 1);
     this._renderer.setPixelRatio(window.devicePixelRatio);
     this._container.appendChild(this._renderer.domElement);
   }
 
   _initCamera() {
-    this._camera = new CamerasOrthographic(this._container.clientWidth / -2,
-      this._container.clientWidth / 2, this._container.clientHeight / 2,
-      this._container.clientHeight / -2, 1, 1000);
+    this._camera = new CamerasOrthographic(
+      this._container.clientWidth / -2,
+      this._container.clientWidth / 2,
+      this._container.clientHeight / 2,
+      this._container.clientHeight / -2,
+      1,
+      1000
+    );
   }
 
   _initScene() {
@@ -101,15 +105,14 @@ export default class {
     // box: {halfDimensions, center}
     let box = {
       center: stack.worldCenter().clone(),
-      halfDimensions: new Vector3(lpsDims.x + 10, lpsDims.y + 10,
-        lpsDims.z + 10),
+      halfDimensions: new Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
     };
 
     // init and zoom
     let canvas = {
-        width: this._container.clientWidth,
-        height: this._container.clientHeight,
-      };
+      width: this._container.clientWidth,
+      height: this._container.clientHeight,
+    };
 
     this._camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
     this._camera.box = box;
@@ -118,23 +121,22 @@ export default class {
     this._camera.fitBox(2);
   }
 
-  _orientCamera(target, orientation='default') {
-      this._camera.orientation = orientation;
-      this._camera.update();
-      this._camera.fitBox(2);
-      target.orientation = this._camera.stackOrientation;
+  _orientCamera(target, orientation = 'default') {
+    this._camera.orientation = orientation;
+    this._camera.update();
+    this._camera.fitBox(2);
+    target.orientation = this._camera.stackOrientation;
   }
 
   _onWindowResize() {
-      this._camera.canvas = {
-        width: this._container.clientWidth,
-        height: this._container.clientHeight,
-      };
-      this._camera.fitBox(2);
-      this._renderer.setSize(this._container.clientWidth,
-        this._container.clientHeight);
-      this._object.canvasWidth = this._container.clientWidth;
-      this._object.canvasHeight = this._container.clientHeight;
+    this._camera.canvas = {
+      width: this._container.clientWidth,
+      height: this._container.clientHeight,
+    };
+    this._camera.fitBox(2);
+    this._renderer.setSize(this._container.clientWidth, this._container.clientHeight);
+    this._object.canvasWidth = this._container.clientWidth;
+    this._object.canvasHeight = this._container.clientHeight;
   }
 
   _onScroll(event) {

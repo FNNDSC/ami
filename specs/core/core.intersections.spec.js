@@ -1,7 +1,8 @@
 /* globals describe, it, expect, beforeEach*/
 
 import CoreIntersections from '../../src/core/core.intersections';
-import {Matrix4, Vector3} from 'three';
+import { Matrix4 } from 'three/src/math/Matrix4';
+import { Vector3 } from 'three/src/math/Vector3';
 
 describe('Core.Intersections', function() {
   describe('validateAabb', function() {
@@ -156,7 +157,7 @@ describe('Core.Intersections', function() {
       let m1 = new Matrix4();
       let m2 = new Matrix4();
 
-      let gamma = Math.PI/4;
+      let gamma = Math.PI / 4;
 
       m1.makeRotationY(gamma);
       m2.makeTranslation(150, 150, 150);
@@ -181,7 +182,7 @@ describe('Core.Intersections', function() {
       expect(intersections.length).toEqual(4);
       expect(intersections[0].x).toBeCloseTo(0, 4);
       expect(intersections[0].y).toBeCloseTo(-50, 4);
-      expect(intersections[0].z).toBeCloseTo(-70.710680, 4);
+      expect(intersections[0].z).toBeCloseTo(-70.71068, 4);
       expect(intersections[1].x).toBeCloseTo(0, 4);
       expect(intersections[1].y).toBeCloseTo(50, 4);
       expect(intersections[1].z).toBeCloseTo(70.710673, 4);
@@ -190,7 +191,7 @@ describe('Core.Intersections', function() {
       expect(intersections[2].z).toBeCloseTo(70.710673, 4);
       expect(intersections[3].x).toBeCloseTo(0, 4);
       expect(intersections[3].y).toBeCloseTo(50, 4);
-      expect(intersections[3].z).toBeCloseTo(-70.710680, 4);
+      expect(intersections[3].z).toBeCloseTo(-70.71068, 4);
 
       // plane is a border of the aabb
       aabb = {

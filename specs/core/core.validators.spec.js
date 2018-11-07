@@ -1,7 +1,11 @@
 /* globals describe, it, expect, beforeEach*/
 
 import CoreValidators from '../../src/core/core.validators';
-import {Matrix3, Matrix4, Vector2, Vector3, Vector4} from 'three';
+import { Matrix3 } from 'three/src/math/Matrix3';
+import { Matrix4 } from 'three/src/math/Matrix4';
+import { Vector2 } from 'three/src/math/Vector2';
+import { Vector3 } from 'three/src/math/Vector3';
+import { Vector4 } from 'three/src/math/Vector4';
 
 describe('Core.Validator', function() {
   describe('matrix4', function() {
@@ -96,24 +100,24 @@ describe('Core.Validator', function() {
       expect(validate).toEqual(false);
 
       // Missing halfDimensions
-      validate = CoreValidators.box({center: new Vector3()});
+      validate = CoreValidators.box({ center: new Vector3() });
       expect(validate).toEqual(false);
 
       // Missing center
-      validate = CoreValidators.box({halfDimensions: new Vector3()});
+      validate = CoreValidators.box({ halfDimensions: new Vector3() });
       expect(validate).toEqual(false);
 
       // Invalid center
       validate = CoreValidators.box({
         center: new Vector4(),
-        halfDimensions: new Vector3()
+        halfDimensions: new Vector3(),
       });
       expect(validate).toEqual(false);
 
       // Half dimensions must be >= 0
       validate = CoreValidators.box({
         center: new Vector3(),
-        halfDimensions: new Vector3(-1, 0, 0)
+        halfDimensions: new Vector3(-1, 0, 0),
       });
       expect(validate).toEqual(false);
     });
@@ -147,11 +151,11 @@ describe('Core.Validator', function() {
       expect(validate).toEqual(false);
 
       // Missing direction
-      validate = CoreValidators.ray({position: new Vector3()});
+      validate = CoreValidators.ray({ position: new Vector3() });
       expect(validate).toEqual(false);
 
       // Missing position
-      validate = CoreValidators.ray({direction: new Vector3()});
+      validate = CoreValidators.ray({ direction: new Vector3() });
       expect(validate).toEqual(false);
 
       // Invalid position

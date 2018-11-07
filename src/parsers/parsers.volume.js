@@ -10,6 +10,10 @@ export default class ParsersVolume {
     return 0;
   }
 
+  pixelPaddingValue(frameIndex = 0) {
+    return null;
+  }
+
   modality() {
     return 'unknown';
   }
@@ -42,7 +46,6 @@ export default class ParsersVolume {
     return null;
   }
 
-
   dimensionIndexValues(frameIndex = 0) {
     return null;
   }
@@ -67,21 +70,25 @@ export default class ParsersVolume {
     return 0;
   }
 
-  _decompressUncompressed() {
-
+  ultrasoundRegions(frameIndex = 0) {
+    return [];
   }
+
+  frameTime(frameIndex = 0) {
+    return null;
+  }
+
+  _decompressUncompressed() {}
 
   // http://stackoverflow.com/questions/5320439/how-do-i-swap-endian-ness-byte-order-of-a-variable-in-javascript
   _swap16(val) {
-    return ((val & 0xFF) << 8)
-      | ((val >> 8) & 0xFF);
+    return ((val & 0xff) << 8) | ((val >> 8) & 0xff);
   }
 
   _swap32(val) {
-    return ((val & 0xFF) << 24)
-           | ((val & 0xFF00) << 8)
-           | ((val >> 8) & 0xFF00)
-           | ((val >> 24) & 0xFF);
+    return (
+      ((val & 0xff) << 24) | ((val & 0xff00) << 8) | ((val >> 8) & 0xff00) | ((val >> 24) & 0xff)
+    );
   }
 
   invert() {

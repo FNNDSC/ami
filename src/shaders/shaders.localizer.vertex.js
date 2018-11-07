@@ -2,11 +2,11 @@
  *
  */
 export default class {
-    /**
-     *
-     */
-    compute() {
-        return `
+  /**
+   *
+   */
+  compute() {
+    return `
 varying vec4 vPos;
 varying mat4 vProjectionViewMatrix;
 
@@ -21,5 +21,5 @@ void main() {
 
 }
         `;
-    }
+  }
 }

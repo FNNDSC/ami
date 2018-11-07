@@ -15,11 +15,16 @@ class IntersectBox extends ShadersBase {
     this._intersect = 'intersect';
   }
 
-  api(baseFragment = this._base,
-       rayOrigin = this._rayOrigin, rayDirection = this._rayDirection,
-       aabbMin = this._aabbMin, aabbMax = this._aabbMax,
-       tNear = this._tNear, tFar = this._tFar,
-       intersect = this._intersect) {
+  api(
+    baseFragment = this._base,
+    rayOrigin = this._rayOrigin,
+    rayDirection = this._rayDirection,
+    aabbMin = this._aabbMin,
+    aabbMax = this._aabbMax,
+    tNear = this._tNear,
+    tFar = this._tFar,
+    intersect = this._intersect
+  ) {
     this._base = baseFragment;
     return this.compute(rayOrigin, rayDirection, aabbMin, aabbMax, tNear, tFar, intersect);
   }
@@ -27,12 +32,16 @@ class IntersectBox extends ShadersBase {
   compute(rayOrigin, rayDirection, aabbMin, aabbMax, tNear, tFar, intersect) {
     this.computeDefinition();
     this._base._functions[this._name] = this._definition;
-    return `${this._name}(${rayOrigin}, ${rayDirection}, ${aabbMin}, ${aabbMax}, ${tNear}, ${tFar}, ${intersect});`;
+    return `${
+      this._name
+    }(${rayOrigin}, ${rayDirection}, ${aabbMin}, ${aabbMax}, ${tNear}, ${tFar}, ${intersect});`;
   }
 
   computeDefinition() {
     this._definition = `
-void ${this._name}(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, out float tNear, out float tFar, out bool intersect){
+void ${
+      this._name
+    }(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, out float tNear, out float tFar, out bool intersect){
   // compute intersection of ray with all six bbox planes
   vec3 invRay = vec3(1.) / rayDirection;
   vec3 tBot = invRay * (boxMin - rayOrigin);

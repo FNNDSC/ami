@@ -1,7 +1,9 @@
-import Trackball from './controls.trackball';
-import TrackballOrtho from './controls.trackballortho';
+import ControlsTrackball, { trackball } from './controls.trackball';
+import TrackballOrtho, { trackballOrtho } from './controls.trackballortho';
 
 export {
-    Trackball as TrackballControl,
-    TrackballOrtho as TrackballOrthoControl,
+  ControlsTrackball as TrackballControl,
+  trackball as trackballControlFactory,
+  TrackballOrtho as TrackballOrthoControl,
+  trackballOrtho as trackballOrthoControlFactory,
 };

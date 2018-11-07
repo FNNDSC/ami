@@ -1,17 +1,15 @@
 export default class ShadersVertex {
   compute() {
     return `
-varying vec4 vPos;
+varying vec3 vPos;
+varying vec3 vNormal;
 
-//
-// main
-//
 void main() {
-
-  vPos = modelMatrix * vec4(position, 1.0 );
+  vNormal = normal;
+  vPos = (modelMatrix * vec4(position, 1.0 )).xyz;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );
 
 }
         `;
-    }
+  }
 }

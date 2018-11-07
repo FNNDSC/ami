@@ -18,15 +18,14 @@ export default class ModelsBase {
    * @return {boolean} True if merge was sucessful. False if something went wrong.
    */
   mergeModels(referenceArray, targetArray) {
-    if (!(this._validateModelArray(referenceArray) &&
-      this._validateModelArray(targetArray))) {
+    if (!(this._validateModelArray(referenceArray) && this._validateModelArray(targetArray))) {
       window.console.log('invalid inputs provided.');
       return false;
     }
 
-    for (let i = 0; i < targetArray.length; i++) {
+    for (let i = 0, targetLength = targetArray.length; i < targetLength; i++) {
       // test targetArray against existing targetArray
-      for (let j = 0; j < referenceArray.length; j++) {
+      for (let j = 0, refLength = referenceArray.length; j < refLength; j++) {
         if (referenceArray[j].merge(targetArray[i])) {
           // merged successfully
           break;
@@ -46,7 +45,7 @@ export default class ModelsBase {
    */
   merge(model) {
     // make sure model is valid
-    if (!(this.validate(model))) {
+    if (!this.validate(model)) {
       return false;
     }
 
@@ -63,9 +62,7 @@ export default class ModelsBase {
    * @return {boolean} True if model is valid. False if not.
    */
   validate(model) {
-    if (!(model &&
-      model !== null &&
-      typeof model.merge === 'function')) {
+    if (!(model && model !== null && typeof model.merge === 'function')) {
       return false;
     }
 
@@ -86,10 +83,14 @@ export default class ModelsBase {
     }
 
     for (let i = 0; i < modelArray.length; i++) {
-      if (!(modelArray[i] &&
-        modelArray[i] !== null &&
-        typeof modelArray[i].validate === 'function' &&
-        modelArray[i].validate(modelArray[i]))) {
+      if (
+        !(
+          modelArray[i] &&
+          modelArray[i] !== null &&
+          typeof modelArray[i].validate === 'function' &&
+          modelArray[i].validate(modelArray[i])
+        )
+      ) {
         return false;
       }
     }

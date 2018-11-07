@@ -2,7 +2,7 @@
 
 import ModelsFrame from '../../src/models/models.frame';
 
-import {Vector3} from 'three';
+import { Vector3 } from 'three/src/math/Vector3';
 
 describe('Models.frame', function() {
   let validFrame;
@@ -18,7 +18,7 @@ describe('Models.frame', function() {
     validFrame2.sopInstanceUID = 'frameSOPInstanceUID2';
 
     //
-    invalidFrame= new ModelsFrame();
+    invalidFrame = new ModelsFrame();
     invalidFrame._dimensionIndexValues = undefined;
   });
 
@@ -39,11 +39,7 @@ describe('Models.frame', function() {
   describe('cosines', function() {
     it('should return default orientation if orientation is not valid', function() {
       //
-      let defaultCosines = [
-        new Vector3(1, 0, 0),
-        new Vector3(0, 1, 0),
-        new Vector3(0, 0, 1),
-      ];
+      let defaultCosines = [new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1)];
 
       expect(validFrame.cosines()).toEqual(defaultCosines);
 
@@ -58,11 +54,7 @@ describe('Models.frame', function() {
 
     it('should return good orientation if orientation is valid', function() {
       //
-      let defaultCosines = [
-        new Vector3(0, 1, 0),
-        new Vector3(0, 0, 1),
-        new Vector3(1, 0, 0),
-      ];
+      let defaultCosines = [new Vector3(0, 1, 0), new Vector3(0, 0, 1), new Vector3(1, 0, 0)];
 
       validFrame._imageOrientation = [0, 1, 0, 0, 0, 1];
       expect(validFrame.cosines()).toEqual(defaultCosines);

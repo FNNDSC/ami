@@ -1,0 +1,21 @@
+body {
+  font-family: sans-serif;
+  color: #f9f9f9;
+  background-color: #353535;
+}
+
+.indent {
+  padding-left: 8px;
+}
+
+.series {
+  color: #f44336;
+}
+
+.stack {
+  color: #8bc34a;
+}
+
+.frame {
+  color: #ffeb3b;
+}

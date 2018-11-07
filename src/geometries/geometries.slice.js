@@ -1,7 +1,7 @@
 /** * Imports ***/
 import coreIntersections from '../core/core.intersections';
+import coreUtils from '../core/core.utils';
 
-import {Matrix4, Vector3} from 'three';
 /**
  *
  * It is typically used for creating an irregular 3D planar shape given a box and the cut-plane.
@@ -42,8 +42,14 @@ import {Matrix4, Vector3} from 'three';
  *  scene.add(slice);
  */
 
-export default class GeometriesSlice extends THREE.ShapeGeometry {
-    constructor(halfDimensions, center, position, direction, toAABB = new Matrix4()) {
+const geometriesSlice = (three = window.THREE) => {
+  if (three === undefined || three.ShapeGeometry === undefined) {
+    return null;
+  }
+
+  const Constructor = three.ShapeGeometry;
+  return class extends Constructor {
+    constructor(halfDimensions, center, position, direction, toAABB = new three.Matrix4()) {
       //
       // prepare data for the shape!
       //
@@ -69,30 +75,16 @@ export default class GeometriesSlice extends THREE.ShapeGeometry {
         window.console.log('Plane');
         window.console.log(plane);
         window.console.log('exiting...');
-        // or throw error?
-        throw 'geometries.slice has less than 3 intersections, can not create a valid geometry.';
+        const err = new Error(
+          'geometries.slice has less than 3 intersections, can not create a valid geometry.'
+        );
+        throw err;
       }
 
-      let orderedIntersections = GeometriesSlice.orderIntersections(intersections, direction);
-      let sliceShape = GeometriesSlice.shape(orderedIntersections);
+      let points = coreUtils.orderIntersections(intersections, direction);
 
-      //
-      // Generate Geometry from shape
-      // It does triangulation for us!
-      //
-      super(sliceShape);
-      this.type = 'SliceGeometry';
-
-      // update real position of each vertex! (not in 2d)
-      this.vertices = orderedIntersections;
-      this.verticesNeedUpdate = true;
-    }
-
-    static shape(points) {
-      //
-      // Create Shape
-      //
-      let shape = new THREE.Shape();
+      // create the shape
+      let shape = new three.Shape();
       // move to first point!
       shape.moveTo(points[0].xy.x, points[0].xy.y);
 
@@ -104,90 +96,23 @@ export default class GeometriesSlice extends THREE.ShapeGeometry {
 
       // close the shape!
       shape.lineTo(points[0].xy.x, points[0].xy.y);
-      return shape;
+
+      //
+      // Generate Geometry from shape
+      // It does triangulation for us!
+      //
+      super(shape);
+      this.type = 'SliceGeometry';
+
+      // update real position of each vertex! (not in 2d)
+      this.vertices = points;
+      this.verticesNeedUpdate = true;
+      this.computeVertexNormals();
     }
+  };
+};
 
- /**
-  *
-  * Convenience function to extract center of mass from list of points.
-  *
-  * @private
-  *
-  * @param {Array<Vector3>} points - Set of points from which we want to extract the center of mass.
-  *
-  * @returns {Vector3} Center of mass from given points.
-  */
-  static centerOfMass(points) {
-    let centerOfMass = new Vector3(0, 0, 0);
-    for (let i = 0; i < points.length; i++) {
-      centerOfMass.x += points[i].x;
-      centerOfMass.y += points[i].y;
-      centerOfMass.z += points[i].z;
-    }
-    centerOfMass.divideScalar(points.length);
-
-    return centerOfMass;
-  }
-
- /**
-  *
-  * Order 3D planar points around a refence point.
-  *
-  * @private
-  *
-  * @param {Array<Vector3>} points - Set of planar 3D points to be ordered.
-  * @param {Vector3} direction - Direction of the plane in which points and reference are sitting.
-  *
-  * @returns {Array<Object>} Set of object representing the ordered points.
-  */
-  static orderIntersections(points, direction) {
-    let reference = GeometriesSlice.centerOfMass(points);
-    // direction from first point to reference
-    let referenceDirection = new Vector3(
-      points[0].x - reference.x,
-      points[0].y - reference.y,
-      points[0].z - reference.z
-      ).normalize();
-
-    let base = new Vector3(0, 0, 0)
-        .crossVectors(referenceDirection, direction)
-        .normalize();
-
-    let orderedpoints = [];
-
-    // other lines // if inter, return location + angle
-    for (let j = 0; j < points.length; j++) {
-      let point = new Vector3(
-        points[j].x,
-        points[j].y,
-        points[j].z);
-      point.direction = new Vector3(
-        points[j].x - reference.x,
-        points[j].y - reference.y,
-        points[j].z - reference.z).normalize();
-
-      let x = referenceDirection.dot(point.direction);
-      let y = base.dot(point.direction);
-      point.xy = {x, y};
-
-      let theta = Math.atan2(y, x) * (180 / Math.PI);
-      point.angle = theta;
-
-      orderedpoints.push(point);
-    }
-
-    orderedpoints.sort(function(a, b) {
-      return a.angle - b.angle;
-    });
-
-    let noDups = [orderedpoints[0]];
-    let epsilon = 0.0001;
-    for (let i=1; i<orderedpoints.length; i++) {
-      if (Math.abs(orderedpoints[i-1].angle - orderedpoints[i].angle) > epsilon) {
-        noDups.push(orderedpoints[i]);
-      }
-    }
-
-    return noDups;
-  }
-}
+// export factory
+export { geometriesSlice };
+// default export to
+export default geometriesSlice();

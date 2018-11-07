@@ -1,4 +1,4 @@
-import {Vector2} from 'three';
+import { Vector2 } from 'three/src/math/Vector2';
 
 /**
  * @module shaders/data
@@ -6,42 +6,42 @@ import {Vector2} from 'three';
 export default class ShadersUniform {
   static uniforms() {
     return {
-    'uTextureBackTest0': {
+      uTextureBackTest0: {
         type: 't',
         value: [],
         typeGLSL: 'sampler2D',
       },
-      'uTextureBackTest1': {
+      uTextureBackTest1: {
         type: 't',
         value: [],
         typeGLSL: 'sampler2D',
       },
-      'uOpacity0': {
+      uOpacity0: {
         type: 'f',
         value: 1.0,
         typeGLSL: 'float',
       },
-      'uOpacity1': {
+      uOpacity1: {
         type: 'f',
         value: 1.0,
         typeGLSL: 'float',
       },
-      'uType0': {
+      uType0: {
         type: 'i',
         value: 0,
         typeGLSL: 'int',
       },
-      'uType1': {
+      uType1: {
         type: 'i',
         value: 1,
         typeGLSL: 'int',
       },
-      'uTrackMouse': {
+      uTrackMouse: {
         type: 'i',
         value: 0,
         typeGLSL: 'int',
       },
-      'uMouse': {
+      uMouse: {
         type: 'v2',
         value: new Vector2(),
         typeGLSL: 'vec2',

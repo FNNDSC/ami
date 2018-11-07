@@ -1,329 +1,373 @@
-import WidgetsBase from './widgets.base';
-import WidgetsHandle from './widgets.handle';
-
-import {Vector3} from 'three';
+import { widgetsBase } from './widgets.base';
+import { widgetsHandle as widgetsHandleFactory } from './widgets.handle';
 
 /**
- * @module widgets/handle
- *
+ * @module widgets/ruler
  */
+const widgetsRuler = (three = window.THREE) => {
+  if (three === undefined || three.Object3D === undefined) {
+    return null;
+  }
 
-export default class WidgetsRuler extends WidgetsBase {
-  constructor(targetMesh, controls, camera, container) {
-    super(container);
+  const Constructor = widgetsBase(three);
+  return class extends Constructor {
+    constructor(targetMesh, controls, params) {
+      super(targetMesh, controls, params);
 
-    this._targetMesh = targetMesh;
-    this._controls = controls;
-    this._camera = camera;
+      this._widgetType = 'Ruler';
 
-    this._active = true;
-    this._lastEvent = null;
+      // incoming parameters (optional: lps2IJK, pixelSpacing, ultrasoundRegions, worldPosition)
+      this._calibrationFactor = params.calibrationFactor || null;
 
-    this._worldPosition = new Vector3();
-    if (this._targetMesh !== null) {
-      this._worldPosition = this._targetMesh.position;
+      // outgoing values
+      this._distance = null;
+      this._units = !this._calibrationFactor && !params.pixelSpacing ? 'units' : 'mm';
+
+      this._moving = false;
+      this._domHovered = false;
+
+      // mesh stuff
+      this._material = null;
+      this._geometry = null;
+      this._mesh = null;
+
+      // dom stuff
+      this._line = null;
+      this._label = null;
+
+      // add handles
+      this._handles = [];
+      const WidgetsHandle = widgetsHandleFactory(three);
+
+      let handle;
+      for (let i = 0; i < 2; i++) {
+        handle = new WidgetsHandle(targetMesh, controls, params);
+        this.add(handle);
+        this._handles.push(handle);
+      }
+      this._handles[1].active = true;
+      this._handles[1].tracking = true;
+
+      this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
+      this.add(this._moveHandle);
+      this._handles.push(this._moveHandle);
+      this._moveHandle.hide();
+
+      this.create();
+
+      this.onMove = this.onMove.bind(this);
+      this.onHover = this.onHover.bind(this);
+      this.addEventListeners();
     }
 
-    // mesh stuff
-    this._material = null;
-    this._geometry = null;
-    this._mesh = null;
+    addEventListeners() {
+      this._container.addEventListener('wheel', this.onMove);
 
-    // dom stuff
-    this._line = null;
-    this._distance = null;
-
-    // add handles
-    this._handles = [];
-
-    // first handle
-    let firstHandle =
-      new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-    firstHandle.worldPosition = this._worldPosition;
-    firstHandle.hovered = true;
-    this.add(firstHandle);
-
-    this._handles.push(firstHandle);
-
-    let secondHandle =
-      new WidgetsHandle(this._targetMesh, this._controls, this._camera, this._container);
-    secondHandle.worldPosition = this._worldPosition;
-    secondHandle.hovered = true;
-    // active and tracking might be redundant
-    secondHandle.active = true;
-    secondHandle.tracking = true;
-    this.add(secondHandle);
-
-    this._handles.push(secondHandle);
-
-    // Create ruler
-    this.create();
-    this.initOffsets();
-
-    this.onMove = this.onMove.bind(this);
-    this.onEndControl = this.onEndControl.bind(this);
-    this.addEventListeners();
-  }
-
-  addEventListeners() {
-    this._container.addEventListener('mousewheel', this.onMove);
-    this._container.addEventListener('DOMMouseScroll', this.onMove);
-
-    this._controls.addEventListener('end', this.onEndControl);
-  }
-
-  removeEventListeners() {
-    this._container.removeEventListener('mousewheel', this.onMove);
-    this._container.removeEventListener('DOMMouseScroll', this.onMove);
-
-    this._controls.removeEventListener('end', this.onEndControl);
-  }
-
-  onMove(evt) {
-    this._lastEvent = evt;
-    this._dragged = true;
-
-    this._handles[0].onMove(evt);
-    this._handles[1].onMove(evt);
-
-    this._hovered = this._handles[0].hovered || this._handles[1].hovered;
-    this.update();
-  }
-
-  onStart(evt) {
-    this._lastEvent = evt;
-    this._dragged = false;
-
-    this._handles[0].onStart(evt);
-    this._handles[1].onStart(evt);
-
-    this._active = this._handles[0].active || this._handles[1].active;
-    this.update();
-  }
-
-  onEnd(evt) {
-    this._lastEvent = evt;
-    // First Handle
-    this._handles[0].onEnd(evt);
-
-    // window.console.log(this);
-
-    // Second Handle
-    if (this._dragged || !this._handles[1].tracking) {
-      this._handles[1].tracking = false;
-      this._handles[1].onEnd(evt);
-    } else {
-      this._handles[1].tracking = false;
+      this._line.addEventListener('mouseenter', this.onHover);
+      this._line.addEventListener('mouseleave', this.onHover);
+      this._label.addEventListener('mouseenter', this.onHover);
+      this._label.addEventListener('mouseleave', this.onHover);
     }
 
-    // State of ruler widget
-    this._active = this._handles[0].active || this._handles[1].active;
-    this.update();
-  }
+    removeEventListeners() {
+      this._container.removeEventListener('wheel', this.onMove);
 
-  onEndControl() {
-    if (!this._lastEvent) {
-      return;
+      this._line.removeEventListener('mouseenter', this.onHover);
+      this._line.removeEventListener('mouseleave', this.onHover);
+      this._label.removeEventListener('mouseenter', this.onHover);
+      this._label.removeEventListener('mouseleave', this.onHover);
     }
 
-    window.requestAnimationFrame(() => {
-      this.onMove(this._lastEvent);
-    });
-  }
+    onHover(evt) {
+      if (evt) {
+        this.hoverDom(evt);
+      }
 
-  create() {
-    this.createMesh();
-    this.createDOM();
-  }
+      this.hoverMesh();
 
-  hideDOM() {
-    this._line.style.display = 'none';
-    this._distance.style.display = 'none';
-    for (let index in this._handles) {
-      this._handles[index].hideDOM();
-    }
-  }
-
-  showDOM() {
-    this._line.style.display = '';
-    this._distance.style.display = '';
-    for (let index in this._handles) {
-      this._handles[index].showDOM();
-    }
-  }
-
-  hideMesh() {
-    this.visible = false;
-  }
-
-  showMesh() {
-    this.visible = true;
-  }
-
-  show() {
-    this.showDOM();
-    this.showMesh();
-  }
-
-  hide() {
-    this.hideDOM();
-    this.hideMesh();
-  }
-
-  update() {
-    this.updateColor();
-
-    // update handles
-    this._handles[0].update();
-    this._handles[1].update();
-
-    // mesh stuff
-    this.updateMeshColor();
-    this.updateMeshPosition();
-
-    // DOM stuff
-    this.updateDOMColor();
-    this.updateDOMPosition();
-  }
-
-  createMesh() {
-    // geometry
-    this._geometry = new THREE.Geometry();
-    this._geometry.vertices.push(this._handles[0].worldPosition);
-    this._geometry.vertices.push(this._handles[1].worldPosition);
-
-    // material
-    this._material = new THREE.LineBasicMaterial();
-    this.updateMeshColor();
-
-    // mesh
-    this._mesh = new THREE.Line(this._geometry, this._material);
-    this._mesh.visible = true;
-
-    // add it!
-    this.add(this._mesh);
-  }
-
-  updateMeshColor() {
-    if (this._material) {
-      this._material.color.set(this._color);
-    }
-  }
-
-  updateMeshPosition() {
-    if (this._geometry) {
-      this._geometry.verticesNeedUpdate = true;
-    }
-  }
-
-  createDOM() {
-    // add line!
-    this._line = document.createElement('div');
-    this._line.setAttribute('id', this.uuid);
-    this._line.setAttribute('class', 'AMI Widget Ruler');
-    this._line.style.position = 'absolute';
-    this._line.style.transformOrigin = '0 100%';
-    this._line.style.marginTop = '-1px';
-    this._line.style.height = '2px';
-    this._line.style.width = '3px';
-    this._container.appendChild(this._line);
-
-    // add distance!
-    this._distance = document.createElement('div');
-    this._distance.setAttribute('class', 'widgets handle distance');
-    this._distance.style.border = '2px solid';
-    this._distance.style.backgroundColor = '#F9F9F9';
-    // this._distance.style.opacity = '0.5';
-    this._distance.style.color = '#353535';
-    this._distance.style.padding = '4px';
-    this._distance.style.position = 'absolute';
-    this._distance.style.transformOrigin = '0 100%';
-    this._distance.innerHTML = 'Hello, world!';
-    this._container.appendChild(this._distance);
-
-    this.updateDOMColor();
-  }
-
-  updateDOMPosition() {
-    // update rulers lines and text!
-    let x1 = this._handles[0].screenPosition.x;
-    let y1 = this._handles[0].screenPosition.y;
-    let x2 = this._handles[1].screenPosition.x;
-    let y2 = this._handles[1].screenPosition.y;
-
-    let x0 = x2;
-    let y0 = y2;
-
-    if (y1 >= y2) {
-      y0 = y2 - 30;
-    } else {
-      y0 = y2 + 30;
+      this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._domHovered;
+      this._container.style.cursor = this._hovered ? 'pointer' : 'default';
     }
 
-    let length = Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-    let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+    hoverMesh() {
+      // check raycast intersection, do we want to hover on mesh or just css?
+    }
 
-    let posY = y1 - this._container.offsetHeight;
+    hoverDom(evt) {
+      this._domHovered = evt.type === 'mouseenter';
+    }
 
-    // update line
-    let transform = `translate3D(${x1}px,${posY}px, 0)`;
-    transform += ` rotate(${angle}deg)`;
+    onStart(evt) {
+      this._moveHandle.onMove(evt, true);
 
-    this._line.style.transform = transform;
-    this._line.style.width = length + 'px';
+      this._handles[0].onStart(evt);
+      this._handles[1].onStart(evt);
 
-    // update distance
-    let w0 = this._handles[0].worldPosition;
-    let w1 = this._handles[1].worldPosition;
+      this._active = this._handles[0].active || this._handles[1].active || this._domHovered;
 
-    this._distance.innerHTML =
-      `${
-        Math.sqrt(
-          (w0.x-w1.x)*(w0.x-w1.x) +
-          (w0.y-w1.y)*(w0.y-w1.y) +
-          (w0.z-w1.z)*(w0.z-w1.z)
-        ).toFixed(2)} mm`;
-    let posY0 =
-      y0 - this._container.offsetHeight - this._distance.offsetHeight/2;
-    x0 -= this._distance.offsetWidth/2;
+      if (this._domHovered && !this._handles[1].tracking) {
+        this._moving = true;
+        this._controls.enabled = false;
+      }
 
-    let transform2 =
-      `translate3D(${Math.round(x0)}px,${Math.round(posY0)}px, 0)`;
-    this._distance.style.transform = transform2;
-  }
+      this.update();
+    }
 
-  updateDOMColor() {
-    this._line.style.backgroundColor = `${this._color}`;
-    this._distance.style.borderColor = `${this._color}`;
-  }
+    onMove(evt) {
+      if (this._active) {
+        const prevPosition = this._moveHandle.worldPosition.clone();
 
-  free() {
-    this._container.removeEventListener('mousewheel', this.onMove);
-    this._container.removeEventListener('DOMMouseScroll', this.onMove);
+        this._dragged = true;
+        this._moveHandle.onMove(evt, true);
 
-    this._handles.forEach((h) => {
-      h.free();
-    });
+        if (this._moving) {
+          this._handles.slice(0, -1).forEach(handle => {
+            handle.worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
+          });
+        }
+      } else {
+        this.onHover(null);
+      }
 
-    this._handles = [];
+      this._handles[0].onMove(evt);
+      this._handles[1].onMove(evt);
 
-    this._container.removeChild(this._line);
-    this._container.removeChild(this._distance);
+      this.update();
+    }
 
-    this.remove(this._mesh);
+    onEnd() {
+      this._handles[0].onEnd(); // First Handle
 
-    super.free();
-  }
+      if (
+        this._handles[1].tracking &&
+        this._handles[0].screenPosition.distanceTo(this._handles[1].screenPosition) < 10
+      ) {
+        return;
+      }
 
-  get worldPosition() {
-    return this._worldPosition;
-  }
+      if (!this._dragged && this._active && !this._handles[1].tracking) {
+        this._selected = !this._selected; // change state if there was no dragging
+        this._handles[0].selected = this._selected;
+      }
 
-  set worldPosition(worldPosition) {
-    this._worldPosition = worldPosition;
-    this._handles[0].worldPosition = this._worldPosition;
-    this._handles[1].worldPosition = this._worldPosition;
+      // Second Handle
+      if (this._dragged || !this._handles[1].tracking) {
+        this._handles[1].tracking = false;
+        this._handles[1].onEnd();
+      } else {
+        this._handles[1].tracking = false;
+      }
+      this._handles[1].selected = this._selected;
 
-    this.update();
-  }
-}
+      this._active = this._handles[0].active || this._handles[1].active;
+      this._dragged = false;
+      this._moving = false;
+
+      this.update();
+    }
+
+    create() {
+      this.createMesh();
+      this.createDOM();
+    }
+
+    createMesh() {
+      // geometry
+      this._geometry = new three.Geometry();
+      this._geometry.vertices.push(this._handles[0].worldPosition);
+      this._geometry.vertices.push(this._handles[1].worldPosition);
+
+      // material
+      this._material = new three.LineBasicMaterial();
+
+      this.updateMeshColor();
+
+      // mesh
+      this._mesh = new three.Line(this._geometry, this._material);
+      this._mesh.visible = true;
+
+      this.add(this._mesh);
+    }
+
+    createDOM() {
+      this._line = document.createElement('div');
+      this._line.className = 'widgets-line';
+      this._container.appendChild(this._line);
+
+      this._label = document.createElement('div');
+      this._label.className = 'widgets-label';
+      this._container.appendChild(this._label);
+
+      this.updateDOMColor();
+    }
+
+    hideDOM() {
+      this._line.style.display = 'none';
+      this._label.style.display = 'none';
+      this._handles.forEach(elem => elem.hideDOM());
+    }
+
+    showDOM() {
+      this._line.style.display = '';
+      this._label.style.display = '';
+      this._handles[0].showDOM();
+      this._handles[1].showDOM();
+    }
+
+    update() {
+      this.updateColor();
+
+      this._handles[0].update();
+      this._handles[1].update();
+
+      // calculate values
+      const distanceData = this.getDistanceData(
+        this._handles[0].worldPosition,
+        this._handles[1].worldPosition,
+        this._calibrationFactor
+      );
+
+      this._distance = distanceData.distance;
+      if (distanceData.units) {
+        this._units = distanceData.units;
+      }
+
+      this.updateMeshColor();
+      this.updateMeshPosition();
+
+      this.updateDOM();
+    }
+
+    updateMeshColor() {
+      if (this._material) {
+        this._material.color.set(this._color);
+      }
+    }
+
+    updateMeshPosition() {
+      if (this._geometry) {
+        this._geometry.verticesNeedUpdate = true;
+      }
+    }
+
+    updateDOM() {
+      this.updateDOMColor();
+
+      // update line
+      const lineData = this.getLineData(
+        this._handles[0].screenPosition,
+        this._handles[1].screenPosition
+      );
+
+      this._line.style.transform = `translate3D(${lineData.transformX}px, ${
+        lineData.transformY
+      }px, 0)
+      rotate(${lineData.transformAngle}rad)`;
+      this._line.style.width = lineData.length + 'px';
+
+      // update label
+      if (this._units === 'units' && !this._label.hasAttribute('title')) {
+        this._label.setAttribute('title', 'Calibration is required to display the distance in mm');
+        this._label.style.color = this._colors.error;
+      } else if (this._units !== 'units' && this._label.hasAttribute('title')) {
+        this._label.removeAttribute('title');
+        this._label.style.color = this._colors.text;
+      }
+      this._label.innerHTML = `${this._distance.toFixed(2)} ${this._units}`;
+
+      let angle = Math.abs(lineData.transformAngle);
+      if (angle > Math.PI / 2) {
+        angle = Math.PI - angle;
+      }
+
+      const labelPadding =
+        Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth
+          ? this._label.offsetWidth / 2 / Math.cos(angle) + 15 // 5px for each handle + padding
+          : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle) + 15;
+      const paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
+      const paddingPoint =
+        lineData.length > labelPadding * 2
+          ? this._handles[1].screenPosition.clone().sub(paddingVector)
+          : this._handles[1].screenPosition.clone().add(paddingVector);
+      const transform = this.adjustLabelTransform(this._label, paddingPoint);
+
+      this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
+    }
+
+    updateDOMColor() {
+      this._line.style.backgroundColor = this._color;
+      this._label.style.borderColor = this._color;
+    }
+
+    free() {
+      this.removeEventListeners();
+
+      this._handles.forEach(h => {
+        this.remove(h);
+        h.free();
+      });
+      this._handles = [];
+
+      this._container.removeChild(this._line);
+      this._container.removeChild(this._label);
+
+      // mesh, geometry, material
+      this.remove(this._mesh);
+      this._mesh.geometry.dispose();
+      this._mesh.geometry = null;
+      this._mesh.material.dispose();
+      this._mesh.material = null;
+      this._mesh = null;
+      this._geometry.dispose();
+      this._geometry = null;
+      this._material.vertexShader = null;
+      this._material.fragmentShader = null;
+      this._material.uniforms = null;
+      this._material.dispose();
+      this._material = null;
+
+      super.free();
+    }
+
+    getMeasurements() {
+      return {
+        distance: this._distance,
+        units: this._units,
+      };
+    }
+
+    get targetMesh() {
+      return this._targetMesh;
+    }
+
+    set targetMesh(targetMesh) {
+      this._targetMesh = targetMesh;
+      this._handles.forEach(elem => (elem.targetMesh = targetMesh));
+      this.update();
+    }
+
+    get worldPosition() {
+      return this._worldPosition;
+    }
+
+    set worldPosition(worldPosition) {
+      this._handles[0].worldPosition.copy(worldPosition);
+      this._handles[1].worldPosition.copy(worldPosition);
+      this._worldPosition.copy(worldPosition);
+      this.update();
+    }
+
+    get calibrationFactor() {
+      return this._calibrationFactor;
+    }
+
+    set calibrationFactor(calibrationFactor) {
+      this._calibrationFactor = calibrationFactor;
+      this._units = 'mm';
+      this.update();
+    }
+  };
+};
+
+export { widgetsRuler };
+export default widgetsRuler();

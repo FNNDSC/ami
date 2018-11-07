@@ -54,6 +54,7 @@ export default class LoadersBase extends EventEmitter {
    * free the reference.
    */
   free() {
+    this._data = [];
     this._container = null;
     // this._helpersProgressBar = null;
 
@@ -66,16 +67,17 @@ export default class LoadersBase extends EventEmitter {
   /**
    * load the resource by url.
    * @param {string} url - resource url.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
-  fetch(url) {
+  fetch(url, requests) {
     return new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
       request.open('GET', url);
       request.crossOrigin = true;
       request.responseType = 'arraybuffer';
 
-      request.onloadstart = (event) => {
+      request.onloadstart = event => {
         // emit 'fetch-start' event
         this.emit('fetch-start', {
           file: url,
@@ -83,15 +85,14 @@ export default class LoadersBase extends EventEmitter {
         });
       };
 
-      request.onload = (event) => {
-        if (request.status === 200) {
+      request.onload = event => {
+        if (request.status === 200 || request.status === 0) {
           this._loaded = event.loaded;
           this._totalLoaded = event.total;
 
           // will be removed after eventer set up
           if (this._progressBar) {
-            this._progressBar.update(this._loaded, this._totalLoaded,
-              'load');
+            this._progressBar.update(this._loaded, this._totalLoaded, 'load', url);
           }
 
           let buffer = request.response;
@@ -123,14 +124,14 @@ export default class LoadersBase extends EventEmitter {
         reject(request.statusText);
       };
 
-      request.onabort = (event) => {
-        // emit 'fetch-start' event
+      request.onabort = event => {
+        // emit 'fetch-abort' event
         this.emit('fetch-abort', {
           file: url,
           time: new Date(),
         });
 
-        reject(request.statusText);
+        reject(request.statusText || 'Aborted');
       };
 
       request.ontimeout = () => {
@@ -143,7 +144,7 @@ export default class LoadersBase extends EventEmitter {
         reject(request.statusText);
       };
 
-      request.onprogress = (event) => {
+      request.onprogress = event => {
         this._loaded = event.loaded;
         this._totalLoaded = event.total;
         // emit 'fetch-progress' event
@@ -155,12 +156,11 @@ export default class LoadersBase extends EventEmitter {
         });
         // will be removed after eventer set up
         if (this._progressBar) {
-          this._progressBar.update(this._loaded, this._totalLoaded,
-            'load');
+          this._progressBar.update(this._loaded, this._totalLoaded, 'load', url);
         }
       };
 
-      request.onloadend = (event) => {
+      request.onloadend = event => {
         // emit 'fetch-end' event
         this.emit('fetch-end', {
           file: url,
@@ -169,6 +169,10 @@ export default class LoadersBase extends EventEmitter {
         // just use onload when success and onerror when failure, etc onabort
         // reject(request.statusText);
       };
+
+      if (requests instanceof Map) {
+        requests.set(url, request);
+      }
 
       request.send();
     });
@@ -189,26 +193,28 @@ export default class LoadersBase extends EventEmitter {
   /**
    * default load sequence group promise.
    * @param {array} url - resource url.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
-  loadSequenceGroup(url) {
+  loadSequenceGroup(url, requests) {
     const fetchSequence = [];
 
-    url.forEach((file) => {
-      fetchSequence.push(
-        this.fetch(file)
-      );
+    url.forEach(file => {
+      fetchSequence.push(this.fetch(file, requests));
     });
 
     return Promise.all(fetchSequence)
-      .then((rawdata) => {
+      .then(rawdata => {
         return this.parse(rawdata);
       })
-      .then((data) => {
+      .then(data => {
         this._data.push(data);
         return data;
       })
       .catch(function(error) {
+        if (error === 'Aborted') {
+          return;
+        }
         window.console.log('oops... something went wrong...');
         window.console.log(error);
       });
@@ -217,18 +223,22 @@ export default class LoadersBase extends EventEmitter {
   /**
    * default load sequence promise.
    * @param {string} url - resource url.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise.
    */
-  loadSequence(url) {
-    return this.fetch(url)
-      .then((rawdata) => {
+  loadSequence(url, requests) {
+    return this.fetch(url, requests)
+      .then(rawdata => {
         return this.parse(rawdata);
       })
-      .then((data) => {
+      .then(data => {
         this._data.push(data);
         return data;
       })
       .catch(function(error) {
+        if (error === 'Aborted') {
+          return;
+        }
         window.console.log('oops... something went wrong...');
         window.console.log(error);
       });
@@ -237,12 +247,18 @@ export default class LoadersBase extends EventEmitter {
   /**
    * load the data by url(urls)
    * @param {string|array} url - resource url.
+   * @param {Map} requests - used for cancellation.
    * @return {promise} promise
    */
-  load(url) {
+  load(url, requests) {
     // if we load a single file, convert it to an array
     if (!Array.isArray(url)) {
       url = [url];
+    }
+
+    if (this._progressBar) {
+      this._progressBar.totalFiles = url.length;
+      this._progressBar.requests = requests;
     }
 
     // emit 'load-start' event
@@ -252,15 +268,11 @@ export default class LoadersBase extends EventEmitter {
     });
 
     const loadSequences = [];
-    url.forEach((file) => {
+    url.forEach(file => {
       if (!Array.isArray(file)) {
-        loadSequences.push(
-          this.loadSequence(file)
-        );
+        loadSequences.push(this.loadSequence(file, requests));
       } else {
-        loadSequences.push(
-          this.loadSequenceGroup(file)
-        );
+        loadSequences.push(this.loadSequenceGroup(file, requests));
       }
     });
     return Promise.all(loadSequences);

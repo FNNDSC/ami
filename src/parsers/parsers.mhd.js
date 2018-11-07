@@ -1,6 +1,7 @@
 /** * Imports ***/
 import ParsersVolume from './parsers.volume';
-import {Vector3} from 'three';
+
+import { Vector3 } from 'three/src/math/Vector3';
 
 /**
  * @module parsers/mhd
@@ -10,9 +11,9 @@ export default class ParsersMHD extends ParsersVolume {
     super();
 
     /**
-      * @member
-      * @type {arraybuffer}
-    */
+     * @member
+     * @type {arraybuffer}
+     */
     this._id = id;
     this._url = data.url;
     this._header = {};
@@ -21,11 +22,11 @@ export default class ParsersMHD extends ParsersVolume {
     try {
       // parse header (mhd) data
       let lines = new TextDecoder().decode(data.mhdBuffer).split('\n');
-      lines.forEach((line) => {
-          let keyvalue = line.split('=');
-          if (keyvalue.length === 2) {
-            this._header[keyvalue[0].trim()] = keyvalue[1].trim();
-          }
+      lines.forEach(line => {
+        let keyvalue = line.split('=');
+        if (keyvalue.length === 2) {
+          this._header[keyvalue[0].trim()] = keyvalue[1].trim();
+        }
       });
 
       this._header.DimSize = this._header.DimSize.split(' ');
@@ -41,10 +42,12 @@ export default class ParsersMHD extends ParsersVolume {
 
   rightHanded() {
     let anatomicalOrientation = this._header.AnatomicalOrientation;
-    if (anatomicalOrientation === 'RAS' ||
-        anatomicalOrientation === 'RPI' ||
-        anatomicalOrientation === 'LPS' ||
-        anatomicalOrientation === 'LAI') {
+    if (
+      anatomicalOrientation === 'RAS' ||
+      anatomicalOrientation === 'RPI' ||
+      anatomicalOrientation === 'LPS' ||
+      anatomicalOrientation === 'LAI'
+    ) {
       this._rightHanded = true;
     } else {
       this._rightHanded = false;
@@ -77,22 +80,29 @@ export default class ParsersMHD extends ParsersVolume {
   pixelType(frameIndex = 0) {
     // 0 - int
     // 1 - float
-    return 0;
+    let type = 0;
+    if (this._header.ElementType === 'MET_UFLOAT' || this._header.ElementType === 'MET_FLOAT') {
+      type = 1;
+    }
+    return type;
   }
 
   bitsAllocated(frameIndex = 0) {
     let bitsAllocated = 1;
 
-    if (this._header.ElementType === 'MET_UCHAR' ||
-        this._header.ElementType === 'MET_CHAR') {
+    if (this._header.ElementType === 'MET_UCHAR' || this._header.ElementType === 'MET_CHAR') {
       bitsAllocated = 8;
     } else if (
-        this._header.ElementType === 'MET_USHORT' ||
-        this._header.ElementType === 'MET_SHORT') {
+      this._header.ElementType === 'MET_USHORT' ||
+      this._header.ElementType === 'MET_SHORT'
+    ) {
       bitsAllocated = 16;
     } else if (
-        this._header.ElementType === 'MET_UFLOAT' ||
-        this._header.ElementType === 'MET_FLOAT') {
+      this._header.ElementType === 'MET_UINT' ||
+      this._header.ElementType === 'MET_INT' ||
+      this._header.ElementType === 'MET_UFLOAT' ||
+      this._header.ElementType === 'MET_FLOAT'
+    ) {
       bitsAllocated = 32;
     }
 
@@ -104,7 +114,7 @@ export default class ParsersMHD extends ParsersVolume {
    * ElementSpacing[0] spacing between elements along X axis (i.e. column spacing)
    * ElementSpacing[1] spacing between elements along Y axis (i.e. row spacing)
    *
-   * @param {*} frameIndex 
+   * @param {*} frameIndex
    */
   pixelSpacing(frameIndex = 0) {
     let x = parseFloat(this._header.ElementSpacing[1], 10);
@@ -120,19 +130,18 @@ export default class ParsersMHD extends ParsersVolume {
     let x = new Vector3(
       parseFloat(this._header.TransformMatrix[0]) * invertX,
       parseFloat(this._header.TransformMatrix[1]) * invertY,
-      parseFloat(this._header.TransformMatrix[2]));
+      parseFloat(this._header.TransformMatrix[2])
+    );
     x.normalize();
 
     let y = new Vector3(
       parseFloat(this._header.TransformMatrix[3]) * invertX,
       parseFloat(this._header.TransformMatrix[4]) * invertY,
-      parseFloat(this._header.TransformMatrix[5]));
+      parseFloat(this._header.TransformMatrix[5])
+    );
     y.normalize();
 
-    return [
-      x.x, x.y, x.z,
-      y.x, y.y, y.z,
-      ];
+    return [x.x, x.y, x.z, y.x, y.y, y.z];
   }
 
   imagePosition(frameIndex = 0) {
@@ -150,18 +159,15 @@ export default class ParsersMHD extends ParsersVolume {
   _decompressUncompressed(frameIndex = 0) {
     let buffer = this._buffer;
     let numberOfChannels = this.numberOfChannels();
-    let numPixels =
-      this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
     if (!this.rightHanded()) {
       frameIndex = this.numberOfFrames() - 1 - frameIndex;
     }
     let frameOffset = frameIndex * numPixels;
 
     if (this._header.ElementType === 'MET_CHAR') {
-      frameOffset = frameOffset;
       return new Int8Array(buffer, frameOffset, numPixels);
     } else if (this._header.ElementType === 'MET_UCHAR') {
-      frameOffset = frameOffset;
       return new Uint8Array(buffer, frameOffset, numPixels);
     } else if (this._header.ElementType === 'MET_SHORT') {
       frameOffset = frameOffset * 2;
@@ -169,6 +175,12 @@ export default class ParsersMHD extends ParsersVolume {
     } else if (this._header.ElementType === 'MET_USHORT') {
       frameOffset = frameOffset * 2;
       return new Uint16Array(buffer, frameOffset, numPixels);
+    } else if (this._header.ElementType === 'MET_INT') {
+      frameOffset = frameOffset * 4;
+      return new Int32Array(buffer, frameOffset, numPixels);
+    } else if (this._header.ElementType === 'MET_UINT') {
+      frameOffset = frameOffset * 4;
+      return new Uint32Array(buffer, frameOffset, numPixels);
     } else if (this._header.ElementType === 'MET_FLOAT') {
       frameOffset = frameOffset * 4;
       return new Float32Array(buffer, frameOffset, numPixels);

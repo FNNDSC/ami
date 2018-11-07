@@ -61,14 +61,18 @@ export default class ModelsSeries extends ModelsBase {
    * @override
    */
   validate(model) {
-    if (!(super.validate(model) &&
-      typeof model.mergeSeries === 'function' &&
-      model.hasOwnProperty('_seriesInstanceUID') &&
-      model.hasOwnProperty('_numberOfFrames') &&
-      model.hasOwnProperty('_numberOfChannels') &&
-      model.hasOwnProperty('_stack') &&
-      typeof model._stack !== 'undefined' &&
-      Array === model._stack.constructor)) {
+    if (
+      !(
+        super.validate(model) &&
+        typeof model.mergeSeries === 'function' &&
+        model.hasOwnProperty('_seriesInstanceUID') &&
+        model.hasOwnProperty('_numberOfFrames') &&
+        model.hasOwnProperty('_numberOfChannels') &&
+        model.hasOwnProperty('_stack') &&
+        typeof model._stack !== 'undefined' &&
+        Array === model._stack.constructor
+      )
+    ) {
       return false;
     }
 
@@ -93,6 +97,17 @@ export default class ModelsSeries extends ModelsBase {
     }
 
     if (this._seriesInstanceUID === series.seriesInstanceUID) {
+      // may merge incorrectly if loader will return more than one stacks per series
+      if (series.stack[0]) {
+        if (this._stack[0]._numberOfFrames === 0) {
+          this._stack[0].computeNumberOfFrames();
+        }
+        this._stack[0].computeCosines();
+        if (series.stack[0]._numberOfFrames === 0) {
+          series.stack[0].computeNumberOfFrames();
+        }
+        series.stack[0].computeCosines();
+      }
       return this.mergeModels(this._stack, series.stack);
     } else {
       return false;

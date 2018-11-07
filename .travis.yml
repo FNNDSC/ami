@@ -1,14 +1,20 @@
 language: node_js
 node_js:
-  - "6.9"
+- 10.7.0
 sudo: required
 cache:
   yarn: true
   directories:
-    - node_modules
-before_script:
-  - node node_modules/phantomjs-prebuilt/install.js
+  - node_modules
 script:
-  - yarn run ami
+- yarn ami
 notifications:
   slack: fnndsc:UohaXDsjFDVqZj5IfdC88XRa
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: scripts/deploy.sh
+  on:
+    repo: FNNDSC/ami
+    branch: dev
+    tags: false

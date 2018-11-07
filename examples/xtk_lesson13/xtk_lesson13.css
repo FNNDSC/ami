@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  overflow:hidden;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
@@ -15,8 +15,8 @@ body {
   background-color: #000;
   width: 50%;
   height: 50%;
-  box-sizing:border-box;
-  border: 1px solid rgba(0, 0, 0, .2);
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.2);
   border-bottom: none;
   position: relative;
   overflow: hidden;
@@ -42,5 +42,5 @@ body {
   position: fixed;
   top: 80px;
   right: 20px;
-  z-index:1;
+  z-index: 1;
 }

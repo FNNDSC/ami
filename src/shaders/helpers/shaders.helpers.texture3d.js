@@ -11,7 +11,12 @@ class Texture3d extends ShadersBase {
     this._offset = 'offset';
   }
 
-    api(baseFragment = this._base, dataCoordinates = this._dataCoordinates, dataValue = this._dataValue, offset = this._offset) {
+  api(
+    baseFragment = this._base,
+    dataCoordinates = this._dataCoordinates,
+    dataValue = this._dataValue,
+    offset = this._offset
+  ) {
     this._base = baseFragment;
     return this.compute(dataCoordinates, dataValue, offset);
   }
@@ -22,8 +27,27 @@ class Texture3d extends ShadersBase {
     return `${this._name}(${dataCoordinates}, ${dataValue}, ${offset});`;
   }
 
-
   computeDefinition() {
+    let content = `
+      step( abs( textureIndexF - 0.0 ), 0.0 ) * texture2D(uTextureContainer[0], uv) +
+      step( abs( textureIndexF - 1.0 ), 0.0 ) * texture2D(uTextureContainer[1], uv) +
+      step( abs( textureIndexF - 2.0 ), 0.0 ) * texture2D(uTextureContainer[2], uv) +
+      step( abs( textureIndexF - 3.0 ), 0.0 ) * texture2D(uTextureContainer[3], uv) +
+      step( abs( textureIndexF - 4.0 ), 0.0 ) * texture2D(uTextureContainer[4], uv) +
+      step( abs( textureIndexF - 5.0 ), 0.0 ) * texture2D(uTextureContainer[5], uv) +
+      step( abs( textureIndexF - 6.0 ), 0.0 ) * texture2D(uTextureContainer[6], uv)`;
+
+    if (this._base._uniforms.uTextureContainer.length === 14) {
+      content += ` +
+      step( abs( textureIndexF - 7.0 ), 0.0 ) * texture2D(uTextureContainer[7], uv) +
+      step( abs( textureIndexF - 8.0 ), 0.0 ) * texture2D(uTextureContainer[8], uv) +
+      step( abs( textureIndexF - 9.0 ), 0.0 ) * texture2D(uTextureContainer[9], uv) +
+      step( abs( textureIndexF - 10.0 ), 0.0 ) * texture2D(uTextureContainer[10], uv) +
+      step( abs( textureIndexF - 11.0 ), 0.0 ) * texture2D(uTextureContainer[11], uv) +
+      step( abs( textureIndexF - 12.0 ), 0.0 ) * texture2D(uTextureContainer[12], uv) +
+      step( abs( textureIndexF - 13.0 ), 0.0 ) * texture2D(uTextureContainer[13], uv)`;
+    }
+
     this._definition = `
 void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset){
     
@@ -31,7 +55,7 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
             + dataCoordinates.y * uDataDimensions.x
             + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;
   int indexP = int(index/uPackedPerPixel);
-  offset = index - 2*indexP;
+  offset = index - int(uPackedPerPixel)*indexP;
 
   // Map data index to right sampler2D texture
   int voxelsPerTexture = uTextureSize*uTextureSize;
@@ -39,6 +63,7 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
   // modulo seems incorrect sometimes...
   // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));
   int inTextureIndex = indexP - voxelsPerTexture*textureIndex;
+  float textureIndexF = float(textureIndex);
 
   // Get row and column in the texture
   int colIndex = int(mod(float(inTextureIndex), float(uTextureSize)));
@@ -49,14 +74,8 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
   uv.x = (0.5 + float(colIndex)) / float(uTextureSize);
   uv.y = 1. - (0.5 + float(rowIndex)) / float(uTextureSize);
 
-  //
-  if(textureIndex == 0){ dataValue = texture2D(uTextureContainer[0], uv); }
-  else if(textureIndex == 1){dataValue = texture2D(uTextureContainer[1], uv);}
-  else if(textureIndex == 2){ dataValue = texture2D(uTextureContainer[2], uv); }
-  else if(textureIndex == 3){ dataValue = texture2D(uTextureContainer[3], uv); }
-  else if(textureIndex == 4){ dataValue = texture2D(uTextureContainer[4], uv); }
-  else if(textureIndex == 5){ dataValue = texture2D(uTextureContainer[5], uv); }
-  else if(textureIndex == 6){ dataValue = texture2D(uTextureContainer[6], uv); }
+  // get rid of if statements
+  dataValue = vec4(0.) + ${content};
 
 }
     `;
