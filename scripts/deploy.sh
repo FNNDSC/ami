@@ -32,14 +32,14 @@ make_version() {
   # Run the deploy build and increment the package versions
   # %s is the placeholder for the created tag
   # Update pacakge.json
-  npm version minor --no-git-tag-version -m "chore: update to version %s [skip ci]"
+  VERSION=$(npm version minor --no-git-tag-version -m "chore: update version ($VERSION) %s [skip ci]")
 
   # Update the build
-  yarn ami
-  commit -am "chore: update build [skip ci]"
+  yarn dist:ami
+  git commit -am "chore: update build ($VERSION)[skip ci]"
 
   # Tag the new build
-  npm version minor --allow-same-version -m "chore: release version %s [skip ci]"
+  git tag $VERSION
 }
 
 upload_files() {
