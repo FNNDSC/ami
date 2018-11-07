@@ -86,12 +86,9 @@
     "gen:index:examples": "node ./scripts/genIndexFiles.js examples",
     "gen:index:examples:ga": "cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples",
     "test": "karma start",
-    "testExamples": "yarn dist:clean && yarn dist:examples && echo 'hi'",
-    "lint:ts": "tslint -c tslint.json 'src/**/*.ts' --fix",
-    "lint:js": "eslint src/**/*.js --fix",
-    "lint": "yarn lint:js && yarn lint:ts",
+    "testExamples": "yarn dist:clean && yarn dist:examples",
     "doc": "jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src",
-    "ami": "yarn lint && yarn dist:ami && yarn test",
+    "ami": "yarn dist:ami && yarn test",
     "deploy": "yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"
   },
   "devDependencies": {
