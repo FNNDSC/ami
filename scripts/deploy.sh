@@ -38,6 +38,15 @@ upload_files() {
   git push --tags
 }
 
+update_npm() {
+
+}
+
+update_ghpage() {
+
+}
+
+echo $TRAVIS_BRANCH
 setup_git
 make_version
 upload_files
