@@ -2,8 +2,8 @@
  * @module CSS Code for all Widgets
  */
 export default class WidgetsCss {
-    static get code() {
-        return `
+  static get code() {
+    return `
         .widgets-handle {
             position: absolute;
             border: 1px solid;
@@ -59,5 +59,5 @@ export default class WidgetsCss {
             z-index: 3;
         }
         `;
-    }
+  }
 }

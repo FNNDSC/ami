@@ -42,7 +42,7 @@ import coreUtils from '../core/core.utils';
  *  scene.add(slice);
  */
 
- const geometriesSlice = (three = window.THREE) => {
+const geometriesSlice = (three = window.THREE) => {
   if (three === undefined || three.ShapeGeometry === undefined) {
     return null;
   }
@@ -75,7 +75,9 @@ import coreUtils from '../core/core.utils';
         window.console.log('Plane');
         window.console.log(plane);
         window.console.log('exiting...');
-        const err = new Error('geometries.slice has less than 3 intersections, can not create a valid geometry.');
+        const err = new Error(
+          'geometries.slice has less than 3 intersections, can not create a valid geometry.'
+        );
         throw err;
       }
 
@@ -111,6 +113,6 @@ import coreUtils from '../core/core.utils';
 };
 
 // export factory
-export {geometriesSlice};
+export { geometriesSlice };
 // default export to
 export default geometriesSlice();

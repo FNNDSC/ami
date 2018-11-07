@@ -27574,209 +27574,41 @@ module.exports = g;
 /*!**********************!*\
   !*** ./package.json ***!
   \**********************/
-/*! exports provided: name, version, main, keywords, author, license, repository, config, sideEffects, dependencies, scripts, devDependencies, engines, default */
+/*! exports provided: name, version, main, keywords, author, license, repository, config, husky, sideEffects, dependencies, scripts, devDependencies, engines, default */
 /***/ (function(module) {
 
-module.exports = {"name":"ami.js","version":"0.0.23-dev","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"93","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.92.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples && echo 'hi'","lint":"eslint src/**/*.js --fix","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"^5.2.0","eslint-config-google":"latest","gh-pages":"^1.2.0","glslify":"5.1.0","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-dev-server":"^3.1.5","webpack-cli":"^3.1.0","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
+module.exports = {"name":"ami.js","version":"0.0.24","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"threeVersion":"93","amiCDN":"https://cdnjs.cloudflare.com/ajax/libs/ami.js","gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"husky":{"hooks":{"pre-commit":"npm version --patch"}},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"0.92.0"},"scripts":{"build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples && echo 'hi'","lint:ts":"tslint -c tslint.json 'src/**/*.ts' --fix","lint:js":"eslint src/**/*.js --fix","lint":"yarn lint:js && yarn lint:ts","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn lint && yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"@types/node":"^10.11.3","babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","eslint":"^5.2.0","eslint-config-google":"latest","gh-pages":"^1.2.0","glslify":"5.1.0","husky":"^1.1.3","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","ts-loader":"^5.2.1","tslint":"^5.11.0","tslint-eslint-rules":"^5.4.0","tslint-loader":"^3.6.0","typescript":"^3.1.1","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-cli":"^3.1.0","webpack-dev-server":"^3.1.5","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
 
 /***/ }),
 
-/***/ "./src/ami.js":
+/***/ "./src/ami.ts":
 /*!********************!*\
-  !*** ./src/ami.js ***!
+  !*** ./src/ami.ts ***!
   \********************/
-/*! exports provided: OrthographicCamera, orthographicCameraFactory, TrackballControl, trackballControlFactory, TrackballOrthoControl, trackballOrthoControlFactory, ColorsCore, IntersectionsCore, UtilsCore, ValidatorsCore, SliceGeometry, sliceGeometryFactory, VoxelGeometry, voxelGeometryFactory, BorderHelper, borderHelperFactory, BoundingBoxHelper, boundingBoxHelperFactory, ContourHelper, contourHelperFactory, LocalizerHelper, localizerHelperFactory, LutHelper, lutHelperFactory, SegmentationLutHelper, ProgressBarHelper, ProgressBarEventBasedHelper, SliceHelper, sliceHelperFactory, StackHelper, stackHelperFactory, VolumeRenderingHelper, VolumeRenderingHelperFactory, VolumeLoader, FrameModel, StackModel, SeriesModel, VoxelModel, DicomParser, MghParser, NiftiParser, NrrdParser, SegmentationPreset, ContourUniformShader, ContourFragmentShader, ContourVertexShader, DataUniformShader, DataFragmentShader, DataVertexShader, VRUniformShader, VRFragmentShader, VRVertexShader, LayerUniformShader, LayerFragmentShader, LayerVertexShader, LocalizerUniformShader, LocalizerFragmentShader, LocalizerVertexShader, WidgetsCss, AngleWidget, angleWidgetFactory, AnnotationWidget, annotationWidgetFactory, BiRulerWidget, birulerWidgetFactory, CrossRulerWidget, crossrulerWidgetFactory, EllipseWidget, ellipseWidgetFactory, FreehandWidget, freehandWidgetFactory, HandleWidget, handleWidgetFactory, PolygonWidget, polygonWidgetFactory, RectangleWidget, rectangleWidgetFactory, RulerWidget, rulerWidgetFactory, VoxelProbeWidget, voxelprobeWidgetFactory */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _cameras_cameras__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./cameras/cameras */ "./src/cameras/cameras.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "OrthographicCamera", function() { return _cameras_cameras__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "orthographicCameraFactory", function() { return _cameras_cameras__WEBPACK_IMPORTED_MODULE_0__["orthographicCameraFactory"]; });
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(/*! ./cameras/cameras */ "./src/cameras/cameras.js"));
+__export(__webpack_require__(/*! ./controls/controls */ "./src/controls/controls.js"));
+__export(__webpack_require__(/*! ./core/core */ "./src/core/core.js"));
+__export(__webpack_require__(/*! ./geometries/geometries */ "./src/geometries/geometries.js"));
+__export(__webpack_require__(/*! ./helpers/helpers */ "./src/helpers/helpers.js"));
+__export(__webpack_require__(/*! ./loaders/loaders */ "./src/loaders/loaders.js"));
+__export(__webpack_require__(/*! ./models/models */ "./src/models/models.js"));
+__export(__webpack_require__(/*! ./parsers/parsers */ "./src/parsers/parsers.js"));
+__export(__webpack_require__(/*! ./presets/presets */ "./src/presets/presets.js"));
+__export(__webpack_require__(/*! ./shaders/shaders */ "./src/shaders/shaders.js"));
+__export(__webpack_require__(/*! ./widgets/widgets */ "./src/widgets/widgets.js"));
+var packageVersion = __webpack_require__(/*! ../package.json */ "./package.json").version;
+var d3Version = __webpack_require__(/*! ../package.json */ "./package.json").config.threeVersion;
+window.console.log("ami v" + packageVersion + " (three v" + d3Version + ")");
 
-/* harmony import */ var _controls_controls__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./controls/controls */ "./src/controls/controls.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TrackballControl", function() { return _controls_controls__WEBPACK_IMPORTED_MODULE_1__["TrackballControl"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "trackballControlFactory", function() { return _controls_controls__WEBPACK_IMPORTED_MODULE_1__["trackballControlFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TrackballOrthoControl", function() { return _controls_controls__WEBPACK_IMPORTED_MODULE_1__["TrackballOrthoControl"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "trackballOrthoControlFactory", function() { return _controls_controls__WEBPACK_IMPORTED_MODULE_1__["trackballOrthoControlFactory"]; });
-
-/* harmony import */ var _core_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./core/core */ "./src/core/core.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ColorsCore", function() { return _core_core__WEBPACK_IMPORTED_MODULE_2__["ColorsCore"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "IntersectionsCore", function() { return _core_core__WEBPACK_IMPORTED_MODULE_2__["IntersectionsCore"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "UtilsCore", function() { return _core_core__WEBPACK_IMPORTED_MODULE_2__["UtilsCore"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ValidatorsCore", function() { return _core_core__WEBPACK_IMPORTED_MODULE_2__["ValidatorsCore"]; });
-
-/* harmony import */ var _geometries_geometries__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./geometries/geometries */ "./src/geometries/geometries.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SliceGeometry", function() { return _geometries_geometries__WEBPACK_IMPORTED_MODULE_3__["SliceGeometry"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "sliceGeometryFactory", function() { return _geometries_geometries__WEBPACK_IMPORTED_MODULE_3__["sliceGeometryFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VoxelGeometry", function() { return _geometries_geometries__WEBPACK_IMPORTED_MODULE_3__["VoxelGeometry"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "voxelGeometryFactory", function() { return _geometries_geometries__WEBPACK_IMPORTED_MODULE_3__["voxelGeometryFactory"]; });
-
-/* harmony import */ var _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./helpers/helpers */ "./src/helpers/helpers.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BorderHelper", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["BorderHelper"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "borderHelperFactory", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["borderHelperFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BoundingBoxHelper", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["BoundingBoxHelper"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "boundingBoxHelperFactory", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["boundingBoxHelperFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ContourHelper", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["ContourHelper"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "contourHelperFactory", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["contourHelperFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "LocalizerHelper", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["LocalizerHelper"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "localizerHelperFactory", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["localizerHelperFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "LutHelper", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["LutHelper"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "lutHelperFactory", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["lutHelperFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SegmentationLutHelper", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["SegmentationLutHelper"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ProgressBarHelper", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["ProgressBarHelper"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ProgressBarEventBasedHelper", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["ProgressBarEventBasedHelper"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SliceHelper", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["SliceHelper"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "sliceHelperFactory", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["sliceHelperFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "StackHelper", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["StackHelper"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "stackHelperFactory", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["stackHelperFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VolumeRenderingHelper", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["VolumeRenderingHelper"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VolumeRenderingHelperFactory", function() { return _helpers_helpers__WEBPACK_IMPORTED_MODULE_4__["VolumeRenderingHelperFactory"]; });
-
-/* harmony import */ var _loaders_loaders__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./loaders/loaders */ "./src/loaders/loaders.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VolumeLoader", function() { return _loaders_loaders__WEBPACK_IMPORTED_MODULE_5__["VolumeLoader"]; });
-
-/* harmony import */ var _models_models__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./models/models */ "./src/models/models.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "FrameModel", function() { return _models_models__WEBPACK_IMPORTED_MODULE_6__["FrameModel"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "StackModel", function() { return _models_models__WEBPACK_IMPORTED_MODULE_6__["StackModel"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SeriesModel", function() { return _models_models__WEBPACK_IMPORTED_MODULE_6__["SeriesModel"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VoxelModel", function() { return _models_models__WEBPACK_IMPORTED_MODULE_6__["VoxelModel"]; });
-
-/* harmony import */ var _parsers_parsers__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./parsers/parsers */ "./src/parsers/parsers.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "DicomParser", function() { return _parsers_parsers__WEBPACK_IMPORTED_MODULE_7__["DicomParser"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MghParser", function() { return _parsers_parsers__WEBPACK_IMPORTED_MODULE_7__["MghParser"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "NiftiParser", function() { return _parsers_parsers__WEBPACK_IMPORTED_MODULE_7__["NiftiParser"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "NrrdParser", function() { return _parsers_parsers__WEBPACK_IMPORTED_MODULE_7__["NrrdParser"]; });
-
-/* harmony import */ var _presets_presets__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./presets/presets */ "./src/presets/presets.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SegmentationPreset", function() { return _presets_presets__WEBPACK_IMPORTED_MODULE_8__["SegmentationPreset"]; });
-
-/* harmony import */ var _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./shaders/shaders */ "./src/shaders/shaders.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ContourUniformShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["ContourUniformShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ContourFragmentShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["ContourFragmentShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ContourVertexShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["ContourVertexShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "DataUniformShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["DataUniformShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "DataFragmentShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["DataFragmentShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "DataVertexShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["DataVertexShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VRUniformShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["VRUniformShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VRFragmentShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["VRFragmentShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VRVertexShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["VRVertexShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "LayerUniformShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["LayerUniformShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "LayerFragmentShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["LayerFragmentShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "LayerVertexShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["LayerVertexShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "LocalizerUniformShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["LocalizerUniformShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "LocalizerFragmentShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["LocalizerFragmentShader"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "LocalizerVertexShader", function() { return _shaders_shaders__WEBPACK_IMPORTED_MODULE_9__["LocalizerVertexShader"]; });
-
-/* harmony import */ var _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./widgets/widgets */ "./src/widgets/widgets.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WidgetsCss", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["WidgetsCss"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AngleWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["AngleWidget"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "angleWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["angleWidgetFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AnnotationWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["AnnotationWidget"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "annotationWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["annotationWidgetFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BiRulerWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["BiRulerWidget"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "birulerWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["birulerWidgetFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "CrossRulerWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["CrossRulerWidget"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "crossrulerWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["crossrulerWidgetFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "EllipseWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["EllipseWidget"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ellipseWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["ellipseWidgetFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "FreehandWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["FreehandWidget"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "freehandWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["freehandWidgetFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "HandleWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["HandleWidget"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "handleWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["handleWidgetFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PolygonWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["PolygonWidget"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "polygonWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["polygonWidgetFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RectangleWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["RectangleWidget"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "rectangleWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["rectangleWidgetFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RulerWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["RulerWidget"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "rulerWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["rulerWidgetFactory"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VoxelProbeWidget", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["VoxelProbeWidget"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "voxelprobeWidgetFactory", function() { return _widgets_widgets__WEBPACK_IMPORTED_MODULE_10__["voxelprobeWidgetFactory"]; });
-
-
-
-
-
-
-
-
-
-
-
-
-
-var pckg = __webpack_require__(/*! ../package.json */ "./package.json");
-window.console.log('ami v' + pckg.version + ' (three v' + pckg.config.threeVersion + ')');
 
 /***/ }),
 
@@ -30669,8 +30501,6 @@ var CoreUtils = function () {
   *
   * Convenience function to extract center of mass from list of points.
   *
-  * @private
-  *
   * @param {Array<Vector3>} points - Set of points from which we want to extract the center of mass.
   *
   * @returns {Vector3} Center of mass from given points.
@@ -30823,6 +30653,7 @@ var CoreUtils = function () {
 
   /**
    * Calculate shape area (sum of triangle polygons area).
+   * May be inaccurate or completely wrong for some shapes.
    *
    * @param {THREE.Geometry} geometry
    *
@@ -33146,6 +32977,7 @@ var helpersSlice = function helpersSlice() {
       _this._index = index;
       _this._windowWidth = null;
       _this._windowCenter = null;
+      _this._opacity = 1;
       _this._rescaleSlope = null;
       _this._rescaleIntercept = null;
       _this._spacing = 1.;
@@ -33315,6 +33147,9 @@ var helpersSlice = function helpersSlice() {
       this._uniforms.uRescaleSlopeIntercept.value = [this._rescaleSlope, this._rescaleIntercept];
       this._uniforms.uWindowCenterWidth.value = [offset + this._windowCenter, this._windowWidth];
 
+      // set slice opacity
+      this._uniforms.uOpacity.value = this._opacity;
+
       // set slice upper/lower threshold
       this._uniforms.uLowerUpperThreshold.value = [offset + this._lowerThreshold, offset + this._upperThreshold];
 
@@ -33456,6 +33291,15 @@ var helpersSlice = function helpersSlice() {
       },
       set: function set(windowCenter) {
         this._windowCenter = windowCenter;
+        this.updateIntensitySettingsUniforms();
+      }
+    }, {
+      key: 'opacity',
+      get: function get() {
+        return this._opacity;
+      },
+      set: function set(opacity) {
+        this._opacity = opacity;
         this.updateIntensitySettingsUniforms();
       }
 
@@ -35099,6 +34943,7 @@ var LoadersVolumes = function (_LoadersBase) {
     frame.index = i;
     frame.invert = stack.invert;
     frame.frameTime = dataParser.frameTime(i);
+    frame.ultrasoundRegions = dataParser.ultrasoundRegions(i);
     frame.rows = dataParser.rows(i);
     frame.columns = dataParser.columns(i);
     frame.numberOfChannels = stack.numberOfChannels;
@@ -35432,6 +35277,7 @@ var ModelsFrame = function (_ModelsBase) {
     _this._stackID = -1;
     _this._invert = false;
     _this._frameTime = null;
+    _this._ultrasoundRegions = [];
     _this._rows = 0;
     _this._columns = 0;
     _this._dimensionIndexValues = [];
@@ -35733,6 +35579,14 @@ var ModelsFrame = function (_ModelsBase) {
     },
     set: function set(frameTime) {
       this._frameTime = frameTime;
+    }
+  }, {
+    key: 'ultrasoundRegions',
+    get: function get() {
+      return this._ultrasoundRegions;
+    },
+    set: function set(ultrasoundRegions) {
+      this._ultrasoundRegions = ultrasoundRegions;
     }
   }, {
     key: 'rows',
@@ -38253,13 +38107,42 @@ var ParsersDicom = function (_ParsersVolume) {
     return pixelSpacing;
   };
 
+  ParsersDicom.prototype.ultrasoundRegions = function ultrasoundRegions() {
+    var _this2 = this;
+
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    var sequence = this._dataSet.elements['x00186011'];
+
+    if (!sequence || !sequence.items) {
+      return [];
+    }
+
+    var ultrasoundRegions = [];
+
+    sequence.items.forEach(function (item) {
+      ultrasoundRegions.push({
+        x0: item.dataSet.uint32('x00186018'),
+        y0: item.dataSet.uint32('x0018601a'),
+        x1: item.dataSet.uint32('x0018601c'),
+        y1: item.dataSet.uint32('x0018601e'),
+        axisX: item.dataSet.int32('x00186020') || null, // optional
+        axisY: item.dataSet.int32('x00186022') || null, // optional
+        unitsX: _this2._getUnitsName(item.dataSet.uint16('x00186024')),
+        unitsY: _this2._getUnitsName(item.dataSet.uint16('x00186026')),
+        deltaX: item.dataSet.double('x0018602c'),
+        deltaY: item.dataSet.double('x0018602e')
+      });
+    });
+
+    return ultrasoundRegions;
+  };
+
   ParsersDicom.prototype.frameTime = function frameTime() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
     var frameIncrementPointer = this._dataSet.uint16('x00280009', 1);
-
     var frameRate = this._dataSet.intString('x00082144');
-
     var frameTime = void 0;
 
     if (typeof frameIncrementPointer === 'number') {
@@ -38550,8 +38433,6 @@ var ParsersDicom = function (_ParsersVolume) {
 
       if (dataInGroupSequence !== null) {
         return dataInGroupSequence.floatString(tag);
-      } else {
-        return null;
       }
     }
 
@@ -38605,7 +38486,7 @@ var ParsersDicom = function (_ParsersVolume) {
     }
   };
 
-  // https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/imageLoader/wadouri/getEncapsulatedImageFrame.js
+  // github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/imageLoader/wadouri/getEncapsulatedImageFrame.js
 
 
   ParsersDicom.prototype.framesAreFragmented = function framesAreFragmented() {
@@ -38997,6 +38878,26 @@ var ParsersDicom = function (_ParsersVolume) {
     }
 
     return frame;
+  };
+
+  ParsersDicom.prototype._getUnitsName = function _getUnitsName(value) {
+    var units = {
+      0: 'none',
+      1: 'percent',
+      2: 'dB',
+      3: 'cm',
+      4: 'seconds',
+      5: 'hertz',
+      6: 'dB/seconds',
+      7: 'cm/sec',
+      8: 'cm2',
+      9: 'cm2/sec',
+      10: 'cm3',
+      11: 'cm3/sec',
+      12: 'degrees'
+    };
+
+    return units.hasOwnProperty(value) ? units[value] : 'none';
   };
 
   return ParsersDicom;
@@ -40581,6 +40482,12 @@ var ParsersVolume = function () {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
     return 0;
+  };
+
+  ParsersVolume.prototype.ultrasoundRegions = function ultrasoundRegions() {
+    var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    return [];
   };
 
   ParsersVolume.prototype.frameTime = function frameTime() {
@@ -42376,13 +42283,13 @@ var Unpack = function (_ShadersBase) {
   Unpack.prototype.upack8 = function upack8() {
     this._base._functions['uInt8'] = this.uInt8();
 
-    return '\nuInt8(\n  step( abs( float(offset - 0) ), 0.0 ) * packedData.r +\n  step( abs( float(offset - 1) ), 0.0 ) * packedData.g +\n  step( abs( float(offset - 2) ), 0.0 ) * packedData.b +\n  step( abs( float(offset - 3) ), 0.0 ) * packedData.a\n  ,\n  unpackedData.x);\n    ';
+    return '\nfloat floatedOffset = float(offset);\nfloat floatedOffsetSquared = floatedOffset * floatedOffset;\nuInt8(\n  step( floatedOffsetSquared , 0.0 ) * packedData.r +\n  step( floatedOffsetSquared - 2. * floatedOffset + 1., 0.0 ) * packedData.g +\n  step( floatedOffsetSquared - 2. * 2. *  floatedOffset + 4., 0.0 ) * packedData.b +\n  step( floatedOffsetSquared - 2. * 3. *  floatedOffset + 9., 0.0 ) * packedData.a\n  ,\n  unpackedData.x);\n    ';
   };
 
   Unpack.prototype.upack16 = function upack16() {
     this._base._functions['uInt16'] = this.uInt16();
 
-    return '\nuInt16(\n  packedData.r * float( 1 - offset) + packedData.b * float(offset),\n  packedData.g * float( 1 - offset) + packedData.a * float(offset),\n  unpackedData.x);\n    ';
+    return '\nfloat floatedOffset = float(offset);\nuInt16(\n  packedData.r * (1. - floatedOffset) + packedData.b * floatedOffset,\n  packedData.g * (1. - floatedOffset) + packedData.a * floatedOffset,\n  unpackedData.x);\n    ';
   };
 
   Unpack.prototype.upack32 = function upack32() {
@@ -43856,30 +43763,31 @@ var widgetsAngle = function widgetsAngle() {
     return function (_Constructor) {
         _inherits(_class, _Constructor);
 
-        function _class(targetMesh, controls) {
+        function _class(targetMesh, controls, params) {
             _classCallCheck(this, _class);
 
-            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
 
             _this._widgetType = 'Angle';
+
+            // incoming parameters (optional: worldPosition)
+
+            // outgoing values
+            _this._opangle = null;
+
             _this._moving = false;
             _this._domHovered = false;
+            _this._defaultAngle = true;
 
             // mesh stuff
             _this._material = null;
-            _this._material2 = null;
             _this._geometry = null;
-            _this._geometry2 = null;
             _this._mesh = null;
-            _this._mesh2 = null;
 
             // dom stuff
             _this._line = null;
             _this._line2 = null;
             _this._label = null;
-
-            _this._opangle = null;
-            _this._defaultAngle = true;
 
             // add handles
             _this._handles = [];
@@ -43887,8 +43795,7 @@ var widgetsAngle = function widgetsAngle() {
             var handle = void 0;
             var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
             for (var i = 0; i < 3; i++) {
-                handle = new WidgetsHandle(targetMesh, controls);
-                handle.worldPosition.copy(_this._worldPosition);
+                handle = new WidgetsHandle(targetMesh, controls, params);
                 _this.add(handle);
                 _this._handles.push(handle);
             }
@@ -43897,8 +43804,7 @@ var widgetsAngle = function widgetsAngle() {
             _this._handles[2].active = true;
             _this._handles[2].tracking = true;
 
-            _this._moveHandle = new WidgetsHandle(targetMesh, controls);
-            _this._moveHandle.worldPosition.copy(_this._worldPosition);
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
             _this.add(_this._moveHandle);
             _this._handles.push(_this._moveHandle);
             _this._moveHandle.hide();
@@ -43970,6 +43876,8 @@ var widgetsAngle = function widgetsAngle() {
         };
 
         _class.prototype.onMove = function onMove(evt) {
+            var _this2 = this;
+
             if (this._active) {
                 var prevPosition = this._moveHandle.worldPosition.clone();
 
@@ -43977,9 +43885,9 @@ var widgetsAngle = function widgetsAngle() {
                 this._moveHandle.onMove(evt, true);
 
                 if (this._moving) {
-                    this._handles.slice(0, -1).forEach(function (elem, ind) {
-                        this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                    }, this);
+                    this._handles.slice(0, -1).forEach(function (handle) {
+                        handle.worldPosition.add(_this2._moveHandle.worldPosition.clone().sub(prevPosition));
+                    });
                 }
             } else {
                 this.onHover(null);
@@ -44038,41 +43946,30 @@ var widgetsAngle = function widgetsAngle() {
         _class.prototype.createMesh = function createMesh() {
             // geometry
             this._geometry = new three.Geometry();
-            this._geometry.vertices.push(this._handles[0].worldPosition);
-            this._geometry.vertices.push(this._handles[1].worldPosition);
-
-            // geometry
-            this._geometry2 = new three.Geometry();
-            this._geometry2.vertices.push(this._handles[1].worldPosition);
-            this._geometry2.vertices.push(this._handles[2].worldPosition);
+            this._geometry.vertices = [this._handles[0].worldPosition, this._handles[1].worldPosition, this._handles[1].worldPosition, this._handles[2].worldPosition];
 
             // material
             this._material = new three.LineBasicMaterial();
-            this._material2 = new three.LineBasicMaterial();
 
             this.updateMeshColor();
 
             // mesh
-            this._mesh = new three.Line(this._geometry, this._material);
+            this._mesh = new three.LineSegments(this._geometry, this._material);
             this._mesh.visible = true;
-            this._mesh2 = new three.Line(this._geometry2, this._material2);
-            this._mesh2.visible = true;
-
             this.add(this._mesh);
-            this.add(this._mesh2);
         };
 
         _class.prototype.createDOM = function createDOM() {
             this._line = document.createElement('div');
-            this._line.setAttribute('class', 'widgets-line');
+            this._line.className = 'widgets-line';
             this._container.appendChild(this._line);
 
             this._line2 = document.createElement('div');
-            this._line2.setAttribute('class', 'widgets-line');
+            this._line2.className = 'widgets-line';
             this._container.appendChild(this._line2);
 
             this._label = document.createElement('div');
-            this._label.setAttribute('class', 'widgets-label');
+            this._label.className = 'widgets-label';
             this._container.appendChild(this._label);
 
             this.updateDOMColor();
@@ -44084,7 +43981,7 @@ var widgetsAngle = function widgetsAngle() {
             this._label.style.display = 'none';
 
             this._handles.forEach(function (elem) {
-                elem.hideDOM();
+                return elem.hideDOM();
             });
         };
 
@@ -44101,26 +43998,23 @@ var widgetsAngle = function widgetsAngle() {
         _class.prototype.update = function update() {
             this.updateColor();
 
-            // update handles
             this._handles[0].update();
             this._handles[1].update();
             this._handles[2].update();
 
-            // mesh stuff
+            // calculate values
+            this._opangle = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition).angleTo(this._handles[1].worldPosition.clone().sub(this._handles[2].worldPosition)) * 180 / Math.PI || 0.0;
+            this._opangle = this._defaultAngle ? this._opangle : 360 - this._opangle;
+
             this.updateMeshColor();
             this.updateMeshPosition();
 
-            // DOM stuff
-            this.updateDOMColor();
-            this.updateDOMPosition();
+            this.updateDOM();
         };
 
         _class.prototype.updateMeshColor = function updateMeshColor() {
             if (this._material) {
                 this._material.color.set(this._color);
-            }
-            if (this._material2) {
-                this._material2.color.set(this._color);
             }
         };
 
@@ -44128,12 +44022,11 @@ var widgetsAngle = function widgetsAngle() {
             if (this._geometry) {
                 this._geometry.verticesNeedUpdate = true;
             }
-            if (this._geometry2) {
-                this._geometry2.verticesNeedUpdate = true;
-            }
         };
 
-        _class.prototype.updateDOMPosition = function updateDOMPosition() {
+        _class.prototype.updateDOM = function updateDOM() {
+            this.updateDOMColor();
+
             // update first line
             var lineData = this.getLineData(this._handles[1].screenPosition, this._handles[0].screenPosition);
 
@@ -44147,13 +44040,9 @@ var widgetsAngle = function widgetsAngle() {
             this._line2.style.width = line2Data.length + 'px';
 
             // update angle and label
-            this._opangle = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition).angleTo(this._handles[1].worldPosition.clone().sub(this._handles[2].worldPosition)) * 180 / Math.PI || 0.0;
-            this._opangle = this._defaultAngle ? this._opangle : 360 - this._opangle;
-
             this._label.innerHTML = this._opangle.toFixed(2) + '&deg;';
 
             var paddingNormVector = lineData.line.clone().add(line2Data.line).normalize().negate();
-
             var normAngle = paddingNormVector.angleTo(new three.Vector3(1, 0, 0));
 
             if (normAngle > Math.PI / 2) {
@@ -44162,9 +44051,7 @@ var widgetsAngle = function widgetsAngle() {
 
             var labelPadding = Math.tan(normAngle) < this._label.offsetHeight / this._label.offsetWidth ? this._label.offsetWidth / 2 / Math.cos(normAngle) + 15 // 15px padding
             : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - normAngle) + 15;
-
             var paddingPoint = this._handles[1].screenPosition.clone().add(paddingNormVector.multiplyScalar(labelPadding));
-
             var transform = this.adjustLabelTransform(this._label, paddingPoint);
 
             this._label.style.transform = 'translate3D(' + transform.x + 'px, ' + transform.y + 'px, 0)';
@@ -44177,12 +44064,12 @@ var widgetsAngle = function widgetsAngle() {
         };
 
         _class.prototype.free = function free() {
-            var _this2 = this;
+            var _this3 = this;
 
             this.removeEventListeners();
 
             this._handles.forEach(function (h) {
-                _this2.remove(h);
+                _this3.remove(h);
                 h.free();
             });
             this._handles = [];
@@ -44205,19 +44092,6 @@ var widgetsAngle = function widgetsAngle() {
             this._material.uniforms = null;
             this._material.dispose();
             this._material = null;
-            this.remove(this._mesh2);
-            this._mesh2.geometry.dispose();
-            this._mesh2.geometry = null;
-            this._mesh2.material.dispose();
-            this._mesh2.material = null;
-            this._mesh2 = null;
-            this._geometry2.dispose();
-            this._geometry2 = null;
-            this._material2.vertexShader = null;
-            this._material2.fragmentShader = null;
-            this._material2.uniforms = null;
-            this._material2.dispose();
-            this._material2 = null;
 
             _Constructor.prototype.free.call(this);
         };
@@ -44234,7 +44108,7 @@ var widgetsAngle = function widgetsAngle() {
             set: function set(targetMesh) {
                 this._targetMesh = targetMesh;
                 this._handles.forEach(function (elem) {
-                    elem.targetMesh = targetMesh;
+                    return elem.targetMesh = targetMesh;
                 });
                 this.update();
             }
@@ -44304,12 +44178,15 @@ var widgetsAnnotation = function widgetsAnnotation() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls) {
+    function _class(targetMesh, controls, params) {
       _classCallCheck(this, _class);
 
-      var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
 
       _this._widgetType = 'Annotation';
+
+      // incoming parameters (optional: worldPosition)
+
       _this._initialized = false; // set to true when the name of the label is entered
       _this._movinglabel = null; // bool that turns true when the label is moving with the mouse
       _this._labelmoved = false; // bool that turns true once the label is moved by the user (at least once)
@@ -44338,8 +44215,7 @@ var widgetsAnnotation = function widgetsAnnotation() {
       var handle = void 0;
       var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
       for (var i = 0; i < 2; i++) {
-        handle = new WidgetsHandle(targetMesh, controls);
-        handle.worldPosition.copy(_this._worldPosition);
+        handle = new WidgetsHandle(targetMesh, controls, params);
         _this.add(handle);
         _this._handles.push(handle);
       }
@@ -44399,7 +44275,6 @@ var widgetsAnnotation = function widgetsAnnotation() {
         // if label hovered then it should be moved
         // save mouse coordinates offset from label center
         var offsets = this.getMouseOffsets(evt, this._container);
-
         var paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelOffset);
 
         this._mouseLabelOffset = new three.Vector3(offsets.screenX - paddingPoint.x, offsets.screenY - paddingPoint.y, 0);
@@ -44523,16 +44398,16 @@ var widgetsAnnotation = function widgetsAnnotation() {
 
     _class.prototype.createDOM = function createDOM() {
       this._line = document.createElement('div');
-      this._line.setAttribute('class', 'widgets-line');
+      this._line.className = 'widgets-line';
       this._container.appendChild(this._line);
 
       this._dashline = document.createElement('div');
-      this._dashline.setAttribute('class', 'widgets-dashline');
+      this._dashline.className = 'widgets-dashline';
       this._dashline.style.display = 'none';
       this._container.appendChild(this._dashline);
 
       this._label = document.createElement('div');
-      this._label.setAttribute('class', 'widgets-label');
+      this._label.className = 'widgets-label';
       this._label.style.display = 'none';
       this._container.appendChild(this._label);
 
@@ -44542,17 +44417,13 @@ var widgetsAnnotation = function widgetsAnnotation() {
     _class.prototype.update = function update() {
       this.updateColor();
 
-      // update handles
       this._handles[0].update();
       this._handles[1].update();
 
-      // mesh stuff
       this.updateMeshColor();
       this.updateMeshPosition();
 
-      // DOM stuff
-      this.updateDOMColor();
-      this.updateDOMPosition();
+      this.updateDOM();
     };
 
     _class.prototype.updateMeshColor = function updateMeshColor() {
@@ -44572,7 +44443,9 @@ var widgetsAnnotation = function widgetsAnnotation() {
       }
     };
 
-    _class.prototype.updateDOMPosition = function updateDOMPosition() {
+    _class.prototype.updateDOM = function updateDOM() {
+      this.updateDOMColor();
+
       // update line
       var lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 
@@ -44581,11 +44454,8 @@ var widgetsAnnotation = function widgetsAnnotation() {
 
       // update label
       var paddingVector = lineData.line.multiplyScalar(0.5);
-
       var paddingPoint = this._handles[1].screenPosition.clone().sub(this._labelmoved ? this._labelOffset // if the label is moved, then its position is defined by labelOffset
-      : paddingVector);
-      // otherwise it's placed in the center of the line
-
+      : paddingVector); // otherwise it's placed in the center of the line
       var labelPosition = this.adjustLabelTransform(this._label, paddingPoint);
 
       this._label.style.transform = 'translate3D(' + labelPosition.x + 'px, ' + labelPosition.y + 'px, 0)';
@@ -44597,9 +44467,7 @@ var widgetsAnnotation = function widgetsAnnotation() {
 
       // update dash line
       var minLine = this.getLineData(this._handles[0].screenPosition, paddingPoint);
-
       var lineCL = this.getLineData(lineData.center, paddingPoint);
-
       var line1L = this.getLineData(this._handles[1].screenPosition, paddingPoint);
 
       if (minLine.length > lineCL.length) {
@@ -44624,7 +44492,7 @@ var widgetsAnnotation = function widgetsAnnotation() {
       this._dashline.style.display = 'none';
       this._label.style.display = 'none';
       this._handles.forEach(function (elem) {
-        elem.hideDOM();
+        return elem.hideDOM();
       });
     };
 
@@ -44633,7 +44501,7 @@ var widgetsAnnotation = function widgetsAnnotation() {
       this._dashline.style.display = '';
       this._label.style.display = '';
       this._handles.forEach(function (elem) {
-        elem.showDOM();
+        return elem.showDOM();
       });
     };
 
@@ -44686,7 +44554,7 @@ var widgetsAnnotation = function widgetsAnnotation() {
       set: function set(targetMesh) {
         this._targetMesh = targetMesh;
         this._handles.forEach(function (elem) {
-          elem.targetMesh = targetMesh;
+          return elem.targetMesh = targetMesh;
         });
         this.update();
       }
@@ -44723,6 +44591,7 @@ var widgetsAnnotation = function widgetsAnnotation() {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsBase", function() { return widgetsBase; });
 /* harmony import */ var _widgets_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.css */ "./src/widgets/widgets.css.js");
+/* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -44730,6 +44599,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 
 
 
@@ -44747,7 +44617,7 @@ var widgetsBase = function widgetsBase() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls) {
+    function _class(targetMesh, controls, params) {
       _classCallCheck(this, _class);
 
       // init THREE Object 3D
@@ -44756,21 +44626,28 @@ var widgetsBase = function widgetsBase() {
 
       _this._widgetType = 'Base';
 
+      // List of supported parameters:
+      //   calibrationFactor (number), frameIndex (number), hideMesh (bool), hideHandleMesh (bool),
+      //   ijk2LPS (Matrix4), lps2IJK (Matrix4), pixelSpacing (number), stack (ModelsStack),
+      //   ultrasoundRegions (Array<Object>), worldPosition (Vector3)
+      _this._params = params || {};
+      if (params.hideMesh === true) {
+        _this.visible = false;
+      }
+
       var elementStyle = document.getElementById('ami-widgets');
       if (elementStyle === null) {
         var styleEl = document.createElement('style');
-        styleEl.setAttribute('id', 'ami-widgets');
+        styleEl.id = 'ami-widgets';
         styleEl.innerHTML = _widgets_css__WEBPACK_IMPORTED_MODULE_0__["default"].code;
         document.head.appendChild(styleEl);
       }
 
       _this._enabled = true; // is widget enabled?
 
-      // STATE, ENUM might be better
       _this._selected = false;
       _this._hovered = true;
       _this._active = true;
-      // thos._state = 'SELECTED';
 
       _this._colors = {
         default: '#00B0FF',
@@ -44792,7 +44669,9 @@ var widgetsBase = function widgetsBase() {
       _this._container = controls.domElement;
 
       _this._worldPosition = new three.Vector3(); // LPS position
-      if (_this._targetMesh !== null) {
+      if (params.worldPosition) {
+        _this._worldPosition.copy(params.worldPosition);
+      } else if (_this._targetMesh !== null) {
         _this._worldPosition.copy(_this._targetMesh.position);
       }
       return _this;
@@ -44825,13 +44704,151 @@ var widgetsBase = function widgetsBase() {
       };
     };
 
+    /**
+     * Get area of polygon.
+     *
+     * @param {Array} points Ordered vertices' coordinates
+     *
+     * @returns {Number}
+     */
+
+
+    _class.prototype.getArea = function getArea(points) {
+      var area = 0;
+      var j = points.length - 1; // the last vertex is the 'previous' one to the first
+
+      for (var i = 0; i < points.length; i++) {
+        area += (points[j].x + points[i].x) * (points[j].y - points[i].y);
+        j = i; // j is the previous vertex to i
+      }
+
+      return Math.abs(area / 2);
+    };
+
+    /**
+     * Get index of ultrasound region by data coordinates.
+     *
+     * @param {Array}   regions US regions
+     * @param {Vector3} point   Data coordinates
+     *
+     * @returns {Number|null}
+     */
+
+
+    _class.prototype.getRegionByXY = function getRegionByXY(regions, point) {
+      var result = null;
+
+      regions.some(function (region, ind) {
+        if (point.x >= region.x0 && point.x <= region.x1 && point.y >= region.y0 && point.y <= region.y1) {
+          result = ind;
+
+          return true;
+        }
+      });
+
+      return result;
+    };
+
+    /**
+     * Get point inside ultrasound region by data coordinates.
+     *
+     * @param {Object}  region US region data
+     * @param {Vector3} point  Data coordinates
+     *
+     * @returns {Vector2|null}
+     */
+
+
+    _class.prototype.getPointInRegion = function getPointInRegion(region, point) {
+      if (!region) {
+        return null;
+      }
+
+      return new three.Vector2((point.x - region.x0 - (region.axisX || 0)) * region.deltaX, (point.y - region.y0 - (region.axisY || 0)) * region.deltaY);
+    };
+
+    /**
+     * Get point's ultrasound coordinates by data coordinates.
+     *
+     * @param {Array}   regions US regions
+     * @param {Vector3} point   Data coordinates
+     *
+     * @returns {Vector2|null}
+     */
+
+
+    _class.prototype.getUsPoint = function getUsPoint(regions, point) {
+      return this.getPointInRegion(regions[this.getRegionByXY(regions, point)], point);
+    };
+
+    /**
+     * Get distance between points inside ultrasound region.
+     *
+     * @param {Vector3} pointA Begin data coordinates
+     * @param {Vector3} pointB End data coordinates
+     *
+     * @returns {Number|null}
+     */
+
+
+    _class.prototype.getUsDistance = function getUsDistance(pointA, pointB) {
+      var regions = this._params.ultrasoundRegions || [];
+
+      if (regions.length < 1) {
+        return null;
+      }
+
+      var regionA = this.getRegionByXY(regions, pointA);
+      var regionB = this.getRegionByXY(regions, pointB);
+
+      if (regionA === null || regionB === null || regionA !== regionB || regions[regionA].unitsX !== 'cm' || regions[regionA].unitsY !== 'cm') {
+        return null;
+      }
+
+      return this.getPointInRegion(regions[regionA], pointA).distanceTo(this.getPointInRegion(regions[regionA], pointB));
+    };
+
+    /**
+     * Get distance between points
+     *
+     * @param {Vector3} pointA Begin world coordinates
+     * @param {Vector3} pointB End world coordinates
+     * @param {number}  cf     Calibration factor
+     *
+     * @returns {Object}
+     */
+
+
+    _class.prototype.getDistanceData = function getDistanceData(pointA, pointB, cf) {
+      var distance = null;
+      var units = null;
+
+      if (cf) {
+        distance = pointA.distanceTo(pointB) * cf;
+      } else if (this._params.ultrasoundRegions && this._params.lps2IJK) {
+        var usDistance = this.getUsDistance(_core_core_utils__WEBPACK_IMPORTED_MODULE_1__["default"].worldToData(this._params.lps2IJK, pointA), _core_core_utils__WEBPACK_IMPORTED_MODULE_1__["default"].worldToData(this._params.lps2IJK, pointB));
+
+        if (usDistance !== null) {
+          distance = usDistance * 10;
+          units = 'mm';
+        } else {
+          distance = pointA.distanceTo(pointB);
+          units = this._params.pixelSpacing ? 'mm' : 'units';
+        }
+      } else {
+        distance = pointA.distanceTo(pointB);
+      }
+
+      return {
+        distance: distance,
+        units: units
+      };
+    };
+
     _class.prototype.getLineData = function getLineData(pointA, pointB) {
       var line = pointB.clone().sub(pointA);
-
       var center = pointB.clone().add(pointA).multiplyScalar(0.5);
-
       var length = line.length();
-
       var angle = line.angleTo(new three.Vector3(1, 0, 0));
 
       return {
@@ -44846,9 +44863,7 @@ var widgetsBase = function widgetsBase() {
 
     _class.prototype.getRectData = function getRectData(pointA, pointB) {
       var line = pointB.clone().sub(pointA);
-
       var vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0));
-
       var min = pointA.clone().min(pointB); // coordinates of the top left corner
 
       return {
@@ -44869,7 +44884,6 @@ var widgetsBase = function widgetsBase() {
 
     _class.prototype.adjustLabelTransform = function adjustLabelTransform(label, point, corner) {
       var x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2));
-
       var y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
 
       if (x < 0) {
@@ -44915,15 +44929,27 @@ var widgetsBase = function widgetsBase() {
       }
     };
 
+    _class.prototype.setDefaultColor = function setDefaultColor(color) {
+      this._colors.default = color;
+      if (this._handles) {
+        this._handles.forEach(function (elem) {
+          return elem._colors.default = color;
+        });
+      }
+      this.update();
+    };
+
     _class.prototype.show = function show() {
       this.showDOM();
       this.showMesh();
       this.update();
+      this._displayed = true;
     };
 
     _class.prototype.hide = function hide() {
       this.hideDOM();
       this.hideMesh();
+      this._displayed = false;
     };
 
     _class.prototype.hideDOM = function hideDOM() {
@@ -44941,11 +44967,19 @@ var widgetsBase = function widgetsBase() {
     };
 
     _class.prototype.showMesh = function showMesh() {
+      if (this._params.hideMesh === true) {
+        return;
+      }
+
       this.visible = true;
     };
 
     _class.prototype.free = function free() {
+      this._camera = null;
       this._container = null;
+      this._controls = null;
+      this._params = null;
+      this._targetMesh = null;
     };
 
     _createClass(_class, [{
@@ -45082,22 +45116,25 @@ var widgetsBiruler = function widgetsBiruler() {
     return function (_Constructor) {
         _inherits(_class, _Constructor);
 
-        function _class(targetMesh, controls, stack) {
+        function _class(targetMesh, controls, params) {
             _classCallCheck(this, _class);
 
-            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
-
-            _this._stack = stack;
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
 
             _this._widgetType = 'BiRuler';
 
+            // incoming parameters (optional: lps2IJK, pixelSpacing, ultrasoundRegions, worldPosition)
+            _this._calibrationFactor = params.calibrationFactor || null;
+
+            // outgoing values
+            _this._distance = null;
+            _this._distance2 = null;
+            _this._units = !_this._calibrationFactor && !params.pixelSpacing ? 'units' : 'mm';
+
             // mesh stuff
             _this._material = null;
-            _this._material2 = null;
             _this._geometry = null;
-            _this._geometry2 = null;
             _this._mesh = null;
-            _this._mesh2 = null;
 
             // dom stuff
             _this._line = null;
@@ -45112,8 +45149,7 @@ var widgetsBiruler = function widgetsBiruler() {
             var handle = void 0;
             var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
             for (var i = 0; i < 4; i++) {
-                handle = new WidgetsHandle(targetMesh, controls);
-                handle.worldPosition.copy(_this._worldPosition);
+                handle = new WidgetsHandle(targetMesh, controls, params);
                 _this.add(handle);
                 _this._handles.push(handle);
             }
@@ -45139,7 +45175,7 @@ var widgetsBiruler = function widgetsBiruler() {
 
         _class.prototype.onStart = function onStart(evt) {
             this._handles.forEach(function (elem) {
-                elem.onStart(evt);
+                return elem.onStart(evt);
             });
 
             this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active;
@@ -45156,7 +45192,7 @@ var widgetsBiruler = function widgetsBiruler() {
             }
 
             this._handles.forEach(function (elem) {
-                elem.onMove(evt);
+                return elem.onMove(evt);
             });
 
             this.update();
@@ -45209,49 +45245,38 @@ var widgetsBiruler = function widgetsBiruler() {
         _class.prototype.createMesh = function createMesh() {
             // geometry
             this._geometry = new three.Geometry();
-            this._geometry.vertices.push(this._handles[0].worldPosition);
-            this._geometry.vertices.push(this._handles[1].worldPosition);
-
-            // geometry
-            this._geometry2 = new three.Geometry();
-            this._geometry2.vertices.push(this._handles[2].worldPosition);
-            this._geometry2.vertices.push(this._handles[3].worldPosition);
+            this._geometry.vertices = [this._handles[0].worldPosition, this._handles[1].worldPosition, this._handles[2].worldPosition, this._handles[3].worldPosition];
 
             // material
             this._material = new three.LineBasicMaterial();
-            this._material2 = new three.LineBasicMaterial();
 
             this.updateMeshColor();
 
             // mesh
-            this._mesh = new three.Line(this._geometry, this._material);
+            this._mesh = new three.LineSegments(this._geometry, this._material);
             this._mesh.visible = true;
-            this._mesh2 = new three.Line(this._geometry2, this._material2);
-            this._mesh2.visible = true;
-
             this.add(this._mesh);
-            this.add(this._mesh2);
         };
 
         _class.prototype.createDOM = function createDOM() {
             this._line = document.createElement('div');
-            this._line.setAttribute('class', 'widgets-line');
+            this._line.className = 'widgets-line';
             this._container.appendChild(this._line);
 
             this._label = document.createElement('div');
-            this._label.setAttribute('class', 'widgets-label');
+            this._label.className = 'widgets-label';
             this._container.appendChild(this._label);
 
             this._line2 = document.createElement('div');
-            this._line2.setAttribute('class', 'widgets-line');
+            this._line2.className = 'widgets-line';
             this._container.appendChild(this._line2);
 
             this._label2 = document.createElement('div');
-            this._label2.setAttribute('class', 'widgets-label');
+            this._label2.className = 'widgets-label';
             this._container.appendChild(this._label2);
 
             this._dashline = document.createElement('div');
-            this._dashline.setAttribute('class', 'widgets-dashline');
+            this._dashline.className = 'widgets-dashline';
             this._container.appendChild(this._dashline);
 
             this.updateDOMColor();
@@ -45265,7 +45290,7 @@ var widgetsBiruler = function widgetsBiruler() {
             this._dashline.style.display = 'none';
 
             this._handles.forEach(function (elem) {
-                elem.hideDOM();
+                return elem.hideDOM();
             });
         };
 
@@ -45277,33 +45302,26 @@ var widgetsBiruler = function widgetsBiruler() {
             this._dashline.style.display = '';
 
             this._handles.forEach(function (elem) {
-                elem.showDOM();
+                return elem.showDOM();
             });
         };
 
         _class.prototype.update = function update() {
             this.updateColor();
 
-            // update handles
             this._handles.forEach(function (elem) {
-                elem.update();
+                return elem.update();
             });
 
-            // mesh stuff
             this.updateMeshColor();
             this.updateMeshPosition();
 
-            // DOM stuff
-            this.updateDOMColor();
-            this.updateDOMPosition();
+            this.updateDOM();
         };
 
         _class.prototype.updateMeshColor = function updateMeshColor() {
             if (this._material) {
                 this._material.color.set(this._color);
-            }
-            if (this._material2) {
-                this._material2.color.set(this._color);
             }
         };
 
@@ -45311,12 +45329,11 @@ var widgetsBiruler = function widgetsBiruler() {
             if (this._geometry) {
                 this._geometry.verticesNeedUpdate = true;
             }
-            if (this._geometry2) {
-                this._geometry2.verticesNeedUpdate = true;
-            }
         };
 
-        _class.prototype.updateDOMPosition = function updateDOMPosition() {
+        _class.prototype.updateDOM = function updateDOM() {
+            this.updateDOMColor();
+
             // update first line
             var lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 
@@ -45331,36 +45348,46 @@ var widgetsBiruler = function widgetsBiruler() {
 
             // update dash line
             var line1Center = this._handles[0].worldPosition.clone().add(this._handles[1].worldPosition).multiplyScalar(0.5);
-
             var line2Center = this._handles[2].worldPosition.clone().add(this._handles[3].worldPosition).multiplyScalar(0.5);
-
             var dashLineData = this.getLineData(this.worldToScreen(line1Center), this.worldToScreen(line2Center));
 
             this._dashline.style.transform = 'translate3D(' + dashLineData.transformX + 'px, ' + dashLineData.transformY + 'px, 0)\n                rotate(' + dashLineData.transformAngle + 'rad)';
             this._dashline.style.width = dashLineData.length + 'px';
 
             // update labels
-            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm';
+            var distanceData = this.getDistanceData(this._handles[0].worldPosition, this._handles[1].worldPosition, this._calibrationFactor);
+            var distanceData2 = this.getDistanceData(this._handles[2].worldPosition, this._handles[3].worldPosition, this._calibrationFactor);
+            var title = 'Calibration is required to display the distance in mm';
 
-            var title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
+            this._distance = distanceData.distance;
+            this._distance2 = distanceData2.distance;
+            if (distanceData.units && distanceData2.units && distanceData.units === distanceData2.units) {
+                this._units = distanceData.units;
+            } else {
+                if (!distanceData.units) {
+                    distanceData.units = this._units;
+                }
+                if (!distanceData2.units) {
+                    distanceData2.units = this._units;
+                }
+            }
 
-            this._distance = this._handles[0].worldPosition.distanceTo(this._handles[1].worldPosition);
-            this._distance2 = this._handles[2].worldPosition.distanceTo(this._handles[3].worldPosition);
-
-            this._label.innerHTML = this._distance.toFixed(2) + ' ' + units;
-            this._label2.innerHTML = this._distance2.toFixed(2) + ' ' + units;
-
-            if (title !== '') {
+            if (distanceData.units === 'units' && !this._label.hasAttribute('title')) {
                 this._label.setAttribute('title', title);
                 this._label.style.color = this._colors.error;
-                this._label2.setAttribute('title', title);
-                this._label2.style.color = this._colors.error;
-            } else {
+            } else if (distanceData.units !== 'units' && this._label.hasAttribute('title')) {
                 this._label.removeAttribute('title');
                 this._label.style.color = this._colors.text;
+            }
+            if (distanceData2.units === 'units' && !this._label2.hasAttribute('title')) {
+                this._label2.setAttribute('title', title);
+                this._label2.style.color = this._colors.error;
+            } else if (distanceData2.units !== 'units' && this._label2.hasAttribute('title')) {
                 this._label2.removeAttribute('title');
                 this._label2.style.color = this._colors.text;
             }
+            this._label.innerHTML = this._distance.toFixed(2) + ' ' + distanceData.units;
+            this._label2.innerHTML = this._distance2.toFixed(2) + ' ' + distanceData2.units;
 
             var angle = Math.abs(lineData.transformAngle);
             if (angle > Math.PI / 2) {
@@ -45369,11 +45396,8 @@ var widgetsBiruler = function widgetsBiruler() {
 
             var labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth ? this._label.offsetWidth / 2 / Math.cos(angle) + 15 // 5px for each handle + padding
             : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle) + 15;
-
             var paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
-
             var paddingPoint = lineData.length > labelPadding * 2 ? this._handles[1].screenPosition.clone().sub(paddingVector) : this._handles[1].screenPosition.clone().add(paddingVector);
-
             var transform = this.adjustLabelTransform(this._label, paddingPoint);
 
             this._label.style.transform = 'translate3D(' + transform.x + 'px, ' + transform.y + 'px, 0)';
@@ -45385,11 +45409,8 @@ var widgetsBiruler = function widgetsBiruler() {
 
             var label2Padding = Math.tan(angle2) < this._label2.offsetHeight / this._label2.offsetWidth ? this._label2.offsetWidth / 2 / Math.cos(angle2) + 15 // 5px for each handle + padding
             : this._label2.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle2) + 15;
-
             var paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding);
-
             var paddingPoint2 = line2Data.length > label2Padding * 2 ? this._handles[3].screenPosition.clone().sub(paddingVector2) : this._handles[3].screenPosition.clone().add(paddingVector2);
-
             var transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
 
             this._label2.style.transform = 'translate3D(' + transform2.x + 'px, ' + transform2.y + 'px, 0)';
@@ -45436,21 +45457,19 @@ var widgetsBiruler = function widgetsBiruler() {
             this._material.uniforms = null;
             this._material.dispose();
             this._material = null;
-            this.remove(this._mesh2);
-            this._mesh2.geometry.dispose();
-            this._mesh2.geometry = null;
-            this._mesh2.material.dispose();
-            this._mesh2.material = null;
-            this._mesh2 = null;
-            this._geometry2.dispose();
-            this._geometry2 = null;
-            this._material2.vertexShader = null;
-            this._material2.fragmentShader = null;
-            this._material2.uniforms = null;
-            this._material2.dispose();
-            this._material2 = null;
 
             _Constructor.prototype.free.call(this);
+        };
+
+        /**
+         * Get length of rulers
+         *
+         * @return {Array}
+         */
+
+
+        _class.prototype.getDistances = function getDistances() {
+            return [this._distance, this._distance2];
         };
 
         _createClass(_class, [{
@@ -45461,7 +45480,7 @@ var widgetsBiruler = function widgetsBiruler() {
             set: function set(targetMesh) {
                 this._targetMesh = targetMesh;
                 this._handles.forEach(function (elem) {
-                    elem.targetMesh = targetMesh;
+                    return elem.targetMesh = targetMesh;
                 });
                 this.update();
             }
@@ -45472,9 +45491,19 @@ var widgetsBiruler = function widgetsBiruler() {
             },
             set: function set(worldPosition) {
                 this._handles.forEach(function (elem) {
-                    elem.worldPosition.copy(worldPosition);
+                    return elem.worldPosition.copy(worldPosition);
                 });
                 this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }, {
+            key: 'calibrationFactor',
+            get: function get() {
+                return this._calibrationFactor;
+            },
+            set: function set(calibrationFactor) {
+                this._calibrationFactor = calibrationFactor;
+                this._units = 'mm';
                 this.update();
             }
         }, {
@@ -45535,32 +45564,38 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
     return function (_Constructor) {
         _inherits(_class, _Constructor);
 
-        function _class(targetMesh, controls, stack) {
+        function _class(targetMesh, controls, params) {
             _classCallCheck(this, _class);
 
-            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
-
-            _this._stack = stack;
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
 
             _this._widgetType = 'CrossRuler';
-            _this._domHovered = false;
-            _this._moving = false;
+
+            // incoming parameters (optional: lps2IJK, pixelSpacing, ultrasoundRegions, worldPosition)
+            _this._calibrationFactor = params.calibrationFactor || null;
 
             _this._distances = null; // from intersection point to handles
             _this._line01 = null; // vector from 0 to 1st handle
             _this._normal = null; // normal vector to line01
 
+            // outgoing values
+            _this._distance = null;
+            _this._distance2 = null;
+            _this._units = !_this._calibrationFactor && !params.pixelSpacing ? 'units' : 'mm';
+
+            _this._domHovered = false;
+            _this._moving = false;
+
             // mesh stuff
             _this._material = null;
-            _this._material2 = null;
             _this._geometry = null;
-            _this._geometry2 = null;
             _this._mesh = null;
-            _this._mesh2 = null;
 
             // dom stuff
             _this._line = null;
             _this._line2 = null;
+            _this._label = null;
+            _this._label2 = null;
 
             // add handles
             _this._handles = [];
@@ -45568,16 +45603,14 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
             var handle = void 0;
             var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
             for (var i = 0; i < 4; i++) {
-                handle = new WidgetsHandle(targetMesh, controls);
-                handle.worldPosition.copy(_this._worldPosition);
+                handle = new WidgetsHandle(targetMesh, controls, params);
                 _this.add(handle);
                 _this._handles.push(handle);
             }
             _this._handles[1].active = true;
             _this._handles[1].tracking = true;
 
-            _this._moveHandle = new WidgetsHandle(targetMesh, controls);
-            _this._moveHandle.worldPosition.copy(_this._worldPosition);
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
             _this.add(_this._moveHandle);
             _this._handles.push(_this._moveHandle);
             _this._moveHandle.hide();
@@ -45632,7 +45665,7 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
             this._moveHandle.onMove(evt, true);
 
             this._handles.slice(0, -1).forEach(function (elem) {
-                elem.onStart(evt);
+                return elem.onStart(evt);
             });
 
             this._active = this._handles[0].active || this._handles[1].active || this._handles[2].active || this._handles[3].active || this._domHovered;
@@ -45646,6 +45679,8 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
         };
 
         _class.prototype.onMove = function onMove(evt) {
+            var _this2 = this;
+
             if (this._active) {
                 var prevPosition = this._moveHandle.worldPosition.clone();
 
@@ -45653,16 +45688,16 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
                 this._moveHandle.onMove(evt, true);
 
                 if (this._moving) {
-                    this._handles.slice(0, -1).forEach(function (elem, ind) {
-                        this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                    }, this);
+                    this._handles.slice(0, -1).forEach(function (handle) {
+                        handle.worldPosition.add(_this2._moveHandle.worldPosition.clone().sub(prevPosition));
+                    });
                 }
             } else {
                 this.onHover(null);
             }
 
             this._handles.slice(0, -1).forEach(function (elem) {
-                elem.onMove(evt);
+                return elem.onMove(evt);
             });
 
             if (this._distances) {
@@ -45718,38 +45753,35 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
         _class.prototype.createMesh = function createMesh() {
             // geometry
             this._geometry = new three.Geometry();
-            this._geometry.vertices.push(this._handles[0].worldPosition);
-            this._geometry.vertices.push(this._handles[1].worldPosition);
-
-            // geometry
-            this._geometry2 = new three.Geometry();
-            this._geometry2.vertices.push(this._handles[2].worldPosition);
-            this._geometry2.vertices.push(this._handles[3].worldPosition);
+            this._geometry.vertices = [this._handles[0].worldPosition, this._handles[1].worldPosition, this._handles[2].worldPosition, this._handles[3].worldPosition];
 
             // material
             this._material = new three.LineBasicMaterial();
-            this._material2 = new three.LineBasicMaterial();
 
             this.updateMeshColor();
 
             // mesh
-            this._mesh = new three.Line(this._geometry, this._material);
+            this._mesh = new three.LineSegments(this._geometry, this._material);
             this._mesh.visible = true;
-            this._mesh2 = new three.Line(this._geometry2, this._material2);
-            this._mesh2.visible = true;
-
             this.add(this._mesh);
-            this.add(this._mesh2);
         };
 
         _class.prototype.createDOM = function createDOM() {
             this._line = document.createElement('div');
-            this._line.setAttribute('class', 'widgets-line');
+            this._line.className = 'widgets-line';
             this._container.appendChild(this._line);
 
             this._line2 = document.createElement('div');
-            this._line2.setAttribute('class', 'widgets-line');
+            this._line2.className = 'widgets-line';
             this._container.appendChild(this._line2);
+
+            this._label = document.createElement('div');
+            this._label.className = 'widgets-label';
+            this._container.appendChild(this._label);
+
+            this._label2 = document.createElement('div');
+            this._label2.className = 'widgets-label';
+            this._container.appendChild(this._label2);
 
             this.updateDOMColor();
         };
@@ -45757,44 +45789,41 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
         _class.prototype.hideDOM = function hideDOM() {
             this._line.style.display = 'none';
             this._line2.style.display = 'none';
+            this._label.style.display = 'none';
+            this._label2.style.display = 'none';
 
             this._handles.slice(0, -1).forEach(function (elem) {
-                elem.hideDOM();
+                return elem.hideDOM();
             });
         };
 
         _class.prototype.showDOM = function showDOM() {
             this._line.style.display = '';
             this._line2.style.display = '';
+            this._label.style.display = '';
+            this._label2.style.display = '';
 
             this._handles.slice(0, -1).forEach(function (elem) {
-                elem.showDOM();
+                return elem.showDOM();
             });
         };
 
         _class.prototype.update = function update() {
             this.updateColor();
 
-            // update handles
             this._handles.slice(0, -1).forEach(function (elem) {
-                elem.update();
+                return elem.update();
             });
 
-            // mesh stuff
             this.updateMeshColor();
             this.updateMeshPosition();
 
-            // DOM stuff
-            this.updateDOMColor();
-            this.updateDOMPosition();
+            this.updateDOM();
         };
 
         _class.prototype.updateMeshColor = function updateMeshColor() {
             if (this._material) {
                 this._material.color.set(this._color);
-            }
-            if (this._material2) {
-                this._material2.color.set(this._color);
             }
         };
 
@@ -45802,12 +45831,11 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
             if (this._geometry) {
                 this._geometry.verticesNeedUpdate = true;
             }
-            if (this._geometry2) {
-                this._geometry2.verticesNeedUpdate = true;
-            }
         };
 
-        _class.prototype.updateDOMPosition = function updateDOMPosition() {
+        _class.prototype.updateDOM = function updateDOM() {
+            this.updateDOMColor();
+
             // update first line
             var lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 
@@ -45819,26 +45847,91 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
 
             this._line2.style.transform = 'translate3D(' + line2Data.transformX + 'px, ' + line2Data.transformY + 'px, 0)\n            rotate(' + line2Data.transformAngle + 'rad)';
             this._line2.style.width = line2Data.length + 'px';
+
+            // update labels
+            var distanceData = this.getDistanceData(this._handles[0].worldPosition, this._handles[1].worldPosition, this._calibrationFactor);
+            var distanceData2 = this.getDistanceData(this._handles[2].worldPosition, this._handles[3].worldPosition, this._calibrationFactor);
+            var title = 'Calibration is required to display the distance in mm';
+
+            this._distance = distanceData.distance;
+            this._distance2 = distanceData2.distance;
+            if (distanceData.units && distanceData2.units && distanceData.units === distanceData2.units) {
+                this._units = distanceData.units;
+            } else {
+                if (!distanceData.units) {
+                    distanceData.units = this._units;
+                }
+                if (!distanceData2.units) {
+                    distanceData2.units = this._units;
+                }
+            }
+
+            if (distanceData.units === 'units' && !this._label.hasAttribute('title')) {
+                this._label.setAttribute('title', title);
+                this._label.style.color = this._colors.error;
+            } else if (distanceData.units !== 'units' && this._label.hasAttribute('title')) {
+                this._label.removeAttribute('title');
+                this._label.style.color = this._colors.text;
+            }
+            if (distanceData2.units === 'units' && !this._label2.hasAttribute('title')) {
+                this._label2.setAttribute('title', title);
+                this._label2.style.color = this._colors.error;
+            } else if (distanceData2.units !== 'units' && this._label2.hasAttribute('title')) {
+                this._label2.removeAttribute('title');
+                this._label2.style.color = this._colors.text;
+            }
+            this._label.innerHTML = this._distance.toFixed(2) + ' ' + distanceData.units;
+            this._label2.innerHTML = this._distance2.toFixed(2) + ' ' + distanceData2.units;
+
+            var angle = Math.abs(lineData.transformAngle);
+            if (angle > Math.PI / 2) {
+                angle = Math.PI - angle;
+            }
+
+            var labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth ? this._label.offsetWidth / 2 / Math.cos(angle) + 15 // 5px for each handle + padding
+            : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle) + 15,
+                paddingVector = lineData.line.normalize().multiplyScalar(labelPadding),
+                paddingPoint = lineData.length > labelPadding * 4 ? this._handles[1].screenPosition.clone().sub(paddingVector) : this._handles[1].screenPosition.clone().add(paddingVector),
+                transform = this.adjustLabelTransform(this._label, paddingPoint);
+
+            this._label.style.transform = 'translate3D(' + transform.x + 'px, ' + transform.y + 'px, 0)';
+
+            var angle2 = Math.abs(line2Data.transformAngle);
+            if (angle2 > Math.PI / 2) {
+                angle2 = Math.PI - angle2;
+            }
+
+            var label2Padding = Math.tan(angle2) < this._label2.offsetHeight / this._label2.offsetWidth ? this._label2.offsetWidth / 2 / Math.cos(angle2) + 15 // 5px for each handle + padding
+            : this._label2.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle2) + 15,
+                paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding),
+                paddingPoint2 = line2Data.length > label2Padding * 4 ? this._handles[3].screenPosition.clone().sub(paddingVector2) : this._handles[3].screenPosition.clone().add(paddingVector2),
+                transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
+
+            this._label2.style.transform = 'translate3D(' + transform2.x + 'px, ' + transform2.y + 'px, 0)';
         };
 
         _class.prototype.updateDOMColor = function updateDOMColor() {
             this._line.style.backgroundColor = this._color;
             this._line2.style.backgroundColor = this._color;
+            this._label.style.borderColor = this._color;
+            this._label2.style.borderColor = this._color;
         };
 
         _class.prototype.free = function free() {
-            var _this2 = this;
+            var _this3 = this;
 
             this.removeEventListeners();
 
             this._handles.forEach(function (h) {
-                _this2.remove(h);
+                _this3.remove(h);
                 h.free();
             });
             this._handles = [];
 
             this._container.removeChild(this._line);
             this._container.removeChild(this._line2);
+            this._container.removeChild(this._label);
+            this._container.removeChild(this._label2);
 
             // mesh, geometry, material
             this.remove(this._mesh);
@@ -45854,19 +45947,6 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
             this._material.uniforms = null;
             this._material.dispose();
             this._material = null;
-            this.remove(this._mesh2);
-            this._mesh2.geometry.dispose();
-            this._mesh2.geometry = null;
-            this._mesh2.material.dispose();
-            this._mesh2.material = null;
-            this._mesh2 = null;
-            this._geometry2.dispose();
-            this._geometry2 = null;
-            this._material2.vertexShader = null;
-            this._material2.fragmentShader = null;
-            this._material2.uniforms = null;
-            this._material2.dispose();
-            this._material2 = null;
 
             _Constructor.prototype.free.call(this);
         };
@@ -45881,11 +45961,8 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
             this.initLineAndNormal();
 
             var center = this._handles[1].worldPosition.clone().add(this._handles[0].worldPosition).multiplyScalar(0.5);
-
             var halfLength = this._line01.length() / 2;
-
             var normLine = this._normal.clone().multiplyScalar(halfLength * 0.8);
-
             var normLength = normLine.length();
 
             this._handles[2].worldPosition.copy(center.clone().add(normLine));
@@ -45909,9 +45986,7 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
         _class.prototype.recalculateOrtho = function recalculateOrtho() {
             // called onMove if 2nd or 3rd handle is active
             var activeInd = this._handles[2].active ? 2 : 3;
-
             var lines = [];
-
             var intersect = new three.Vector3();
 
             lines[2] = this._handles[2].worldPosition.clone().sub(this._handles[0].worldPosition);
@@ -45941,9 +46016,20 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
             }
             this._handles[5 - activeInd].worldPosition.copy(intersect.clone().add(lines[0]));
 
-            this._distances[activeInd] = intersect.clone().sub(this._handles[activeInd].worldPosition).length();
-            this._distances[0] = intersect.clone().sub(this._handles[0].worldPosition).length();
-            this._distances[1] = intersect.clone().sub(this._handles[1].worldPosition).length();
+            this._distances[activeInd] = intersect.distanceTo(this._handles[activeInd].worldPosition);
+            this._distances[0] = intersect.distanceTo(this._handles[0].worldPosition);
+            this._distances[1] = intersect.distanceTo(this._handles[1].worldPosition);
+        };
+
+        /**
+         * Get length of rulers
+         *
+         * @return {Array}
+         */
+
+
+        _class.prototype.getDimensions = function getDimensions() {
+            return [this._distance, this._distance2];
         };
 
         /**
@@ -45969,15 +46055,13 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
 
         _class.prototype.initCoordinates = function initCoordinates(first, second, third, fourth) {
             var intersectR = new three.Vector3();
-
             var intersectS = new three.Vector3();
-
             var ray = new three.Ray(first);
 
             ray.lookAt(second);
             ray.distanceSqToSegment(third, fourth, intersectR, intersectS);
 
-            if (intersectR.distanceTo(intersectS) > 0.01 && intersectR.clone().sub(first).length() > second.clone().sub(first).length() + 0.01) {
+            if (intersectR.distanceTo(intersectS) > 0.01 && intersectR.distanceTo(first) > second.distanceTo(first) + 0.01) {
                 window.console.warn('Lines do not intersect');
 
                 return;
@@ -45993,17 +46077,10 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
             this._handles[1].tracking = false;
             this._handles[2].worldPosition.copy(third);
             this._handles[3].worldPosition.copy(fourth);
-            this._distances = [intersectR.clone().sub(first).length(), intersectR.clone().sub(second).length(), intersectR.clone().sub(third).length(), intersectR.clone().sub(fourth).length()];
+            this._distances = [intersectR.distanceTo(first), intersectR.distanceTo(second), intersectR.distanceTo(third), intersectR.distanceTo(fourth)];
 
             this.initLineAndNormal();
             this.update();
-        };
-
-        _class.prototype.setDefaultColor = function setDefaultColor(color) {
-            this._colors.default = color;
-            this._handles.forEach(function (elem) {
-                elem._colors.default = color;
-            });
         };
 
         _createClass(_class, [{
@@ -46014,7 +46091,7 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
             set: function set(targetMesh) {
                 this._targetMesh = targetMesh;
                 this._handles.forEach(function (elem) {
-                    elem.targetMesh = targetMesh;
+                    return elem.targetMesh = targetMesh;
                 });
                 this.update();
             }
@@ -46025,9 +46102,19 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
             },
             set: function set(worldPosition) {
                 this._handles.slice(0, -1).forEach(function (elem) {
-                    elem.worldPosition.copy(worldPosition);
+                    return elem.worldPosition.copy(worldPosition);
                 });
                 this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }, {
+            key: 'calibrationFactor',
+            get: function get() {
+                return this._calibrationFactor;
+            },
+            set: function set(calibrationFactor) {
+                this._calibrationFactor = calibrationFactor;
+                this._units = 'mm';
                 this.update();
             }
         }]);
@@ -46065,7 +46152,7 @@ var WidgetsCss = function () {
     _createClass(WidgetsCss, null, [{
         key: "code",
         get: function get() {
-            return "\n        .widgets-handle {\n            position: absolute;\n            border: 1px solid;\n            border-radius: 50%;\n            width: 10px;\n            height: 10px;\n            margin: -5.5px; /* border + width / 2 */\n            z-index: 3;\n        }\n        .widgets-line {\n            position: absolute;\n            width: 1px;\n            height: 1px;\n            margin-top: -0.5px; /* height / 2 */\n        }\n        .widgets-line:before { /* for dragging */\n            content: \" \";\n            position: absolute;\n            height: 11.5px;\n            left: 0;\n            right: 0;\n            margin-top: -5px;\n        }\n        .widgets-dashline {\n            position: absolute;\n            border-top: 1px dashed;\n            margin-top: -1px; /* border */\n        }\n        .widgets-rectangle {\n            position: absolute;\n            border: 1px solid;\n            margin: -1px; /* border */\n        }\n        .widgets-rectangle-helper {\n            position: absolute;\n            border: 1px dashed;\n            margin: -1px; /* border */\n        }\n        .widgets-ellipse {\n            position: absolute;\n            border: 1px solid;\n            border-radius: 50%;\n            margin: -1px; /* border */\n            z-index: 2;\n        }\n        .widgets-label {\n            position: absolute;\n            border: 1px solid;\n            background-color: rgba(0, 0, 0, 0.7);\n            color: rgb(255, 255, 255);\n            padding: 4px;\n            z-index: 3;\n        }\n        ";
+            return "\n        .widgets-handle {\n            position: absolute;\n            border: 1px solid;\n            border-radius: 50%;\n            width: 10px;\n            height: 10px;\n            margin: -6px; /* border + width / 2 */\n            z-index: 3;\n        }\n        .widgets-line {\n            position: absolute;\n            width: 1px;\n            height: 1px;\n            margin-top: -0.5px; /* height / 2 */\n        }\n        .widgets-dashline {\n            position: absolute;\n            border-top: 1px dashed;\n            margin-top: -0.5px; /* border / 2 */\n        }\n        .widgets-line:before,\n        .widgets-dashline:before { /* for dragging */\n            content: \" \";\n            position: absolute;\n            height: 12px;\n            left: 0;\n            right: 0;\n            margin-top: -6px;\n        }\n        .widgets-rectangle {\n            position: absolute;\n            border: 1px solid;\n            margin: -1px; /* border */\n        }\n        .widgets-rectangle-helper {\n            position: absolute;\n            border: 1px dashed;\n            margin: -1px; /* border */\n        }\n        .widgets-ellipse {\n            position: absolute;\n            border: 1px solid;\n            border-radius: 50%;\n            margin: -1px; /* border */\n            z-index: 2;\n        }\n        .widgets-label {\n            position: absolute;\n            border: 1px solid;\n            background-color: rgba(0, 0, 0, 0.7);\n            color: rgb(255, 255, 255);\n            padding: 4px;\n            z-index: 3;\n        }\n        ";
         }
     }]);
 
@@ -46115,14 +46202,21 @@ var widgetsEllipse = function widgetsEllipse() {
     return function (_Constructor) {
         _inherits(_class, _Constructor);
 
-        function _class(targetMesh, controls, stack) {
+        function _class(targetMesh, controls, params) {
             _classCallCheck(this, _class);
 
-            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
-
-            _this._stack = stack;
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
 
             _this._widgetType = 'Ellipse';
+
+            // incoming parameters (optional: frameIndex, worldPosition)
+            _this._stack = params.stack; // required
+            _this._calibrationFactor = params.calibrationFactor || null;
+
+            // outgoing values
+            _this._area = null;
+            _this._units = !_this._calibrationFactor && !params.stack.frame[params.frameIndex].pixelSpacing ? 'units' : 'cm²';
+
             _this._moving = false;
             _this._domHovered = false;
 
@@ -46142,16 +46236,14 @@ var widgetsEllipse = function widgetsEllipse() {
             var handle = void 0;
             var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
             for (var i = 0; i < 2; i++) {
-                handle = new WidgetsHandle(targetMesh, controls);
-                handle.worldPosition.copy(_this._worldPosition);
+                handle = new WidgetsHandle(targetMesh, controls, params);
                 _this.add(handle);
                 _this._handles.push(handle);
             }
             _this._handles[1].active = true;
             _this._handles[1].tracking = true;
 
-            _this._moveHandle = new WidgetsHandle(targetMesh, controls);
-            _this._moveHandle.worldPosition.copy(_this._worldPosition);
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
             _this.add(_this._moveHandle);
             _this._handles.push(_this._moveHandle);
             _this._moveHandle.hide();
@@ -46222,6 +46314,8 @@ var widgetsEllipse = function widgetsEllipse() {
         };
 
         _class.prototype.onMove = function onMove(evt) {
+            var _this2 = this;
+
             if (this._active) {
                 var prevPosition = this._moveHandle.worldPosition.clone();
 
@@ -46229,9 +46323,9 @@ var widgetsEllipse = function widgetsEllipse() {
                 this._moveHandle.onMove(evt, true);
 
                 if (this._moving) {
-                    this._handles.slice(0, -1).forEach(function (elem, ind) {
-                        this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                    }, this);
+                    this._handles.slice(0, -1).forEach(function (handle) {
+                        handle.worldPosition.add(_this2._moveHandle.worldPosition.clone().sub(prevPosition));
+                    });
                 }
 
                 this.updateRoI(true);
@@ -46270,13 +46364,13 @@ var widgetsEllipse = function widgetsEllipse() {
             this._dragged = false;
             this._moving = false;
 
-            this.updateRoI();
+            this.updateRoI(); // TODO: if (this._dragged || !this._initialized)
             this.update();
         };
 
         _class.prototype.hideDOM = function hideDOM() {
             this._handles.forEach(function (elem) {
-                elem.hideDOM();
+                return elem.hideDOM();
             });
 
             this._rectangle.style.display = 'none';
@@ -46306,29 +46400,29 @@ var widgetsEllipse = function widgetsEllipse() {
 
         _class.prototype.createDOM = function createDOM() {
             this._rectangle = document.createElement('div');
-            this._rectangle.setAttribute('class', 'widgets-rectangle-helper');
+            this._rectangle.className = 'widgets-rectangle-helper';
             this._container.appendChild(this._rectangle);
 
             this._ellipse = document.createElement('div');
-            this._ellipse.setAttribute('class', 'widgets-ellipse');
+            this._ellipse.className = 'widgets-ellipse';
             this._container.appendChild(this._ellipse);
 
             this._label = document.createElement('div');
-            this._label.setAttribute('class', 'widgets-label');
+            this._label.className = 'widgets-label';
 
-            // measurenents
+            // measurements
             var measurementsContainer = document.createElement('div');
             // Mean / SD
             var meanSDContainer = document.createElement('div');
-            meanSDContainer.setAttribute('class', 'mean-sd');
+            meanSDContainer.className = 'mean-sd';
             measurementsContainer.appendChild(meanSDContainer);
             // Max / Min
             var maxMinContainer = document.createElement('div');
-            maxMinContainer.setAttribute('class', 'max-min');
+            maxMinContainer.className = 'max-min';
             measurementsContainer.appendChild(maxMinContainer);
             // Area
             var areaContainer = document.createElement('div');
-            areaContainer.setAttribute('class', 'area');
+            areaContainer.className = 'area';
             measurementsContainer.appendChild(areaContainer);
 
             this._label.appendChild(measurementsContainer);
@@ -46341,18 +46435,13 @@ var widgetsEllipse = function widgetsEllipse() {
         _class.prototype.update = function update() {
             this.updateColor();
 
-            // update handles
             this._handles[0].update();
             this._handles[1].update();
 
-            // mesh stuff
             this.updateMeshColor();
             this.updateMeshPosition();
 
-            // DOM stuff
-            this.updateDOMColor();
-            this.updateDOMContent();
-            this.updateDOMPosition();
+            this.updateDOM();
         };
 
         _class.prototype.updateMeshColor = function updateMeshColor() {
@@ -46367,9 +46456,7 @@ var widgetsEllipse = function widgetsEllipse() {
             }
 
             var vec01 = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition);
-
             var height = vec01.clone().projectOnVector(this._camera.up).length();
-
             var width = vec01.clone().projectOnVector(this._camera._right).length();
 
             if (width === 0 || height === 0) {
@@ -46383,12 +46470,6 @@ var widgetsEllipse = function widgetsEllipse() {
             this._mesh.rotation.copy(this._camera.rotation);
             this._mesh.visible = true;
             this.add(this._mesh);
-        };
-
-        _class.prototype.updateDOMColor = function updateDOMColor() {
-            this._rectangle.style.borderColor = this._color;
-            this._ellipse.style.borderColor = this._color;
-            this._label.style.borderColor = this._color;
         };
 
         _class.prototype.updateRoI = function updateRoI(clear) {
@@ -46417,27 +46498,51 @@ var widgetsEllipse = function widgetsEllipse() {
             }
         };
 
-        _class.prototype.updateDOMContent = function updateDOMContent() {
+        _class.prototype.updateDOMColor = function updateDOMColor() {
+            this._rectangle.style.borderColor = this._color;
+            this._ellipse.style.borderColor = this._color;
+            this._label.style.borderColor = this._color;
+        };
+
+        _class.prototype.updateDOM = function updateDOM() {
             if (!this._geometry) {
                 return;
             }
 
-            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
-            var title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+            this.updateDOMColor();
 
-            if (title !== '') {
-                this._label.setAttribute('title', title);
+            var regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
+
+            this._area = _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].getGeometryArea(this._geometry);
+            if (this._calibrationFactor) {
+                this._area *= Math.pow(this._calibrationFactor, 2);
+            } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
+                var region0 = this.getRegionByXY(regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(this._stack.lps2IJK, this._handles[0].worldPosition));
+                var region1 = this.getRegionByXY(regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(this._stack.lps2IJK, this._handles[1].worldPosition));
+
+                if (region0 !== null && region1 !== null && region0 === region1 && regions[region0].unitsX === 'cm' && regions[region0].unitsY === 'cm') {
+                    this._area *= Math.pow(regions[region0].deltaX, 2);
+                    this._units = 'cm²';
+                } else if (this._stack.frame[this._params.frameIndex].pixelSpacing) {
+                    this._area /= 100;
+                    this._units = 'cm²';
+                } else {
+                    this._units = 'units';
+                }
+            } else if (this._units === 'cm²') {
+                this._area /= 100;
+            }
+
+            if (this._units === 'units' && !this._label.hasAttribute('title')) {
+                this._label.setAttribute('title', 'Calibration is required to display the area in cm²');
                 this._label.style.color = this._colors.error;
-            } else {
+            } else if (this._units !== 'units' && this._label.hasAttribute('title')) {
                 this._label.removeAttribute('title');
                 this._label.style.color = this._colors.text;
             }
-            this._label.querySelector('.area').innerHTML = 'Area: ' + (_core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].getGeometryArea(this._geometry) / 100).toFixed(2) + ' ' + units;
-        };
+            this._label.querySelector('.area').innerHTML = 'Area: ' + this._area.toFixed(2) + ' ' + this._units;
 
-        _class.prototype.updateDOMPosition = function updateDOMPosition() {
             var rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition);
-
             var labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));
 
             // update rectangle
@@ -46455,12 +46560,12 @@ var widgetsEllipse = function widgetsEllipse() {
         };
 
         _class.prototype.free = function free() {
-            var _this2 = this;
+            var _this3 = this;
 
             this.removeEventListeners();
 
             this._handles.forEach(function (h) {
-                _this2.remove(h);
+                _this3.remove(h);
                 h.free();
             });
             this._handles = [];
@@ -46488,7 +46593,16 @@ var widgetsEllipse = function widgetsEllipse() {
             this._material.dispose();
             this._material = null;
 
+            this._stack = null;
+
             _Constructor.prototype.free.call(this);
+        };
+
+        _class.prototype.getMeasurements = function getMeasurements() {
+            return {
+                area: this._area,
+                units: this._units
+            };
         };
 
         _createClass(_class, [{
@@ -46499,7 +46613,7 @@ var widgetsEllipse = function widgetsEllipse() {
             set: function set(targetMesh) {
                 this._targetMesh = targetMesh;
                 this._handles.forEach(function (elem) {
-                    elem.targetMesh = targetMesh;
+                    return elem.targetMesh = targetMesh;
                 });
                 this.update();
             }
@@ -46512,6 +46626,16 @@ var widgetsEllipse = function widgetsEllipse() {
                 this._handles[0].worldPosition.copy(worldPosition);
                 this._handles[1].worldPosition.copy(worldPosition);
                 this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }, {
+            key: 'calibrationFactor',
+            get: function get() {
+                return this._calibrationFactor;
+            },
+            set: function set(calibrationFactor) {
+                this._calibrationFactor = calibrationFactor;
+                this._units = 'cm²';
                 this.update();
             }
         }]);
@@ -46564,14 +46688,21 @@ var widgetsFreehand = function widgetsFreehand() {
     return function (_Constructor) {
         _inherits(_class, _Constructor);
 
-        function _class(targetMesh, controls, stack) {
+        function _class(targetMesh, controls, params) {
             _classCallCheck(this, _class);
 
-            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
-
-            _this._stack = stack;
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
 
             _this._widgetType = 'Freehand';
+
+            // incoming parameters (optional: frameIndex, worldPosition)
+            _this._stack = params.stack; // required
+            _this._calibrationFactor = params.calibrationFactor || null;
+
+            // outgoing values
+            _this._area = null;
+            _this._units = !_this._calibrationFactor && !params.stack.frame[params.frameIndex].pixelSpacing ? 'units' : 'cm²';
+
             _this._initialized = false; // set to true onEnd if number of handles > 2
             _this._moving = false;
             _this._domHovered = false;
@@ -46589,13 +46720,11 @@ var widgetsFreehand = function widgetsFreehand() {
             _this._handles = [];
             var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
 
-            var handle = new WidgetsHandle(targetMesh, controls);
-            handle.worldPosition.copy(_this._worldPosition);
+            var handle = new WidgetsHandle(targetMesh, controls, params);
             _this.add(handle);
             _this._handles.push(handle);
 
-            _this._moveHandle = new WidgetsHandle(targetMesh, controls);
-            _this._moveHandle.worldPosition.copy(_this._worldPosition);
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
             _this.add(_this._moveHandle);
             _this._moveHandle.hide();
 
@@ -46632,7 +46761,7 @@ var widgetsFreehand = function widgetsFreehand() {
             var hovered = false;
 
             this._handles.forEach(function (elem) {
-                hovered = hovered || elem.hovered;
+                return hovered = hovered || elem.hovered;
             });
 
             this._hovered = hovered || this._domHovered;
@@ -46667,7 +46796,7 @@ var widgetsFreehand = function widgetsFreehand() {
         };
 
         _class.prototype.onMove = function onMove(evt) {
-            var numHandles = this._handles.length;
+            var _this2 = this;
 
             var hovered = false;
 
@@ -46675,13 +46804,13 @@ var widgetsFreehand = function widgetsFreehand() {
                 this._dragged = true;
 
                 if (!this._initialized) {
-                    this._handles[numHandles - 1].hovered = false;
-                    this._handles[numHandles - 1].active = false;
-                    this._handles[numHandles - 1].tracking = false;
+                    this._handles[this._handles.length - 1].hovered = false;
+                    this._handles[this._handles.length - 1].active = false;
+                    this._handles[this._handles.length - 1].tracking = false;
 
                     var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
-                    var handle = new WidgetsHandle(this._targetMesh, this._controls);
-                    handle.worldPosition.copy(this._worldPosition);
+                    var handle = new WidgetsHandle(this._targetMesh, this._controls, this._params);
+
                     handle.hovered = true;
                     handle.active = true;
                     handle.tracking = true;
@@ -46692,17 +46821,15 @@ var widgetsFreehand = function widgetsFreehand() {
                 } else {
                     var prevPosition = this._moveHandle.worldPosition.clone();
 
+                    this._moveHandle.onMove(evt, true);
                     if (this._mesh) {
                         this.remove(this._mesh);
                     }
                     this.updateDOMContent(true);
-
-                    this._moveHandle.onMove(evt, true);
-
                     if (this._moving) {
-                        this._handles.forEach(function (elem, ind) {
-                            this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                        }, this);
+                        this._handles.forEach(function (handle) {
+                            handle.worldPosition.add(_this2._moveHandle.worldPosition.clone().sub(prevPosition));
+                        });
                     }
                 }
             }
@@ -46723,44 +46850,47 @@ var widgetsFreehand = function widgetsFreehand() {
         };
 
         _class.prototype.onEnd = function onEnd() {
-            var numHandles = this._handles.length;
+            var _this3 = this;
 
-            if (numHandles < 3) {
+            if (this._handles.length < 3) {
                 return;
             }
 
             var active = false;
 
-            this._handles.slice(0, numHandles - 1).forEach(function (elem) {
+            this._handles.slice(0, -1).forEach(function (elem) {
                 elem.onEnd();
                 active = active || elem.active;
             });
 
             // Last Handle
-            if (this._dragged || !this._handles[numHandles - 1].tracking) {
-                this._handles[numHandles - 1].tracking = false;
-                this._handles[numHandles - 1].onEnd();
+            if (this._dragged || !this._handles[this._handles.length - 1].tracking) {
+                this._handles[this._handles.length - 1].tracking = false;
+                this._handles[this._handles.length - 1].onEnd();
             } else {
-                this._handles[numHandles - 1].tracking = false;
+                this._handles[this._handles.length - 1].tracking = false;
             }
 
-            if (this._lines.length < numHandles) {
+            if (this._lines.length < this._handles.length) {
                 this.createLine();
+            }
+
+            if (this._dragged || !this._initialized) {
+                this.updateMesh();
+                this.updateDOMContent();
             }
 
             if (!this._dragged && this._active) {
                 this._selected = !this._selected; // change state if there was no dragging
                 this._handles.forEach(function (elem) {
-                    elem.selected = this._selected;
-                }, this);
+                    return elem.selected = _this3._selected;
+                });
             }
-            this._active = active || this._handles[numHandles - 1].active;
+            this._active = active || this._handles[this._handles.length - 1].active;
             this._dragged = false;
             this._moving = false;
             this._initialized = true;
 
-            this.updateMesh();
-            this.updateDOMContent();
             this.update();
         };
 
@@ -46777,21 +46907,21 @@ var widgetsFreehand = function widgetsFreehand() {
 
         _class.prototype.createDOM = function createDOM() {
             this._label = document.createElement('div');
-            this._label.setAttribute('class', 'widgets-label');
+            this._label.className = 'widgets-label';
 
-            // measurenents
+            // measurements
             var measurementsContainer = document.createElement('div');
             // Mean / SD
             var meanSDContainer = document.createElement('div');
-            meanSDContainer.setAttribute('class', 'mean-sd');
+            meanSDContainer.className = 'mean-sd';
             measurementsContainer.appendChild(meanSDContainer);
             // Max / Min
             var maxMinContainer = document.createElement('div');
-            maxMinContainer.setAttribute('class', 'max-min');
+            maxMinContainer.className = 'max-min';
             measurementsContainer.appendChild(maxMinContainer);
             // Area
             var areaContainer = document.createElement('div');
-            areaContainer.setAttribute('class', 'area');
+            areaContainer.className = 'area';
             measurementsContainer.appendChild(areaContainer);
 
             this._label.appendChild(measurementsContainer);
@@ -46804,7 +46934,7 @@ var widgetsFreehand = function widgetsFreehand() {
         _class.prototype.createLine = function createLine() {
             var line = document.createElement('div');
 
-            line.setAttribute('class', 'widgets-line');
+            line.className = 'widgets-line';
             line.addEventListener('mouseenter', this.onHover);
             line.addEventListener('mouseleave', this.onHover);
             this._lines.push(line);
@@ -46813,22 +46943,22 @@ var widgetsFreehand = function widgetsFreehand() {
 
         _class.prototype.hideDOM = function hideDOM() {
             this._handles.forEach(function (elem) {
-                elem.hideDOM();
+                return elem.hideDOM();
             });
 
             this._lines.forEach(function (elem) {
-                elem.style.display = 'none';
+                return elem.style.display = 'none';
             });
             this._label.style.display = 'none';
         };
 
         _class.prototype.showDOM = function showDOM() {
             this._handles.forEach(function (elem) {
-                elem.showDOM();
+                return elem.showDOM();
             });
 
             this._lines.forEach(function (elem) {
-                elem.style.display = '';
+                return elem.style.display = '';
             });
             this._label.style.display = '';
         };
@@ -46838,7 +46968,7 @@ var widgetsFreehand = function widgetsFreehand() {
 
             // update handles
             this._handles.forEach(function (elem) {
-                elem.update();
+                return elem.update();
             });
 
             // mesh stuff
@@ -46851,23 +46981,22 @@ var widgetsFreehand = function widgetsFreehand() {
         };
 
         _class.prototype.updateMesh = function updateMesh() {
-            // geometry
             if (this._mesh) {
                 this.remove(this._mesh);
             }
 
             var points = [];
+
             this._handles.forEach(function (elem) {
-                points.push(elem.worldPosition);
+                return points.push(elem.worldPosition);
             });
 
             var center = _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].centerOfMass(points);
+            // direction from first point to center
+            var referenceDirection = new three.Vector3().subVectors(points[0], center).normalize();
             var direction = new three.Vector3().crossVectors(new three.Vector3().subVectors(points[0], center), // side 1
             new three.Vector3().subVectors(points[1], center) // side 2
             );
-
-            // direction from first point to center
-            var referenceDirection = new three.Vector3().subVectors(points[0], center).normalize();
             var base = new three.Vector3().crossVectors(referenceDirection, direction).normalize();
             var orderedpoints = [];
 
@@ -46947,9 +47076,7 @@ var widgetsFreehand = function widgetsFreehand() {
 
         _class.prototype.pushPopHandle = function pushPopHandle() {
             var handle0 = this._handles[this._handles.length - 3];
-
             var handle1 = this._handles[this._handles.length - 2];
-
             var newhandle = this._handles[this._handles.length - 1];
 
             var isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
@@ -46961,28 +47088,28 @@ var widgetsFreehand = function widgetsFreehand() {
                 this._handles[this._handles.length - 2] = newhandle;
                 this._handles.pop();
 
-                var tempLine = this._lines.pop();
-                tempLine.style.display = 'none';
-                this._container.removeChild(tempLine);
+                this._container.removeChild(this._lines.pop());
             }
 
             return isOnLine;
         };
 
         _class.prototype.updateDOMColor = function updateDOMColor() {
+            var _this4 = this;
+
             if (this._handles.length >= 2) {
                 this._lines.forEach(function (elem) {
-                    elem.style.backgroundColor = this._color;
-                }, this);
+                    return elem.style.backgroundColor = _this4._color;
+                });
             }
             this._label.style.borderColor = this._color;
         };
 
         _class.prototype.updateDOMContent = function updateDOMContent(clear) {
+            var _this5 = this;
+
             var meanSDContainer = this._label.querySelector('.mean-sd');
-
             var maxMinContainer = this._label.querySelector('.max-min');
-
             var areaContainer = this._label.querySelector('.area');
 
             if (clear) {
@@ -46993,17 +47120,46 @@ var widgetsFreehand = function widgetsFreehand() {
                 return;
             }
 
-            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
+            var regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
-            var title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+            this._area = _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].getGeometryArea(this._geometry); // this.getArea result is changed on dragging
+            if (this._calibrationFactor) {
+                this._area *= Math.pow(this._calibrationFactor, 2);
+            } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
+                var same = true;
+                var cRegion = void 0;
+                var pRegion = void 0;
+
+                this._handles.forEach(function (elem) {
+                    cRegion = _this5.getRegionByXY(regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(_this5._stack.lps2IJK, elem.worldPosition));
+                    if (cRegion === null || regions[cRegion].unitsX !== 'cm' || pRegion !== undefined && pRegion !== cRegion) {
+                        same = false;
+                    }
+                    pRegion = cRegion;
+                });
+
+                if (same) {
+                    this._area *= Math.pow(regions[cRegion].deltaX, 2);
+                    this._units = 'cm²';
+                } else if (this._stack.frame[this._params.frameIndex].pixelSpacing) {
+                    this._area /= 100;
+                    this._units = 'cm²';
+                } else {
+                    this._units = 'units';
+                }
+            } else if (this._units === 'cm²') {
+                this._area /= 100;
+            }
+
+            var title = this._units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
             if (this._shapeWarn) {
                 title += 'Values may be incorrect due to triangulation error.';
             }
-            if (title !== '') {
+            if (title !== '' && !this._label.hasAttribute('title')) {
                 this._label.setAttribute('title', title);
                 this._label.style.color = this._colors.error;
-            } else {
+            } else if (title === '' && this._label.hasAttribute('title')) {
                 this._label.removeAttribute('title');
                 this._label.style.color = this._colors.text;
             }
@@ -47017,10 +47173,12 @@ var widgetsFreehand = function widgetsFreehand() {
                 meanSDContainer.innerHTML = '';
                 maxMinContainer.innerHTML = '';
             }
-            areaContainer.innerHTML = 'Area: ' + (GeometriesSlice.getGeometryArea(this._geometry) / 100).toFixed(2) + ' ' + units;
+            areaContainer.innerHTML = 'Area: ' + this._area.toFixed(2) + ' ' + this._units;
         };
 
         _class.prototype.updateDOMPosition = function updateDOMPosition() {
+            var _this6 = this;
+
             if (this._handles.length < 2) {
                 return;
             }
@@ -47028,15 +47186,15 @@ var widgetsFreehand = function widgetsFreehand() {
             var labelPosition = null;
 
             this._lines.forEach(function (elem, ind) {
-                var lineData = this.getLineData(this._handles[ind].screenPosition, this._handles[ind + 1 === this._handles.length ? 0 : ind + 1].screenPosition);
+                var lineData = _this6.getLineData(_this6._handles[ind].screenPosition, _this6._handles[ind + 1 === _this6._handles.length ? 0 : ind + 1].screenPosition);
 
                 elem.style.transform = 'translate3D(' + lineData.transformX + 'px, ' + lineData.transformY + 'px, 0)\n                rotate(' + lineData.transformAngle + 'rad)';
                 elem.style.width = lineData.length + 'px';
 
-                if (labelPosition === null || labelPosition.y < this._handles[ind].screenPosition.y) {
-                    labelPosition = this._handles[ind].screenPosition.clone();
+                if (labelPosition === null || labelPosition.y < _this6._handles[ind].screenPosition.y) {
+                    labelPosition = _this6._handles[ind].screenPosition.clone();
                 }
-            }, this);
+            });
 
             if (!this._initialized) {
                 return;
@@ -47050,12 +47208,12 @@ var widgetsFreehand = function widgetsFreehand() {
         };
 
         _class.prototype.free = function free() {
-            var _this2 = this;
+            var _this7 = this;
 
             this.removeEventListeners();
 
             this._handles.forEach(function (h) {
-                _this2.remove(h);
+                _this7.remove(h);
                 h.free();
             });
             this._handles = [];
@@ -47065,10 +47223,10 @@ var widgetsFreehand = function widgetsFreehand() {
             this._moveHandle = null;
 
             this._lines.forEach(function (elem) {
-                elem.removeEventListener('mouseenter', this.onHover);
-                elem.removeEventListener('mouseleave', this.onHover);
-                this._container.removeChild(elem);
-            }, this);
+                elem.removeEventListener('mouseenter', _this7.onHover);
+                elem.removeEventListener('mouseleave', _this7.onHover);
+                _this7._container.removeChild(elem);
+            });
             this._lines = [];
             this._container.removeChild(this._label);
 
@@ -47091,7 +47249,16 @@ var widgetsFreehand = function widgetsFreehand() {
             this._material.dispose();
             this._material = null;
 
+            this._stack = null;
+
             _Constructor.prototype.free.call(this);
+        };
+
+        _class.prototype.getMeasurements = function getMeasurements() {
+            return {
+                area: this._area,
+                units: this._units
+            };
         };
 
         _createClass(_class, [{
@@ -47102,7 +47269,7 @@ var widgetsFreehand = function widgetsFreehand() {
             set: function set(targetMesh) {
                 this._targetMesh = targetMesh;
                 this._handles.forEach(function (elem) {
-                    elem.targetMesh = targetMesh;
+                    return elem.targetMesh = targetMesh;
                 });
                 this._moveHandle.targetMesh = targetMesh;
                 this.update();
@@ -47114,9 +47281,19 @@ var widgetsFreehand = function widgetsFreehand() {
             },
             set: function set(worldPosition) {
                 this._handles.forEach(function (elem) {
-                    elem._worldPosition.copy(worldPosition);
-                }, this);
+                    return elem._worldPosition.copy(worldPosition);
+                });
                 this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }, {
+            key: 'calibrationFactor',
+            get: function get() {
+                return this._calibrationFactor;
+            },
+            set: function set(calibrationFactor) {
+                this._calibrationFactor = calibrationFactor;
+                this._units = 'cm²';
                 this.update();
             }
         }]);
@@ -47167,12 +47344,18 @@ var widgetsHandle = function widgetsHandle() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls) {
+    function _class(targetMesh, controls, params) {
       _classCallCheck(this, _class);
 
-      var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
 
       _this._widgetType = 'Handle';
+
+      // incoming parameters (optional: worldPosition)
+      if (params.hideHandleMesh === true) {
+        _this.visible = false;
+      }
+
       // if no target mesh, use plane for FREE dragging.
       _this._plane = {
         position: new three.Vector3(),
@@ -47193,15 +47376,13 @@ var widgetsHandle = function widgetsHandle() {
       _this._material = null;
       _this._geometry = null;
       _this._mesh = null;
-      _this._meshDisplayed = true;
       _this._meshHovered = false;
-      _this._meshStyle = 'sphere'; // cube, etc.
+      // this._meshStyle = 'sphere'; // cube, etc.
 
       // dom stuff
       _this._dom = null;
-      _this._domDisplayed = true;
       _this._domHovered = false;
-      _this._domStyle = 'circle'; // square, triangle
+      // this._domStyle = 'circle'; // square, triangle
 
       _this._screenPosition = _this.worldToScreen(_this._worldPosition);
 
@@ -47376,7 +47557,7 @@ var widgetsHandle = function widgetsHandle() {
 
     _class.prototype.createDOM = function createDOM() {
       this._dom = document.createElement('div');
-      this._dom.setAttribute('class', 'widgets-handle');
+      this._dom.className = 'widgets-handle';
 
       this._dom.style.transform = 'translate3D(\n      ' + this._screenPosition.x + 'px,\n      ' + (this._screenPosition.y - this._container.offsetHeight) + 'px, 0)';
 
@@ -47421,6 +47602,14 @@ var widgetsHandle = function widgetsHandle() {
 
     _class.prototype.updateDOMColor = function updateDOMColor() {
       this._dom.style.borderColor = this._color;
+    };
+
+    _class.prototype.showMesh = function showMesh() {
+      if (this._params.hideMesh === true || this._params.hideHandleMesh === true) {
+        return;
+      }
+
+      this.visible = true;
     };
 
     _class.prototype.free = function free() {
@@ -47498,7 +47687,7 @@ var widgetsHandle = function widgetsHandle() {
 /*!********************************!*\
   !*** ./src/widgets/widgets.js ***!
   \********************************/
-/*! exports provided: WidgetsCss, AngleWidget, angleWidgetFactory, AnnotationWidget, annotationWidgetFactory, BiRulerWidget, birulerWidgetFactory, CrossRulerWidget, crossrulerWidgetFactory, EllipseWidget, ellipseWidgetFactory, FreehandWidget, freehandWidgetFactory, HandleWidget, handleWidgetFactory, PolygonWidget, polygonWidgetFactory, RectangleWidget, rectangleWidgetFactory, RulerWidget, rulerWidgetFactory, VoxelProbeWidget, voxelprobeWidgetFactory */
+/*! exports provided: WidgetsCss, AngleWidget, angleWidgetFactory, AnnotationWidget, annotationWidgetFactory, BiRulerWidget, birulerWidgetFactory, CrossRulerWidget, crossrulerWidgetFactory, EllipseWidget, ellipseWidgetFactory, FreehandWidget, freehandWidgetFactory, HandleWidget, handleWidgetFactory, PeakVelocityWidget, peakVelocityWidgetFactory, PressureHalfTimeWidget, pressureHalfTimeWidgetFactory, PolygonWidget, polygonWidgetFactory, RectangleWidget, rectangleWidgetFactory, RulerWidget, rulerWidgetFactory, VelocityTimeIntegralWidget, velocityTimeIntegralWidgetFactory, VoxelProbeWidget, voxelprobeWidgetFactory */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -47541,25 +47730,40 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "handleWidgetFactory", function() { return _widgets_handle__WEBPACK_IMPORTED_MODULE_7__["widgetsHandle"]; });
 
-/* harmony import */ var _widgets_polygon__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./widgets.polygon */ "./src/widgets/widgets.polygon.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PolygonWidget", function() { return _widgets_polygon__WEBPACK_IMPORTED_MODULE_8__["default"]; });
+/* harmony import */ var _widgets_peakVelocity__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./widgets.peakVelocity */ "./src/widgets/widgets.peakVelocity.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PeakVelocityWidget", function() { return _widgets_peakVelocity__WEBPACK_IMPORTED_MODULE_8__["default"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "polygonWidgetFactory", function() { return _widgets_polygon__WEBPACK_IMPORTED_MODULE_8__["widgetsPolygon"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "peakVelocityWidgetFactory", function() { return _widgets_peakVelocity__WEBPACK_IMPORTED_MODULE_8__["widgetsPeakVelocity"]; });
 
-/* harmony import */ var _widgets_rectangle__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./widgets.rectangle */ "./src/widgets/widgets.rectangle.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RectangleWidget", function() { return _widgets_rectangle__WEBPACK_IMPORTED_MODULE_9__["default"]; });
+/* harmony import */ var _widgets_pressureHalfTime__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./widgets.pressureHalfTime */ "./src/widgets/widgets.pressureHalfTime.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PressureHalfTimeWidget", function() { return _widgets_pressureHalfTime__WEBPACK_IMPORTED_MODULE_9__["default"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "rectangleWidgetFactory", function() { return _widgets_rectangle__WEBPACK_IMPORTED_MODULE_9__["widgetsRectangle"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "pressureHalfTimeWidgetFactory", function() { return _widgets_pressureHalfTime__WEBPACK_IMPORTED_MODULE_9__["widgetsPressureHalfTime"]; });
 
-/* harmony import */ var _widgets_ruler__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./widgets.ruler */ "./src/widgets/widgets.ruler.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RulerWidget", function() { return _widgets_ruler__WEBPACK_IMPORTED_MODULE_10__["default"]; });
+/* harmony import */ var _widgets_polygon__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./widgets.polygon */ "./src/widgets/widgets.polygon.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PolygonWidget", function() { return _widgets_polygon__WEBPACK_IMPORTED_MODULE_10__["default"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "rulerWidgetFactory", function() { return _widgets_ruler__WEBPACK_IMPORTED_MODULE_10__["widgetsRuler"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "polygonWidgetFactory", function() { return _widgets_polygon__WEBPACK_IMPORTED_MODULE_10__["widgetsPolygon"]; });
 
-/* harmony import */ var _widgets_voxelProbe__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./widgets.voxelProbe */ "./src/widgets/widgets.voxelProbe.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VoxelProbeWidget", function() { return _widgets_voxelProbe__WEBPACK_IMPORTED_MODULE_11__["default"]; });
+/* harmony import */ var _widgets_rectangle__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./widgets.rectangle */ "./src/widgets/widgets.rectangle.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RectangleWidget", function() { return _widgets_rectangle__WEBPACK_IMPORTED_MODULE_11__["default"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "voxelprobeWidgetFactory", function() { return _widgets_voxelProbe__WEBPACK_IMPORTED_MODULE_11__["widgetsVoxelprobe"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "rectangleWidgetFactory", function() { return _widgets_rectangle__WEBPACK_IMPORTED_MODULE_11__["widgetsRectangle"]; });
+
+/* harmony import */ var _widgets_ruler__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./widgets.ruler */ "./src/widgets/widgets.ruler.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RulerWidget", function() { return _widgets_ruler__WEBPACK_IMPORTED_MODULE_12__["default"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "rulerWidgetFactory", function() { return _widgets_ruler__WEBPACK_IMPORTED_MODULE_12__["widgetsRuler"]; });
+
+/* harmony import */ var _widgets_velocityTimeIntegral__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./widgets.velocityTimeIntegral */ "./src/widgets/widgets.velocityTimeIntegral.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VelocityTimeIntegralWidget", function() { return _widgets_velocityTimeIntegral__WEBPACK_IMPORTED_MODULE_13__["default"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "velocityTimeIntegralWidgetFactory", function() { return _widgets_velocityTimeIntegral__WEBPACK_IMPORTED_MODULE_13__["widgetsVelocityTimeIntegral"]; });
+
+/* harmony import */ var _widgets_voxelProbe__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./widgets.voxelProbe */ "./src/widgets/widgets.voxelProbe.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VoxelProbeWidget", function() { return _widgets_voxelProbe__WEBPACK_IMPORTED_MODULE_14__["default"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "voxelprobeWidgetFactory", function() { return _widgets_voxelProbe__WEBPACK_IMPORTED_MODULE_14__["widgetsVoxelprobe"]; });
 
 
 
@@ -47576,6 +47780,333 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
+
+
+/***/ }),
+
+/***/ "./src/widgets/widgets.peakVelocity.js":
+/*!*********************************************!*\
+  !*** ./src/widgets/widgets.peakVelocity.js ***!
+  \*********************************************/
+/*! exports provided: widgetsPeakVelocity, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsPeakVelocity", function() { return widgetsPeakVelocity; });
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
+/* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+/**
+ * @module widgets/peakVelocity (Gradient)
+ */
+var widgetsPeakVelocity = function widgetsPeakVelocity() {
+    var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+    if (three === undefined || three.Object3D === undefined) {
+        return null;
+    }
+
+    var Constructor = Object(_widgets_base__WEBPACK_IMPORTED_MODULE_0__["widgetsBase"])(three);
+
+    return function (_Constructor) {
+        _inherits(_class, _Constructor);
+
+        function _class(targetMesh, controls, params) {
+            _classCallCheck(this, _class);
+
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
+
+            _this._widgetType = 'PeakVelocity';
+
+            // incoming parameters (required: lps2IJK, worldPosition)
+            _this._regions = params.ultrasoundRegions || []; // required
+            if (_this._regions.length < 1) {
+                throw new Error('Ultrasound regions should not be empty!');
+            }
+
+            // outgoing values
+            _this._velocity = null;
+            _this._gradient = null;
+
+            _this._container.style.cursor = 'pointer';
+            _this._controls.enabled = false; // controls should be disabled for widgets with a single handle
+            _this._initialized = false; // set to true onEnd
+            _this._active = true;
+            _this._domHovered = false;
+            _this._initialRegion = _this.getRegionByXY(_this._regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(params.lps2IJK, params.worldPosition));
+            if (_this._initialRegion === null) {
+                throw new Error('Invalid initial UltraSound region!');
+            }
+
+            // dom stuff
+            _this._line = null;
+            _this._label = null;
+
+            // handle (represent line)
+            var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
+            _this._handle = new WidgetsHandle(targetMesh, controls, params);
+            _this.add(_this._handle);
+
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
+            _this.add(_this._moveHandle);
+            _this._moveHandle.hide();
+
+            _this.create();
+
+            // event listeners
+            _this.onMove = _this.onMove.bind(_this);
+            _this.onHover = _this.onHover.bind(_this);
+            _this.addEventListeners();
+            return _this;
+        }
+
+        _class.prototype.addEventListeners = function addEventListeners() {
+            this._container.addEventListener('wheel', this.onMove);
+
+            this._line.addEventListener('mouseenter', this.onHover);
+            this._line.addEventListener('mouseleave', this.onHover);
+            this._label.addEventListener('mouseenter', this.onHover);
+            this._label.addEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.removeEventListeners = function removeEventListeners() {
+            this._container.removeEventListener('wheel', this.onMove);
+
+            this._line.removeEventListener('mouseenter', this.onHover);
+            this._line.removeEventListener('mouseleave', this.onHover);
+            this._label.removeEventListener('mouseenter', this.onHover);
+            this._label.removeEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.onHover = function onHover(evt) {
+            if (evt) {
+                this.hoverDom(evt);
+            }
+
+            this._hovered = this._handle.hovered || this._domHovered;
+            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+        };
+
+        _class.prototype.hoverDom = function hoverDom(evt) {
+            this._domHovered = evt.type === 'mouseenter';
+        };
+
+        _class.prototype.onStart = function onStart(evt) {
+            this._moveHandle.onMove(evt, true);
+            this._handle.onStart(evt);
+
+            this._active = this._handle.active || this._domHovered;
+
+            if (this._domHovered) {
+                this._controls.enabled = false;
+            }
+
+            this.update();
+        };
+
+        _class.prototype.onMove = function onMove(evt) {
+            if (this._active) {
+                var prevPosition = this._moveHandle.worldPosition.clone();
+
+                this._moveHandle.onMove(evt, true);
+
+                var shift = this._moveHandle.worldPosition.clone().sub(prevPosition);
+
+                if (!this.isCorrectRegion(shift)) {
+                    this._moveHandle.worldPosition.copy(prevPosition);
+
+                    return;
+                }
+
+                if (!this._handle.active) {
+                    this._handle.worldPosition.add(shift);
+                }
+                this._dragged = true;
+            } else {
+                this.onHover(null);
+            }
+
+            this._handle.onMove(evt);
+            this.update();
+        };
+
+        _class.prototype.onEnd = function onEnd() {
+            this._handle.onEnd();
+
+            if (!this._dragged && this._active && this._initialized) {
+                this._selected = !this._selected; // change state if there was no dragging
+                this._handle.selected = this._selected;
+            }
+
+            this._initialized = true;
+            this._active = false;
+            this._dragged = false;
+
+            this.update();
+        };
+
+        _class.prototype.isCorrectRegion = function isCorrectRegion(shift) {
+            var region = this.getRegionByXY(this._regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(this._params.lps2IJK, this._handle.worldPosition.clone().add(shift)));
+
+            return region !== null && region === this._initialRegion && this._regions[region].unitsY === 'cm/sec';
+        };
+
+        _class.prototype.create = function create() {
+            this.createDOM();
+        };
+
+        _class.prototype.createDOM = function createDOM() {
+            this._line = document.createElement('div');
+            this._line.className = 'widgets-dashline';
+            this._container.appendChild(this._line);
+
+            this._label = document.createElement('div');
+            this._label.className = 'widgets-label';
+
+            // Measurements
+            var measurementsContainer = document.createElement('div');
+            // Peak Velocity
+            var pvContainer = document.createElement('div');
+            pvContainer.className = 'peakVelocity';
+            measurementsContainer.appendChild(pvContainer);
+            // Gradient
+            var gradientContainer = document.createElement('div');
+            gradientContainer.className = 'gradient';
+            measurementsContainer.appendChild(gradientContainer);
+
+            this._label.appendChild(measurementsContainer);
+            this._container.appendChild(this._label);
+
+            this.updateDOMColor();
+        };
+
+        _class.prototype.update = function update() {
+            this.updateColor();
+
+            this._handle.update();
+            this._worldPosition.copy(this._handle.worldPosition);
+
+            this.updateDOM();
+        };
+
+        _class.prototype.updateDOM = function updateDOM() {
+            this.updateDOMColor();
+
+            var point = _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(this._params.lps2IJK, this._worldPosition);
+            var region = this._regions[this.getRegionByXY(this._regions, point)];
+            var usPosition = this.getPointInRegion(region, point);
+
+            this._velocity = Math.abs(usPosition.y / 100);
+            this._gradient = 4 * Math.pow(this._velocity, 2);
+
+            // content
+            this._label.querySelector('.peakVelocity').innerHTML = this._velocity.toFixed(2) + ' m/s';
+            this._label.querySelector('.gradient').innerHTML = this._gradient.toFixed(2) + ' mmhg';
+
+            // position
+            var transform = this.adjustLabelTransform(this._label, this._handle.screenPosition, true);
+
+            this._line.style.transform = 'translate3D(' + (transform.x - (point.x - region.x0) * this._camera.zoom) + 'px, ' + transform.y + 'px, 0)';
+            this._line.style.width = (region.x1 - region.x0) * this._camera.zoom + 'px';
+            this._label.style.transform = 'translate3D(' + (transform.x + 10) + 'px, ' + (transform.y + 10) + 'px, 0)';
+        };
+
+        _class.prototype.updateDOMColor = function updateDOMColor() {
+            this._line.style.backgroundColor = this._color;
+            this._label.style.borderColor = this._color;
+        };
+
+        _class.prototype.hideDOM = function hideDOM() {
+            this._line.style.display = 'none';
+            this._label.style.display = 'none';
+            this._handle.hideDOM();
+        };
+
+        _class.prototype.showDOM = function showDOM() {
+            this._line.style.display = '';
+            this._label.style.display = '';
+            this._handle.showDOM();
+        };
+
+        _class.prototype.free = function free() {
+            this.removeEventListeners();
+
+            this.remove(this._handle);
+            this._handle.free();
+            this._handle = null;
+            this.remove(this._moveHandle);
+            this._moveHandle.free();
+            this._moveHandle = null;
+
+            this._container.removeChild(this._line);
+            this._container.removeChild(this._label);
+
+            _Constructor.prototype.free.call(this);
+        };
+
+        _class.prototype.getMeasurements = function getMeasurements() {
+            return {
+                velocity: this._velocity,
+                gradient: this._gradient
+            };
+        };
+
+        _createClass(_class, [{
+            key: 'targetMesh',
+            get: function get() {
+                return this._targetMesh;
+            },
+            set: function set(targetMesh) {
+                this._targetMesh = targetMesh;
+                this._handle.targetMesh = targetMesh;
+                this._moveHandle.targetMesh = targetMesh;
+                this.update();
+            }
+        }, {
+            key: 'worldPosition',
+            get: function get() {
+                return this._worldPosition;
+            },
+            set: function set(worldPosition) {
+                this._handle.worldPosition.copy(worldPosition);
+                this._moveHandle.worldPosition.copy(worldPosition);
+                this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }, {
+            key: 'active',
+            get: function get() {
+                return this._active;
+            },
+            set: function set(active) {
+                this._active = active;
+                this._controls.enabled = !this._active;
+
+                this.update();
+            }
+        }]);
+
+        return _class;
+    }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["default"] = (widgetsPeakVelocity());
 
 /***/ }),
 
@@ -47618,14 +48149,21 @@ var widgetsPolygon = function widgetsPolygon() {
     return function (_Constructor) {
         _inherits(_class, _Constructor);
 
-        function _class(targetMesh, controls, stack) {
+        function _class(targetMesh, controls, params) {
             _classCallCheck(this, _class);
 
-            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
-
-            _this._stack = stack;
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
 
             _this._widgetType = 'Polygon';
+
+            // incoming parameters (optional: frameIndex, worldPosition)
+            _this._stack = params.stack; // required
+            _this._calibrationFactor = params.calibrationFactor || null;
+
+            // outgoing values
+            _this._area = null;
+            _this._units = !_this._calibrationFactor && !params.stack.frame[params.frameIndex].pixelSpacing ? 'units' : 'cm²';
+
             _this._initialized = false; // set to true onDblClick if number of handles > 2
             _this._newHandleRequired = true; // should handle be created onMove?
             _this._moving = false;
@@ -47644,13 +48182,11 @@ var widgetsPolygon = function widgetsPolygon() {
             _this._handles = [];
             var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
 
-            var handle = new WidgetsHandle(targetMesh, controls);
-            handle.worldPosition.copy(_this._worldPosition);
+            var handle = new WidgetsHandle(targetMesh, controls, params);
             _this.add(handle);
             _this._handles.push(handle);
 
-            _this._moveHandle = new WidgetsHandle(targetMesh, controls);
-            _this._moveHandle.worldPosition.copy(_this._worldPosition);
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
             _this.add(_this._moveHandle);
             _this._moveHandle.hide();
 
@@ -47690,7 +48226,7 @@ var widgetsPolygon = function widgetsPolygon() {
             var hovered = false;
 
             this._handles.forEach(function (elem) {
-                hovered = hovered || elem.hovered;
+                return hovered = hovered || elem.hovered;
             });
 
             this._hovered = hovered || this._domHovered;
@@ -47729,7 +48265,7 @@ var widgetsPolygon = function widgetsPolygon() {
         };
 
         _class.prototype.onMove = function onMove(evt) {
-            var numHandles = this._handles.length;
+            var _this2 = this;
 
             var hovered = false;
 
@@ -47737,13 +48273,13 @@ var widgetsPolygon = function widgetsPolygon() {
                 this._dragged = true;
 
                 if (this._newHandleRequired && !this._initialized) {
-                    this._handles[numHandles - 1].hovered = false;
-                    this._handles[numHandles - 1].active = false;
-                    this._handles[numHandles - 1].tracking = false;
-                    var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
+                    this._handles[this._handles.length - 1].hovered = false;
+                    this._handles[this._handles.length - 1].active = false;
+                    this._handles[this._handles.length - 1].tracking = false;
 
-                    var handle = new WidgetsHandle(this._targetMesh, this._controls);
-                    handle.worldPosition.copy(this._worldPosition);
+                    var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
+                    var handle = new WidgetsHandle(this._targetMesh, this._controls, this._params);
+
                     handle.hovered = true;
                     handle.active = true;
                     handle.tracking = true;
@@ -47755,17 +48291,15 @@ var widgetsPolygon = function widgetsPolygon() {
                 } else {
                     var prevPosition = this._moveHandle.worldPosition.clone();
 
+                    this._moveHandle.onMove(evt, true);
                     if (this._mesh) {
                         this.remove(this._mesh);
                     }
                     this.updateDOMContent(true);
-
-                    this._moveHandle.onMove(evt, true);
-
                     if (this._moving) {
-                        this._handles.forEach(function (elem, ind) {
-                            this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                        }, this);
+                        this._handles.forEach(function (handle) {
+                            handle.worldPosition.add(_this2._moveHandle.worldPosition.clone().sub(prevPosition));
+                        });
                     }
                 }
             }
@@ -47782,8 +48316,9 @@ var widgetsPolygon = function widgetsPolygon() {
         };
 
         _class.prototype.onEnd = function onEnd() {
-            var numHandles = this._handles.length;
+            var _this3 = this;
 
+            var numHandles = this._handles.length;
             var active = false;
 
             if (!this._initialized && numHandles > 1 && this._handles[numHandles - 2].screenPosition.distanceTo(this._handles[numHandles - 1].screenPosition) < 10) {
@@ -47801,18 +48336,21 @@ var widgetsPolygon = function widgetsPolygon() {
                 return;
             }
 
+            if (this._dragged) {
+                this.updateMesh();
+                this.updateDOMContent();
+            }
+
             if (!this._dragged && this._active) {
                 this._selected = !this._selected; // change state if there was no dragging
                 this._handles.forEach(function (elem) {
-                    elem.selected = this._selected;
-                }, this);
+                    return elem.selected = _this3._selected;
+                });
             }
             this._active = active || this._handles[numHandles - 1].active;
             this._dragged = false;
             this._moving = false;
 
-            this.updateMesh();
-            this.updateDOMContent();
             this.update();
         };
 
@@ -47825,7 +48363,7 @@ var widgetsPolygon = function widgetsPolygon() {
 
             this._handles[numHandles - 1].tracking = false;
             this._handles.forEach(function (elem) {
-                elem.onEnd();
+                return elem.onEnd();
             });
 
             this._active = false;
@@ -47853,21 +48391,21 @@ var widgetsPolygon = function widgetsPolygon() {
             this.createLine();
 
             this._label = document.createElement('div');
-            this._label.setAttribute('class', 'widgets-label');
+            this._label.className = 'widgets-label';
 
-            // measurenents
+            // measurements
             var measurementsContainer = document.createElement('div');
             // Mean / SD
             var meanSDContainer = document.createElement('div');
-            meanSDContainer.setAttribute('class', 'mean-sd');
+            meanSDContainer.className = 'mean-sd';
             measurementsContainer.appendChild(meanSDContainer);
             // Max / Min
             var maxMinContainer = document.createElement('div');
-            maxMinContainer.setAttribute('class', 'max-min');
+            maxMinContainer.className = 'max-min';
             measurementsContainer.appendChild(maxMinContainer);
             // Area
             var areaContainer = document.createElement('div');
-            areaContainer.setAttribute('class', 'area');
+            areaContainer.className = 'area';
             measurementsContainer.appendChild(areaContainer);
 
             this._label.appendChild(measurementsContainer);
@@ -47880,7 +48418,7 @@ var widgetsPolygon = function widgetsPolygon() {
         _class.prototype.createLine = function createLine() {
             var line = document.createElement('div');
 
-            line.setAttribute('class', 'widgets-line');
+            line.className = 'widgets-line';
             line.addEventListener('mouseenter', this.onHover);
             line.addEventListener('mouseleave', this.onHover);
             this._lines.push(line);
@@ -47889,22 +48427,22 @@ var widgetsPolygon = function widgetsPolygon() {
 
         _class.prototype.hideDOM = function hideDOM() {
             this._handles.forEach(function (elem) {
-                elem.hideDOM();
+                return elem.hideDOM();
             });
 
             this._lines.forEach(function (elem) {
-                elem.style.display = 'none';
+                return elem.style.display = 'none';
             });
             this._label.style.display = 'none';
         };
 
         _class.prototype.showDOM = function showDOM() {
             this._handles.forEach(function (elem) {
-                elem.showDOM();
+                return elem.showDOM();
             });
 
             this._lines.forEach(function (elem) {
-                elem.style.display = '';
+                return elem.style.display = '';
             });
             this._label.style.display = '';
         };
@@ -47914,7 +48452,7 @@ var widgetsPolygon = function widgetsPolygon() {
 
             // update handles
             this._handles.forEach(function (elem) {
-                elem.update();
+                return elem.update();
             });
 
             // mesh stuff
@@ -47927,14 +48465,14 @@ var widgetsPolygon = function widgetsPolygon() {
         };
 
         _class.prototype.updateMesh = function updateMesh() {
-            // geometry
             if (this._mesh) {
                 this.remove(this._mesh);
             }
 
             var points = [];
+
             this._handles.forEach(function (elem) {
-                points.push(elem.worldPosition);
+                return points.push(elem.worldPosition);
             });
 
             var center = _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].centerOfMass(points);
@@ -48017,17 +48555,19 @@ var widgetsPolygon = function widgetsPolygon() {
         };
 
         _class.prototype.updateDOMColor = function updateDOMColor() {
+            var _this4 = this;
+
             this._lines.forEach(function (elem) {
-                elem.style.backgroundColor = this._color;
-            }, this);
+                return elem.style.backgroundColor = _this4._color;
+            });
             this._label.style.borderColor = this._color;
         };
 
         _class.prototype.updateDOMContent = function updateDOMContent(clear) {
+            var _this5 = this;
+
             var meanSDContainer = this._label.querySelector('.mean-sd');
-
             var maxMinContainer = this._label.querySelector('.max-min');
-
             var areaContainer = this._label.querySelector('.area');
 
             if (clear) {
@@ -48038,17 +48578,46 @@ var widgetsPolygon = function widgetsPolygon() {
                 return;
             }
 
-            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
+            var regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
 
-            var title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+            this._area = _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].getGeometryArea(this._geometry); // this.getArea result is changed on dragging
+            if (this._calibrationFactor) {
+                this._area *= Math.pow(this._calibrationFactor, 2);
+            } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
+                var same = true;
+                var cRegion = void 0;
+                var pRegion = void 0;
+
+                this._handles.forEach(function (elem) {
+                    cRegion = _this5.getRegionByXY(regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(_this5._stack.lps2IJK, elem.worldPosition));
+                    if (cRegion === null || regions[cRegion].unitsX !== 'cm' || pRegion !== undefined && pRegion !== cRegion) {
+                        same = false;
+                    }
+                    pRegion = cRegion;
+                });
+
+                if (same) {
+                    this._area *= Math.pow(regions[cRegion].deltaX, 2);
+                    this._units = 'cm²';
+                } else if (this._stack.frame[this._params.frameIndex].pixelSpacing) {
+                    this._area /= 100;
+                    this._units = 'cm²';
+                } else {
+                    this._units = 'units';
+                }
+            } else if (this._units === 'cm²') {
+                this._area /= 100;
+            }
+
+            var title = this._units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
 
             if (this._shapeWarn) {
                 title += 'Values may be incorrect due to triangulation error.';
             }
-            if (title !== '') {
+            if (title !== '' && !this._label.hasAttribute('title')) {
                 this._label.setAttribute('title', title);
                 this._label.style.color = this._colors.error;
-            } else {
+            } else if (title === '' && this._label.hasAttribute('title')) {
                 this._label.removeAttribute('title');
                 this._label.style.color = this._colors.text;
             }
@@ -48062,23 +48631,25 @@ var widgetsPolygon = function widgetsPolygon() {
                 meanSDContainer.innerHTML = '';
                 maxMinContainer.innerHTML = '';
             }
-            areaContainer.innerHTML = 'Area: ' + (_core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].getGeometryArea(this._geometry) / 100).toFixed(2) + ' ' + units;
+            areaContainer.innerHTML = 'Area: ' + this._area.toFixed(2) + ' ' + this._units;
         };
 
         _class.prototype.updateDOMPosition = function updateDOMPosition() {
+            var _this6 = this;
+
             // update lines and get coordinates of lowest handle
             var labelPosition = null;
 
             this._lines.forEach(function (elem, ind) {
-                var lineData = this.getLineData(this._handles[ind].screenPosition, this._handles[ind + 1 === this._handles.length ? 0 : ind + 1].screenPosition);
+                var lineData = _this6.getLineData(_this6._handles[ind].screenPosition, _this6._handles[ind + 1 === _this6._handles.length ? 0 : ind + 1].screenPosition);
 
                 elem.style.transform = 'translate3D(' + lineData.transformX + 'px, ' + lineData.transformY + 'px, 0)\n                    rotate(' + lineData.transformAngle + 'rad)';
                 elem.style.width = lineData.length + 'px';
 
-                if (labelPosition === null || labelPosition.y < this._handles[ind].screenPosition.y) {
-                    labelPosition = this._handles[ind].screenPosition.clone();
+                if (labelPosition === null || labelPosition.y < _this6._handles[ind].screenPosition.y) {
+                    labelPosition = _this6._handles[ind].screenPosition.clone();
                 }
-            }, this);
+            });
 
             if (!this._initialized) {
                 return;
@@ -48092,12 +48663,12 @@ var widgetsPolygon = function widgetsPolygon() {
         };
 
         _class.prototype.free = function free() {
-            var _this2 = this;
+            var _this7 = this;
 
             this.removeEventListeners();
 
             this._handles.forEach(function (h) {
-                _this2.remove(h);
+                _this7.remove(h);
                 h.free();
             });
             this._handles = [];
@@ -48107,10 +48678,10 @@ var widgetsPolygon = function widgetsPolygon() {
             this._moveHandle = null;
 
             this._lines.forEach(function (elem) {
-                elem.removeEventListener('mouseenter', this.onHover);
-                elem.removeEventListener('mouseleave', this.onHover);
-                this._container.removeChild(elem);
-            }, this);
+                elem.removeEventListener('mouseenter', _this7.onHover);
+                elem.removeEventListener('mouseleave', _this7.onHover);
+                _this7._container.removeChild(elem);
+            });
             this._lines = [];
             this._container.removeChild(this._label);
 
@@ -48133,7 +48704,16 @@ var widgetsPolygon = function widgetsPolygon() {
             this._material.dispose();
             this._material = null;
 
+            this._stack = null;
+
             _Constructor.prototype.free.call(this);
+        };
+
+        _class.prototype.getMeasurements = function getMeasurements() {
+            return {
+                area: this._area,
+                units: this._units
+            };
         };
 
         _createClass(_class, [{
@@ -48144,7 +48724,7 @@ var widgetsPolygon = function widgetsPolygon() {
             set: function set(targetMesh) {
                 this._targetMesh = targetMesh;
                 this._handles.forEach(function (elem) {
-                    elem.targetMesh = targetMesh;
+                    return elem.targetMesh = targetMesh;
                 });
                 this._moveHandle.targetMesh = targetMesh;
                 this.update();
@@ -48156,9 +48736,19 @@ var widgetsPolygon = function widgetsPolygon() {
             },
             set: function set(worldPosition) {
                 this._handles.forEach(function (elem) {
-                    elem._worldPosition.copy(worldPosition);
-                }, this);
+                    return elem.worldPosition.copy(worldPosition);
+                });
                 this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }, {
+            key: 'calibrationFactor',
+            get: function get() {
+                return this._calibrationFactor;
+            },
+            set: function set(calibrationFactor) {
+                this._calibrationFactor = calibrationFactor;
+                this._units = 'cm²';
                 this.update();
             }
         }]);
@@ -48169,6 +48759,458 @@ var widgetsPolygon = function widgetsPolygon() {
 
 
 /* harmony default export */ __webpack_exports__["default"] = (widgetsPolygon());
+
+/***/ }),
+
+/***/ "./src/widgets/widgets.pressureHalfTime.js":
+/*!*************************************************!*\
+  !*** ./src/widgets/widgets.pressureHalfTime.js ***!
+  \*************************************************/
+/*! exports provided: widgetsPressureHalfTime, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsPressureHalfTime", function() { return widgetsPressureHalfTime; });
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
+/* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+/**
+ * @module widgets/pressureHalfTime
+ */
+var widgetsPressureHalfTime = function widgetsPressureHalfTime() {
+    var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+    if (three === undefined || three.Object3D === undefined) {
+        return null;
+    }
+
+    var Constructor = Object(_widgets_base__WEBPACK_IMPORTED_MODULE_0__["widgetsBase"])(three);
+
+    return function (_Constructor) {
+        _inherits(_class, _Constructor);
+
+        function _class(targetMesh, controls, params) {
+            _classCallCheck(this, _class);
+
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
+
+            _this._widgetType = 'PressureHalfTime';
+
+            // incoming parameters (required: lps2IJK, worldPosition)
+            _this._regions = params.ultrasoundRegions || []; // required
+            if (_this._regions.length < 1) {
+                throw new Error('Ultrasound regions should not be empty!');
+            }
+
+            // outgoing values
+            _this._vMax = null; // Maximum Velocity (Vmax)
+            _this._gMax = null; // Maximum Gradient (Gmax)
+            _this._pht = null; // Pressure Half Time (PHT)
+            _this._mva = null; // Mitral Valve Area (MVA)
+            _this._dt = null; // Deceleration Time (DT)
+            _this._ds = null; // Deceleration Slope (DS)
+
+            _this._domHovered = false;
+            _this._initialRegion = _this.getRegionByXY(_this._regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(params.lps2IJK, params.worldPosition));
+            if (_this._initialRegion === null) {
+                throw new Error('Invalid initial UltraSound region!');
+            }
+
+            // mesh stuff
+            _this._material = null;
+            _this._geometry = null;
+            _this._mesh = null;
+
+            // dom stuff
+            _this._line = null;
+            _this._label = null;
+
+            // add handles
+            _this._handles = [];
+            var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
+
+            var handle = void 0;
+            for (var i = 0; i < 2; i++) {
+                handle = new WidgetsHandle(targetMesh, controls, params);
+                _this.add(handle);
+                _this._handles.push(handle);
+            }
+            _this._handles[1].active = true;
+            _this._handles[1].tracking = true;
+
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
+            _this.add(_this._moveHandle);
+            _this._handles.push(_this._moveHandle);
+            _this._moveHandle.hide();
+
+            _this.create();
+
+            _this.onMove = _this.onMove.bind(_this);
+            _this.onHover = _this.onHover.bind(_this);
+            _this.addEventListeners();
+            return _this;
+        }
+
+        _class.prototype.addEventListeners = function addEventListeners() {
+            this._container.addEventListener('wheel', this.onMove);
+
+            this._line.addEventListener('mouseenter', this.onHover);
+            this._line.addEventListener('mouseleave', this.onHover);
+            this._label.addEventListener('mouseenter', this.onHover);
+            this._label.addEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.removeEventListeners = function removeEventListeners() {
+            this._container.removeEventListener('wheel', this.onMove);
+
+            this._line.removeEventListener('mouseenter', this.onHover);
+            this._line.removeEventListener('mouseleave', this.onHover);
+            this._label.removeEventListener('mouseenter', this.onHover);
+            this._label.removeEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.onHover = function onHover(evt) {
+            if (evt) {
+                this.hoverDom(evt);
+            }
+
+            this.hoverMesh();
+
+            this._hovered = this._handles[0].hovered || this._handles[1].hovered || this._domHovered;
+            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+        };
+
+        _class.prototype.hoverMesh = function hoverMesh() {
+            // check raycast intersection, do we want to hover on mesh or just css?
+        };
+
+        _class.prototype.hoverDom = function hoverDom(evt) {
+            this._domHovered = evt.type === 'mouseenter';
+        };
+
+        _class.prototype.onStart = function onStart(evt) {
+            this._moveHandle.onMove(evt, true);
+
+            this._handles[0].onStart(evt);
+            this._handles[1].onStart(evt);
+
+            this._active = this._handles[0].active || this._handles[1].active || this._domHovered;
+
+            if (this._domHovered) {
+                this._controls.enabled = false;
+            }
+
+            this.update();
+        };
+
+        _class.prototype.onMove = function onMove(evt) {
+            if (this._active) {
+                var prevPosition = this._moveHandle.worldPosition.clone();
+
+                this._moveHandle.onMove(evt, true);
+
+                var shift = this._moveHandle.worldPosition.clone().sub(prevPosition);
+
+                if (!this.isCorrectRegion(shift)) {
+                    this._moveHandle.worldPosition.copy(prevPosition);
+
+                    return;
+                }
+
+                if (!this._handles[0].active && !this._handles[1].active) {
+                    this._handles.slice(0, -1).forEach(function (handle) {
+                        handle.worldPosition.add(shift);
+                    });
+                }
+                this._dragged = true;
+            } else {
+                this.onHover(null);
+            }
+
+            this._handles[0].onMove(evt);
+            this._handles[1].onMove(evt);
+            this.update();
+        };
+
+        _class.prototype.onEnd = function onEnd() {
+            this._handles[0].onEnd(); // First Handle
+
+            if (this._handles[1].tracking && this._handles[0].screenPosition.distanceTo(this._handles[1].screenPosition) < 10) {
+                return;
+            }
+
+            if (!this._dragged && this._active && !this._handles[1].tracking) {
+                this._selected = !this._selected; // change state if there was no dragging
+                this._handles[0].selected = this._selected;
+            }
+
+            // Second Handle
+            if (this._dragged || !this._handles[1].tracking) {
+                this._handles[1].tracking = false;
+                this._handles[1].onEnd();
+            } else {
+                this._handles[1].tracking = false;
+            }
+            this._handles[1].selected = this._selected;
+
+            this._active = this._handles[0].active || this._handles[1].active;
+            this._dragged = false;
+
+            this.update();
+        };
+
+        _class.prototype.isCorrectRegion = function isCorrectRegion(shift) {
+            var inActive = !(this._handles[0].active || this._handles[1].active);
+            var isCorrect = true;
+
+            if (this._handles[0].active || inActive) {
+                isCorrect = isCorrect && this.checkHandle(0, shift);
+            }
+            if (this._handles[1].active || inActive) {
+                isCorrect = isCorrect && this.checkHandle(1, shift);
+            }
+
+            return isCorrect;
+        };
+
+        _class.prototype.checkHandle = function checkHandle(index, shift) {
+            var region = this.getRegionByXY(this._regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(this._params.lps2IJK, this._handles[index].worldPosition.clone().add(shift)));
+
+            return region !== null && region === this._initialRegion && this._regions[region].unitsY === 'cm/sec';
+        };
+
+        _class.prototype.create = function create() {
+            this.createMesh();
+            this.createDOM();
+        };
+
+        _class.prototype.createMesh = function createMesh() {
+            // geometry
+            this._geometry = new three.Geometry();
+            this._geometry.vertices = [this._handles[0].worldPosition, this._handles[1].worldPosition];
+
+            // material
+            this._material = new three.LineBasicMaterial();
+
+            this.updateMeshColor();
+
+            // mesh
+            this._mesh = new three.Line(this._geometry, this._material);
+            this._mesh.visible = true;
+
+            this.add(this._mesh);
+        };
+
+        _class.prototype.createDOM = function createDOM() {
+            this._line = document.createElement('div');
+            this._line.className = 'widgets-line';
+            this._container.appendChild(this._line);
+
+            this._label = document.createElement('div');
+            this._label.className = 'widgets-label';
+
+            var measurementsContainer = document.createElement('div');
+
+            ['vmax', 'gmax', 'pht', 'mva', 'dt', 'ds'].forEach(function (name) {
+                var div = document.createElement('div');
+
+                div.className = name;
+                measurementsContainer.appendChild(div);
+            });
+            this._label.appendChild(measurementsContainer);
+
+            this._container.appendChild(this._label);
+
+            this.updateDOMColor();
+        };
+
+        _class.prototype.hideDOM = function hideDOM() {
+            this._line.style.display = 'none';
+            this._label.style.display = 'none';
+            this._handles.forEach(function (elem) {
+                return elem.hideDOM();
+            });
+        };
+
+        _class.prototype.showDOM = function showDOM() {
+            this._line.style.display = '';
+            this._label.style.display = '';
+            this._handles[0].showDOM();
+            this._handles[1].showDOM();
+        };
+
+        _class.prototype.update = function update() {
+            this.updateColor();
+
+            this._handles[0].update();
+            this._handles[1].update();
+
+            this.updateValues();
+
+            this.updateMeshColor();
+            this.updateMeshPosition();
+
+            this.updateDOM();
+        };
+
+        _class.prototype.updateValues = function updateValues() {
+            var usPosition0 = this.getUsPoint(this._regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(this._params.lps2IJK, this._handles[0].worldPosition));
+            var usPosition1 = this.getUsPoint(this._regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(this._params.lps2IJK, this._handles[1].worldPosition));
+            var velocity0 = Math.abs(usPosition0.y / 100);
+            var velocity1 = Math.abs(usPosition1.y / 100);
+            var time0 = Math.abs(usPosition0.x);
+            var time1 = Math.abs(usPosition1.x);
+            var vMaxTime = this._vMax === velocity0 ? time0 : time1;
+
+            this._vMax = Math.max(velocity0, velocity1);
+            this._gMax = 4 * Math.pow(this._vMax, 2);
+
+            var phtVelocity = this._vMax / Math.sqrt(2);
+            var phtKoeff = (velocity0 - phtVelocity) / (velocity1 - phtVelocity);
+            var dtKoeff = velocity0 / velocity1;
+
+            this._pht = phtKoeff === 1 ? Number.POSITIVE_INFINITY : Math.abs(vMaxTime - (time0 - phtKoeff * time1) / (1 - phtKoeff)) * 1000;
+            this._mva = 220 / this._pht;
+            this._dt = dtKoeff === 1 ? Number.POSITIVE_INFINITY : Math.abs(vMaxTime - (time0 - dtKoeff * time1) / (1 - dtKoeff)) * 1000;
+            this._ds = this._dt === 0 ? Number.POSITIVE_INFINITY : this._vMax / this._dt * 1000;
+        };
+
+        _class.prototype.updateMeshColor = function updateMeshColor() {
+            if (this._material) {
+                this._material.color.set(this._color);
+            }
+        };
+
+        _class.prototype.updateMeshPosition = function updateMeshPosition() {
+            if (this._geometry) {
+                this._geometry.verticesNeedUpdate = true;
+            }
+        };
+
+        _class.prototype.updateDOM = function updateDOM() {
+            this.updateDOMColor();
+
+            // update line
+            var lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
+
+            this._line.style.transform = 'translate3D(' + lineData.transformX + 'px, ' + lineData.transformY + 'px, 0)\n                rotate(' + lineData.transformAngle + 'rad)';
+            this._line.style.width = lineData.length + 'px';
+
+            // update label
+            this._label.querySelector('.vmax').innerHTML = 'Vmax: ' + this._vMax.toFixed(2) + ' m/s';
+            this._label.querySelector('.gmax').innerHTML = 'Gmax: ' + this._gMax.toFixed(2) + ' mmhg';
+            this._label.querySelector('.pht').innerHTML = 'PHT: ' + this._pht.toFixed(1) + ' ms';
+            this._label.querySelector('.mva').innerHTML = 'MVA: ' + this._mva.toFixed(2) + ' cm\xB2';
+            this._label.querySelector('.dt').innerHTML = 'DT: ' + this._dt.toFixed(1) + ' ms';
+            this._label.querySelector('.ds').innerHTML = 'DS: ' + this._ds.toFixed(2) + ' m/s\xB2';
+
+            var angle = Math.abs(lineData.transformAngle);
+
+            if (angle > Math.PI / 2) {
+                angle = Math.PI - angle;
+            }
+
+            var labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth ? this._label.offsetWidth / 2 / Math.cos(angle) + 15 // 5px for each handle + padding
+            : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle) + 15;
+            var paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
+            var paddingPoint = lineData.length > labelPadding * 2 ? this._handles[1].screenPosition.clone().sub(paddingVector) : this._handles[1].screenPosition.clone().add(paddingVector);
+            var transform = this.adjustLabelTransform(this._label, paddingPoint);
+
+            this._label.style.transform = 'translate3D(' + transform.x + 'px, ' + transform.y + 'px, 0)';
+        };
+
+        _class.prototype.updateDOMColor = function updateDOMColor() {
+            this._line.style.backgroundColor = this._color;
+            this._label.style.borderColor = this._color;
+        };
+
+        _class.prototype.free = function free() {
+            var _this2 = this;
+
+            this.removeEventListeners();
+
+            this._handles.forEach(function (h) {
+                _this2.remove(h);
+                h.free();
+            });
+            this._handles = [];
+
+            this._container.removeChild(this._line);
+            this._container.removeChild(this._label);
+
+            // mesh, geometry, material
+            this.remove(this._mesh);
+            this._mesh.geometry.dispose();
+            this._mesh.geometry = null;
+            this._mesh.material.dispose();
+            this._mesh.material = null;
+            this._mesh = null;
+            this._geometry.dispose();
+            this._geometry = null;
+            this._material.vertexShader = null;
+            this._material.fragmentShader = null;
+            this._material.uniforms = null;
+            this._material.dispose();
+            this._material = null;
+
+            _Constructor.prototype.free.call(this);
+        };
+
+        _class.prototype.getMeasurements = function getMeasurements() {
+            return {
+                vMax: this._vMax,
+                gMax: this._gMax,
+                pht: this._pht,
+                mva: this._mva,
+                dt: this._dt,
+                ds: this._ds
+            };
+        };
+
+        _createClass(_class, [{
+            key: 'targetMesh',
+            get: function get() {
+                return this._targetMesh;
+            },
+            set: function set(targetMesh) {
+                this._targetMesh = targetMesh;
+                this._handles.forEach(function (elem) {
+                    return elem.targetMesh = targetMesh;
+                });
+                this.update();
+            }
+        }, {
+            key: 'worldPosition',
+            get: function get() {
+                return this._worldPosition;
+            },
+            set: function set(worldPosition) {
+                this._handles[0].worldPosition.copy(worldPosition);
+                this._handles[1].worldPosition.copy(worldPosition);
+                this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }]);
+
+        return _class;
+    }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["default"] = (widgetsPressureHalfTime());
 
 /***/ }),
 
@@ -48211,14 +49253,21 @@ var widgetsRectangle = function widgetsRectangle() {
     return function (_Constructor) {
         _inherits(_class, _Constructor);
 
-        function _class(targetMesh, controls, stack) {
+        function _class(targetMesh, controls, params) {
             _classCallCheck(this, _class);
 
-            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
-
-            _this._stack = stack;
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
 
             _this._widgetType = 'Rectangle';
+
+            // incoming parameters (optional: frameIndex, worldPosition)
+            _this._stack = params.stack; // required
+            _this._calibrationFactor = params.calibrationFactor || null;
+
+            // outgoing values
+            _this._area = null;
+            _this._units = !_this._calibrationFactor && !params.stack.frame[params.frameIndex].pixelSpacing ? 'units' : 'cm²';
+
             _this._moving = false;
             _this._domHovered = false;
 
@@ -48237,16 +49286,14 @@ var widgetsRectangle = function widgetsRectangle() {
 
             var handle = void 0;
             for (var i = 0; i < 2; i++) {
-                handle = new WidgetsHandle(targetMesh, controls);
-                handle.worldPosition.copy(_this._worldPosition);
+                handle = new WidgetsHandle(targetMesh, controls, params);
                 _this.add(handle);
                 _this._handles.push(handle);
             }
             _this._handles[1].active = true;
             _this._handles[1].tracking = true;
 
-            _this._moveHandle = new WidgetsHandle(targetMesh, controls);
-            _this._moveHandle.worldPosition.copy(_this._worldPosition);
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
             _this.add(_this._moveHandle);
             _this._handles.push(_this._moveHandle);
             _this._moveHandle.hide();
@@ -48313,6 +49360,8 @@ var widgetsRectangle = function widgetsRectangle() {
         };
 
         _class.prototype.onMove = function onMove(evt) {
+            var _this2 = this;
+
             if (this._active) {
                 var prevPosition = this._moveHandle.worldPosition.clone();
 
@@ -48320,9 +49369,9 @@ var widgetsRectangle = function widgetsRectangle() {
                 this._moveHandle.onMove(evt, true);
 
                 if (this._moving) {
-                    this._handles.slice(0, -1).forEach(function (elem, ind) {
-                        this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-                    }, this);
+                    this._handles.slice(0, -1).forEach(function (handle) {
+                        handle.worldPosition.add(_this2._moveHandle.worldPosition.clone().sub(prevPosition));
+                    });
                 }
 
                 this.updateRoI(true);
@@ -48361,13 +49410,13 @@ var widgetsRectangle = function widgetsRectangle() {
             this._dragged = false;
             this._moving = false;
 
-            this.updateRoI();
+            this.updateRoI(); // TODO: if (this._dragged || !this._initialized)
             this.update();
         };
 
         _class.prototype.hideDOM = function hideDOM() {
             this._handles.forEach(function (elem) {
-                elem.hideDOM();
+                return elem.hideDOM();
             });
 
             this._rectangle.style.display = 'none';
@@ -48404,25 +49453,25 @@ var widgetsRectangle = function widgetsRectangle() {
 
         _class.prototype.createDOM = function createDOM() {
             this._rectangle = document.createElement('div');
-            this._rectangle.setAttribute('class', 'widgets-rectangle');
+            this._rectangle.className = 'widgets-rectangle';
             this._container.appendChild(this._rectangle);
 
             this._label = document.createElement('div');
-            this._label.setAttribute('class', 'widgets-label');
+            this._label.className = 'widgets-label';
 
-            // measurenents
+            // measurements
             var measurementsContainer = document.createElement('div');
             // Mean / SD
             var meanSDContainer = document.createElement('div');
-            meanSDContainer.setAttribute('class', 'mean-sd');
+            meanSDContainer.className = 'mean-sd';
             measurementsContainer.appendChild(meanSDContainer);
             // Max / Min
             var maxMinContainer = document.createElement('div');
-            maxMinContainer.setAttribute('class', 'max-min');
+            maxMinContainer.className = 'max-min';
             measurementsContainer.appendChild(maxMinContainer);
             // Area
             var areaContainer = document.createElement('div');
-            areaContainer.setAttribute('class', 'area');
+            areaContainer.className = 'area';
             measurementsContainer.appendChild(areaContainer);
 
             this._label.appendChild(measurementsContainer);
@@ -48435,18 +49484,13 @@ var widgetsRectangle = function widgetsRectangle() {
         _class.prototype.update = function update() {
             this.updateColor();
 
-            // update handles
             this._handles[0].update();
             this._handles[1].update();
 
-            // mesh stuff
             this.updateMeshColor();
             this.updateMeshPosition();
 
-            // DOM stuff
-            this.updateDOMColor();
-            this.updateDOMContent();
-            this.updateDOMPosition();
+            this.updateDOM();
         };
 
         _class.prototype.updateMeshColor = function updateMeshColor() {
@@ -48469,14 +49513,8 @@ var widgetsRectangle = function widgetsRectangle() {
             }
         };
 
-        _class.prototype.updateDOMColor = function updateDOMColor() {
-            this._rectangle.style.borderColor = this._color;
-            this._label.style.borderColor = this._color;
-        };
-
         _class.prototype.updateRoI = function updateRoI(clear) {
             var meanSDContainer = this._label.querySelector('.mean-sd');
-
             var maxMinContainer = this._label.querySelector('.max-min');
 
             if (clear) {
@@ -48497,24 +49535,46 @@ var widgetsRectangle = function widgetsRectangle() {
             }
         };
 
-        _class.prototype.updateDOMContent = function updateDOMContent() {
-            var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'cm²';
+        _class.prototype.updateDOMColor = function updateDOMColor() {
+            this._rectangle.style.borderColor = this._color;
+            this._label.style.borderColor = this._color;
+        };
 
-            var title = units === 'units' ? 'Calibration is required to display the area in cm². ' : '';
+        _class.prototype.updateDOM = function updateDOM() {
+            this.updateDOMColor();
 
-            if (title !== '') {
-                this._label.setAttribute('title', title);
+            var regions = this._stack.frame[this._params.frameIndex].ultrasoundRegions || [];
+
+            this._area = _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].getGeometryArea(this._geometry);
+            if (this._calibrationFactor) {
+                this._area *= Math.pow(this._calibrationFactor, 2);
+            } else if (regions && regions.length > 0 && this._stack.lps2IJK) {
+                var region0 = this.getRegionByXY(regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(this._stack.lps2IJK, this._handles[0].worldPosition));
+                var region1 = this.getRegionByXY(regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(this._stack.lps2IJK, this._handles[1].worldPosition));
+
+                if (region0 !== null && region1 !== null && region0 === region1 && regions[region0].unitsX === 'cm' && regions[region0].unitsY === 'cm') {
+                    this._area *= Math.pow(regions[region0].deltaX, 2);
+                    this._units = 'cm²';
+                } else if (this._stack.frame[this._params.frameIndex].pixelSpacing) {
+                    this._area /= 100;
+                    this._units = 'cm²';
+                } else {
+                    this._units = 'units';
+                }
+            } else if (this._units === 'cm²') {
+                this._area /= 100;
+            }
+
+            if (this._units === 'units' && !this._label.hasAttribute('title')) {
+                this._label.setAttribute('title', 'Calibration is required to display the area in cm²');
                 this._label.style.color = this._colors.error;
-            } else {
+            } else if (this._units !== 'units' && this._label.hasAttribute('title')) {
                 this._label.removeAttribute('title');
                 this._label.style.color = this._colors.text;
             }
-            this._label.querySelector('.area').innerHTML = 'Area: ' + (_core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].getGeometryArea(this._geometry) / 100).toFixed(2) + ' ' + units;
-        };
+            this._label.querySelector('.area').innerHTML = 'Area: ' + this._area.toFixed(2) + ' ' + this._units;
 
-        _class.prototype.updateDOMPosition = function updateDOMPosition() {
             var rectData = this.getRectData(this._handles[0].screenPosition, this._handles[1].screenPosition);
-
             var labelTransform = this.adjustLabelTransform(this._label, this._handles[1].screenPosition.clone().add(rectData.paddingVector.multiplyScalar(15 + this._label.offsetHeight / 2)));
 
             // update rectangle
@@ -48527,12 +49587,12 @@ var widgetsRectangle = function widgetsRectangle() {
         };
 
         _class.prototype.free = function free() {
-            var _this2 = this;
+            var _this3 = this;
 
             this.removeEventListeners();
 
             this._handles.forEach(function (h) {
-                _this2.remove(h);
+                _this3.remove(h);
                 h.free();
             });
             this._handles = [];
@@ -48555,7 +49615,16 @@ var widgetsRectangle = function widgetsRectangle() {
             this._material.dispose();
             this._material = null;
 
+            this._stack = null;
+
             _Constructor.prototype.free.call(this);
+        };
+
+        _class.prototype.getMeasurements = function getMeasurements() {
+            return {
+                area: this._area,
+                units: this._units
+            };
         };
 
         _createClass(_class, [{
@@ -48566,7 +49635,7 @@ var widgetsRectangle = function widgetsRectangle() {
             set: function set(targetMesh) {
                 this._targetMesh = targetMesh;
                 this._handles.forEach(function (elem) {
-                    elem.targetMesh = targetMesh;
+                    return elem.targetMesh = targetMesh;
                 });
                 this.update();
             }
@@ -48579,6 +49648,16 @@ var widgetsRectangle = function widgetsRectangle() {
                 this._handles[0].worldPosition.copy(worldPosition);
                 this._handles[1].worldPosition.copy(worldPosition);
                 this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }, {
+            key: 'calibrationFactor',
+            get: function get() {
+                return this._calibrationFactor;
+            },
+            set: function set(calibrationFactor) {
+                this._calibrationFactor = calibrationFactor;
+                this._units = 'cm²';
                 this.update();
             }
         }]);
@@ -48629,14 +49708,20 @@ var widgetsRuler = function widgetsRuler() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, stack) {
+    function _class(targetMesh, controls, params) {
       _classCallCheck(this, _class);
 
-      var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
-
-      _this._stack = stack;
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
 
       _this._widgetType = 'Ruler';
+
+      // incoming parameters (optional: lps2IJK, pixelSpacing, ultrasoundRegions, worldPosition)
+      _this._calibrationFactor = params.calibrationFactor || null;
+
+      // outgoing values
+      _this._distance = null;
+      _this._units = !_this._calibrationFactor && !params.pixelSpacing ? 'units' : 'mm';
+
       _this._moving = false;
       _this._domHovered = false;
 
@@ -48649,24 +49734,20 @@ var widgetsRuler = function widgetsRuler() {
       _this._line = null;
       _this._label = null;
 
-      _this._distance = null;
-
       // add handles
       _this._handles = [];
       var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
 
       var handle = void 0;
       for (var i = 0; i < 2; i++) {
-        handle = new WidgetsHandle(targetMesh, controls);
-        handle.worldPosition.copy(_this._worldPosition);
+        handle = new WidgetsHandle(targetMesh, controls, params);
         _this.add(handle);
         _this._handles.push(handle);
       }
       _this._handles[1].active = true;
       _this._handles[1].tracking = true;
 
-      _this._moveHandle = new WidgetsHandle(targetMesh, controls);
-      _this._moveHandle.worldPosition.copy(_this._worldPosition);
+      _this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
       _this.add(_this._moveHandle);
       _this._handles.push(_this._moveHandle);
       _this._moveHandle.hide();
@@ -48733,6 +49814,8 @@ var widgetsRuler = function widgetsRuler() {
     };
 
     _class.prototype.onMove = function onMove(evt) {
+      var _this2 = this;
+
       if (this._active) {
         var prevPosition = this._moveHandle.worldPosition.clone();
 
@@ -48740,9 +49823,9 @@ var widgetsRuler = function widgetsRuler() {
         this._moveHandle.onMove(evt, true);
 
         if (this._moving) {
-          this._handles.slice(0, -1).forEach(function (elem, ind) {
-            this._handles[ind].worldPosition.add(this._moveHandle.worldPosition.clone().sub(prevPosition));
-          }, this);
+          this._handles.slice(0, -1).forEach(function (handle) {
+            handle.worldPosition.add(_this2._moveHandle.worldPosition.clone().sub(prevPosition));
+          });
         }
       } else {
         this.onHover(null);
@@ -48778,6 +49861,7 @@ var widgetsRuler = function widgetsRuler() {
       this._active = this._handles[0].active || this._handles[1].active;
       this._dragged = false;
       this._moving = false;
+
       this.update();
     };
 
@@ -48806,11 +49890,11 @@ var widgetsRuler = function widgetsRuler() {
 
     _class.prototype.createDOM = function createDOM() {
       this._line = document.createElement('div');
-      this._line.setAttribute('class', 'widgets-line');
+      this._line.className = 'widgets-line';
       this._container.appendChild(this._line);
 
       this._label = document.createElement('div');
-      this._label.setAttribute('class', 'widgets-label');
+      this._label.className = 'widgets-label';
       this._container.appendChild(this._label);
 
       this.updateDOMColor();
@@ -48820,7 +49904,7 @@ var widgetsRuler = function widgetsRuler() {
       this._line.style.display = 'none';
       this._label.style.display = 'none';
       this._handles.forEach(function (elem) {
-        elem.hideDOM();
+        return elem.hideDOM();
       });
     };
 
@@ -48834,17 +49918,21 @@ var widgetsRuler = function widgetsRuler() {
     _class.prototype.update = function update() {
       this.updateColor();
 
-      // update handles
       this._handles[0].update();
       this._handles[1].update();
 
-      // mesh stuff
+      // calculate values
+      var distanceData = this.getDistanceData(this._handles[0].worldPosition, this._handles[1].worldPosition, this._calibrationFactor);
+
+      this._distance = distanceData.distance;
+      if (distanceData.units) {
+        this._units = distanceData.units;
+      }
+
       this.updateMeshColor();
       this.updateMeshPosition();
 
-      // DOM stuff
-      this.updateDOMColor();
-      this.updateDOMPosition();
+      this.updateDOM();
     };
 
     _class.prototype.updateMeshColor = function updateMeshColor() {
@@ -48859,7 +49947,9 @@ var widgetsRuler = function widgetsRuler() {
       }
     };
 
-    _class.prototype.updateDOMPosition = function updateDOMPosition() {
+    _class.prototype.updateDOM = function updateDOM() {
+      this.updateDOMColor();
+
       // update line
       var lineData = this.getLineData(this._handles[0].screenPosition, this._handles[1].screenPosition);
 
@@ -48867,20 +49957,14 @@ var widgetsRuler = function widgetsRuler() {
       this._line.style.width = lineData.length + 'px';
 
       // update label
-      this._distance = this._handles[1].worldPosition.distanceTo(this._handles[0].worldPosition);
-
-      var units = this._stack.frame[0].pixelSpacing === null ? 'units' : 'mm';
-
-      var title = units === 'units' ? 'Calibration is required to display the distance in mm' : '';
-
-      if (title !== '') {
-        this._label.setAttribute('title', title);
+      if (this._units === 'units' && !this._label.hasAttribute('title')) {
+        this._label.setAttribute('title', 'Calibration is required to display the distance in mm');
         this._label.style.color = this._colors.error;
-      } else {
+      } else if (this._units !== 'units' && this._label.hasAttribute('title')) {
         this._label.removeAttribute('title');
         this._label.style.color = this._colors.text;
       }
-      this._label.innerHTML = this._distance.toFixed(2) + ' ' + units;
+      this._label.innerHTML = this._distance.toFixed(2) + ' ' + this._units;
 
       var angle = Math.abs(lineData.transformAngle);
       if (angle > Math.PI / 2) {
@@ -48889,11 +49973,8 @@ var widgetsRuler = function widgetsRuler() {
 
       var labelPadding = Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth ? this._label.offsetWidth / 2 / Math.cos(angle) + 15 // 5px for each handle + padding
       : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle) + 15;
-
       var paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
-
       var paddingPoint = lineData.length > labelPadding * 2 ? this._handles[1].screenPosition.clone().sub(paddingVector) : this._handles[1].screenPosition.clone().add(paddingVector);
-
       var transform = this.adjustLabelTransform(this._label, paddingPoint);
 
       this._label.style.transform = 'translate3D(' + transform.x + 'px, ' + transform.y + 'px, 0)';
@@ -48905,12 +49986,12 @@ var widgetsRuler = function widgetsRuler() {
     };
 
     _class.prototype.free = function free() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.removeEventListeners();
 
       this._handles.forEach(function (h) {
-        _this2.remove(h);
+        _this3.remove(h);
         h.free();
       });
       this._handles = [];
@@ -48936,6 +50017,13 @@ var widgetsRuler = function widgetsRuler() {
       _Constructor.prototype.free.call(this);
     };
 
+    _class.prototype.getMeasurements = function getMeasurements() {
+      return {
+        distance: this._distance,
+        units: this._units
+      };
+    };
+
     _createClass(_class, [{
       key: 'targetMesh',
       get: function get() {
@@ -48944,7 +50032,7 @@ var widgetsRuler = function widgetsRuler() {
       set: function set(targetMesh) {
         this._targetMesh = targetMesh;
         this._handles.forEach(function (elem) {
-          elem.targetMesh = targetMesh;
+          return elem.targetMesh = targetMesh;
         });
         this.update();
       }
@@ -48959,6 +50047,16 @@ var widgetsRuler = function widgetsRuler() {
         this._worldPosition.copy(worldPosition);
         this.update();
       }
+    }, {
+      key: 'calibrationFactor',
+      get: function get() {
+        return this._calibrationFactor;
+      },
+      set: function set(calibrationFactor) {
+        this._calibrationFactor = calibrationFactor;
+        this._units = 'mm';
+        this.update();
+      }
     }]);
 
     return _class;
@@ -48967,6 +50065,682 @@ var widgetsRuler = function widgetsRuler() {
 
 
 /* harmony default export */ __webpack_exports__["default"] = (widgetsRuler());
+
+/***/ }),
+
+/***/ "./src/widgets/widgets.velocityTimeIntegral.js":
+/*!*****************************************************!*\
+  !*** ./src/widgets/widgets.velocityTimeIntegral.js ***!
+  \*****************************************************/
+/*! exports provided: widgetsVelocityTimeIntegral, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsVelocityTimeIntegral", function() { return widgetsVelocityTimeIntegral; });
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
+/* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+/**
+ * @module widgets/velocityTimeIntegral
+ */
+var widgetsVelocityTimeIntegral = function widgetsVelocityTimeIntegral() {
+    var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+    if (three === undefined || three.Object3D === undefined) {
+        return null;
+    }
+
+    var Constructor = Object(_widgets_base__WEBPACK_IMPORTED_MODULE_0__["widgetsBase"])(three);
+    return function (_Constructor) {
+        _inherits(_class, _Constructor);
+
+        function _class(targetMesh, controls, params) {
+            _classCallCheck(this, _class);
+
+            var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
+
+            _this._widgetType = 'VelocityTimeIntegral';
+
+            // incoming parameters (+ ijk2LPS, lps2IJK, worldPosition)
+            _this._regions = params.ultrasoundRegions || []; // required
+            if (_this._regions.length < 1) {
+                throw new Error('Ultrasound regions should not be empty!');
+            }
+
+            // outgoing values
+            _this._vMax = null; // Maximum Velocity (Vmax)
+            _this._vMean = null; // Mean Velocity (Vmean)
+            _this._gMax = null; // Maximum Gradient (Gmax)
+            _this._gMean = null; // Mean Gradient (Gmean)
+            _this._envTi = null; // Envelope Duration (Env.Ti)
+            _this._vti = null; // Velocity Time Integral (VTI)
+            _this._extraInfo = null; // extra information which is added to label
+
+            _this._initialized = false; // set to true onEnd if number of handles > 2
+            _this._isHandleActive = true;
+            _this._domHovered = false;
+            _this._initialRegion = _this.getRegionByXY(_this._regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(params.lps2IJK, params.worldPosition));
+            if (_this._initialRegion === null) {
+                throw new Error('Invalid initial UltraSound region!');
+            }
+            _this._usPoints = [];
+
+            // mesh stuff
+            _this._material = null;
+            _this._geometry = null;
+            _this._mesh = null;
+
+            // dom stuff
+            _this._lines = [];
+            _this._label = null;
+
+            // add handles
+            _this._handles = [];
+            var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
+
+            var handle = new WidgetsHandle(targetMesh, controls, params);
+            _this.add(handle);
+            _this._handles.push(handle);
+
+            _this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
+            _this.add(_this._moveHandle);
+            _this._moveHandle.hide();
+
+            _this.onMove = _this.onMove.bind(_this);
+            _this.onHover = _this.onHover.bind(_this);
+
+            _this.create();
+
+            _this.addEventListeners();
+            return _this;
+        }
+
+        _class.prototype.addEventListeners = function addEventListeners() {
+            this._container.addEventListener('wheel', this.onMove);
+
+            this._label.addEventListener('mouseenter', this.onHover);
+            this._label.addEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.removeEventListeners = function removeEventListeners() {
+            this._container.removeEventListener('wheel', this.onMove);
+
+            this._label.removeEventListener('mouseenter', this.onHover);
+            this._label.removeEventListener('mouseleave', this.onHover);
+        };
+
+        _class.prototype.onHover = function onHover(evt) {
+            if (evt) {
+                this.hoverDom(evt);
+            }
+
+            this.hoverMesh();
+
+            var hovered = false;
+
+            this._handles.forEach(function (elem) {
+                return hovered = hovered || elem.hovered;
+            });
+
+            this._hovered = hovered || this._domHovered;
+            this._container.style.cursor = this._hovered ? 'pointer' : 'default';
+        };
+
+        _class.prototype.hoverMesh = function hoverMesh() {
+            // check raycast intersection, if we want to hover on mesh instead of just css
+        };
+
+        _class.prototype.hoverDom = function hoverDom(evt) {
+            this._domHovered = evt.type === 'mouseenter';
+        };
+
+        _class.prototype.onStart = function onStart(evt) {
+            var active = false;
+
+            this._moveHandle.onMove(evt, true);
+            this._handles.forEach(function (elem) {
+                elem.onStart(evt);
+                active = active || elem.active;
+            });
+
+            this._active = active || this._domHovered;
+            this._isHandleActive = active;
+
+            if (this._domHovered) {
+                this._controls.enabled = false;
+            }
+
+            this.update();
+        };
+
+        _class.prototype.onMove = function onMove(evt) {
+            if (this.active) {
+                var prevPosition = this._moveHandle.worldPosition.clone();
+
+                this._moveHandle.onMove(evt, true);
+
+                var shift = this._moveHandle.worldPosition.clone().sub(prevPosition);
+
+                if (!this.isCorrectRegion(shift)) {
+                    this._moveHandle.worldPosition.copy(prevPosition);
+
+                    return;
+                }
+
+                if (!this._initialized) {
+                    this._handles[this._handles.length - 1].hovered = false;
+                    this._handles[this._handles.length - 1].active = false;
+                    this._handles[this._handles.length - 1].tracking = false;
+
+                    var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
+                    var handle = new WidgetsHandle(this._targetMesh, this._controls, this._params);
+
+                    handle.hovered = true;
+                    handle.active = true;
+                    handle.tracking = true;
+                    this.add(handle);
+                    this._handles.push(handle);
+
+                    this.createLine();
+                } else {
+                    this.updateDOMContent(true);
+
+                    if (!this._isHandleActive || this._handles[this._handles.length - 2].active || this._handles[this._handles.length - 1].active) {
+                        this._handles.forEach(function (handle) {
+                            handle.worldPosition.add(shift);
+                        });
+                        this._isHandleActive = false;
+                        this._handles[this._handles.length - 2].active = false;
+                        this._handles[this._handles.length - 1].active = false;
+                        this._controls.enabled = false;
+                    }
+                }
+                this._dragged = true;
+            } else {
+                this.onHover(null);
+            }
+
+            this._handles.forEach(function (elem) {
+                elem.onMove(evt);
+            });
+            if (this.active && this._handles.length > 2) {
+                this.pushPopHandle();
+            }
+            this.update();
+        };
+
+        _class.prototype.onEnd = function onEnd() {
+            var _this2 = this;
+
+            if (this._handles.length < 3) {
+                return;
+            }
+
+            var active = false;
+
+            this._handles.slice(0, -1).forEach(function (elem) {
+                elem.onEnd();
+                active = active || elem.active;
+            });
+
+            // Last Handle
+            if (this._dragged || !this._handles[this._handles.length - 1].tracking) {
+                this._handles[this._handles.length - 1].tracking = false;
+                this._handles[this._handles.length - 1].onEnd();
+            } else {
+                this._handles[this._handles.length - 1].tracking = false;
+            }
+
+            if (this._dragged || !this._initialized) {
+                this.finalize();
+                this.updateDOMContent();
+            }
+
+            if (!this._dragged && this._active) {
+                this._selected = !this._selected; // change state if there was no dragging
+                this._handles.forEach(function (elem) {
+                    return elem.selected = _this2._selected;
+                });
+            }
+            this._active = active || this._handles[this._handles.length - 1].active;
+            this._isHandleActive = active;
+            this._dragged = false;
+            this._initialized = true;
+
+            this.update();
+        };
+
+        _class.prototype.isCorrectRegion = function isCorrectRegion(shift) {
+            var _this3 = this;
+
+            var isCorrect = true;
+
+            this._handles.forEach(function (handle, index) {
+                if (handle.active || !_this3._isHandleActive) {
+                    isCorrect = isCorrect && _this3.checkHandle(index, shift);
+                }
+            });
+
+            return isCorrect;
+        };
+
+        _class.prototype.checkHandle = function checkHandle(index, shift) {
+            var region = this.getRegionByXY(this._regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(this._params.lps2IJK, this._handles[index].worldPosition.clone().add(shift)));
+
+            return region !== null && region === this._initialRegion && this._regions[region].unitsY === 'cm/sec';
+        };
+
+        _class.prototype.create = function create() {
+            this.createMaterial();
+            this.createDOM();
+        };
+
+        _class.prototype.createMaterial = function createMaterial() {
+            this._material = new three.LineBasicMaterial();
+        };
+
+        _class.prototype.createDOM = function createDOM() {
+            this._label = document.createElement('div');
+            this._label.className = 'widgets-label';
+
+            var measurementsContainer = document.createElement('div');
+
+            ['vmax', 'vmean', 'gmax', 'gmean', 'envti', 'vti', 'info'].forEach(function (name) {
+                var div = document.createElement('div');
+
+                div.className = name;
+                measurementsContainer.appendChild(div);
+            });
+            this._label.appendChild(measurementsContainer);
+
+            this._container.appendChild(this._label);
+
+            this.updateDOMColor();
+        };
+
+        _class.prototype.createLine = function createLine() {
+            var line = document.createElement('div');
+
+            line.className = 'widgets-line';
+            line.addEventListener('mouseenter', this.onHover);
+            line.addEventListener('mouseleave', this.onHover);
+            this._lines.push(line);
+            this._container.appendChild(line);
+        };
+
+        _class.prototype.pushPopHandle = function pushPopHandle() {
+            var handle0 = this._handles[this._handles.length - 3];
+            var handle1 = this._handles[this._handles.length - 2];
+            var newhandle = this._handles[this._handles.length - 1];
+            var isOnLine = this.isPointOnLine(handle0.worldPosition, handle1.worldPosition, newhandle.worldPosition);
+
+            if (isOnLine || handle0.screenPosition.distanceTo(newhandle.screenPosition) < 25) {
+                this.remove(handle1);
+                handle1.free();
+
+                this._handles[this._handles.length - 2] = newhandle;
+                this._handles.pop();
+
+                this._container.removeChild(this._lines.pop());
+            }
+
+            return isOnLine;
+        };
+
+        _class.prototype.isPointOnLine = function isPointOnLine(pointA, pointB, pointToCheck) {
+            return !new three.Vector3().crossVectors(pointA.clone().sub(pointToCheck), pointB.clone().sub(pointToCheck)).length();
+        };
+
+        _class.prototype.finalize = function finalize() {
+            var _this4 = this;
+
+            if (this._initialized) {
+                // remove old axis handles
+                this._handles.splice(-2).forEach(function (elem) {
+                    _this4.remove(elem);
+                    elem.free();
+                });
+            }
+
+            var pointF = _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(this._params.lps2IJK, this._handles[0]._worldPosition);
+            var pointL = _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(this._params.lps2IJK, this._handles[this._handles.length - 1]._worldPosition);
+            var region = this._regions[this.getRegionByXY(this._regions, pointF)];
+            var axisY = region.y0 + (region.axisY || 0); // data coordinate equal to US region's zero Y coordinate
+
+            var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
+            var params = { hideHandleMesh: this._params.hideHandleMesh || false };
+
+            pointF.y = axisY;
+            pointL.y = axisY;
+            this._usPoints = [this.getPointInRegion(region, pointL), this.getPointInRegion(region, pointF)];
+
+            params.worldPosition = pointL.applyMatrix4(this._params.ijk2LPS); // projection of last point on Y axis
+            this._handles.push(new WidgetsHandle(this._targetMesh, this._controls, params));
+            this.add(this._handles[this._handles.length - 1]);
+
+            params.worldPosition = pointF.applyMatrix4(this._params.ijk2LPS); // projection of first point on Y axis
+            this._handles.push(new WidgetsHandle(this._targetMesh, this._controls, params));
+            this.add(this._handles[this._handles.length - 1]);
+
+            while (this._lines.length < this._handles.length) {
+                this.createLine();
+            }
+        };
+
+        _class.prototype.update = function update() {
+            this.updateColor();
+
+            // update handles
+            this._handles.forEach(function (elem) {
+                return elem.update();
+            });
+
+            // mesh stuff
+            this.updateMesh();
+
+            // DOM stuff
+            this.updateDOMColor();
+            this.updateDOMPosition();
+        };
+
+        _class.prototype.updateValues = function updateValues() {
+            var _this5 = this;
+
+            var region = this._regions[this.getRegionByXY(this._regions, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(this._params.lps2IJK, this._handles[0]._worldPosition))];
+            var boundaries = {
+                xMin: Number.POSITIVE_INFINITY,
+                xMax: Number.NEGATIVE_INFINITY,
+                yMin: Number.POSITIVE_INFINITY,
+                yMax: Number.NEGATIVE_INFINITY
+            };
+            var pVelocity = void 0;
+            var pGradient = void 0;
+            var pTime = void 0;
+            var totalTime = 0;
+
+            this._vMax = 0;
+            this._vMean = 0;
+            this._gMean = 0;
+            this._usPoints.splice(2);
+            this._handles.slice(0, -2).forEach(function (elem) {
+                var usPosition = _this5.getPointInRegion(region, _core_core_utils__WEBPACK_IMPORTED_MODULE_2__["default"].worldToData(_this5._params.lps2IJK, elem._worldPosition));
+                var velocity = Math.abs(usPosition.y / 100);
+                var gradient = 4 * Math.pow(velocity, 2);
+
+                if (_this5._vMax === null || velocity > _this5._vMax) {
+                    _this5._vMax = velocity;
+                }
+                boundaries.xMin = Math.min(usPosition.x, boundaries.xMin);
+                boundaries.xMax = Math.max(usPosition.x, boundaries.xMax);
+                boundaries.yMin = Math.min(usPosition.y, boundaries.yMin);
+                boundaries.yMax = Math.max(usPosition.y, boundaries.yMax);
+
+                if (pTime) {
+                    var length = Math.abs(usPosition.x - pTime);
+
+                    totalTime += length;
+                    _this5._vMean += length * (pVelocity + velocity) / 2;
+                    _this5._gMean += length * (pGradient + gradient) / 2;
+                }
+
+                pVelocity = velocity;
+                pGradient = gradient;
+                pTime = usPosition.x;
+                _this5._usPoints.push(usPosition);
+            });
+
+            this._gMax = 4 * Math.pow(this._vMax, 2);
+            this._vMean /= totalTime;
+            this._gMean /= totalTime;
+            this._envTi = totalTime * 1000;
+            this._vti = this.getArea(this._usPoints);
+
+            this._shapeWarn = boundaries.xMax - boundaries.xMin !== totalTime || boundaries.yMin < 0 !== boundaries.yMax < 0;
+        };
+
+        _class.prototype.updateMesh = function updateMesh() {
+            var _this6 = this;
+
+            if (this._mesh) {
+                this.remove(this._mesh);
+            }
+
+            this._geometry = new three.Geometry();
+            this._handles.forEach(function (elem) {
+                return _this6._geometry.vertices.push(elem.worldPosition);
+            });
+            this._geometry.vertices.push(this._handles[0].worldPosition);
+            this._geometry.verticesNeedUpdate = true;
+
+            this.updateMeshColor();
+
+            this._mesh = new three.Line(this._geometry, this._material);
+            this._mesh.visible = true;
+            this.add(this._mesh);
+        };
+
+        _class.prototype.updateMeshColor = function updateMeshColor() {
+            if (this._material) {
+                this._material.color.set(this._color);
+            }
+        };
+
+        _class.prototype.updateDOMColor = function updateDOMColor() {
+            var _this7 = this;
+
+            if (this._handles.length >= 2) {
+                this._lines.forEach(function (elem) {
+                    return elem.style.backgroundColor = _this7._color;
+                });
+            }
+            this._label.style.borderColor = this._color;
+        };
+
+        _class.prototype.updateDOMContent = function updateDOMContent(clear) {
+            var vMaxContainer = this._label.querySelector('.vmax');
+            var vMeanContainer = this._label.querySelector('.vmean');
+            var gMaxContainer = this._label.querySelector('.gmax');
+            var gMeanContainer = this._label.querySelector('.gmean');
+            var envTiContainer = this._label.querySelector('.envti');
+            var vtiContainer = this._label.querySelector('.vti');
+            var infoContainer = this._label.querySelector('.info');
+
+            if (clear) {
+                vMaxContainer.innerHTML = '';
+                vMeanContainer.innerHTML = '';
+                gMaxContainer.innerHTML = '';
+                gMeanContainer.innerHTML = '';
+                envTiContainer.innerHTML = '';
+                vtiContainer.innerHTML = '';
+                infoContainer.innerHTML = '';
+
+                return;
+            }
+
+            this.updateValues();
+
+            if (this._shapeWarn && !this._label.hasAttribute('title')) {
+                this._label.setAttribute('title', 'Values may be incorrect due to invalid curve.');
+                this._label.style.color = this._colors.error;
+            } else if (!this._shapeWarn && this._label.hasAttribute('title')) {
+                this._label.removeAttribute('title');
+                this._label.style.color = this._colors.text;
+            }
+
+            vMaxContainer.innerHTML = 'Vmax: ' + this._vMax.toFixed(2) + ' m/s';
+            vMeanContainer.innerHTML = 'Vmean: ' + this._vMean.toFixed(2) + ' m/s';
+            gMaxContainer.innerHTML = 'Gmax: ' + this._gMax.toFixed(2) + ' mmhg';
+            gMeanContainer.innerHTML = 'Gmean: ' + this._gMean.toFixed(2) + ' mmhg';
+            envTiContainer.innerHTML = 'Env.Ti: ' + this._envTi.toFixed(1) + ' ms';
+            vtiContainer.innerHTML = 'VTI: ' + this._vti.toFixed(2) + ' cm';
+            infoContainer.innerHTML = this._extraInfo;
+        };
+
+        _class.prototype.updateDOMPosition = function updateDOMPosition() {
+            var _this8 = this;
+
+            if (this._handles.length < 2) {
+                return;
+            }
+            // update lines and get coordinates of lowest handle
+            var labelPosition = null;
+
+            this._lines.forEach(function (elem, ind) {
+                var lineData = _this8.getLineData(_this8._handles[ind].screenPosition, _this8._handles[ind + 1 === _this8._handles.length ? 0 : ind + 1].screenPosition);
+
+                elem.style.transform = 'translate3D(' + lineData.transformX + 'px, ' + lineData.transformY + 'px, 0)\n                    rotate(' + lineData.transformAngle + 'rad)';
+                elem.style.width = lineData.length + 'px';
+
+                if (labelPosition === null || labelPosition.y < _this8._handles[ind].screenPosition.y) {
+                    labelPosition = _this8._handles[ind].screenPosition.clone();
+                }
+            });
+
+            if (!this._initialized) {
+                return;
+            }
+
+            // update label
+            labelPosition.y += 15 + this._label.offsetHeight / 2;
+            labelPosition = this.adjustLabelTransform(this._label, labelPosition);
+
+            this._label.style.transform = 'translate3D(' + labelPosition.x + 'px, ' + labelPosition.y + 'px, 0)';
+        };
+
+        _class.prototype.hideDOM = function hideDOM() {
+            this._handles.forEach(function (elem) {
+                return elem.hideDOM();
+            });
+
+            this._lines.forEach(function (elem) {
+                return elem.style.display = 'none';
+            });
+            this._label.style.display = 'none';
+        };
+
+        _class.prototype.showDOM = function showDOM() {
+            this._handles.forEach(function (elem) {
+                return elem.showDOM();
+            });
+
+            this._lines.forEach(function (elem) {
+                return elem.style.display = '';
+            });
+            this._label.style.display = '';
+        };
+
+        _class.prototype.free = function free() {
+            var _this9 = this;
+
+            this.removeEventListeners();
+
+            this._handles.forEach(function (elem) {
+                _this9.remove(elem);
+                elem.free();
+            });
+            this._handles = [];
+            this._usPoints = [];
+
+            this.remove(this._moveHandle);
+            this._moveHandle.free();
+            this._moveHandle = null;
+
+            this._lines.forEach(function (elem) {
+                elem.removeEventListener('mouseenter', _this9.onHover);
+                elem.removeEventListener('mouseleave', _this9.onHover);
+                _this9._container.removeChild(elem);
+            });
+            this._lines = [];
+            this._container.removeChild(this._label);
+
+            // mesh, geometry, material
+            if (this._mesh) {
+                this.remove(this._mesh);
+                this._mesh.geometry.dispose();
+                this._mesh.geometry = null;
+                this._mesh.material.dispose();
+                this._mesh.material = null;
+                this._mesh = null;
+            }
+            if (this._geometry) {
+                this._geometry.dispose();
+                this._geometry = null;
+            }
+            this._material.vertexShader = null;
+            this._material.fragmentShader = null;
+            this._material.uniforms = null;
+            this._material.dispose();
+            this._material = null;
+
+            _Constructor.prototype.free.call(this);
+        };
+
+        _class.prototype.getMeasurements = function getMeasurements() {
+            return {
+                vMax: this._vMax,
+                vMean: this._vMean,
+                gMax: this._gMax,
+                gMean: this._gMean,
+                envTi: this._envTi,
+                vti: this._vti
+            };
+        };
+
+        _createClass(_class, [{
+            key: 'targetMesh',
+            get: function get() {
+                return this._targetMesh;
+            },
+            set: function set(targetMesh) {
+                this._targetMesh = targetMesh;
+                this._handles.forEach(function (elem) {
+                    return elem.targetMesh = targetMesh;
+                });
+                this._moveHandle.targetMesh = targetMesh;
+                this.update();
+            }
+        }, {
+            key: 'worldPosition',
+            get: function get() {
+                return this._worldPosition;
+            },
+            set: function set(worldPosition) {
+                this._handles.forEach(function (elem) {
+                    return elem._worldPosition.copy(worldPosition);
+                });
+                this._worldPosition.copy(worldPosition);
+                this.update();
+            }
+        }, {
+            key: 'extraInfo',
+            get: function get() {
+                return this._extraInfo;
+            },
+            set: function set(info) {
+                this._extraInfo = info;
+                this._label.querySelector('.info').innerHTML = info;
+            }
+        }]);
+
+        return _class;
+    }(Constructor);
+};
+
+
+/* harmony default export */ __webpack_exports__["default"] = (widgetsVelocityTimeIntegral());
 
 /***/ }),
 
@@ -49011,31 +50785,32 @@ var widgetsVoxelprobe = function widgetsVoxelprobe() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, stack) {
+    function _class(targetMesh, controls, params) {
       _classCallCheck(this, _class);
 
-      var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls));
-
-      _this._stack = stack;
+      var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
 
       _this._widgetType = 'VoxelProbe';
+
+      // incoming parameters (optional: worldPosition)
+      _this._stack = params.stack; // required
+
+      _this._container.style.cursor = 'pointer';
       _this._controls.enabled = false; // controls should be disabled for widgets with a single handle
       _this._initialized = false; // set to true onEnd
-      _this._moving = false;
+      _this._active = true;
+      _this._moving = true;
+      _this._domHovered = false;
 
       // dom stuff
       _this._label = null;
-      _this._domDisplayed = true;
-      _this._domHovered = false;
 
       // handle (represent voxel)
       var WidgetsHandle = Object(_widgets_handle__WEBPACK_IMPORTED_MODULE_1__["widgetsHandle"])(three);
-      _this._handle = new WidgetsHandle(targetMesh, controls);
-      _this._handle.worldPosition.copy(_this._worldPosition);
+      _this._handle = new WidgetsHandle(targetMesh, controls, params);
       _this.add(_this._handle);
 
-      _this._moveHandle = new WidgetsHandle(targetMesh, controls);
-      _this._moveHandle.worldPosition.copy(_this._worldPosition);
+      _this._moveHandle = new WidgetsHandle(targetMesh, controls, params);
       _this.add(_this._moveHandle);
       _this._moveHandle.hide();
 
@@ -49136,21 +50911,21 @@ var widgetsVoxelprobe = function widgetsVoxelprobe() {
 
     _class.prototype.createDOM = function createDOM() {
       this._label = document.createElement('div');
-      this._label.setAttribute('class', 'widgets-label');
+      this._label.className = 'widgets-label';
 
-      // measurenents
+      // measurements
       var measurementsContainer = document.createElement('div');
       // LPS
       var lpsContainer = document.createElement('div');
-      lpsContainer.setAttribute('id', 'lpsPosition');
+      lpsContainer.className = 'lpsPosition';
       measurementsContainer.appendChild(lpsContainer);
       // IJK
       var ijkContainer = document.createElement('div');
-      ijkContainer.setAttribute('id', 'ijkPosition');
+      ijkContainer.className = 'ijkPosition';
       measurementsContainer.appendChild(ijkContainer);
       // Value
       var valueContainer = document.createElement('div');
-      valueContainer.setAttribute('id', 'value');
+      valueContainer.className = 'value';
       measurementsContainer.appendChild(valueContainer);
 
       this._label.appendChild(measurementsContainer);
@@ -49168,10 +50943,7 @@ var widgetsVoxelprobe = function widgetsVoxelprobe() {
 
       this.updateVoxel(); // set data coordinates && value
 
-      // update dom
-      this.updateDOMContent();
-      this.updateDOMColor();
-      this.updateDOMPosition();
+      this.updateDOM();
     };
 
     _class.prototype.updateVoxel = function updateVoxel() {
@@ -49185,19 +50957,17 @@ var widgetsVoxelprobe = function widgetsVoxelprobe() {
       : _core_core_utils__WEBPACK_IMPORTED_MODULE_3__["default"].rescaleSlopeIntercept(value, this._stack.rescaleSlope, this._stack.rescaleIntercept).toFixed();
     };
 
-    _class.prototype.updateDOMContent = function updateDOMContent() {
-      var rasContainer = this._label.querySelector('#lpsPosition');
-
-      var ijkContainer = this._label.querySelector('#ijkPosition');
-
-      var valueContainer = this._label.querySelector('#value');
+    _class.prototype.updateDOM = function updateDOM() {
+      var rasContainer = this._label.querySelector('.lpsPosition');
+      var ijkContainer = this._label.querySelector('.ijkPosition');
+      var valueContainer = this._label.querySelector('.value');
 
       rasContainer.innerHTML = 'LPS: \n      ' + this._voxel.worldCoordinates.x.toFixed(2) + ' :\n      ' + this._voxel.worldCoordinates.y.toFixed(2) + ' :\n      ' + this._voxel.worldCoordinates.z.toFixed(2);
       ijkContainer.innerHTML = 'IJK: \n      ' + this._voxel.dataCoordinates.x + ' :\n      ' + this._voxel.dataCoordinates.y + ' :\n      ' + this._voxel.dataCoordinates.z;
       valueContainer.innerHTML = 'Value: ' + this._voxel.value;
-    };
 
-    _class.prototype.updateDOMPosition = function updateDOMPosition() {
+      this.updateDOMColor();
+
       var transform = this.adjustLabelTransform(this._label, this._handle.screenPosition, true);
 
       this._label.style.transform = 'translate3D(' + transform.x + 'px, ' + transform.y + 'px, 0)';
@@ -49219,6 +50989,7 @@ var widgetsVoxelprobe = function widgetsVoxelprobe() {
 
       this._container.removeChild(this._label);
 
+      this._stack = null;
       this._voxel = null;
 
       _Constructor.prototype.free.call(this);
@@ -49252,6 +51023,7 @@ var widgetsVoxelprobe = function widgetsVoxelprobe() {
       },
       set: function set(worldPosition) {
         this._handle.worldPosition.copy(worldPosition);
+        this._moveHandle.worldPosition.copy(worldPosition);
         this._worldPosition.copy(worldPosition);
         this.update();
       }
@@ -49266,33 +51038,6 @@ var widgetsVoxelprobe = function widgetsVoxelprobe() {
 
         this.update();
       }
-    }, {
-      key: 'showVoxel',
-      set: function set(showVoxel) {
-        this._showVoxel = showVoxel;
-        this.update();
-      },
-      get: function get() {
-        return this._showVoxel;
-      }
-    }, {
-      key: 'showDomSVG',
-      set: function set(showDomSVG) {
-        this._showDomSVG = showDomSVG;
-        this.update();
-      },
-      get: function get() {
-        return this._showDomSVG;
-      }
-    }, {
-      key: 'showDomMeasurements',
-      set: function set(showDomMeasurements) {
-        this._showDomMeasurements = showDomMeasurements;
-        this.update();
-      },
-      get: function get() {
-        return this._showDomMeasurements;
-      }
     }]);
 
     return _class;
@@ -49306,12 +51051,12 @@ var widgetsVoxelprobe = function widgetsVoxelprobe() {
 
 /***/ 0:
 /*!**************************!*\
-  !*** multi ./src/ami.js ***!
+  !*** multi ./src/ami.ts ***!
   \**************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! ./src/ami.js */"./src/ami.js");
+module.exports = __webpack_require__(/*! ./src/ami.ts */"./src/ami.ts");
 
 
 /***/ })

@@ -2,13 +2,10 @@
  * @module helpers/x/interactor
  */
 export default class Interactor {
-  constructor() {
-  }
+  constructor() {}
 
   // private methods
-  _create() {
-  }
+  _create() {}
 
-  _update() {
-  }
+  _update() {}
 }

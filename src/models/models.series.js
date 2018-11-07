@@ -61,14 +61,18 @@ export default class ModelsSeries extends ModelsBase {
    * @override
    */
   validate(model) {
-    if (!(super.validate(model) &&
-      typeof model.mergeSeries === 'function' &&
-      model.hasOwnProperty('_seriesInstanceUID') &&
-      model.hasOwnProperty('_numberOfFrames') &&
-      model.hasOwnProperty('_numberOfChannels') &&
-      model.hasOwnProperty('_stack') &&
-      typeof model._stack !== 'undefined' &&
-      Array === model._stack.constructor)) {
+    if (
+      !(
+        super.validate(model) &&
+        typeof model.mergeSeries === 'function' &&
+        model.hasOwnProperty('_seriesInstanceUID') &&
+        model.hasOwnProperty('_numberOfFrames') &&
+        model.hasOwnProperty('_numberOfChannels') &&
+        model.hasOwnProperty('_stack') &&
+        typeof model._stack !== 'undefined' &&
+        Array === model._stack.constructor
+      )
+    ) {
       return false;
     }
 

@@ -1,4 +1,3 @@
-
 /**
  * @module helpers/progressBar
  */
@@ -7,13 +6,13 @@ export default class HelpersProgressBar {
   constructor(container) {
     this._container = container;
     this._modes = {
-      'load': {
-        'name': 'load',
-        'color': '#FFF56F',
+      load: {
+        name: 'load',
+        color: '#FFF56F',
       },
-      'parse': {
-        'name': 'parse',
-        'color': '#2196F3',
+      parse: {
+        name: 'parse',
+        color: '#2196F3',
       },
     };
 
@@ -63,27 +62,33 @@ export default class HelpersProgressBar {
     // In this case, we generate a random number to animate the progressbar
     if (total === 0) {
       this._total = value;
-      this._value = Math.random()*value;
+      this._value = Math.random() * value;
     } else {
       this._total = total;
     }
   }
 
   updateUI() {
-    this.requestAnimationFrameID = requestAnimationFrame(() =>{
+    this.requestAnimationFrameID = requestAnimationFrame(() => {
       this.updateUI();
     });
 
-    if (!(this._modes.hasOwnProperty(this._mode) &&
-      this._modes[this._mode].hasOwnProperty('name') &&
-      this._modes[this._mode].hasOwnProperty('color'))) {
+    if (
+      !(
+        this._modes.hasOwnProperty(this._mode) &&
+        this._modes[this._mode].hasOwnProperty('name') &&
+        this._modes[this._mode].hasOwnProperty('color')
+      )
+    ) {
       return false;
     }
 
     const progress = Math.round((this._value / this._total) * 100);
     const color = this._modes[this._mode].color;
 
-    let progressBar = this._container.getElementsByClassName('progress ' + this._modes[this._mode].name);
+    let progressBar = this._container.getElementsByClassName(
+      'progress ' + this._modes[this._mode].name
+    );
     if (progressBar.length > 0) {
       progressBar[0].style.borderColor = color;
       progressBar[0].style.width = progress + '%';
@@ -110,8 +115,7 @@ export default class HelpersProgressBar {
   }
 
   _domBar(mode) {
-    if (!(mode.hasOwnProperty('name') &&
-      (mode.hasOwnProperty('color')))) {
+    if (!(mode.hasOwnProperty('name') && mode.hasOwnProperty('color'))) {
       window.console.log('Invalid mode provided.');
       window.console.log(mode);
 
@@ -132,10 +136,10 @@ export default class HelpersProgressBar {
   }
 
   set totalFiles(totalFiles) {
-      this._totalFiles = totalFiles;
+    this._totalFiles = totalFiles;
   }
 
   get totalFiles() {
-      return this._totalFiles;
+    return this._totalFiles;
   }
 }

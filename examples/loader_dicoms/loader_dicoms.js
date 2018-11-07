@@ -44,7 +44,7 @@ function init() {
     antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
-  renderer.setClearColor(0x673AB7, 1);
+  renderer.setClearColor(0x673ab7, 1);
   renderer.setPixelRatio(window.devicePixelRatio);
   threeD.appendChild(renderer.domElement);
 
@@ -79,17 +79,61 @@ window.onload = function() {
   let loader = new LoadersVolume(threeD);
 
   let t2 = [
-    '36444280', '36444294', '36444308', '36444322', '36444336',
-    '36444350', '36444364', '36444378', '36444392', '36444406',
-    '36748256', '36444434', '36444448', '36444462', '36444476',
-    '36444490', '36444504', '36444518', '36444532', '36746856',
-    '36746870', '36746884', '36746898', '36746912', '36746926',
-    '36746940', '36746954', '36746968', '36746982', '36746996',
-    '36747010', '36747024', '36748200', '36748214', '36748228',
-    '36748270', '36748284', '36748298', '36748312', '36748326',
-    '36748340', '36748354', '36748368', '36748382', '36748396',
-    '36748410', '36748424', '36748438', '36748452', '36748466',
-    '36748480', '36748494', '36748508', '36748522', '36748242',
+    '36444280',
+    '36444294',
+    '36444308',
+    '36444322',
+    '36444336',
+    '36444350',
+    '36444364',
+    '36444378',
+    '36444392',
+    '36444406',
+    '36748256',
+    '36444434',
+    '36444448',
+    '36444462',
+    '36444476',
+    '36444490',
+    '36444504',
+    '36444518',
+    '36444532',
+    '36746856',
+    '36746870',
+    '36746884',
+    '36746898',
+    '36746912',
+    '36746926',
+    '36746940',
+    '36746954',
+    '36746968',
+    '36746982',
+    '36746996',
+    '36747010',
+    '36747024',
+    '36748200',
+    '36748214',
+    '36748228',
+    '36748270',
+    '36748284',
+    '36748298',
+    '36748312',
+    '36748326',
+    '36748340',
+    '36748354',
+    '36748368',
+    '36748382',
+    '36748396',
+    '36748410',
+    '36748424',
+    '36748438',
+    '36748452',
+    '36748466',
+    '36748480',
+    '36748494',
+    '36748508',
+    '36748522',
+    '36748242',
   ];
 
   let files = t2.map(function(v) {
@@ -97,43 +141,44 @@ window.onload = function() {
   });
 
   // load sequence for all files
-  loader.load(files)
-  .then(function() {
-    // make a proper function for this guy...
-    let series = loader.data[0].mergeSeries(loader.data)[0];
-    let stack = series.stack[0];
-    stackHelper = new HelpersStack(stack);
-    stackHelper.bbox.color = 0xF9F9F9;
-    stackHelper.border.color = 0xF9F9F9;
-    scene.add(stackHelper);
+  loader
+    .load(files)
+    .then(function() {
+      // make a proper function for this guy...
+      let series = loader.data[0].mergeSeries(loader.data)[0];
+      let stack = series.stack[0];
+      stackHelper = new HelpersStack(stack);
+      stackHelper.bbox.color = 0xf9f9f9;
+      stackHelper.border.color = 0xf9f9f9;
+      scene.add(stackHelper);
 
-    // update camrea's and control's target
-    let centerLPS = stackHelper.stack.worldCenter();
-    camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
-    camera.updateProjectionMatrix();
-    controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
-
-    loader.free();
-    loader = null;
-
-    function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      // update camrea's and control's target
+      let centerLPS = stackHelper.stack.worldCenter();
+      camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
       camera.updateProjectionMatrix();
+      controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
 
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    }
+      loader.free();
+      loader = null;
 
-    window.addEventListener('resize', onWindowResize, false);
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
 
-    // force 1st render
-    render();
-    // notify puppeteer to take screenshot
-    const puppetDiv = document.createElement('div');
-    puppetDiv.setAttribute('id', 'puppeteer');
-    document.body.appendChild(puppetDiv);
-  })
-  .catch(function(error) {
-    window.console.log('oops... something went wrong...');
-    window.console.log(error);
-  });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      window.addEventListener('resize', onWindowResize, false);
+
+      // force 1st render
+      render();
+      // notify puppeteer to take screenshot
+      const puppetDiv = document.createElement('div');
+      puppetDiv.setAttribute('id', 'puppeteer');
+      document.body.appendChild(puppetDiv);
+    })
+    .catch(function(error) {
+      window.console.log('oops... something went wrong...');
+      window.console.log(error);
+    });
 };

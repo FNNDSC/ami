@@ -50,7 +50,7 @@ function onMouseMove(event) {
   // (-1 to +1) for both components
 
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 }
 
 window.addEventListener('mousemove', onMouseMove, false);
@@ -69,7 +69,7 @@ function onStart(event) {
   for (let i = 0; i < intersects.length; i++) {
     console.log(intersects[i]);
     let geometry = new THREE.SphereGeometry(5, 32, 32);
-    let material = new THREE.MeshBasicMaterial({color: 0xffff00});
+    let material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     let sphere = new THREE.Mesh(geometry, material);
     let point = intersects[i].point;
     points.push(point);
@@ -86,7 +86,7 @@ function onStart(event) {
   for (let i = 0; i < intersects.length; i++) {
     console.log(intersects[i]);
     let geometry = new THREE.SphereGeometry(5, 32, 32);
-    let material = new THREE.MeshBasicMaterial({color: 0xffff00});
+    let material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     let sphere = new THREE.Mesh(geometry, material);
     let point = intersects[i].point;
     points.push(point);
@@ -98,7 +98,7 @@ function onStart(event) {
   if (points.length === 10) {
     console.log(points);
     let geometry = new THREE.ConvexGeometry(points);
-    let material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+    let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     let mesh = new THREE.Mesh(geometry, material);
 
     let sphere_bsp = new ThreeBSP(mesh);
@@ -174,8 +174,8 @@ function onWindowResize() {
 
 function buildGUI() {
   let gui = new dat.GUI({
-      autoPlace: false,
-    });
+    autoPlace: false,
+  });
 
   let customContainer = document.getElementById('my-gui-container');
   customContainer.appendChild(gui.domElement);
@@ -183,11 +183,11 @@ function buildGUI() {
   let stackFolder = gui.addFolder('Settings');
   let lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
   lutUpdate.onChange(function(value) {
-  lut.lut = value;
-  uniformsSecondPass.uTextureLUT.value.dispose();
-  uniformsSecondPass.uTextureLUT.value = lut.texture;
-  modified = true;
-    });
+    lut.lut = value;
+    uniformsSecondPass.uTextureLUT.value.dispose();
+    uniformsSecondPass.uTextureLUT.value = lut.texture;
+    modified = true;
+  });
   // init LUT
   lut.lut = myStack.lut;
   uniformsSecondPass.uTextureLUT.value.dispose();
@@ -195,32 +195,32 @@ function buildGUI() {
 
   let opacityUpdate = stackFolder.add(myStack, 'opacity', lut.lutsAvailable('opacity'));
   opacityUpdate.onChange(function(value) {
-  lut.lutO = value;
-  uniformsSecondPass.uTextureLUT.value.dispose();
-  uniformsSecondPass.uTextureLUT.value = lut.texture;
-  modified = true;
-    });
+    lut.lutO = value;
+    uniformsSecondPass.uTextureLUT.value.dispose();
+    uniformsSecondPass.uTextureLUT.value = lut.texture;
+    modified = true;
+  });
 
   let stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
   stepsUpdate.onChange(function(value) {
-  if (uniformsSecondPass) {
-    uniformsSecondPass.uSteps.value = value;
-    modified = true;
-  }
-    });
+    if (uniformsSecondPass) {
+      uniformsSecondPass.uSteps.value = value;
+      modified = true;
+    }
+  });
 
   let alphaCorrrectionUpdate = stackFolder.add(myStack, 'alphaCorrection', 0, 1).step(0.01);
   alphaCorrrectionUpdate.onChange(function(value) {
-  if (uniformsSecondPass) {
-    uniformsSecondPass.uAlphaCorrection.value = value;
-    modified = true;
-  }
-    });
+    if (uniformsSecondPass) {
+      uniformsSecondPass.uAlphaCorrection.value = value;
+      modified = true;
+    }
+  });
 
   let interpolationUpdate = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
   interpolationUpdate.onChange(function(value) {
     if (uniformsSecondPass) {
-     modified = true;
+      modified = true;
     }
   });
 
@@ -298,47 +298,51 @@ window.onload = function() {
   // load sequence for each file
   // instantiate the loader
   let loader = new LoadersVolume(threeD);
-  loader.load(filename)
-  .then(() => {
-    let series = loader.data[0].mergeSeries(loader.data)[0];
-    loader.free();
-    loader = null;
-    // get first stack from series
-    let stack = series.stack[0];
-    let stackHelper = new HelpersStack(stack);
+  loader
+    .load(filename)
+    .then(() => {
+      let series = loader.data[0].mergeSeries(loader.data)[0];
+      loader.free();
+      loader = null;
+      // get first stack from series
+      let stack = series.stack[0];
+      let stackHelper = new HelpersStack(stack);
 
-    vrHelper = new HelpersVR(stack);
-    // scene
-    console.log(stackHelper._bBox._meshStack);
-    // Convenience vars
-    const dimensions = stack.dimensionsIJK;
-    const halfDimensions = stack.halfDimensionsIJK;
-    const offset = new THREE.Vector3(-0.5, -0.5, -0.5);
+      vrHelper = new HelpersVR(stack);
+      // scene
+      console.log(stackHelper._bBox._meshStack);
+      // Convenience vars
+      const dimensions = stack.dimensionsIJK;
+      const halfDimensions = stack.halfDimensionsIJK;
+      const offset = new THREE.Vector3(-0.5, -0.5, -0.5);
 
-    // Geometry
-    const geometry = new THREE.BoxGeometry(dimensions.x, dimensions.y, dimensions.z);
-    geometry.applyMatrix(new THREE.Matrix4().makeTranslation(
-      halfDimensions.x + offset.x,
-      halfDimensions.y + offset.y,
-      halfDimensions.z + offset.z));
+      // Geometry
+      const geometry = new THREE.BoxGeometry(dimensions.x, dimensions.y, dimensions.z);
+      geometry.applyMatrix(
+        new THREE.Matrix4().makeTranslation(
+          halfDimensions.x + offset.x,
+          halfDimensions.y + offset.y,
+          halfDimensions.z + offset.z
+        )
+      );
 
-    // Material
-    let material = new THREE.MeshBasicMaterial({
-    //   wireframe: true,
-    });
-    material.side = THREE.DoubleSide;
+      // Material
+      let material = new THREE.MeshBasicMaterial({
+        //   wireframe: true,
+      });
+      material.side = THREE.DoubleSide;
 
-    let uniformsFirstPass = {
-        'uWorldBBox': {
+      let uniformsFirstPass = {
+        uWorldBBox: {
           type: 'fv1',
           value: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
         },
-    };
-    uniformsFirstPass.uWorldBBox.value = stack.worldBoundingBox();
-    materialFirstPass = new THREE.ShaderMaterial({
-      uniforms: uniformsFirstPass,
-      side: THREE.BackSide,
-      vertexShader: ` 
+      };
+      uniformsFirstPass.uWorldBBox.value = stack.worldBoundingBox();
+      materialFirstPass = new THREE.ShaderMaterial({
+        uniforms: uniformsFirstPass,
+        side: THREE.BackSide,
+        vertexShader: ` 
 varying vec4 vPos;
 
 //
@@ -351,7 +355,7 @@ void main() {
 
 }
 `,
-      fragmentShader: `
+        fragmentShader: `
 uniform float uWorldBBox[6];
 
 varying vec4 vPos;
@@ -365,95 +369,105 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
                     1.0);
 }
 `,
-    });
+      });
 
-    baseMesh = new THREE.Mesh(geometry, materialFirstPass);
-    baseMesh.applyMatrix(stack.ijk2LPS);
+      baseMesh = new THREE.Mesh(geometry, materialFirstPass);
+      baseMesh.applyMatrix(stack.ijk2LPS);
 
-    let baseMaterial = new THREE.MeshBasicMaterial({
-      wireframe: true,
-    });
-    let othermesh = new THREE.Mesh(geometry, baseMaterial);
-    othermesh.applyMatrix(stack.ijk2LPS);
-    scene.add(othermesh);
+      let baseMaterial = new THREE.MeshBasicMaterial({
+        wireframe: true,
+      });
+      let othermesh = new THREE.Mesh(geometry, baseMaterial);
+      othermesh.applyMatrix(stack.ijk2LPS);
+      scene.add(othermesh);
 
-    rtTexture = new THREE.WebGLRenderTarget(
-      window.innerWidth,
-      window.innerHeight,
-      {
+      rtTexture = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.NearestFilter,
         format: THREE.RGBFormat,
       });
 
-    sceneT.add(baseMesh);
+      sceneT.add(baseMesh);
 
-    let _textures = [];
-    for (let m = 0; m < stack._rawData.length; m++) {
-      let tex = new THREE.DataTexture(
-        stack.rawData[m],
-        stack.textureSize,
-        stack.textureSize,
-        stack.textureType,
-        THREE.UnsignedByteType,
-        THREE.UVMapping,
-        THREE.ClampToEdgeWrapping,
-        THREE.ClampToEdgeWrapping,
-        THREE.NearestFilter,
-        THREE.NearestFilter);
-      tex.needsUpdate = true;
-      tex.flipY = true;
-      _textures.push(tex);
-    }
+      let _textures = [];
+      for (let m = 0; m < stack._rawData.length; m++) {
+        let tex = new THREE.DataTexture(
+          stack.rawData[m],
+          stack.textureSize,
+          stack.textureSize,
+          stack.textureType,
+          THREE.UnsignedByteType,
+          THREE.UVMapping,
+          THREE.ClampToEdgeWrapping,
+          THREE.ClampToEdgeWrapping,
+          THREE.NearestFilter,
+          THREE.NearestFilter
+        );
+        tex.needsUpdate = true;
+        tex.flipY = true;
+        _textures.push(tex);
+      }
 
-    uniformsSecondPass = VRUniforms.uniforms();
-    uniformsSecondPass.uTextureSize.value = stack.textureSize;
-    uniformsSecondPass.uTextureContainer.value = _textures;
-    uniformsSecondPass.uWorldToData.value = stack.lps2IJK;
-    uniformsSecondPass.uNumberOfChannels.value = stack.numberOfChannels;
-    uniformsSecondPass.uBitsAllocated.value = stack.bitsAllocated;
-    uniformsSecondPass.uWindowCenterWidth.value = [stack.windowCenter, stack.windowWidth * 0.8];
-    uniformsSecondPass.uRescaleSlopeIntercept.value = [stack.rescaleSlope, stack.rescaleIntercept];
-    uniformsSecondPass.uTextureBack.value = rtTexture.texture;
-    uniformsSecondPass.uWorldBBox.value = stack.worldBoundingBox();
-    uniformsSecondPass.uDataDimensions.value = [stack.dimensionsIJK.x,
-                                                stack.dimensionsIJK.y,
-                                                stack.dimensionsIJK.z];
-    uniformsSecondPass.uSteps.value = myStack.steps;
-    console.log(uniformsSecondPass);
+      uniformsSecondPass = VRUniforms.uniforms();
+      uniformsSecondPass.uTextureSize.value = stack.textureSize;
+      uniformsSecondPass.uTextureContainer.value = _textures;
+      uniformsSecondPass.uWorldToData.value = stack.lps2IJK;
+      uniformsSecondPass.uNumberOfChannels.value = stack.numberOfChannels;
+      uniformsSecondPass.uBitsAllocated.value = stack.bitsAllocated;
+      uniformsSecondPass.uWindowCenterWidth.value = [stack.windowCenter, stack.windowWidth * 0.8];
+      uniformsSecondPass.uRescaleSlopeIntercept.value = [
+        stack.rescaleSlope,
+        stack.rescaleIntercept,
+      ];
+      uniformsSecondPass.uTextureBack.value = rtTexture.texture;
+      uniformsSecondPass.uWorldBBox.value = stack.worldBoundingBox();
+      uniformsSecondPass.uDataDimensions.value = [
+        stack.dimensionsIJK.x,
+        stack.dimensionsIJK.y,
+        stack.dimensionsIJK.z,
+      ];
+      uniformsSecondPass.uSteps.value = myStack.steps;
+      console.log(uniformsSecondPass);
 
-    // Geometry
-    const scale = 4;
-    let newGeometry = new THREE.BoxGeometry(scale * dimensions.x, scale * dimensions.y, scale * dimensions.z);
-    newGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(
-        halfDimensions.x + offset.x,
-        halfDimensions.y + offset.y,
-        halfDimensions.z + offset.z));
+      // Geometry
+      const scale = 4;
+      let newGeometry = new THREE.BoxGeometry(
+        scale * dimensions.x,
+        scale * dimensions.y,
+        scale * dimensions.z
+      );
+      newGeometry.applyMatrix(
+        new THREE.Matrix4().makeTranslation(
+          halfDimensions.x + offset.x,
+          halfDimensions.y + offset.y,
+          halfDimensions.z + offset.z
+        )
+      );
 
-    // Material
-    let newMaterial = new THREE.MeshBasicMaterial({
-      wireframe: true,
-    });
-    newMaterial.side = THREE.DoubleSide;
+      // Material
+      let newMaterial = new THREE.MeshBasicMaterial({
+        wireframe: true,
+      });
+      newMaterial.side = THREE.DoubleSide;
 
-    containerMesh = new THREE.Mesh(newGeometry, newMaterial);
-    containerMesh.applyMatrix(stack.ijk2LPS);
+      containerMesh = new THREE.Mesh(newGeometry, newMaterial);
+      containerMesh.applyMatrix(stack.ijk2LPS);
 
-    scene.add(containerMesh);
+      scene.add(containerMesh);
 
-    // CREATE LUT
-    lut = new HelpersLut('my-lut-canvases');
-    lut.luts = HelpersLut.presetLuts();
-    lut.lutsO = HelpersLut.presetLutsO();
-    // update related uniforms
-    uniformsSecondPass.uTextureLUT.value = lut.texture;
-    uniformsSecondPass.uLut.value = 1;
-    uniformsSecondPass.uAlphaCorrection.value = myStack.alphaCorrection;
+      // CREATE LUT
+      lut = new HelpersLut('my-lut-canvases');
+      lut.luts = HelpersLut.presetLuts();
+      lut.lutsO = HelpersLut.presetLutsO();
+      // update related uniforms
+      uniformsSecondPass.uTextureLUT.value = lut.texture;
+      uniformsSecondPass.uLut.value = 1;
+      uniformsSecondPass.uAlphaCorrection.value = myStack.alphaCorrection;
 
-    //
-    let fs = new VRFragment(uniformsSecondPass);
-    let vs = new VRVertex();
-    materialSecondPass = new THREE.ShaderMaterial({
+      //
+      let fs = new VRFragment(uniformsSecondPass);
+      let vs = new VRVertex();
+      materialSecondPass = new THREE.ShaderMaterial({
         uniforms: uniformsSecondPass,
         vertexShader: vs.compute(),
         fragmentShader: fs.compute(),
@@ -469,33 +483,32 @@ gl_FragColor = vec4((vPos.x - uWorldBBox[0])/(uWorldBBox[1] - uWorldBBox[0]),
       boxMeshSecondPass.applyMatrix(stack._ijk2LPS);
       scene.add(boxMeshSecondPass);
 
+      // update camrea's and interactor's target
+      let centerLPS = stack.worldCenter();
+      camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
+      camera.updateProjectionMatrix();
+      controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
 
-    // update camrea's and interactor's target
-    let centerLPS = stack.worldCenter();
-    camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
-    camera.updateProjectionMatrix();
-    controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
+      // create GUI
+      buildGUI();
 
-    // create GUI
-    buildGUI();
+      // screenshot experiment
+      let screenshotElt = document.getElementById('screenshot');
+      screenshotElt.addEventListener('click', function() {
+        controls.update();
 
-    // screenshot experiment
-    let screenshotElt = document.getElementById('screenshot');
-    screenshotElt.addEventListener('click', function() {
-      controls.update();
+        if (ready) {
+          renderer.render(scene, camera);
+        }
 
-      if (ready) {
-        renderer.render(scene, camera);
-      }
+        let screenshot = renderer.domElement.toDataURL();
+        screenshotElt.download = 'AMI-' + Date.now() + '.png';
+        screenshotElt.href = screenshot;
+      });
 
-      let screenshot = renderer.domElement.toDataURL();
-      screenshotElt.download = 'AMI-' + Date.now() + '.png';
-      screenshotElt.href = screenshot;
-    });
-
-    // good to go
-    ready = true;
-    modified = true;
-  })
-  .catch((error) => window.console.log(error));
+      // good to go
+      ready = true;
+      modified = true;
+    })
+    .catch(error => window.console.log(error));
 };

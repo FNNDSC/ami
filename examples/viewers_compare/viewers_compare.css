@@ -1,11 +1,11 @@
-*{
+* {
   font-family: 'Roboto', sans-serif;
   outline: none;
 }
 
 #stats {
   position: absolute;
-  top:0;
+  top: 0;
   left: 0;
 }
 
@@ -18,14 +18,14 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  overflow:hidden;
+  overflow: hidden;
 }
 
 #my-gui-container {
   position: fixed;
   top: 30px;
   right: 20px;
-  z-index:1;
+  z-index: 1;
 }
 
 #my-lut-container {
@@ -33,7 +33,7 @@
   left: 50%;
   transform: translate(-50%, 0);
   z-index: 1;
-  color: #F9F9F9;
+  color: #f9f9f9;
   text-align: center;
 }
 

@@ -4,8 +4,8 @@ import ShadersVertex from '../shaders/shaders.contour.vertex';
 import ShadersFragment from '../shaders/shaders.contour.fragment';
 
 /**
-* @module helpers/contour
-*/
+ * @module helpers/contour
+ */
 const helpersContour = (three = window.THREE) => {
   if (three === undefined || three.Object3D === undefined) {
     return null;
@@ -49,18 +49,16 @@ const helpersContour = (three = window.THREE) => {
         this._uniforms.uCanvasWidth.value = this._canvasWidth;
         this._uniforms.uCanvasHeight.value = this._canvasHeight;
 
-       // generate material
+        // generate material
         let fs = new ShadersFragment(this._uniforms);
         let vs = new ShadersVertex();
-        this._material = new three.ShaderMaterial(
-          {
-            side: three.DoubleSide,
-            uniforms: this._uniforms,
-            vertexShader: vs.compute(),
-            fragmentShader: fs.compute(),
-            transparent: true,
-          }
-        );
+        this._material = new three.ShaderMaterial({
+          side: three.DoubleSide,
+          uniforms: this._uniforms,
+          vertexShader: vs.compute(),
+          fragmentShader: fs.compute(),
+          transparent: true,
+        });
       }
     }
 
@@ -175,6 +173,6 @@ const helpersContour = (three = window.THREE) => {
 };
 
 // export factory
-export {helpersContour};
+export { helpersContour };
 // default export to
 export default helpersContour();

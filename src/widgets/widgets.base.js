@@ -1,5 +1,5 @@
 import WidgetsCss from './widgets.css';
-import CoreUtils from "../core/core.utils";
+import CoreUtils from '../core/core.utils';
 
 /**
  * @module Abstract Widget
@@ -9,8 +9,8 @@ const widgetsBase = (three = window.THREE) => {
     return null;
   }
 
-   const Constructor = three.Object3D;
-   return class extends Constructor {
+  const Constructor = three.Object3D;
+  return class extends Constructor {
     constructor(targetMesh, controls, params) {
       super(); // init THREE Object 3D
 
@@ -86,7 +86,7 @@ const widgetsBase = (three = window.THREE) => {
 
     getMouseOffsets(event, container) {
       return {
-        x: (event.clientX - this._offsets.left) / container.offsetWidth * 2 - 1,
+        x: ((event.clientX - this._offsets.left) / container.offsetWidth) * 2 - 1,
         y: -((event.clientY - this._offsets.top) / container.offsetHeight) * 2 + 1,
         screenX: event.clientX - this._offsets.left,
         screenY: event.clientY - this._offsets.top,
@@ -106,7 +106,7 @@ const widgetsBase = (three = window.THREE) => {
 
       for (var i = 0; i < points.length; i++) {
         area += (points[j].x + points[i].x) * (points[j].y - points[i].y);
-        j = i;  // j is the previous vertex to i
+        j = i; // j is the previous vertex to i
       }
 
       return Math.abs(area / 2);
@@ -124,7 +124,12 @@ const widgetsBase = (three = window.THREE) => {
       let result = null;
 
       regions.some((region, ind) => {
-        if (point.x >= region.x0 && point.x <= region.x1 && point.y >= region.y0 && point.y <= region.y1) {
+        if (
+          point.x >= region.x0 &&
+          point.x <= region.x1 &&
+          point.y >= region.y0 &&
+          point.y <= region.y1
+        ) {
           result = ind;
 
           return true;
@@ -134,36 +139,36 @@ const widgetsBase = (three = window.THREE) => {
       return result;
     }
 
-     /**
-      * Get point inside ultrasound region by data coordinates.
-      *
-      * @param {Object}  region US region data
-      * @param {Vector3} point  Data coordinates
-      *
-      * @returns {Vector2|null}
-      */
-     getPointInRegion(region, point) {
-       if (!region) {
-           return null;
-       }
+    /**
+     * Get point inside ultrasound region by data coordinates.
+     *
+     * @param {Object}  region US region data
+     * @param {Vector3} point  Data coordinates
+     *
+     * @returns {Vector2|null}
+     */
+    getPointInRegion(region, point) {
+      if (!region) {
+        return null;
+      }
 
-       return new three.Vector2(
-         (point.x - region.x0 - (region.axisX || 0)) * region.deltaX,
-         (point.y - region.y0 - (region.axisY || 0)) * region.deltaY
-       );
-     }
+      return new three.Vector2(
+        (point.x - region.x0 - (region.axisX || 0)) * region.deltaX,
+        (point.y - region.y0 - (region.axisY || 0)) * region.deltaY
+      );
+    }
 
-     /**
-      * Get point's ultrasound coordinates by data coordinates.
-      *
-      * @param {Array}   regions US regions
-      * @param {Vector3} point   Data coordinates
-      *
-      * @returns {Vector2|null}
-      */
-     getUsPoint(regions, point) {
-       return this.getPointInRegion(regions[this.getRegionByXY(regions, point)], point);
-     }
+    /**
+     * Get point's ultrasound coordinates by data coordinates.
+     *
+     * @param {Array}   regions US regions
+     * @param {Vector3} point   Data coordinates
+     *
+     * @returns {Vector2|null}
+     */
+    getUsPoint(regions, point) {
+      return this.getPointInRegion(regions[this.getRegionByXY(regions, point)], point);
+    }
 
     /**
      * Get distance between points inside ultrasound region.
@@ -183,14 +188,19 @@ const widgetsBase = (three = window.THREE) => {
       const regionA = this.getRegionByXY(regions, pointA);
       const regionB = this.getRegionByXY(regions, pointB);
 
-      if (regionA === null || regionB === null || regionA !== regionB
-        || regions[regionA].unitsX !== 'cm' || regions[regionA].unitsY !== 'cm'
+      if (
+        regionA === null ||
+        regionB === null ||
+        regionA !== regionB ||
+        regions[regionA].unitsX !== 'cm' ||
+        regions[regionA].unitsY !== 'cm'
       ) {
         return null;
       }
 
-      return this.getPointInRegion(regions[regionA], pointA)
-        .distanceTo(this.getPointInRegion(regions[regionA], pointB));
+      return this.getPointInRegion(regions[regionA], pointA).distanceTo(
+        this.getPointInRegion(regions[regionA], pointB)
+      );
     }
 
     /**
@@ -227,13 +237,16 @@ const widgetsBase = (three = window.THREE) => {
 
       return {
         distance,
-        units
+        units,
       };
     }
 
     getLineData(pointA, pointB) {
       const line = pointB.clone().sub(pointA);
-      const center = pointB.clone().add(pointA).multiplyScalar(0.5);
+      const center = pointB
+        .clone()
+        .add(pointA)
+        .multiplyScalar(0.5);
       const length = line.length();
       const angle = line.angleTo(new three.Vector3(1, 0, 0));
 
@@ -253,7 +266,10 @@ const widgetsBase = (three = window.THREE) => {
       const min = pointA.clone().min(pointB); // coordinates of the top left corner
 
       return {
-        width: line.clone().projectOnVector(new three.Vector3(1, 0, 0)).length(),
+        width: line
+          .clone()
+          .projectOnVector(new three.Vector3(1, 0, 0))
+          .length(),
         height: vertical.length(),
         transformX: min.x,
         transformY: min.y - this._container.offsetHeight,
@@ -268,20 +284,23 @@ const widgetsBase = (three = window.THREE) => {
      */
     adjustLabelTransform(label, point, corner) {
       let x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2));
-      let y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
+      let y =
+        Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
 
       if (x < 0) {
         x = x > -label.offsetWidth ? 0 : x + label.offsetWidth;
       } else if (x > this._container.offsetWidth - label.offsetWidth) {
-        x = x < this._container.offsetWidth
-          ? this._container.offsetWidth - label.offsetWidth
-          : x - label.offsetWidth;
+        x =
+          x < this._container.offsetWidth
+            ? this._container.offsetWidth - label.offsetWidth
+            : x - label.offsetWidth;
       }
 
       if (y < -this._container.offsetHeight) {
-        y = y > -this._container.offsetHeight - label.offsetHeight
-          ? -this._container.offsetHeight
-          : y + label.offsetHeight;
+        y =
+          y > -this._container.offsetHeight - label.offsetHeight
+            ? -this._container.offsetHeight
+            : y + label.offsetHeight;
       } else if (y > -label.offsetHeight) {
         y = y < 0 ? -label.offsetHeight : y - label.offsetHeight;
       }
@@ -293,10 +312,12 @@ const widgetsBase = (three = window.THREE) => {
       let screenCoordinates = worldCoordinate.clone();
       screenCoordinates.project(this._camera);
 
-      screenCoordinates.x = Math.round((screenCoordinates.x + 1)
-          * this._container.offsetWidth / 2);
-      screenCoordinates.y = Math.round((-screenCoordinates.y + 1)
-          * this._container.offsetHeight / 2);
+      screenCoordinates.x = Math.round(
+        ((screenCoordinates.x + 1) * this._container.offsetWidth) / 2
+      );
+      screenCoordinates.y = Math.round(
+        ((-screenCoordinates.y + 1) * this._container.offsetHeight) / 2
+      );
       screenCoordinates.z = 0;
 
       return screenCoordinates;
@@ -322,7 +343,7 @@ const widgetsBase = (three = window.THREE) => {
     setDefaultColor(color) {
       this._colors.default = color;
       if (this._handles) {
-          this._handles.forEach((elem) => elem._colors.default = color);
+        this._handles.forEach(elem => (elem._colors.default = color));
       }
       this.update();
     }
@@ -457,5 +478,5 @@ const widgetsBase = (three = window.THREE) => {
   };
 };
 
-export {widgetsBase};
+export { widgetsBase };
 export default widgetsBase();

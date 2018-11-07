@@ -4,13 +4,13 @@
  * @module helpers/material/mixin
  */
 
- const helpersMaterialMixin = (three = window.THREE) => {
+const helpersMaterialMixin = (three = window.THREE) => {
   if (three === undefined || three.Object3D === undefined) {
     return null;
   }
 
-   const Constructor = three.Object3D;
-   return class extends Constructor {
+  const Constructor = three.Object3D;
+  return class extends Constructor {
     _createMaterial(extraOptions) {
       // generate shaders on-demand!
       let fs = new this._shadersFragment(this._uniforms);
@@ -52,7 +52,8 @@
           three.ClampToEdgeWrapping,
           three.ClampToEdgeWrapping,
           three.NearestFilter,
-          three.NearestFilter);
+          three.NearestFilter
+        );
         tex.needsUpdate = true;
         tex.flipY = true;
         this._textures.push(tex);
@@ -61,5 +62,5 @@
   };
 };
 
-export {helpersMaterialMixin};
+export { helpersMaterialMixin };
 export default helpersMaterialMixin();

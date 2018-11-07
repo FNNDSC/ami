@@ -42,10 +42,10 @@ const guiObjects = {
 };
 
 function render() {
-    // render
-    controls.update();
-    renderer.render(scene, camera);
-    stats.update();
+  // render
+  controls.update();
+  renderer.render(scene, camera);
+  stats.update();
 }
 
 function init() {
@@ -65,7 +65,7 @@ function init() {
     antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
-  renderer.setClearColor(0xFFFFFF, 1);
+  renderer.setClearColor(0xffffff, 1);
 
   threeD.appendChild(renderer.domElement);
 
@@ -77,10 +77,7 @@ function init() {
   scene = new THREE.Scene();
 
   // camera
-  camera =
-    new THREE.PerspectiveCamera(
-      45, threeD.offsetWidth / threeD.offsetHeight,
-      1, 10000000);
+  camera = new THREE.PerspectiveCamera(45, threeD.offsetWidth / threeD.offsetHeight, 1, 10000000);
   camera.position.x = 150;
   camera.position.y = 50;
   camera.position.z = 50;
@@ -100,13 +97,11 @@ window.onload = function() {
   // init threeJS...
   init();
 
-  const file =
-    'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/36749894';
+  const file = 'https://cdn.rawgit.com/FNNDSC/data/master/dicom/adi_brain/36749894';
 
   const loader = new LoadersVolume(threeD);
   // Start off with a promise that always resolves
-  loader.load(file)
-  .then((series) => {
+  loader.load(file).then(series => {
     const stack = series[0]._stack[0];
     loader.free();
     let stackHelper = new HelpersStack(stack);
@@ -149,7 +144,7 @@ window.onload = function() {
 
       // mouse position
       let mouse = {
-        x: (evt.clientX - offsets.left) / threeD.offsetWidth * 2 - 1,
+        x: ((evt.clientX - offsets.left) / threeD.offsetWidth) * 2 - 1,
         y: -((evt.clientY - offsets.top) / threeD.offsetHeight) * 2 + 1,
       };
 
@@ -167,7 +162,7 @@ window.onload = function() {
         case 'VoxelProbe':
           widget = new WidgetsVoxelProbe(stackHelper.slice.mesh, controls, {
             stack: stack,
-            worldPosition: intersects[0].point
+            worldPosition: intersects[0].point,
           });
           break;
         case 'Ruler':
@@ -175,14 +170,14 @@ window.onload = function() {
             lps2IJK: stack.lps2IJK,
             pixelSpacing: stack.frame[stackHelper.index].pixelSpacing,
             ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions,
-            worldPosition: intersects[0].point
+            worldPosition: intersects[0].point,
           });
           break;
         case 'CrossRuler':
           widget = new WidgetsCrossRuler(stackHelper.slice.mesh, controls, {
             lps2IJK: stack.lps2IJK,
             pixelSpacing: stack.frame[stackHelper.index].pixelSpacing,
-            ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions
+            ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions,
           });
           break;
         case 'BiRuler':
@@ -190,46 +185,52 @@ window.onload = function() {
             lps2IJK: stack.lps2IJK,
             pixelSpacing: stack.frame[stackHelper.index].pixelSpacing,
             ultrasoundRegions: stack.frame[stackHelper.index].ultrasoundRegions,
-            worldPosition: intersects[0].point
+            worldPosition: intersects[0].point,
           });
           break;
         case 'Angle':
-          widget = new WidgetsAngle(stackHelper.slice.mesh, controls, { worldPosition: intersects[0].point });
+          widget = new WidgetsAngle(stackHelper.slice.mesh, controls, {
+            worldPosition: intersects[0].point,
+          });
           break;
         case 'Rectangle':
           widget = new WidgetsRectangle(stackHelper.slice.mesh, controls, {
             frameIndex: stackHelper.index,
             stack: stack,
-            worldPosition: intersects[0].point
+            worldPosition: intersects[0].point,
           });
           break;
         case 'Ellipse':
           widget = new WidgetsEllipse(stackHelper.slice.mesh, controls, {
             frameIndex: stackHelper.index,
             stack: stack,
-            worldPosition: intersects[0].point
+            worldPosition: intersects[0].point,
           });
           break;
         case 'Polygon':
           widget = new WidgetsPolygon(stackHelper.slice.mesh, controls, {
             frameIndex: stackHelper.index,
             stack: stack,
-            worldPosition: intersects[0].point
+            worldPosition: intersects[0].point,
           });
           break;
         case 'Freehand':
           widget = new WidgetsFreehand(stackHelper.slice.mesh, controls, {
             frameIndex: stackHelper.index,
             stack: stack,
-            worldPosition: intersects[0].point
+            worldPosition: intersects[0].point,
           });
           break;
         case 'Annotation':
-          widget = new WidgetsAnnotation(stackHelper.slice.mesh, controls, { worldPosition: intersects[0].point });
+          widget = new WidgetsAnnotation(stackHelper.slice.mesh, controls, {
+            worldPosition: intersects[0].point,
+          });
           break;
         case 'Handle':
         default:
-          widget = new WidgetsHandle(stackHelper.slice.mesh, controls, { worldPosition: intersects[0].point });
+          widget = new WidgetsHandle(stackHelper.slice.mesh, controls, {
+            worldPosition: intersects[0].point,
+          });
       }
 
       widgets.push(widget);
@@ -248,8 +249,7 @@ window.onload = function() {
       const docEl = document.documentElement;
 
       const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
-      const scrollLeft =
-        window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
+      const scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
 
       const clientTop = docEl.clientTop || body.clientTop || 0;
       const clientLeft = docEl.clientLeft || body.clientLeft || 0;

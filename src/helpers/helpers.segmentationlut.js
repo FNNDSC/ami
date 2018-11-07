@@ -1,8 +1,8 @@
 import CoreUtils from '../core/core.utils';
 
 let defaultSegmentation = {
-  0: {color: [0, 0, 0], opacity: 0, label: 'background'},
-  1: {color: [255, 0, 0], opacity: 1, label: 'white matter'},
+  0: { color: [0, 0, 0], opacity: 0, label: 'background' },
+  1: { color: [255, 0, 0], opacity: 1, label: 'white matter' },
 };
 
 export default class HelpersSegmentationLut {
@@ -63,10 +63,15 @@ export default class HelpersSegmentationLut {
       // i is the label number and specifies the coordinates inside the canvas
       let xCoord = i % this._canvas.width;
       let yCoord = Math.floor(i / this._canvas.width);
-      let opacity = (typeof this._segmentation[i]['opacity'] != 'undefined') ? this._segmentation[i]['opacity'] : 1;
+      let opacity =
+        typeof this._segmentation[i]['opacity'] != 'undefined'
+          ? this._segmentation[i]['opacity']
+          : 1;
       let color = this._segmentation[i]['color'];
 
-      ctx.fillStyle = `rgba( ${Math.round(color[0])}, ${Math.round(color[1])}, ${Math.round(color[2])}, ${opacity})`;
+      ctx.fillStyle = `rgba( ${Math.round(color[0])}, ${Math.round(color[1])}, ${Math.round(
+        color[2]
+      )}, ${opacity})`;
       ctx.fillRect(xCoord, yCoord, 1, 1);
     }
   }

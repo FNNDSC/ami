@@ -1,4 +1,4 @@
-import {Matrix4} from 'three/src/math/Matrix4';
+import { Matrix4 } from 'three/src/math/Matrix4';
 
 /**
  * @module helpers/x/mesh
@@ -10,7 +10,7 @@ export default class {
 
     this._3jsVTK_loader = new THREE.VTKLoader();
     this._mesh = null;
-    this._materialColor = 0xE91E63;
+    this._materialColor = 0xe91e63;
     this._RAStoLPS = null;
     this._material = new THREE.MeshLambertMaterial({
       shading: THREE.SmoothShading,
@@ -40,30 +40,29 @@ export default class {
   load() {
     if (this.file) {
       return new Promise((resolve, reject) => {
-        this._3jsVTK_loader.load(this.file,
-          (geometry) => {
-              geometry.computeVertexNormals();
-              this._mesh = new THREE.Mesh(geometry, this._material);
-              this._RAStoLPS = new Matrix4();
-              this._RAStoLPS.set(-1, 0, 0, 0,
-                                  0, -1, 0, 0,
-                                  0, 0, 1, 0,
-                                  0, 0, 0, 1);
-              this._mesh.applyMatrix(this._RAStoLPS);
-              // resolve the promise and return the mesh
-              resolve(this._mesh);
+        this._3jsVTK_loader.load(
+          this.file,
+          geometry => {
+            geometry.computeVertexNormals();
+            this._mesh = new THREE.Mesh(geometry, this._material);
+            this._RAStoLPS = new Matrix4();
+            this._RAStoLPS.set(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+            this._mesh.applyMatrix(this._RAStoLPS);
+            // resolve the promise and return the mesh
+            resolve(this._mesh);
           },
           () => {},
-          (error) => {
+          error => {
             console.log(error);
             reject({
               message: `Couldn't load file: ${this.file}.`,
               error,
             });
-        });
+          }
+        );
       });
     }
 
-    return Promise.reject({message: `File is not defined: ${this.file}.`});
+    return Promise.reject({ message: `File is not defined: ${this.file}.` });
   }
 }

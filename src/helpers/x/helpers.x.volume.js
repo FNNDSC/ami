@@ -44,16 +44,16 @@ export default class extends THREE.Object3D {
       const stackHelper = new HelpersStack(this._stack);
       stackHelper.orientation = orientation;
 
-      if (orientation===0) {
-        stackHelper.border.color = 0xF44336;
+      if (orientation === 0) {
+        stackHelper.border.color = 0xf44336;
         this._xSlice = stackHelper;
-      } else if (orientation===1) {
+      } else if (orientation === 1) {
         stackHelper.bbox.visible = false;
-        stackHelper.border.color = 0x4CAF50;
+        stackHelper.border.color = 0x4caf50;
         this._ySlice = stackHelper;
       } else {
         stackHelper.bbox.visible = false;
-        stackHelper.border.color = 0x2196F3;
+        stackHelper.border.color = 0x2196f3;
         this._zSlice = stackHelper;
       }
 
@@ -67,33 +67,36 @@ export default class extends THREE.Object3D {
       // instantiate the loader
       // it loads and parses the dicom image
       const loader = new LoadersVolume(this._progressbarContainer);
-      return loader.load(this.file).then(() => {
-        return new Promise((resolve, reject) => {
-          if (loader.data.length <= 0) {
-            return reject({message: `No data loaded: ${loader.data}.`});
-          }
+      return loader
+        .load(this.file)
+        .then(() => {
+          return new Promise((resolve, reject) => {
+            if (loader.data.length <= 0) {
+              return reject({ message: `No data loaded: ${loader.data}.` });
+            }
 
-          // create the three slices when all files have been loaded
-          const series = loader.data[0].mergeSeries(loader.data)[0];
+            // create the three slices when all files have been loaded
+            const series = loader.data[0].mergeSeries(loader.data)[0];
+            loader.free();
+
+            this._stack = series.stack[0];
+            this._createSlice(0);
+            this.add(this._xSlice);
+            this._createSlice(1);
+            this.add(this._ySlice);
+            this._createSlice(2);
+            this.add(this._zSlice);
+
+            return resolve(this);
+          });
+        })
+        .catch(function(error) {
           loader.free();
-
-          this._stack = series.stack[0];
-          this._createSlice(0);
-          this.add(this._xSlice);
-          this._createSlice(1);
-          this.add(this._ySlice);
-          this._createSlice(2);
-          this.add(this._zSlice);
-
-          return resolve(this);
+          window.console.log('Something went wrong loading the volume...');
+          window.console.log(error);
         });
-      }).catch(function(error) {
-        loader.free();
-        window.console.log('Something went wrong loading the volume...');
-        window.console.log(error);
-      });
     }
 
-    return Promise.reject({message: `File not defined: ${this.file}.`});
+    return Promise.reject({ message: `File not defined: ${this.file}.` });
   }
 }

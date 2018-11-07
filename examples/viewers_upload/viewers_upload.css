@@ -1,10 +1,11 @@
-*{
+* {
   font-family: 'Roboto', sans-serif;
   outline: none;
 }
 
-
-#viewer, #r3d, #orientation {
+#viewer,
+#r3d,
+#orientation {
   background-color: #212121;
   left: 0;
   right: 0;
@@ -13,14 +14,13 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  overflow:hidden;
+  overflow: hidden;
 }
 
 #orientation {
   display: flex;
   align-items: center;
   justify-content: center;
-
 }
 
 .direction {
@@ -35,7 +35,7 @@
   width: 18px;
   height: 18px;
   text-align: center;
-  background-color: rgba(0, 0, 0, .3);
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
 #top {
@@ -58,7 +58,7 @@
   position: fixed;
   top: 30px;
   right: 20px;
-  z-index:1;
+  z-index: 1;
 }
 
 #my-lut-container {
@@ -66,7 +66,7 @@
   left: 50%;
   transform: translate(-50%, 0);
   z-index: 1;
-  color: #F9F9F9;
+  color: #f9f9f9;
   display: flex;
 }
 
@@ -92,7 +92,7 @@
   left: 0;
 }
 
-#home-container{
+#home-container {
   position: fixed;
   top: 0;
   left: 0;
@@ -105,48 +105,48 @@
   flex-direction: column;
 }
 
-.big{
-  font-size:60px;
+.big {
+  font-size: 60px;
 }
 
-.medium{
-  font-size:40px;
+.medium {
+  font-size: 40px;
 }
 
-.small{
-  font-size:30px;
+.small {
+  font-size: 30px;
 }
 
-.small{
-  font-size:20px;
+.small {
+  font-size: 20px;
 }
 
-#buttons{
+#buttons {
   flex: 1;
   align-items: center;
   display: flex;
   flex-direction: column;
-  justify-content:center;
+  justify-content: center;
 }
 
-#filesinput{
-  display:none;
+#filesinput {
+  display: none;
 }
 
-#buttoninput{
+#buttoninput {
   padding: 10px;
-  border: 6px solid #2196F3;
-  background-color: #2196F3;
-  color: #F9F9F9;
+  border: 6px solid #2196f3;
+  background-color: #2196f3;
+  color: #f9f9f9;
   border-radius: 50%;
   height: 200px;
   width: 200px;
-  font-size:30px;
+  font-size: 30px;
 }
 
-#buttoninput:hover{
+#buttoninput:hover {
   /*border-style: dashed;*/
-  background-color: #F9F9F9;
-  color: #2196F3;
-  cursor:pointer;
+  background-color: #f9f9f9;
+  color: #2196f3;
+  cursor: pointer;
 }

@@ -2,13 +2,13 @@
  * @module helpers/boundingbox
  */
 
- const helpersBoundingBox = (three = window.THREE) => {
+const helpersBoundingBox = (three = window.THREE) => {
   if (three === undefined || three.Object3D === undefined) {
     return null;
   }
 
-   const Constructor = three.Object3D;
-   return class extends Constructor {
+  const Constructor = three.Object3D;
+  return class extends Constructor {
     constructor(stack) {
       //
       super();
@@ -16,7 +16,7 @@
       // private vars
       this._stack = stack;
       this._visible = true;
-      this._color = 0xFFFFFF;
+      this._color = 0xffffff;
       this._material = null;
       this._geometry = null;
       this._mesh = null;
@@ -58,10 +58,13 @@
 
       // Geometry
       const geometry = new three.BoxGeometry(dimensions.x, dimensions.y, dimensions.z);
-      geometry.applyMatrix(new three.Matrix4().makeTranslation(
-        halfDimensions.x + offset.x,
-        halfDimensions.y + offset.y,
-        halfDimensions.z + offset.z));
+      geometry.applyMatrix(
+        new three.Matrix4().makeTranslation(
+          halfDimensions.x + offset.x,
+          halfDimensions.y + offset.y,
+          halfDimensions.z + offset.z
+        )
+      );
       this._geometry = geometry;
 
       // Material
@@ -102,9 +105,9 @@
       this._material = null;
     }
   };
- };
+};
 
 // export factory
-export {helpersBoundingBox};
+export { helpersBoundingBox };
 // default export too
 export default helpersBoundingBox();

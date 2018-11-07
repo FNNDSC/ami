@@ -12,7 +12,12 @@ class InterpolationTrilinear extends ShadersBase {
     this._gradient = 'gradient';
   }
 
-  api(baseFragment = this._base, currentVoxel = this._currentVoxel, dataValue = this._dataValue, gradient = this._gradient) {
+  api(
+    baseFragment = this._base,
+    currentVoxel = this._currentVoxel,
+    dataValue = this._dataValue,
+    gradient = this._gradient
+  ) {
     this._base = baseFragment;
     return this.compute(currentVoxel, dataValue, gradient);
   }

@@ -32,7 +32,7 @@ let myStack = {
 
 function onStart(event) {
   if (vrHelper && vrHelper.uniforms && !wheel) {
-    renderer.setPixelRatio(.1 * window.devicePixelRatio);
+    renderer.setPixelRatio(0.1 * window.devicePixelRatio);
     renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
     modified = true;
   }
@@ -40,7 +40,7 @@ function onStart(event) {
 
 function onEnd(event) {
   if (vrHelper && vrHelper.uniforms && !wheel) {
-    renderer.setPixelRatio(.5 * window.devicePixelRatio);
+    renderer.setPixelRatio(0.5 * window.devicePixelRatio);
     renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
     modified = true;
 
@@ -54,7 +54,7 @@ function onEnd(event) {
 
 function onWheel() {
   if (!wheel) {
-    renderer.setPixelRatio(.1 * window.devicePixelRatio);
+    renderer.setPixelRatio(0.1 * window.devicePixelRatio);
     renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
     wheel = Date.now();
   }
@@ -62,7 +62,7 @@ function onWheel() {
   if (Date.now() - wheel < 300) {
     clearTimeout(wheelTO);
     wheelTO = setTimeout(function() {
-      renderer.setPixelRatio(.5 * window.devicePixelRatio);
+      renderer.setPixelRatio(0.5 * window.devicePixelRatio);
       renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
       modified = true;
 
@@ -90,8 +90,8 @@ function onWindowResize() {
 
 function buildGUI() {
   let gui = new dat.GUI({
-      autoPlace: false,
-    });
+    autoPlace: false,
+  });
 
   let customContainer = document.getElementById('my-gui-container');
   customContainer.appendChild(gui.domElement);
@@ -105,11 +105,11 @@ function buildGUI() {
 
   let lutUpdate = stackFolder.add(myStack, 'lut', lut.lutsAvailable());
   lutUpdate.onChange(function(value) {
-      lut.lut = value;
-      vrHelper.uniforms.uTextureLUT.value.dispose();
-      vrHelper.uniforms.uTextureLUT.value = lut.texture;
-      modified = true;
-    });
+    lut.lut = value;
+    vrHelper.uniforms.uTextureLUT.value.dispose();
+    vrHelper.uniforms.uTextureLUT.value = lut.texture;
+    modified = true;
+  });
   // init LUT
   lut.lut = myStack.lut;
   vrHelper.uniforms.uTextureLUT.value.dispose();
@@ -117,27 +117,27 @@ function buildGUI() {
 
   let opacityUpdate = stackFolder.add(myStack, 'opacity', lut.lutsAvailable('opacity'));
   opacityUpdate.onChange(function(value) {
-      lut.lutO = value;
-      vrHelper.uniforms.uTextureLUT.value.dispose();
-      vrHelper.uniforms.uTextureLUT.value = lut.texture;
-      modified = true;
-    });
+    lut.lutO = value;
+    vrHelper.uniforms.uTextureLUT.value.dispose();
+    vrHelper.uniforms.uTextureLUT.value = lut.texture;
+    modified = true;
+  });
 
   let stepsUpdate = stackFolder.add(myStack, 'steps', 0, 512).step(1);
   stepsUpdate.onChange(function(value) {
-      if (vrHelper.uniforms) {
-        vrHelper.uniforms.uSteps.value = value;
-        modified = true;
-      }
-    });
+    if (vrHelper.uniforms) {
+      vrHelper.uniforms.uSteps.value = value;
+      modified = true;
+    }
+  });
 
   let alphaCorrrectionUpdate = stackFolder.add(myStack, 'alphaCorrection', 0, 1).step(0.01);
   alphaCorrrectionUpdate.onChange(function(value) {
-      if (vrHelper.uniforms) {
-        vrHelper.uniforms.uAlphaCorrection.value = value;
-        modified = true;
-      }
-    });
+    if (vrHelper.uniforms) {
+      vrHelper.uniforms.uAlphaCorrection.value = value;
+      modified = true;
+    }
+  });
 
   let interpolationUpdate = stackFolder.add(vrHelper, 'interpolation', 0, 1).step(1);
   interpolationUpdate.onChange(function(value) {
@@ -153,7 +153,7 @@ function buildGUI() {
     }
   });
 
-  let shininessUpdate = stackFolder.add(vrHelper, 'shininess', 0, 20).step(.1);
+  let shininessUpdate = stackFolder.add(vrHelper, 'shininess', 0, 20).step(0.1);
   shininessUpdate.onChange(function(value) {
     if (vrHelper.uniforms) {
       modified = true;
@@ -238,59 +238,60 @@ window.onload = function() {
   // load sequence for each file
   // instantiate the loader
   let loader = new LoadersVolume(threeD);
-  loader.load(files)
-  .then(() => {
-    let series = loader.data[0].mergeSeries(loader.data)[0];
-    loader.free();
-    loader = null;
-    // get first stack from series
-    let stack = series.stack[0];
+  loader
+    .load(files)
+    .then(() => {
+      let series = loader.data[0].mergeSeries(loader.data)[0];
+      loader.free();
+      loader = null;
+      // get first stack from series
+      let stack = series.stack[0];
 
-    vrHelper = new HelpersVR(stack);
-    // scene
-    scene.add(vrHelper);
+      vrHelper = new HelpersVR(stack);
+      // scene
+      scene.add(vrHelper);
 
-    // CREATE LUT
-    lut = new HelpersLut('my-lut-canvases');
-    lut.luts = HelpersLut.presetLuts();
-    lut.lutsO = HelpersLut.presetLutsO();
-    // update related uniforms
-    vrHelper.uniforms.uTextureLUT.value = lut.texture;
-    vrHelper.uniforms.uLut.value = 1;
+      // CREATE LUT
+      lut = new HelpersLut('my-lut-canvases');
+      lut.luts = HelpersLut.presetLuts();
+      lut.lutsO = HelpersLut.presetLutsO();
+      // update related uniforms
+      vrHelper.uniforms.uTextureLUT.value = lut.texture;
+      vrHelper.uniforms.uLut.value = 1;
 
-    // update camrea's and interactor's target
-    let centerLPS = stack.worldCenter();
-    camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
-    camera.updateProjectionMatrix();
-    controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
+      // update camrea's and interactor's target
+      let centerLPS = stack.worldCenter();
+      camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
+      camera.updateProjectionMatrix();
+      controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
 
-    // create GUI
-    buildGUI();
+      // create GUI
+      buildGUI();
 
-    // screenshot experiment
-    let screenshotElt = document.getElementById('screenshot');
-    screenshotElt.addEventListener('click', function() {
-      controls.update();
+      // screenshot experiment
+      let screenshotElt = document.getElementById('screenshot');
+      screenshotElt.addEventListener('click', function() {
+        controls.update();
 
-      if (ready) {
-        renderer.render(scene, camera);
-      }
+        if (ready) {
+          renderer.render(scene, camera);
+        }
 
-      let screenshot = renderer.domElement.toDataURL();
-      screenshotElt.download = 'AMI-' + Date.now() + '.png';
-      screenshotElt.href = screenshot;
-    });
+        let screenshot = renderer.domElement.toDataURL();
+        screenshotElt.download = 'AMI-' + Date.now() + '.png';
+        screenshotElt.href = screenshot;
+      });
 
-    // good to go
-    ready = true;
-    modified = true;
+      // good to go
+      ready = true;
+      modified = true;
 
-    // force first render
-    render();
-    // notify puppeteer to take screenshot
-    const puppetDiv = document.createElement('div');
-    puppetDiv.setAttribute('id', 'puppeteer');
-    document.body.appendChild(puppetDiv);
-  })
-  .catch((error) => window.console.log(error));
+      // force first render
+      render();
+      // notify puppeteer to take screenshot
+      const puppetDiv = document.createElement('div');
+      puppetDiv.setAttribute('id', 'puppeteer');
+      document.body.appendChild(puppetDiv);
+    })
+    .catch(error => window.console.log(error));
 };

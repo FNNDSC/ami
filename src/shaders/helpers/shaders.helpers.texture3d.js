@@ -11,7 +11,12 @@ class Texture3d extends ShadersBase {
     this._offset = 'offset';
   }
 
-    api(baseFragment = this._base, dataCoordinates = this._dataCoordinates, dataValue = this._dataValue, offset = this._offset) {
+  api(
+    baseFragment = this._base,
+    dataCoordinates = this._dataCoordinates,
+    dataValue = this._dataValue,
+    offset = this._offset
+  ) {
     this._base = baseFragment;
     return this.compute(dataCoordinates, dataValue, offset);
   }
@@ -21,7 +26,6 @@ class Texture3d extends ShadersBase {
     this._base._functions[this._name] = this._definition;
     return `${this._name}(${dataCoordinates}, ${dataValue}, ${offset});`;
   }
-
 
   computeDefinition() {
     let content = `

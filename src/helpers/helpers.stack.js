@@ -1,7 +1,7 @@
 /** * Imports ***/
-import {helpersBorder} from '../helpers/helpers.border';
-import {helpersBoundingBox} from '../helpers/helpers.boundingbox';
-import {helpersSlice} from '../helpers/helpers.slice';
+import { helpersBorder } from '../helpers/helpers.border';
+import { helpersBoundingBox } from '../helpers/helpers.boundingbox';
+import { helpersSlice } from '../helpers/helpers.slice';
 
 /**
  * Helper to easily display and interact with a stack.<br>
@@ -420,22 +420,13 @@ const helpersStack = (three = window.THREE) => {
       let position = new three.Vector3(0, 0, 0);
       switch (this._orientation) {
         case 0:
-          position = new three.Vector3(
-            Math.floor(rPosition.x),
-            Math.floor(rPosition.y),
-            index);
+          position = new three.Vector3(Math.floor(rPosition.x), Math.floor(rPosition.y), index);
           break;
         case 1:
-          position = new three.Vector3(
-            index,
-            Math.floor(rPosition.y),
-            Math.floor(rPosition.z));
+          position = new three.Vector3(index, Math.floor(rPosition.y), Math.floor(rPosition.z));
           break;
         case 2:
-          position = new three.Vector3(
-            Math.floor(rPosition.x),
-            index,
-            Math.floor(rPosition.z));
+          position = new three.Vector3(Math.floor(rPosition.x), index, Math.floor(rPosition.z));
           break;
         default:
           // do nothing!
@@ -491,6 +482,6 @@ const helpersStack = (three = window.THREE) => {
 };
 
 // export factory
-export {helpersStack};
+export { helpersStack };
 // default export to
 export default helpersStack();

@@ -6,7 +6,7 @@ export default class {
    *
    */
   compute() {
-      return `
+    return `
 varying vec4 vPos;
 varying mat4 vProjectionViewMatrix;
 varying vec4 vProjectedCoords;

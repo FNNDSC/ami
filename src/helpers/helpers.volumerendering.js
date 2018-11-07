@@ -3,13 +3,13 @@ import ShadersUniform from '../shaders/shaders.vr.uniform';
 import ShadersVertex from '../shaders/shaders.vr.vertex';
 import ShadersFragment from '../shaders/shaders.vr.fragment';
 
-import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
+import { helpersMaterialMixin } from '../helpers/helpers.material.mixin';
 
 /**
  * @module helpers/volumerendering
  */
 
- const helpersVolumeRendering = (three = window.THREE) => {
+const helpersVolumeRendering = (three = window.THREE) => {
   if (three === undefined || three.Object3D === undefined) {
     return null;
   }
@@ -35,7 +35,7 @@ import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
       this._shading = 1; // shading is on by default
       this._shininess = 10.0;
       this._steps = 256; // default
-      this._offset = 0.;
+      this._offset = 0;
       this._windowCenter = 0.0;
       this._windowWidth = 1.0;
 
@@ -82,11 +82,19 @@ import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
       this._uniforms.uPixelType.value = this._stack.pixelType;
       this._uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
       this._uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
-      this._uniforms.uWindowCenterWidth.value = [this._windowCenter - this._offset, this._windowWidth];
-      this._uniforms.uRescaleSlopeIntercept.value = [this._stack.rescaleSlope, this._stack.rescaleIntercept];
-      this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x,
-                                                  this._stack.dimensionsIJK.y,
-                                                  this._stack.dimensionsIJK.z];
+      this._uniforms.uWindowCenterWidth.value = [
+        this._windowCenter - this._offset,
+        this._windowWidth,
+      ];
+      this._uniforms.uRescaleSlopeIntercept.value = [
+        this._stack.rescaleSlope,
+        this._stack.rescaleIntercept,
+      ];
+      this._uniforms.uDataDimensions.value = [
+        this._stack.dimensionsIJK.x,
+        this._stack.dimensionsIJK.y,
+        this._stack.dimensionsIJK.z,
+      ];
       this._uniforms.uAlphaCorrection.value = this._alphaCorrection;
       this._uniforms.uInterpolation.value = this._interpolation;
       this._uniforms.uShading.value = this._shading;
@@ -107,9 +115,11 @@ import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
       this._geometry = new three.BoxGeometry(
         worldBBox[1] - worldBBox[0],
         worldBBox[3] - worldBBox[2],
-        worldBBox[5] - worldBBox[4]);
-      this._geometry.applyMatrix(new three.Matrix4().makeTranslation(
-        centerLPS.x, centerLPS.y, centerLPS.z));
+        worldBBox[5] - worldBBox[4]
+      );
+      this._geometry.applyMatrix(
+        new three.Matrix4().makeTranslation(centerLPS.x, centerLPS.y, centerLPS.z)
+      );
     }
 
     get uniforms() {
@@ -211,7 +221,7 @@ import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
 
     dispose() {
       // Release memory
-      for (let j =0; j< this._textures.length; j++) {
+      for (let j = 0; j < this._textures.length; j++) {
         this._textures[j].dispose();
         this._textures[j] = null;
       }
@@ -244,5 +254,5 @@ import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
   };
 };
 
-export {helpersVolumeRendering};
+export { helpersVolumeRendering };
 export default helpersVolumeRendering();

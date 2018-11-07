@@ -4,7 +4,6 @@
  * @module core/pack */
 
 export default class Pack {
-
   /**
    *
    */
@@ -13,13 +12,11 @@ export default class Pack {
   //     textureType: null,
   //     data: null
   //   };
-
   //   let packIndex = 0;
   //   let frameIndex = 0;
   //   let inFrameIndex = 0;
   //   let frameDimension = frame[0].rows * frame[0].columns;
   //   let data = null;
-
   //   if (bits === 8 && channels === 1) {
   //     let data = new Uint8Array(textureSize * textureSize * 1);
   //     for (let i = startVoxel; i < stopVoxel; i++) {
@@ -27,10 +24,8 @@ export default class Pack {
   //       frameIndex = ~~(i / frameDimension);
   //       inFrameIndex = i % (frameDimension);
   //       /*jshint bitwise: true*/
-
   //       data[packIndex] = frame[frameIndex].pixelData[inFrameIndex];
   //       packIndex++;
-
   //     }
   //     packed.textureType = THREE.RGBFormat;
   //     packed.data = data;
@@ -41,11 +36,9 @@ export default class Pack {
   //       frameIndex = ~~(i / frameDimension);
   //       inFrameIndex = i % (frameDimension);
   //       /*jshint bitwise: true*/
-
   //       // slow!
   //       //let asb = VJS.core.pack.uint16ToAlphaLuminance(frame[frameIndex].pixelData[inFrameIndex]);
   //       let raw = frame[frameIndex].pixelData[inFrameIndex];
-
   //       /*jshint bitwise: false*/
   //       let lsb = raw & 0x00FF;
   //       let msb = (raw >>> 8) & 0x00FF;
@@ -57,18 +50,15 @@ export default class Pack {
   //     packed.textureType = THREE.LuminanceAlphaFormat;
   //     packed.data = data;
   //   } else if (bits === 32 && channels === 1) {
-
   //     let data = new Uint8Array(textureSize * textureSize * 4);
   //     for (let i = startVoxel; i < stopVoxel; i++) {
   //       /*jshint bitwise: false*/
   //       frameIndex = ~~(i / frameDimension);
   //       inFrameIndex = i % (frameDimension);
   //       /*jshint bitwise: true*/
-
   //       // slow!
   //       //let asb = VJS.core.pack.uint16ToAlphaLuminance(frame[frameIndex].pixelData[inFrameIndex]);
   //       let raw = frame[frameIndex].pixelData[inFrameIndex];
-
   //       /*jshint bitwise: false*/
   //       let b0 = raw & 0x000000FF;
   //       let b1 = (raw >>> 8) & 0x000000FF;
@@ -92,19 +82,15 @@ export default class Pack {
   //       frameIndex = ~~(i / frameDimension);
   //       inFrameIndex = i % (frameDimension);
   //       /*jshint bitwise: true*/
-
   //       data[3 * packIndex] = frame[frameIndex].pixelData[3 * inFrameIndex];
   //       data[3 * packIndex + 1] = frame[frameIndex].pixelData[3 * inFrameIndex + 1];
   //       data[3 * packIndex + 2] = frame[frameIndex].pixelData[3 * inFrameIndex + 2];
   //       packIndex++;
-
   //     }
   //     packed.textureType = THREE.LuminanceFormat;
   //     packed.data = data;
   //   }
-
   //   return packed;
-
   // }
 }
 

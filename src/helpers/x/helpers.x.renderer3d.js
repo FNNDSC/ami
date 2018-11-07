@@ -4,7 +4,7 @@
 import ControlsTrackball from '../../controls/controls.trackball';
 
 export default class {
-  constructor(containerId='r3d') {
+  constructor(containerId = 'r3d') {
     this._container = null;
     this._renderer = null;
     this._camera = null;
@@ -45,8 +45,7 @@ export default class {
     // update camrea's and control's target
     this._camera.lookAt(worldPosition.x, worldPosition.y, worldPosition.z);
     this._camera.updateProjectionMatrix();
-    this._controls.target.set(worldPosition.x, worldPosition.y,
-      worldPosition.z);
+    this._controls.target.set(worldPosition.x, worldPosition.y, worldPosition.z);
   }
 
   render() {
@@ -64,12 +63,10 @@ export default class {
   // private methods
 
   _onWindowResize() {
-    this._camera.aspect =
-      this._container.clientWidth / this._container.clientHeight;
+    this._camera.aspect = this._container.clientWidth / this._container.clientHeight;
     this._camera.updateProjectionMatrix();
 
-    this._renderer.setSize(this._container.clientWidth,
-      this._container.clientHeight);
+    this._renderer.setSize(this._container.clientWidth, this._container.clientHeight);
   }
 
   _initRenderer(containerId) {
@@ -78,16 +75,19 @@ export default class {
     this._renderer = new THREE.WebGLRenderer({
       antialias: true,
     });
-    this._renderer.setSize(this._container.clientWidth,
-      this._container.clientHeight);
+    this._renderer.setSize(this._container.clientWidth, this._container.clientHeight);
     this._renderer.setClearColor(0x424242, 1);
     this._renderer.setPixelRatio(window.devicePixelRatio);
     this._container.appendChild(this._renderer.domElement);
   }
 
   _initCamera() {
-    this._camera = new THREE.PerspectiveCamera(45,
-      this._container.clientWidth / this._container.clientHeight, 1, 10000000);
+    this._camera = new THREE.PerspectiveCamera(
+      45,
+      this._container.clientWidth / this._container.clientHeight,
+      1,
+      10000000
+    );
     this._camera.position.x = 250;
     this._camera.position.y = 250;
     this._camera.position.z = 250;

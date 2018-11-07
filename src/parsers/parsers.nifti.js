@@ -11,9 +11,9 @@ export default class ParsersNifti extends ParsersVolume {
     super();
 
     /**
-      * @member
-      * @type {arraybuffer}
-    */
+     * @member
+     * @type {arraybuffer}
+     */
     this._id = id;
     this._arrayBuffer = data.buffer;
     this._url = data.url;
@@ -28,8 +28,7 @@ export default class ParsersNifti extends ParsersVolume {
 
     if (NiftiReader.isNIFTI(this._arrayBuffer)) {
       this._dataSet = NiftiReader.readHeader(this._arrayBuffer);
-      this._niftiImage =
-        NiftiReader.readImage(this._dataSet, this._arrayBuffer);
+      this._niftiImage = NiftiReader.readImage(this._dataSet, this._arrayBuffer);
     } else {
       const error = new Error('parsers.nifti could not parse the file');
       throw error;
@@ -75,7 +74,7 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   pixelType(frameIndex = 0) {
-        // papaya.volume.nifti.NIFTI_TYPE_UINT8           = 2;
+    // papaya.volume.nifti.NIFTI_TYPE_UINT8           = 2;
     // papaya.volume.nifti.NIFTI_TYPE_INT16           = 4;
     // papaya.volume.nifti.NIFTI_TYPE_INT32           = 8;
     // papaya.volume.nifti.NIFTI_TYPE_FLOAT32        = 16;
@@ -94,9 +93,11 @@ export default class ParsersNifti extends ParsersVolume {
     // 0 integer, 1 float
 
     let pixelType = 0;
-    if (this._dataSet.datatypeCode === 16 ||
+    if (
+      this._dataSet.datatypeCode === 16 ||
       this._dataSet.datatypeCode === 64 ||
-      this._dataSet.datatypeCode === 1536) {
+      this._dataSet.datatypeCode === 1536
+    ) {
       pixelType = 1;
     }
     return pixelType;
@@ -107,16 +108,12 @@ export default class ParsersNifti extends ParsersVolume {
   }
 
   pixelSpacing(frameIndex = 0) {
-    return [
-      this._dataSet.pixDims[1],
-      this._dataSet.pixDims[2],
-      this._dataSet.pixDims[3],
-      ];
+    return [this._dataSet.pixDims[1], this._dataSet.pixDims[2], this._dataSet.pixDims[3]];
   }
 
   sliceThickness() {
     // should be a string...
-    return null;// this._dataSet.pixDims[3].toString();
+    return null; // this._dataSet.pixDims[3].toString();
   }
 
   imageOrientation(frameIndex = 0) {
@@ -176,12 +173,14 @@ export default class ParsersNifti extends ParsersVolume {
       let c = this._dataSet.quatern_c;
       let d = this._dataSet.quatern_d;
       // compute a
-      a = 1.0 - (b*b + c*c + d*d);
+      a = 1.0 - (b * b + c * c + d * d);
       if (a < 0.0000001) {
-                   /* special case */
+        /* special case */
 
-        a = 1.0 / Math.sqrt(b*b+c*c+d*d);
-        b *= a; c *= a; d *= a; /* normalize (b,c,d) vector */
+        a = 1.0 / Math.sqrt(b * b + c * c + d * d);
+        b *= a;
+        c *= a;
+        d *= a; /* normalize (b,c,d) vector */
         a = 0.0; /* a = 0 ==> 180 degree rotation */
       } else {
         a = Math.sqrt(a); /* angle = 2*arccos(a) */
@@ -191,14 +190,14 @@ export default class ParsersNifti extends ParsersVolume {
         this._rightHanded = false;
       }
 
-       return [
-          -(a*a+b*b-c*c-d*d),
-          -2*(b*c+a*d),
-          2*(b*d-a*c),
-          -2*(b*c-a*d),
-          -(a*a+c*c-b*b-d*d),
-          2*(c*d+a*b),
-        ];
+      return [
+        -(a * a + b * b - c * c - d * d),
+        -2 * (b * c + a * d),
+        2 * (b * d - a * c),
+        -2 * (b * c - a * d),
+        -(a * a + c * c - b * b - d * d),
+        2 * (c * d + a * b),
+      ];
     } else if (this._dataSet.sform_code > 0) {
       // METHOD 3 (used when sform_code > 0):
       // -----------------------------------
@@ -214,22 +213,22 @@ export default class ParsersNifti extends ParsersVolume {
       const rowX = [
         -this._dataSet.affine[0][0],
         -this._dataSet.affine[0][1],
-        this._dataSet.affine[0][2]];
-        const rowY = [
-          -this._dataSet.affine[1][0],
-          -this._dataSet.affine[1][1],
-          this._dataSet.affine[0][2]];
+        this._dataSet.affine[0][2],
+      ];
+      const rowY = [
+        -this._dataSet.affine[1][0],
+        -this._dataSet.affine[1][1],
+        this._dataSet.affine[0][2],
+      ];
       return [...rowX, ...rowY];
     } else if (this._dataSet.qform_code === 0) {
       // METHOD 1 (the "old" way, used only when qform_code = 0):
       // -------------------------------------------------------
       // The coordinate mapping from (i,j,k) to (x,y,z) is the ANALYZE
       // 7.5 way.  This is a simple scaling relationship:
-
       //   x = pixdim[1] * i
       //   y = pixdim[2] * j
       //   z = pixdim[3] * k
-
       // No particular spatial orientation is attached to these (x,y,z)
       // coordinates.  (NIFTI-1 does not have the ANALYZE 7.5 orient field,
       // which is not general and is often not set properly.)  This method
@@ -241,11 +240,7 @@ export default class ParsersNifti extends ParsersVolume {
 
   imagePosition(frameIndex = 0) {
     // qoffset is RAS
-    return [
-      -this._dataSet.qoffset_x,
-      -this._dataSet.qoffset_y,
-      this._dataSet.qoffset_z,
-    ];
+    return [-this._dataSet.qoffset_x, -this._dataSet.qoffset_y, this._dataSet.qoffset_z];
   }
 
   dimensionIndexValues(frameIndex = 0) {
@@ -296,8 +291,7 @@ export default class ParsersNifti extends ParsersVolume {
     // papaya.volume.nifti.NIFTI_TYPE_COMPLEX256   = 2048;
 
     let numberOfChannels = this.numberOfChannels();
-    let numPixels =
-      this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
     // if( !this.rightHanded() ){
     //   frameIndex = this.numberOfFrames() - 1 - frameIndex;
     // }
@@ -335,15 +329,14 @@ export default class ParsersNifti extends ParsersVolume {
       // signed float 32 bit
       frameOffset = frameOffset * 4;
       const data = new Float32Array(buffer, frameOffset, numPixels);
-      for (let i=0; i<data.length; i++) {
+      for (let i = 0; i < data.length; i++) {
         if (data[i] === Infinity || data[i] === -Infinity) {
           data[i] = 0;
         }
       }
       return data;
     } else {
-      window.console.warn(
-        `Unknown data type: datatypeCode : ${this._dataSet.datatypeCode}`);
+      window.console.warn(`Unknown data type: datatypeCode : ${this._dataSet.datatypeCode}`);
     }
   }
 

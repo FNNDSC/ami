@@ -1,10 +1,7 @@
 /** * Imports ***/
-import ShadersUniform from
-  '../shaders/shaders.localizer.uniform';
-import ShadersVertex from
-  '../shaders/shaders.localizer.vertex';
-import ShadersFragment from
-  '../shaders/shaders.localizer.fragment';
+import ShadersUniform from '../shaders/shaders.localizer.uniform';
+import ShadersVertex from '../shaders/shaders.localizer.vertex';
+import ShadersFragment from '../shaders/shaders.localizer.fragment';
 
 /**
  * @module helpers/localizer
@@ -74,12 +71,12 @@ const helpersLocalizer = (three = window.THREE) => {
         // generate material
         let fs = new ShadersFragment(this._uniforms);
         let vs = new ShadersVertex();
-        this._material = new three.ShaderMaterial(
-          {side: three.DoubleSide,
-           uniforms: this._uniforms,
-           vertexShader: vs.compute(),
-           fragmentShader: fs.compute(),
-          });
+        this._material = new three.ShaderMaterial({
+          side: three.DoubleSide,
+          uniforms: this._uniforms,
+          vertexShader: vs.compute(),
+          fragmentShader: fs.compute(),
+        });
         this._material.transparent = true;
       }
     }
@@ -232,5 +229,5 @@ const helpersLocalizer = (three = window.THREE) => {
   };
 };
 
-export {helpersLocalizer};
+export { helpersLocalizer };
 export default helpersLocalizer();

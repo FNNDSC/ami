@@ -1,110 +1,110 @@
-import {Matrix4} from 'three/src/math/Matrix4';
+import { Matrix4 } from 'three/src/math/Matrix4';
 /**
  * @module shaders/data
  */
 export default class ShadersUniform {
   static uniforms() {
     return {
-      'uTextureSize': {
+      uTextureSize: {
         type: 'i',
         value: 0,
         typeGLSL: 'int',
       },
-      'uTextureContainer': {
+      uTextureContainer: {
         type: 'tv',
         value: [],
         typeGLSL: 'sampler2D',
         length: 7,
       },
-      'uDataDimensions': {
+      uDataDimensions: {
         type: 'iv',
         value: [0, 0, 0],
         typeGLSL: 'ivec3',
       },
-      'uWorldToData': {
+      uWorldToData: {
         type: 'm4',
         value: new Matrix4(),
         typeGLSL: 'mat4',
       },
-      'uWindowCenterWidth': {
+      uWindowCenterWidth: {
         type: 'fv1',
         value: [0.0, 0.0],
         typeGLSL: 'float',
         length: 2,
       },
-      'uRescaleSlopeIntercept': {
+      uRescaleSlopeIntercept: {
         type: 'fv1',
         value: [0.0, 0.0],
         typeGLSL: 'float',
         length: 2,
       },
-      'uNumberOfChannels': {
+      uNumberOfChannels: {
         type: 'i',
         value: 1,
         typeGLSL: 'int',
       },
-      'uBitsAllocated': {
+      uBitsAllocated: {
         type: 'i',
         value: 8,
         typeGLSL: 'int',
       },
-      'uInvert': {
+      uInvert: {
         type: 'i',
         value: 0,
         typeGLSL: 'int',
       },
-      'uLut': {
+      uLut: {
         type: 'i',
         value: 0,
         typeGLSL: 'int',
       },
-      'uTextureLUT': {
+      uTextureLUT: {
         type: 't',
         value: [],
         typeGLSL: 'sampler2D',
       },
-      'uPixelType': {
+      uPixelType: {
         type: 'i',
         value: 0,
         typeGLSL: 'int',
       },
-      'uPackedPerPixel': {
+      uPackedPerPixel: {
         type: 'i',
         value: 1,
         typeGLSL: 'int',
       },
-      'uInterpolation': {
+      uInterpolation: {
         type: 'i',
         value: 1,
         typeGLSL: 'int',
       },
-      'uWorldBBox': {
+      uWorldBBox: {
         type: 'fv1',
         value: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
         typeGLSL: 'float',
         length: 6,
       },
-      'uSteps': {
+      uSteps: {
         type: 'i',
         value: 256,
         typeGLSL: 'int',
       },
-      'uAlphaCorrection': {
+      uAlphaCorrection: {
         type: 'f',
         value: 0.5,
         typeGLSL: 'float',
       },
-      'uFrequence': {
+      uFrequence: {
         type: 'f',
         value: 0.0,
         typeGLSL: 'float',
       },
-      'uAmplitude': {
+      uAmplitude: {
         type: 'f',
         value: 0.0,
         typeGLSL: 'float',
       },
-      'uTextureBack': {
+      uTextureBack: {
         type: 't',
         value: [],
         typeGLSL: 'sampler2D',

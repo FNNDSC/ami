@@ -2,7 +2,7 @@
 import ParsersVolume from './parsers.volume';
 import * as OpenJPEG from 'OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js';
 
-import {RLEDecoder} from '../decoders/decoders.rle';
+import { RLEDecoder } from '../decoders/decoders.rle';
 
 let DicomParser = require('dicom-parser');
 let Jpeg = require('jpeg-lossless-decoder-js');
@@ -103,19 +103,16 @@ export default class ParsersDicom extends ParsersVolume {
       return segmentationSegments;
     }
 
-    for (let i = 0; i< segmentSequence.items.length; i++) {
-      let recommendedDisplayCIELab =
-        this._recommendedDisplayCIELab(segmentSequence.items[i]);
+    for (let i = 0; i < segmentSequence.items.length; i++) {
+      let recommendedDisplayCIELab = this._recommendedDisplayCIELab(segmentSequence.items[i]);
       let segmentationCode = this._segmentationCode(segmentSequence.items[i]);
       let segmentNumber = segmentSequence.items[i].dataSet.uint16('x00620004');
       let segmentLabel = segmentSequence.items[i].dataSet.string('x00620005');
-      let segmentAlgorithmType =
-        segmentSequence.items[i].dataSet.string('x00620008');
+      let segmentAlgorithmType = segmentSequence.items[i].dataSet.string('x00620008');
 
       segmentationSegments.push({
         recommendedDisplayCIELab,
-        segmentationCodeDesignator:
-          segmentationCode['segmentationCodeDesignator'],
+        segmentationCodeDesignator: segmentationCode['segmentationCodeDesignator'],
         segmentationCodeValue: segmentationCode['segmentationCodeValue'],
         segmentationCodeMeaning: segmentationCode['segmentationCodeMeaning'],
         segmentNumber,
@@ -170,18 +167,18 @@ export default class ParsersDicom extends ParsersVolume {
 
     let offset = segment.dataSet.elements.x0062000d.dataOffset;
     let length = segment.dataSet.elements.x0062000d.length;
-    let byteArray = segment.dataSet.byteArray.slice(offset, offset+ length);
+    let byteArray = segment.dataSet.byteArray.slice(offset, offset + length);
 
     // https://www.dabsoft.ch/dicom/3/C.10.7.1.1/
-    let CIELabScaled = new Uint16Array(length/2);
-    for (let i = 0; i<length/2; i++) {
-      CIELabScaled[i] = (byteArray[2*i + 1] << 8) + byteArray[2*i];
+    let CIELabScaled = new Uint16Array(length / 2);
+    for (let i = 0; i < length / 2; i++) {
+      CIELabScaled[i] = (byteArray[2 * i + 1] << 8) + byteArray[2 * i];
     }
 
     let CIELabNormalized = [
-      CIELabScaled[0] / 65535 * 100,
-      CIELabScaled[1] / 65535 * 255 - 128,
-      CIELabScaled[2] / 65535 * 255 - 128,
+      (CIELabScaled[0] / 65535) * 100,
+      (CIELabScaled[1] / 65535) * 255 - 128,
+      (CIELabScaled[2] / 65535) * 255 - 128,
     ];
 
     return CIELabNormalized;
@@ -195,8 +192,7 @@ export default class ParsersDicom extends ParsersVolume {
    * @return {*}
    */
   sopInstanceUID(frameIndex = 0) {
-    let sopInstanceUID =
-      this._findStringEverywhere('x2005140f', 'x00080018', frameIndex);
+    let sopInstanceUID = this._findStringEverywhere('x2005140f', 'x00080018', frameIndex);
     return sopInstanceUID;
   }
 
@@ -328,13 +324,17 @@ export default class ParsersDicom extends ParsersVolume {
     let numberOfChannels = 1;
     let photometricInterpretation = this.photometricInterpretation();
 
-    if (!(photometricInterpretation !== 'RGB' &&
+    if (
+      !(
+        photometricInterpretation !== 'RGB' &&
         photometricInterpretation !== 'PALETTE COLOR' &&
         photometricInterpretation !== 'YBR_FULL' &&
         photometricInterpretation !== 'YBR_FULL_422' &&
         photometricInterpretation !== 'YBR_PARTIAL_422' &&
         photometricInterpretation !== 'YBR_PARTIAL_420' &&
-        photometricInterpretation !== 'YBR_RCT')) {
+        photometricInterpretation !== 'YBR_RCT'
+      )
+    ) {
       numberOfChannels = 3;
     }
 
@@ -345,7 +345,7 @@ export default class ParsersDicom extends ParsersVolume {
   invert() {
     let photometricInterpretation = this.photometricInterpretation();
 
-    return ((photometricInterpretation === 'MONOCHROME1') ? true : false);
+    return photometricInterpretation === 'MONOCHROME1' ? true : false;
   }
 
   imageOrientation(frameIndex = 0) {
@@ -364,7 +364,11 @@ export default class ParsersDicom extends ParsersVolume {
 
   referencedSegmentNumber(frameIndex = 0) {
     let referencedSegmentNumber = -1;
-    let referencedSegmentNumberElement = this._findInGroupSequence('x52009230', 'x0062000a', frameIndex);
+    let referencedSegmentNumberElement = this._findInGroupSequence(
+      'x52009230',
+      'x0062000a',
+      frameIndex
+    );
 
     if (referencedSegmentNumberElement !== null) {
       referencedSegmentNumber = referencedSegmentNumberElement.uint16('x0062000b');
@@ -407,10 +411,10 @@ export default class ParsersDicom extends ParsersVolume {
     let perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
-      if (perFrameFunctionnalGroupSequence
-              .items[frameIndex].dataSet.elements.x2005140f) {
-        let planeOrientationSequence = perFrameFunctionnalGroupSequence
-            .items[frameIndex].dataSet.elements.x2005140f.items[0].dataSet;
+      if (perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x2005140f) {
+        let planeOrientationSequence =
+          perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x2005140f.items[0]
+            .dataSet;
         instanceNumber = planeOrientationSequence.intString('x00200013');
       } else {
         instanceNumber = this._dataSet.intString('x00200013');
@@ -446,7 +450,7 @@ export default class ParsersDicom extends ParsersVolume {
     }
 
     if (typeof pixelSpacing === 'undefined') {
-        pixelSpacing = null;
+      pixelSpacing = null;
     }
 
     return pixelSpacing;
@@ -461,19 +465,19 @@ export default class ParsersDicom extends ParsersVolume {
 
     const ultrasoundRegions = [];
 
-    sequence.items.forEach((item) => {
-        ultrasoundRegions.push({
-          x0: item.dataSet.uint32('x00186018'),
-          y0: item.dataSet.uint32('x0018601a'),
-          x1: item.dataSet.uint32('x0018601c'),
-          y1: item.dataSet.uint32('x0018601e'),
-          axisX: item.dataSet.int32('x00186020') || null, // optional
-          axisY: item.dataSet.int32('x00186022') || null, // optional
-          unitsX: this._getUnitsName(item.dataSet.uint16('x00186024')),
-          unitsY: this._getUnitsName(item.dataSet.uint16('x00186026')),
-          deltaX: item.dataSet.double('x0018602c'),
-          deltaY: item.dataSet.double('x0018602e')
-        });
+    sequence.items.forEach(item => {
+      ultrasoundRegions.push({
+        x0: item.dataSet.uint32('x00186018'),
+        y0: item.dataSet.uint32('x0018601a'),
+        x1: item.dataSet.uint32('x0018601c'),
+        y1: item.dataSet.uint32('x0018601e'),
+        axisX: item.dataSet.int32('x00186020') || null, // optional
+        axisY: item.dataSet.int32('x00186022') || null, // optional
+        unitsX: this._getUnitsName(item.dataSet.uint16('x00186024')),
+        unitsY: this._getUnitsName(item.dataSet.uint16('x00186026')),
+        deltaX: item.dataSet.double('x0018602c'),
+        deltaY: item.dataSet.double('x0018602e'),
+      });
     });
 
     return ultrasoundRegions;
@@ -556,28 +560,23 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   rescaleIntercept(frameIndex = 0) {
-    return this._findFloatStringInFrameGroupSequence(
-      'x00289145', 'x00281052', frameIndex);
+    return this._findFloatStringInFrameGroupSequence('x00289145', 'x00281052', frameIndex);
   }
 
   rescaleSlope(frameIndex = 0) {
-    return this._findFloatStringInFrameGroupSequence(
-      'x00289145', 'x00281053', frameIndex);
+    return this._findFloatStringInFrameGroupSequence('x00289145', 'x00281053', frameIndex);
   }
 
   windowCenter(frameIndex = 0) {
-    return this._findFloatStringInFrameGroupSequence(
-      'x00289132', 'x00281050', frameIndex);
+    return this._findFloatStringInFrameGroupSequence('x00289132', 'x00281050', frameIndex);
   }
 
   windowWidth(frameIndex = 0) {
-    return this._findFloatStringInFrameGroupSequence(
-      'x00289132', 'x00281051', frameIndex);
+    return this._findFloatStringInFrameGroupSequence('x00289132', 'x00281051', frameIndex);
   }
 
   sliceThickness(frameIndex = 0) {
-    return this._findFloatStringInFrameGroupSequence(
-      'x00289110', 'x00180050', frameIndex);
+    return this._findFloatStringInFrameGroupSequence('x00289110', 'x00180050', frameIndex);
   }
 
   spacingBetweenSlices(frameIndex = 0) {
@@ -598,21 +597,18 @@ export default class ParsersDicom extends ParsersVolume {
     let perFrameFunctionnalGroupSequence = this._dataSet.elements.x52009230;
 
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
-      let frameContentSequence = perFrameFunctionnalGroupSequence
-          .items[frameIndex].dataSet.elements.x00209111;
-      if (frameContentSequence !== undefined &&
-          frameContentSequence !== null) {
+      let frameContentSequence =
+        perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x00209111;
+      if (frameContentSequence !== undefined && frameContentSequence !== null) {
         frameContentSequence = frameContentSequence.items[0].dataSet;
         let dimensionIndexValuesElt = frameContentSequence.elements.x00209157;
-        if (dimensionIndexValuesElt !== undefined &&
-            dimensionIndexValuesElt !== null) {
+        if (dimensionIndexValuesElt !== undefined && dimensionIndexValuesElt !== null) {
           // /4 because UL
           let nbValues = dimensionIndexValuesElt.length / 4;
           dimensionIndexValues = [];
 
           for (let i = 0; i < nbValues; i++) {
-            dimensionIndexValues.push(
-              frameContentSequence.uint32('x00209157', i));
+            dimensionIndexValues.push(frameContentSequence.uint32('x00209157', i));
           }
         }
       }
@@ -630,8 +626,9 @@ export default class ParsersDicom extends ParsersVolume {
 
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
       // NOT A PHILIPS TRICK!
-      let philipsPrivateSequence = perFrameFunctionnalGroupSequence
-          .items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
+      let philipsPrivateSequence =
+        perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x00209111.items[0]
+          .dataSet;
       inStackPositionNumber = philipsPrivateSequence.uint32('x00209057');
     } else {
       inStackPositionNumber = null;
@@ -649,8 +646,9 @@ export default class ParsersDicom extends ParsersVolume {
 
     if (typeof perFrameFunctionnalGroupSequence !== 'undefined') {
       // NOT A PHILIPS TRICK!
-      let philipsPrivateSequence = perFrameFunctionnalGroupSequence
-          .items[frameIndex].dataSet.elements.x00209111.items[0].dataSet;
+      let philipsPrivateSequence =
+        perFrameFunctionnalGroupSequence.items[frameIndex].dataSet.elements.x00209111.items[0]
+          .dataSet;
       stackID = philipsPrivateSequence.intString('x00209056');
     } else {
       stackID = null;
@@ -702,8 +700,10 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   _findStringInFrameGroupSequence(subsequence, tag, index) {
-    return this._findStringInGroupSequence('x52009229', subsequence, tag, 0) ||
-        this._findStringInGroupSequence('x52009230', subsequence, tag, index);
+    return (
+      this._findStringInGroupSequence('x52009229', subsequence, tag, 0) ||
+      this._findStringInGroupSequence('x52009230', subsequence, tag, index)
+    );
   }
 
   _findStringEverywhere(subsequence, tag, index) {
@@ -726,19 +726,19 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   _findStringInSequence(sequenceTag, tag, index) {
-   const sequence = this._dataSet.elements[sequenceTag];
+    const sequence = this._dataSet.elements[sequenceTag];
 
-   let targetString;
-   if (sequence) {
-     targetString = sequence.items[0].dataSet.string(tag);
-   }
+    let targetString;
+    if (sequence) {
+      targetString = sequence.items[0].dataSet.string(tag);
+    }
 
-   if (typeof targetString === 'undefined') {
-     targetString = null;
-   }
+    if (typeof targetString === 'undefined') {
+      targetString = null;
+    }
 
-   return targetString;
- }
+    return targetString;
+  }
 
   _findFloatStringInGroupSequence(sequence, subsequence, tag, index) {
     let dataInGroupSequence = this._dataSet.floatString(tag);
@@ -757,8 +757,10 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   _findFloatStringInFrameGroupSequence(subsequence, tag, index) {
-    return this._findFloatStringInGroupSequence('x52009229', subsequence, tag, 0) ||
-        this._findFloatStringInGroupSequence('x52009230', subsequence, tag, index);
+    return (
+      this._findFloatStringInGroupSequence('x52009229', subsequence, tag, 0) ||
+      this._findFloatStringInGroupSequence('x52009230', subsequence, tag, index)
+    );
   }
 
   _decodePixelData(frameIndex = 0) {
@@ -769,34 +771,37 @@ export default class ParsersDicom extends ParsersVolume {
     if (
       transferSyntaxUID === '1.2.840.10008.1.2.4.90' ||
       // JPEG 2000 Lossless
-      transferSyntaxUID === '1.2.840.10008.1.2.4.91') {
+      transferSyntaxUID === '1.2.840.10008.1.2.4.91'
+    ) {
       // JPEG 2000 Lossy
       return this._decodeJ2K(frameIndex);
     } else if (
-        transferSyntaxUID === '1.2.840.10008.1.2.5'
-        // decodeRLE
-      ) {
-        return this._decodeRLE(frameIndex);
-      } else if (
+      transferSyntaxUID === '1.2.840.10008.1.2.5'
+      // decodeRLE
+    ) {
+      return this._decodeRLE(frameIndex);
+    } else if (
       transferSyntaxUID === '1.2.840.10008.1.2.4.57' ||
       // JPEG Lossless, Nonhierarchical (Processes 14)
-      transferSyntaxUID === '1.2.840.10008.1.2.4.70') {
+      transferSyntaxUID === '1.2.840.10008.1.2.4.70'
+    ) {
       // JPEG Lossless, Nonhierarchical (Processes 14 [Selection 1])
       return this._decodeJPEGLossless(frameIndex);
     } else if (
       transferSyntaxUID === '1.2.840.10008.1.2.4.50' ||
       // JPEG Baseline lossy process 1 (8 bit)
-      transferSyntaxUID === '1.2.840.10008.1.2.4.51') {
+      transferSyntaxUID === '1.2.840.10008.1.2.4.51'
+    ) {
       // JPEG Baseline lossy process 2 & 4 (12 bit)
       return this._decodeJPEGBaseline(frameIndex);
     } else if (
       transferSyntaxUID === '1.2.840.10008.1.2' ||
       // Implicit VR Little Endian
-      transferSyntaxUID === '1.2.840.10008.1.2.1') {
+      transferSyntaxUID === '1.2.840.10008.1.2.1'
+    ) {
       // Explicit VR Little Endian
       return this._decodeUncompressed(frameIndex);
-    } else if (
-      transferSyntaxUID === '1.2.840.10008.1.2.2') {
+    } else if (transferSyntaxUID === '1.2.840.10008.1.2.2') {
       // Explicit VR Big Endian
       let frame = this._decodeUncompressed(frameIndex);
       // and sawp it!
@@ -813,16 +818,24 @@ export default class ParsersDicom extends ParsersVolume {
     const numberOfFrames = this._dataSet.intString('x00280008');
     const pixelDataElement = this._dataSet.elements.x7fe00010;
 
-    return (numberOfFrames !== pixelDataElement.fragments.length);
+    return numberOfFrames !== pixelDataElement.fragments.length;
   }
 
   getEncapsulatedImageFrame(frameIndex) {
-    if (this._dataSet.elements.x7fe00010 && this._dataSet.elements.x7fe00010.basicOffsetTable.length) {
+    if (
+      this._dataSet.elements.x7fe00010 &&
+      this._dataSet.elements.x7fe00010.basicOffsetTable.length
+    ) {
       // Basic Offset Table is not empty
-      return DicomParser.readEncapsulatedImageFrame(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
+      return DicomParser.readEncapsulatedImageFrame(
+        this._dataSet,
+        this._dataSet.elements.x7fe00010,
+        frameIndex
+      );
     }
 
-    if (this.framesAreFragmented()) { // Basic Offset Table is empty
+    if (this.framesAreFragmented()) {
+      // Basic Offset Table is empty
       return DicomParser.readEncapsulatedImageFrame(
         this._dataSet,
         this._dataSet.elements.x7fe00010,
@@ -846,7 +859,9 @@ export default class ParsersDicom extends ParsersVolume {
     jpxImage.parse(this.getEncapsulatedImageFrame(frameIndex));
 
     if (jpxImage.componentsCount !== 1) {
-      throw new Error('JPEG2000 decoder returned a componentCount of ${componentsCount}, when 1 is expected');
+      throw new Error(
+        'JPEG2000 decoder returned a componentCount of ${componentsCount}, when 1 is expected'
+      );
     }
 
     if (jpxImage.tiles.length !== 1) {
@@ -874,7 +889,15 @@ export default class ParsersDicom extends ParsersVolume {
       'jp2_decode',
       'number',
       ['number', 'number', 'number', 'number', 'number', 'number', 'number'],
-      [dataPtr, encodedPixelData.length, imagePtrPtr, imageSizePtr, imageSizeXPtr, imageSizeYPtr, imageSizeCompPtr]
+      [
+        dataPtr,
+        encodedPixelData.length,
+        imagePtrPtr,
+        imageSizePtr,
+        imageSizeXPtr,
+        imageSizeYPtr,
+        imageSizeCompPtr,
+      ]
     );
     const imagePtr = openJPEG.getValue(imagePtrPtr, '*');
 
@@ -891,8 +914,10 @@ export default class ParsersDicom extends ParsersVolume {
     }
 
     // Copy the data from the EMSCRIPTEN heap into the correct type array
-    const length = openJPEG.getValue(imageSizeXPtr, 'i32') *
-        openJPEG.getValue(imageSizeYPtr, 'i32') * openJPEG.getValue(imageSizeCompPtr, 'i32');
+    const length =
+      openJPEG.getValue(imageSizeXPtr, 'i32') *
+      openJPEG.getValue(imageSizeYPtr, 'i32') *
+      openJPEG.getValue(imageSizeCompPtr, 'i32');
     const src32 = new Int32Array(openJPEG.HEAP32.buffer, imagePtr, length);
     let pixelData;
 
@@ -959,7 +984,7 @@ export default class ParsersDicom extends ParsersVolume {
     const rows = this.rows();
     const samplesPerPixel = this.samplesPerPixel(frameIndex);
     const pixelRepresentation = this.pixelRepresentation(frameIndex);
-    
+
     // format data for the RLE decoder
     const imageFrame = {
       pixelRepresentation,
@@ -970,7 +995,7 @@ export default class ParsersDicom extends ParsersVolume {
       samplesPerPixel,
     };
 
-    const pixelData =  DicomParser.readEncapsulatedPixelDataFromFragments(
+    const pixelData = DicomParser.readEncapsulatedPixelDataFromFragments(
       this._dataSet,
       this._dataSet.elements.x7fe00010,
       frameIndex
@@ -988,10 +1013,10 @@ export default class ParsersDicom extends ParsersVolume {
     let byteOutput = bitsAllocated <= 8 ? 1 : 2;
     let decoder = new Jpeg.lossless.Decoder();
     let decompressedData = decoder.decode(
-        encodedPixelData.buffer,
-        encodedPixelData.byteOffset,
-        encodedPixelData.length,
-        byteOutput
+      encodedPixelData.buffer,
+      encodedPixelData.byteOffset,
+      encodedPixelData.length,
+      byteOutput
     );
 
     if (pixelRepresentation === 0) {
@@ -1027,8 +1052,7 @@ export default class ParsersDicom extends ParsersVolume {
     let pixelDataElement = this._dataSet.elements.x7fe00010;
     let pixelDataOffset = pixelDataElement.dataOffset;
     let numberOfChannels = this.numberOfChannels();
-    let numPixels =
-      this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
+    let numPixels = this.rows(frameIndex) * this.columns(frameIndex) * numberOfChannels;
     let frameOffset = 0;
     let buffer = this._dataSet.byteArray.buffer;
 
@@ -1071,25 +1095,25 @@ export default class ParsersDicom extends ParsersVolume {
               newArray[index] = targetBuffer[i] & 0x0001;
               break;
             case 1:
-              newArray[index] = targetBuffer[i] >>> 1 & 0x0001;
+              newArray[index] = (targetBuffer[i] >>> 1) & 0x0001;
               break;
             case 2:
-              newArray[index] = targetBuffer[i] >>> 2 & 0x0001;
+              newArray[index] = (targetBuffer[i] >>> 2) & 0x0001;
               break;
             case 3:
-              newArray[index] = targetBuffer[i] >>> 3 & 0x0001;
+              newArray[index] = (targetBuffer[i] >>> 3) & 0x0001;
               break;
             case 4:
-              newArray[index] = targetBuffer[i] >>> 4 & 0x0001;
+              newArray[index] = (targetBuffer[i] >>> 4) & 0x0001;
               break;
             case 5:
-              newArray[index] = targetBuffer[i] >>> 5 & 0x0001;
+              newArray[index] = (targetBuffer[i] >>> 5) & 0x0001;
               break;
             case 6:
-              newArray[index] = targetBuffer[i] >>> 6 & 0x0001;
+              newArray[index] = (targetBuffer[i] >>> 6) & 0x0001;
               break;
             case 7:
-              newArray[index] = targetBuffer[i] >>> 7 & 0x0001;
+              newArray[index] = (targetBuffer[i] >>> 7) & 0x0001;
               break;
             default:
               break;
@@ -1108,12 +1132,7 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   _interpretAsRGB(photometricInterpretation) {
-    const rgbLikeTypes = [
-      'RGB',
-      'YBR_RCT',
-      'YBR_ICT',
-      'YBR_FULL_422',
-    ];
+    const rgbLikeTypes = ['RGB', 'YBR_RCT', 'YBR_ICT', 'YBR_FULL_422'];
 
     return rgbLikeTypes.indexOf(photometricInterpretation) !== -1;
   }
@@ -1124,13 +1143,11 @@ export default class ParsersDicom extends ParsersVolume {
     let planarConfiguration = this.planarConfiguration();
 
     const interpretAsRGB = this._interpretAsRGB(photometricInterpretation);
-    if (interpretAsRGB &&
-        planarConfiguration === 0) {
+    if (interpretAsRGB && planarConfiguration === 0) {
       // ALL GOOD, ALREADY ORDERED
       // planar or non planar planarConfiguration
       rgbData = uncompressedData;
-    } else if (interpretAsRGB &&
-        planarConfiguration === 1) {
+    } else if (interpretAsRGB && planarConfiguration === 1) {
       if (uncompressedData instanceof Int8Array) {
         rgbData = new Int8Array(uncompressedData.length);
       } else if (uncompressedData instanceof Uint8Array) {
@@ -1176,13 +1193,15 @@ export default class ParsersDicom extends ParsersVolume {
         let y = uncompressedData[ybrIndex++];
         let cb = uncompressedData[ybrIndex++];
         let cr = uncompressedData[ybrIndex++];
-        rgbData[rgbaIndex++] = y + 1.40200 * (cr - 128);// red
+        rgbData[rgbaIndex++] = y + 1.402 * (cr - 128); // red
         rgbData[rgbaIndex++] = y - 0.34414 * (cb - 128) - 0.71414 * (cr - 128); // green
-        rgbData[rgbaIndex++] = y + 1.77200 * (cb - 128); // blue
+        rgbData[rgbaIndex++] = y + 1.772 * (cb - 128); // blue
         // rgbData[rgbaIndex++] = 255; //alpha
       }
     } else {
-      const error = new Error(`photometric interpolation not supported: ${photometricInterpretation}`);
+      const error = new Error(
+        `photometric interpolation not supported: ${photometricInterpretation}`
+      );
       throw error;
     }
 
@@ -1223,7 +1242,7 @@ export default class ParsersDicom extends ParsersVolume {
       9: 'cm2/sec',
       10: 'cm3',
       11: 'cm3/sec',
-      12: 'degrees'
+      12: 'degrees',
     };
 
     return units.hasOwnProperty(value) ? units[value] : 'none';

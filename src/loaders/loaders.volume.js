@@ -62,125 +62,118 @@ export default class LoadersVolumes extends LoadersBase {
       this._progressBar.update(0, 100, 'parse', response.url);
     }
 
-    return new Promise(
-      (resolve, reject) => {
-        setTimeout(
-          () => {
-            resolve(new Promise((resolve, reject) => {
-              let data = response;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(
+          new Promise((resolve, reject) => {
+            let data = response;
 
-              if (!Array.isArray(data)) {
-                data = [data];
+            if (!Array.isArray(data)) {
+              data = [data];
+            }
+
+            data.forEach(dataset => {
+              this._preprocess(dataset);
+            });
+
+            if (data.length === 1) {
+              data = data[0];
+            } else {
+              // if raw/mhd pair
+              let mhdFile = data.filter(this._filterByExtension.bind(null, 'MHD'));
+              let rawFile = data.filter(this._filterByExtension.bind(null, 'RAW'));
+              if (data.length === 2 && mhdFile.length === 1 && rawFile.length === 1) {
+                data.url = mhdFile[0].url;
+                data.extension = mhdFile[0].extension;
+                data.mhdBuffer = mhdFile[0].buffer;
+                data.rawBuffer = rawFile[0].buffer;
               }
+            }
 
-              data.forEach((dataset) => {
-                this._preprocess(dataset);
+            let Parser = this._parser(data.extension);
+            if (!Parser) {
+              // emit 'parse-error' event
+              this.emit('parse-error', {
+                file: response.url,
+                time: new Date(),
+                error: data.filename + 'can not be parsed.',
               });
+              reject(data.filename + ' can not be parsed.');
+            }
 
-              if (data.length === 1) {
-                data = data[0];
-              } else {
-                // if raw/mhd pair
-                let mhdFile =
-                  data.filter(this._filterByExtension.bind(null, 'MHD'));
-                let rawFile =
-                  data.filter(this._filterByExtension.bind(null, 'RAW'));
-                if (data.length === 2 &&
-                    mhdFile.length === 1 &&
-                    rawFile.length === 1) {
-                  data.url = mhdFile[0].url;
-                  data.extension = mhdFile[0].extension;
-                  data.mhdBuffer = mhdFile[0].buffer;
-                  data.rawBuffer = rawFile[0].buffer;
-                }
-              }
+            // check extension
+            let volumeParser = null;
+            try {
+              volumeParser = new Parser(data, 0);
+            } catch (e) {
+              console.warn(e);
+              // emit 'parse-error' event
+              this.emit('parse-error', {
+                file: response.url,
+                time: new Date(),
+                error: e,
+              });
+              reject(e);
+            }
 
-              let Parser = this._parser(data.extension);
-              if (!Parser) {
-                // emit 'parse-error' event
-                this.emit('parse-error', {
-                  file: response.url,
-                  time: new Date(),
-                  error: data.filename + 'can not be parsed.',
-                });
-                reject(data.filename + ' can not be parsed.');
-              }
+            // create a series
+            let series = new ModelsSeries();
+            // global information
+            series.seriesInstanceUID = volumeParser.seriesInstanceUID();
+            series.transferSyntaxUID = volumeParser.transferSyntaxUID();
+            series.seriesDate = volumeParser.seriesDate();
+            series.seriesDescription = volumeParser.seriesDescription();
+            series.studyDate = volumeParser.studyDate();
+            series.studyDescription = volumeParser.studyDescription();
+            series.numberOfFrames = volumeParser.numberOfFrames();
+            if (!series.numberOfFrames) {
+              series.numberOfFrames = 1;
+            }
+            series.numberOfChannels = volumeParser.numberOfChannels();
+            series.modality = volumeParser.modality();
+            // if it is a segmentation, attach extra information
+            if (series.modality === 'SEG') {
+              // colors
+              // labels
+              // etc.
+              series.segmentationType = volumeParser.segmentationType();
+              series.segmentationSegments = volumeParser.segmentationSegments();
+            }
+            // patient information
+            series.patientID = volumeParser.patientID();
+            series.patientName = volumeParser.patientName();
+            series.patientAge = volumeParser.patientAge();
+            series.patientBirthdate = volumeParser.patientBirthdate();
+            series.patientSex = volumeParser.patientSex();
 
-              // check extension
-              let volumeParser = null;
-              try {
-                volumeParser = new Parser(data, 0);
-              } catch (e) {
-                console.warn(e);
-                // emit 'parse-error' event
-                this.emit('parse-error', {
-                  file: response.url,
-                  time: new Date(),
-                  error: e,
-                });
-                reject(e);
-              }
-
-              // create a series
-              let series = new ModelsSeries();
-              // global information
-              series.seriesInstanceUID = volumeParser.seriesInstanceUID();
-              series.transferSyntaxUID = volumeParser.transferSyntaxUID();
-              series.seriesDate = volumeParser.seriesDate();
-              series.seriesDescription = volumeParser.seriesDescription();
-              series.studyDate = volumeParser.studyDate();
-              series.studyDescription = volumeParser.studyDescription();
-              series.numberOfFrames = volumeParser.numberOfFrames();
-              if (!series.numberOfFrames) {
-                series.numberOfFrames = 1;
-              }
-              series.numberOfChannels = volumeParser.numberOfChannels();
-              series.modality = volumeParser.modality();
-              // if it is a segmentation, attach extra information
-              if (series.modality === 'SEG') {
-                // colors
-                // labels
-                // etc.
-                series.segmentationType = volumeParser.segmentationType();
-                series.segmentationSegments =
-                  volumeParser.segmentationSegments();
-              }
-              // patient information
-              series.patientID = volumeParser.patientID();
-              series.patientName = volumeParser.patientName();
-              series.patientAge = volumeParser.patientAge();
-              series.patientBirthdate = volumeParser.patientBirthdate();
-              series.patientSex = volumeParser.patientSex();
-
-              // just create 1 dummy stack for now
-              let stack = new ModelsStack();
-              stack.numberOfChannels = volumeParser.numberOfChannels();
-              stack.pixelRepresentation =
-                volumeParser.pixelRepresentation();
-              stack.pixelType = volumeParser.pixelType();
-              stack.invert = volumeParser.invert();
-              stack.spacingBetweenSlices =
-                volumeParser.spacingBetweenSlices();
-              stack.modality = series.modality;
-              // if it is a segmentation, attach extra information
-              if (stack.modality === 'SEG') {
-                // colors
-                // labels
-                // etc.
-                stack.segmentationType = series.segmentationType;
-                stack.segmentationSegments = series.segmentationSegments;
-              }
-              series.stack.push(stack);
-              // recursive call for each frame
-              // better than for loop to be able
-              // to update dom with "progress" callback
-              setTimeout(
-                this.parseFrameClosure(series, stack, response.url, 0, volumeParser, resolve, reject)
-                , 0);
-            }));
-          }, 10);
-      }
-    );
+            // just create 1 dummy stack for now
+            let stack = new ModelsStack();
+            stack.numberOfChannels = volumeParser.numberOfChannels();
+            stack.pixelRepresentation = volumeParser.pixelRepresentation();
+            stack.pixelType = volumeParser.pixelType();
+            stack.invert = volumeParser.invert();
+            stack.spacingBetweenSlices = volumeParser.spacingBetweenSlices();
+            stack.modality = series.modality;
+            // if it is a segmentation, attach extra information
+            if (stack.modality === 'SEG') {
+              // colors
+              // labels
+              // etc.
+              stack.segmentationType = series.segmentationType;
+              stack.segmentationSegments = series.segmentationSegments;
+            }
+            series.stack.push(stack);
+            // recursive call for each frame
+            // better than for loop to be able
+            // to update dom with "progress" callback
+            setTimeout(
+              this.parseFrameClosure(series, stack, response.url, 0, volumeParser, resolve, reject),
+              0
+            );
+          })
+        );
+      }, 10);
+    });
   }
 
   parseFrameClosure(series, stack, url, i, dataParser, resolve, reject) {
@@ -275,8 +268,8 @@ export default class LoadersVolumes extends LoadersBase {
       resolve(series);
     } else {
       setTimeout(
-        this.parseFrameClosure(series, stack, url, this._parsed, dataParser, resolve, reject)
-        , 0
+        this.parseFrameClosure(series, stack, url, this._parsed, dataParser, resolve, reject),
+        0
       );
     }
   }
@@ -318,7 +311,6 @@ export default class LoadersVolumes extends LoadersBase {
     return Parser;
   }
 
-
   /**
    * Pre-process data to be parsed (find data type and de-compress)
    * @param {*} data
@@ -334,8 +326,11 @@ export default class LoadersVolumes extends LoadersBase {
     // unzip if extension is '.gz'
     if (data.extension === 'gz') {
       data.gzcompressed = true;
-      data.extension =
-        data.filename.split('.gz').shift().split('.').pop();
+      data.extension = data.filename
+        .split('.gz')
+        .shift()
+        .split('.')
+        .pop();
     } else if (data.extension === 'mgz') {
       data.gzcompressed = true;
       data.extension = 'mgh';

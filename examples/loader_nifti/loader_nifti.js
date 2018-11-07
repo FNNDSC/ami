@@ -37,7 +37,7 @@ function init() {
     antialias: true,
   });
   renderer.setSize(threeD.offsetWidth, threeD.offsetHeight);
-  renderer.setClearColor(0x673AB7, 1);
+  renderer.setClearColor(0x673ab7, 1);
   renderer.setPixelRatio(window.devicePixelRatio);
   threeD.appendChild(renderer.domElement);
 
@@ -74,29 +74,27 @@ window.onload = function() {
 
   // load vtk file
   let loader1 = new THREE.VTKLoader();
-  loader1.load('https://cdn.rawgit.com/FNNDSC/data/master/vtk/fetalatlas_brain/cortex.vtk', function(geometry) {
-    geometry.computeVertexNormals();
-    let material = new THREE.MeshLambertMaterial({
-      color: 0x009688,
-      side: THREE.DoubleSide});
-    brain = new THREE.Mesh(geometry, material);
-    let toLPS = new THREE.Matrix4();
-    toLPS.set(
-      -1, 0, 0, 0,
-      0, -1, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1);
-    brain.applyMatrix(toLPS);
-    scene.add(brain);
-  });
+  loader1.load(
+    'https://cdn.rawgit.com/FNNDSC/data/master/vtk/fetalatlas_brain/cortex.vtk',
+    function(geometry) {
+      geometry.computeVertexNormals();
+      let material = new THREE.MeshLambertMaterial({
+        color: 0x009688,
+        side: THREE.DoubleSide,
+      });
+      brain = new THREE.Mesh(geometry, material);
+      let toLPS = new THREE.Matrix4();
+      toLPS.set(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+      brain.applyMatrix(toLPS);
+      scene.add(brain);
+    }
+  );
 
   // instantiate the loader
   // it loads and parses the dicom image
   let loader = new LoadersVolume(threeD);
 
-  let t2 = [
-    'template_T2.nii.gz',
-  ];
+  let t2 = ['template_T2.nii.gz'];
 
   let files = t2.map(function(v) {
     return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/fetalatlas_brain/t2/' + v;
@@ -105,71 +103,68 @@ window.onload = function() {
   // load sequence for each file
   let loadSequence = [];
   files.forEach(function(url) {
-    loadSequence.push(
-      loader.load(url)
-    );
+    loadSequence.push(loader.load(url));
   });
 
   // load sequence for all files
-  Promise
-  .all(loadSequence)
-  .then(function() {
-    // make a proper function for this guy...
-    let series = loader.data[0].mergeSeries(loader.data)[0];
-    let stack = series.stack[0];
-    stackHelper = new HelpersStack(stack);
-    stackHelper.bbox.color = 0xF9F9F9;
-    stackHelper.border.color = 0xF9F9F9;
-    scene.add(stackHelper);
+  Promise.all(loadSequence)
+    .then(function() {
+      // make a proper function for this guy...
+      let series = loader.data[0].mergeSeries(loader.data)[0];
+      let stack = series.stack[0];
+      stackHelper = new HelpersStack(stack);
+      stackHelper.bbox.color = 0xf9f9f9;
+      stackHelper.border.color = 0xf9f9f9;
+      scene.add(stackHelper);
 
-    // fill second renderer
-    let stackHelper1 = new HelpersStack(stack);
-    stackHelper1.orientation = 2;
-    stackHelper1.bbox.visible = false;
-    stackHelper1.border.color = 0xFF1744;
-    scene.add(stackHelper1);
+      // fill second renderer
+      let stackHelper1 = new HelpersStack(stack);
+      stackHelper1.orientation = 2;
+      stackHelper1.bbox.visible = false;
+      stackHelper1.border.color = 0xff1744;
+      scene.add(stackHelper1);
 
-    // fill second renderer
-    let stackHelper2 = new HelpersStack(stack);
-    stackHelper2.orientation = 1;
-    stackHelper2.bbox.visible = false;
-    stackHelper2.border.color = 0xFF1744;
-    scene.add(stackHelper2);
+      // fill second renderer
+      let stackHelper2 = new HelpersStack(stack);
+      stackHelper2.orientation = 1;
+      stackHelper2.bbox.visible = false;
+      stackHelper2.border.color = 0xff1744;
+      scene.add(stackHelper2);
 
-    // /
-    let geometry = new THREE.SphereBufferGeometry(5, 32, 32);
-    let material = new THREE.MeshBasicMaterial({color: 0xffff00});
-    let sphere = new THREE.Mesh(geometry, material);
-    sphere.position.set(stack._origin.x, stack._origin.y, stack._origin.z);
-    scene.add(sphere);
+      // /
+      let geometry = new THREE.SphereBufferGeometry(5, 32, 32);
+      let material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+      let sphere = new THREE.Mesh(geometry, material);
+      sphere.position.set(stack._origin.x, stack._origin.y, stack._origin.z);
+      scene.add(sphere);
 
-    // update camrea's and control's target
-    let centerLPS = stackHelper.stack.worldCenter();
-    camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
-    camera.updateProjectionMatrix();
-    controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
-
-    loader.free();
-    loader = null;
-
-    function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      // update camrea's and control's target
+      let centerLPS = stackHelper.stack.worldCenter();
+      camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
       camera.updateProjectionMatrix();
+      controls.target.set(centerLPS.x, centerLPS.y, centerLPS.z);
 
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    }
+      loader.free();
+      loader = null;
 
-    window.addEventListener('resize', onWindowResize, false);
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
 
-    // force 1st render
-    render();
-    // notify puppeteer to take screenshot
-    const puppetDiv = document.createElement('div');
-    puppetDiv.setAttribute('id', 'puppeteer');
-    document.body.appendChild(puppetDiv);
-  })
-  .catch(function(error) {
-    window.console.log('oops... something went wrong...');
-    window.console.log(error);
-  });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      window.addEventListener('resize', onWindowResize, false);
+
+      // force 1st render
+      render();
+      // notify puppeteer to take screenshot
+      const puppetDiv = document.createElement('div');
+      puppetDiv.setAttribute('id', 'puppeteer');
+      document.body.appendChild(puppetDiv);
+    })
+    .catch(function(error) {
+      window.console.log('oops... something went wrong...');
+      window.console.log(error);
+    });
 };

@@ -2,7 +2,6 @@ import ShadersBase from '../shaders.base';
 import Unpack from '../helpers/shaders.helpers.unpack';
 import Texture3d from '../helpers/shaders.helpers.texture3d';
 
-
 class InterpolationIdentity extends ShadersBase {
   constructor() {
     super();
@@ -13,7 +12,7 @@ class InterpolationIdentity extends ShadersBase {
     this._dataValue = 'dataValue';
   }
 
-    api(baseFragment = this._base, currentVoxel = this._currentVoxel, dataValue = this._dataValue) {
+  api(baseFragment = this._base, currentVoxel = this._currentVoxel, dataValue = this._dataValue) {
     this._base = baseFragment;
     return this.compute(currentVoxel, dataValue);
   }
@@ -23,7 +22,6 @@ class InterpolationIdentity extends ShadersBase {
     this._base._functions[this._name] = this._definition;
     return `${this._name}(${currentVoxel}, ${dataValue});`;
   }
-
 
   computeDefinition() {
     this._definition = `

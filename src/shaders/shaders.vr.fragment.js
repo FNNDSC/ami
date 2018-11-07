@@ -187,7 +187,16 @@ void main(void) {
   // Intersection ray/bbox
   float tNear, tFar;
   bool intersect = false;
-  ${shadersIntersectBox.api(this, 'rayOrigin', 'rayDirection', 'AABBMin', 'AABBMax', 'tNear', 'tFar', 'intersect')}
+  ${shadersIntersectBox.api(
+    this,
+    'rayOrigin',
+    'rayDirection',
+    'AABBMin',
+    'AABBMax',
+    'tNear',
+    'tFar',
+    'intersect'
+  )}
   if (tNear < 0.0) tNear = 0.0;
 
   // x / y should be within o-1
@@ -305,5 +314,5 @@ ${this.functions()}
 // main loop
 ${this._main}
       `;
-    }
+  }
 }

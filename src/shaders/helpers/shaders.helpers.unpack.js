@@ -16,7 +16,7 @@ class Unpack extends ShadersBase {
     this._offset = 'offset';
     this._unpackedData = 'unpackedData';
 
-    this._base._uniforms ={
+    this._base._uniforms = {
       uNumberOfChannels: {
         value: 1,
       },
@@ -30,8 +30,11 @@ class Unpack extends ShadersBase {
   }
 
   api(
-    baseFragment = this._base, packedData = this._packedData,
-    offset = this._offset, unpackedData = this._unpackedData) {
+    baseFragment = this._base,
+    packedData = this._packedData,
+    offset = this._offset,
+    unpackedData = this._unpackedData
+  ) {
     this._base = baseFragment;
     return this.compute(packedData, offset, unpackedData);
   }
@@ -81,11 +84,13 @@ ${content}
     this._base._functions['uInt8'] = this.uInt8();
 
     return `
+float floatedOffset = float(offset);
+float floatedOffsetSquared = floatedOffset * floatedOffset;
 uInt8(
-  step( abs( float(offset - 0) ), 0.0 ) * packedData.r +
-  step( abs( float(offset - 1) ), 0.0 ) * packedData.g +
-  step( abs( float(offset - 2) ), 0.0 ) * packedData.b +
-  step( abs( float(offset - 3) ), 0.0 ) * packedData.a
+  step( floatedOffsetSquared , 0.0 ) * packedData.r +
+  step( floatedOffsetSquared - 2. * floatedOffset + 1., 0.0 ) * packedData.g +
+  step( floatedOffsetSquared - 2. * 2. *  floatedOffset + 4., 0.0 ) * packedData.b +
+  step( floatedOffsetSquared - 2. * 3. *  floatedOffset + 9., 0.0 ) * packedData.a
   ,
   unpackedData.x);
     `;
@@ -95,9 +100,10 @@ uInt8(
     this._base._functions['uInt16'] = this.uInt16();
 
     return `
+float floatedOffset = float(offset);
 uInt16(
-  packedData.r * float( 1 - offset) + packedData.b * float(offset),
-  packedData.g * float( 1 - offset) + packedData.a * float(offset),
+  packedData.r * (1. - floatedOffset) + packedData.b * floatedOffset,
+  packedData.g * (1. - floatedOffset) + packedData.a * floatedOffset,
   unpackedData.x);
     `;
   }

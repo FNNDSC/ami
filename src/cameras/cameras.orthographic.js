@@ -12,7 +12,6 @@ import Validators from '../core/core.validators';
  * @module cameras/orthographic
  */
 
-
 const camerasOrthographic = (three = window.THREE) => {
   if (three === undefined || three.OrthographicCamera === undefined) {
     return null;
@@ -30,12 +29,15 @@ const camerasOrthographic = (three = window.THREE) => {
         new three.Vector3(1, 0, 0),
         new three.Vector3(0, 1, 0),
         new three.Vector3(0, 0, 1),
-        ];
+      ];
 
       this._directionsLabel = [
-        'A', 'P', // TOP/BOTTOM
-        'L', 'R', // LEFT/RIGHT
-        'I', 'S', // FROM/TO
+        'A',
+        'P', // TOP/BOTTOM
+        'L',
+        'R', // LEFT/RIGHT
+        'I',
+        'S', // FROM/TO
       ];
 
       this._orientation = 'default';
@@ -64,14 +66,19 @@ const camerasOrthographic = (three = window.THREE) => {
       // DEPRECATION NOTICE
       window.console.warn(
         `cameras.orthographic.init(...) is deprecated.
-        Use .cosines, .controls, .box and .canvas instead.`);
+        Use .cosines, .controls, .box and .canvas instead.`
+      );
 
       //
-      if (!(Validators.vector3(xCosine) &&
-        Validators.vector3(yCosine) &&
-        Validators.vector3(zCosine) &&
-        Validators.box(box) &&
-        controls)) {
+      if (
+        !(
+          Validators.vector3(xCosine) &&
+          Validators.vector3(yCosine) &&
+          Validators.vector3(zCosine) &&
+          Validators.box(box) &&
+          controls
+        )
+      ) {
         window.console.log('Invalid input provided.');
 
         return false;
@@ -89,10 +96,10 @@ const camerasOrthographic = (three = window.THREE) => {
         direction: this._direction,
       };
 
-      let intersections =
-        this._orderIntersections(
-          Intersections.rayBox(ray, this._box),
-          this._direction);
+      let intersections = this._orderIntersections(
+        Intersections.rayBox(ray, this._box),
+        this._direction
+      );
       this._front = intersections[0];
       this._back = intersections[1];
 
@@ -142,128 +149,129 @@ const camerasOrthographic = (three = window.THREE) => {
         let superiorDirection = this._directions[superiorIndex];
 
         if (this._convention === 'radio') {
-            switch (this._orientation) {
-              case 'axial':
-                // up vector is 'anterior'
-                if (posteriorDirection.y > 0) {
-                  posteriorDirection.negate();
-                }
+          switch (this._orientation) {
+            case 'axial':
+              // up vector is 'anterior'
+              if (posteriorDirection.y > 0) {
+                posteriorDirection.negate();
+              }
 
-                // looking towards superior
-                if (superiorDirection.z < 0) {
-                  superiorDirection.negate();
-                }
+              // looking towards superior
+              if (superiorDirection.z < 0) {
+                superiorDirection.negate();
+              }
 
-                //
-                this._right = leftDirection; // does not matter right/left
-                this._up = posteriorDirection;
-                this._direction = superiorDirection;
-                break;
+              //
+              this._right = leftDirection; // does not matter right/left
+              this._up = posteriorDirection;
+              this._direction = superiorDirection;
+              break;
 
-              case 'coronal':
-                // up vector is 'superior'
-                if (superiorDirection.z < 0) {
-                  superiorDirection.negate();
-                }
+            case 'coronal':
+              // up vector is 'superior'
+              if (superiorDirection.z < 0) {
+                superiorDirection.negate();
+              }
 
-                // looking towards posterior
-                if (posteriorDirection.y < 0) {
-                  posteriorDirection.negate();
-                }
+              // looking towards posterior
+              if (posteriorDirection.y < 0) {
+                posteriorDirection.negate();
+              }
 
-                //
-                this._right = leftDirection; // does not matter right/left
-                this._up = superiorDirection;
-                this._direction = posteriorDirection;
-                break;
+              //
+              this._right = leftDirection; // does not matter right/left
+              this._up = superiorDirection;
+              this._direction = posteriorDirection;
+              break;
 
-              case 'sagittal':
-                // up vector is 'superior'
-                if (superiorDirection.z < 0) {
-                  superiorDirection.negate();
-                }
+            case 'sagittal':
+              // up vector is 'superior'
+              if (superiorDirection.z < 0) {
+                superiorDirection.negate();
+              }
 
-                // looking towards right
-                if (leftDirection.x > 0) {
-                  leftDirection.negate();
-                }
+              // looking towards right
+              if (leftDirection.x > 0) {
+                leftDirection.negate();
+              }
 
-                //
-                this._right = posteriorDirection; // does not matter right/left
-                this._up = superiorDirection;
-                this._direction = leftDirection;
+              //
+              this._right = posteriorDirection; // does not matter right/left
+              this._up = superiorDirection;
+              this._direction = leftDirection;
 
-                break;
+              break;
 
-              default:
-                window.console.warn(
-                  `"${this._orientation}" orientation is not valid.
-                  (choices: axial, coronal, sagittal)`);
-                break;
-            }
+            default:
+              window.console.warn(
+                `"${this._orientation}" orientation is not valid.
+                  (choices: axial, coronal, sagittal)`
+              );
+              break;
+          }
         } else if (this._convention === 'neuro') {
-            switch (this._orientation) {
-              case 'axial':
-                // up vector is 'anterior'
-                if (posteriorDirection.y > 0) {
-                  posteriorDirection.negate();
-                }
+          switch (this._orientation) {
+            case 'axial':
+              // up vector is 'anterior'
+              if (posteriorDirection.y > 0) {
+                posteriorDirection.negate();
+              }
 
-                // looking towards inferior
-                if (superiorDirection.z > 0) {
-                  superiorDirection.negate();
-                }
+              // looking towards inferior
+              if (superiorDirection.z > 0) {
+                superiorDirection.negate();
+              }
 
-                //
-                this._right = leftDirection; // does not matter right/left
-                this._up = posteriorDirection;
-                this._direction = superiorDirection;
-                break;
+              //
+              this._right = leftDirection; // does not matter right/left
+              this._up = posteriorDirection;
+              this._direction = superiorDirection;
+              break;
 
-              case 'coronal':
-                // up vector is 'superior'
-                if (superiorDirection.z < 0) {
-                  superiorDirection.negate();
-                }
+            case 'coronal':
+              // up vector is 'superior'
+              if (superiorDirection.z < 0) {
+                superiorDirection.negate();
+              }
 
-                // looking towards anterior
-                if (posteriorDirection.y > 0) {
-                  posteriorDirection.negate();
-                }
+              // looking towards anterior
+              if (posteriorDirection.y > 0) {
+                posteriorDirection.negate();
+              }
 
-                //
-                this._right = leftDirection; // does not matter right/left
-                this._up = superiorDirection;
-                this._direction = posteriorDirection;
-                break;
+              //
+              this._right = leftDirection; // does not matter right/left
+              this._up = superiorDirection;
+              this._direction = posteriorDirection;
+              break;
 
-              case 'sagittal':
-                // up vector is 'superior'
-                if (superiorDirection.z < 0) {
-                  superiorDirection.negate();
-                }
+            case 'sagittal':
+              // up vector is 'superior'
+              if (superiorDirection.z < 0) {
+                superiorDirection.negate();
+              }
 
-                // looking towards right
-                if (leftDirection.x > 0) {
-                  leftDirection.negate();
-                }
+              // looking towards right
+              if (leftDirection.x > 0) {
+                leftDirection.negate();
+              }
 
-                //
-                this._right = posteriorDirection; // does not matter right/left
-                this._up = superiorDirection;
-                this._direction = leftDirection;
+              //
+              this._right = posteriorDirection; // does not matter right/left
+              this._up = superiorDirection;
+              this._direction = leftDirection;
 
-                break;
+              break;
 
-              default:
-                window.console.warn(
-                  `"${this._orientation}" orientation is not valid.
-                  (choices: axial, coronal, sagittal)`);
-                break;
-            }
+            default:
+              window.console.warn(
+                `"${this._orientation}" orientation is not valid.
+                  (choices: axial, coronal, sagittal)`
+              );
+              break;
+          }
         } else {
-          window.console.warn(
-            `${this._convention} is not valid (choices: radio, neuro)`);
+          window.console.warn(`${this._convention} is not valid (choices: radio, neuro)`);
         }
       }
 
@@ -273,10 +281,10 @@ const camerasOrthographic = (three = window.THREE) => {
         direction: this._direction,
       };
 
-      let intersections =
-        this._orderIntersections(
-          Intersections.rayBox(ray, this._box),
-          this._direction);
+      let intersections = this._orderIntersections(
+        Intersections.rayBox(ray, this._box),
+        this._direction
+      );
       this._front = intersections[0];
       this._back = intersections[1];
 
@@ -357,7 +365,7 @@ const camerasOrthographic = (three = window.THREE) => {
      * Pi/2 rotation around the zCosine axis.
      * Clock-wise rotation from the user point of view.
      */
-    rotate(angle=null) {
+    rotate(angle = null) {
       this.center();
 
       let computedAngle = 90;
@@ -380,7 +388,8 @@ const camerasOrthographic = (three = window.THREE) => {
       // Rotate the up vector around the "zCosine"
       let rotation = new three.Matrix4().makeRotationAxis(
         this._direction,
-        computedAngle * Math.PI/180);
+        (computedAngle * Math.PI) / 180
+      );
       this.up.applyMatrix4(rotation);
 
       this._updateMatrices();
@@ -391,7 +400,7 @@ const camerasOrthographic = (three = window.THREE) => {
     // dimensions[1] // height
     // direction= 0 width, 1 height, 2 best
     // factor
-    fitBox(direction = 0, factor=1.5) {
+    fitBox(direction = 0, factor = 1.5) {
       //
       // if (!(dimensions && dimensions.length >= 2)) {
       //   window.console.log('Invalid dimensions container.');
@@ -412,10 +421,12 @@ const camerasOrthographic = (three = window.THREE) => {
           zoom = factor * this._computeZoom(this._canvas.height, this._up);
           break;
         case 2:
-          zoom = factor * (Math.min(
-            this._computeZoom(this._canvas.width, this._right),
-            this._computeZoom(this._canvas.height, this._up)
-          ));
+          zoom =
+            factor *
+            Math.min(
+              this._computeZoom(this._canvas.width, this._right),
+              this._computeZoom(this._canvas.height, this._up)
+            );
           break;
         default:
           break;
@@ -434,13 +445,15 @@ const camerasOrthographic = (three = window.THREE) => {
       const vMaxIndex = this._getMaxIndex(verticalDirection);
 
       // should handle vMax index === 0
-      if ((vMaxIndex === 2 && verticalDirection.getComponent(vMaxIndex) < 0) ||
-          (vMaxIndex === 1 && verticalDirection.getComponent(vMaxIndex) > 0) ||
-          (vMaxIndex === 0 && verticalDirection.getComponent(vMaxIndex) > 0)) {
+      if (
+        (vMaxIndex === 2 && verticalDirection.getComponent(vMaxIndex) < 0) ||
+        (vMaxIndex === 1 && verticalDirection.getComponent(vMaxIndex) > 0) ||
+        (vMaxIndex === 0 && verticalDirection.getComponent(vMaxIndex) > 0)
+      ) {
         verticalDirection.negate();
       }
 
-     return verticalDirection;
+      return verticalDirection;
     }
 
     _getMaxIndex(vector) {
@@ -481,14 +494,13 @@ const camerasOrthographic = (three = window.THREE) => {
     }
 
     _orderIntersections(intersections, direction) {
-      const ordered =
-        intersections[0].dot(direction) < intersections[1].dot(direction);
+      const ordered = intersections[0].dot(direction) < intersections[1].dot(direction);
 
       if (!ordered) {
-          return [intersections[1], intersections[0]];
+        return [intersections[1], intersections[0]];
       }
 
-     return intersections;
+      return intersections;
     }
 
     _updateCanvas() {
@@ -507,9 +519,7 @@ const camerasOrthographic = (three = window.THREE) => {
       // center world postion around box center
       oppositePosition.sub(this._box.center);
       // rotate
-      let rotation = new three.Matrix4().makeRotationAxis(
-        this.up,
-        Math.PI);
+      let rotation = new three.Matrix4().makeRotationAxis(this.up, Math.PI);
 
       oppositePosition.applyMatrix4(rotation);
       // translate back to world position
@@ -542,12 +552,12 @@ const camerasOrthographic = (three = window.THREE) => {
     }
 
     _updatePositionAndTarget(position, target) {
-        // position
-        this.position.set(position.x, position.y, position.z);
+      // position
+      this.position.set(position.x, position.y, position.z);
 
-        // targets
-        this.lookAt(target.x, target.y, target.z);
-        this._controls.target.set(target.x, target.y, target.z);
+      // targets
+      this.lookAt(target.x, target.y, target.z);
+      this._controls.target.set(target.x, target.y, target.z);
     }
 
     _updateMatrices() {
@@ -571,13 +581,14 @@ const camerasOrthographic = (three = window.THREE) => {
     _vector2Label(direction) {
       const index = this._getMaxIndex(direction);
       // set vector max value to 1
-      const scaledDirection =
-        direction.clone().divideScalar(Math.abs(direction.getComponent(index)));
+      const scaledDirection = direction
+        .clone()
+        .divideScalar(Math.abs(direction.getComponent(index)));
       const delta = 0.2;
       let label = '';
 
       // loop through components of the vector
-      for (let i = 0; i<3; i++) {
+      for (let i = 0; i < 3; i++) {
         if (i === 0) {
           if (scaledDirection.getComponent(i) + delta >= 1) {
             label += 'L';
@@ -693,9 +704,7 @@ const camerasOrthographic = (three = window.THREE) => {
       if (this._stackOrientation === 0) {
         this._orientation = 'default';
       } else {
-        const maxIndex =
-          this._getMaxIndex(
-            this._directions[(this._stackOrientation + 2) % 3]);
+        const maxIndex = this._getMaxIndex(this._directions[(this._stackOrientation + 2) % 3]);
 
         if (maxIndex === 0) {
           this._orientation = 'sagittal';
@@ -729,6 +738,6 @@ const camerasOrthographic = (three = window.THREE) => {
 };
 
 // export factory
-export {camerasOrthographic};
+export { camerasOrthographic };
 // default export to
 export default camerasOrthographic();

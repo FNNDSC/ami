@@ -1,10 +1,10 @@
 /** * Imports ***/
-import {geometriesSlice} from '../geometries/geometries.slice';
+import { geometriesSlice } from '../geometries/geometries.slice';
 import ShadersUniform from '../shaders/shaders.data.uniform';
 import ShadersVertex from '../shaders/shaders.data.vertex';
 import ShadersFragment from '../shaders/shaders.data.fragment';
 
-import {helpersMaterialMixin} from '../helpers/helpers.material.mixin';
+import { helpersMaterialMixin } from '../helpers/helpers.material.mixin';
 
 /**
  * @module helpers/slice
@@ -17,11 +17,13 @@ const helpersSlice = (three = window.THREE) => {
 
   const Constructor = helpersMaterialMixin(three);
   return class extends Constructor {
-    constructor(stack,
-                index = 0,
-                position = new three.Vector3(0, 0, 0),
-                direction = new three.Vector3(0, 0, 1),
-                aabbSpace = 'IJK') {
+    constructor(
+      stack,
+      index = 0,
+      position = new three.Vector3(0, 0, 0),
+      direction = new three.Vector3(0, 0, 1),
+      aabbSpace = 'IJK'
+    ) {
       //
       super();
 
@@ -45,8 +47,8 @@ const helpersSlice = (three = window.THREE) => {
       this._opacity = 1;
       this._rescaleSlope = null;
       this._rescaleIntercept = null;
-      this._spacing = 1.;
-      this._thickness = 0.;
+      this._spacing = 1;
+      this._thickness = 0;
       this._thicknessMethod = 0; // default to MIP (Maximum Intensity Projection); 1 - Mean; 2 - MinIP
 
       // threshold
@@ -332,7 +334,8 @@ const helpersSlice = (three = window.THREE) => {
         this._center = new three.Vector3(
           this._stack.halfDimensionsIJK.x - 0.5,
           this._stack.halfDimensionsIJK.y - 0.5,
-          this._stack.halfDimensionsIJK.z - 0.5);
+          this._stack.halfDimensionsIJK.z - 0.5
+        );
         this._toAABB = new three.Matrix4();
       } else {
         // LPS
@@ -357,7 +360,8 @@ const helpersSlice = (three = window.THREE) => {
           this._center,
           this._planePosition,
           this._planeDirection,
-          this._toAABB);
+          this._toAABB
+        );
       } catch (e) {
         window.console.log(e);
         window.console.log('invalid slice geometry - exiting...');
@@ -371,9 +375,11 @@ const helpersSlice = (three = window.THREE) => {
       if (!this._material) {
         //
         this._uniforms.uTextureSize.value = this._stack.textureSize;
-        this._uniforms.uDataDimensions.value = [this._stack.dimensionsIJK.x,
-                                                  this._stack.dimensionsIJK.y,
-                                                  this._stack.dimensionsIJK.z];
+        this._uniforms.uDataDimensions.value = [
+          this._stack.dimensionsIJK.x,
+          this._stack.dimensionsIJK.y,
+          this._stack.dimensionsIJK.z,
+        ];
         this._uniforms.uWorldToData.value = this._stack.lps2IJK;
         this._uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
         this._uniforms.uPixelType.value = this._stack.pixelType;
@@ -454,17 +460,17 @@ const helpersSlice = (three = window.THREE) => {
       }
 
       // set slice window center and width
-      this._uniforms.uRescaleSlopeIntercept.value =
-        [this._rescaleSlope, this._rescaleIntercept];
-      this._uniforms.uWindowCenterWidth.value =
-        [offset + this._windowCenter, this._windowWidth];
+      this._uniforms.uRescaleSlopeIntercept.value = [this._rescaleSlope, this._rescaleIntercept];
+      this._uniforms.uWindowCenterWidth.value = [offset + this._windowCenter, this._windowWidth];
 
       // set slice opacity
       this._uniforms.uOpacity.value = this._opacity;
 
       // set slice upper/lower threshold
-      this._uniforms.uLowerUpperThreshold.value =
-        [offset + this._lowerThreshold, offset + this._upperThreshold];
+      this._uniforms.uLowerUpperThreshold.value = [
+        offset + this._lowerThreshold,
+        offset + this._upperThreshold,
+      ];
 
       // invert
       this._uniforms.uInvert.value = this._invert === true ? 1 : 0;
@@ -482,8 +488,7 @@ const helpersSlice = (three = window.THREE) => {
     }
 
     updateIntensitySetting(setting) {
-      if (this._stack.frame[this._index] &&
-          this._stack.frame[this._index][setting]) {
+      if (this._stack.frame[this._index] && this._stack.frame[this._index][setting]) {
         this['_' + setting] = this._stack.frame[this._index][setting];
       } else {
         this['_' + setting] = this._stack[setting];
@@ -507,7 +512,7 @@ const helpersSlice = (three = window.THREE) => {
 
     dispose() {
       // Release memory
-      for (let j =0; j< this._textures.length; j++) {
+      for (let j = 0; j < this._textures.length; j++) {
         this._textures[j].dispose();
         this._textures[j] = null;
       }
@@ -538,20 +543,21 @@ const helpersSlice = (three = window.THREE) => {
 
     cartesianEquation() {
       // Make sure we have a geometry
-      if (!this._geometry ||
-         !this._geometry.vertices ||
-         this._geometry.vertices.length < 3) {
+      if (!this._geometry || !this._geometry.vertices || this._geometry.vertices.length < 3) {
         return new three.Vector4();
       }
 
       let vertices = this._geometry.vertices;
       let dataToWorld = this._stack.ijk2LPS;
-      let p1 = new three.Vector3(vertices[0].x, vertices[0].y, vertices[0].z)
-        .applyMatrix4(dataToWorld);
-      let p2 = new three.Vector3(vertices[1].x, vertices[1].y, vertices[1].z)
-        .applyMatrix4(dataToWorld);
-      let p3 = new three.Vector3(vertices[2].x, vertices[2].y, vertices[2].z)
-        .applyMatrix4(dataToWorld);
+      let p1 = new three.Vector3(vertices[0].x, vertices[0].y, vertices[0].z).applyMatrix4(
+        dataToWorld
+      );
+      let p2 = new three.Vector3(vertices[1].x, vertices[1].y, vertices[1].z).applyMatrix4(
+        dataToWorld
+      );
+      let p3 = new three.Vector3(vertices[2].x, vertices[2].y, vertices[2].z).applyMatrix4(
+        dataToWorld
+      );
       let v1 = new three.Vector3();
       let v2 = new three.Vector3();
       let normal = v1
@@ -559,15 +565,10 @@ const helpersSlice = (three = window.THREE) => {
         .cross(v2.subVectors(p1, p2))
         .normalize();
 
-      return new three.Vector4(
-        normal.x,
-        normal.y,
-        normal.z,
-        - normal.dot(p1)
-      );
+      return new three.Vector4(normal.x, normal.y, normal.z, -normal.dot(p1));
     }
   };
 };
 
-export {helpersSlice};
+export { helpersSlice };
 export default helpersSlice();

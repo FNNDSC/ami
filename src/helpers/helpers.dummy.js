@@ -18,7 +18,7 @@ export default class HelpersDummy extends THREE.Object3D {
   // private methods
   _create() {
     let geometry = new THREE.SphereGeometry(5, 32, 32);
-    let material = new THREE.MeshBasicMaterial({color: 0xffff00});
+    let material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     this._mesh = new THREE.Mesh(geometry, material);
 
     // and add it!

@@ -1,10 +1,10 @@
 import Validators from './core.validators';
 
-import {Box3} from 'three/src/math/Box3';
-import {Raycaster} from 'three/src/core/Raycaster';
-import {Triangle} from 'three/src/math/Triangle';
-import {Matrix4} from 'three/src/math/Matrix4';
-import {Vector3} from 'three/src/math/Vector3';
+import { Box3 } from 'three/src/math/Box3';
+import { Raycaster } from 'three/src/core/Raycaster';
+import { Triangle } from 'three/src/math/Triangle';
+import { Matrix4 } from 'three/src/math/Matrix4';
+import { Vector3 } from 'three/src/math/Vector3';
 
 /**
  * General purpose functions.
@@ -34,16 +34,13 @@ export default class CoreUtils {
    */
   static bbox(center, halfDimensions) {
     // make sure we have valid inputs
-    if (!(Validators.vector3(center) &&
-      Validators.vector3(halfDimensions))) {
+    if (!(Validators.vector3(center) && Validators.vector3(halfDimensions))) {
       window.console.log('Invalid center or plane halfDimensions.');
       return false;
     }
 
     // make sure half dimensions are >= 0
-    if (!(halfDimensions.x >= 0 &&
-      halfDimensions.y >= 0 &&
-      halfDimensions.z >= 0)) {
+    if (!(halfDimensions.x >= 0 && halfDimensions.y >= 0 && halfDimensions.z >= 0)) {
       window.console.log('halfDimensions must be >= 0.');
       window.console.log(halfDimensions);
       return false;
@@ -90,9 +87,12 @@ export default class CoreUtils {
       // Browsers not supporting W3 DOM2 don't have HTMLElement and
       // an exception is thrown and we end up here. Testing some
       // properties that all elements have. (works on IE7)
-      return (typeof obj === 'object') &&
-        (obj.nodeType === 1) && (typeof obj.style === 'object') &&
-        (typeof obj.ownerDocument === 'object');
+      return (
+        typeof obj === 'object' &&
+        obj.nodeType === 1 &&
+        typeof obj.style === 'object' &&
+        typeof obj.ownerDocument === 'object'
+      );
     }
   }
 
@@ -122,11 +122,11 @@ export default class CoreUtils {
   static parseUrl(url) {
     const parsedUrl = new URL(url, 'http://fix.me');
     const data = {
-        filename: parsedUrl.searchParams.get('filename'),
-        extension: '',
-        pathname: parsedUrl.pathname,
-        query: parsedUrl.search,
-      };
+      filename: parsedUrl.searchParams.get('filename'),
+      extension: '',
+      pathname: parsedUrl.pathname,
+      query: parsedUrl.search,
+    };
 
     // get file name
     if (!data.filename) {
@@ -138,9 +138,24 @@ export default class CoreUtils {
 
     data.extension = splittedName.length > 1 ? splittedName.pop() : 'dicom';
 
-    const skipExt = ['asp', 'aspx', 'go', 'gs', 'hs', 'jsp', 'js', 'php', 'pl', 'py', 'rb', 'htm', 'html'];
+    const skipExt = [
+      'asp',
+      'aspx',
+      'go',
+      'gs',
+      'hs',
+      'jsp',
+      'js',
+      'php',
+      'pl',
+      'py',
+      'rb',
+      'htm',
+      'html',
+    ];
 
-    if (!isNaN(data.extension) ||
+    if (
+      !isNaN(data.extension) ||
       skipExt.indexOf(data.extension) !== -1 ||
       (data.query && data.query.includes('contentType=application%2Fdicom'))
     ) {
@@ -163,16 +178,26 @@ export default class CoreUtils {
    *
    * @return {*}
    */
-  static ijk2LPS(
-    xCos, yCos, zCos,
-    spacing, origin,
-    registrationMatrix = new Matrix4()) {
+  static ijk2LPS(xCos, yCos, zCos, spacing, origin, registrationMatrix = new Matrix4()) {
     const ijk2LPS = new Matrix4();
     ijk2LPS.set(
-      xCos.x * spacing.y, yCos.x * spacing.x, zCos.x * spacing.z, origin.x,
-      xCos.y * spacing.y, yCos.y * spacing.x, zCos.y * spacing.z, origin.y,
-      xCos.z * spacing.y, yCos.z * spacing.x, zCos.z * spacing.z, origin.z,
-      0, 0, 0, 1);
+      xCos.x * spacing.y,
+      yCos.x * spacing.x,
+      zCos.x * spacing.z,
+      origin.x,
+      xCos.y * spacing.y,
+      yCos.y * spacing.x,
+      zCos.y * spacing.z,
+      origin.y,
+      xCos.z * spacing.y,
+      yCos.z * spacing.x,
+      zCos.z * spacing.z,
+      origin.z,
+      0,
+      0,
+      0,
+      1
+    );
     ijk2LPS.premultiply(registrationMatrix);
 
     return ijk2LPS;
@@ -189,15 +214,26 @@ export default class CoreUtils {
    *
    * @return {*}
    */
-  static aabb2LPS(
-    xCos, yCos, zCos,
-    origin) {
+  static aabb2LPS(xCos, yCos, zCos, origin) {
     const aabb2LPS = new Matrix4();
     aabb2LPS.set(
-        xCos.x, yCos.x, zCos.x, origin.x,
-        xCos.y, yCos.y, zCos.y, origin.y,
-        xCos.z, yCos.z, zCos.z, origin.z,
-        0, 0, 0, 1);
+      xCos.x,
+      yCos.x,
+      zCos.x,
+      origin.x,
+      xCos.y,
+      yCos.y,
+      zCos.y,
+      origin.y,
+      xCos.z,
+      yCos.z,
+      zCos.z,
+      origin.z,
+      0,
+      0,
+      0,
+      1
+    );
 
     return aabb2LPS;
   }
@@ -211,9 +247,7 @@ export default class CoreUtils {
    * @return {*}
    */
   static worldToData(lps2IJK, worldCoordinates) {
-    let dataCoordinate = new Vector3()
-      .copy(worldCoordinates)
-      .applyMatrix4(lps2IJK);
+    let dataCoordinate = new Vector3().copy(worldCoordinates).applyMatrix4(lps2IJK);
 
     // same rounding in the shaders
     dataCoordinate.addScalar(0.5).floor();
@@ -234,10 +268,8 @@ export default class CoreUtils {
    * @return {*}
    */
   static getPixelData(stack, coordinate) {
-    if (coordinate.z >= 0 &&
-        coordinate.z < stack._frame.length) {
-      return stack._frame[coordinate.z].
-        getPixelData(coordinate.x, coordinate.y);
+    if (coordinate.z >= 0 && coordinate.z < stack._frame.length) {
+      return stack._frame[coordinate.z].getPixelData(coordinate.x, coordinate.y);
     } else {
       return null;
     }
@@ -252,10 +284,8 @@ export default class CoreUtils {
    * @return {*}
    */
   static setPixelData(stack, coordinate, value) {
-    if (coordinate.z >= 0 &&
-        coordinate.z < stack._frame.length) {
-      stack._frame[coordinate.z].
-        setPixelData(coordinate.x, coordinate.y, value);
+    if (coordinate.z >= 0 && coordinate.z < stack._frame.length) {
+      stack._frame[coordinate.z].setPixelData(coordinate.x, coordinate.y, value);
     } else {
       return null;
     }
@@ -275,13 +305,13 @@ export default class CoreUtils {
   }
 
   /**
-  *
-  * Convenience function to extract center of mass from list of points.
-  *
-  * @param {Array<Vector3>} points - Set of points from which we want to extract the center of mass.
-  *
-  * @returns {Vector3} Center of mass from given points.
-  */
+   *
+   * Convenience function to extract center of mass from list of points.
+   *
+   * @param {Array<Vector3>} points - Set of points from which we want to extract the center of mass.
+   *
+   * @returns {Vector3} Center of mass from given points.
+   */
   static centerOfMass(points) {
     let centerOfMass = new Vector3(0, 0, 0);
     for (let i = 0; i < points.length; i++) {
@@ -295,16 +325,16 @@ export default class CoreUtils {
   }
 
   /**
-  *
-  * Order 3D planar points around a refence point.
-  *
-  * @private
-  *
-  * @param {Array<Vector3>} points - Set of planar 3D points to be ordered.
-  * @param {Vector3} direction - Direction of the plane in which points and reference are sitting.
-  *
-  * @returns {Array<Object>} Set of object representing the ordered points.
-  */
+   *
+   * Order 3D planar points around a refence point.
+   *
+   * @private
+   *
+   * @param {Array<Vector3>} points - Set of planar 3D points to be ordered.
+   * @param {Vector3} direction - Direction of the plane in which points and reference are sitting.
+   *
+   * @returns {Array<Object>} Set of object representing the ordered points.
+   */
   static orderIntersections(points, direction) {
     let reference = this.centerOfMass(points);
     // direction from first point to reference
@@ -312,28 +342,24 @@ export default class CoreUtils {
       points[0].x - reference.x,
       points[0].y - reference.y,
       points[0].z - reference.z
-      ).normalize();
+    ).normalize();
 
-    let base = new Vector3(0, 0, 0)
-        .crossVectors(referenceDirection, direction)
-        .normalize();
+    let base = new Vector3(0, 0, 0).crossVectors(referenceDirection, direction).normalize();
 
     let orderedpoints = [];
 
     // other lines // if inter, return location + angle
     for (let j = 0; j < points.length; j++) {
-      let point = new Vector3(
-        points[j].x,
-        points[j].y,
-        points[j].z);
+      let point = new Vector3(points[j].x, points[j].y, points[j].z);
       point.direction = new Vector3(
         points[j].x - reference.x,
         points[j].y - reference.y,
-        points[j].z - reference.z).normalize();
+        points[j].z - reference.z
+      ).normalize();
 
       let x = referenceDirection.dot(point.direction);
       let y = base.dot(point.direction);
-      point.xy = {x, y};
+      point.xy = { x, y };
 
       let theta = Math.atan2(y, x) * (180 / Math.PI);
       point.angle = theta;
@@ -347,8 +373,8 @@ export default class CoreUtils {
 
     let noDups = [orderedpoints[0]];
     let epsilon = 0.0001;
-    for (let i=1; i<orderedpoints.length; i++) {
-      if (Math.abs(orderedpoints[i-1].angle - orderedpoints[i].angle) > epsilon) {
+    for (let i = 1; i < orderedpoints.length; i++) {
+      if (Math.abs(orderedpoints[i - 1].angle - orderedpoints[i].angle) > epsilon) {
         noDups.push(orderedpoints[i]);
       }
     }
@@ -376,10 +402,10 @@ export default class CoreUtils {
     const rayCaster = new Raycaster();
     const values = [];
 
-    min.x = Math.round((min.x + 1) * offsetWidth / 2);
-    min.y = Math.round((-min.y + 1) * offsetHeight / 2);
-    max.x = Math.round((max.x + 1) * offsetWidth / 2);
-    max.y = Math.round((-max.y + 1) * offsetHeight / 2);
+    min.x = Math.round(((min.x + 1) * offsetWidth) / 2);
+    min.y = Math.round(((-min.y + 1) * offsetHeight) / 2);
+    max.x = Math.round(((max.x + 1) * offsetWidth) / 2);
+    max.y = Math.round(((-max.y + 1) * offsetHeight) / 2);
     [min.x, max.x] = [Math.min(min.x, max.x), Math.max(min.x, max.x)];
     [min.y, max.y] = [Math.min(min.y, max.y), Math.max(min.y, max.y)];
 
@@ -388,21 +414,29 @@ export default class CoreUtils {
 
     for (let x = min.x; x <= max.x; x++) {
       for (let y = min.y; y <= max.y; y++) {
-        rayCaster.setFromCamera({
-          x: (x / offsetWidth) * 2 - 1,
-          y: -(y / offsetHeight) * 2 + 1,
-        }, camera);
+        rayCaster.setFromCamera(
+          {
+            x: (x / offsetWidth) * 2 - 1,
+            y: -(y / offsetHeight) * 2 + 1,
+          },
+          camera
+        );
         intersect = rayCaster.intersectObject(mesh);
 
         if (intersect.length === 0) {
           continue;
         }
 
-        value = CoreUtils.getPixelData(stack, CoreUtils.worldToData(stack.lps2IJK, intersect[0].point));
+        value = CoreUtils.getPixelData(
+          stack,
+          CoreUtils.worldToData(stack.lps2IJK, intersect[0].point)
+        );
 
         // the image isn't RGB and coordinates are inside it
         if (value !== null && stack.numberOfChannels === 1) {
-          values.push(CoreUtils.rescaleSlopeIntercept(value, stack.rescaleSlope, stack.rescaleIntercept));
+          values.push(
+            CoreUtils.rescaleSlopeIntercept(value, stack.rescaleSlope, stack.rescaleIntercept)
+          );
         }
       }
     }
@@ -414,8 +448,8 @@ export default class CoreUtils {
     const avg = values.reduce((sum, val) => sum + val) / values.length;
 
     return {
-      min: values.reduce((prev, val) => prev < val ? prev : val),
-      max: values.reduce((prev, val) => prev > val ? prev : val),
+      min: values.reduce((prev, val) => (prev < val ? prev : val)),
+      max: values.reduce((prev, val) => (prev > val ? prev : val)),
       mean: avg,
       sd: Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / values.length),
     };

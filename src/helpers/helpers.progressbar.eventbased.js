@@ -119,8 +119,7 @@ export default class HelpersProgressBarEventBased {
     this._emitter.on('parse-success', function(event) {
       self.loaded += 1;
       self._domCurrentFile.innerHTML = self.loaded;
-      self._domCurrentProgress.style.width = (self.loaded / self.totalFile) *
-        100 + '%';
+      self._domCurrentProgress.style.width = (self.loaded / self.totalFile) * 100 + '%';
       // show result
       const liParent = document.getElementById('file-' + event.file);
       const result = document.createElement('div');

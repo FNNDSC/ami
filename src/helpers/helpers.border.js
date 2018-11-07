@@ -106,6 +106,6 @@ const helpersBorder = (three = window.THREE) => {
 };
 
 // export factory
-export {helpersBorder};
+export { helpersBorder };
 // default export to
 export default helpersBorder();
