@@ -35,8 +35,8 @@
     "babel": "--module-bind js=babel-loader --colors --display-error-details"
   },
   "lint-staged": {
-    "*.{js,jsx,json,css,ts,tsx}": [
-      "prettier --write '!build/**'",
+    "{{src/**,examples/**, lessons/**}/,}.{js,jsx,json,css,ts,tsx}": [
+      "prettier --write",
       "git add"
     ]
   },
