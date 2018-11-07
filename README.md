@@ -15,10 +15,6 @@
         <img src="https://img.shields.io/npm/v/ami.js.svg"
              alt="NPM Version">
     </a>
-    <a href="https://www.npmjs.com/package/ami.js">
-        <img src="https://img.shields.io/npm/dm/ami.js.svg"
-             alt="NPM Downloads per Month">
-    </a>
     <a href="https://join.slack.com/t/amijs/shared_invite/enQtNDU5MTQ1OTMzMDYxLWE5NTBlMWM2ZjhlYjVkNzZmZDg3YTdjYzQxYWI3NTY4NmIyZGY5MmQyYjE4NmQyOGZkY2NlYzY1MTk5ZDFmNWY">
         <img src="https://img.shields.io/badge/slack-join-blue.svg"
              alt="Slack">
