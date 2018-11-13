@@ -52,6 +52,10 @@ const widgetsHandle = (three = window.THREE) => {
       this.create();
       this.initOffsets();
 
+      // event listeners
+      this.onResize = this.onResize.bind(this);
+      this.onMove = this.onMove.bind(this);
+      this.onHover = this.onHover.bind(this);
       this.addEventListeners();
     }
 
@@ -73,11 +77,11 @@ const widgetsHandle = (three = window.THREE) => {
       this._container.removeEventListener('wheel', this.onMove);
     }
 
-    onResize = () => {
+    onResize() {
       this.initOffsets();
     }
 
-    onHover = (evt) => {
+    onHover(evt) {
       if (evt) {
         this.hoverDom(evt);
       }
@@ -132,7 +136,7 @@ const widgetsHandle = (three = window.THREE) => {
      * @param {Object} evt - Browser event
      * @param {Boolean} forced - true to move inactive handles
      */
-    onMove = (evt, forced) => {
+    onMove(evt, forced) {
       const offsets = this.getMouseOffsets(evt, this._container);
       this._mouse.set(offsets.x, offsets.y);
 
