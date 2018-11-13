@@ -11,7 +11,7 @@ const widgetsHandle = (three = window.THREE) => {
 
   const Constructor = widgetsBase(three);
   return class extends Constructor {
-    constructor(targetMesh, controls, params) {
+    constructor(targetMesh, controls, params = {}) {
       super(targetMesh, controls, params);
 
       this._widgetType = 'Handle';
@@ -35,29 +35,23 @@ const widgetsHandle = (three = window.THREE) => {
 
       this._mouse = new three.Vector2();
 
-      this._initialized = false; // set to true onEnd
+      this._initialized = false;
 
       // mesh stuff
       this._material = null;
       this._geometry = null;
       this._mesh = null;
       this._meshHovered = false;
-      // this._meshStyle = 'sphere'; // cube, etc.
 
       // dom stuff
       this._dom = null;
       this._domHovered = false;
-      // this._domStyle = 'circle'; // square, triangle
 
       this._screenPosition = this.worldToScreen(this._worldPosition);
 
       this.create();
       this.initOffsets();
 
-      // event listeners
-      this.onResize = this.onResize.bind(this);
-      this.onMove = this.onMove.bind(this);
-      this.onHover = this.onHover.bind(this);
       this.addEventListeners();
     }
 
@@ -79,11 +73,11 @@ const widgetsHandle = (three = window.THREE) => {
       this._container.removeEventListener('wheel', this.onMove);
     }
 
-    onResize() {
+    onResize = () => {
       this.initOffsets();
     }
 
-    onHover(evt) {
+    onHover = (evt) => {
       if (evt) {
         this.hoverDom(evt);
       }
@@ -138,7 +132,7 @@ const widgetsHandle = (three = window.THREE) => {
      * @param {Object} evt - Browser event
      * @param {Boolean} forced - true to move inactive handles
      */
-    onMove(evt, forced) {
+    onMove = (evt, forced) => {
       const offsets = this.getMouseOffsets(evt, this._container);
       this._mouse.set(offsets.x, offsets.y);
 

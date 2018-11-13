@@ -13,7 +13,7 @@ const widgetsPeakVelocity = (three = window.THREE) => {
   const Constructor = widgetsBase(three);
 
   return class extends Constructor {
-    constructor(targetMesh, controls, params) {
+    constructor(targetMesh, controls, params = {}) {
       super(targetMesh, controls, params);
 
       this._widgetType = 'PeakVelocity';

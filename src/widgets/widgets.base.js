@@ -11,7 +11,7 @@ const widgetsBase = (three = window.THREE) => {
 
   const Constructor = three.Object3D;
   return class extends Constructor {
-    constructor(targetMesh, controls, params) {
+    constructor(targetMesh, controls, params = {}) {
       super(); // init THREE Object 3D
 
       this._widgetType = 'Base';
@@ -20,7 +20,7 @@ const widgetsBase = (three = window.THREE) => {
       //   calibrationFactor (number), frameIndex (number), hideMesh (bool), hideHandleMesh (bool),
       //   ijk2LPS (Matrix4), lps2IJK (Matrix4), pixelSpacing (number), stack (ModelsStack),
       //   ultrasoundRegions (Array<Object>), worldPosition (Vector3)
-      this._params = params || {};
+      this._params = params;
       if (params.hideMesh === true) {
         this.visible = false;
       }
