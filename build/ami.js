@@ -26866,7 +26866,7 @@ module.exports = g;
 /*! exports provided: name, version, main, keywords, author, license, repository, config, lint-staged, prettier, sideEffects, dependencies, scripts, devDependencies, engines, default */
 /***/ (function(module) {
 
-module.exports = {"name":"ami.js","version":"0.19.0","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"lint-staged":{"{{src/**,examples/**, lessons/**}/,}.{js,jsx,json,css,ts,tsx}":["prettier --write","git add"]},"prettier":{"printWidth":100,"singleQuote":true,"trailingComma":"es5","overrides":[{"files":"*.css","options":{"useTabs":false,"tabWidth":2}}]},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"latest"},"scripts":{"precommit":"lint-staged","tslint-check":"tslint-config-prettier-check ./tslint.json","check-codestyle":"prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'","fix-all-code-style":"prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'","build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"@types/node":"^10.11.3","babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","gh-pages":"^1.2.0","husky":"^1.1.3","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","lint-staged":"^8.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","prettier":"^1.15.1","prettier-check":"^2.0.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","ts-loader":"^5.2.1","tslint":"^5.11.0","tslint-config-prettier":"^1.15.0","tslint-loader":"^3.6.0","typescript":"^3.1.1","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-cli":"^3.1.0","webpack-dev-server":"^3.1.5","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
+module.exports = {"name":"ami.js","version":"0.20.0","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"lint-staged":{"{{src/**,examples/**, lessons/**}/,}.{js,jsx,json,css,ts,tsx}":["prettier --write","git add"]},"prettier":{"printWidth":100,"singleQuote":true,"trailingComma":"es5","overrides":[{"files":"*.css","options":{"useTabs":false,"tabWidth":2}}]},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"latest"},"scripts":{"precommit":"lint-staged","tslint-check":"tslint-config-prettier-check ./tslint.json","check-codestyle":"prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'","fix-all-code-style":"prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'","build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"@types/node":"^10.11.3","babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","gh-pages":"^1.2.0","husky":"^1.1.3","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","lint-staged":"^8.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","prettier":"^1.15.1","prettier-check":"^2.0.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","ts-loader":"^5.2.1","tslint":"^5.11.0","tslint-config-prettier":"^1.15.0","tslint-loader":"^3.6.0","typescript":"^3.1.1","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-cli":"^3.1.0","webpack-dev-server":"^3.1.5","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
 
 /***/ }),
 
@@ -43152,7 +43152,9 @@ var widgetsAngle = function widgetsAngle() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
@@ -43567,7 +43569,9 @@ var widgetsAnnotation = function widgetsAnnotation() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
@@ -44006,7 +44010,9 @@ var widgetsBase = function widgetsBase() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       // init THREE Object 3D
@@ -44019,7 +44025,7 @@ var widgetsBase = function widgetsBase() {
       //   calibrationFactor (number), frameIndex (number), hideMesh (bool), hideHandleMesh (bool),
       //   ijk2LPS (Matrix4), lps2IJK (Matrix4), pixelSpacing (number), stack (ModelsStack),
       //   ultrasoundRegions (Array<Object>), worldPosition (Vector3)
-      _this._params = params || {};
+      _this._params = params;
       if (params.hideMesh === true) {
         _this.visible = false;
       }
@@ -44505,7 +44511,9 @@ var widgetsBiruler = function widgetsBiruler() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
@@ -44953,7 +44961,9 @@ var widgetsCrossRuler = function widgetsCrossRuler() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
@@ -45591,7 +45601,9 @@ var widgetsEllipse = function widgetsEllipse() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
@@ -46077,7 +46089,9 @@ var widgetsFreehand = function widgetsFreehand() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
@@ -46733,7 +46747,9 @@ var widgetsHandle = function widgetsHandle() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
@@ -46759,19 +46775,17 @@ var widgetsHandle = function widgetsHandle() {
 
       _this._mouse = new three.Vector2();
 
-      _this._initialized = false; // set to true onEnd
+      _this._initialized = false;
 
       // mesh stuff
       _this._material = null;
       _this._geometry = null;
       _this._mesh = null;
       _this._meshHovered = false;
-      // this._meshStyle = 'sphere'; // cube, etc.
 
       // dom stuff
       _this._dom = null;
       _this._domHovered = false;
-      // this._domStyle = 'circle'; // square, triangle
 
       _this._screenPosition = _this.worldToScreen(_this._worldPosition);
 
@@ -47215,7 +47229,9 @@ var widgetsPeakVelocity = function widgetsPeakVelocity() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
@@ -47538,7 +47554,9 @@ var widgetsPolygon = function widgetsPolygon() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
@@ -48191,7 +48209,9 @@ var widgetsPressureHalfTime = function widgetsPressureHalfTime() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
@@ -48642,7 +48662,9 @@ var widgetsRectangle = function widgetsRectangle() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
@@ -49097,7 +49119,9 @@ var widgetsRuler = function widgetsRuler() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
@@ -49496,7 +49520,9 @@ var widgetsVelocityTimeIntegral = function widgetsVelocityTimeIntegral() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
@@ -50174,7 +50200,9 @@ var widgetsVoxelprobe = function widgetsVoxelprobe() {
   return function (_Constructor) {
     _inherits(_class, _Constructor);
 
-    function _class(targetMesh, controls, params) {
+    function _class(targetMesh, controls) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
       _classCallCheck(this, _class);
 
       var _this = _possibleConstructorReturn(this, _Constructor.call(this, targetMesh, controls, params));
