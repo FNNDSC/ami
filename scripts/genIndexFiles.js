@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 const packageJSON = require('../package.json');
 
 String.prototype.toProperCase = function() {
@@ -9,14 +8,7 @@ String.prototype.toProperCase = function() {
 };
 
 const targetName = process.argv[2];
-let targetMode = 'build';
-if (process.argv.length > 3) {
-  targetMode = process.argv[3];
-}
-
-const _destFile = 'index.html';
 const _sourceFile = targetName + '/index.sample.html';
-const _sourceDemoFile = targetName + '/demo.sample.html';
 let targetDir = targetName + '/';
 const sourceDir = targetDir;
 
@@ -24,8 +16,6 @@ if (process.env.NODE_ENV === 'production') {
   targetDir = 'dist/' + targetDir;
 }
 
-const threeVersion = packageJSON.config.threeVersion;
-const name = packageJSON.name;
 const gaKey = packageJSON.config.gaKey;
 
 analytics = (name, key) => {
@@ -64,8 +54,6 @@ fs.readdir(sourceDir, (error, files) => {
 
     let targetHtml = sourceHtml.replace(/##template.name##/gi, file);
     targetHtml = targetHtml.replace('##template.target##', file);
-    targetHtml = targetHtml.replace('##three.version##', threeVersion);
-    targetHtml = targetHtml.replace('##template.mode##', targetName.toProperCase());
     targetHtml = targetHtml.replace('##template.content##', sourceContentHtml);
     targetHtml = targetHtml.replace('##template.ami', '');
 

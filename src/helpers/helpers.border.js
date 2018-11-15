@@ -67,11 +67,14 @@ const helpersBorder = (three = window.THREE) => {
         return;
       }
 
-      this._geometry = new three.Geometry();
-      for (let i = 0; i < this._helpersSlice.geometry.vertices.length; i++) {
-        this._geometry.vertices.push(this._helpersSlice.geometry.vertices[i]);
-      }
-      this._geometry.vertices.push(this._helpersSlice.geometry.vertices[0]);
+      this._geometry = new three.BufferGeometry();
+  
+      // set vertices positions
+      const nbOfVertices = this._helpersSlice.geometry.vertices.length;
+      const positions = new Float32Array((nbOfVertices + 1) * 3);
+      positions.set(this._helpersSlice.geometry.attributes.position.array, 0);
+      positions.set(this._helpersSlice.geometry.vertices[0].toArray(), nbOfVertices * 3);
+      this._geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
 
       this._mesh = new three.Line(this._geometry, this._material);
       if (this._helpersSlice.aabbSpace === 'IJK') {
