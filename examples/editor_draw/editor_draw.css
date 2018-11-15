@@ -1,4 +1,4 @@
-*{
+* {
   font-family: 'Roboto', sans-serif;
   outline: none;
 }
@@ -11,7 +11,7 @@ body {
 
 #stats {
   position: absolute;
-  top:0;
+  top: 0;
   left: 0;
 }
 
@@ -24,11 +24,11 @@ body {
   position: absolute;
   width: 100%;
   height: 100%;
-  overflow:hidden;
+  overflow: hidden;
 }
 
 #canvasDiv {
-  pointer-events: none;  
+  pointer-events: none;
   background-color: rgba(0, 0, 0, 0);
   left: 0;
   right: 0;
@@ -37,7 +37,7 @@ body {
   position: absolute;
   width: 100%;
   height: 100%;
-  overflow:hidden;
+  overflow: hidden;
 }
 
 #canvasDiv.editing {
@@ -59,8 +59,8 @@ body {
   display: flex;
 }
 
-.label::after{
-  content: ": ";
+.label::after {
+  content: ': ';
 }
 
 #help {
@@ -69,15 +69,15 @@ body {
   pointer-events: none;
   position: absolute;
   padding: 16px;
-  background-color: rgba(0, 0, 0, .7);
-  border: 1px solid #FFEB3B;
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid #ffeb3b;
 }
 
 #my-gui-container {
   position: fixed;
   top: 30px;
   right: 20px;
-  z-index:1;
+  z-index: 1;
 }
 
 #my-lut-container {
@@ -86,7 +86,7 @@ body {
   left: 50%;
   transform: translate(-50%, 0);
   z-index: 1;
-  color: #F9F9F9;
+  color: #f9f9f9;
   text-align: center;
 }
 

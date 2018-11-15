@@ -47,13 +47,17 @@ export default class Validators {
    * @return {boolean} True if valid Matrix4, false if NOT.
    */
   static matrix4(objectToTest) {
-    if (!(objectToTest !== null &amp;&amp;
-       typeof objectToTest !== 'undefined' &amp;&amp;
-       objectToTest.hasOwnProperty('elements') &amp;&amp;
-       objectToTest.elements.length === 16 &amp;&amp;
-       typeof objectToTest.identity === 'function'&amp;&amp;
-       typeof objectToTest.copy === 'function' &amp;&amp;
-       typeof objectToTest.determinant === 'function')) {
+    if (
+      !(
+        objectToTest !== null &amp;&amp;
+        typeof objectToTest !== 'undefined' &amp;&amp;
+        objectToTest.hasOwnProperty('elements') &amp;&amp;
+        objectToTest.elements.length === 16 &amp;&amp;
+        typeof objectToTest.identity === 'function' &amp;&amp;
+        typeof objectToTest.copy === 'function' &amp;&amp;
+        typeof objectToTest.determinant === 'function'
+      )
+    ) {
       return false;
     }
 
@@ -61,72 +65,84 @@ export default class Validators {
   }
 
   /**
-  * Validates a vector as a THREEJS.Vector3
-  * @param {Object} objectToTest - The object to be tested.
-  * @return {boolean} True if valid Vector3, false if NOT.
-  */
+   * Validates a vector as a THREEJS.Vector3
+   * @param {Object} objectToTest - The object to be tested.
+   * @return {boolean} True if valid Vector3, false if NOT.
+   */
   static vector3(objectToTest) {
-    if (!(objectToTest !== null &amp;&amp;
-       typeof objectToTest !== 'undefined' &amp;&amp;
-       objectToTest.hasOwnProperty('x') &amp;&amp;
-       objectToTest.hasOwnProperty('y') &amp;&amp;
-       objectToTest.hasOwnProperty('z') &amp;&amp;
-       !objectToTest.hasOwnProperty('w'))) {
+    if (
+      !(
+        objectToTest !== null &amp;&amp;
+        typeof objectToTest !== 'undefined' &amp;&amp;
+        objectToTest.hasOwnProperty('x') &amp;&amp;
+        objectToTest.hasOwnProperty('y') &amp;&amp;
+        objectToTest.hasOwnProperty('z') &amp;&amp;
+        !objectToTest.hasOwnProperty('w')
+      )
+    ) {
       return false;
     }
 
     return true;
   }
 
- /**
-  * Validates a box.
-  *
-  * @example
-  * // a box is defined as
-  * let box = {
-  *   center: THREE.Vector3,
-  *   halfDimensions: THREE.Vector3
-  * }
-  *
-  * @param {Object} objectToTest - The object to be tested.
-  * @return {boolean} True if valid box, false if NOT.
-  */
+  /**
+   * Validates a box.
+   *
+   * @example
+   * // a box is defined as
+   * let box = {
+   *   center: THREE.Vector3,
+   *   halfDimensions: THREE.Vector3
+   * }
+   *
+   * @param {Object} objectToTest - The object to be tested.
+   * @return {boolean} True if valid box, false if NOT.
+   */
   static box(objectToTest) {
-    if (!(objectToTest !== null &amp;&amp;
-       typeof objectToTest !== 'undefined' &amp;&amp;
-       objectToTest.hasOwnProperty('center') &amp;&amp;
-       this.vector3(objectToTest.center) &amp;&amp;
-       objectToTest.hasOwnProperty('halfDimensions') &amp;&amp;
-       this.vector3(objectToTest.halfDimensions) &amp;&amp;
-       objectToTest.halfDimensions.x >= 0 &amp;&amp;
-       objectToTest.halfDimensions.y >= 0 &amp;&amp;
-       objectToTest.halfDimensions.z >= 0)) {
+    if (
+      !(
+        objectToTest !== null &amp;&amp;
+        typeof objectToTest !== 'undefined' &amp;&amp;
+        objectToTest.hasOwnProperty('center') &amp;&amp;
+        this.vector3(objectToTest.center) &amp;&amp;
+        objectToTest.hasOwnProperty('halfDimensions') &amp;&amp;
+        this.vector3(objectToTest.halfDimensions) &amp;&amp;
+        objectToTest.halfDimensions.x >= 0 &amp;&amp;
+        objectToTest.halfDimensions.y >= 0 &amp;&amp;
+        objectToTest.halfDimensions.z >= 0
+      )
+    ) {
       return false;
     }
 
     return true;
   }
 
- /**
-  * Validates a ray.
-  *
-  * @example
-  * // a ray is defined as
-  * let ray = {
-  *   postion: THREE.Vector3,
-  *   direction: THREE.Vector3
-  * }
-  *
-  * @param {Object} objectToTest - The object to be tested.
-  * @return {boolean} True if valid ray, false if NOT.
-  */
+  /**
+   * Validates a ray.
+   *
+   * @example
+   * // a ray is defined as
+   * let ray = {
+   *   postion: THREE.Vector3,
+   *   direction: THREE.Vector3
+   * }
+   *
+   * @param {Object} objectToTest - The object to be tested.
+   * @return {boolean} True if valid ray, false if NOT.
+   */
   static ray(objectToTest) {
-    if (!(objectToTest !== null &amp;&amp;
-       typeof objectToTest !== 'undefined' &amp;&amp;
-       objectToTest.hasOwnProperty('position') &amp;&amp;
-       this.vector3(objectToTest.position) &amp;&amp;
-       objectToTest.hasOwnProperty('direction') &amp;&amp;
-       this.vector3(objectToTest.direction))) {
+    if (
+      !(
+        objectToTest !== null &amp;&amp;
+        typeof objectToTest !== 'undefined' &amp;&amp;
+        objectToTest.hasOwnProperty('position') &amp;&amp;
+        this.vector3(objectToTest.position) &amp;&amp;
+        objectToTest.hasOwnProperty('direction') &amp;&amp;
+        this.vector3(objectToTest.direction)
+      )
+    ) {
       return false;
     }
 
@@ -149,7 +165,7 @@ export default class Validators {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.0-dev</a> on Tue Nov 06 2018 21:01:06 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.0-dev</a> on Thu Nov 15 2018 11:25:33 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

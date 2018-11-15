@@ -26,7 +26,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {Matrix4} from 'three/src/math/Matrix4';
+            <pre class="prettyprint source linenums"><code>import { Matrix4 } from 'three/src/math/Matrix4';
 
 /**
  * @module shaders/data
@@ -34,171 +34,171 @@
 export default class ShadersUniform {
   static uniforms() {
     return {
-      'uTextureSize': {
+      uTextureSize: {
         type: 'i',
         value: 0,
         typeGLSL: 'int',
       },
-      'uTextureContainer': {
+      uTextureContainer: {
         type: 'tv',
         value: [],
         typeGLSL: 'sampler2D',
         length: 7,
       },
-      'uDataDimensions': {
+      uDataDimensions: {
         type: 'iv',
         value: [0, 0, 0],
         typeGLSL: 'ivec3',
       },
-      'uWorldToData': {
+      uWorldToData: {
         type: 'm4',
         value: new Matrix4(),
         typeGLSL: 'mat4',
       },
-      'uWindowCenterWidth': {
+      uWindowCenterWidth: {
         type: 'fv1',
         value: [0.0, 0.0],
         typeGLSL: 'float',
         length: 2,
       },
-      'uRescaleSlopeIntercept': {
+      uRescaleSlopeIntercept: {
         type: 'fv1',
         value: [0.0, 0.0],
         typeGLSL: 'float',
         length: 2,
       },
-      'uNumberOfChannels': {
+      uNumberOfChannels: {
         type: 'i',
         value: 1,
         typeGLSL: 'int',
       },
-      'uBitsAllocated': {
+      uBitsAllocated: {
         type: 'i',
         value: 8,
         typeGLSL: 'int',
       },
-      'uInvert': {
+      uInvert: {
         type: 'i',
         value: 0,
         typeGLSL: 'int',
       },
-      'uLut': {
+      uLut: {
         type: 'i',
         value: 0,
         typeGLSL: 'int',
       },
-      'uTextureLUT': {
+      uTextureLUT: {
         type: 't',
         value: [],
         typeGLSL: 'sampler2D',
       },
-      'uPixelType': {
+      uPixelType: {
         type: 'i',
         value: 0,
         typeGLSL: 'int',
       },
-      'uPackedPerPixel': {
+      uPackedPerPixel: {
         type: 'i',
         value: 1,
         typeGLSL: 'int',
       },
-      'uInterpolation': {
+      uInterpolation: {
         type: 'i',
         value: 1,
         typeGLSL: 'int',
       },
-      'uWorldBBox': {
+      uWorldBBox: {
         type: 'fv1',
         value: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
         typeGLSL: 'float',
         length: 6,
       },
-      'uSteps': {
+      uSteps: {
         type: 'i',
         value: 256,
         typeGLSL: 'int',
       },
-      'uAlphaCorrection': {
+      uAlphaCorrection: {
         type: 'f',
         value: 0.5,
         typeGLSL: 'float',
       },
-      'uFrequence': {
+      uFrequence: {
         type: 'f',
-        value: 0.,
+        value: 0,
         typeGLSL: 'float',
       },
-      'uAmplitude': {
+      uAmplitude: {
         type: 'f',
-        value: 0.,
+        value: 0,
         typeGLSL: 'float',
       },
-      'uShading': {
+      uShading: {
         type: 'i',
         value: 1,
         typeGLSL: 'int',
       },
-      'uAmbient': {
+      uAmbient: {
         type: 'f',
         value: 0.1,
         typeGLSL: 'float',
       },
-      'uAmbientColor': {
+      uAmbientColor: {
         type: 'v3',
         value: [1.0, 1.0, 0.0],
         typeGLSL: 'vec3',
       },
-      'uSampleColorToAmbient': {
+      uSampleColorToAmbient: {
         type: 'i',
         value: 1,
         typeGLSL: 'int',
       },
-      'uSpecular': {
+      uSpecular: {
         type: 'f',
-        value: 1.,
+        value: 1,
         typeGLSL: 'float',
       },
-      'uSpecularColor': {
+      uSpecularColor: {
         type: 'v3',
         value: [1.0, 1.0, 1.0],
         typeGLSL: 'vec3',
       },
-      'uDiffuse': {
+      uDiffuse: {
         type: 'f',
         value: 0.3,
         typeGLSL: 'float',
       },
-      'uDiffuseColor': {
+      uDiffuseColor: {
         type: 'v3',
         value: [1.0, 1.0, 0.0],
         typeGLSL: 'vec3',
       },
-      'uSampleColorToDiffuse': {
+      uSampleColorToDiffuse: {
         type: 'i',
         value: 1,
         typeGLSL: 'int',
       },
-      'uShininess': {
+      uShininess: {
         type: 'f',
-        value: 5.,
+        value: 5,
         typeGLSL: 'float',
       },
-      'uLightPosition': {
+      uLightPosition: {
         type: 'v3',
         value: [0.0, 0.0, 0.0],
         typeGLSL: 'vec3',
       },
-      'uLightPositionInCamera': {
+      uLightPositionInCamera: {
         type: 'i',
         value: 1,
         typeGLSL: 'int',
       },
-      'uIntensity': {
+      uIntensity: {
         type: 'v3',
-        value: [.8, .8, .8],
+        value: [0.8, 0.8, 0.8],
         typeGLSL: 'vec3',
       },
-      'uAlgorithm': {
+      uAlgorithm: {
         type: 'i',
         value: 0,
         typeGLSL: 'int',
@@ -222,7 +222,7 @@ export default class ShadersUniform {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.0-dev</a> on Tue Nov 06 2018 21:01:06 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.0-dev</a> on Thu Nov 15 2018 11:25:33 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
