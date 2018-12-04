@@ -59,24 +59,28 @@ void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset)
 
   // Map data index to right sampler2D texture
   int voxelsPerTexture = uTextureSize*uTextureSize;
-  int textureIndex = int(floor(float(indexP) / float(voxelsPerTexture)));
+  int textureIndex = int(floor((.5 + float(indexP)) / float(voxelsPerTexture)));
   // modulo seems incorrect sometimes...
   // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));
   int inTextureIndex = indexP - voxelsPerTexture*textureIndex;
   float textureIndexF = float(textureIndex);
+  float textureSizeF = float(uTextureSize);
 
   // Get row and column in the texture
-  int colIndex = int(mod(float(inTextureIndex), float(uTextureSize)));
-  int rowIndex = int(floor(float(inTextureIndex)/float(uTextureSize)));
+  // modulo is evil
+  int rowIndex = int(floor((.5 + floor(.5 + float(inTextureIndex)))/textureSizeF));
+  int colIndex = inTextureIndex - uTextureSize * rowIndex; // int(mod(floor(float(inTextureIndex) + .5), textureSizeF));
 
   // Map row and column to uv
   vec2 uv = vec2(0,0);
-  uv.x = (0.5 + float(colIndex)) / float(uTextureSize);
-  uv.y = 1. - (0.5 + float(rowIndex)) / float(uTextureSize);
+  uv.x = (0.5 + float(colIndex)) / textureSizeF;
+  uv.y = 1. - (0.5 + float(rowIndex)) / textureSizeF;
 
   // get rid of if statements
   dataValue = vec4(0.) + ${content};
-
+  
+  // 
+  // dataValue = vec4(mod(float(textureIndex), 2.), mod(float(colIndex), 2.), mod(float(rowIndex), 2.), 1.);
 }
     `;
   }
