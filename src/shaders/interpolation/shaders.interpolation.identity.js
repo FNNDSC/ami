@@ -34,8 +34,6 @@ void ${this._name}(in vec3 currentVoxel, out vec4 dataValue){
   int offset = 0;
 
   ${Texture3d.api(this._base, 'voxel', 'tmp', 'offset')}
-  gl_FragColor = tmp;
-
   ${Unpack.api(this._base, 'tmp', 'offset', 'dataValue')}
 }
     `;
