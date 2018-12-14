@@ -368,18 +368,12 @@ const camerasOrthographic = (three = window.THREE) => {
     rotate(angle = null) {
       this.center();
 
-      let computedAngle = 90;
-
-      let clockwise = 1;
-      if (!this._fromFront) {
-        clockwise = -1;
-      }
-
+      let rotationToApply = 90;
       if (angle === null) {
-        computedAngle *= -clockwise;
+        rotationToApply *= -1;
         this._angle += 90;
       } else {
-        computedAngle = 360 - clockwise * (angle - this._angle);
+        rotationToApply = 360 -  (angle - this._angle);
         this._angle = angle;
       }
 
@@ -388,7 +382,7 @@ const camerasOrthographic = (three = window.THREE) => {
       // Rotate the up vector around the "zCosine"
       let rotation = new three.Matrix4().makeRotationAxis(
         this._direction,
-        (computedAngle * Math.PI) / 180
+        (rotationToApply * Math.PI) / 180
       );
       this.up.applyMatrix4(rotation);
 
