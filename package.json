@@ -90,7 +90,9 @@
     "deploy": "yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"
   },
   "devDependencies": {
+    "@types/jasmine": "^3.3.2",
     "@types/node": "^10.11.3",
+    "@types/three": "^0.93.13",
     "babel-cli": "latest",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
