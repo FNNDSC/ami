@@ -19,7 +19,7 @@ const config = {
   mode,
   resolve: {
     modules: [path.resolve(__dirname, 'src'), 'node_modules'],
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.css', '.html', '.scss', '.json'],
+    extensions: ['.ts', '.js', '.css', '.html'],
     alias: {
       base: path.resolve(__dirname, 'src'),
       pako: path.resolve(__dirname, 'node_modules', 'pako'),
@@ -34,8 +34,9 @@ const config = {
         exclude: [/node_modules/, /external/],
       },
       {
-        test: /\.tsx?$/,
+        test: /\.ts$/,
         loader: 'ts-loader',
+        include: [path.resolve(__dirname, 'src')],
         exclude: [/external/],
       },
     ],

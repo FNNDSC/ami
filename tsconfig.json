@@ -8,5 +8,9 @@
     "outDir": "./build" /* Redirect output structure to the directory. */,
     "strict": false /* Enable all strict type-checking options. */,
     "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
-  }
+  },
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.js"
+  ]
 }

@@ -1,25 +1,48 @@
 import WidgetsCss from './widgets.css';
+
+import {COLORS} from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
+
+interface WidgetParameter {
+  calibrationFactor: number;
+  frameIndex: number;
+  hideMesh: boolean;
+  hideHandleMesh: boolean;
+  ijk2LPS: THREE.Matrix4;
+  lps2IJK: THREE.Matrix4;
+  pixelSpacing: number;
+  stack: {};
+  ultrasoundRegions: Array<{}>;
+  worldPosition: THREE.Vector3;
+}
+
+interface USRegion {
+  x0: number;
+  x1: number;
+  y0: number;
+  y1: number;
+  axisX: number;
+  axisY: number;
+  deltaX: number;
+  deltaY: number;
+}
 
 /**
  * @module Abstract Widget
  */
-const widgetsBase = (three = window.THREE) => {
+// tslint:disable-next-line
+const widgetsBase = (three = (window as any).THREE) => {
   if (three === undefined || three.Object3D === undefined) {
     return null;
   }
 
   const Constructor = three.Object3D;
   return class extends Constructor {
-    constructor(targetMesh, controls, params = {}) {
-      super(); // init THREE Object 3D
+    constructor(targetMesh: THREE.Mesh, controls: THREE.OrbitControls, params: WidgetParameter) {
+      super();
 
       this._widgetType = 'Base';
 
-      // List of supported parameters:
-      //   calibrationFactor (number), frameIndex (number), hideMesh (bool), hideHandleMesh (bool),
-      //   ijk2LPS (Matrix4), lps2IJK (Matrix4), pixelSpacing (number), stack (ModelsStack),
-      //   ultrasoundRegions (Array<Object>), worldPosition (Vector3)
       this._params = params;
       if (params.hideMesh === true) {
         this.visible = false;
@@ -33,19 +56,18 @@ const widgetsBase = (three = window.THREE) => {
         document.head.appendChild(styleEl);
       }
 
-      this._enabled = true; // is widget enabled?
-
+      this._enabled = true;
       this._selected = false;
       this._hovered = true;
       this._active = true;
 
       this._colors = {
-        default: '#00B0FF',
-        active: '#FFEB3B',
-        hover: '#F50057',
-        select: '#76FF03',
-        text: '#FFF',
-        error: '#F77',
+        default: COLORS.blue,
+        active: COLORS.yellow,
+        hover: COLORS.red,
+        select: COLORS.green,
+        text: COLORS.white,
+        error: COLORS.lightRed,
       };
       this._color = this._colors.default;
 
@@ -66,7 +88,7 @@ const widgetsBase = (three = window.THREE) => {
       }
     }
 
-    initOffsets() {
+    public initOffsets() {
       const box = this._container.getBoundingClientRect();
 
       const body = document.body;
@@ -84,7 +106,7 @@ const widgetsBase = (three = window.THREE) => {
       };
     }
 
-    getMouseOffsets(event, container) {
+    public getMouseOffsets(event: MouseEvent, container: HTMLDivElement) {
       return {
         x: ((event.clientX - this._offsets.left) / container.offsetWidth) * 2 - 1,
         y: -((event.clientY - this._offsets.top) / container.offsetHeight) * 2 + 1,
@@ -100,11 +122,11 @@ const widgetsBase = (three = window.THREE) => {
      *
      * @returns {Number}
      */
-    getArea(points) {
+    public getArea(points: THREE.Vector3[]) {
       let area = 0;
       let j = points.length - 1; // the last vertex is the 'previous' one to the first
 
-      for (var i = 0; i < points.length; i++) {
+      for (let i = 0; i < points.length; i++) {
         area += (points[j].x + points[i].x) * (points[j].y - points[i].y);
         j = i; // j is the previous vertex to i
       }
@@ -120,7 +142,7 @@ const widgetsBase = (three = window.THREE) => {
      *
      * @returns {Number|null}
      */
-    getRegionByXY(regions, point) {
+    public getRegionByXY(regions: USRegion[], point: THREE.Vector3) {
       let result = null;
 
       regions.some((region, ind) => {
@@ -147,7 +169,7 @@ const widgetsBase = (three = window.THREE) => {
      *
      * @returns {Vector2|null}
      */
-    getPointInRegion(region, point) {
+    public getPointInRegion(region: USRegion, point: THREE.Vector3) {
       if (!region) {
         return null;
       }
@@ -166,7 +188,7 @@ const widgetsBase = (three = window.THREE) => {
      *
      * @returns {Vector2|null}
      */
-    getUsPoint(regions, point) {
+    public getUsPoint(regions: USRegion[], point: THREE.Vector3) {
       return this.getPointInRegion(regions[this.getRegionByXY(regions, point)], point);
     }
 
@@ -178,7 +200,7 @@ const widgetsBase = (three = window.THREE) => {
      *
      * @returns {Number|null}
      */
-    getUsDistance(pointA, pointB) {
+    public getUsDistance(pointA: THREE.Vector3, pointB: THREE.Vector3) {
       const regions = this._params.ultrasoundRegions || [];
 
       if (regions.length < 1) {
@@ -212,12 +234,12 @@ const widgetsBase = (three = window.THREE) => {
      *
      * @returns {Object}
      */
-    getDistanceData(pointA, pointB, cf) {
+    public getDistanceData(pointA: THREE.Vector3, pointB: THREE.Vector3, calibrationFactor: number) {
       let distance = null;
       let units = null;
 
-      if (cf) {
-        distance = pointA.distanceTo(pointB) * cf;
+      if (calibrationFactor) {
+        distance = pointA.distanceTo(pointB) * calibrationFactor;
       } else if (this._params.ultrasoundRegions && this._params.lps2IJK) {
         const usDistance = this.getUsDistance(
           CoreUtils.worldToData(this._params.lps2IJK, pointA),
@@ -241,7 +263,7 @@ const widgetsBase = (three = window.THREE) => {
       };
     }
 
-    getLineData(pointA, pointB) {
+    public getLineData(pointA: THREE.Vector3, pointB: THREE.Vector3) {
       const line = pointB.clone().sub(pointA);
       const center = pointB
         .clone()
@@ -251,16 +273,16 @@ const widgetsBase = (three = window.THREE) => {
       const angle = line.angleTo(new three.Vector3(1, 0, 0));
 
       return {
-        line: line,
-        length: length,
+        line,
+        length,
         transformX: center.x - length / 2,
         transformY: center.y - this._container.offsetHeight,
         transformAngle: pointA.y < pointB.y ? angle : -angle,
-        center: center,
+        center,
       };
     }
 
-    getRectData(pointA, pointB) {
+    public getRectData(pointA: THREE.Vector3, pointB: THREE.Vector3) {
       const line = pointB.clone().sub(pointA);
       const vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0));
       const min = pointA.clone().min(pointB); // coordinates of the top left corner
@@ -282,7 +304,7 @@ const widgetsBase = (three = window.THREE) => {
      * @param {Vector3}     point  label's center coordinates (default)
      * @param {Boolean}     corner if true, then point is the label's top left corner coordinates
      */
-    adjustLabelTransform(label, point, corner) {
+    public adjustLabelTransform(label: HTMLDivElement, point: THREE.Vector3, corner: boolean) {
       let x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2));
       let y =
         Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
@@ -308,8 +330,8 @@ const widgetsBase = (three = window.THREE) => {
       return new three.Vector2(x, y);
     }
 
-    worldToScreen(worldCoordinate) {
-      let screenCoordinates = worldCoordinate.clone();
+    public worldToScreen(worldCoordinate: THREE.Vector3) {
+      const screenCoordinates = worldCoordinate.clone();
       screenCoordinates.project(this._camera);
 
       screenCoordinates.x = Math.round(
@@ -323,12 +345,12 @@ const widgetsBase = (three = window.THREE) => {
       return screenCoordinates;
     }
 
-    update() {
+    public update() {
       // to be overloaded
       window.console.log('update() should be overloaded!');
     }
 
-    updateColor() {
+    public updateColor() {
       if (this._active) {
         this._color = this._colors.active;
       } else if (this._hovered) {
@@ -340,7 +362,8 @@ const widgetsBase = (three = window.THREE) => {
       }
     }
 
-    setDefaultColor(color) {
+    // tslint:disable-next-line
+    public setDefaultColor(color: any) {
       this._colors.default = color;
       if (this._handles) {
         this._handles.forEach(elem => (elem._colors.default = color));
@@ -348,34 +371,34 @@ const widgetsBase = (three = window.THREE) => {
       this.update();
     }
 
-    show() {
+    public show() {
       this.showDOM();
       this.showMesh();
       this.update();
       this._displayed = true;
     }
 
-    hide() {
+    public hide() {
       this.hideDOM();
       this.hideMesh();
       this._displayed = false;
     }
 
-    hideDOM() {
+    public hideDOM() {
       // to be overloaded
       window.console.log('hideDOM() should be overloaded!');
     }
 
-    showDOM() {
+    public showDOM() {
       // to be overloaded
       window.console.log('showDOM() should be overloaded!');
     }
 
-    hideMesh() {
+    public hideMesh() {
       this.visible = false;
     }
 
-    showMesh() {
+    public showMesh() {
       if (this._params.hideMesh === true) {
         return;
       }
@@ -383,7 +406,7 @@ const widgetsBase = (three = window.THREE) => {
       this.visible = true;
     }
 
-    free() {
+    public free() {
       this._camera = null;
       this._container = null;
       this._controls = null;
@@ -399,7 +422,7 @@ const widgetsBase = (three = window.THREE) => {
       return this._targetMesh;
     }
 
-    set targetMesh(targetMesh) {
+    set targetMesh(targetMesh: THREE.Mesh) {
       this._targetMesh = targetMesh;
       this.update();
     }
@@ -408,7 +431,7 @@ const widgetsBase = (three = window.THREE) => {
       return this._worldPosition;
     }
 
-    set worldPosition(worldPosition) {
+    set worldPosition(worldPosition: THREE.Vector3) {
       this._worldPosition.copy(worldPosition);
       this.update();
     }
@@ -417,7 +440,7 @@ const widgetsBase = (three = window.THREE) => {
       return this._enabled;
     }
 
-    set enabled(enabled) {
+    set enabled(enabled: boolean) {
       this._enabled = enabled;
       this.update();
     }
@@ -426,7 +449,7 @@ const widgetsBase = (three = window.THREE) => {
       return this._selected;
     }
 
-    set selected(selected) {
+    set selected(selected: boolean) {
       this._selected = selected;
       this.update();
     }
@@ -435,7 +458,7 @@ const widgetsBase = (three = window.THREE) => {
       return this._hovered;
     }
 
-    set hovered(hovered) {
+    set hovered(hovered: boolean) {
       this._hovered = hovered;
       this.update();
     }
@@ -444,7 +467,7 @@ const widgetsBase = (three = window.THREE) => {
       return this._dragged;
     }
 
-    set dragged(dragged) {
+    set dragged(dragged: boolean) {
       this._dragged = dragged;
       this.update();
     }
@@ -453,7 +476,7 @@ const widgetsBase = (three = window.THREE) => {
       return this._displayed;
     }
 
-    set displayed(displayed) {
+    set displayed(displayed: boolean) {
       this._displayed = displayed;
       this.update();
     }
@@ -462,7 +485,7 @@ const widgetsBase = (three = window.THREE) => {
       return this._active;
     }
 
-    set active(active) {
+    set active(active: boolean) {
       this._active = active;
       this.update();
     }
@@ -471,7 +494,8 @@ const widgetsBase = (three = window.THREE) => {
       return this._color;
     }
 
-    set color(color) {
+    // tslint:disable-next-line
+    set color(color: any) {
       this._color = color;
       this.update();
     }
