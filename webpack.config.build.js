@@ -13,7 +13,7 @@ const config = {
     path: path.resolve(__dirname, 'build'),
     filename: mode === 'development' ? 'ami.js' : 'ami.min.js',
     library: 'AMI',
-    libraryTarget: 'umd',
+    libraryTarget: 'var',
     umdNamedDefine: true,
   },
   mode,
