@@ -42,7 +42,7 @@ export default class ParsersDicom extends ParsersVolume {
     try {
       this._dataSet = DicomParser.parseDicom(byteArray);
     } catch (e) {
-      window.console.log(e);
+      console.log(e);
       const error = new Error('parsers.dicom could not parse the file');
       throw error;
     }
@@ -442,15 +442,28 @@ export default class ParsersDicom extends ParsersVolume {
 
     if (pixelSpacing === null) {
       pixelSpacing = this._dataSet.string('x00181164');
+
+      if (typeof pixelSpacing === 'undefined') {
+        pixelSpacing = null;
+      }
     }
 
     if (pixelSpacing) {
-      // make sure we return array of numbers! (not strings!)
-      pixelSpacing = pixelSpacing.split('\\').map(Number);
-    }
-
-    if (typeof pixelSpacing === 'undefined') {
-      pixelSpacing = null;
+      const spacingWithoutCommas = pixelSpacing.replace(/,/g, '.');
+      if ((spacingWithoutCommas.match(/\./g)||[]).length > 2) {
+        console.log(`DICOM spacing format is not supported (mix ' and .): ${pixelSpacing}`);
+        pixelSpacing = null;
+      } else {
+        // make sure we return array of numbers! (not strings!)
+        // replace "," by "." as some people use
+        const splittedSpacing = spacingWithoutCommas.split('\\');
+        if (splittedSpacing.length !== 2) {
+          console.log(`DICOM spacing format is not supported (could not split string on "\\"): ${pixelSpacing}`);
+          pixelSpacing = null;
+        } else {
+          pixelSpacing = splittedSpacing.map(Number);
+        }
+      }
     }
 
     return pixelSpacing;
