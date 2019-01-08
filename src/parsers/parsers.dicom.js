@@ -358,7 +358,7 @@ export default class ParsersDicom extends ParsersVolume {
     if (imageOrientation) {
       // make sure we return a number! (not a string!)
       // might not need to split (floatString + index)
-      imageOrientation = imageOrientation.split('\\').map(Number);
+      imageOrientation = imageOrientation.split('\\').map(UtilsCore.stringToNumber);
     }
 
     return imageOrientation;
@@ -400,7 +400,7 @@ export default class ParsersDicom extends ParsersVolume {
     // format image orientation ('1\0\0\0\1\0') to array containing 6 numbers
     if (imagePosition) {
       // make sure we return a number! (not a string!)
-      imagePosition = imagePosition.split('\\').map(Number);
+      imagePosition = imagePosition.split('\\').map(UtilsCore.stringToNumber);
     }
 
     return imagePosition;
