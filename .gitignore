@@ -4,6 +4,7 @@
 .tmp
 .idea
 bower_components
+build
 deprecated
 dist
 node_modules
