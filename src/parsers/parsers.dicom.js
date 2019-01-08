@@ -1,5 +1,7 @@
 /** * Imports ***/
+import UtilsCore from '../core/core.utils';
 import ParsersVolume from './parsers.volume';
+
 import * as OpenJPEG from 'OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js';
 
 import { RLEDecoder } from '../decoders/decoders.rle';
@@ -449,20 +451,12 @@ export default class ParsersDicom extends ParsersVolume {
     }
 
     if (pixelSpacing) {
-      const spacingWithoutCommas = pixelSpacing.replace(/,/g, '.');
-      if ((spacingWithoutCommas.match(/\./g)||[]).length > 2) {
-        console.log(`DICOM spacing format is not supported (mix ' and .): ${pixelSpacing}`);
+      const splittedSpacing = pixelSpacing.split('\\');
+      if (splittedSpacing.length !== 2) {
+        console.error(`DICOM spacing format is not supported (could not split string on "\\"): ${pixelSpacing}`);
         pixelSpacing = null;
       } else {
-        // make sure we return array of numbers! (not strings!)
-        // replace "," by "." as some people use
-        const splittedSpacing = spacingWithoutCommas.split('\\');
-        if (splittedSpacing.length !== 2) {
-          console.log(`DICOM spacing format is not supported (could not split string on "\\"): ${pixelSpacing}`);
-          pixelSpacing = null;
-        } else {
-          pixelSpacing = splittedSpacing.map(Number);
-        }
+        pixelSpacing = splittedSpacing.map(UtilsCore.stringToNumber);
       }
     }
 

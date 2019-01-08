@@ -35,7 +35,7 @@ export default class CoreUtils {
   static bbox(center, halfDimensions) {
     // make sure we have valid inputs
     if (!(Validators.vector3(center) && Validators.vector3(halfDimensions))) {
-      window.console.log('Invalid center or plane halfDimensions.');
+      console.log('Invalid center or plane halfDimensions.');
       return false;
     }
 
@@ -476,5 +476,33 @@ export default class CoreUtils {
     });
 
     return area;
+  }
+
+  static stringToNumber(numberAsString) {
+    let number = Number(numberAsString);
+
+    // returns true is number is NaN
+    if (number !== number) {
+      const dots = (numberAsString.match(/\./g)||[]).length;
+      const commas = (numberAsString.match(/\,/g)||[]).length;
+
+      if (commas === 1 && dots < 2) {
+        // convert 1,45 to 1.45
+        // convert 1,456.78 to 1456.78
+        const replaceBy = dots === 0 ? '.' : '';
+        const stringWithoutComma = numberAsString.replace(/,/g, replaceBy);
+        number = Number(stringWithoutComma);
+      }
+
+      // if that didn't help
+      // weird stuff happenning
+      // should throw an error instead of setting value to 1.0
+      if (number !== number) {
+        console.error(`String could not be converted to number (${numberAsString}). Setting value to "1.0".`);
+        number = 1.0;
+      }
+    }
+
+    return number;
   }
 }
