@@ -12,7 +12,7 @@ module.exports = function(karma) {
       'https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js',
       `https://unpkg.com/three@latest/build/three.min.js`,
       // ,
-      // 'specs/core/*.spec.ts',
+      // 'specs/core/*.spec.*s',
       'specs/**/*.spec.*s',
       { pattern: 'data/**/*', included: false, watched: false, served: true },
     ],

@@ -26869,7 +26869,11 @@ module.exports = g;
 /*! exports provided: name, version, main, keywords, author, license, repository, config, lint-staged, prettier, sideEffects, dependencies, scripts, devDependencies, engines, default */
 /***/ (function(module) {
 
+<<<<<<< HEAD
 module.exports = {"name":"ami.js","version":"0.27.1","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"lint-staged":{"{{src/**,examples/**, lessons/**}/,}.{js,jsx,json,css,ts,tsx}":["prettier --write","git add"]},"prettier":{"printWidth":100,"singleQuote":true,"trailingComma":"es5","overrides":[{"files":"*.css","options":{"useTabs":false,"tabWidth":2}}]},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"latest"},"scripts":{"precommit":"lint-staged","tslint-check":"tslint-config-prettier-check ./tslint.json","check-codestyle":"prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'","fix-all-code-style":"prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'","build:ami":"webpack --config webpack.config.build.js --display-error-details","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"@types/jasmine":"^3.3.2","@types/node":"^10.11.3","@types/three":"^0.93.13","babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","gh-pages":"^1.2.0","husky":"^1.1.3","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","lint-staged":"^8.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","prettier":"^1.15.1","prettier-check":"^2.0.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","ts-loader":"^5.2.1","tslint":"^5.11.0","tslint-config-prettier":"^1.15.0","tslint-loader":"^3.6.0","typescript":"^3.1.1","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-cli":"^3.1.0","webpack-dev-server":"^3.1.5","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
+=======
+module.exports = {"name":"ami.js","version":"0.28.0","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"lint-staged":{"{{src/**,examples/**, lessons/**}/,}.{js,jsx,json,css,ts,tsx}":["prettier --write","git add"]},"prettier":{"printWidth":100,"singleQuote":true,"trailingComma":"es5","overrides":[{"files":"*.css","options":{"useTabs":false,"tabWidth":2}}]},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"latest"},"scripts":{"precommit":"lint-staged","tslint-check":"tslint-config-prettier-check ./tslint.json","check-codestyle":"prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'","fix-all-code-style":"prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'","build:ami":"webpack --config webpack.config.build.js --display-error-details","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"@types/jasmine":"^3.3.2","@types/node":"^10.11.3","@types/three":"^0.93.13","babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","gh-pages":"^1.2.0","husky":"^1.1.3","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","lint-staged":"^8.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","prettier":"^1.15.1","prettier-check":"^2.0.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","ts-loader":"^5.2.1","tslint":"^5.11.0","tslint-config-prettier":"^1.15.0","tslint-loader":"^3.6.0","typescript":"^3.1.1","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-cli":"^3.1.0","webpack-dev-server":"^3.1.5","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
+>>>>>>> master
 
 /***/ }),
 
@@ -29554,7 +29558,7 @@ var CoreUtils = function () {
   CoreUtils.bbox = function bbox(center, halfDimensions) {
     // make sure we have valid inputs
     if (!(_core_validators__WEBPACK_IMPORTED_MODULE_0__["default"].vector3(center) && _core_validators__WEBPACK_IMPORTED_MODULE_0__["default"].vector3(halfDimensions))) {
-      window.console.log('Invalid center or plane halfDimensions.');
+      console.log('Invalid center or plane halfDimensions.');
       return false;
     }
 
@@ -29993,6 +29997,34 @@ var CoreUtils = function () {
     });
 
     return area;
+  };
+
+  CoreUtils.stringToNumber = function stringToNumber(numberAsString) {
+    var number = Number(numberAsString);
+
+    // returns true is number is NaN
+    if (number !== number) {
+      var dots = (numberAsString.match(/\./g) || []).length;
+      var commas = (numberAsString.match(/\,/g) || []).length;
+
+      if (commas === 1 && dots < 2) {
+        // convert 1,45 to 1.45
+        // convert 1,456.78 to 1456.78
+        var replaceBy = dots === 0 ? '.' : '';
+        var stringWithoutComma = numberAsString.replace(/,/g, replaceBy);
+        number = Number(stringWithoutComma);
+      }
+
+      // if that didn't help
+      // weird stuff happenning
+      // should throw an error instead of setting value to 1.0
+      if (number !== number) {
+        console.error('String could not be converted to number (' + numberAsString + '). Setting value to "1.0".');
+        number = 1.0;
+      }
+    }
+
+    return number;
   };
 
   return CoreUtils;
@@ -36933,10 +36965,11 @@ var ModelsVoxel = function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _parsers_volume__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./parsers.volume */ "./src/parsers/parsers.volume.js");
-/* harmony import */ var OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js */ "./node_modules/OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js");
-/* harmony import */ var OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _decoders_decoders_rle__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../decoders/decoders.rle */ "./src/decoders/decoders.rle.js");
+/* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
+/* harmony import */ var _parsers_volume__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./parsers.volume */ "./src/parsers/parsers.volume.js");
+/* harmony import */ var OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js */ "./node_modules/OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js");
+/* harmony import */ var OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _decoders_decoders_rle__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../decoders/decoders.rle */ "./src/decoders/decoders.rle.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -36944,6 +36977,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /** * Imports ***/
+
+
 
 
 
@@ -36992,7 +37027,7 @@ var ParsersDicom = function (_ParsersVolume) {
     try {
       _this._dataSet = DicomParser.parseDicom(byteArray);
     } catch (e) {
-      window.console.log(e);
+      console.log(e);
       var error = new Error('parsers.dicom could not parse the file');
       throw error;
     }
@@ -37335,7 +37370,7 @@ var ParsersDicom = function (_ParsersVolume) {
     if (imageOrientation) {
       // make sure we return a number! (not a string!)
       // might not need to split (floatString + index)
-      imageOrientation = imageOrientation.split('\\').map(Number);
+      imageOrientation = imageOrientation.split('\\').map(_core_core_utils__WEBPACK_IMPORTED_MODULE_0__["default"].stringToNumber);
     }
 
     return imageOrientation;
@@ -37374,7 +37409,7 @@ var ParsersDicom = function (_ParsersVolume) {
     // format image orientation ('1\0\0\0\1\0') to array containing 6 numbers
     if (imagePosition) {
       // make sure we return a number! (not a string!)
-      imagePosition = imagePosition.split('\\').map(Number);
+      imagePosition = imagePosition.split('\\').map(_core_core_utils__WEBPACK_IMPORTED_MODULE_0__["default"].stringToNumber);
     }
 
     return imagePosition;
@@ -37420,15 +37455,20 @@ var ParsersDicom = function (_ParsersVolume) {
 
     if (pixelSpacing === null) {
       pixelSpacing = this._dataSet.string('x00181164');
+
+      if (typeof pixelSpacing === 'undefined') {
+        pixelSpacing = null;
+      }
     }
 
     if (pixelSpacing) {
-      // make sure we return array of numbers! (not strings!)
-      pixelSpacing = pixelSpacing.split('\\').map(Number);
-    }
-
-    if (typeof pixelSpacing === 'undefined') {
-      pixelSpacing = null;
+      var splittedSpacing = pixelSpacing.split('\\');
+      if (splittedSpacing.length !== 2) {
+        console.error('DICOM spacing format is not supported (could not split string on "\\"): ' + pixelSpacing);
+        pixelSpacing = null;
+      } else {
+        pixelSpacing = splittedSpacing.map(_core_core_utils__WEBPACK_IMPORTED_MODULE_0__["default"].stringToNumber);
+      }
     }
 
     return pixelSpacing;
@@ -37939,13 +37979,13 @@ var ParsersDicom = function (_ParsersVolume) {
   ParsersDicom.prototype._decodeJ2K = function _decodeJ2K() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    if (typeof OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_1__ === 'undefined') {
+    if (typeof OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_2__ === 'undefined') {
       // OpenJPEG decoder not loaded
       return this._decodeJpx(frameIndex);
     }
 
     if (!openJPEG) {
-      openJPEG = OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_1__();
+      openJPEG = OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_2__();
       if (!openJPEG || !openJPEG._jp2_decode) {
         // OpenJPEG failed to initialize
         return this._decodeJpx(frameIndex);
@@ -37977,7 +38017,7 @@ var ParsersDicom = function (_ParsersVolume) {
 
     var pixelData = DicomParser.readEncapsulatedPixelDataFromFragments(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
 
-    var decoded = Object(_decoders_decoders_rle__WEBPACK_IMPORTED_MODULE_2__["RLEDecoder"])(imageFrame, pixelData);
+    var decoded = Object(_decoders_decoders_rle__WEBPACK_IMPORTED_MODULE_3__["RLEDecoder"])(imageFrame, pixelData);
     return decoded.pixelData;
   };
 
@@ -38228,7 +38268,7 @@ var ParsersDicom = function (_ParsersVolume) {
   };
 
   return ParsersDicom;
-}(_parsers_volume__WEBPACK_IMPORTED_MODULE_0__["default"]);
+}(_parsers_volume__WEBPACK_IMPORTED_MODULE_1__["default"]);
 
 /* harmony default export */ __webpack_exports__["default"] = (ParsersDicom);
 
