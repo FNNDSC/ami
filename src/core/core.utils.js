@@ -120,9 +120,9 @@ export default class CoreUtils {
    * @return {Object}
    */
   static parseUrl(url) {
-    const parsedUrl = new URL(url, 'http://fix.me');
+    const parsedUrl = this.customUrlParser(url);
     const data = {
-      filename: parsedUrl.searchParams.get('filename'),
+      filename: parsedUrl.searchParams.filename,
       extension: '',
       pathname: parsedUrl.pathname,
       query: parsedUrl.search,
@@ -163,6 +163,30 @@ export default class CoreUtils {
     }
 
     return data;
+  }
+
+  static customUrlParser(url) {
+    var parser = document.createElement('a'),
+      searchParams = {},
+      queries, split, i;
+    // Let the browser do the work
+    parser.href = url;
+    // Convert query string to object
+    queries = parser.search.replace(/^\?/, '').split('&');
+    for( i = 0; i < queries.length; i++ ) {
+      split = queries[i].split('=');
+      searchParams[split[0]] = split[1];
+    }
+    return {
+      protocol: parser.protocol,
+      host: parser.host,
+      hostname: parser.hostname,
+      port: parser.port,
+      pathname: parser.pathname,
+      search: parser.search,
+      searchParams: searchParams,
+      hash: parser.hash
+    };
   }
 
   /**
