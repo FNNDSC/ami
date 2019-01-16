@@ -1,6 +1,6 @@
 {
   "name": "ami.js",
-  "version": "0.28.0",
+  "version": "0.27.1",
   "main": "build/ami.js",
   "keywords": [
     "ami",
@@ -19,14 +19,14 @@
     "trk"
   ],
   "author": {
-    "name": "Nicolas Rannou",
-    "email": "nicolas@eunate.ch",
-    "url": "https://eunate.ch"
+    "name": "Gustavo Tajes Genga",
+    "email": "gtajesgenga@alumnos.exa.unicen.edu.ar",
+    "url": ""
   },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://fnndsc.github.io/ami"
+    "url": "https://github.com/gtajesgenga/ami"
   },
   "config": {
     "gaKey": "UA-39303022-3",
@@ -65,7 +65,6 @@
     "three": "latest"
   },
   "scripts": {
-    "precommit": "lint-staged",
     "tslint-check": "tslint-config-prettier-check ./tslint.json",
     "check-codestyle": "prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'",
     "fix-all-code-style": "prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'",
@@ -134,5 +133,10 @@
   },
   "engines": {
     "node": ">=6.9.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }
