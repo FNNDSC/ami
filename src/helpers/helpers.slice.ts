@@ -1,10 +1,10 @@
 /** * Imports ***/
 import { geometriesSlice } from '../geometries/geometries.slice';
-import ShadersUniform from '../shaders/shaders.data.uniform';
-import ShadersVertex from '../shaders/shaders.data.vertex';
-import ShadersFragment from '../shaders/shaders.data.fragment';
+//import ShadersUniform from '../shaders/shaders.data.uniform';
+//import ShadersVertex from '../shaders/shaders.data.vertex';
+//import ShadersFragment from '../shaders/shaders.data.fragment';
 
-import { helpersMaterialMixin } from '../helpers/helpers.material.mixin';
+import { helpersMaterialMixin } from './helpers.material.mixin';
 
 /**
  * @module helpers/slice

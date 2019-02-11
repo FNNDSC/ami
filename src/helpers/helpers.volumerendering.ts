@@ -3,9 +3,8 @@
 //import ShadersVertex from '../shaders/shaders.vr.vertex';
 //import ShadersFragment from '../shaders/shaders.vr.fragment';
 
-import VolumeRenderingShader from '../shaders/shaders.VolumeRenderingShader';
 
-import { helpersMaterialMixin } from '../helpers/helpers.material.mixin';
+import { helpersMaterialMixin } from './helpers.material.mixin';
 
 /**
  * @module helpers/volumerendering

@@ -158,7 +158,7 @@ void main(void) {
   float tNear, tFar;
   bool intersect = false;
   ${ShaderUtils.IntersectsBox(
-    this._shader_name,
+    this._shaderName,
     'rayOrigin',
     'rayDirection',
     'AABBMin',
