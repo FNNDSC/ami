@@ -31,7 +31,7 @@ const config = {
         test: /\.js$/,
         loader: 'babel-loader',
         include: [path.resolve(__dirname, 'src')],
-        exclude: [/node_modules/, /external/],
+        exclude: [/external/],
       },
       {
         test: /\.ts$/,

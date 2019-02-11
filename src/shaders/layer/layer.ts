@@ -1,20 +1,20 @@
-import { BaseShader, BaseShaderStatics } from "../BaseShader";
 import { Vector2 } from 'three/src/math/Vector2';
-
+import { BaseShader, BaseShaderStatics } from "../BaseShader";
 
 export class LayerShader extends BaseShader implements BaseShaderStatics {
-  protected _manualVertShader(): string {
+  protected _ManualVertShader(): string {
     throw new Error("Method not implemented.");
   }
-  protected _manualFragShader(): string {
+  protected _ManualFragShader(): string {
     throw new Error("Method not implemented.");
   }
   
-  constructor(vert_uniforms, frag_uniforms) {
-      super(vert_uniforms, frag_uniforms, 'layer');
+  // tslint:disable-next-line:typedef
+  constructor(VertUniforms, FragUniforms) {
+      super(VertUniforms, FragUniforms, 'layer');
   }
 
-  static FragUniforms() {
+  public static FragUniforms() {
       return {
         uTextureBackTest0: {
           type: 't',

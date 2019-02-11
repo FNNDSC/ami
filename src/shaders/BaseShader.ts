@@ -6,61 +6,64 @@ export abstract class BaseShader {
     // Functions for the Fragment component of the shader
     public FragFunctions;
     // Source for the Fragment component of the shader
-    private _frag_main: string;
+    private _fragMain: string;
     // Uniforms for the Vertex component of the shader
     public VertUniforms;
     // Functions for the Vertex component of the shader
     public VertFunctions;
     // Source for the Vertex component of the shader
-    private _vert_main: string;
+    private _vertMain: string;
     // NAme of this shader
-    protected _shader_name: string;
+    protected _shaderName: string;
 
-    constructor(vert_uniforms, frag_uniforms, shader_name: string, manualVert = false, manualFrag = false) {
+    // tslint:disable-next-line:typedef
+    constructor(VertUniforms, FragUniforms, ShaderName: string, ManualVert = false, ManualFrag = false) {
         // Load in source code at run time from GLSL shaders
-        var source = glslify({
-            vertex: './'+ shader_name +'.vert',
-            fragment: './' + shader_name + '.frag',
+        const source = glslify({
+            vertex: './'+ ShaderName +'.vert',
+            fragment: './' + ShaderName + '.frag',
             sourceOnly: true
         })
 
-        this._shader_name = shader_name;
-        this.FragUniforms = frag_uniforms;
+        this._shaderName = ShaderName;
+        this.FragUniforms = FragUniforms;
         this.FragFunctions = {};
-        this.VertUniforms = vert_uniforms;
+        this.VertUniforms = VertUniforms;
         this.VertFunctions = {};
-        if (!manualVert) {
-            this._vert_main = source.vertex;
+        if (!ManualVert) {
+            this._vertMain = source.vertex;
         }
         else {
-            this._vert_main = this._manualVertShader();
+            this._vertMain = this._ManualVertShader();
         }
-        if (!manualFrag) {
-            this._frag_main = source.fragment;
+        if (!ManualFrag) {
+            this._fragMain = source.fragment;
         }
         else {
-            this._frag_main = this._manualFragShader();
+            this._fragMain = this._ManualFragShader();
         }
     }
 
     // For manual overrides of non-glslific shader calls
     // IN FINAL VERSION SHOULD NOT BE NEEDED
-    protected abstract _manualVertShader(): string;
+    protected abstract _ManualVertShader(): string;
 
     // For manual overrides of non-glslific shader calls
     // IN FINAL VERSION SHOULD NOT BE NEEDED
-    protected abstract _manualFragShader(): string;
+    protected abstract _ManualFragShader(): string;
 
     // Compute the string value of this shader's tailored fragment functions
     private _computeFragmentFunctions(): string {
-        if (this._frag_main === '') {
+        if (this._fragMain === '') {
             // if main is empty, functions can not have been computed
             this._computeFragmentFunctions();
         }
 
         let content = '';
-        for (let property in this.FragFunctions) {
-            content += this.FragFunctions[property] + '\n';
+        for (const property in this.FragFunctions) {
+            if (property) {
+                content += this.FragFunctions[property] + '\n';
+            }
         }
         return content;
     }
@@ -68,30 +71,31 @@ export abstract class BaseShader {
     // Compute the string value of this shader's fragment uniforms
     private _computeFragmentUniforms(): string {
         let content = '';
-        for (let property in this.FragUniforms) {
-            let uniform = this.FragUniforms[property];
-            content += `uniform ${uniform.typeGLSL} ${property}`;
-
-            if (uniform && uniform.length) {
-            content += `[${uniform.length}]`;
+        for (const property in this.FragUniforms) {
+            if(property) {
+                const uniform = this.FragUniforms[property];
+                content += `uniform ${uniform.typeGLSL} ${property}`;
+                if (uniform && uniform.length) {
+                content += `[${uniform.length}]`;
+                }
+                content += ';\n';
             }
-
-            content += ';\n';
         }
-
         return content;
     }
 
     // Compute the string value of this shader's tailored vertex functions
     private _computeVertexFunctions(): string {
-        if (this._vert_main === '') {
+        if (this._vertMain === '') {
             // if main is empty, functions can not have been computed
             this._computeVertexFunctions();
         }
 
         let content = '';
-        for (let property in this.VertFunctions) {
-            content += this.VertFunctions[property] + '\n';
+        for (const property in this.VertFunctions) {
+            if (property) {
+                content += this.VertFunctions[property] + '\n';
+            }
         }
         return content;
     }
@@ -99,17 +103,16 @@ export abstract class BaseShader {
     // Compute the string value of this shader's uniforms
     private _computeVertexUniforms(): string {
         let content = '';
-        for (let property in this.VertUniforms) {
-            let uniform = this.VertUniforms[property];
-            content += `uniform ${uniform.typeGLSL} ${property}`;
-
-            if (uniform && uniform.length) {
-            content += `[${uniform.length}]`;
+        for (const property in this.VertUniforms) {
+            if (property) {
+                const uniform = this.VertUniforms[property];
+                content += `uniform ${uniform.typeGLSL} ${property}`;
+                if (uniform && uniform.length) {
+                content += `[${uniform.length}]`;
+                }
+                content += ';\n';
             }
-
-            content += ';\n';
         }
-
         return content;
     }
 
@@ -123,7 +126,7 @@ export abstract class BaseShader {
             ${this._computeVertexFunctions()}
 
             // main loop
-            ${this._frag_main}
+            ${this._fragMain}
         `);
     }
     
@@ -142,7 +145,7 @@ export abstract class BaseShader {
             ${this._computeFragmentFunctions()}
     
             // main loop
-            ${this._frag_main}
+            ${this._fragMain}
         `);
     }
 }

@@ -1,19 +1,28 @@
-export namespace ShaderUtils {
-    export function IntersectsBox (
+export class ShaderUtils {
+    public static IntersectsBox (
+        // tslint:disable-next-line:typedef
         name = 'intersectBox',
+        // tslint:disable-next-line:typedef
         rayOrigin = 'rayOrigin',
+        // tslint:disable-next-line:typedef
         rayDirection = 'rayDirection',
+        // tslint:disable-next-line:typedef
         aabbMin = 'aabbMin',
+        // tslint:disable-next-line:typedef
         aabbMax = 'aabbMax',
+        // tslint:disable-next-line:typedef
         tNear = 'tNear',
+        // tslint:disable-next-line:typedef
         tFar = 'tFar',
+        // tslint:disable-next-line:typedef
         intersect = 'intersect',
+        // tslint:disable-next-line:typedef
         base = {
           functions: {},
           uniforms: {},
         }
     ) {
-        let definition = `
+        const definition = `
     void ${
           name
         }(vec3 rayOrigin, vec3 rayDirection, vec3 boxMin, vec3 boxMax, out float tNear, out float tFar, out bool intersect){
@@ -37,14 +46,19 @@ export namespace ShaderUtils {
         }(${rayOrigin}, ${rayDirection}, ${aabbMin}, ${aabbMax}, ${tNear}, ${tFar}, ${intersect});`;
     }
 
-    export function Texture3D (
+    public static  Texture3D (
+        // tslint:disable-next-line:typedef
         base = {
             functions: {},
             uniforms: {},
         },
+        // tslint:disable-next-line:typedef
         name = 'texture3d',
+        // tslint:disable-next-line:typedef
         dataCoordinates = 'dataCoordinates',
+        // tslint:disable-next-line:typedef
         dataValue = 'dataValue',
+        // tslint:disable-next-line:typedef
         offset = 'offset',
     ) {
         let content = `
@@ -56,7 +70,8 @@ export namespace ShaderUtils {
         step( abs( textureIndexF - 5.0 ), 0.0 ) * texture2D(uTextureContainer[5], uv) +
         step( abs( textureIndexF - 6.0 ), 0.0 ) * texture2D(uTextureContainer[6], uv)`;
   
-      if ((<any>base.uniforms).uTextureContainer.length === 14) {
+      // tslint:disable-next-line:no-any
+      if ((base.uniforms as any).uTextureContainer.length === 14) {
         content += ` +
         step( abs( textureIndexF - 7.0 ), 0.0 ) * texture2D(uTextureContainer[7], uv) +
         step( abs( textureIndexF - 8.0 ), 0.0 ) * texture2D(uTextureContainer[8], uv) +
@@ -67,7 +82,7 @@ export namespace ShaderUtils {
         step( abs( textureIndexF - 13.0 ), 0.0 ) * texture2D(uTextureContainer[13], uv)`;
       }
   
-      let definition = `
+      const definition = `
   void ${name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset){
     float textureSizeF = float(uTextureSize);
     int voxelsPerTexture = uTextureSize*uTextureSize;

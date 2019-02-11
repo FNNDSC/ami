@@ -1,18 +1,19 @@
 import { BaseShader, BaseShaderStatics } from "../BaseShader";
 
 export class ContourShader extends BaseShader implements BaseShaderStatics {
-  protected _manualVertShader(): string {
+  protected _ManualVertShader(): string {
     throw new Error("Method not implemented.");
   }
-  protected _manualFragShader(): string {
+  protected _ManualFragShader(): string {
     throw new Error("Method not implemented.");
-  }
-  
-  constructor(vert_uniforms, frag_uniforms) {
-      super(vert_uniforms, frag_uniforms, 'contour');
   }
 
-  static FragUniforms() {
+  // tslint:disable-next-line:typedef
+  constructor(VertUniforms, FragUniforms) {
+      super(VertUniforms, FragUniforms, 'contour');
+  }
+
+  public static FragUniforms() {
       return {
         uCanvasWidth: {
           type: 'f',

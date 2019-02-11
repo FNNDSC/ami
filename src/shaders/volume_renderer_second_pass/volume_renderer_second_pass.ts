@@ -1,15 +1,15 @@
+import { Matrix4 } from 'three/src/math/Matrix4';
 import { BaseShader, BaseShaderStatics } from "../BaseShader";
 import { Interpolation } from '../utils/Intepolation';
-import { Matrix4 } from 'three/src/math/Matrix4';
 
-//TODO: GLSLIFY THIS SHADER
+// TODO: GLSLIFY THIS SHADER
 export class VolumeRendererSecondPassShader extends BaseShader implements BaseShaderStatics {
 
-  protected _manualVertShader(): string {
+  protected _ManualVertShader(): string {
     throw new Error("Method not implemented.");
   }
 
-  protected _manualFragShader(): string {
+  protected _ManualFragShader(): string {
     return `
     void getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradient){
     
@@ -103,11 +103,12 @@ export class VolumeRendererSecondPassShader extends BaseShader implements BaseSh
        `;
   }
 
-  constructor(vert_uniforms, frag_uniforms) {
-      super(vert_uniforms, frag_uniforms, 'volume_renderer_second_pass', false, true);
+  // tslint:disable-next-line:typedef
+  constructor(VertUniforms, FragUniforms) {
+      super(VertUniforms, FragUniforms, 'volume_renderer_second_pass', false, true);
   }
 
-  static FragUniforms() {
+  public static FragUniforms() {
     return {
       uTextureSize: {
         type: 'i',

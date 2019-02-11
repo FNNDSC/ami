@@ -1,9 +1,14 @@
 export class Unpack {
     public static Unpack(
+        // tslint:disable-next-line:typedef
         name = 'unpack',
+        // tslint:disable-next-line:typedef
         packedData = 'packedData',
+        // tslint:disable-next-line:typedef
         offset = 'offset',
+        // tslint:disable-next-line:typedef
         unpackedData = 'unpackedData',
+        // tslint:disable-next-line:typedef
         base = {
             uniforms: {
                 uNumberOfChannels: {
@@ -19,12 +24,13 @@ export class Unpack {
             functions: {},
         }
     ) {
-        let definition = this.computeDefinition(base);
+        const definition = this.computeDefinition(base);
         base.functions[name] = definition;
         return `${name}(${packedData}, ${offset}, ${unpackedData});`;
     }
     
-    private static computeDefinition(base, ) {
+    // tslint:disable-next-line:typedef
+    private static computeDefinition(base) {
         let content = '';
         if (base.uniforms.uNumberOfChannels.value === 1) {
           switch (base.uniforms.uBitsAllocated.value) {
@@ -57,8 +63,9 @@ export class Unpack {
         }`;
     }
     
+    // tslint:disable-next-line:typedef
     private static upack8(base) {
-    base.functions['uInt8'] = this.uInt8();
+    base.functions.uInt8 = this.uInt8();
 
     return `
 float floatedOffset = float(offset);
@@ -73,8 +80,9 @@ uInt8(
     `;
     }
 
+    // tslint:disable-next-line:typedef
     private static upack16(base) {
-    base.functions['uInt16'] = this.uInt16();
+    base.functions.uInt16 = this.uInt16();
 
     return `
 float floatedOffset = float(offset);
@@ -85,9 +93,10 @@ uInt16(
     `;
     }
 
+    // tslint:disable-next-line:typedef
     private static upack32(base) {
     if (base.uniforms.uPixelType.value === 0) {
-        base.functions['uInt32'] = this.uInt32();
+        base.functions.uInt32 = this.uInt32();
 
         return `
 uInt32(
@@ -98,7 +107,7 @@ uInt32(
     unpackedData.x);
         `;
     } else {
-        base.functions['uFloat32'] = this.uFloat32();
+        base.functions.uFloat32 = this.uFloat32();
 
         return `
 uFloat32(

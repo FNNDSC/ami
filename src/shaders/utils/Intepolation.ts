@@ -3,10 +3,11 @@ import { Unpack } from './Unpack';
 
 export class Interpolation {
     public static ShadersInterpolation(
-        baseFragment, 
-        currentVoxel, 
-        dataValue, 
-        gradient
+        // tslint:disable-next-line:no-any
+        baseFragment: any, 
+        currentVoxel: string, 
+        dataValue: string, 
+        gradient: string
     ) {
         switch (baseFragment.FragUniforms.uInterpolation.value) {
           case 0:
@@ -23,13 +24,16 @@ export class Interpolation {
     }
 
     private static identity(
-        baseFragment, 
-        currentVoxel, 
-        dataValue,   
+        // tslint:disable-next-line:no-any
+        baseFragment: any, 
+        // tslint:disable-next-line:no-any
+        currentVoxel: any, 
+        // tslint:disable-next-line:no-any
+        dataValue: any,   
     ){
-        let base = baseFragment;
-        let name = 'interpolationIdentity';
-        let definition = `
+        const base = baseFragment;
+        const name = 'interpolationIdentity';
+        const definition = `
         void ${name}(in vec3 currentVoxel, out vec4 dataValue){
           // lower bound
           vec3 rcurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));
@@ -47,14 +51,18 @@ export class Interpolation {
     }
 
     private static trilinear(
-        baseFragment, 
-        currentVoxel, 
-        dataValue,   
-        gradient
+        // tslint:disable-next-line:no-any
+        baseFragment: any, 
+        // tslint:disable-next-line:no-any
+        currentVoxel: any, 
+        // tslint:disable-next-line:no-any
+        dataValue: any,   
+        // tslint:disable-next-line:no-any
+        gradient: any
     ) {
-        let base = baseFragment;
-        let name = 'interpolationTrilinear';
-        let definition = `void trilinearInterpolation(
+        const base = baseFragment;
+        const name = 'interpolationTrilinear';
+        const definition = `void trilinearInterpolation(
             in vec3 normalizedPosition,
             out vec4 interpolatedValue,
             in vec4 v000, in vec4 v100,

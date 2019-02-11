@@ -1,7 +1,9 @@
 /** * Imports ***/
-import ShadersUniform from '../shaders/shaders.vr.uniform';
-import ShadersVertex from '../shaders/shaders.vr.vertex';
-import ShadersFragment from '../shaders/shaders.vr.fragment';
+//import ShadersUniform from '../shaders/shaders.vr.uniform';
+//import ShadersVertex from '../shaders/shaders.vr.vertex';
+//import ShadersFragment from '../shaders/shaders.vr.fragment';
+
+import VolumeRenderingShader from '../shaders/shaders.VolumeRenderingShader';
 
 import { helpersMaterialMixin } from '../helpers/helpers.material.mixin';
 
@@ -34,7 +36,7 @@ const helpersVolumeRendering = (three = window.THREE) => {
       this._interpolation = 1; // default to trilinear interpolation
       this._shading = 1; // shading is on by default
       this._shininess = 10.0;
-      this._steps = 256; // default
+      this._steps = 32; // default
       this._offset = 0;
       this._windowCenter = 0.0;
       this._windowWidth = 1.0;
