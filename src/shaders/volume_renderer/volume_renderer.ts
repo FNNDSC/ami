@@ -1,51 +1,21 @@
-import shadersInterpolation from './interpolation/shaders.interpolation';
-import shadersIntersectBox from './helpers/shaders.helpers.intersectBox';
+import { BaseShader, BaseShaderStatics } from "../BaseShader";
+import { Interpolation } from '../utils/Intepolation';
+import { ShaderUtils } from "../utils/ShaderUtils";
+import { Matrix4 } from 'three/src/math/Matrix4';
 
-export default class ShadersFragment {
-  // pass uniforms object
-  constructor(uniforms) {
-    this._uniforms = uniforms;
-    this._functions = {};
-    this._main = '';
+//TODO: GLSLIFY THIS SHADER
+export class VolumeRendererShader extends BaseShader implements BaseShaderStatics {
+
+  protected _manualVertShader(): string {
+    throw new Error("Method not implemented.");
   }
 
-  functions() {
-    if (this._main === '') {
-      // if main is empty, functions can not have been computed
-      this.main();
-    }
-
-    let content = '';
-    for (let property in this._functions) {
-      content += this._functions[property] + '\n';
-    }
-
-    return content;
-  }
-
-  uniforms() {
-    let content = '';
-    for (let property in this._uniforms) {
-      let uniform = this._uniforms[property];
-      content += `uniform ${uniform.typeGLSL} ${property}`;
-
-      if (uniform && uniform.length) {
-        content += `[${uniform.length}]`;
-      }
-
-      content += ';\n';
-    }
-
-    return content;
-  }
-
-  main() {
-    // need to pre-call main to fill up the functions list
-    this._main = `
+  protected _manualFragShader(): string {
+    return `
 void getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradient){
 
   vec4 dataValue = vec4(0., 0., 0., 0.);
-  ${shadersInterpolation(this, 'dataCoordinates', 'dataValue', 'gradient')}
+  ${Interpolation.ShadersInterpolation(this, 'dataCoordinates', 'dataValue', 'gradient')}
 
   intensity = dataValue.r;
 
@@ -187,8 +157,8 @@ void main(void) {
   // Intersection ray/bbox
   float tNear, tFar;
   bool intersect = false;
-  ${shadersIntersectBox.api(
-    this,
+  ${ShaderUtils.IntersectsBox(
+    this._shader_name,
     'rayOrigin',
     'rayDirection',
     'AABBMin',
@@ -296,23 +266,181 @@ void main(void) {
    `;
   }
 
-  compute() {
-    let shaderInterpolation = '';
-    // shaderInterpolation.inline(args) //true/false
-    // shaderInterpolation.functions(args)
+  constructor(vert_uniforms, frag_uniforms) {
+      super(vert_uniforms, frag_uniforms, 'volume_renderer', false, true);
+  }
 
-    return `
-// uniforms
-${this.uniforms()}
-
-// varying (should fetch it from vertex directly)
-varying vec4      vPos;
-
-// tailored functions
-${this.functions()}
-
-// main loop
-${this._main}
-      `;
+  static FragUniforms() {
+    return {
+      uTextureSize: {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int',
+      },
+      uTextureContainer: {
+        type: 'tv',
+        value: [],
+        typeGLSL: 'sampler2D',
+        length: 7,
+      },
+      uDataDimensions: {
+        type: 'iv',
+        value: [0, 0, 0],
+        typeGLSL: 'ivec3',
+      },
+      uWorldToData: {
+        type: 'm4',
+        value: new Matrix4(),
+        typeGLSL: 'mat4',
+      },
+      uWindowCenterWidth: {
+        type: 'fv1',
+        value: [0.0, 0.0],
+        typeGLSL: 'float',
+        length: 2,
+      },
+      uRescaleSlopeIntercept: {
+        type: 'fv1',
+        value: [0.0, 0.0],
+        typeGLSL: 'float',
+        length: 2,
+      },
+      uNumberOfChannels: {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int',
+      },
+      uBitsAllocated: {
+        type: 'i',
+        value: 8,
+        typeGLSL: 'int',
+      },
+      uInvert: {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int',
+      },
+      uLut: {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int',
+      },
+      uTextureLUT: {
+        type: 't',
+        value: [],
+        typeGLSL: 'sampler2D',
+      },
+      uPixelType: {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int',
+      },
+      uPackedPerPixel: {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int',
+      },
+      uInterpolation: {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int',
+      },
+      uWorldBBox: {
+        type: 'fv1',
+        value: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        typeGLSL: 'float',
+        length: 6,
+      },
+      uSteps: {
+        type: 'i',
+        value: 256,
+        typeGLSL: 'int',
+      },
+      uAlphaCorrection: {
+        type: 'f',
+        value: 0.5,
+        typeGLSL: 'float',
+      },
+      uFrequence: {
+        type: 'f',
+        value: 0,
+        typeGLSL: 'float',
+      },
+      uAmplitude: {
+        type: 'f',
+        value: 0,
+        typeGLSL: 'float',
+      },
+      uShading: {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int',
+      },
+      uAmbient: {
+        type: 'f',
+        value: 0.1,
+        typeGLSL: 'float',
+      },
+      uAmbientColor: {
+        type: 'v3',
+        value: [1.0, 1.0, 0.0],
+        typeGLSL: 'vec3',
+      },
+      uSampleColorToAmbient: {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int',
+      },
+      uSpecular: {
+        type: 'f',
+        value: 1,
+        typeGLSL: 'float',
+      },
+      uSpecularColor: {
+        type: 'v3',
+        value: [1.0, 1.0, 1.0],
+        typeGLSL: 'vec3',
+      },
+      uDiffuse: {
+        type: 'f',
+        value: 0.3,
+        typeGLSL: 'float',
+      },
+      uDiffuseColor: {
+        type: 'v3',
+        value: [1.0, 1.0, 0.0],
+        typeGLSL: 'vec3',
+      },
+      uSampleColorToDiffuse: {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int',
+      },
+      uShininess: {
+        type: 'f',
+        value: 5,
+        typeGLSL: 'float',
+      },
+      uLightPosition: {
+        type: 'v3',
+        value: [0.0, 0.0, 0.0],
+        typeGLSL: 'vec3',
+      },
+      uLightPositionInCamera: {
+        type: 'i',
+        value: 1,
+        typeGLSL: 'int',
+      },
+      uIntensity: {
+        type: 'v3',
+        value: [0.8, 0.8, 0.8],
+        typeGLSL: 'vec3',
+      },
+      uAlgorithm: {
+        type: 'i',
+        value: 0,
+        typeGLSL: 'int',
+      },
+    };
   }
 }

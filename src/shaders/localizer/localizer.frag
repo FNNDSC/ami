@@ -1,58 +1,3 @@
-/**
- * Localizer fragment shader
- */
-export default class {
-  /**
-   *
-   */
-  constructor(uniforms) {
-    this._uniforms = uniforms;
-    this._functions = {};
-    this._main = '';
-  }
-
-  /**
-   *
-   */
-  functions() {
-    if (this._main === '') {
-      // if main is empty, functions can not have been computed
-      this.main();
-    }
-
-    let content = '';
-    for (let property in this._functions) {
-      content += this._functions[property] + '\n';
-    }
-
-    return content;
-  }
-
-  /**
-   *
-   */
-  uniforms() {
-    let content = '';
-    for (let property in this._uniforms) {
-      let uniform = this._uniforms[property];
-      content += `uniform ${uniform.typeGLSL} ${property}`;
-
-      if (uniform && uniform.length) {
-        content += `[${uniform.length}]`;
-      }
-
-      content += ';\n';
-    }
-
-    return content;
-  }
-
-  /**
-   *
-   */
-  main() {
-    // need to pre-call main to fill up the functions list
-    this._main = `
 void intersectionProjection(
   in vec4 plane,
   in vec4 slice,
@@ -139,27 +84,4 @@ void main(void) {
       
       // gl_FragColor = vec4(0., 0., 0., 0.);
       // return;
-}
-   `;
-  }
-
-  /**
-   *
-   */
-  compute() {
-    return `
-// uniforms
-${this.uniforms()}
-
-// varying (should fetch it from vertex directly)
-varying vec4 vPos;
-varying mat4 vProjectionViewMatrix;
-
-// tailored functions
-${this.functions()}
-
-// main loop
-${this._main}
-      `;
-  }
 }

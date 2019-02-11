@@ -1,45 +1,3 @@
-export default class ShadersFragment {
-  // pass uniforms object
-  constructor(uniforms) {
-    this._uniforms = uniforms;
-    this._functions = {};
-    this._main = '';
-  }
-
-  functions() {
-    if (this._main === '') {
-      // if main is empty, functions can not have been computed
-      this.main();
-    }
-
-    let content = '';
-    for (let property in this._functions) {
-      content += this._functions[property] + '\n';
-    }
-
-    return content;
-  }
-
-  uniforms() {
-    let content = '';
-    for (let property in this._uniforms) {
-      let uniform = this._uniforms[property];
-      content += `uniform ${uniform.typeGLSL} ${property}`;
-
-      if (uniform && uniform.length) {
-        content += `[${uniform.length}]`;
-      }
-
-      content += ';\n';
-    }
-
-    return content;
-  }
-
-  main() {
-    // need to pre-call main to fill up the functions list
-    this._main = `
-
 float luma (vec3 rgb) {
   return (rgb.r + rgb.g + rgb.b)/3.0;
 }
@@ -93,27 +51,4 @@ void main(void) {
   // gl_FragColor = vec4( sobel, max(max(sobel.r, sobel.g), sobel.b) );
 
   // return;
-}
-   `;
-  }
-
-  compute() {
-    let shaderInterpolation = '';
-    // shaderInterpolation.inline(args) //true/false
-    // shaderInterpolation.functions(args)
-
-    return `
-// uniforms
-${this.uniforms()}
-
-// varying (should fetch it from vertex directly)
-varying vec4      vProjectedCoords;
-
-// tailored functions
-${this.functions()}
-
-// main loop
-${this._main}
-      `;
-  }
 }

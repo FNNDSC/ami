@@ -56,6 +56,7 @@
   "dependencies": {
     "OpenJPEG.js": "joedrago/openjpeg#master",
     "dicom-parser": "1.8.3",
+    "glslify": "^7.0.0",
     "image-JPEG2000": "ReflexionMed/image-JPEG2000#master",
     "jpeg-lossless-decoder-js": "2.0.4",
     "math-float32-to-binary-string": "^1.0.0",
@@ -90,11 +91,12 @@
     "deploy": "yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"
   },
   "devDependencies": {
+    "@babel/core": "^7.2.2",
     "@types/jasmine": "^3.3.8",
     "@types/node": "^10.12.24",
     "@types/three": "^0.93.19",
     "babel-cli": "latest",
-    "babel-core": "^6.26.3",
+    "babel-core": "latest",
     "babel-loader": "^8.0.5",
     "babel-preset-env": "^1.7.0",
     "babel-runtime": "^6.26.0",

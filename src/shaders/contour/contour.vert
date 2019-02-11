@@ -1,6 +1,3 @@
-export default class ShadersVertex {
-  compute() {
-    return `
 varying vec4 vProjectedCoords;
 
 //
@@ -13,7 +10,4 @@ void main() {
   vProjectedCoords =  projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );
 
-}
-        `;
-  }
 }
