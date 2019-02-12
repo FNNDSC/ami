@@ -267,8 +267,12 @@ void main(void) {
   }
 
   // tslint:disable-next-line:typedef
-  constructor(VertUniforms, FragUniforms) {
-      super(VertUniforms, FragUniforms, 'volume_renderer', false, true);
+  constructor() {
+      super('volume_renderer', false, true);
+  }
+
+  public static VertUniforms() {
+    return null;
   }
 
   public static FragUniforms() {

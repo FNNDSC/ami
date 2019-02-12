@@ -104,8 +104,12 @@ export class VolumeRendererSecondPassShader extends BaseShader implements BaseSh
   }
 
   // tslint:disable-next-line:typedef
-  constructor(VertUniforms, FragUniforms) {
-      super(VertUniforms, FragUniforms, 'volume_renderer_second_pass', false, true);
+  constructor() {
+      super('volume_renderer_second_pass', false, true);
+  }
+
+  public static VertUniforms() {
+    return null;
   }
 
   public static FragUniforms() {

@@ -9,8 +9,12 @@ export class ContourShader extends BaseShader implements BaseShaderStatics {
   }
 
   // tslint:disable-next-line:typedef
-  constructor(VertUniforms, FragUniforms) {
-      super(VertUniforms, FragUniforms, 'contour');
+  constructor() {
+      super('contour');
+  }
+
+  public static VertUniforms() {
+    return null;
   }
 
   public static FragUniforms() {

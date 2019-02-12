@@ -9,8 +9,12 @@ export class LocalizerShader extends BaseShader implements BaseShaderStatics {
   }
 
   // tslint:disable-next-line:typedef
-  constructor(VertUniforms, FragUniforms) {
-      super(VertUniforms, FragUniforms, 'localizer');
+  constructor() {
+      super('localizer');
+  }
+
+  public static VertUniforms() {
+    return null;
   }
 
   public static FragUniforms() {

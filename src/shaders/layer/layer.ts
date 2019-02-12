@@ -10,8 +10,12 @@ export class LayerShader extends BaseShader implements BaseShaderStatics {
   }
   
   // tslint:disable-next-line:typedef
-  constructor(VertUniforms, FragUniforms) {
-      super(VertUniforms, FragUniforms, 'layer');
+  constructor() {
+      super('layer');
+  }
+
+  public static VertUniforms() {
+    return null;
   }
 
   public static FragUniforms() {

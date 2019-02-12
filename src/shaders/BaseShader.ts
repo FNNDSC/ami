@@ -17,7 +17,7 @@ export abstract class BaseShader {
     protected _shaderName: string;
 
     // tslint:disable-next-line:typedef
-    constructor(VertUniforms, FragUniforms, ShaderName: string, ManualVert = false, ManualFrag = false) {
+    constructor(ShaderName: string, ManualVert = false, ManualFrag = false) {
         // Load in source code at run time from GLSL shaders
         const source = glslify({
             vertex: './'+ ShaderName +'.vert',
@@ -26,9 +26,9 @@ export abstract class BaseShader {
         })
 
         this._shaderName = ShaderName;
-        this.FragUniforms = FragUniforms;
+        this.FragUniforms = this.FragUniforms();
         this.FragFunctions = {};
-        this.VertUniforms = VertUniforms;
+        this.VertUniforms = this.VertUniforms();
         this.VertFunctions = {};
         if (!ManualVert) {
             this._vertMain = source.vertex;

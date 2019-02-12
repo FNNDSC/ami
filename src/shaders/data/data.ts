@@ -135,8 +135,12 @@ export class DataShader extends BaseShader implements BaseShaderStatics {
     }
 
     // tslint:disable-next-line:typedef
-    constructor(VertUniforms, FragUniforms) {
-        super(VertUniforms, FragUniforms, 'data', false, true);
+    constructor() {
+        super('data', false, true);
+    }
+
+    public static VertUniforms() {
+      return null;
     }
 
     public static FragUniforms() {
