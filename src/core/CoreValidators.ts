@@ -11,14 +11,15 @@
  * @module core/validators
  */
 
-export default class Validators {
+export default class CoreValidators {
   /**
    * Validates a matrix as a THREEJS.Matrix4
    * link
    * @param {Object} objectToTest - The object to be tested.
    * @return {boolean} True if valid Matrix4, false if NOT.
    */
-  static matrix4(objectToTest) {
+  // tslint:disable-next-line:typedef
+  public static matrix4(objectToTest) {
     if (
       !(
         objectToTest !== null &&
@@ -41,7 +42,8 @@ export default class Validators {
    * @param {Object} objectToTest - The object to be tested.
    * @return {boolean} True if valid Vector3, false if NOT.
    */
-  static vector3(objectToTest) {
+  // tslint:disable-next-line:typedef
+  public static vector3(objectToTest) {
     if (
       !(
         objectToTest !== null &&
@@ -71,7 +73,8 @@ export default class Validators {
    * @param {Object} objectToTest - The object to be tested.
    * @return {boolean} True if valid box, false if NOT.
    */
-  static box(objectToTest) {
+  // tslint:disable-next-line:typedef
+  public static box(objectToTest) {
     if (
       !(
         objectToTest !== null &&
@@ -104,7 +107,8 @@ export default class Validators {
    * @param {Object} objectToTest - The object to be tested.
    * @return {boolean} True if valid ray, false if NOT.
    */
-  static ray(objectToTest) {
+  // tslint:disable-next-line:typedef
+  public static ray(objectToTest) {
     if (
       !(
         objectToTest !== null &&

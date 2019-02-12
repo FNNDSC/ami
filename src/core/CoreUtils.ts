@@ -1,10 +1,6 @@
-import Validators from './core.validators';
-
-import { Box3 } from 'three/src/math/Box3';
-import { Raycaster } from 'three/src/core/Raycaster';
-import { Triangle } from 'three/src/math/Triangle';
-import { Matrix4 } from 'three/src/math/Matrix4';
-import { Vector3 } from 'three/src/math/Vector3';
+import THREE from 'THREE';
+import { isNull } from 'util';
+import Validators from './CoreValidators';
 
 /**
  * General purpose functions.
@@ -14,10 +10,10 @@ import { Vector3 } from 'three/src/math/Vector3';
 export default class CoreUtils {
   /**
    * Generate a bouding box object.
-   * @param {Vector3} center - Center of the box.
-   * @param {Vector3} halfDimensions - Half Dimensions of the box.
-   * @return {Object} The bounding box object. {Object.min} is a {Vector3}
-   * containing the min bounds. {Object.max} is a {Vector3} containing the
+   * @param {THREE.Vector3} center - Center of the box.
+   * @param {THREE.Vector3} halfDimensions - Half Dimensions of the box.
+   * @return {Object} The bounding box object. {Object.min} is a {THREE.Vector3}
+   * containing the min bounds. {Object.max} is a {THREE.Vector3} containing the
    * max bounds.
    * @return {boolean} False input NOT valid.
    * @example
@@ -26,13 +22,14 @@ export default class CoreUtils {
    * //  max: { x : 2, y : 4,  z : 6 }
    * //}
    * VJS.Core.Utils.bbox(
-   *   new Vector3(1, 2, 3), new Vector3(1, 2, 3));
+   *   new THREE.Vector3(1, 2, 3), new THREE.Vector3(1, 2, 3));
    *
    * //Returns false
-   * VJS.Core.Utils.bbox(new Vector3(), new Matrix4());
+   * VJS.Core.Utils.bbox(new THREE.Vector3(), new Matrix4());
    *
    */
-  static bbox(center, halfDimensions) {
+  // tslint:disable-next-line:typedef
+  public static bbox(center, halfDimensions): {min: THREE.Vector3, max: THREE.Vector3} | false {
     // make sure we have valid inputs
     if (!(Validators.vector3(center) && Validators.vector3(halfDimensions))) {
       window.console.log('Invalid center or plane halfDimensions.');
@@ -47,8 +44,8 @@ export default class CoreUtils {
     }
 
     // min/max bound
-    let min = center.clone().sub(halfDimensions);
-    let max = center.clone().add(halfDimensions);
+    const min = center.clone().sub(halfDimensions);
+    const max = center.clone().add(halfDimensions);
 
     return {
       min,
@@ -61,12 +58,13 @@ export default class CoreUtils {
    * @param {Array} data
    * @return {Array}
    */
-  static minMax(data = []) {
-    let minMax = [65535, -32768];
-    let numPixels = data.length;
+  // tslint:disable-next-line:typedef
+  public static minMax(data = []) {
+    const minMax = [65535, -32768];
+    const numPixels = data.length;
 
     for (let index = 0; index < numPixels; index++) {
-      let spv = data[index];
+      const spv = data[index];
       minMax[0] = Math.min(minMax[0], spv);
       minMax[1] = Math.max(minMax[1], spv);
     }
@@ -79,7 +77,8 @@ export default class CoreUtils {
    * @param {HTMLElement} obj
    * @return {boolean}
    */
-  static isElement(obj) {
+  // tslint:disable-next-line:typedef
+  public static isElement(obj) {
     try {
       // Using W3 DOM2 (works for FF, Opera and Chrom)
       return obj instanceof HTMLElement;
@@ -101,7 +100,8 @@ export default class CoreUtils {
    * @param {String} str
    * @return {Boolean}
    */
-  static isString(str) {
+  // tslint:disable-next-line:typedef
+  public static isString(str) {
     return typeof str === 'string' || str instanceof String;
   }
 
@@ -119,7 +119,8 @@ export default class CoreUtils {
    *
    * @return {Object}
    */
-  static parseUrl(url) {
+  // tslint:disable-next-line:typedef
+  public static parseUrl(url) {
     const parsedUrl = new URL(url, 'http://fix.me');
     const data = {
       filename: parsedUrl.searchParams.get('filename'),
@@ -155,7 +156,7 @@ export default class CoreUtils {
     ];
 
     if (
-      !isNaN(data.extension) ||
+      !isNull(data.extension) ||
       skipExt.indexOf(data.extension) !== -1 ||
       (data.query && data.query.includes('contentType=application%2Fdicom'))
     ) {
@@ -178,8 +179,9 @@ export default class CoreUtils {
    *
    * @return {*}
    */
-  static ijk2LPS(xCos, yCos, zCos, spacing, origin, registrationMatrix = new Matrix4()) {
-    const ijk2LPS = new Matrix4();
+  // tslint:disable-next-line:typedef
+  public static ijk2LPS(xCos, yCos, zCos, spacing, origin, registrationMatrix = new THREE.Matrix4()) {
+    const ijk2LPS = new THREE.Matrix4();
     ijk2LPS.set(
       xCos.x * spacing.y,
       yCos.x * spacing.x,
@@ -214,8 +216,9 @@ export default class CoreUtils {
    *
    * @return {*}
    */
-  static aabb2LPS(xCos, yCos, zCos, origin) {
-    const aabb2LPS = new Matrix4();
+  // tslint:disable-next-line:typedef
+  public static aabb2LPS(xCos, yCos, zCos, origin) {
+    const aabb2LPS = new THREE.Matrix4();
     aabb2LPS.set(
       xCos.x,
       yCos.x,
@@ -246,8 +249,9 @@ export default class CoreUtils {
    *
    * @return {*}
    */
-  static worldToData(lps2IJK, worldCoordinates) {
-    let dataCoordinate = new Vector3().copy(worldCoordinates).applyMatrix4(lps2IJK);
+  // tslint:disable-next-line:typedef
+  public static worldToData(lps2IJK, worldCoordinates) {
+    const dataCoordinate = new THREE.Vector3().copy(worldCoordinates).applyMatrix4(lps2IJK);
 
     // same rounding in the shaders
     dataCoordinate.addScalar(0.5).floor();
@@ -255,7 +259,8 @@ export default class CoreUtils {
     return dataCoordinate;
   }
 
-  static value(stack, coordinate) {
+  // tslint:disable-next-line:typedef
+  public static value(stack, coordinate) {
     window.console.warn('value is deprecated, please use getPixelData instead');
     this.getPixelData(stack, coordinate);
   }
@@ -264,10 +269,11 @@ export default class CoreUtils {
    * Get voxel value
    *
    * @param {ModelsStack} stack
-   * @param {Vector3} coordinate
+   * @param {THREE.Vector3} coordinate
    * @return {*}
    */
-  static getPixelData(stack, coordinate) {
+  // tslint:disable-next-line:typedef
+  public static getPixelData(stack, coordinate) {
     if (coordinate.z >= 0 && coordinate.z < stack._frame.length) {
       return stack._frame[coordinate.z].getPixelData(coordinate.x, coordinate.y);
     } else {
@@ -279,11 +285,12 @@ export default class CoreUtils {
    * Set voxel value
    *
    * @param {ModelsStack} stack
-   * @param {Vector3} coordinate
+   * @param {THREE.Vector3} coordinate
    * @param {Number} value
    * @return {*}
    */
-  static setPixelData(stack, coordinate, value) {
+  // tslint:disable-next-line:typedef
+  public static setPixelData(stack, coordinate, value) {
     if (coordinate.z >= 0 && coordinate.z < stack._frame.length) {
       stack._frame[coordinate.z].setPixelData(coordinate.x, coordinate.y, value);
     } else {
@@ -300,7 +307,8 @@ export default class CoreUtils {
    *
    * @return {*}
    */
-  static rescaleSlopeIntercept(value, slope, intercept) {
+  // tslint:disable-next-line:typedef
+  public static rescaleSlopeIntercept(value, slope, intercept) {
     return value * slope + intercept;
   }
 
@@ -308,17 +316,19 @@ export default class CoreUtils {
    *
    * Convenience function to extract center of mass from list of points.
    *
-   * @param {Array<Vector3>} points - Set of points from which we want to extract the center of mass.
+   * @param {Array<THREE.Vector3>} points - Set of points from which we want to extract the center of mass.
    *
-   * @returns {Vector3} Center of mass from given points.
+   * @returns {THREE.Vector3} Center of mass from given points.
    */
-  static centerOfMass(points) {
-    let centerOfMass = new Vector3(0, 0, 0);
-    for (let i = 0; i < points.length; i++) {
-      centerOfMass.x += points[i].x;
-      centerOfMass.y += points[i].y;
-      centerOfMass.z += points[i].z;
-    }
+  // tslint:disable-next-line:typedef
+  public static centerOfMass(points) {
+    const centerOfMass = new THREE.Vector3(0, 0, 0);
+    points.forEach(element => {
+      centerOfMass.x += element.x;
+      centerOfMass.y += element.y;
+      centerOfMass.z += element.z;
+    });
+
     centerOfMass.divideScalar(points.length);
 
     return centerOfMass;
@@ -330,49 +340,57 @@ export default class CoreUtils {
    *
    * @private
    *
-   * @param {Array<Vector3>} points - Set of planar 3D points to be ordered.
-   * @param {Vector3} direction - Direction of the plane in which points and reference are sitting.
+   * @param {Array<THREE.Vector3>} points - Set of planar 3D points to be ordered.
+   * @param {THREE.Vector3} direction - Direction of the plane in which points and reference are sitting.
    *
    * @returns {Array<Object>} Set of object representing the ordered points.
    */
-  static orderIntersections(points, direction) {
-    let reference = this.centerOfMass(points);
+  // tslint:disable-next-line:typedef
+  public static orderIntersections(points, direction) {
+    const reference = this.centerOfMass(points);
     // direction from first point to reference
-    let referenceDirection = new Vector3(
+    const referenceDirection = new THREE.Vector3(
       points[0].x - reference.x,
       points[0].y - reference.y,
       points[0].z - reference.z
     ).normalize();
 
-    let base = new Vector3(0, 0, 0).crossVectors(referenceDirection, direction).normalize();
+    const base = new THREE.Vector3(0, 0, 0).crossVectors(referenceDirection, direction).normalize();
 
-    let orderedpoints = [];
+    const orderedpoints = [];
 
     // other lines // if inter, return location + angle
-    for (let j = 0; j < points.length; j++) {
-      let point = new Vector3(points[j].x, points[j].y, points[j].z);
-      point.direction = new Vector3(
-        points[j].x - reference.x,
-        points[j].y - reference.y,
-        points[j].z - reference.z
-      ).normalize();
+    points.forEach(element => {
+      const point = {
+        position: new THREE.Vector3(element.x, element.y, element.z),
+        direction:  new THREE.Vector3(
+          element.x - reference.x,
+          element.y - reference.y,
+          element.z - reference.z
+        ).normalize(),
+        xy: {
+          x: 0,
+          y: 0
+        },
+        angle: 0
+      };
 
-      let x = referenceDirection.dot(point.direction);
-      let y = base.dot(point.direction);
+      const x = referenceDirection.dot(point.direction);
+      const y = base.dot(point.direction);
       point.xy = { x, y };
 
-      let theta = Math.atan2(y, x) * (180 / Math.PI);
+      const theta = Math.atan2(y, x) * (180 / Math.PI);
       point.angle = theta;
 
-      orderedpoints.push(point);
-    }
+      orderedpoints.push(point); 
+    });
 
-    orderedpoints.sort(function(a, b) {
+    orderedpoints.sort((a, b) => {
       return a.angle - b.angle;
     });
 
-    let noDups = [orderedpoints[0]];
-    let epsilon = 0.0001;
+    const noDups = [orderedpoints[0]];
+    const epsilon = 0.0001;
     for (let i = 1; i < orderedpoints.length; i++) {
       if (Math.abs(orderedpoints[i - 1].angle - orderedpoints[i].angle) > epsilon) {
         noDups.push(orderedpoints[i]);
@@ -391,15 +409,16 @@ export default class CoreUtils {
    *
    * @return {Object|null}
    */
-  static getRoI(mesh, camera, stack) {
+  // tslint:disable-next-line:typedef
+  public static getRoI(mesh, camera, stack) {
     mesh.geometry.computeBoundingBox();
 
-    const bbox = new Box3().setFromObject(mesh);
+    const bbox = new THREE.Box3().setFromObject(mesh);
     const min = bbox.min.clone().project(camera);
     const max = bbox.max.clone().project(camera);
     const offsetWidth = camera.controls.domElement.offsetWidth;
     const offsetHeight = camera.controls.domElement.offsetHeight;
-    const rayCaster = new Raycaster();
+    const rayCaster = new THREE.Raycaster();
     const values = [];
 
     min.x = Math.round(((min.x + 1) * offsetWidth) / 2);
@@ -463,16 +482,17 @@ export default class CoreUtils {
    *
    * @returns {Number}
    */
-  static getGeometryArea(geometry) {
+  // tslint:disable-next-line:typedef
+  public static getGeometryArea(geometry) {
     if (geometry.faces.length < 1) {
       return 0.0;
     }
 
     let area = 0.0;
-    let vertices = geometry.vertices;
+    const vertices = geometry.vertices;
 
-    geometry.faces.forEach(function(elem) {
-      area += new Triangle(vertices[elem.a], vertices[elem.b], vertices[elem.c]).getArea();
+    geometry.faces.forEach((elem) => {
+      area += new THREE.Triangle(vertices[elem.a], vertices[elem.b], vertices[elem.c]).getArea();
     });
 
     return area;

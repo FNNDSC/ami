@@ -1,6 +1,6 @@
 import WidgetsCss from './widgets.css';
 
-import {COLORS} from '../core/core.colors';
+import {COLORS} from '../core/CoreColours';
 import CoreUtils from '../core/core.utils';
 
 interface WidgetParameter {

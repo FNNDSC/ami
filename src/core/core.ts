@@ -1,11 +1,11 @@
-import Colors from './core.colors';
-import Intersections from './core.intersections';
-import Validators from './core.validators';
-import Utils from './core.utils';
+import Colors from './CoreColours';
+import Intersections from './CoreIntersections';
+import CoreUtils from './CoreUtils';
+import Validators from './CoreValidators';
 
 export {
   Colors as ColorsCore,
   Intersections as IntersectionsCore,
-  Utils as UtilsCore,
+  CoreUtils as UtilsCore,
   Validators as ValidatorsCore,
 };

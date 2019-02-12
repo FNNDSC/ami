@@ -1,5 +1,5 @@
 /** * Imports ***/
-import coreIntersections from '../core/core.intersections';
+import coreIntersections from '../core/CoreIntersections';
 import coreUtils from '../core/core.utils';
 
 /**

@@ -1,8 +1,6 @@
-import CoreUtils from './core.utils';
-import Validators from './core.validators';
-
-import { Matrix4 } from 'three/src/math/Matrix4';
-import { Vector3 } from 'three/src/math/Vector3';
+import THREE from 'THREE';
+import CoreUtils from './CoreUtils';
+import Validators from './CoreValidators';
 
 /**
  * Compute/test intersection between different objects.
@@ -10,7 +8,7 @@ import { Vector3 } from 'three/src/math/Vector3';
  * @module core/intersections
  */
 
-export default class Intersections {
+export default class CoreIntersections {
   /**
    * Compute intersection between oriented bounding box and a plane.
    *
@@ -62,7 +60,8 @@ export default class Intersections {
    * //Returns false if invalid input?
    *
    */
-  static aabbPlane(aabb, plane) {
+  // tslint:disable-next-line:typedef
+  public static aabbPlane(aabb, plane) {
     //
     // obb = { halfDimensions, orientation, center, toAABB }
     // plane = { position, direction }
@@ -97,7 +96,7 @@ export default class Intersections {
     // 2- Test Edges/ IJK Plane intersections
     // 3- Return intersection Edge/ IJK Plane if it touches the Oriented BBox
 
-    let intersections = [];
+    const intersections = [];
 
     if (!(this.validateAabb(aabb) && this.validatePlane(plane))) {
       window.console.log('Invalid aabb or plane provided.');
@@ -105,20 +104,20 @@ export default class Intersections {
     }
 
     // invert space matrix
-    let fromAABB = new Matrix4();
+    const fromAABB = new THREE.Matrix4();
     fromAABB.getInverse(aabb.toAABB);
 
-    let t1 = plane.direction.clone().applyMatrix4(aabb.toAABB);
-    let t0 = new Vector3(0, 0, 0).applyMatrix4(aabb.toAABB);
+    const t1 = plane.direction.clone().applyMatrix4(aabb.toAABB);
+    const t0 = new THREE.Vector3(0, 0, 0).applyMatrix4(aabb.toAABB);
 
-    let planeAABB = this.posdir(
+    const planeAABB = this.posdir(
       plane.position.clone().applyMatrix4(aabb.toAABB),
-      new Vector3(t1.x - t0.x, t1.y - t0.y, t1.z - t0.z).normalize()
+      new THREE.Vector3(t1.x - t0.x, t1.y - t0.y, t1.z - t0.z).normalize()
     );
 
-    let bbox = CoreUtils.bbox(aabb.center, aabb.halfDimensions);
+    const bbox = CoreUtils.bbox(aabb.center, aabb.halfDimensions);
 
-    let orientation = new Vector3(new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1));
+    const orientation = new THREE.Vector3(1, 1, 1);
 
     // 12 edges (i.e. ray)/plane intersection tests
     // RAYS STARTING FROM THE FIRST CORNER (0, 0, 0)
@@ -131,8 +130,8 @@ export default class Intersections {
     //    .'
     //   +
 
-    let ray = this.posdir(
-      new Vector3(
+    const ray = this.posdir(
+      new THREE.Vector3(
         aabb.center.x - aabb.halfDimensions.x,
         aabb.center.y - aabb.halfDimensions.y,
         aabb.center.z - aabb.halfDimensions.z
@@ -158,8 +157,8 @@ export default class Intersections {
     //           +
     //
 
-    let ray2 = this.posdir(
-      new Vector3(
+    const ray2 = this.posdir(
+      new THREE.Vector3(
         aabb.center.x + aabb.halfDimensions.x,
         aabb.center.y + aabb.halfDimensions.y,
         aabb.center.z + aabb.halfDimensions.z
@@ -184,8 +183,8 @@ export default class Intersections {
     //             .'
     //           +'
 
-    let ray3 = this.posdir(
-      new Vector3(
+    const ray3 = this.posdir(
+      new THREE.Vector3(
         aabb.center.x + aabb.halfDimensions.x,
         aabb.center.y - aabb.halfDimensions.y,
         aabb.center.z - aabb.halfDimensions.z
@@ -207,8 +206,8 @@ export default class Intersections {
     //
     //
 
-    let ray4 = this.posdir(
-      new Vector3(
+    const ray4 = this.posdir(
+      new THREE.Vector3(
         aabb.center.x - aabb.halfDimensions.x,
         aabb.center.y + aabb.halfDimensions.y,
         aabb.center.z - aabb.halfDimensions.z
@@ -230,8 +229,8 @@ export default class Intersections {
     //   |
     //   +-------+
 
-    let ray5 = this.posdir(
-      new Vector3(
+    const ray5 = this.posdir(
+      new THREE.Vector3(
         aabb.center.x - aabb.halfDimensions.x,
         aabb.center.y - aabb.halfDimensions.y,
         aabb.center.z + aabb.halfDimensions.z
@@ -246,7 +245,7 @@ export default class Intersections {
     // @todo make sure objects are unique...
 
     // back to original space
-    intersections.map(function(element) {
+    intersections.map((element) => {
       return element.applyMatrix4(fromAABB);
     });
 
@@ -268,7 +267,8 @@ export default class Intersections {
    *
    * @returns {Vector3|null} Intersection between ray and plane or null.
    */
-  static rayPlane(ray, plane) {
+  // tslint:disable-next-line:typedef
+  public static rayPlane(ray, plane) {
     // ray: {position, direction}
     // plane: {position, direction}
 
@@ -303,7 +303,7 @@ export default class Intersections {
       // 2- find t
       // 3- replace t in Px, Py and Pz to get the coordinate of the intersection
       //
-      let t =
+      const t =
         (plane.direction.x * (plane.position.x - ray.position.x) +
           plane.direction.y * (plane.position.y - ray.position.y) +
           plane.direction.z * (plane.position.z - ray.position.z)) /
@@ -311,7 +311,7 @@ export default class Intersections {
           plane.direction.y * ray.direction.y +
           plane.direction.z * ray.direction.z);
 
-      let intersection = new Vector3(
+      const intersection = new THREE.Vector3(
         ray.position.x + t * ray.direction.x,
         ray.position.y + t * ray.direction.y,
         ray.position.z + t * ray.direction.z
@@ -329,43 +329,44 @@ export default class Intersections {
    * @param {Object} box
    * @return {Array}
    */
-  static rayBox(ray, box) {
+  // tslint:disable-next-line:typedef
+  public static rayBox(ray, box) {
     // should also do the space transforms here
     // ray: {position, direction}
     // box: {halfDimensions, center}
 
-    let intersections = [];
+    const intersections = [];
 
-    let bbox = CoreUtils.bbox(box.center, box.halfDimensions);
+    const bbox = CoreUtils.bbox(box.center, box.halfDimensions);
 
-    // window.console.log(bbox);
+    if (bbox) {
+      // X min
+      let plane = this.posdir(
+        new THREE.Vector3(bbox.min.x, box.center.y, box.center.z),
+        new THREE.Vector3(-1, 0, 0)
+      );
+      this.rayPlaneInBBox(ray, plane, bbox, intersections);
 
-    // X min
-    let plane = this.posdir(
-      new Vector3(bbox.min.x, box.center.y, box.center.z),
-      new Vector3(-1, 0, 0)
-    );
-    this.rayPlaneInBBox(ray, plane, bbox, intersections);
+      // X max
+      plane = this.posdir(new THREE.Vector3(bbox.max.x, box.center.y, box.center.z), new THREE.Vector3(1, 0, 0));
+      this.rayPlaneInBBox(ray, plane, bbox, intersections);
 
-    // X max
-    plane = this.posdir(new Vector3(bbox.max.x, box.center.y, box.center.z), new Vector3(1, 0, 0));
-    this.rayPlaneInBBox(ray, plane, bbox, intersections);
+      // Y min
+      plane = this.posdir(new THREE.Vector3(box.center.x, bbox.min.y, box.center.z), new THREE.Vector3(0, -1, 0));
+      this.rayPlaneInBBox(ray, plane, bbox, intersections);
 
-    // Y min
-    plane = this.posdir(new Vector3(box.center.x, bbox.min.y, box.center.z), new Vector3(0, -1, 0));
-    this.rayPlaneInBBox(ray, plane, bbox, intersections);
+      // Y max
+      plane = this.posdir(new THREE.Vector3(box.center.x, bbox.max.y, box.center.z), new THREE.Vector3(0, 1, 0));
+      this.rayPlaneInBBox(ray, plane, bbox, intersections);
 
-    // Y max
-    plane = this.posdir(new Vector3(box.center.x, bbox.max.y, box.center.z), new Vector3(0, 1, 0));
-    this.rayPlaneInBBox(ray, plane, bbox, intersections);
+      // Z min
+      plane = this.posdir(new THREE.Vector3(box.center.x, box.center.y, bbox.min.z), new THREE.Vector3(0, 0, -1));
+      this.rayPlaneInBBox(ray, plane, bbox, intersections);
 
-    // Z min
-    plane = this.posdir(new Vector3(box.center.x, box.center.y, bbox.min.z), new Vector3(0, 0, -1));
-    this.rayPlaneInBBox(ray, plane, bbox, intersections);
-
-    // Z max
-    plane = this.posdir(new Vector3(box.center.x, box.center.y, bbox.max.z), new Vector3(0, 0, 1));
-    this.rayPlaneInBBox(ray, plane, bbox, intersections);
+      // Z max
+      plane = this.posdir(new THREE.Vector3(box.center.x, box.center.y, bbox.max.z), new THREE.Vector3(0, 0, 1));
+      this.rayPlaneInBBox(ray, plane, bbox, intersections);
+    }
 
     return intersections;
   }
@@ -377,8 +378,9 @@ export default class Intersections {
    * @param {*} bbox
    * @param {*} intersections
    */
-  static rayPlaneInBBox(ray, planeAABB, bbox, intersections) {
-    let intersection = this.rayPlane(ray, planeAABB);
+  // tslint:disable-next-line:typedef
+  public static rayPlaneInBBox(ray, planeAABB, bbox, intersections) {
+    const intersection = this.rayPlane(ray, planeAABB);
     // window.console.log(intersection);
     if (intersection && this.inBBox(intersection, bbox)) {
       if (!intersections.find(this.findIntersection(intersection))) {
@@ -391,7 +393,9 @@ export default class Intersections {
    * Find intersection in array
    * @param {*} myintersection
    */
-  static findIntersection(myintersection) {
+  // tslint:disable-next-line:typedef
+  public static findIntersection(myintersection) {
+    // tslint:disable-next-line:typedef
     return function found(element, index, array) {
       if (
         myintersection.x === element.x &&
@@ -411,9 +415,10 @@ export default class Intersections {
    * @param {Object} bbox
    * @return {Boolean}
    */
-  static inBBox(point, bbox) {
+  // tslint:disable-next-line:typedef
+  public static inBBox(point, bbox) {
     //
-    let epsilon = 0.0001;
+    const epsilon = 0.0001;
     if (
       point &&
       point.x >= bbox.min.x - epsilon &&
@@ -428,11 +433,13 @@ export default class Intersections {
     return false;
   }
 
-  static posdir(position, direction) {
+  // tslint:disable-next-line:typedef
+  public static posdir(position, direction) {
     return { position, direction };
   }
 
-  static validatePlane(plane) {
+  // tslint:disable-next-line:typedef
+  public static validatePlane(plane) {
     //
     if (plane === null) {
       window.console.log('Invalid plane.');
@@ -458,7 +465,8 @@ export default class Intersections {
     return true;
   }
 
-  static validateAabb(aabb) {
+  // tslint:disable-next-line:typedef
+  public static validateAabb(aabb) {
     //
     if (aabb === null) {
       window.console.log('Invalid aabb.');

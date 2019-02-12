@@ -1,5 +1,5 @@
-import Intersections from '../core/core.intersections';
-import Validators from '../core/core.validators';
+import Intersections from '../core/CoreIntersections';
+import Validators from '../core/CoreValidators';
 
 /**
  * Orthographic camera from THREE.JS with some extra convenience
