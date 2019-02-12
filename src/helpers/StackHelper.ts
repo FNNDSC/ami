@@ -1,20 +1,23 @@
-/** * Imports ***/
-import { helpersBorder } from '../helpers/helpers.border';
-import { helpersBoundingBox } from '../helpers/helpers.boundingbox';
-import { helpersSlice } from '../helpers/helpers.slice';
+/** 
+ * Imports 
+ */
+import THREE from 'three';
+import { helpersBorder } from './helpers.border';
+import { helpersBoundingBox } from './helpers.boundingbox';
+import { SliceHelper } from './SliceHelper';
 
 /**
  * Helper to easily display and interact with a stack.<br>
- *<br>
+ * <br>
  * Defaults:<br>
  *   - orientation: 0 (acquisition direction)<br>
  *   - index: middle slice in acquisition direction<br>
- *<br>
+ * <br>
  * Features:<br>
  *   - slice from the stack (in any direction)<br>
  *   - slice border<br>
  *   - stack bounding box<br>
- *<br>
+ * <br>
  * Live demo at: {@link http://jsfiddle.net/gh/get/library/pure/fnndsc/ami/tree/master/lessons/01#run|Lesson 01}
  *
  * @example
@@ -34,39 +37,24 @@ import { helpersSlice } from '../helpers/helpers.slice';
  *
  * @module helpers/stack
  */
-const helpersStack = (three = window.THREE) => {
-  if (three === undefined || three.Object3D === undefined) {
-    return null;
-  }
 
-  const Constructor = three.Object3D;
-  return class extends Constructor {
-    constructor(stack) {
-      //
-      super();
+export class StackHelper extends THREE.Object3D {
+  //#region Veriables
+  private _stack;
+  private _bBox;
+  private _slice;
+  private _border;
+  private _orientation;
+  private _index;
+  private _outOfBounds;
+  private _orientationMaxIndex;
+  private _orientationSpacing;
+  private _canvasWidth;
+  private _canvasHeight;
+  private _borderColor;
+  //#endregion
 
-      this._stack = stack;
-      this._bBox = null;
-      this._slice = null;
-      this._border = null;
-      this._dummy = null;
-
-      this._orientation = 0;
-      this._index = 0;
-
-      this._uniforms = null;
-      this._autoWindowLevel = false;
-      this._outOfBounds = false;
-      this._orientationMaxIndex = 0;
-      this._orientationSpacing = 0;
-
-      this._canvasWidth = 0;
-      this._canvasHeight = 0;
-      this._borderColor = null;
-
-      this._create();
-    }
-
+  //#region Getters / Setters
     /**
      * Get stack.
      *
@@ -75,16 +63,15 @@ const helpersStack = (three = window.THREE) => {
     get stack() {
       return this._stack;
     }
-
     /**
      * Set stack.
      *
      * @type {ModelsStack}
      */
+    // tslint:disable-next-line:typedef
     set stack(stack) {
       this._stack = stack;
     }
-
     /**
      * Get bounding box helper.
      *
@@ -93,7 +80,6 @@ const helpersStack = (three = window.THREE) => {
     get bbox() {
       return this._bBox;
     }
-
     /**
      * Get slice helper.
      *
@@ -102,7 +88,6 @@ const helpersStack = (three = window.THREE) => {
     get slice() {
       return this._slice;
     }
-
     /**
      * Get border helper.
      *
@@ -111,7 +96,6 @@ const helpersStack = (three = window.THREE) => {
     get border() {
       return this._border;
     }
-
     /**
      * Set/get current slice index.<br>
      * Sets outOfBounds flag to know if target index is in/out stack bounding box.<br>
@@ -124,13 +108,13 @@ const helpersStack = (three = window.THREE) => {
     get index() {
       return this._index;
     }
-
+    // tslint:disable-next-line:typedef
     set index(index) {
       this._index = index;
 
       // update the slice
       this._slice.index = index;
-      let halfDimensions = this._stack.halfDimensionsIJK;
+      const halfDimensions = this._stack.halfDimensionsIJK;
       this._slice.planePosition = this._prepareSlicePosition(halfDimensions, this._index);
 
       // also update the border
@@ -139,7 +123,6 @@ const helpersStack = (three = window.THREE) => {
       // update ourOfBounds flag
       this._isIndexOutOfBounds();
     }
-
     /**
      * Set/get current slice orientation.<br>
      * Values: <br>
@@ -153,6 +136,7 @@ const helpersStack = (three = window.THREE) => {
      *
      * @type {number}
      */
+    // tslint:disable-next-line:typedef
     set orientation(orientation) {
       this._orientation = orientation;
       this._computeOrientationMaxIndex();
@@ -176,6 +160,7 @@ const helpersStack = (three = window.THREE) => {
      *
      * @type {boolean}
      */
+    // tslint:disable-next-line:typedef
     set outOfBounds(outOfBounds) {
       this._outOfBounds = outOfBounds;
     }
@@ -189,6 +174,7 @@ const helpersStack = (three = window.THREE) => {
      *
      * @type {number}
      */
+    // tslint:disable-next-line:typedef
     set orientationMaxIndex(orientationMaxIndex) {
       this._orientationMaxIndex = orientationMaxIndex;
     }
@@ -202,6 +188,7 @@ const helpersStack = (three = window.THREE) => {
      *
      * @type {number}
      */
+    // tslint:disable-next-line:typedef
     set orientationSpacing(orientationSpacing) {
       this._orientationSpacing = orientationSpacing;
     }
@@ -210,6 +197,7 @@ const helpersStack = (three = window.THREE) => {
       return this._orientationSpacing;
     }
 
+    // tslint:disable-next-line:typedef
     set canvasWidth(canvasWidth) {
       this._canvasWidth = canvasWidth;
       this._slice.canvasWidth = this._canvasWidth;
@@ -219,6 +207,7 @@ const helpersStack = (three = window.THREE) => {
       return this._canvasWidth;
     }
 
+    // tslint:disable-next-line:typedef
     set canvasHeight(canvasHeight) {
       this._canvasHeight = canvasHeight;
       this._slice.canvasHeight = this._canvasHeight;
@@ -228,6 +217,7 @@ const helpersStack = (three = window.THREE) => {
       return this._canvasHeight;
     }
 
+    // tslint:disable-next-line:typedef
     set borderColor(borderColor) {
       this._borderColor = borderColor;
       this._border.color = borderColor;
@@ -237,10 +227,28 @@ const helpersStack = (three = window.THREE) => {
     get borderColor() {
       return this._borderColor;
     }
+  //#endregion
 
-    //
-    // PRIVATE METHODS
-    //
+  // tslint:disable-next-line:typedef
+  constructor(stack) {
+    super();
+
+    this._stack = stack;
+    this._bBox = null;
+    this._slice = null;
+    this._border = null;
+    this._orientation = 0;
+    this._index = 0;
+    this._outOfBounds = false;
+    this._orientationMaxIndex = 0;
+    this._orientationSpacing = 0;
+    this._canvasWidth = 0;
+    this._canvasHeight = 0;
+    this._borderColor = null;
+
+    this._create();
+  }
+
 
     /**
      * Initial setup, including stack prepare, bbox prepare, slice prepare and
@@ -248,7 +256,7 @@ const helpersStack = (three = window.THREE) => {
      *
      * @private
      */
-    _create() {
+    public _create() {
       if (this._stack) {
         // prepare sthe stack internals
         this._prepareStack();
@@ -263,8 +271,8 @@ const helpersStack = (three = window.THREE) => {
       }
     }
 
-    _computeOrientationSpacing() {
-      let spacing = this._stack._spacing;
+    public _computeOrientationSpacing() {
+      const spacing = this._stack._spacing;
       switch (this._orientation) {
         case 0:
           this._orientationSpacing = spacing.z;
@@ -281,8 +289,8 @@ const helpersStack = (three = window.THREE) => {
       }
     }
 
-    _computeOrientationMaxIndex() {
-      let dimensionsIJK = this._stack.dimensionsIJK;
+    public _computeOrientationMaxIndex() {
+      const dimensionsIJK = this._stack.dimensionsIJK;
       this._orientationMaxIndex = 0;
       switch (this._orientation) {
         case 0:
@@ -305,7 +313,7 @@ const helpersStack = (three = window.THREE) => {
      *
      * @private
      */
-    _isIndexOutOfBounds() {
+    public _isIndexOutOfBounds() {
       this._computeOrientationMaxIndex();
       if (this._index >= this._orientationMaxIndex || this._index < 0) {
         this._outOfBounds = true;
@@ -320,7 +328,7 @@ const helpersStack = (three = window.THREE) => {
      *
      * @private
      */
-    _prepareStack() {
+    public _prepareStack() {
       // make sure there is something, if not throw an error
       // compute image to workd transform, order frames, etc.
       if (!this._stack.prepared) {
@@ -339,8 +347,8 @@ const helpersStack = (three = window.THREE) => {
      *
      * @private
      */
-    _prepareBBox() {
-      const HelpersBoundingBoxConstructor = helpersBoundingBox(three);
+    public _prepareBBox() {
+      const HelpersBoundingBoxConstructor = helpersBoundingBox(THREE);
       this._bBox = new HelpersBoundingBoxConstructor(this._stack);
       this.add(this._bBox);
     }
@@ -351,8 +359,8 @@ const helpersStack = (three = window.THREE) => {
      *
      * @private
      */
-    _prepareBorder() {
-      const HelpersBorderContructor = helpersBorder(three);
+    public _prepareBorder() {
+      const HelpersBorderContructor = helpersBorder(THREE);
       this._border = new HelpersBorderContructor(this._slice);
       this.add(this._border);
     }
@@ -363,17 +371,16 @@ const helpersStack = (three = window.THREE) => {
      *
      * @private
      */
-    _prepareSlice() {
-      let halfDimensionsIJK = this._stack.halfDimensionsIJK;
+    public _prepareSlice() {
+      const halfDimensionsIJK = this._stack.halfDimensionsIJK;
       // compute initial index given orientation
       this._index = this._prepareSliceIndex(halfDimensionsIJK);
       // compute initial position given orientation and index
-      let position = this._prepareSlicePosition(halfDimensionsIJK, this._index);
+      const position = this._prepareSlicePosition(halfDimensionsIJK, this._index);
       // compute initial direction orientation
-      let direction = this._prepareDirection(this._orientation);
+      const direction = this._prepareDirection(this._orientation);
 
-      const SliceHelperConstructor = helpersSlice(three);
-      this._slice = new SliceHelperConstructor(this._stack, this._index, position, direction);
+      this._slice = new SliceHelper(this._stack, this._index, position, direction);
       this.add(this._slice);
     }
 
@@ -386,7 +393,8 @@ const helpersStack = (three = window.THREE) => {
      *
      * @private
      */
-    _prepareSliceIndex(indices) {
+    // tslint:disable-next-line:typedef
+    public _prepareSliceIndex(indices) {
       let index = 0;
       switch (this._orientation) {
         case 0:
@@ -416,17 +424,18 @@ const helpersStack = (three = window.THREE) => {
      *
      * @private
      */
-    _prepareSlicePosition(rPosition, index) {
-      let position = new three.Vector3(0, 0, 0);
+    // tslint:disable-next-line:typedef
+    public _prepareSlicePosition(rPosition, index) {
+      let position = new THREE.Vector3(0, 0, 0);
       switch (this._orientation) {
         case 0:
-          position = new three.Vector3(Math.floor(rPosition.x), Math.floor(rPosition.y), index);
+          position = new THREE.Vector3(Math.floor(rPosition.x), Math.floor(rPosition.y), index);
           break;
         case 1:
-          position = new three.Vector3(index, Math.floor(rPosition.y), Math.floor(rPosition.z));
+          position = new THREE.Vector3(index, Math.floor(rPosition.y), Math.floor(rPosition.z));
           break;
         case 2:
-          position = new three.Vector3(Math.floor(rPosition.x), index, Math.floor(rPosition.z));
+          position = new THREE.Vector3(Math.floor(rPosition.x), index, Math.floor(rPosition.z));
           break;
         default:
           // do nothing!
@@ -444,17 +453,18 @@ const helpersStack = (three = window.THREE) => {
      *
      * @private
      */
-    _prepareDirection(orientation) {
-      let direction = new three.Vector3(0, 0, 1);
+    // tslint:disable-next-line:typedef
+    public _prepareDirection(orientation) {
+      let direction = new THREE.Vector3(0, 0, 1);
       switch (orientation) {
         case 0:
-          direction = new three.Vector3(0, 0, 1);
+          direction = new THREE.Vector3(0, 0, 1);
           break;
         case 1:
-          direction = new three.Vector3(1, 0, 0);
+          direction = new THREE.Vector3(1, 0, 0);
           break;
         case 2:
-          direction = new three.Vector3(0, 1, 0);
+          direction = new THREE.Vector3(0, 1, 0);
           break;
         default:
           // do nothing!
@@ -469,7 +479,7 @@ const helpersStack = (three = window.THREE) => {
      *
      * @public
      */
-    dispose() {
+    public dispose() {
       this.remove(this._slice);
       this._slice.dispose();
       this._slice = null;
@@ -478,10 +488,4 @@ const helpersStack = (three = window.THREE) => {
       this._border.dispose();
       this._border = null;
     }
-  };
-};
-
-// export factory
-export { helpersStack };
-// default export to
-export default helpersStack();
+}
