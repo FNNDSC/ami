@@ -118,6 +118,7 @@ export default class LoadersVolumes extends LoadersBase {
 
             // create a series
             let series = new ModelsSeries();
+            series.rawHeader = volumeParser.rawHeader();
             // global information
             series.seriesInstanceUID = volumeParser.seriesInstanceUID();
             series.transferSyntaxUID = volumeParser.transferSyntaxUID();

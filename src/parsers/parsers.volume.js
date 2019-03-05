@@ -134,6 +134,14 @@ export default class ParsersVolume {
   seriesDescription() {
     return 'no value provided';
   }
+   
+  /**
+   * Get the raw Header.
+   * @return {*}
+   */
+  rawHeader() {
+    return 'no value provided';
+  }
 
   /**
    * Get the patient ID.
