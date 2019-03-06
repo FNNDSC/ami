@@ -187,6 +187,15 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   /**
+   * Raw dataset
+   * 
+   * @return {*}
+   */
+  rawHeader() {
+    return this._dataSet;
+  }
+
+  /**
    * SOP Instance UID
    *
    * @param {*} frameIndex

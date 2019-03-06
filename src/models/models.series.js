@@ -30,6 +30,7 @@ export default class ModelsSeries extends ModelsBase {
     this._numberOfChannels = 1;
 
     // patient information
+    this._rawHeader = null;
     this._patientID = '';
     this._patientName = '';
     this._patientAge = '';
@@ -266,6 +267,24 @@ export default class ModelsSeries extends ModelsBase {
    */
   get seriesDescription() {
     return this._seriesDescription;
+  }
+
+    /**
+   * Raw Header setter
+   *
+   * @param {*} rawHeader
+   */
+  set rawHeader(rawHeader) {
+    this._rawHeader = rawHeader;
+  }
+
+  /**
+   * Raw Header getter
+   *
+   * @return {*}
+   */
+  get rawHeader() {
+    return this._rawHeader;
   }
 
   /**
