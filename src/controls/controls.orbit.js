@@ -29,6 +29,9 @@ var OrbitControls = function ( object, domElement ) {
 	// Set to false to disable this control
 	this.enabled = true;
 
+	// Set to prevent default event
+	this.preventDefault = true;
+
 	// "target" sets the location of focus, where the object orbits around
 	this.target = new three.Vector3();
 
@@ -685,7 +688,7 @@ var OrbitControls = function ( object, domElement ) {
 
 		if ( scope.enabled === false ) return;
 
-		event.preventDefault();
+		if ( scope.preventDefault === true ) event.preventDefault();
 
 		switch ( event.button ) {
 
@@ -748,7 +751,7 @@ var OrbitControls = function ( object, domElement ) {
 
 		if ( scope.enabled === false ) return;
 
-		event.preventDefault();
+		if ( scope.preventDefault === true ) event.preventDefault();
 
 		switch ( state ) {
 
@@ -799,8 +802,10 @@ var OrbitControls = function ( object, domElement ) {
 
 		if ( scope.enabled === false || scope.enableZoom === false || ( state !== STATE.NONE && state !== STATE.ROTATE ) ) return;
 
-		event.preventDefault();
-		event.stopPropagation();
+		if ( scope.preventDefault === true ) {
+		  event.preventDefault();
+		  event.stopPropagation();
+		}
 
 		scope.dispatchEvent( startEvent );
 
@@ -822,7 +827,7 @@ var OrbitControls = function ( object, domElement ) {
 
 		if ( scope.enabled === false ) return;
 
-		event.preventDefault();
+		if ( scope.preventDefault === true ) event.preventDefault();
 
 		switch ( event.touches.length ) {
 
@@ -864,8 +869,10 @@ var OrbitControls = function ( object, domElement ) {
 
 		if ( scope.enabled === false ) return;
 
-		event.preventDefault();
-		event.stopPropagation();
+		if ( scope.preventDefault === true ) {
+		  event.preventDefault();
+		  event.stopPropagation();
+		}
 
 		switch ( event.touches.length ) {
 
@@ -911,7 +918,7 @@ var OrbitControls = function ( object, domElement ) {
 
 		if ( scope.enabled === false ) return;
 
-		event.preventDefault();
+		if ( scope.preventDefault === true ) event.preventDefault();
 
 	}
 
