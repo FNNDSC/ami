@@ -1,6 +1,6 @@
 import ControlsTrackball, { trackball } from './controls.trackball';
 import TrackballOrtho, { trackballOrtho } from './controls.trackballortho';
-import ControlsOrbit, { orbit } from './controls.trackballortho';
+import ControlsOrbit, { orbit } from './controls.orbit';
 
 export {
   ControlsTrackball as TrackballControl,
