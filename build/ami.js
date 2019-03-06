@@ -26869,7 +26869,7 @@ module.exports = g;
 /*! exports provided: name, version, main, keywords, author, license, repository, config, lint-staged, prettier, sideEffects, dependencies, scripts, devDependencies, engines, default */
 /***/ (function(module) {
 
-module.exports = {"name":"ami.js","version":"0.28.0","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"lint-staged":{"{{src/**,examples/**, lessons/**}/,}.{js,jsx,json,css,ts,tsx}":["prettier --write","git add"]},"prettier":{"printWidth":100,"singleQuote":true,"trailingComma":"es5","overrides":[{"files":"*.css","options":{"useTabs":false,"tabWidth":2}}]},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"latest"},"scripts":{"precommit":"lint-staged","tslint-check":"tslint-config-prettier-check ./tslint.json","check-codestyle":"prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'","fix-all-code-style":"prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'","build:ami":"webpack --config webpack.config.build.js --display-error-details","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"@types/jasmine":"^3.3.2","@types/node":"^10.11.3","@types/three":"^0.93.13","babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","gh-pages":"^1.2.0","husky":"^1.1.3","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","lint-staged":"^8.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","prettier":"^1.15.1","prettier-check":"^2.0.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","ts-loader":"^5.2.1","tslint":"^5.11.0","tslint-config-prettier":"^1.15.0","tslint-loader":"^3.6.0","typescript":"^3.1.1","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-cli":"^3.1.0","webpack-dev-server":"^3.1.5","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
+module.exports = {"name":"ami.js","version":"0.29.0","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"lint-staged":{"{{src/**,examples/**, lessons/**}/,}.{js,jsx,json,css,ts,tsx}":["prettier --write","git add"]},"prettier":{"printWidth":100,"singleQuote":true,"trailingComma":"es5","overrides":[{"files":"*.css","options":{"useTabs":false,"tabWidth":2}}]},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"latest"},"scripts":{"precommit":"lint-staged","tslint-check":"tslint-config-prettier-check ./tslint.json","check-codestyle":"prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'","fix-all-code-style":"prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'","build:ami":"webpack --config webpack.config.build.js --display-error-details","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"@types/jasmine":"^3.3.2","@types/node":"^10.11.3","@types/three":"^0.93.13","babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","gh-pages":"^1.2.0","husky":"^1.1.3","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","lint-staged":"^8.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","prettier":"^1.15.1","prettier-check":"^2.0.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","ts-loader":"^5.2.1","tslint":"^5.11.0","tslint-config-prettier":"^1.15.0","tslint-loader":"^3.6.0","typescript":"^3.1.1","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-cli":"^3.1.0","webpack-dev-server":"^3.1.5","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
 
 /***/ }),
 
@@ -27663,7 +27663,7 @@ var camerasOrthographic = function camerasOrthographic() {
 /*!**********************************!*\
   !*** ./src/controls/controls.js ***!
   \**********************************/
-/*! exports provided: TrackballControl, trackballControlFactory, TrackballOrthoControl, trackballOrthoControlFactory */
+/*! exports provided: TrackballControl, trackballControlFactory, TrackballOrthoControl, trackballOrthoControlFactory, OrbitControl, orbitControlFactory */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -27677,6 +27677,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TrackballOrthoControl", function() { return _controls_trackballortho__WEBPACK_IMPORTED_MODULE_1__["default"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "trackballOrthoControlFactory", function() { return _controls_trackballortho__WEBPACK_IMPORTED_MODULE_1__["trackballOrtho"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "OrbitControl", function() { return _controls_trackballortho__WEBPACK_IMPORTED_MODULE_1__["default"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "orbitControlFactory", function() { return _controls_trackballortho__WEBPACK_IMPORTED_MODULE_1__["orbit"]; });
+
 
 
 
@@ -34190,6 +34195,7 @@ var LoadersVolumes = function (_LoadersBase) {
 
           // create a series
           var series = new _models_models_series__WEBPACK_IMPORTED_MODULE_2__["default"]();
+          series.rawHeader = volumeParser.rawHeader();
           // global information
           series.seriesInstanceUID = volumeParser.seriesInstanceUID();
           series.transferSyntaxUID = volumeParser.transferSyntaxUID();
@@ -35234,6 +35240,7 @@ var ModelsSeries = function (_ModelsBase) {
     _this._numberOfChannels = 1;
 
     // patient information
+    _this._rawHeader = null;
     _this._patientID = '';
     _this._patientName = '';
     _this._patientAge = '';
@@ -35494,6 +35501,28 @@ var ModelsSeries = function (_ModelsBase) {
     ,
     get: function get() {
       return this._seriesDescription;
+    }
+
+    /**
+    * Raw Header setter
+    *
+    * @param {*} rawHeader
+    */
+
+  }, {
+    key: 'rawHeader',
+    set: function set(rawHeader) {
+      this._rawHeader = rawHeader;
+    }
+
+    /**
+     * Raw Header getter
+     *
+     * @return {*}
+     */
+    ,
+    get: function get() {
+      return this._rawHeader;
     }
 
     /**
@@ -37148,6 +37177,17 @@ var ParsersDicom = function (_ParsersVolume) {
     var CIELabNormalized = [CIELabScaled[0] / 65535 * 100, CIELabScaled[1] / 65535 * 255 - 128, CIELabScaled[2] / 65535 * 255 - 128];
 
     return CIELabNormalized;
+  };
+
+  /**
+   * Raw dataset
+   * 
+   * @return {*}
+   */
+
+
+  ParsersDicom.prototype.rawHeader = function rawHeader() {
+    return this._dataSet;
   };
 
   /**
@@ -39897,6 +39937,16 @@ var ParsersVolume = function () {
 
 
   ParsersVolume.prototype.seriesDescription = function seriesDescription() {
+    return 'no value provided';
+  };
+
+  /**
+   * Get the raw Header.
+   * @return {*}
+   */
+
+
+  ParsersVolume.prototype.rawHeader = function rawHeader() {
     return 'no value provided';
   };
 
