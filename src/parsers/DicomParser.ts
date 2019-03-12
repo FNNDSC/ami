@@ -1,5 +1,5 @@
 /** * Imports ***/
-import ParsersVolume from './parsers.volume';
+import ParsersVolume from './VolumeParser';
 import * as OpenJPEG from 'OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js';
 
 import { RLEDecoder } from '../decoders/decoders.rle';
@@ -25,7 +25,11 @@ let openJPEG; // for one time initialization
  * @param arrayBuffer {arraybuffer} - List of files to be parsed. It is urls from which
  * VJS.parsers.dicom can pull the data from.
  */
-export default class ParsersDicom extends ParsersVolume {
+export default class AMIDicomParser extends ParsersVolume {
+  _id: any;
+  _arrayBuffer: any;
+  _dataSet: any;
+
   constructor(data, id) {
     super();
 
@@ -711,7 +715,7 @@ export default class ParsersDicom extends ParsersVolume {
     // PET MODULE
     if (targetString === null) {
       const petModule = 'x00540022';
-      targetString = this._findStringInSequence(petModule, tag);
+      targetString = this._findStringInSequence(petModule, tag, index);
     }
 
     if (targetString === null) {
@@ -982,7 +986,7 @@ export default class ParsersDicom extends ParsersVolume {
     const planarConfiguration = this.planarConfiguration();
     const columns = this.columns();
     const rows = this.rows();
-    const samplesPerPixel = this.samplesPerPixel(frameIndex);
+    const samplesPerPixel = this.samplesPerPixel();
     const pixelRepresentation = this.pixelRepresentation(frameIndex);
 
     // format data for the RLE decoder

@@ -1,6 +1,7 @@
 /** * Imports ***/
 import coreIntersections from '../core/CoreIntersections';
-import coreUtils from '../core/core.utils';
+import coreUtils from '../core/core';
+import THREE from 'THREE';
 
 /**
  *
@@ -42,14 +43,8 @@ import coreUtils from '../core/core.utils';
  *  scene.add(slice);
  */
 
-const geometriesSlice = (three = window.THREE) => {
-  if (three === undefined || three.ShapeBufferGeometry === undefined) {
-    return null;
-  }
-
-  const Constructor = three.ShapeBufferGeometry;
-  return class extends Constructor {
-    constructor(halfDimensions, center, position, direction, toAABB = new three.Matrix4()) {
+ export default class SliceGeometry extends THREE.ShapeBufferGeometry {
+   constructor(halfDimensions, center, position, direction, toAABB = new THREE.Matrix4()) {
       //
       // prepare data for the shape!
       //
@@ -68,7 +63,7 @@ const geometriesSlice = (three = window.THREE) => {
       let intersections = coreIntersections.aabbPlane(aabb, plane);
 
       // can not exist before calling the constructor
-      if (intersections.length < 3) {
+      if (intersections && intersections.length < 3) {
         window.console.log('WARNING: Less than 3 intersections between AABB and Plane.');
         window.console.log('AABB');
         window.console.log(aabb);
@@ -84,7 +79,7 @@ const geometriesSlice = (three = window.THREE) => {
       let points = coreUtils.orderIntersections(intersections, direction);
 
       // create the shape
-      let shape = new three.Shape();
+      let shape = new THREE.Shape();
       // move to first point!
       shape.moveTo(points[0].xy.x, points[0].xy.y);
 
@@ -109,13 +104,7 @@ const geometriesSlice = (three = window.THREE) => {
       this.type = 'SliceBufferGeometry';
 
       // update real position of each vertex! (not in 2d)
-      this.addAttribute( 'position', new three.Float32BufferAttribute( positions, 3 ) );
-      this.vertices = points; // legacy code to compute normals int he SliceHelper
-    }
-  };
-};
-
-// export factory
-export { geometriesSlice };
-// default export to
-export default geometriesSlice();
+      this.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+      this.attributes.position = points; // legacy code to compute normals in the SliceHelper
+   }
+ }

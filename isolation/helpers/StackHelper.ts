@@ -2,9 +2,9 @@
  * Imports 
  */
 import THREE from 'three';
-import { BoundingBoxHelper } from './BoundingBoxHelper';
+import { helpersBorder } from './helpers.border';
+import { helpersBoundingBox } from './helpers.boundingbox';
 import { SliceHelper } from './SliceHelper';
-import BorderHelper from './BorderHelper';
 
 /**
  * Helper to easily display and interact with a stack.<br>
@@ -348,7 +348,8 @@ export class StackHelper extends THREE.Object3D {
      * @private
      */
     public _prepareBBox() {
-      this._bBox = new BoundingBoxHelper(this._stack);
+      const HelpersBoundingBoxConstructor = helpersBoundingBox(THREE);
+      this._bBox = new HelpersBoundingBoxConstructor(this._stack);
       this.add(this._bBox);
     }
 
@@ -359,7 +360,8 @@ export class StackHelper extends THREE.Object3D {
      * @private
      */
     public _prepareBorder() {
-      this._border = new BorderHelper(this._slice);
+      const HelpersBorderContructor = helpersBorder(THREE);
+      this._border = new HelpersBorderContructor(this._slice);
       this.add(this._border);
     }
 

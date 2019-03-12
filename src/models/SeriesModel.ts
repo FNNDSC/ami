@@ -1,12 +1,33 @@
 /** * Imports ***/
-import ModelsBase from '../models/models.base';
+import BaseModel from './BaseModel';
 
 /**
  * Series object.
  *
  * @module models/series
  */
-export default class ModelsSeries extends ModelsBase {
+export default class SeriesModel extends BaseModel {
+  private _concatenationUID: number;
+  private _seriesInstanceUID: number;
+  private _transferSyntaxUID: string;
+  private _seriesNumber: number;
+  private _seriesDescription: string;
+  private _seriesDate: string;
+  private _studyDescription: string;
+  private _studyDate: string;
+  private _accessionNumber: number;
+  private _modality: string;
+  private _dimensionIndexSequence: any[];
+  private _numberOfFrames: number;
+  private _numberOfChannels: number;
+  private _patientID: string;
+  private _patientName: string;
+  private _patientAge: string;
+  private _patientBirthdate: string;
+  private _patientSex: string;
+  private _segmentationType: any;
+  private _segmentationSegments: any[];
+  private _stack: any[];
   /**
    * Models series constructor
    */
@@ -54,7 +75,7 @@ export default class ModelsSeries extends ModelsBase {
    *   - _numberOfChannels
    *   _ _stack
    *
-   * @param {ModelsSeries} model - Model to be validated as series.
+   * @param {SeriesModel} model - Model to be validated as series.
    *
    * @return {boolean} True if series is valid. False if not.
    *
@@ -85,7 +106,7 @@ export default class ModelsSeries extends ModelsBase {
    *
    * Also merges the stacks inside a series.
    *
-   * @param {ModelsSeries} series - Series to be merged against current series.
+   * @param {SeriesModel} series - Series to be merged against current series.
    *
    * @return {boolean} True if series could be merge. False if not.
    *
@@ -120,9 +141,9 @@ export default class ModelsSeries extends ModelsBase {
    *
    * Also merges the stacks inside a series.
    *
-   * @param {Array.<ModelsSeries>} target - Series to be merged against current series.
+   * @param {Array.<SeriesModel>} target - Series to be merged against current series.
    *
-   * @return {Array.<ModelsSeries>} Array of series properly merged.
+   * @return {Array.<SeriesModel>} Array of series properly merged.
    */
   mergeSeries(target) {
     let seriesContainer = [this];

@@ -1,12 +1,24 @@
 /** * Imports ***/
-import ParsersVolume from './parsers.volume';
+import ParsersVolume from './VolumeParser';
 
 import { Vector3 } from 'three/src/math/Vector3';
 
 /**
  * @module parsers/mhd
  */
-export default class ParsersMHD extends ParsersVolume {
+export default class MHDParser extends ParsersVolume {
+  _id: any;
+  _url: any;
+  _header: {
+    DimSize: any,
+    ElementSpacing: any,
+    TransformMatrix: any,
+    Offset: any,
+    ElementType: any,
+    AnatomicalOrientation: any
+  };
+  _buffer: any;
+
   constructor(data, id) {
     super();
 
@@ -16,7 +28,14 @@ export default class ParsersMHD extends ParsersVolume {
      */
     this._id = id;
     this._url = data.url;
-    this._header = {};
+    this._header = {
+      DimSize: null,
+      ElementSpacing: null,
+      TransformMatrix: null,
+      Offset: null,
+      ElementType: null,
+      AnatomicalOrientation: null
+    };
     this._buffer = null;
 
     try {
@@ -117,9 +136,9 @@ export default class ParsersMHD extends ParsersVolume {
    * @param {*} frameIndex
    */
   pixelSpacing(frameIndex = 0) {
-    let x = parseFloat(this._header.ElementSpacing[1], 10);
-    let y = parseFloat(this._header.ElementSpacing[0], 10);
-    let z = parseFloat(this._header.ElementSpacing[2], 10);
+    let x = parseFloat(this._header.ElementSpacing[1]);
+    let y = parseFloat(this._header.ElementSpacing[0]);
+    let z = parseFloat(this._header.ElementSpacing[2]);
     return [x, y, z];
   }
 

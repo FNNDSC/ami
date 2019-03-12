@@ -1,5 +1,5 @@
 /** Imports **/
-import HelpersProgressBar from '../helpers/helpers.progressbar';
+import HelpersProgressBar from '../helpers/ProgressBarHelper';
 import EventEmitter from 'events';
 
 /**
@@ -28,7 +28,14 @@ import EventEmitter from 'events';
  *   }
  * );
  */
-export default class LoadersBase extends EventEmitter {
+export default class BaseLoader extends EventEmitter {
+  protected _loaded: number;
+  protected _totalLoaded: number;
+  protected _parsed: number;
+  protected _totalParsed: number;
+  protected _data: any[];
+  protected _container: any;
+  protected _progressBar: any;
   /**
    * Create a Loader.
    * @param {dom} container - The dom container of loader.

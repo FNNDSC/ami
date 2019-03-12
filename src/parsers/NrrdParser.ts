@@ -1,5 +1,5 @@
 /** * Imports ***/
-import ParsersVolume from './parsers.volume';
+import VolumeParser from './VolumeParser';
 import { Vector3 } from 'three/src/math/Vector3';
 
 let pako = require('pako');
@@ -7,7 +7,13 @@ let NrrdReader = require('nrrd-js');
 /**
  * @module parsers/nifti
  */
-export default class ParsersNifti extends ParsersVolume {
+export default class NrrdParser extends VolumeParser {
+  _id: any;
+  _arrayBuffer: any;
+  _url: any;
+  _dataSet: any;
+  _unpackedData: any;
+  
   /**
    * Constructor
    *

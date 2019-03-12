@@ -4,8 +4,8 @@ import { Vector3 } from 'three/src/math/Vector3';
 import { RGBFormat, RGBAFormat } from 'three/src/constants';
 
 import CoreColors from '../core/CoreColours';
-import CoreUtils from '../core/core.utils';
-import ModelsBase from '../models/models.base';
+import CoreUtils from '../core/core';
+import BaseModel from './BaseModel';
 
 const binaryString = require('math-float32-to-binary-string');
 
@@ -14,7 +14,53 @@ const binaryString = require('math-float32-to-binary-string');
  *
  * @module models/stack
  */
-export default class ModelsStack extends ModelsBase {
+export default class StackModel extends BaseModel {
+  private _uid: any;
+  private _stackID: number;
+  private _frame: any[];
+  private _numberOfFrames: number;
+  private _rows: number;
+  private _columns: number;
+  private _numberOfChannels: number;
+  private _bitsAllocated: number;
+  private _pixelType: number;
+  private _pixelRepresentation: number;
+  private _textureSize: number;
+  private _textureUnits: number;
+  private _rawData: any[];
+  private _windowCenter: number;
+  private _windowWidth: number;
+  private _rescaleSlope: number;
+  private _rescaleIntercept: number;
+  private _minMax: number[];
+  private _regMatrix: Matrix4;
+  private _ijk2LPS: any;
+  private _lps2IJK: any;
+  private _aabb2LPS: any;
+  private _lps2AABB: any;
+  private _dimensionsIJK: any;
+  private _halfDimensionsIJK: any;
+  private _spacing: Vector3;
+  private _spacingBetweenSlices: number;
+  private _sliceThickness: number;
+  private _origin: any;
+  private _rightHanded: boolean;
+  private _xCosine: Vector3;
+  private _yCosine: Vector3;
+  private _zCosine: Vector3;
+  private _prepared: boolean;
+  private _packed: boolean;
+  private _packedPerPixel: number;
+  private _modality: string;
+  private _segmentationType: any;
+  private _segmentationSegments: any[];
+  private _segmentationDefaultColor: number[];
+  private _frameSegment: any[];
+  private _segmentationLUT: any[];
+  private _segmentationLUTO: any[];
+  private _invert: boolean;
+  private _textureType: any;
+  private 
   /**
    * Models Stack constructor
    */

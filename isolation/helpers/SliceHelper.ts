@@ -1,5 +1,5 @@
 import THREE from 'three';
-import { SliceGeometry } from '../geometries/geometries';
+import { geometriesSlice } from '../geometries/geometries.slice';
 import { DataShader } from '../shaders/data/data';
 import { BaseTHREEHelper } from './BaseTHREEHelper';
 
@@ -277,7 +277,8 @@ export class SliceHelper extends BaseTHREEHelper {
     }
     // Convenience vars
     try {
-      this._geometry = new SliceGeometry(this._halfDimensions, this._center, this._planePosition, this._planeDirection, this._toAABB);
+      const SliceGeometryContructor = geometriesSlice(THREE);
+      this._geometry = new SliceGeometryContructor(this._halfDimensions, this._center, this._planePosition, this._planeDirection, this._toAABB);
     }
     catch (e) {
       window.console.log(e);

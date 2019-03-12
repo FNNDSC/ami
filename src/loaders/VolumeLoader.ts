@@ -1,16 +1,16 @@
 /** * Imports ***/
 const PAKO = require('pako');
 
-import LoadersBase from './loaders.base';
-import CoreUtils from '../core/core.utils';
-import ModelsSeries from '../models/models.series';
-import ModelsStack from '../models/models.stack';
-import ModelsFrame from '../models/models.frame';
-import ParsersDicom from '../parsers/parsers.dicom';
-import ParsersMhd from '../parsers/parsers.mhd';
-import ParsersNifti from '../parsers/parsers.nifti';
-import ParsersNrrd from '../parsers/parsers.nrrd';
-import ParsersMgh from '../parsers/parsers.mgh';
+import BaseLoader from './BaseLoader';
+import CoreUtils from '../core/core';
+import SeriesModel from '../models/SeriesModel';
+import StackModel from '../models/StackModel';
+import FrameModel from '../models/FrameModel';
+import AMIDicomParser from '../parsers/DicomParser';
+import ParsersMhd from '../parsers/MHDParser';
+import NiftiParser from '../parsers/NiftiParser';
+import ParsersNrrd from '../parsers/NrrdParser';
+import MghParser from '../parsers/MghParser';
 
 /**
  *
@@ -37,7 +37,7 @@ import ParsersMgh from '../parsers/parsers.mgh';
  *   }
  * );
  */
-export default class LoadersVolumes extends LoadersBase {
+export default class VolumeLoader extends BaseLoader {
   /**
    * Parse response.
    * response is formated as:
@@ -117,7 +117,7 @@ export default class LoadersVolumes extends LoadersBase {
             }
 
             // create a series
-            let series = new ModelsSeries();
+            let series = new SeriesModel();
             // global information
             series.seriesInstanceUID = volumeParser.seriesInstanceUID();
             series.transferSyntaxUID = volumeParser.transferSyntaxUID();
@@ -147,7 +147,7 @@ export default class LoadersVolumes extends LoadersBase {
             series.patientSex = volumeParser.patientSex();
 
             // just create 1 dummy stack for now
-            let stack = new ModelsStack();
+            let stack = new StackModel();
             stack.numberOfChannels = volumeParser.numberOfChannels();
             stack.pixelRepresentation = volumeParser.pixelRepresentation();
             stack.pixelType = volumeParser.pixelType();
@@ -184,8 +184,8 @@ export default class LoadersVolumes extends LoadersBase {
 
   /**
    * recursive parse frame
-   * @param {ModelsSeries} series - data series
-   * @param {ModelsStack} stack - data stack
+   * @param {SeriesModel} series - data series
+   * @param {StackModel} stack - data stack
    * @param {string} url - resource url
    * @param {number} i - frame index
    * @param {parser} dataParser - selected parser
@@ -193,7 +193,7 @@ export default class LoadersVolumes extends LoadersBase {
    * @param {promise.reject} reject - promise reject args
    */
   parseFrame(series, stack, url, i, dataParser, resolve, reject) {
-    let frame = new ModelsFrame();
+    let frame = new FrameModel();
     frame.sopInstanceUID = dataParser.sopInstanceUID(i);
     frame.url = url;
     frame.index = i;
@@ -285,14 +285,14 @@ export default class LoadersVolumes extends LoadersBase {
     switch (extension.toUpperCase()) {
       case 'NII':
       case 'NII_':
-        Parser = ParsersNifti;
+        Parser = NiftiParser;
         break;
       case 'DCM':
       case 'DIC':
       case 'DICOM':
       case 'IMA':
       case '':
-        Parser = ParsersDicom;
+        Parser = AMIDicomParser;
         break;
       case 'MHD':
         Parser = ParsersMhd;
@@ -302,7 +302,7 @@ export default class LoadersVolumes extends LoadersBase {
         break;
       case 'MGH':
       case 'MGZ':
-        Parser = ParsersMgh;
+        Parser = MghParser;
         break;
       default:
         console.warn('unsupported extension: ' + extension);

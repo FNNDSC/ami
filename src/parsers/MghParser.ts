@@ -1,12 +1,70 @@
 /** * Imports ***/
-import ParsersVolume from './parsers.volume';
+import VolumeParser from './VolumeParser';
 
 import { Vector3 } from 'three/src/math/Vector3';
 
 /**
  * @module parsers/mgh
  */
-export default class ParsersMgh extends ParsersVolume {
+export default class MghParser extends VolumeParser {
+  _id: any;
+  _url: any;
+  _buffer: any;
+  _bufferPos: number;
+  _dataPos: number;
+  _pixelData: any;
+  _version: number;
+  _width: number;
+  _height: number;
+  _depth: number;
+  _nframes: number;
+  _type: any;
+  static MRI_UCHAR: any;
+  _dof: number;
+  _goodRASFlag: number;
+  _spacingXYZ: number[];
+  _Xras: number[];
+  _Yras: number[];
+  _Zras: number[];
+  _Cras: number[];
+  _tr: number;
+  _flipAngle: number;
+  _te: number;
+  _ti: number;
+  _fov: number;
+  _tags: any[];
+  _origin: number[];
+  _imageOrient: number[];
+  _swapEndian: boolean;
+  static MRI_INT: any;
+  static MRI_FLOAT: any;
+  static MRI_SHORT: any;
+  static TAG_OLD_MGH_XFORM: any;
+  static TAG_MGH_XFORM: any;
+  _swapendian: any;
+  static TAG_OLD_SURF_GEOM: any;
+  static TAG_OLD_USEREALRAS: any;
+  static TAG_OLD_COLORTABLE: any;
+  static MRI_LONG: number;
+  static MRI_BITMAP: number;
+  static MRI_TENSOR: number;
+  static MRI_FLOAT_COMPLEX: number;
+  static MRI_DOUBLE_COMPLEX: number;
+  static MRI_RGB: number;
+  static TAG_CMDLINE: number;
+  static TAG_USEREALRAS: number;
+  static TAG_COLORTABLE: number;
+  static TAG_GCAMORPH_GEOM: number;
+  static TAG_GCAMORPH_TYPE: number;
+  static TAG_GCAMORPH_LABELS: number;
+  static TAG_SURF_GEOM: number;
+  static TAG_GROUP_AVG_SURFACE_AREA: number;
+  static TAG_AUTO_ALIGN: number;
+  static TAG_SCALAR_DOUBLE: number;
+  static TAG_PEDIR: number;
+  static TAG_MRI_FRAME: number;
+  static TAG_FIELDSTRENGTH: number;
+
   constructor(data, id) {
     super();
 
@@ -29,7 +87,7 @@ export default class ParsersMgh extends ParsersVolume {
     this._height = 0;
     this._depth = 0;
     this._nframes = 0;
-    this._type = ParsersMgh.MRI_UCHAR; // 0-UCHAR, 4-SHORT, 1-INT, 3-FLOAT
+    this._type = MghParser.MRI_UCHAR; // 0-UCHAR, 4-SHORT, 1-INT, 3-FLOAT
     this._dof = 0;
     this._goodRASFlag = 0; // True: Use directional cosines, false assume CORONAL
     this._spacingXYZ = [1, 1, 1];
@@ -82,16 +140,16 @@ export default class ParsersMgh extends ParsersVolume {
     let vSize = this._width * this._height * this._depth;
 
     switch (this._type) {
-      case ParsersMgh.MRI_UCHAR:
+      case MghParser.MRI_UCHAR:
         this._pixelData = this._readUChar(dataSize);
         break;
-      case ParsersMgh.MRI_INT:
+      case MghParser.MRI_INT:
         this._pixelData = this._readInt(dataSize);
         break;
-      case ParsersMgh.MRI_FLOAT:
+      case MghParser.MRI_FLOAT:
         this._pixelData = this._readFloat(dataSize);
         break;
-      case ParsersMgh.MRI_SHORT:
+      case MghParser.MRI_SHORT:
         this._pixelData = this._readShort(dataSize);
         break;
       default:
@@ -112,8 +170,8 @@ export default class ParsersMgh extends ParsersVolume {
       let tagValue = undefined;
 
       switch (tagType) {
-        case ParsersMgh.TAG_OLD_MGH_XFORM:
-        case ParsersMgh.TAG_MGH_XFORM:
+        case MghParser.TAG_OLD_MGH_XFORM:
+        case MghParser.TAG_MGH_XFORM:
           tagValue = this._readChar(tagLen);
           break;
         default:
@@ -188,11 +246,11 @@ export default class ParsersMgh extends ParsersVolume {
   pixelType(frameIndex = 0) {
     // Return: 0 integer, 1 float
     switch (this._type) {
-      case ParsersMgh.MRI_UCHAR:
-      case ParsersMgh.MRI_INT:
-      case ParsersMgh.MRI_SHORT:
+      case MghParser.MRI_UCHAR:
+      case MghParser.MRI_INT:
+      case MghParser.MRI_SHORT:
         return 0;
-      case ParsersMgh.MRI_FLOAT:
+      case MghParser.MRI_FLOAT:
         return 1;
       default:
         throw Error('MGH/MGZ parser: Unknown _type.  _type reports: ' + this._type);
@@ -201,12 +259,12 @@ export default class ParsersMgh extends ParsersVolume {
 
   bitsAllocated(frameIndex = 0) {
     switch (this._type) {
-      case ParsersMgh.MRI_UCHAR:
+      case MghParser.MRI_UCHAR:
         return 8;
-      case ParsersMgh.MRI_SHORT:
+      case MghParser.MRI_SHORT:
         return 16;
-      case ParsersMgh.MRI_INT:
-      case ParsersMgh.MRI_FLOAT:
+      case MghParser.MRI_INT:
+      case MghParser.MRI_FLOAT:
         return 32;
       default:
         throw Error('MGH/MGZ parser: Unknown _type.  _type reports: ' + this._type);
@@ -303,11 +361,11 @@ export default class ParsersMgh extends ParsersVolume {
     this._bufferPos += len;
     let v = undefined;
     if (len == 1) {
-      v = tempBuff.getInt8(0, this._swapEndian);
+      v = tempBuff.getInt8(0);
     } else {
       v = new Int8Array(len);
       for (let i = 0; i < len; i++) {
-        v[i] = tempBuff.getInt8(i, this._swapEndian);
+        v[i] = tempBuff.getInt8(i);
       }
     }
     return v;
@@ -319,11 +377,11 @@ export default class ParsersMgh extends ParsersVolume {
     this._bufferPos += len;
     let v = undefined;
     if (len == 1) {
-      v = tempBuff.getUint8(0, this._swapEndian);
+      v = tempBuff.getUint8(0);
     } else {
       v = new Uint8Array(len);
       for (let i = 0; i < len; i++) {
-        v[i] = tempBuff.getUint8(i, this._swapEndian);
+        v[i] = tempBuff.getUint8(i);
       }
     }
     return v;
@@ -352,13 +410,13 @@ export default class ParsersMgh extends ParsersVolume {
     let tagType = this._readInt();
     let tagLen = undefined;
     switch (tagType) {
-      case ParsersMgh.TAG_OLD_MGH_XFORM:
+      case MghParser.TAG_OLD_MGH_XFORM:
         tagLen = this._readInt();
         tagLen -= 1;
         break;
-      case ParsersMgh.TAG_OLD_SURF_GEOM:
-      case ParsersMgh.TAG_OLD_USEREALRAS:
-      case ParsersMgh.TAG_OLD_COLORTABLE:
+      case MghParser.TAG_OLD_SURF_GEOM:
+      case MghParser.TAG_OLD_USEREALRAS:
+      case MghParser.TAG_OLD_COLORTABLE:
         tagLen = 0;
         break;
       default:
@@ -373,34 +431,34 @@ export default class ParsersMgh extends ParsersVolume {
 
 // https://github.com/freesurfer/freesurfer/
 // See include/mri.h
-ParsersMgh.MRI_UCHAR = 0;
-ParsersMgh.MRI_INT = 1;
-ParsersMgh.MRI_LONG = 2;
-ParsersMgh.MRI_FLOAT = 3;
-ParsersMgh.MRI_SHORT = 4;
-ParsersMgh.MRI_BITMAP = 5;
-ParsersMgh.MRI_TENSOR = 6;
-ParsersMgh.MRI_FLOAT_COMPLEX = 7;
-ParsersMgh.MRI_DOUBLE_COMPLEX = 8;
-ParsersMgh.MRI_RGB = 9;
+MghParser.MRI_UCHAR = 0;
+MghParser.MRI_INT = 1;
+MghParser.MRI_LONG = 2;
+MghParser.MRI_FLOAT = 3;
+MghParser.MRI_SHORT = 4;
+MghParser.MRI_BITMAP = 5;
+MghParser.MRI_TENSOR = 6;
+MghParser.MRI_FLOAT_COMPLEX = 7;
+MghParser.MRI_DOUBLE_COMPLEX = 8;
+MghParser.MRI_RGB = 9;
 
 // https://github.com/freesurfer/freesurfer/
 // See include/tags.h
-ParsersMgh.TAG_OLD_COLORTABLE = 1;
-ParsersMgh.TAG_OLD_USEREALRAS = 2;
-ParsersMgh.TAG_CMDLINE = 3;
-ParsersMgh.TAG_USEREALRAS = 4;
-ParsersMgh.TAG_COLORTABLE = 5;
-ParsersMgh.TAG_GCAMORPH_GEOM = 10;
-ParsersMgh.TAG_GCAMORPH_TYPE = 11;
-ParsersMgh.TAG_GCAMORPH_LABELS = 12;
-ParsersMgh.TAG_OLD_SURF_GEOM = 20;
-ParsersMgh.TAG_SURF_GEOM = 21;
-ParsersMgh.TAG_OLD_MGH_XFORM = 30;
-ParsersMgh.TAG_MGH_XFORM = 31;
-ParsersMgh.TAG_GROUP_AVG_SURFACE_AREA = 32;
-ParsersMgh.TAG_AUTO_ALIGN = 33;
-ParsersMgh.TAG_SCALAR_DOUBLE = 40;
-ParsersMgh.TAG_PEDIR = 41;
-ParsersMgh.TAG_MRI_FRAME = 42;
-ParsersMgh.TAG_FIELDSTRENGTH = 43;
+MghParser.TAG_OLD_COLORTABLE = 1;
+MghParser.TAG_OLD_USEREALRAS = 2;
+MghParser.TAG_CMDLINE = 3;
+MghParser.TAG_USEREALRAS = 4;
+MghParser.TAG_COLORTABLE = 5;
+MghParser.TAG_GCAMORPH_GEOM = 10;
+MghParser.TAG_GCAMORPH_TYPE = 11;
+MghParser.TAG_GCAMORPH_LABELS = 12;
+MghParser.TAG_OLD_SURF_GEOM = 20;
+MghParser.TAG_SURF_GEOM = 21;
+MghParser.TAG_OLD_MGH_XFORM = 30;
+MghParser.TAG_MGH_XFORM = 31;
+MghParser.TAG_GROUP_AVG_SURFACE_AREA = 32;
+MghParser.TAG_AUTO_ALIGN = 33;
+MghParser.TAG_SCALAR_DOUBLE = 40;
+MghParser.TAG_PEDIR = 41;
+MghParser.TAG_MRI_FRAME = 42;
+MghParser.TAG_FIELDSTRENGTH = 43;

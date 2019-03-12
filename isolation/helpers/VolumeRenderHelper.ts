@@ -14,6 +14,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
     private _offset: number = 0;
   //#endregion
 
+
   //#region Getters / Setters 
   get steps() {
     return this._steps;

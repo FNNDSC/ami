@@ -1,4 +1,8 @@
 {
+  "exclude": [
+    "./isolation/**/*.js",
+    "./isolation/**/*.ts",
+  ],
   "extends": ["tslint:recommended", "tslint-config-prettier"],
   "rules": {
     "class-name": true,

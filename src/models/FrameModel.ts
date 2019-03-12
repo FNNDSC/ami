@@ -1,5 +1,5 @@
 /** * Imports ***/
-import ModelsBase from '../models/models.base';
+import BaseModel from './BaseModel';
 
 import { Vector3 } from 'three/src/math/Vector3';
 
@@ -8,7 +8,38 @@ import { Vector3 } from 'three/src/math/Vector3';
  *
  * @module models/frame
  */
-export default class ModelsFrame extends ModelsBase {
+export default class FrameModel extends BaseModel {
+  private _sopInstanceUID: any;
+  private _url: any;
+  private _stackID: number;
+  private _invert: boolean;
+  private _frameTime: any;
+  private _ultrasoundRegions: any[];
+  private _rows: number;
+  private _columns: number;
+  private _dimensionIndexValues: any[];
+  private _imagePosition: any;
+  private _imageOrientation: any;
+  private _rightHanded: boolean;
+  private _sliceThickness: number;
+  private _spacingBetweenSlices: any;
+  private _pixelPaddingValue: any;
+  private _pixelRepresentation: number;
+  private _pixelType: number;
+  private _pixelSpacing: any;
+  private _pixelAspectRatio: any;
+  private _pixelData: any;
+  private _instanceNumber: any;
+  private _windowCenter: any;
+  private _windowWidth: any;
+  private _rescaleSlope: any;
+  private _rescaleIntercept: any;
+  private _bitsAllocated: number;
+  private _numberOfChannels: number;
+  private _minMax: any;
+  private _dist: any;
+  private _index: number;
+  private _referencedSegmentNumber: number;
   /**
    * Constructor
    */
@@ -223,9 +254,12 @@ export default class ModelsFrame extends ModelsBase {
   _frameToCanvas() {
     const dimension = this._columns * this._rows;
 
+    // TODO: Hacky re-arrange, assume it;'s working
     const params = {
       invert: this._invert,
       min: this._minMax[0],
+      max: this._minMax[1],
+      range: 0,
       padding: this._pixelPaddingValue,
     };
     let data = new Uint8Array(dimension * 4);

@@ -4,7 +4,9 @@
  * @module models/base
  */
 
-export default class ModelsBase {
+export default class BaseModel {
+  protected _id: number;
+
   constructor() {
     this._id = -1;
   }

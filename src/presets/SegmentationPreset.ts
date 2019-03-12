@@ -4,7 +4,10 @@
 
 import freesurferSegmentation from './presets.segmentation.freesurfer';
 
-export default class PresetsSegmentation {
+export default class SegmentationPreset {
+  _presetID: any;
+  _presets: any;
+
   constructor(presetID = 'Freesurfer') {
     this._presetID = presetID;
     this._presets = this.presetSegs();

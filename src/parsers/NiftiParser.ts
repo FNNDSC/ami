@@ -1,12 +1,22 @@
 /** * Imports ***/
-import ParsersVolume from './parsers.volume';
+import VolumeParser from './VolumeParser';
 
 import NiftiReader from 'nifti-reader-js/src/nifti';
 
 /**
  * @module parsers/nifti
  */
-export default class ParsersNifti extends ParsersVolume {
+export default class NiftiParser extends VolumeParser {
+  _id: any;
+  _arrayBuffer: any;
+  _url: any;
+  _dataSet: any;
+  _niftiHeader: any;
+  _niftiImage: any;
+  _ordered: boolean;
+  _orderedData: any;
+  _qfac: number;
+
   constructor(data, id) {
     super();
 
