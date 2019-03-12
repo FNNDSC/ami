@@ -72,6 +72,7 @@
     "fix-all-code-style": "prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'",
     "build:ami": "webpack --config webpack.config.build.js --display-error-details",
     "build:ami:prod": "cross-env NODE_ENV=production yarn build:ami",
+    "build:ami:prod:var": "cross-env NODE_ENV=production NODE_WEBPACK_LIBRARY_TARGET=var yarn build:ami",
     "build:clean": "rimraf -rf build/*",
     "build:clean:hot": "rimraf -rf build/*.hot-update.*",
     "dev:ami": "webpack --config webpack.config.build.js --hot --watch --colors",

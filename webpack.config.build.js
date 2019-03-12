@@ -13,7 +13,7 @@ const config = {
     path: path.resolve(__dirname, 'build'),
     filename: mode === 'development' ? 'ami.js' : 'ami.min.js',
     library: 'AMI',
-    libraryTarget: 'var',
+    libraryTarget: 'umd',
     umdNamedDefine: true,
   },
   mode,
@@ -96,6 +96,11 @@ if (process.env.NODE_WEBPACK_TARGET) {
       algorithm: 'gzip',
     })
   );
+}
+
+if (process.env.NODE_WEBPACK_LIBRARY_TARGET) {
+  console.log('NODE_WEBPACK_LIBRARY_TARGET ', process.env.NODE_WEBPACK_LIBRARY_TARGET);
+  config.output.libraryTarget = process.env.NODE_WEBPACK_LIBRARY_TARGET;
 }
 
 if (process.env.NODE_WEBPACK_ANALYZE) {
