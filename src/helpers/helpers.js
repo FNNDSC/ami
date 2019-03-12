@@ -1,11 +1,11 @@
-import { BorderHelper } from './helpers.border';
-import { BoundingBoxHelper } from './helpers.boundingbox';
+import { BorderHelper } from './BorderHelper';
+import { BoundingBoxHelper } from './BoundingBoxHelper';
 import { ContourHelper } from './ContourHelper';
 import { LocalizerHelper } from './LocalizerHelper';
-import { LutHelper } from './helpers.lut';
-import { SegmentationLutHelper } from './helpers.segmentationlut';
-import { ProgressBarHelper } from './helpers.progressbar';
-import { ProgressBarEventBasedHelper } from './helpers.progressbar.eventbased';
+import { LutHelper } from './LutHelper';
+import { SegmentationLutHelper } from './SegmentationLutHelper';
+import { ProgressBarHelper } from './ProgressBarHelper';
+import { ProgressBarEventBasedHelper } from './ProgressBarEventBasedHelper';
 import { SliceHelper } from './SliceHelper';
 import { StackHelper } from './StackHelper';
 import { VolumeRenderHelper } from './VolumeRenderHelper';

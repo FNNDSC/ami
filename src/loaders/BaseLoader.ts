@@ -81,7 +81,7 @@ export default class BaseLoader extends EventEmitter {
     return new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
       request.open('GET', url);
-      request.crossOrigin = true;
+      //request.crossOrigin = true;
       request.responseType = 'arraybuffer';
 
       request.onloadstart = event => {

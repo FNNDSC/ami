@@ -1,5 +1,5 @@
-import SliceGeometry from './geometries/SliceGeometry';
-import VoxelGeometry  from './geometries/VoxelGeometry';
+import SliceGeometry from './SliceGeometry';
+import VoxelGeometry  from './VoxelGeometry';
 
 export {
   SliceGeometry as SliceGeometry,
