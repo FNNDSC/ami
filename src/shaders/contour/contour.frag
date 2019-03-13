@@ -23,8 +23,6 @@ void main(void) {
   float _dFdX = length(rightPixel - centerPixel) / step_u;
   float _dFdY = length(bottomPixel - centerPixel) / step_v;
 
-  // gl_FragColor.r = _dFdX;
-  // gl_FragColor.g = _dFdY;
   gl_FragColor.r = max(max(centerPixel.r, rightPixel.r), bottomPixel.r);
   gl_FragColor.g = max(max(centerPixel.g, rightPixel.g), bottomPixel.g);
   gl_FragColor.b = max(max(centerPixel.b, rightPixel.b), bottomPixel.b);
@@ -33,22 +31,4 @@ void main(void) {
   gl_FragColor.a = uOpacity * clampedDerivative;
 
   return;
-  // float h = 1./uCanvasHeight;
-  // float w = 1./uCanvasWidth;
-  // vec4 n[9];
-  // n[0] = texture2D(uTextureFilled, vProjectedTextCoords + vec2( -w, -h));
-  // n[1] = texture2D(uTextureFilled, vProjectedTextCoords + vec2(0.0, -h));
-  // n[2] = texture2D(uTextureFilled, vProjectedTextCoords + vec2(  w, -h));
-  // n[3] = texture2D(uTextureFilled, vProjectedTextCoords + vec2( -w, 0.0));
-  // n[4] = texture2D(uTextureFilled, vProjectedTextCoords);
-  // n[5] = texture2D(uTextureFilled, texCoord + vec2(  w, 0.0));
-  // n[6] = texture2D(uTextureFilled, texCoord + vec2( -w, h));
-  // n[7] = texture2D(uTextureFilled, texCoord + vec2(0.0, h));
-  // n[8] = texture2D(uTextureFilled, texCoord + vec2(  w, h));
-  // vec4 sobel_horizEdge = n[2] + (2.0*n[5]) + n[8] - (n[0] + (2.0*n[3]) + n[6]);
-  // vec4 sobel_vertEdge  = n[0] + (2.0*n[1]) + n[2] - (n[6] + (2.0*n[7]) + n[8]);
-  // vec3 sobel = sqrt((sobel_horizEdge.rgb * sobel_horizEdge.rgb) + (sobel_vertEdge.rgb * sobel_vertEdge.rgb));
-  // gl_FragColor = vec4( sobel, max(max(sobel.r, sobel.g), sobel.b) );
-
-  // return;
 }

@@ -1,14 +1,12 @@
 import { glslify } from 'glslify';
 
 export abstract class BaseShader {
-    // Uniforms for the Fragment component of the shader
-    public FragUniforms;
+    // Uniforms for the shader
+    public Uniforms;
     // Functions for the Fragment component of the shader
     public FragFunctions;
     // Source for the Fragment component of the shader
     private _fragMain: string;
-    // Uniforms for the Vertex component of the shader
-    public VertUniforms;
     // Functions for the Vertex component of the shader
     public VertFunctions;
     // Source for the Vertex component of the shader
@@ -26,9 +24,8 @@ export abstract class BaseShader {
         })
 
         this._shaderName = ShaderName;
-        this.FragUniforms = this.FragUniforms();
+        this.Uniforms = this.Uniforms();
         this.FragFunctions = {};
-        this.VertUniforms = this.VertUniforms();
         this.VertFunctions = {};
         if (!ManualVert) {
             this._vertMain = source.vertex;
@@ -52,6 +49,23 @@ export abstract class BaseShader {
     // IN FINAL VERSION SHOULD NOT BE NEEDED
     protected abstract _ManualFragShader(): string;
 
+    // Compute the string value of this shader's tailored vertex functions
+    private _computeVertexFunctions(): string {
+        if (this._vertMain === '') {
+            // if main is empty, functions can not have been computed
+            this._computeVertexFunctions();
+        }
+
+        let content = '';
+        for (const property in this.VertFunctions) {
+            if (property) {
+                content += this.VertFunctions[property] + '\n';
+            }
+        }
+        return content;
+    }
+
+
     // Compute the string value of this shader's tailored fragment functions
     private _computeFragmentFunctions(): string {
         if (this._fragMain === '') {
@@ -69,43 +83,11 @@ export abstract class BaseShader {
     }
 
     // Compute the string value of this shader's fragment uniforms
-    private _computeFragmentUniforms(): string {
+    private _computeUniforms(): string {
         let content = '';
-        for (const property in this.FragUniforms) {
+        for (const property in this.Uniforms) {
             if(property) {
-                const uniform = this.FragUniforms[property];
-                content += `uniform ${uniform.typeGLSL} ${property}`;
-                if (uniform && uniform.length) {
-                content += `[${uniform.length}]`;
-                }
-                content += ';\n';
-            }
-        }
-        return content;
-    }
-
-    // Compute the string value of this shader's tailored vertex functions
-    private _computeVertexFunctions(): string {
-        if (this._vertMain === '') {
-            // if main is empty, functions can not have been computed
-            this._computeVertexFunctions();
-        }
-
-        let content = '';
-        for (const property in this.VertFunctions) {
-            if (property) {
-                content += this.VertFunctions[property] + '\n';
-            }
-        }
-        return content;
-    }
-
-    // Compute the string value of this shader's uniforms
-    private _computeVertexUniforms(): string {
-        let content = '';
-        for (const property in this.VertUniforms) {
-            if (property) {
-                const uniform = this.VertUniforms[property];
+                const uniform = this.Uniforms[property];
                 content += `uniform ${uniform.typeGLSL} ${property}`;
                 if (uniform && uniform.length) {
                 content += `[${uniform.length}]`;
@@ -120,7 +102,7 @@ export abstract class BaseShader {
     public computeVertShader(): string {
         return (`
             // uniforms
-            ${this._computeVertexUniforms()}
+            ${this._computeUniforms()}
 
             // tailored functions
             ${this._computeVertexFunctions()}
@@ -134,7 +116,7 @@ export abstract class BaseShader {
     public computeFragmentShader(): string {
         return (`
             // uniforms
-            ${this._computeFragmentUniforms()}
+            ${this._computeUniforms()}
     
             // varying (should fetch it from vertex directly)
             varying vec4      vProjectedCoords;
@@ -152,8 +134,5 @@ export abstract class BaseShader {
 
 export interface BaseShaderStatics {
     // Template method for this shader's fragment uniforms
-    FragUniforms();
-
-    // Template method for this shader's vertex uniforms
-    VertUniforms();
+    Uniforms();
 }

@@ -271,11 +271,7 @@ void main(void) {
       super('volume_renderer', false, true);
   }
 
-  public static VertUniforms() {
-    return null;
-  }
-
-  public static FragUniforms() {
+  public static Uniforms() {
     return {
       uTextureSize: {
         type: 'i',

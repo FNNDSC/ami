@@ -14,11 +14,7 @@ export class LayerShader extends BaseShader implements BaseShaderStatics {
       super('layer');
   }
 
-  public static VertUniforms() {
-    return null;
-  }
-
-  public static FragUniforms() {
+  public static Uniforms() {
       return {
         uTextureBackTest0: {
           type: 't',

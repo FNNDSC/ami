@@ -13,11 +13,7 @@ export class LocalizerShader extends BaseShader implements BaseShaderStatics {
       super('localizer');
   }
 
-  public static VertUniforms() {
-    return null;
-  }
-
-  public static FragUniforms() {
+  public static Uniforms() {
       return {
           uCanvasWidth: {
             type: 'f',

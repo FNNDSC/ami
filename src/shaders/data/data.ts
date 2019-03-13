@@ -139,11 +139,7 @@ export class DataShader extends BaseShader implements BaseShaderStatics {
         super('data', false, true);
     }
 
-    public static VertUniforms() {
-      return null;
-    }
-
-    public static FragUniforms() {
+    public static Uniforms() {
         return {
           uTextureSize: {
             type: 'i',

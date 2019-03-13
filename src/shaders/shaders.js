@@ -1,4 +1,5 @@
 import { ContourShader } from '../shaders/contour/contour';
+import ContourMaterial from './ContourMaterial';
 import { DataShader } from '../shaders/data/data';
 import { VolumeRendererShader } from '../shaders/volume_renderer/volume_renderer';
 import { VolumeRendererSecondPassShader } from '../shaders/volume_renderer_second_pass/volume_renderer_second_pass';
@@ -12,4 +13,5 @@ export {
   VolumeRendererSecondPassShader as VolumeRendererSecondPassShader,
   LayerShader as LayerShader,
   LocalizerShader as LocalizerShader,
+  ContourMaterial as ContourMaterial,
 };

@@ -108,11 +108,7 @@ export class VolumeRendererSecondPassShader extends BaseShader implements BaseSh
       super('volume_renderer_second_pass', false, true);
   }
 
-  public static VertUniforms() {
-    return null;
-  }
-
-  public static FragUniforms() {
+  public static Uniforms() {
     return {
       uTextureSize: {
         type: 'i',

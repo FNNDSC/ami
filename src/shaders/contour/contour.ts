@@ -13,11 +13,7 @@ export class ContourShader extends BaseShader implements BaseShaderStatics {
       super('contour');
   }
 
-  public static VertUniforms() {
-    return null;
-  }
-
-  public static FragUniforms() {
+  public static Uniforms() {
       return {
         uCanvasWidth: {
           type: 'f',
