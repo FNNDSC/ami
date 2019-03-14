@@ -1,5 +1,5 @@
 import THREE from "three";
-import { VolumeRendererShader } from '../shaders/volume_renderer/volume_renderer';
+import { VolumeMaterial } from '../shaders/shaders';
 import { BaseTHREEHelper } from "./BaseTHREEHelper";
 
 export class VolumeRenderHelper extends BaseTHREEHelper {
@@ -13,6 +13,8 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
     private _steps: number = 32;
     private _offset: number = 0;
   //#endregion
+
+    private _shaderMaterial: VolumeMaterial;
 
   //#region Getters / Setters 
   get steps() {
@@ -73,7 +75,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   }
 
   protected _init() {
-    this._shader = new VolumeRendererShader();
+    this._shaderMaterial = new VolumeMaterial();
     this._prepareStack();
     this._prepareTexture();
     this._prepareMaterial();

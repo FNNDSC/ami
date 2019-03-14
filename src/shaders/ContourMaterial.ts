@@ -5,11 +5,21 @@ import { glslify } from 'glslify';
  * Conformance interface for the Contour Shader uniforms
  */
 export interface ContourUniforms {
-    uCanvasWidth:   { value: 0.0 },     // float
-    uCanvasHeight:  { value: 0.0 },     // float
-    uWidth:         { value: 1.0 },     // float
-    uOpacity:       { value: 1.0 },     // float
-    uTextureFilled: { value: [] }       // sampler2D
+    uCanvasWidth: {
+        value: number;
+    };
+    uCanvasHeight: {
+        value: number;
+    };
+    uWidth: {
+        value: number;
+    };
+    uOpacity: {
+        value: number;
+    };
+    uTextureFilled: {
+        value: THREE.Texture;
+    };
 }
 
 export class ContourMaterial {
@@ -29,11 +39,11 @@ export class ContourMaterial {
      * Default Uniform values
      */
     private static _defaultUniforms = {
-        uCanvasWidth:   { value: 0.0 },     // float
-        uCanvasHeight:  { value: 0.0 },     // float
-        uWidth:         { value: 1.0 },     // float
-        uOpacity:       { value: 1.0 },     // float
-        uTextureFilled: { value: [] }       // sampler2D
+        uCanvasWidth:   { value: 0.0 },                     // float
+        uCanvasHeight:  { value: 0.0 },                     // float
+        uWidth:         { value: 1.0 },                     // float
+        uOpacity:       { value: 1.0 },                     // float
+        uTextureFilled: { value: new THREE.Texture }        // sampler2D
     } as ContourUniforms;
 
     public static get defaultUniforms() {
