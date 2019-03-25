@@ -1,9 +1,13 @@
 ('use strict');
 
+const path = require('path');
+
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 module.exports = function(karma) {
   karma.set({
+    basePath: '',
+
     // frameworks to use
     frameworks: ['jasmine', 'sinon'],
 
@@ -13,7 +17,7 @@ module.exports = function(karma) {
       `https://unpkg.com/three@latest/build/three.min.js`,
       // ,
       // 'specs/core/*.spec.*s',
-      'specs/**/*.spec.*s',
+      'specs/loaders/loaders2.spec.*s',
       { pattern: 'data/**/*', included: false, watched: false, served: true },
     ],
 
@@ -37,8 +41,8 @@ module.exports = function(karma) {
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
     logLevel: karma.LOG_WARN,
 
-    autoWatch: false,
-    singleRun: true,
+    autoWatch: true,
+    // singleRun: true,
     colors: true,
     webpack: {
       resolve: {
@@ -50,6 +54,12 @@ module.exports = function(karma) {
             test: /\.js$/,
             loader: 'babel-loader',
             exclude: [/node_modules/, /external/],
+          },
+          {
+            test: /\.worker\.ts$/,
+            use: {
+            loader: 'worker-loader',
+          }
           },
           {
             test: /\.ts$/,

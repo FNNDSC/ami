@@ -6,6 +6,7 @@ import { RGBFormat, RGBAFormat } from 'three/src/constants';
 import CoreColors from '../core/core.colors';
 import CoreUtils from '../core/core.utils';
 import ModelsBase from '../models/models.base';
+import { deflateRawSync } from 'zlib';
 
 const binaryString = require('math-float32-to-binary-string');
 
@@ -471,6 +472,7 @@ export default class ModelsStack extends ModelsBase {
    * Pack current stack pixel data into 8 bits array buffers
    */
   pack() {
+    window.console.log('packing');
     // Get total number of voxels
     const nbVoxels = this._dimensionsIJK.x * this._dimensionsIJK.y * this._dimensionsIJK.z;
 
@@ -567,6 +569,8 @@ export default class ModelsStack extends ModelsBase {
       packed.textureType = RGBAFormat;
       packed.data = data;
     } else if (bitsAllocated === 16 && channels === 1) {
+      window.console.log('go');
+
       let data = new Uint8Array(textureSize * textureSize * 4);
       let coordinate = 0;
       let channelOffset = 0;
@@ -579,6 +583,12 @@ export default class ModelsStack extends ModelsBase {
         if (!Number.isNaN(raw)) {
           data[4 * coordinate + 2 * channelOffset] = raw & 0x00ff;
           data[4 * coordinate + 2 * channelOffset + 1] = (raw >>> 8) & 0x00ff;
+        } else {
+          window.console.log('nan');
+        }
+
+        if (raw > 65000) {
+          window.console.log(raw);
         }
 
         packIndex++;

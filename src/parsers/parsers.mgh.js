@@ -199,6 +199,20 @@ export default class ParsersMgh extends ParsersVolume {
     }
   }
 
+  pixelRepresentation(frameIndex = 0) {
+    // Return: 0 unsigned, 1 signed
+    switch (this._type) {
+      case ParsersMgh.MRI_UCHAR:
+        return 0;
+      case ParsersMgh.MRI_INT:
+      case ParsersMgh.MRI_SHORT:
+      case ParsersMgh.MRI_FLOAT:
+        return 1;
+      default:
+        throw Error('MGH/MGZ parser: Unknown _type.  _type reports: ' + this._type);
+    }
+  }
+
   bitsAllocated(frameIndex = 0) {
     switch (this._type) {
       case ParsersMgh.MRI_UCHAR:

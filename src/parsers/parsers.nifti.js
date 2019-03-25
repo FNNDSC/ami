@@ -103,6 +103,44 @@ export default class ParsersNifti extends ParsersVolume {
     return pixelType;
   }
 
+
+  pixelRepresentation(frameIndex = 0) {
+    // papaya.volume.nifti.NIFTI_TYPE_UINT8           = 2;
+    // papaya.volume.nifti.NIFTI_TYPE_INT16           = 4;
+    // papaya.volume.nifti.NIFTI_TYPE_INT32           = 8;
+    // papaya.volume.nifti.NIFTI_TYPE_FLOAT32        = 16;
+    // papaya.volume.nifti.NIFTI_TYPE_COMPLEX64      = 32;
+    // papaya.volume.nifti.NIFTI_TYPE_FLOAT64        = 64;
+    // papaya.volume.nifti.NIFTI_TYPE_RGB24         = 128;
+    // papaya.volume.nifti.NIFTI_TYPE_INT8          = 256;
+    // papaya.volume.nifti.NIFTI_TYPE_UINT16        = 512;
+    // papaya.volume.nifti.NIFTI_TYPE_UINT32        = 768;
+    // papaya.volume.nifti.NIFTI_TYPE_INT64        = 1024;
+    // papaya.volume.nifti.NIFTI_TYPE_UINT64       = 1280;
+    // papaya.volume.nifti.NIFTI_TYPE_FLOAT128     = 1536;
+    // papaya.volume.nifti.NIFTI_TYPE_COMPLEX128   = 1792;
+    // papaya.volume.nifti.NIFTI_TYPE_COMPLEX256   = 2048;
+
+    // 0 unsigned, 1 signed
+
+    let pixelType = 0;
+    if (
+      this._dataSet.datatypeCode === 4 ||
+      this._dataSet.datatypeCode === 16 ||
+      this._dataSet.datatypeCode === 32 ||
+      this._dataSet.datatypeCode === 64 ||
+      this._dataSet.datatypeCode === 128 ||
+      this._dataSet.datatypeCode === 256 ||
+      this._dataSet.datatypeCode === 1024 ||
+      this._dataSet.datatypeCode === 1536 ||
+      this._dataSet.datatypeCode === 1792 ||
+      this._dataSet.datatypeCode === 2048
+    ) {
+      pixelType = 1;
+    }
+    return pixelType;
+  }
+
   bitsAllocated(frameIndex = 0) {
     return this._dataSet.numBitsPerVoxel;
   }
@@ -306,29 +344,29 @@ export default class ParsersNifti extends ParsersVolume {
 
     if (this._orderedData !== null) {
       // just a slice...
-      return this._orderedData.slice(frameOffset, frameOffset + numPixels);
+      return this._orderedData.slice(frameOffset, frameOffset + numPixels).slice();
     } else if (this._dataSet.datatypeCode === 2) {
       // unsigned int 8 bit
-      return new Uint8Array(buffer, frameOffset, numPixels);
+      return new Uint8Array(buffer, frameOffset, numPixels).slice();
     } else if (this._dataSet.datatypeCode === 256) {
       // signed int 8 bit
-      return new Int8Array(buffer, frameOffset, numPixels);
+      return new Int8Array(buffer, frameOffset, numPixels).slice();
     } else if (this._dataSet.datatypeCode === 512) {
       // unsigned int 16 bit
       frameOffset = frameOffset * 2;
-      return new Uint16Array(buffer, frameOffset, numPixels);
+      return new Uint16Array(buffer, frameOffset, numPixels).slice();
     } else if (this._dataSet.datatypeCode === 4) {
       // signed int 16 bit
       frameOffset = frameOffset * 2;
-      return new Int16Array(buffer, frameOffset, numPixels);
+      return new Int16Array(buffer, frameOffset, numPixels).slice();
     } else if (this._dataSet.datatypeCode === 8) {
       // signed int 32 bit
       frameOffset = frameOffset * 4;
-      return new Int32Array(buffer, frameOffset, numPixels);
+      return new Int32Array(buffer, frameOffset, numPixels).slice();
     } else if (this._dataSet.datatypeCode === 16) {
       // signed float 32 bit
       frameOffset = frameOffset * 4;
-      const data = new Float32Array(buffer, frameOffset, numPixels);
+      const data = new Float32Array(buffer, frameOffset, numPixels).slice();
       for (let i = 0; i < data.length; i++) {
         if (data[i] === Infinity || data[i] === -Infinity) {
           data[i] = 0;
