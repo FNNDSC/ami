@@ -1,0 +1,19 @@
+{
+  "name": "ami-lesson-08",
+  "version": "1.0.0",
+  "description": "Custom Progress Bar",
+  "main": "index.html",
+  "scripts": {
+    "start": "parcel index.html --open"
+  },
+  "dependencies": {
+    "parcel": "^1.10.3"
+  },
+  "devDependencies": {
+    "@types/three": "0.92.23",
+    "babel-core": "^6.26.3",
+    "parcel-bundler": "^1.6.1"
+  },
+  "keywords": [],
+  "template": "create-react-app"
+}
