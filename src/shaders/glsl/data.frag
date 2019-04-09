@@ -1,12 +1,12 @@
 #pragma glslify: interpolation = require(./utility/interpolation.glsl)
 
 uniform int uTextureSize;
-uniform sampler2D[] uTextureContainer; // Length 7
+uniform sampler2D[] uTextureContainer;      // Length 7
 uniform ivec3 uDataDimensions;
 uniform mat4 uWorldToData;
-uniform vec2 uWindowCenterWidth; // Legnth 2
-uniform vec2 uLowerUpperThreshold;
-uniform vec2 uRescaleSlopeIntercept;
+uniform float[] uWindowCenterWidth;         // Length 2
+uniform float[] uLowerUpperThreshold;       // Length 2
+uniform float[] uRescaleSlopeIntercept;     // Length 2
 uniform int uNumberOfChannels;
 uniform int uBitsAllocated;
 uniform int uInvert;
@@ -15,7 +15,7 @@ uniform sampler2D uTextureLUT;
 uniform int uLutSegmentation;
 uniform sampler2D uTextureLUTSegmentation;
 uniform int uPixelType;
-uniform int uInterpolation; // 0 == non, 1 == trilinear
+uniform int uInterpolation;                 // 0 == non, 1 == trilinear
 uniform float uCanvasWidth;
 uniform float uCanvasHeight;
 uniform vec3 uBorderColor;

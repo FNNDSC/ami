@@ -1,4 +1,4 @@
-import THREE from "three";
+import THREE from "three"
 import { VolumeMaterial } from '../shaders';
 import { BaseTHREEHelper } from "./BaseTHREEHelper";
 

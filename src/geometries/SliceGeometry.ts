@@ -1,8 +1,9 @@
 /** * Imports ***/
 import coreIntersections from '../core/CoreIntersections';
 import coreUtils from '../core/core';
-import THREE from 'three';
+import THREE from "three"
 
+const winThree = ((window as any).THREE);
 /**
  *
  * It is typically used for creating an irregular 3D planar shape given a box and the cut-plane.
@@ -42,8 +43,7 @@ import THREE from 'three';
  *  let slice = new THREE.Mesh(sliceGeometry, sliceMaterial);
  *  scene.add(slice);
  */
-
- export default class SliceGeometry extends THREE.ShapeBufferGeometry {
+ export default class SliceGeometry extends winThree.ShapeBufferGeometry {
    constructor(halfDimensions, center, position, direction, toAABB = new THREE.Matrix4()) {
       //
       // prepare data for the shape!

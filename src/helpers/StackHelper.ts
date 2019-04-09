@@ -1,7 +1,4 @@
-/** 
- * Imports 
- */
-import THREE from 'three';
+import THREE from "three"
 import BoundingBoxHelper from './BoundingBoxHelper';
 import { SliceHelper } from './SliceHelper';
 import BorderHelper from './BorderHelper';

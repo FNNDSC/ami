@@ -1,5 +1,5 @@
 import CoreUtils from '../core/core';
-import THREE from 'three';
+import THREE from "three"
 
 /**
  * @module helpers/lut

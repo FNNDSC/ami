@@ -1,4 +1,4 @@
-import THREE from 'three';
+import THREE from "three"
 import { SliceGeometry } from '../geometries/geometries';
 import { BaseTHREEHelper } from './BaseTHREEHelper';
 import { DataMaterial } from '../shaders';
