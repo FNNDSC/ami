@@ -1,21 +1,61 @@
-import { Matrix4 } from 'three/src/math/Matrix4';
-import { BaseShader, BaseShaderStatics } from "../BaseShader";
-import { Interpolation } from '../utils/Intepolation';
-import { ShaderUtils } from "../utils/ShaderUtils";
+#pragma glslify: interpolation = require(./utility/interpolation.glsl)
+#pragma glslify: intersectsBox = require(./utility/intersectsBox.glsl)
 
-// TODO: GLSLIFY THIS SHADER
-export class VolumeRendererShader extends BaseShader implements BaseShaderStatics {
+const float PI = 3.14159265358979323846264 * 00000.1; // PI
 
-  protected _ManualVertShader(): string {
-    throw new Error("Method not implemented.");
-  }
+uniform int uTextureSize;
+uniform sampler2D[] uTextureContainer;      // Length 7
+uniform ivec3 uDataDimensions;
+uniform mat4 uWorldToData;
+uniform float[] uWindowCenterWidth;         // Length 2
+uniform float[] uRescaleSlopeIntercept;     // Length 2
+uniform int uNumberOfChannels;
+uniform int uBitsAllocated;
+uniform int uInvert;
+uniform int uLut;
+uniform sampler2D uTextureLUT;
+uniform int uPixelType;
+uniform int uPackedPerPixel;
+uniform int uInterpolation;
+uniform float[] uWorldBBox;                 // Length 6
+uniform int uSteps;
+uniform float uAlphaCorrection;
+uniform float uFrequence;
+uniform float uAmplitude;
+uniform int uShading;
+uniform float uAmbient;
+uniform vec3 uAmbientColor
+uniform int uSampleColorToAmbient;
+uniform float uSpecular;
+uniform vec3 uSpecularColor;
+uniform float uDiffuse;
+uniform vec3 uDiffuseColor;
+uniform int uSampleColorToDiffuse;
+uniform float uShininess;
+uniform vec3 uLightPosition;
+uniform int uLightPositionInCamera;
+uniform vec3 uIntensity;
+uniform int uAlgorithm;
 
-  protected _ManualFragShader(): string {
-    return `
-void getIntensity(in vec3 dataCoordinates, out float intensity, out vec3 gradient){
+void getIntensity(
+    in vec3 dataCoordinates, 
+    out float intensity, 
+    out vec3 gradient
+){
 
   vec4 dataValue = vec4(0., 0., 0., 0.);
-  ${Interpolation.ShadersInterpolation(this, 'dataCoordinates', 'dataValue', 'gradient')}
+
+  interpolation(
+    dataCoordinates,
+    uTextureSize,
+    uDataDimensions,
+    uDataDimensions,
+    uTextureContainer,
+    uBitsAllocated,
+    uNumberOfChannels,
+    dataValue,
+    gradient,
+  );
 
   intensity = dataValue.r;
 
@@ -87,8 +127,17 @@ mat4 inverse(mat4 m) {
  *
  * See https://en.wikipedia.org/wiki/Phong_reflection_model#Description
  */
-vec3 phongShading(vec3 k_a, vec3 k_d, vec3 k_s, float shininess, vec3 p, vec3 eye,
-  vec3 lightPos, vec3 lightIntensity, vec3 normal) {
+vec3 phongShading(
+    vec3 k_a, 
+    vec3 k_d, 
+    vec3 k_s, 
+    float shininess, 
+    vec3 p, 
+    vec3 eye,
+    vec3 lightPos, 
+    vec3 lightIntensity, 
+    vec3 normal
+) {
   vec3 N = normal;
   vec3 L = lightPos - p;
   if (length(L) > 0.) {
@@ -129,8 +178,6 @@ vec3 phongShading(vec3 k_a, vec3 k_d, vec3 k_s, float shininess, vec3 p, vec3 ey
   return k_a + lightIntensity * (k_d * dotLN  + k_s * specular);
 }
 
-float PI = 3.14159265358979323846264 * 00000.1; // PI
-
 // expects values in the range of [0,1]x[0,1], returns values in the [0,1] range.
 // do not collapse into a single function per: http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 highp float rand( const in vec2 uv) {
@@ -157,16 +204,16 @@ void main(void) {
   // Intersection ray/bbox
   float tNear, tFar;
   bool intersect = false;
-  ${ShaderUtils.IntersectsBox(
-    this._shaderName,
-    'rayOrigin',
-    'rayDirection',
-    'AABBMin',
-    'AABBMax',
-    'tNear',
-    'tFar',
-    'intersect'
-  )}
+  intersectsBox(
+    rayOrigin,
+    rayDirection,
+    AABBMin,
+    AABBMax,
+    tNear,
+    tFar,
+    intersect
+  );
+
   if (tNear < 0.0) tNear = 0.0;
 
   // x / y should be within o-1
@@ -262,186 +309,4 @@ void main(void) {
   }
 
   gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);
-}
-   `;
-  }
-
-  // tslint:disable-next-line:typedef
-  constructor() {
-      super('volume_renderer', false, true);
-  }
-
-  public static Uniforms() {
-    return {
-      uTextureSize: {
-        type: 'i',
-        value: 0,
-        typeGLSL: 'int',
-      },
-      uTextureContainer: {
-        type: 'tv',
-        value: [],
-        typeGLSL: 'sampler2D',
-        length: 7,
-      },
-      uDataDimensions: {
-        type: 'iv',
-        value: [0, 0, 0],
-        typeGLSL: 'ivec3',
-      },
-      uWorldToData: {
-        type: 'm4',
-        value: new Matrix4(),
-        typeGLSL: 'mat4',
-      },
-      uWindowCenterWidth: {
-        type: 'fv1',
-        value: [0.0, 0.0],
-        typeGLSL: 'float',
-        length: 2,
-      },
-      uRescaleSlopeIntercept: {
-        type: 'fv1',
-        value: [0.0, 0.0],
-        typeGLSL: 'float',
-        length: 2,
-      },
-      uNumberOfChannels: {
-        type: 'i',
-        value: 1,
-        typeGLSL: 'int',
-      },
-      uBitsAllocated: {
-        type: 'i',
-        value: 8,
-        typeGLSL: 'int',
-      },
-      uInvert: {
-        type: 'i',
-        value: 0,
-        typeGLSL: 'int',
-      },
-      uLut: {
-        type: 'i',
-        value: 0,
-        typeGLSL: 'int',
-      },
-      uTextureLUT: {
-        type: 't',
-        value: [],
-        typeGLSL: 'sampler2D',
-      },
-      uPixelType: {
-        type: 'i',
-        value: 0,
-        typeGLSL: 'int',
-      },
-      uPackedPerPixel: {
-        type: 'i',
-        value: 1,
-        typeGLSL: 'int',
-      },
-      uInterpolation: {
-        type: 'i',
-        value: 1,
-        typeGLSL: 'int',
-      },
-      uWorldBBox: {
-        type: 'fv1',
-        value: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        typeGLSL: 'float',
-        length: 6,
-      },
-      uSteps: {
-        type: 'i',
-        value: 256,
-        typeGLSL: 'int',
-      },
-      uAlphaCorrection: {
-        type: 'f',
-        value: 0.5,
-        typeGLSL: 'float',
-      },
-      uFrequence: {
-        type: 'f',
-        value: 0,
-        typeGLSL: 'float',
-      },
-      uAmplitude: {
-        type: 'f',
-        value: 0,
-        typeGLSL: 'float',
-      },
-      uShading: {
-        type: 'i',
-        value: 1,
-        typeGLSL: 'int',
-      },
-      uAmbient: {
-        type: 'f',
-        value: 0.1,
-        typeGLSL: 'float',
-      },
-      uAmbientColor: {
-        type: 'v3',
-        value: [1.0, 1.0, 0.0],
-        typeGLSL: 'vec3',
-      },
-      uSampleColorToAmbient: {
-        type: 'i',
-        value: 1,
-        typeGLSL: 'int',
-      },
-      uSpecular: {
-        type: 'f',
-        value: 1,
-        typeGLSL: 'float',
-      },
-      uSpecularColor: {
-        type: 'v3',
-        value: [1.0, 1.0, 1.0],
-        typeGLSL: 'vec3',
-      },
-      uDiffuse: {
-        type: 'f',
-        value: 0.3,
-        typeGLSL: 'float',
-      },
-      uDiffuseColor: {
-        type: 'v3',
-        value: [1.0, 1.0, 0.0],
-        typeGLSL: 'vec3',
-      },
-      uSampleColorToDiffuse: {
-        type: 'i',
-        value: 1,
-        typeGLSL: 'int',
-      },
-      uShininess: {
-        type: 'f',
-        value: 5,
-        typeGLSL: 'float',
-      },
-      uLightPosition: {
-        type: 'v3',
-        value: [0.0, 0.0, 0.0],
-        typeGLSL: 'vec3',
-      },
-      uLightPositionInCamera: {
-        type: 'i',
-        value: 1,
-        typeGLSL: 'int',
-      },
-      uIntensity: {
-        type: 'v3',
-        value: [0.8, 0.8, 0.8],
-        typeGLSL: 'vec3',
-      },
-      uAlgorithm: {
-        type: 'i',
-        value: 0,
-        typeGLSL: 'int',
-      },
-    };
-  }
 }

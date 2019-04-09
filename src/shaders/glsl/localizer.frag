@@ -1,19 +1,14 @@
-void intersectionProjection(
-  in vec4 plane,
-  in vec4 slice,
-  out vec3 intersectionProjection){
+#pragma glslify: intersectionProjection = require(./utility/intersectionProjection.glsl)
 
-      vec3 intersectionDirection = normalize(cross(plane.xyz, slice.xyz));
-      vec3 intersectionPoint = 
-        cross(intersectionDirection,slice.xyz) * plane.w +
-        cross(plane.xyz, intersectionDirection) * slice.w;
-
-      intersectionProjection =
-        intersectionPoint.xyz +
-        (dot(vPos.xyz - intersectionPoint, intersectionDirection)
-          * intersectionDirection);
-
-}
+uniform float uCanvasWidth;
+uniform float uCanvasHeight;
+uniform vec4 uSlice;
+uniform vec4 uPlane1;
+uniform vec3 uPlaneColor1;
+uniform vec4 uPlane2;
+uniform vec3 uPlaneColor2;
+uniform vec4 uPlane3;
+uniform vec3 uPlaneColor3;
 
 void main(void) {
       vec4 c1 = vec4(0., 0., 0., 0.);
@@ -72,16 +67,7 @@ void main(void) {
         c3 = vec4(uPlaneColor3, 1. - smoothstep(.5, .7, d3));
       }
 
-      // float uBorderDashLength = 10.0;
-      // float uBorderWidth = 2.0;
-      // float valueX = mod(gl_FragCoord.x, 2. * uBorderDashLength);
-      // float valueY = mod(gl_FragCoord.y, 2. * uBorderDashLength);
-      // if( valueX < uBorderDashLength || valueY < uBorderDashLength ){
-        vec3 colorMix = c1.xyz*c1.w + c2.xyz*c2.w + c3.xyz*c3.w;
-        gl_FragColor = vec4(colorMix, max(max(c1.w, c2.w),c3.w)*0.5);
-        return;
-      // }
-      
-      // gl_FragColor = vec4(0., 0., 0., 0.);
-      // return;
+      vec3 colorMix = c1.xyz*c1.w + c2.xyz*c2.w + c3.xyz*c3.w;
+      gl_FragColor = vec4(colorMix, max(max(c1.w, c2.w),c3.w)*0.5);
+      return;
 }

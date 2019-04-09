@@ -1,3 +1,12 @@
+uniform sampler2D uTextureBackTest0;
+uniform sampler2D uTextureBackTest1; 
+uniform float uOpacity0;
+uniform float uOpacity1;
+uniform int uType0;
+uniform int uType1;
+uniform int uTrackMouse;
+uniform ivec2 uMouse;
+
 void main(void) {
 
   vec2 texc = vec2(((vProjectedCoords.x / vProjectedCoords.w) + 1.0 ) / 2.0,

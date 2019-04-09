@@ -1,5 +1,5 @@
 import THREE from "THREE";
-import { ContourMaterial } from "../shaders/shaders";
+import { ContourMaterial } from "../shaders";
 import { BaseTHREEHelper } from "./BaseTHREEHelper";
 
 export class ContourHelper extends BaseTHREEHelper {
@@ -11,7 +11,6 @@ export class ContourHelper extends BaseTHREEHelper {
   private _canvasHeight;
   //#endregion
 
-  private _shaderMaterial: ContourMaterial;
 
   //#region Getters / Setters
   get textureToFilter() {
@@ -21,7 +20,7 @@ export class ContourHelper extends BaseTHREEHelper {
   set textureToFilter(texture) {
     this._textureToFilter = texture;
     //this._shader._FragUniforms.uTextureFilled.value = texture;
-    this._shaderMaterial.uniforms.uTextureFilled = texture;
+    this._material.uniforms.uTextureFilled = texture;
     this._material.needsUpdate = true;
   }
   get contourOpacity() {
@@ -30,8 +29,7 @@ export class ContourHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set contourOpacity(contourOpacity) {
     this._contourOpacity = contourOpacity;
-    //this._shader._FragUniforms.uOpacity.value = this._contourOpacity;
-    this._shaderMaterial.uniforms.uOpacity = this._contourOpacity;
+    this._material.uniforms.uOpacity = this._contourOpacity;
   }
   get contourWidth() {
     return this._contourWidth;
@@ -39,7 +37,7 @@ export class ContourHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set contourWidth(contourWidth) {
     this._contourWidth = contourWidth;
-    this._shader._FragUniforms.uWidth.value = this._contourWidth;
+    this._material.uniforms.uWidth.value = this._contourWidth;
   }
   get canvasWidth() {
     return this._canvasWidth;
@@ -47,8 +45,7 @@ export class ContourHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set canvasWidth(canvasWidth) {
     this._canvasWidth = canvasWidth;
-    //this._shader._FragUniforms.uCanvasWidth.value = this._canvasWidth;
-    this._shaderMaterial.uniforms.uCanvasWidth = this._canvasWidth;
+    this._material.uniforms.uCanvasWidth = this._canvasWidth;
   }
   get canvasHeight() {
     return this._canvasHeight;
@@ -56,8 +53,7 @@ export class ContourHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set canvasHeight(canvasHeight) {
     this._canvasHeight = canvasHeight;
-    //this._shader._FragUniforms.uCanvasHeight.value = this._canvasHeight;
-    this._shaderMaterial.uniforms.uCanvasHeight = this._canvasHeight;
+    this._material.uniforms.uCanvasHeight = this._canvasHeight;
   }
   //#endregion
 
@@ -78,13 +74,12 @@ export class ContourHelper extends BaseTHREEHelper {
   }
 
   protected _init() {
-    this._shaderMaterial = ContourMaterial.shaderMaterial;
-    this._shaderMaterial.uWidth = this._contourWidth;
-    this._shaderMaterial.uOpacity = this._contourOpacity;
-    this._shaderMaterial.uCanvasWidth = this._canvasWidth;
-    this._shaderMaterial.uCanvasHeight = this._canvasHeight;
-    //this._shader = new ContourShader();
-    //this._prepareMaterial();
+    this._material = ContourMaterial.shaderMaterial;
+    this._material.uniforms.uWidth = this._contourWidth;
+    this._material.uniforms.uOpacity = this._contourOpacity;
+    this._material.uniforms.uCanvasWidth = this._canvasWidth;
+    this._material.uniforms.uCanvasHeight = this._canvasHeight;
+    this._material.needsUpdate = true;
   }
 
   protected _create() {
@@ -134,7 +129,7 @@ export class ContourHelper extends BaseTHREEHelper {
     // TODO: Add shader material disposal
 
     //this._shader = null;
-    //this._shaderMaterial = null;
+    //this._material = null;
 
     // material, geometry and mesh
     this.remove(this._mesh);

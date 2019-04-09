@@ -1,20 +1,18 @@
 import THREE from "three";
-import { VolumeMaterial } from '../shaders/shaders';
+import { VolumeMaterial } from '../shaders';
 import { BaseTHREEHelper } from "./BaseTHREEHelper";
 
 export class VolumeRenderHelper extends BaseTHREEHelper {
   //#region Variables 
   // ray marching
-    private _algorithm: number = 0;
-    private _alphaCorrection: number = 0.5;
-    // shading is on by default
-    private _shading: number = 1;
-    private _shininess: number = 10.0;
-    private _steps: number = 32;
-    private _offset: number = 0;
+  private _algorithm: number = 0;
+  private _alphaCorrection: number = 0.5;
+  // shading is on by default
+  private _shading: number = 1;
+  private _shininess: number = 10.0;
+  private _steps: number = 32;
+  private _offset: number = 0;
   //#endregion
-
-    private _shaderMaterial: VolumeMaterial;
 
   //#region Getters / Setters 
   get steps() {
@@ -23,7 +21,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set steps(steps) {
     this._steps = steps;
-    this._shader.FragUniforms.uSteps.value = this._steps;
+    this._material.uniforms.uSteps.value = this._steps;
   }
   get alphaCorrection() {
     return this._alphaCorrection;
@@ -31,7 +29,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set alphaCorrection(alphaCorrection) {
     this._alphaCorrection = alphaCorrection;
-    this._shader.FragUniforms.uAlphaCorrection.value = this._alphaCorrection;
+    this._material.uniforms.uAlphaCorrection.value = this._alphaCorrection;
   }
   get interpolation() {
     return this._interpolation;
@@ -39,8 +37,8 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set interpolation(interpolation) {
     this._interpolation = interpolation;
-    this._shader.FragUniforms.uInterpolation.value = this._interpolation;
-    this._updateMaterial();
+    this._material.uniforms.uInterpolation.value = this._interpolation;
+    this._material.needsUpdate = true;
   }
   get shading() {
     return this._shading;
@@ -48,7 +46,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set shading(shading) {
     this._shading = shading;
-    this._shader.FragUniforms.uShading.value = this._shading;
+    this._material.uniforms.uShading.value = this._shading;
   }
   get shininess() {
     return this._shininess;
@@ -56,7 +54,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set shininess(shininess) {
     this._shininess = shininess;
-    this._shader.FragUniforms.uShininess.value = this._shininess;
+    this._material.uniforms.uShininess.value = this._shininess;
   }
   get algorithm() {
     return this._algorithm;
@@ -64,7 +62,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set algorithm(algorithm) {
     this._algorithm = algorithm;
-    this._shader.FragUniforms.uAlgorithm.value = this._algorithm;
+    this._material.uniforms.uAlgorithm.value = this._algorithm;
   }
   //#endregion
   // tslint:disable-next-line:typedef
@@ -75,7 +73,6 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   }
 
   protected _init() {
-    this._shaderMaterial = new VolumeMaterial();
     this._prepareStack();
     this._prepareTexture();
     this._prepareMaterial();
@@ -83,6 +80,8 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   }
 
   protected _create() {
+    this._material = VolumeMaterial.shaderMaterial;
+    this._material.needsUpdate = true;
     this._mesh = new THREE.Mesh(this._geometry, this._material);
     this.add(this._mesh);
   }
@@ -105,41 +104,53 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
 
   private _prepareMaterial() {
     // uniforms
-    this._shader.FragUniforms.uWorldBBox.value = this._stack.worldBoundingBox();
-    this._shader.FragUniforms.uTextureSize.value = this._stack.textureSize;
-    this._shader.FragUniforms.uTextureContainer.value = this._textures;
+    this._material.uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
+    this._material.uniforms.uTextureSize.value = this._stack.textureSize;
+    this._material.uniforms.uTextureContainer.value = this._textures;
     if (this._stack.textureUnits > 8) {
-      this._shader.FragUniforms.uTextureContainer.length = 14;
+      this._material.uniforms.uTextureContainer = { value: [
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture()
+        ]};
     }
-    this._shader.FragUniforms.uWorldToData.value = this._stack.lps2IJK;
-    this._shader.FragUniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
-    this._shader.FragUniforms.uPixelType.value = this._stack.pixelType;
-    this._shader.FragUniforms.uBitsAllocated.value = this._stack.bitsAllocated;
-    this._shader.FragUniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
-    this._shader.FragUniforms.uWindowCenterWidth.value = [
+    this._material.uniforms.uWorldToData.value = this._stack.lps2IJK;
+    this._material.uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
+    this._material.uniforms.uPixelType.value = this._stack.pixelType;
+    this._material.uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
+    this._material.uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
+    this._material.uniforms.uWindowCenterWidth.value = [
       this._windowCenter - this._offset,
       this._windowWidth,
     ];
-    this._shader.FragUniforms.uRescaleSlopeIntercept.value = [
+    this._material.uniforms.uRescaleSlopeIntercept.value = [
       this._stack.rescaleSlope,
       this._stack.rescaleIntercept,
     ];
-    this._shader.FragUniforms.uDataDimensions.value = [
+    this._material.uniforms.uDataDimensions.value = [
       this._stack.dimensionsIJK.x,
       this._stack.dimensionsIJK.y,
       this._stack.dimensionsIJK.z,
     ];
-    this._shader.FragUniforms.uAlphaCorrection.value = this._alphaCorrection;
-    this._shader.FragUniforms.uInterpolation.value = this._interpolation;
-    this._shader.FragUniforms.uShading.value = this._shading;
-    this._shader.FragUniforms.uShininess.value = this._shininess;
-    this._shader.FragUniforms.uSteps.value = this._steps;
-    this._shader.FragUniforms.uAlgorithm.value = this._algorithm;
+    this._material.uniforms.uAlphaCorrection.value = this._alphaCorrection;
+    this._material.uniforms.uInterpolation.value = this._interpolation;
+    this._material.uniforms.uShading.value = this._shading;
+    this._material.uniforms.uShininess.value = this._shininess;
+    this._material.uniforms.uSteps.value = this._steps;
+    this._material.uniforms.uAlgorithm.value = this._algorithm;
 
-    this._createMaterial({
-      side: THREE.BackSide,
-      transparent: true,
-    });
+    this._material.needsUpdate = true;
   }
 
   private _prepareGeometry() {
@@ -163,7 +174,6 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
       this._textures[j] = null;
     }
     this._textures = null;
-    this._shader = null;
 
     // material, geometry and mesh
     this.remove(this._mesh);

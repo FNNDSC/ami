@@ -7,13 +7,11 @@ export abstract class BaseTHREEHelper extends THREE.Object3D {
   protected _interpolation = 1;
   protected _windowWidth = 0.0;
   protected _windowCenter = 1.0;
-  protected _material = null;
+  protected _material: THREE.ShaderMaterial = null;
   protected _textures = [];
   protected _geometry = null;
   protected _mesh = null;
   protected _visible = true;
-  // Shader object for this helper
-  protected _shader;
   //#endregion
 
   //#region Getters / Setters
@@ -54,27 +52,6 @@ export abstract class BaseTHREEHelper extends THREE.Object3D {
     super();
 
     this._stack = stack;
-  }
-
-  // tslint:disable-next-line:typedef
-  protected _createMaterial(extraOptions) {
-    // material
-    const globalOptions = {
-      uniforms: this._shader.FragUniforms,
-      vertexShader: this._shader.computeVertShader(),
-      fragmentShader: this._shader.computeFragShader(),
-    };
-
-    const options = Object.assign(extraOptions, globalOptions);
-    this._material = new THREE.ShaderMaterial(options);
-    this._material.needsUpdate = true;
-  }
-
-  protected _updateMaterial() {
-    this._material.vertexShader = this._shader.computeVertShader();
-    this._material.fragmentShader = this._shader.computeFragShader();
-
-    this._material.needsUpdate = true;
   }
 
   protected _prepareTexture() {

@@ -1,10 +1,14 @@
-float luma (vec3 rgb) {
-  return (rgb.r + rgb.g + rgb.b)/3.0;
-}
+#pragma glslify: luma = require(./utility/luma.glsl)
 
 const float T = 0.04;
 const float M = 1.0;
 const float L = 0.002;
+
+uniform float uCanvasWidth;
+uniform float uCanvasHeight;
+uniform float uWidth;
+uniform float uOpacity;
+uniform sampler2D uTextureFilled;
 
 void main(void) {
 

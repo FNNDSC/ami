@@ -1,7 +1,7 @@
 import THREE from 'three';
 import { SliceGeometry } from '../geometries/geometries';
-import { DataShader } from '../shaders/data/data';
 import { BaseTHREEHelper } from './BaseTHREEHelper';
+import { DataMaterial } from '../shaders';
 
 export class SliceHelper extends BaseTHREEHelper {
   //#region Variables
@@ -57,7 +57,7 @@ export class SliceHelper extends BaseTHREEHelper {
   set interpolation(interpolation) {
     this._interpolation = interpolation;
     this.UpdateIntensitySettingsUniforms();
-    this._updateMaterial();
+    this._material.needsUpdate = true;
   }
 
   get spacing() {
@@ -66,7 +66,7 @@ export class SliceHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set spacing(spacing) {
     this._spacing = spacing;
-    this._shader.FragUniforms.uSpacing.value = this._spacing;
+    this._material.uniforms.uSpacing.value = this._spacing;
   }
   get thickness() {
     return this._thickness;
@@ -74,7 +74,7 @@ export class SliceHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set thickness(thickness) {
     this._thickness = thickness;
-    this._shader.FragUniforms.uThickness.value = this._thickness;
+    this._material.uniforms.uThickness.value = this._thickness;
   }
   get thicknessMethod() {
     return this._thicknessMethod;
@@ -82,7 +82,7 @@ export class SliceHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set thicknessMethod(thicknessMethod) {
     this._thicknessMethod = thicknessMethod;
-    this._shader.FragUniforms.uThicknessMethod.value = this._thicknessMethod;
+    this._material.uniforms.uThicknessMethod.value = this._thicknessMethod;
   }
   get opacity() {
     return this._opacity;
@@ -209,7 +209,7 @@ export class SliceHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set canvasWidth(canvasWidth) {
     this._canvasWidth = canvasWidth;
-    this._shader.FragUniforms.uCanvasWidth.value = this._canvasWidth;
+    this._material.uniforms.uCanvasWidth.value = this._canvasWidth;
   }
   get canvasHeight() {
     return this._canvasHeight;
@@ -217,7 +217,7 @@ export class SliceHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set canvasHeight(canvasHeight) {
     this._canvasHeight = canvasHeight;
-    this._shader.FragUniforms.uCanvasHeight.value = this._canvasHeight;
+    this._material.uniforms.uCanvasHeight.value = this._canvasHeight;
   }
   get borderColor() {
     return this._borderColor;
@@ -225,7 +225,7 @@ export class SliceHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   set borderColor(borderColor) {
     this._borderColor = borderColor;
-    this._shader.FragUniforms.uBorderColor.value = new THREE.Color(borderColor);
+    this._material.uniforms.uBorderColor.value = new THREE.Color(borderColor);
   }
   //#endregion
   
@@ -246,7 +246,6 @@ export class SliceHelper extends BaseTHREEHelper {
     // also changes the transform
     // there is also a switch to move back mesh to LPS space automatically
     this._aaBBspace = aabbSpace; // or LPS -> different transforms, esp for the geometry/mesh
-    this._shader = new DataShader();
     // update dimensions, center, etc.
     // depending on aaBBSpace
     this._init();
@@ -288,30 +287,44 @@ export class SliceHelper extends BaseTHREEHelper {
       return;
     }
     if (!this._material) {
-      //
-      this._shader.FragUniforms.uTextureSize.value = this._stack.textureSize;
-      this._shader.FragUniforms.uDataDimensions.value = [
+      this._material = DataMaterial.shaderMaterial;
+      this._material.uniforms.uTextureSize.value = this._stack.textureSize;
+      this._material.uniforms.uDataDimensions.value = [
         this._stack.dimensionsIJK.x,
         this._stack.dimensionsIJK.y,
         this._stack.dimensionsIJK.z,
       ];
-      this._shader.FragUniforms.uWorldToData.value = this._stack.lps2IJK;
-      this._shader.FragUniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
-      this._shader.FragUniforms.uPixelType.value = this._stack.pixelType;
-      this._shader.FragUniforms.uBitsAllocated.value = this._stack.bitsAllocated;
-      this._shader.FragUniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
-      this._shader.FragUniforms.uSpacing.value = this._spacing;
-      this._shader.FragUniforms.uThickness.value = this._thickness;
-      this._shader.FragUniforms.uThicknessMethod.value = this._thicknessMethod;
+      this._material.uniforms.uWorldToData.value = this._stack.lps2IJK;
+      this._material.uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
+      this._material.uniforms.uPixelType.value = this._stack.pixelType;
+      this._material.uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
+      this._material.uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
+      this._material.uniforms.uSpacing.value = this._spacing;
+      this._material.uniforms.uThickness.value = this._thickness;
+      this._material.uniforms.uThicknessMethod.value = this._thicknessMethod;
       // compute texture if material exist
       this._prepareTexture();
-      this._shader.FragUniforms.uTextureContainer.value = this._textures;
+      this._material.uniforms.uTextureContainer.value = this._textures;
       if (this._stack.textureUnits > 8) {
-        this._shader.FragUniforms.uTextureContainer.length = 14;
+        this._material.uniforms.uTextureContainer = { value: [
+              new THREE.Texture(),
+              new THREE.Texture(),
+              new THREE.Texture(),
+              new THREE.Texture(),
+              new THREE.Texture(),
+              new THREE.Texture(),
+              new THREE.Texture(),
+              new THREE.Texture(),
+              new THREE.Texture(),
+              new THREE.Texture(),
+              new THREE.Texture(),
+              new THREE.Texture(),
+              new THREE.Texture(),
+              new THREE.Texture()
+          ]};
       }
-      this._createMaterial({
-        side: THREE.DoubleSide,
-      });
+
+      this._material.needsUpdate = true;
     }
     // update intensity related stuff
     this.UpdateIntensitySettings();
@@ -363,26 +376,26 @@ export class SliceHelper extends BaseTHREEHelper {
       offset -= this._stack._minMax[0];
     }
     // set slice window center and width
-    this._shader.FragUniforms.uRescaleSlopeIntercept.value = [this._rescaleSlope, this._rescaleIntercept];
-    this._shader.FragUniforms.uWindowCenterWidth.value = [offset + this._windowCenter, this._windowWidth];
+    this._material.uniforms.uRescaleSlopeIntercept.value = [this._rescaleSlope, this._rescaleIntercept];
+    this._material.uniforms.uWindowCenterWidth.value = [offset + this._windowCenter, this._windowWidth];
     // set slice opacity
-    this._shader.FragUniforms.uOpacity.value = this._opacity;
+    this._material.uniforms.uOpacity.value = this._opacity;
     // set slice upper/lower threshold
-    this._shader.FragUniforms.uLowerUpperThreshold.value = [
+    this._material.uniforms.uLowerUpperThreshold.value = [
       offset + this._lowerThreshold,
       offset + this._upperThreshold,
     ];
     // invert
-    this._shader.FragUniforms.uInvert.value = this._invert === true ? 1 : 0;
+    this._material.uniforms.uInvert.value = this._invert === true ? 1 : 0;
     // interpolation
-    this._shader.FragUniforms.uInterpolation.value = this._interpolation;
+    this._material.uniforms.uInterpolation.value = this._interpolation;
     // lut
     if (this._lut === 'none') {
-      this._shader.FragUniforms.uLut.value = 0;
+      this._material.uniforms.uLut.value = 0;
     }
     else {
-      this._shader.FragUniforms.uLut.value = 1;
-      this._shader.FragUniforms.uTextureLUT.value = this._lutTexture;
+      this._material.uniforms.uLut.value = 1;
+      this._material.uniforms.uTextureLUT.value = this._lutTexture;
     }
   }
   // tslint:disable-next-line:typedef
@@ -414,7 +427,6 @@ export class SliceHelper extends BaseTHREEHelper {
       this._textures[j] = null;
     }
     this._textures = null;
-    this._shader = null;
     // material, geometry and mesh
     this.remove(this._mesh);
     this._mesh.geometry.dispose();

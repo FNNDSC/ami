@@ -1,5 +1,5 @@
-import THREE from "THREE";
-import { glslify } from 'glslify';
+import THREE from "../../../node_modules/THREE";
+import { glslify } from '../../../node_modules/glslify';
 
 /**
  * Conformance interface for the Contour Shader uniforms
@@ -53,8 +53,8 @@ export class ContourMaterial {
     public static get shaderMaterial(): THREE.ShaderMaterial {
         if (!ContourMaterial._shaderMaterial) {
             const source = glslify({
-                vertex: './default.vert',
-                fragment: './' + this.shaderName + '/' + this.shaderName + '.frag',
+                vertex: '../glsl/default.vert',
+                fragment: '../glsl/' + this.shaderName + '.frag',
                 sourceOnly: true
             })
 

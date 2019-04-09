@@ -5,7 +5,7 @@ export * from './loaders/loaders';
 export * from './models/models';
 export * from './parsers/parsers';
 export * from './presets/presets';
-export * from './shaders/shaders';
+export * from './shaders';
 
 // import { Raycaster } from 'three/src/core/Raycaster';
 
