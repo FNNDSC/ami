@@ -1,4 +1,4 @@
-import THREE from 'THREE';
+import THREE from 'three';
 
 export abstract class BaseTHREEHelper extends THREE.Object3D {
   //#region Variables

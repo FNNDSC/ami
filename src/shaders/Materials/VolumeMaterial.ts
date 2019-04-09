@@ -1,5 +1,5 @@
-import THREE from "../../../node_modules/THREE";
-import { glslify } from '../../../node_modules/glslify';
+import THREE from "three";
+import { glslify } from 'glslify';
 
 export interface VolumeUniforms {
     uTextureSize: { value: 0 },                 // int

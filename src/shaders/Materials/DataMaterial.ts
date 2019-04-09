@@ -1,5 +1,5 @@
-import THREE from "../../../node_modules/THREE";
-import { glslify } from '../../../node_modules/glslify';
+import THREE from "three";
+import { glslify } from 'glslify';
 
 /**
  * Conformance interface for the Data Shader uniforms

@@ -1,4 +1,4 @@
-import THREE from 'THREE';
+import THREE from 'three';
 import { isNull } from 'util';
 import Validators from './CoreValidators';
 

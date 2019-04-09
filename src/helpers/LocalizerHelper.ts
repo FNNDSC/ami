@@ -1,4 +1,4 @@
-import THREE from 'THREE';
+import THREE from 'three';
 import { BaseTHREEHelper } from "./BaseTHREEHelper";
 import { LocalizerMaterial, LocalizerUniforms } from '../shaders';
 

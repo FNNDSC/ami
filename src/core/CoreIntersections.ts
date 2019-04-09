@@ -1,4 +1,4 @@
-import THREE from 'THREE';
+import THREE from 'three';
 import CoreUtils from './CoreUtils';
 import Validators from './CoreValidators';
 

@@ -1,7 +1,7 @@
 /** * Imports ***/
 import coreIntersections from '../core/CoreIntersections';
 import coreUtils from '../core/core';
-import THREE from 'THREE';
+import THREE from 'three';
 
 /**
  *
