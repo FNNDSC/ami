@@ -118,8 +118,6 @@ export default class CoreIntersections {
 
     const bbox = CoreUtils.bbox(aabb.center, aabb.halfDimensions);
 
-    const orientation = new THREE.Vector3(1, 1, 1);
-
     // 12 edges (i.e. ray)/plane intersection tests
     // RAYS STARTING FROM THE FIRST CORNER (0, 0, 0)
     //
@@ -131,20 +129,38 @@ export default class CoreIntersections {
     //    .'
     //   +
 
+    const orientationX = new THREE.Vector3(
+      1,
+      0,
+      0,
+    );
+
+    const orientationY = new THREE.Vector3(
+      0,
+      1,
+      0,
+    );
+
+    const orientationZ = new THREE.Vector3(
+      0,
+      0,
+      1,
+    );
+
     const ray = this.posdir(
       new THREE.Vector3(
         aabb.center.x - aabb.halfDimensions.x,
         aabb.center.y - aabb.halfDimensions.y,
         aabb.center.z - aabb.halfDimensions.z
       ),
-      orientation.x
+      orientationX.clone()
     );
     this.rayPlaneInBBox(ray, planeAABB, bbox, intersections);
 
-    ray.direction = orientation.y;
+    ray.direction = orientationY.clone();
     this.rayPlaneInBBox(ray, planeAABB, bbox, intersections);
 
-    ray.direction = orientation.z;
+    ray.direction = orientationZ.clone();
     this.rayPlaneInBBox(ray, planeAABB, bbox, intersections);
 
     // RAYS STARTING FROM THE LAST CORNER
@@ -164,14 +180,14 @@ export default class CoreIntersections {
         aabb.center.y + aabb.halfDimensions.y,
         aabb.center.z + aabb.halfDimensions.z
       ),
-      orientation.x
+      orientationX.clone()
     );
     this.rayPlaneInBBox(ray2, planeAABB, bbox, intersections);
 
-    ray2.direction = orientation.y;
+    ray2.direction = orientationY.clone();
     this.rayPlaneInBBox(ray2, planeAABB, bbox, intersections);
 
-    ray2.direction = orientation.z;
+    ray2.direction = orientationZ.clone();
     this.rayPlaneInBBox(ray2, planeAABB, bbox, intersections);
 
     // RAYS STARTING FROM THE SECOND CORNER
@@ -190,11 +206,11 @@ export default class CoreIntersections {
         aabb.center.y - aabb.halfDimensions.y,
         aabb.center.z - aabb.halfDimensions.z
       ),
-      orientation.y
+      orientationY.clone()
     );
     this.rayPlaneInBBox(ray3, planeAABB, bbox, intersections);
 
-    ray3.direction = orientation.z;
+    ray3.direction = orientationZ.clone();
     this.rayPlaneInBBox(ray3, planeAABB, bbox, intersections);
 
     // RAYS STARTING FROM THE THIRD CORNER
@@ -213,11 +229,11 @@ export default class CoreIntersections {
         aabb.center.y + aabb.halfDimensions.y,
         aabb.center.z - aabb.halfDimensions.z
       ),
-      orientation.x
+      orientationX.clone()
     );
     this.rayPlaneInBBox(ray4, planeAABB, bbox, intersections);
 
-    ray4.direction = orientation.z;
+    ray4.direction = orientationZ.clone();
     this.rayPlaneInBBox(ray4, planeAABB, bbox, intersections);
 
     // RAYS STARTING FROM THE FOURTH CORNER
@@ -236,11 +252,11 @@ export default class CoreIntersections {
         aabb.center.y - aabb.halfDimensions.y,
         aabb.center.z + aabb.halfDimensions.z
       ),
-      orientation.x
+      orientationX.clone()
     );
     this.rayPlaneInBBox(ray5, planeAABB, bbox, intersections);
 
-    ray5.direction = orientation.y;
+    ray5.direction = orientationY.clone()
     this.rayPlaneInBBox(ray5, planeAABB, bbox, intersections);
 
     // @todo make sure objects are unique...
@@ -435,7 +451,7 @@ export default class CoreIntersections {
   }
 
   // tslint:disable-next-line:typedef
-  public static posdir(position, direction) {
+  public static posdir(position: THREE.Vector3, direction: THREE.Vector3) {
     return { position, direction };
   }
 

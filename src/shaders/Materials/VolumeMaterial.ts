@@ -1,5 +1,4 @@
- 
-import { glslify } from 'glslify';
+import glsl from 'glslify';
 
 const THREE = (window as any).THREE;
 export interface VolumeUniforms {
@@ -128,18 +127,19 @@ export class VolumeMaterial {
 
     public static get shaderMaterial(): THREE.ShaderMaterial {
         if (!VolumeMaterial._shaderMaterial) {
-            const source = glslify({
-                vertex: '../glsl/default.vert',
-                fragment: '../glsl/' + this.shaderName + '.frag',
+            const vertSource = glsl('../glsl/default.vert', {
                 sourceOnly: true
-            })
+            });
+            const fragmentSource = glsl('../glsl/' + this.shaderName + '.frag', {
+                sourceOnly: true
+            });
 
             VolumeMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.BackSide,
                 transparent: true,
                 uniforms: this.defaultUniforms,
-                vertexShader: source.vertex,
-                fragmentShader: source.fragment,
+                vertexShader: vertSource,
+                fragmentShader: fragmentSource,
             });
         }
 

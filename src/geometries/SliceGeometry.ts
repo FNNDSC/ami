@@ -83,11 +83,11 @@ const THREE = (window as any).THREE;
 
       // loop through all points!
       const positions = new Float32Array(points.length * 3);
-      positions.set(points[0].toArray(), 0);
+      positions.set(points[0].position.toArray(), 0);
 
       for (let i = 1; i < points.length; i++) {
         // project each on plane!
-        positions.set(points[i].toArray(), i * 3);
+        positions.set(points[i].position.toArray(), i * 3);
 
         shape.lineTo(points[i].xy.x, points[i].xy.y);
       }
