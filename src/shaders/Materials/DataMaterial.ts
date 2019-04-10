@@ -37,7 +37,7 @@ export interface DataUniforms {
 }
 
 export class DataMaterial {
-    private static _shaderName = 'Data';
+    private static _shaderName = 'data';
     public static get shaderName() {
         return DataMaterial._shaderName;
     }

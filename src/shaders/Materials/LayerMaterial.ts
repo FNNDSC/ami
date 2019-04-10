@@ -17,7 +17,7 @@ export interface LayerUniforms {
 }
 
 export class LayerMaterial {
-    private static _shaderName = 'Layer';
+    private static _shaderName = 'layer';
     public static get shaderName() {
         return LayerMaterial._shaderName;
     }
