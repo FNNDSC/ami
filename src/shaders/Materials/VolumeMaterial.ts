@@ -1,5 +1,7 @@
-import vertSource from 'raw-loader!glslify-loader!../glsl/default.vert';
-import fragmentSource from 'raw-loader!glslify-loader!../glsl/volume.frag';
+// import vertSource from 'raw-loader!glslify-loader!../glsl/default.vert';
+// import fragmentSource from 'raw-loader!glslify-loader!../glsl/volume.frag';
+const vertSource = require('raw-loader!glslify-loader!../glsl/default.vert');
+const fragmentSource = require ('raw-loader!glslify-loader!../glsl/volume.frag');
 
 const THREE = (window as any).THREE;
 
