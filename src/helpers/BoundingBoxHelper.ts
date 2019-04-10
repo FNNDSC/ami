@@ -10,15 +10,16 @@ export default class BoundingBoxHelper extends THREE.Object3D {
   private _geometry: any;
   private _mesh: any;
   private _meshStack: any;
+  private _visible: boolean;
+  private _color: number;
   
   constructor(stack) {
-    //
     super();
 
     // private vars
     this._stack = stack;
-    this.visible = true;
-    this.color = 0xffffff;
+    this._visible = true;
+    this._color = 0xffffff;
     this._material = null;
     this._geometry = null;
     this._mesh = null;
@@ -30,25 +31,25 @@ export default class BoundingBoxHelper extends THREE.Object3D {
 
   // getters/setters
   set visible(visible) {
-    this.visible = visible;
+    this._visible = visible;
     if (this._mesh) {
       this._mesh.visible = this.visible;
     }
   }
 
   get visible() {
-    return this.visible;
+    return this._visible;
   }
 
   set color(color) {
-    this.color = color;
+    this._color = color;
     if (this._material) {
-      this._material.color.set(this.color);
+      this._material.color.set(this._color);
     }
   }
 
   get color() {
-    return this.color;
+    return this._color;
   }
 
   // private methods
@@ -79,7 +80,7 @@ export default class BoundingBoxHelper extends THREE.Object3D {
     mesh.visible = this.visible;
     this._meshStack = mesh;
 
-    this._mesh = new THREE.BoxHelper(this._meshStack, this.color);
+    this._mesh = new THREE.BoxHelper(this._meshStack, this._color);
     this._material = this._mesh.material;
 
     this.add(this._mesh);

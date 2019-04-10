@@ -70,6 +70,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   constructor(stack) {
     super(stack);
+    this._material = VolumeMaterial.shaderMaterial;
     this._init();
     this._create();
   }
@@ -82,7 +83,6 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   }
 
   protected _create() {
-    this._material = VolumeMaterial.shaderMaterial;
     this._material.needsUpdate = true;
     this._mesh = new THREE.Mesh(this._geometry, this._material);
     this.add(this._mesh);

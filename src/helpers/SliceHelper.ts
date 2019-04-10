@@ -249,6 +249,8 @@ export class SliceHelper extends BaseTHREEHelper {
     this._aaBBspace = aabbSpace; // or LPS -> different transforms, esp for the geometry/mesh
     // update dimensions, center, etc.
     // depending on aaBBSpace
+
+    this._material = DataMaterial.shaderMaterial;
     this._init();
     // update object
     this._create();
@@ -288,7 +290,6 @@ export class SliceHelper extends BaseTHREEHelper {
       return;
     }
     if (!this._material) {
-      this._material = DataMaterial.shaderMaterial;
       this._material.uniforms.uTextureSize.value = this._stack.textureSize;
       this._material.uniforms.uDataDimensions.value = [
         this._stack.dimensionsIJK.x,

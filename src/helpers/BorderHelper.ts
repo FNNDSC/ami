@@ -10,14 +10,16 @@ export default class BorderHelper extends THREE.Object3D {
   private _geometry: THREE.BufferGeometry;
   private _material: THREE.LineBasicMaterial;
   private _helpersSlice: any;
+  private _visible: boolean;
+  private _color: number;
 
   constructor(helpersSlice) {
     super();
 
     this._helpersSlice = helpersSlice;
 
-    this.visible = true;
-    this.color = 0xff0000;
+    this._visible = true;
+    this._color = 0xff0000;
     this._material = null;
     this._geometry = null;
     this._mesh = null;
@@ -35,36 +37,36 @@ export default class BorderHelper extends THREE.Object3D {
   }
 
   set visible(visible) {
-    this.visible = visible;
+    this._visible = visible;
     if (this._mesh) {
-      this._mesh.visible = this.visible;
+      this._mesh.visible = this._visible;
     }
   }
 
   get visible() {
-    return this.visible;
+    return this._visible;
   }
 
   set color(color) {
-    this.color = color;
+    this._color = color;
     if (this._material) {
-      this._material.color.set(this.color);
+      this._material.color.set(this._color);
     }
   }
 
   get color() {
-    return this.color;
+    return this._color;
   }
 
   _create() {
     if (!this._material) {
       this._material = new THREE.LineBasicMaterial({
-        color: this.color,
+        color: this._color,
         linewidth: 1,
       });
     }
 
-    if (!this._helpersSlice.geometry.vertices) {
+    if (!this._helpersSlice.geometry || !this._helpersSlice.geometry.vertices) {
       return;
     }
 
@@ -81,7 +83,7 @@ export default class BorderHelper extends THREE.Object3D {
     if (this._helpersSlice.aabbSpace === 'IJK') {
       this._mesh.applyMatrix(this._helpersSlice.stack.ijk2LPS);
     }
-    this._mesh.visible = this.visible;
+    this._mesh.visible = this._visible;
 
     // and add it!
     this.add(this._mesh);
