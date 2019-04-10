@@ -1,10 +1,10 @@
-import CoreUtils from '../core/core';
-import THREE from "three"
+import {CoreUtils} from '../core'
+
+const THREE = (window as any).THREE;
 
 /**
  * @module helpers/lut
  */
-
  export default class LutHelper extends THREE.Object3D {
    _dom: HTMLElement;
    _color: number[][];

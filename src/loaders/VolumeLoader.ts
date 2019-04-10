@@ -2,7 +2,7 @@
 const PAKO = require('pako');
 
 import BaseLoader from './BaseLoader';
-import CoreUtils from '../core/core';
+import {CoreUtils} from '../core'
 import SeriesModel from '../models/SeriesModel';
 import StackModel from '../models/StackModel';
 import FrameModel from '../models/FrameModel';

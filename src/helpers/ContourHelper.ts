@@ -1,6 +1,7 @@
-import THREE from "three"
 import { ContourMaterial } from "../shaders";
 import { BaseTHREEHelper } from "./BaseTHREEHelper";
+
+const THREE = (window as any).THREE;
 
 export class ContourHelper extends BaseTHREEHelper {
   //#region Variables

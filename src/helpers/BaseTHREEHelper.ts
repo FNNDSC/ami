@@ -1,4 +1,4 @@
-import THREE from "three"
+const THREE = (window as any).THREE;
 
 export abstract class BaseTHREEHelper extends THREE.Object3D {
   //#region Variables

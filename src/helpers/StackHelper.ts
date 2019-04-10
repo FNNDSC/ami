@@ -1,7 +1,9 @@
-import THREE from "three"
+ 
 import BoundingBoxHelper from './BoundingBoxHelper';
 import { SliceHelper } from './SliceHelper';
 import BorderHelper from './BorderHelper';
+
+const THREE = (window as any).THREE;
 
 /**
  * Helper to easily display and interact with a stack.<br>
@@ -34,8 +36,8 @@ import BorderHelper from './BorderHelper';
  *
  * @module helpers/stack
  */
-
-export class StackHelper extends THREE.Object3D {
+const winThree = ((window as any).THREE);
+export class StackHelper extends winThree.Object3D {
   //#region Veriables
   private _stack;
   private _bBox;

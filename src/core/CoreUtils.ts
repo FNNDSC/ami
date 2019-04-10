@@ -1,6 +1,8 @@
-import THREE from "three"
+ 
 import { isNull } from 'util';
 import Validators from './CoreValidators';
+
+const THREE = (window as any).THREE;
 
 /**
  * General purpose functions.

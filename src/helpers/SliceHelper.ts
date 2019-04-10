@@ -1,7 +1,8 @@
-import THREE from "three"
-import { SliceGeometry } from '../geometries/geometries';
+import { SliceGeometry } from '../geometries';
 import { BaseTHREEHelper } from './BaseTHREEHelper';
 import { DataMaterial } from '../shaders';
+
+const THREE = (window as any).THREE;
 
 export class SliceHelper extends BaseTHREEHelper {
   //#region Variables

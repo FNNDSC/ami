@@ -1,6 +1,8 @@
-import THREE from "three"
+ 
 import { BaseTHREEHelper } from "./BaseTHREEHelper";
 import { LocalizerMaterial } from '../shaders';
+
+const THREE = (window as any).THREE;
 
 export class LocalizerHelper extends BaseTHREEHelper {
   //#region Variables

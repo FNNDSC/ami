@@ -1,4 +1,4 @@
-import CoreUtils from '../core/core';
+import {CoreUtils} from '../core'
 
 /**
  * Event Based progressbar

@@ -1,5 +1,7 @@
-import THREE from "three"
+ 
 import { glslify } from 'glslify';
+
+const THREE = (window as any).THREE;
 
 /**
  * Conformance interface for the Contour Shader uniforms

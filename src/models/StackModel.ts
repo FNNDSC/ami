@@ -3,8 +3,7 @@ import { Matrix4 } from 'three/src/math/Matrix4';
 import { Vector3 } from 'three/src/math/Vector3';
 import { RGBFormat, RGBAFormat } from 'three/src/constants';
 
-import CoreColors from '../core/CoreColours';
-import CoreUtils from '../core/core';
+import {CoreColors, CoreUtils} from '../core';
 import BaseModel from './BaseModel';
 
 const binaryString = require('math-float32-to-binary-string');

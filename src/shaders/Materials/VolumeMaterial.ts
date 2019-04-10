@@ -1,6 +1,7 @@
-import THREE from "three"
+ 
 import { glslify } from 'glslify';
 
+const THREE = (window as any).THREE;
 export interface VolumeUniforms {
     uTextureSize: { value: 0 },                 // int
     uTextureContainer: {                        // [ sampler2D ], length 7

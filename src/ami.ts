@@ -1,10 +1,10 @@
-export * from './core/core';
-export * from './geometries/geometries';
-export * from './helpers/helpers';
-export * from './loaders/loaders';
-export * from './models/models';
-export * from './parsers/parsers';
-export * from './presets/presets';
+export * from './core';
+export * from './geometries';
+export * from './helpers';
+export * from './loaders';
+export * from './models';
+export * from './parsers';
+export * from './presets';
 export * from './shaders';
 
 // import { Raycaster } from 'three/src/core/Raycaster';

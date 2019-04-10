@@ -1,4 +1,4 @@
-import THREE from "three"
+const THREE = (window as any).THREE;
 
 /**
  * @module helpers/dummy

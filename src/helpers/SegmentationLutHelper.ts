@@ -1,5 +1,7 @@
-import CoreUtils from '../core/core';
-import THREE from "three"
+import {CoreUtils} from '../core'
+
+const THREE = (window as any).THREE;
+ 
 
 let defaultSegmentation = {
   0: { color: [0, 0, 0], opacity: 0, label: 'background' },

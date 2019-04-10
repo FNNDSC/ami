@@ -1,6 +1,8 @@
-import THREE from "three"
+ 
 import { VolumeMaterial } from '../shaders';
 import { BaseTHREEHelper } from "./BaseTHREEHelper";
+
+const THREE = (window as any).THREE;
 
 export class VolumeRenderHelper extends BaseTHREEHelper {
   //#region Variables 

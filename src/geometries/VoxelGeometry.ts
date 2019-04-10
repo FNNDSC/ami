@@ -1,11 +1,11 @@
-import THREE from "three"
+ 
 
 /**
  * @module geometries/voxel
  */
 
-const winThree = ((window as any).THREE);
- export default class VoxelGeometry extends winThree.BoxGeometry {
+const THREE = (window as any).THREE;
+ export default class VoxelGeometry extends THREE.BoxGeometry {
    private _location: THREE.Vector3;
 
    constructor(dataPosition: THREE.Vector3) {

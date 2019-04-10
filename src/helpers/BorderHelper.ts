@@ -1,9 +1,10 @@
-import THREE from "three"
+ 
+
+const THREE = (window as any).THREE;
 
 /**
  * @module helpers/border
  */
-
 export default class BorderHelper extends THREE.Object3D {
   private _mesh: THREE.Line;
   private _geometry: THREE.BufferGeometry;
