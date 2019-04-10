@@ -1,4 +1,5 @@
-import glsl from 'glslify';
+import vertSource from 'raw-loader!glslify-loader!../glsl/default.vert';
+import fragmentSource from 'raw-loader!glslify-loader!../glsl/layer.frag';
 
 const THREE = (window as any).THREE;
 
@@ -49,19 +50,6 @@ export class LayerMaterial {
 
     public static get shaderMaterial(): THREE.ShaderMaterial {
         if (!LayerMaterial._shaderMaterial) {
-            const vertSource = glsl('../glsl/default.vert', {
-                sourceOnly: true
-            });
-            const fragmentSource = glsl('../glsl/' + this.shaderName + '.frag', {
-                sourceOnly: true
-            });
-
-            const source = glsl({
-                vertex: '../glsl/default.vert',
-                fragment: '../glsl/' + this.shaderName + '.frag',
-                sourceOnly: true
-            })
-
             LayerMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,

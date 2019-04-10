@@ -1,4 +1,5 @@
-import glsl from 'glslify';
+import vertSource from 'raw-loader!glslify-loader!../glsl/default.vert';
+import fragmentSource from 'raw-loader!glslify-loader!../glsl/localizer.frag';
 
 const THREE = (window as any).THREE;
 
@@ -50,14 +51,7 @@ export class LocalizerMaterial {
     }
 
     public static get shaderMaterial(): THREE.ShaderMaterial {
-        if (!LocalizerMaterial._shaderMaterial) {
-            const vertSource = glsl('../glsl/default.vert', {
-                sourceOnly: true
-            });
-            const fragmentSource = glsl('../glsl/' + this.shaderName + '.frag', {
-                sourceOnly: true
-            });
-            
+        if (!LocalizerMaterial._shaderMaterial) {           
             LocalizerMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,

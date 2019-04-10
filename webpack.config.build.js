@@ -39,6 +39,15 @@ const config = {
         include: [path.resolve(__dirname, 'src')],
         exclude: [/external/],
       },
+      {
+        test: /\.(glsl|vs|fs|vert|frag)$/,
+        include: [path.resolve(__dirname, 'src')],
+        exclude: [/external/],
+        use: [
+          'raw-loader',
+          'glslify-loader'
+        ]
+      }
     ],
   },
   node: {

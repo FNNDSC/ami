@@ -57,12 +57,14 @@
     "OpenJPEG.js": "joedrago/openjpeg#master",
     "dicom-parser": "1.8.3",
     "glslify": "^7.0.0",
+    "glslify-loader": "^2.0.0",
     "image-JPEG2000": "ReflexionMed/image-JPEG2000#master",
     "jpeg-lossless-decoder-js": "2.0.4",
     "math-float32-to-binary-string": "^1.0.0",
     "nifti-reader-js": "v0.5.4",
     "nrrd-js": "^0.2.1",
     "pako": "1.0.8",
+    "raw-loader": "^2.0.0",
     "three": "latest"
   },
   "scripts": {
@@ -92,7 +94,6 @@
     "deploy": "yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"
   },
   "devDependencies": {
-    "babel-loader": "^8.0.5",
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.3.1",
@@ -100,13 +101,14 @@
     "@types/jasmine": "^3.3.8",
     "@types/node": "^10.12.24",
     "@types/three": "^0.93.19",
+    "babel-loader": "^8.0.5",
     "compression-webpack-plugin": "^2.0.0",
     "cross-env": "^5.2.0",
     "gh-pages": "^2.0.1",
     "husky": "^1.3.1",
     "jasmine-core": "^3.3.0",
     "jsdoc": "jsdoc3/jsdoc#master",
-    "karma": "^4.0.0",
+    "karma": "^4.0.1",
     "karma-chrome-launcher": "^2.2.0",
     "karma-jasmine": "^2.0.1",
     "karma-sinon": "^1.0.5",

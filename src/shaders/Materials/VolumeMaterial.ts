@@ -1,6 +1,8 @@
-import glsl from 'glslify';
+import vertSource from 'raw-loader!glslify-loader!../glsl/default.vert';
+import fragmentSource from 'raw-loader!glslify-loader!../glsl/volume.frag';
 
 const THREE = (window as any).THREE;
+
 export interface VolumeUniforms {
     uTextureSize: { value: 0 },                 // int
     uTextureContainer: {                        // [ sampler2D ], length 7
@@ -127,13 +129,6 @@ export class VolumeMaterial {
 
     public static get shaderMaterial(): THREE.ShaderMaterial {
         if (!VolumeMaterial._shaderMaterial) {
-            const vertSource = glsl('../glsl/default.vert', {
-                sourceOnly: true
-            });
-            const fragmentSource = glsl('../glsl/' + this.shaderName + '.frag', {
-                sourceOnly: true
-            });
-
             VolumeMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.BackSide,
                 transparent: true,

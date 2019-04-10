@@ -1,4 +1,5 @@
-import glsl from 'glslify';
+import vertSource from 'raw-loader!glslify-loader!../glsl/default.vert';
+import fragmentSource from 'raw-loader!glslify-loader!../glsl/contour.frag';
 
 const THREE = (window as any).THREE;
 
@@ -53,13 +54,6 @@ export class ContourMaterial {
 
     public static get shaderMaterial(): THREE.ShaderMaterial {
         if (!ContourMaterial._shaderMaterial) {
-            const vertSource = glsl('../glsl/default.vert', {
-                sourceOnly: true
-            });
-            const fragmentSource = glsl('../glsl/' + this.shaderName + '.frag', {
-                sourceOnly: true
-            });
-
             ContourMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,

@@ -52,3 +52,5 @@ void unpack(
         );
     }
 }
+
+#pragma glslify: export(unpack)
