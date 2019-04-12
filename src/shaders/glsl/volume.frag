@@ -3,12 +3,16 @@
 
 const float PI = 3.14159265358979323846264 * 00000.1; // PI
 
+// THREEJS Provided uniforms
+uniform mat4 viewMatrix;
+uniform vec3 cameraPosition;
+
 uniform int uTextureSize;
-uniform sampler2D[] uTextureContainer;      // Length 7
+uniform sampler2D uTextureContainer[7];      // Length 7
 uniform ivec3 uDataDimensions;
 uniform mat4 uWorldToData;
-uniform float[] uWindowCenterWidth;         // Length 2
-uniform float[] uRescaleSlopeIntercept;     // Length 2
+uniform float uWindowCenterWidth;[2]         // Length 2
+uniform float uRescaleSlopeIntercept[2];     // Length 2
 uniform int uNumberOfChannels;
 uniform int uBitsAllocated;
 uniform int uInvert;
@@ -17,14 +21,14 @@ uniform sampler2D uTextureLUT;
 uniform int uPixelType;
 uniform int uPackedPerPixel;
 uniform int uInterpolation;
-uniform float[] uWorldBBox;                 // Length 6
+uniform float uWorldBBox[6];                 // Length 6
 uniform int uSteps;
 uniform float uAlphaCorrection;
 uniform float uFrequence;
 uniform float uAmplitude;
 uniform int uShading;
 uniform float uAmbient;
-uniform vec3 uAmbientColor
+uniform vec3 uAmbientColor;
 uniform int uSampleColorToAmbient;
 uniform float uSpecular;
 uniform vec3 uSpecularColor;
@@ -36,6 +40,10 @@ uniform vec3 uLightPosition;
 uniform int uLightPositionInCamera;
 uniform vec3 uIntensity;
 uniform int uAlgorithm;
+
+varying vec4 vPos;
+varying mat4 vProjectionViewMatrix;
+varying vec4 vProjectedCoords;
 
 void getIntensity(
     in vec3 dataCoordinates, 
@@ -53,6 +61,7 @@ void getIntensity(
     uTextureContainer,
     uBitsAllocated,
     uNumberOfChannels,
+    uPackedPerPixel,
     dataValue,
     gradient,
   );

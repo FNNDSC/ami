@@ -103,6 +103,7 @@ const THREE = (window as any).THREE;
 
       // update real position of each vertex! (not in 2d)
       this.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
-      this.attributes.position = points; // legacy code to compute normals in the SliceHelper
+      this.computeVertexNormals();
+      //this.attributes.position = points; // legacy code to compute normals in the SliceHelper
    }
  }

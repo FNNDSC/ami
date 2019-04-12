@@ -106,6 +106,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
 
   private _prepareMaterial() {
     // uniforms
+    this._material.uniforms.uCameraPosition.value = this._camera.position;
     this._material.uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
     this._material.uniforms.uTextureSize.value = this._stack.textureSize;
     this._material.uniforms.uTextureContainer.value = this._textures;

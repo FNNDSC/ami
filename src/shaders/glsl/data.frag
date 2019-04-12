@@ -1,12 +1,16 @@
 #pragma glslify: interpolation = require(./utility/interpolation.glsl)
 
+// THREEJS Provided uniforms
+uniform mat4 viewMatrix;
+uniform vec3 cameraPosition;
+
 uniform int uTextureSize;
-uniform sampler2D[] uTextureContainer;      // Length 7
+uniform sampler2D uTextureContainer[7];      // Length 7
 uniform ivec3 uDataDimensions;
 uniform mat4 uWorldToData;
-uniform float[] uWindowCenterWidth;         // Length 2
-uniform float[] uLowerUpperThreshold;       // Length 2
-uniform float[] uRescaleSlopeIntercept;     // Length 2
+uniform float uWindowCenterWidth[2];         // Length 2
+uniform float uLowerUpperThreshold[2];       // Length 2
+uniform float uRescaleSlopeIntercept[2];     // Length 2
 uniform int uNumberOfChannels;
 uniform int uBitsAllocated;
 uniform int uInvert;
@@ -26,6 +30,10 @@ uniform float uOpacity;
 uniform float uSpacing;
 uniform float uThickness;
 uniform int uThicknessMethod;
+uniform int uPackedPerPixel;
+
+varying vec3 vPos;
+varying vec3 vNormal;
 
 void main(void) {
     if ( 
@@ -97,6 +105,7 @@ void main(void) {
                 uTextureContainer,
                 uBitsAllocated,
                 uNumberOfChannels,
+                uPackedPerPixel,
                 dataValueAcc,
                 gradient
             );
@@ -132,6 +141,7 @@ void main(void) {
             uTextureContainer,
             uBitsAllocated,
             uNumberOfChannels,
+            uPackedPerPixel,
             dataValue,
             gradient
         );

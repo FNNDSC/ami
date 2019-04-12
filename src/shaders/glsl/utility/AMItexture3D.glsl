@@ -1,9 +1,9 @@
- void AMItexture3D(
+void AMItexture3D(
     in ivec3 dataCoordinates, 
     in int uTextureSize,
-    int ivec3 uDataDimensions,
-    int int uDataDimensions,
-    int sampler2D[] uTextureContainer,
+    in ivec3 uDataDimensions,
+    in sampler2D uTextureContainer[7],
+    in int uPackedPerPixel,
     out vec4 dataValue, 
     out int offset
 ){
@@ -34,10 +34,10 @@
     uv.y = 1. - (0.5 + rowIndexF) / textureSizeF;
 
     float textureIndexF = float(textureIndex);
-    float addition = vec4(0.);
+    vec4 addition = vec4(0.);
 
-    for (float stepC = 0.0; stepC < uTextureContainer.length; stepC+=1 ) {
-        addition += step( abs( textureIndexF - stepC ), 0.0 ) * texture2D(uTextureContainer[int(stepC)], uv)
+    for (float stepC = 0.0; stepC < 7.0; stepC++ ) {
+        addition += step( abs( textureIndexF - stepC ), 0.0 ) * texture2D(uTextureContainer[int(stepC)], uv);
     }
     dataValue = addition;
 }

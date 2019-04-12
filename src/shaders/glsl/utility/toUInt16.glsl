@@ -3,7 +3,6 @@ void toUInt16(
     in float a, 
     out float value
 ) {
-void uInt16(){
     value = r * 255. + a * 255. * 256.;
 }
 

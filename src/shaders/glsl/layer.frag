@@ -7,6 +7,10 @@ uniform int uType1;
 uniform int uTrackMouse;
 uniform ivec2 uMouse;
 
+varying vec4 vPos;
+varying mat4 vProjectionViewMatrix;
+varying vec4 vProjectedCoords;
+
 void main(void) {
 
   vec2 texc = vec2(((vProjectedCoords.x / vProjectedCoords.w) + 1.0 ) / 2.0,

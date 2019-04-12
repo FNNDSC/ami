@@ -285,7 +285,7 @@ export class SliceHelper extends BaseTHREEHelper {
       window.console.log('invalid slice geometry - exiting...');
       return;
     }
-    if (!this._geometry.vertices) {
+    if (!(this._geometry as THREE.BufferGeometry).attributes) {
       return;
     }
 

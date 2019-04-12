@@ -36,8 +36,7 @@ const THREE = (window as any).THREE;
  *
  * @module helpers/stack
  */
-const winThree = ((window as any).THREE);
-export class StackHelper extends winThree.Object3D {
+export class StackHelper extends THREE.Object3D {
   //#region Veriables
   private _stack;
   private _bBox;

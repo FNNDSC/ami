@@ -10,6 +10,10 @@ uniform float uWidth;
 uniform float uOpacity;
 uniform sampler2D uTextureFilled;
 
+varying vec4 vPos;
+varying mat4 vProjectionViewMatrix;
+varying vec4 vProjectedCoords;
+
 void main(void) {
 
   vec2 texCoord = vec2(((vProjectedCoords.x / vProjectedCoords.w) + 1.0 ) / 2.0,

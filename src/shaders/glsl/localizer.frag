@@ -10,6 +10,10 @@ uniform vec3 uPlaneColor2;
 uniform vec4 uPlane3;
 uniform vec3 uPlaneColor3;
 
+varying vec4 vPos;
+varying mat4 vProjectionViewMatrix;
+varying vec4 vProjectedCoords;
+
 void main(void) {
       vec4 c1 = vec4(0., 0., 0., 0.);
       vec4 c2 = vec4(0., 0., 0., 0.);

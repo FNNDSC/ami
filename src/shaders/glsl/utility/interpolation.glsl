@@ -10,6 +10,7 @@ void interpolation(
     in int uBitsAllocated,
     in int uNumberOfChannels,
     in int uInterpolation,
+    in int uPackedPerPixel,
     out vec4 dataValueAcc,
     out vec3 gradient
 ) {
@@ -22,6 +23,7 @@ void interpolation(
             uTextureContainer,
             uBitsAllocated,
             uNumberOfChannels,
+            uPackedPerPixel,
             dataValueAcc
         );
     }

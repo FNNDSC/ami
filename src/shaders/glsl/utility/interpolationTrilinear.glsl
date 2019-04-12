@@ -32,6 +32,7 @@ void interpolationTrilinear(
     in int uBitsAllocated,
     in int uNumberOfChannels,
     in int uInterpolation,
+    in int uPackedPerPixel,
     out vec4 dataValue, 
     out vec3 gradient
 ){
@@ -59,6 +60,7 @@ void interpolationTrilinear(
         uTextureContainer,
         uBitsAllocated,
         uNumberOfChannels,
+        uPackedPerPixel,
         v000
     );
 
@@ -73,6 +75,7 @@ void interpolationTrilinear(
         uTextureContainer,
         uBitsAllocated,
         uNumberOfChannels,
+        uPackedPerPixel,
         v100
     );
 
@@ -87,6 +90,7 @@ void interpolationTrilinear(
         uTextureContainer,
         uBitsAllocated,
         uNumberOfChannels,
+        uPackedPerPixel,
         v001
     );
 
@@ -101,6 +105,7 @@ void interpolationTrilinear(
         uTextureContainer,
         uBitsAllocated,
         uNumberOfChannels,
+        uPackedPerPixel,
         v101
     );
 
@@ -115,6 +120,7 @@ void interpolationTrilinear(
         uTextureContainer,
         uBitsAllocated,
         uNumberOfChannels,
+        uPackedPerPixel,
         v010
     );
 
@@ -128,6 +134,7 @@ void interpolationTrilinear(
         uTextureContainer,
         uBitsAllocated,
         uNumberOfChannels,
+        uPackedPerPixel,
         v110
     );
 
@@ -142,6 +149,7 @@ void interpolationTrilinear(
         uTextureContainer,
         uBitsAllocated,
         uNumberOfChannels,
+        uPackedPerPixel,
         v011
     );
 
@@ -155,6 +163,7 @@ void interpolationTrilinear(
         uTextureContainer,
         uBitsAllocated,
         uNumberOfChannels,
+        uPackedPerPixel,
         v111
     );
 

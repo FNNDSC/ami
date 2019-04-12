@@ -9,6 +9,7 @@ void interpolationIdentity(
     in sampler2D[] uTextureContainer,
     in int uBitsAllocated,
     in int uNumberOfChannels,
+    in int uPackedPerPixel,
     out vec4 dataValue
 ){
     // lower bound
@@ -24,6 +25,7 @@ void interpolationIdentity(
         uDataDimensions,
         uDataDimensions,
         uTextureContainer,
+        uPackedPerPixel,
         temporaryDataValue, 
         dataOffset
     );

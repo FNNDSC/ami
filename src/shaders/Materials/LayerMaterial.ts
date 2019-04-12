@@ -55,8 +55,8 @@ export class LayerMaterial {
             LayerMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: vertSource,
-                fragmentShader: fragmentSource,
+                vertexShader: vertSource.default,
+                fragmentShader: fragmentSource.default,
                 transparent: true,
             });
         }
