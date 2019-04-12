@@ -11,7 +11,7 @@ const THREE = (window as any).THREE;
 export interface DataUniforms {
     uTextureSize: { value: number },                     // int
     uTextureContainer: { value: THREE.Texture[]},        // sampler2D[]
-    uDataDimensions: { value: number[] },                // ivec3
+    uDataDimensions: { value: THREE.Vector3 },           // ivec3
     uWorldToData: { value: THREE.Matrix4 },              // mat4
     uWindowCenterWidth: { value: number[] },             // float[2]
     uLowerUpperThreshold: { value: number[] },           // float[2]
@@ -65,7 +65,7 @@ export class DataMaterial {
             new THREE.Texture(),
             new THREE.Texture()
         ]},                                                         // sampler2D[]
-        uDataDimensions: { value: [0, 0, 0] },                      // ivec3
+        uDataDimensions: { value: new THREE.Vector3(0, 0 ,0) },     // ivec3
         uWorldToData: { value: new THREE.Matrix4() },               // mat4
         uWindowCenterWidth: { value: [0.0, 0.0] },                  // float[2]
         uLowerUpperThreshold: { value: [0.0, 0.0] },                // float[2]
