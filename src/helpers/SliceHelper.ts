@@ -249,7 +249,7 @@ export class SliceHelper extends BaseTHREEHelper {
     this._aaBBspace = aabbSpace; // or LPS -> different transforms, esp for the geometry/mesh
     // update dimensions, center, etc.
     // depending on aaBBSpace
-
+    this._material = DataMaterial.shaderMaterial;
     this._init();
     // update object
     this._create();
@@ -288,45 +288,43 @@ export class SliceHelper extends BaseTHREEHelper {
     if (!this._geometry.vertices) {
       return;
     }
-    if (!this._material) {
-      this._material = DataMaterial.shaderMaterial;
-      this._material.uniforms.uTextureSize.value = this._stack.textureSize;
-      this._material.uniforms.uDataDimensions.value = [
-        this._stack.dimensionsIJK.x,
-        this._stack.dimensionsIJK.y,
-        this._stack.dimensionsIJK.z,
-      ];
-      this._material.uniforms.uWorldToData.value = this._stack.lps2IJK;
-      this._material.uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
-      this._material.uniforms.uPixelType.value = this._stack.pixelType;
-      this._material.uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
-      this._material.uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
-      this._material.uniforms.uSpacing.value = this._spacing;
-      this._material.uniforms.uThickness.value = this._thickness;
-      this._material.uniforms.uThicknessMethod.value = this._thicknessMethod;
-      // compute texture if material exist
-      this._prepareTexture();
-      this._material.uniforms.uTextureContainer.value = this._textures;
-      if (this._stack.textureUnits > 8) {
-        this._material.uniforms.uTextureContainer = { value: [
-              new THREE.Texture(),
-              new THREE.Texture(),
-              new THREE.Texture(),
-              new THREE.Texture(),
-              new THREE.Texture(),
-              new THREE.Texture(),
-              new THREE.Texture(),
-              new THREE.Texture(),
-              new THREE.Texture(),
-              new THREE.Texture(),
-              new THREE.Texture(),
-              new THREE.Texture(),
-              new THREE.Texture(),
-              new THREE.Texture()
-          ]};
-      }
 
-      this._material.needsUpdate = true;
+    this._material.uniforms.uTextureSize.value = this._stack.textureSize;
+    this._material.uniforms.uDataDimensions.value = [
+      this._stack.dimensionsIJK.x,
+      this._stack.dimensionsIJK.y,
+      this._stack.dimensionsIJK.z,
+    ];
+    this._material.uniforms.uWorldToData.value = this._stack.lps2IJK;
+    this._material.uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
+    this._material.uniforms.uPixelType.value = this._stack.pixelType;
+    this._material.uniforms.uBitsAllocated.value = this._stack.bitsAllocated;
+    this._material.uniforms.uPackedPerPixel.value = this._stack.packedPerPixel;
+    this._material.uniforms.uSpacing.value = this._spacing;
+    this._material.uniforms.uThickness.value = this._thickness;
+    this._material.uniforms.uThicknessMethod.value = this._thicknessMethod;
+    // compute texture if material exist
+    this._prepareTexture();
+    this._material.uniforms.uTextureContainer.value = this._textures;
+    if (this._stack.textureUnits > 8) {
+      this._material.uniforms.uTextureContainer = { value: [
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture(),
+            new THREE.Texture()
+        ]};
+
+    this._material.needsUpdate = true;
     }
     // update intensity related stuff
     this.UpdateIntensitySettings();
