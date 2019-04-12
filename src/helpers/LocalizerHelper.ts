@@ -106,6 +106,7 @@ export class LocalizerHelper extends BaseTHREEHelper {
   }
 
   protected _init() {
+    this._material = LocalizerMaterial.shaderMaterial;
     this._prepareMaterial();
   }
 
@@ -141,13 +142,6 @@ export class LocalizerHelper extends BaseTHREEHelper {
       this._material.uniforms.uCanvasHeight.value = this._canvasHeight;
 
       this._material = LocalizerMaterial.shaderMaterial;
-
-      // this._material = new THREE.ShaderMaterial({
-      //   side: THREE.DoubleSide,
-      //   uniforms: this._material.uniforms,
-      //   vertexShader: this._shader.computeVertShader(),
-      //   fragmentShader: this._shader.computeFragShader(),
-      // });
     }
   }
 

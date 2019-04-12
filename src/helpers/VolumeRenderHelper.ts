@@ -70,12 +70,12 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   // tslint:disable-next-line:typedef
   constructor(stack) {
     super(stack);
-    this._material = VolumeMaterial.shaderMaterial;
     this._init();
     this._create();
   }
 
   protected _init() {
+    this._material = VolumeMaterial.shaderMaterial;
     this._prepareStack();
     this._prepareTexture();
     this._prepareMaterial();
