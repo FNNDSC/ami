@@ -56,15 +56,12 @@
   "dependencies": {
     "OpenJPEG.js": "joedrago/openjpeg#master",
     "dicom-parser": "1.8.3",
-    "glslify": "^7.0.0",
-    "glslify-loader": "^2.0.0",
     "image-JPEG2000": "ReflexionMed/image-JPEG2000#master",
     "jpeg-lossless-decoder-js": "2.0.4",
     "math-float32-to-binary-string": "^1.0.0",
     "nifti-reader-js": "v0.5.4",
     "nrrd-js": "^0.2.1",
     "pako": "1.0.8",
-    "raw-loader": "^2.0.0",
     "three": "latest"
   },
   "scripts": {
@@ -134,7 +131,10 @@
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.2.3",
     "webpack-dev-server": "^3.1.14",
-    "webpack-watch-livereload-plugin": "^0.0.1"
+    "webpack-watch-livereload-plugin": "^0.0.1",
+    "glslify": "^7.0.0",
+    "glslify-loader": "^2.0.0",
+    "raw-loader": "^2.0.0"
   },
   "engines": {
     "node": ">=6.9.0"

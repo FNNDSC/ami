@@ -1,7 +1,9 @@
+import { MaterialUtils } from "./MaterialUtils";
+
 // import vertSource from 'raw-loader!glslify-loader!../glsl/default.vert';
 // import fragmentSource from 'raw-loader!glslify-loader!../glsl/volume.frag';
-const vertSource = require('raw-loader!glslify-loader!../glsl/default.vert');
-const fragmentSource = require ('raw-loader!glslify-loader!../glsl/volume.frag');
+const vertSource = require('raw-loader!glslify-loader!../glsl/default.vert').default;
+const fragmentSource = require ('raw-loader!glslify-loader!../glsl/volume.frag').default;
 
 const THREE = (window as any).THREE;
 
@@ -139,8 +141,8 @@ export class VolumeMaterial {
                 side: THREE.BackSide,
                 transparent: true,
                 uniforms: this.defaultUniforms,
-                vertexShader: vertSource.default,
-                fragmentShader: fragmentSource.default,
+                vertexShader: MaterialUtils.processSource(vertSource),
+                fragmentShader: MaterialUtils.processSource(fragmentSource),
             });
         }
 

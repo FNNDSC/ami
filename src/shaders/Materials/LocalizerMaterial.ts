@@ -1,7 +1,9 @@
+import { MaterialUtils } from "./MaterialUtils";
+
 // import vertSource from 'raw-loader!glslify-loader!../glsl/default.vert';
 // import fragmentSource from 'raw-loader!glslify-loader!../glsl/localizer.frag';
-const vertSource = require('raw-loader!glslify-loader!../glsl/default.vert');
-const fragmentSource = require('raw-loader!glslify-loader!../glsl/localizer.frag');
+const vertSource = require('raw-loader!glslify-loader!../glsl/default.vert').default;
+const fragmentSource = require('raw-loader!glslify-loader!../glsl/localizer.frag').default;
 
 const THREE = (window as any).THREE;
 
@@ -57,8 +59,8 @@ export class LocalizerMaterial {
             LocalizerMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: vertSource.default,
-                fragmentShader: fragmentSource.default,
+                vertexShader: MaterialUtils.processSource(vertSource),
+                fragmentShader: MaterialUtils.processSource(fragmentSource),
                 transparent: true,
             });
         }

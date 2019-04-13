@@ -1,7 +1,10 @@
-// import vertSource from './glsl/default.vert';
-const vertSource = require('raw-loader!glslify-loader!../glsl/default.vert');
-// import fragmentSource from 'raw-loader!glslify-loader! ./glsl/contour.frag';
-const fragmentSource = require('raw-loader!glslify-loader!../glsl/contour.frag');
+import { MaterialUtils } from "./MaterialUtils";
+
+// TODO: Why won't webpack & typescript play nicely with these?
+// import vertSource from 'raw-loader!glslify-loader!../glsl/default.vert';
+// import fragmentSource from 'raw-loader!glslify-loader!../glsl/contour.frag';
+const vertSource = require('raw-loader!glslify-loader!../glsl/default.vert').default;
+const fragmentSource = require('raw-loader!glslify-loader!../glsl/contour.frag').default;
 
 const THREE = (window as any).THREE;
 
@@ -59,8 +62,8 @@ export class ContourMaterial {
             ContourMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: vertSource.default,
-                fragmentShader: fragmentSource.default,
+                vertexShader: MaterialUtils.processSource(vertSource),
+                fragmentShader: MaterialUtils.processSource(fragmentSource),
                 transparent: true,
             });
         }

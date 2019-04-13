@@ -1,8 +1,8 @@
 #pragma glslify: interpolation = require(./utility/interpolation.glsl)
 
 // THREEJS Provided uniforms
-uniform mat4 viewMatrix;
-uniform vec3 cameraPosition;
+// uniform mat4 viewMatrix;
+// uniform vec3 cameraPosition;
 
 uniform int uTextureSize;
 uniform sampler2D uTextureContainer[7];      // Length 7
