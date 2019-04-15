@@ -89,26 +89,6 @@ export class ContourHelper extends BaseTHREEHelper {
     this.add(this._mesh);
   }
 
-  /*protected _prepareMaterial() {
-    if (!this._material) {
-      // contour default width
-      this._shader._FragUniforms.uWidth.value = this._contourWidth;
-      this._shader._FragUniforms.uOpacity.value = this._contourOpacity;
-
-      //
-      this._shader._FragUniforms.uCanvasWidth.value = this._canvasWidth;
-      this._shader._FragUniforms.uCanvasHeight.value = this._canvasHeight;
-
-      this._material = new THREE.ShaderMaterial({
-        side: THREE.DoubleSide,
-        uniforms: this._shader._FragUniforms,
-        vertexShader: this._shader.computeVertShader(),
-        fragmentShader: this._shader.computeFragShader(),
-        transparent: true,
-      });
-    }
-  }*/
-
   public update() {
     if (this._mesh) {
       this.remove(this._mesh);
@@ -126,12 +106,6 @@ export class ContourHelper extends BaseTHREEHelper {
       this._textureToFilter.dispose();
       this._textureToFilter = null;
     }
-
-    // TODO: Add shader material disposal
-
-    //this._shader = null;
-    //this._material = null;
-
     // material, geometry and mesh
     this.remove(this._mesh);
     this._mesh.geometry.dispose();

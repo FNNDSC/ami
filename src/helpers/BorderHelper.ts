@@ -62,7 +62,6 @@ export default class BorderHelper extends THREE.Object3D {
     if (!this._material) {
       this._material = new THREE.LineBasicMaterial({
         color: this._color,
-        linewidth: 1,
       });
     }
 
@@ -101,7 +100,7 @@ export default class BorderHelper extends THREE.Object3D {
   }
 
   dispose() {
-    //this._mesh.material.dispose();
+    (this._mesh.material as any).dispose();
     this._mesh.material = null;
     this._geometry.dispose();
     this._geometry = null;

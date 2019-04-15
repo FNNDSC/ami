@@ -17,6 +17,23 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   //#endregion
 
   //#region Getters / Setters 
+  get uniforms() {
+    return this._material.uniforms
+  }
+  set windowCenter(value) {
+    this._windowCenter = value;
+    this._material.uniforms.uWindowCenterWidth.value = [
+      this._windowCenter - this._offset,
+      this._windowWidth,
+    ];
+  }
+  set windowWidth(value) {
+    this._windowWidth = value;
+    this._material.uniforms.uWindowCenterWidth.value = [
+      this._windowCenter - this._offset,
+      this._windowWidth,
+    ];
+  }
   get steps() {
     return this._steps;
   }
@@ -106,28 +123,27 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
 
   private _prepareMaterial() {
     // uniforms
-    this._material.uniforms.uCameraPosition.value = this._camera.position;
     this._material.uniforms.uWorldBBox.value = this._stack.worldBoundingBox();
     this._material.uniforms.uTextureSize.value = this._stack.textureSize;
     this._material.uniforms.uTextureContainer.value = this._textures;
-    if (this._stack.textureUnits > 8) {
-      this._material.uniforms.uTextureContainer = { value: [
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture()
-        ]};
-    }
+    // if (this._stack.textureUnits > 8) {
+    //   this._material.uniforms.uTextureContainer = { value: [
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture()
+    //     ]};
+    // }
     this._material.uniforms.uWorldToData.value = this._stack.lps2IJK;
     this._material.uniforms.uNumberOfChannels.value = this._stack.numberOfChannels;
     this._material.uniforms.uPixelType.value = this._stack.pixelType;

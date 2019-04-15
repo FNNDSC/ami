@@ -47,9 +47,7 @@ void interpolationTrilinear(
 
     vec4 interpolatedValue = vec4(0.);
 
-    //
     // fetch values required for interpolation
-    //
     vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c000 = vec3(lower_bound.x, lower_bound.y, lower_bound.z);
     interpolationIdentity(
@@ -64,7 +62,6 @@ void interpolationTrilinear(
         v000
     );
 
-    //
     vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c100 = vec3(higher_bound.x, lower_bound.y, lower_bound.z);
     interpolationIdentity(
@@ -79,7 +76,6 @@ void interpolationTrilinear(
         v100
     );
 
-    //
     vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c001 = vec3(lower_bound.x, lower_bound.y, higher_bound.z);
     interpolationIdentity(
@@ -94,7 +90,6 @@ void interpolationTrilinear(
         v001
     );
 
-    //
     vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c101 = vec3(higher_bound.x, lower_bound.y, higher_bound.z);
     interpolationIdentity(
@@ -109,7 +104,6 @@ void interpolationTrilinear(
         v101
     );
 
-    //
     vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c010 = vec3(lower_bound.x, higher_bound.y, lower_bound.z);
     interpolationIdentity(
@@ -138,7 +132,6 @@ void interpolationTrilinear(
         v110
     );
 
-    //
     vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c011 = vec3(lower_bound.x, higher_bound.y, higher_bound.z);
     interpolationIdentity(
@@ -167,7 +160,7 @@ void interpolationTrilinear(
         v111
     );
 
-    // _compute interpolation at position
+    // compute interpolation at position
     trilinearInterpolation(normalizedPosition, interpolatedValue ,v000, v100, v001, v101, v010,v110, v011,v111);
     dataValue = interpolatedValue;
 
@@ -176,7 +169,7 @@ void interpolationTrilinear(
     //  return;
     // }
 
-    // _compute gradient
+    // compute gradient
     float gradientStep = 0.005;
 
     // x axis
@@ -230,8 +223,7 @@ void interpolationTrilinear(
 
     gradient.z = (g001.z * vg001.x + go001.z * vgo001.x);
 
-    // normalize gradient
-    // +0.0001  instead of if?
+    // normalize gradient, +0.0001  instead of if?
     float gradientMagnitude = length(gradient);
     if (gradientMagnitude > 0.0) {
         gradient = -(1. / gradientMagnitude) * gradient;

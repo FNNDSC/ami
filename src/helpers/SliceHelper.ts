@@ -271,24 +271,11 @@ export class SliceHelper extends BaseTHREEHelper {
       this._center = this._stack.centerAABBox();
       this._toAABB = this._stack.lps2AABB;
     }
-  }
-  protected _create() {
-    if (!this._stack || !this._stack.prepared || !this._stack.packed) {
-      return;
-    }
-    // Convenience vars
-    try {
-      this._geometry = new SliceGeometry(this._halfDimensions, this._center, this._planePosition, this._planeDirection, this._toAABB);
-    }
-    catch (e) {
-      window.console.log(e);
-      window.console.log('invalid slice geometry - exiting...');
-      return;
-    }
-    if (!(this._geometry as THREE.BufferGeometry).attributes) {
-      return;
-    }
 
+    this._prepareMaterial();
+  }
+
+  protected _prepareMaterial() {
     this._material.uniforms.uTextureSize.value = this._stack.textureSize;
     this._material.uniforms.uDataDimensions.value = [
       this._stack.dimensionsIJK.x,
@@ -324,7 +311,25 @@ export class SliceHelper extends BaseTHREEHelper {
             new THREE.Texture()
         ]};
 
-    this._material.needsUpdate = true;
+      this._material.needsUpdate = true;
+    }
+  }
+
+  protected _create() {
+    if (!this._stack || !this._stack.prepared || !this._stack.packed) {
+      return;
+    }
+    // Convenience vars
+    try {
+      this._geometry = new SliceGeometry(this._halfDimensions, this._center, this._planePosition, this._planeDirection, this._toAABB);
+    }
+    catch (e) {
+      window.console.log(e);
+      window.console.log('invalid slice geometry - exiting...');
+      return;
+    }
+    if (!(this._geometry as THREE.BufferGeometry).attributes) {
+      return;
     }
     // update intensity related stuff
     this.UpdateIntensitySettings();

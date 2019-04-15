@@ -6,12 +6,16 @@ const THREE = (window as any).THREE;
  * @module helpers/lut
  */
  export default class LutHelper extends THREE.Object3D {
-   _dom: HTMLElement;
-   _color: number[][];
-   _opacity: number[][];
-   _canvasContainer: any;
-   _canvasBg: HTMLCanvasElement;
-   _canvas: HTMLCanvasElement;
+   private _dom: HTMLElement;
+   private _color: number[][];
+   private _opacity: number[][];
+   private _canvasContainer: any;
+   private _canvasBg: HTMLCanvasElement;
+   private _canvas: HTMLCanvasElement;
+   private _discrete: boolean;
+   private _lut: string;
+   private _luts: {};
+   private _lut0: string;
 
   constructor(
     domTarget,
@@ -21,8 +25,6 @@ const THREE = (window as any).THREE;
     opacity = [[0, 0], [1, 1]],
     discrete = false
   ) {
-    super();
-
     // min/max (0-1 or real intensities)
     // show/hide
     // horizontal/vertical
@@ -33,18 +35,18 @@ const THREE = (window as any).THREE;
       this._dom = domTarget;
     }
 
-    this.discrete = discrete;
+    this._discrete = discrete;
     this._color = color;
-    this.lut = lut;
-    this.luts = { [lut]: color };
+    this._lut = lut;
+    this._luts = { [lut]: color };
 
     this._opacity = opacity;
-    this.lutO = lutO;
-    this.luts = { [lutO]: opacity };
+    this._lut0 = lutO;
+    this._luts = { [lutO]: opacity };
 
     this.initCanvas();
     this.paintCanvas();
-    }
+  }
 
     initCanvas() {
       // container
@@ -79,7 +81,7 @@ const THREE = (window as any).THREE;
       ctx.globalCompositeOperation = 'source-over';
 
       // apply color
-      if (!this.discrete) {
+      if (!this._discrete) {
         let color = ctx.createLinearGradient(0, 0, this._canvas.width, 0);
         for (let i = 0; i < this._color.length; i++) {
           color.addColorStop(
@@ -148,8 +150,8 @@ const THREE = (window as any).THREE;
     }
 
     set lut(targetLUT) {
-      this._color = this.luts[targetLUT];
-      this.lut = targetLUT;
+      this._color = this._luts[targetLUT];
+      this._lut = targetLUT;
 
       this.paintCanvas();
     }
@@ -159,48 +161,48 @@ const THREE = (window as any).THREE;
     }
 
     set luts(newLuts) {
-      this.luts = newLuts;
+      this._luts = newLuts;
     }
 
     get luts() {
-      return this.luts;
+      return this._luts;
     }
 
     set lutO(targetLUTO) {
-      this._opacity = this.luts[targetLUTO];
-      this.lutO = targetLUTO;
+      this._opacity = this._luts[targetLUTO];
+      this._lut0 = targetLUTO;
 
       this.paintCanvas();
     }
 
     get lutO() {
-      return this.lutO;
+      return this._lut0;
     }
 
     set lutsO(newLutsO) {
-      this.luts = newLutsO;
+      this._luts = newLutsO;
     }
 
     get lutsO() {
-      return this.luts;
+      return this._luts;
     }
 
     set discrete(discrete) {
-      this.discrete = discrete;
+      this._discrete = discrete;
 
       this.paintCanvas();
     }
 
     get discrete() {
-      return this.discrete;
+      return this._discrete;
     }
 
     lutsAvailable(type = 'color') {
       let available = [];
-      let luts = this.luts;
+      let luts = this._luts;
 
       if (type !== 'color') {
-        luts = this.luts;
+        luts = this._luts;
       }
 
       for (let i in luts) {

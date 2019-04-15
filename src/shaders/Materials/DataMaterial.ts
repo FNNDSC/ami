@@ -100,12 +100,10 @@ export class DataMaterial {
 
     public static get shaderMaterial(): THREE.ShaderMaterial {
         if (!DataMaterial._shaderMaterial) {
-            const formattedVert = glslify(MaterialUtils.processSource(vertSource));
-            console.log(formattedVert);
             DataMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: formattedVert,
+                vertexShader: glslify(MaterialUtils.processSource(vertSource)),
                 fragmentShader: glslify(MaterialUtils.processSource(fragmentSource)),
                 transparent: true,
             });

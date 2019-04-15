@@ -97,7 +97,7 @@ const THREE = (window as any).THREE;
 
       //
       // Generate Slice Buffer Geometry from Shape Buffer Geomtry
-      // bewcause it does triangulation for us!
+      // because it does triangulation for us!
       super(shape);
       this.type = 'SliceBufferGeometry';
 

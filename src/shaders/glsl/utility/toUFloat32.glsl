@@ -1,7 +1,6 @@
 void toUFloat32(in float r, in float g, in float b, in float a, out float value){
 
-    // create arrays containing bits for rgba values
-    // value between 0 and 255
+    // create arrays containing bits for rgba values, value between 0 and 255
     value = r * 255.;
     int bytemeR[8];
     bytemeR[0] = int(floor(value / 128.));
@@ -75,10 +74,8 @@ void toUFloat32(in float r, in float g, in float b, in float a, out float value)
     bytemeA[7] = int(floor(value));
 
     // compute float32 value from bit arrays
-
     // sign
     int issigned = 1 - 2 * bytemeR[0];
-    //   issigned = int(pow(-1., float(bytemeR[0])));
 
     // exponent
     int exponent = 0;
@@ -90,9 +87,7 @@ void toUFloat32(in float r, in float g, in float b, in float a, out float value)
     exponent += bytemeR[5] * int(pow(2., 3.));
     exponent += bytemeR[6] * int(pow(2., 2.));
     exponent += bytemeR[7] * int(pow(2., 1.));
-
     exponent += bytemeG[0];
-
 
     // fraction
     float fraction = 0.;

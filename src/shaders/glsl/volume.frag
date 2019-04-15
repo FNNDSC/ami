@@ -3,15 +3,11 @@
 
 const float PI = 3.14159265358979323846264 * 00000.1; // PI
 
-// THREEJS Provided uniforms
-// uniform mat4 viewMatrix;
-// uniform vec3 cameraPosition;
-
 uniform int uTextureSize;
 uniform sampler2D uTextureContainer[7];      // Length 7
 uniform ivec3 uDataDimensions;
 uniform mat4 uWorldToData;
-uniform float uWindowCenterWidth;[2]         // Length 2
+uniform float uWindowCenterWidth[2];         // Length 2
 uniform float uRescaleSlopeIntercept[2];     // Length 2
 uniform int uNumberOfChannels;
 uniform int uBitsAllocated;
@@ -36,8 +32,8 @@ uniform float uDiffuse;
 uniform vec3 uDiffuseColor;
 uniform int uSampleColorToDiffuse;
 uniform float uShininess;
-uniform vec3 uLightPosition;
-uniform int uLightPositionInCamera;
+uniform vec3 upositionBeingLit;
+uniform int upositionBeingLitInCamera;
 uniform vec3 uIntensity;
 uniform int uAlgorithm;
 
@@ -61,9 +57,10 @@ void getIntensity(
     uTextureContainer,
     uBitsAllocated,
     uNumberOfChannels,
+    uInterpolation,
     uPackedPerPixel,
     dataValue,
-    gradient,
+    gradient
   );
 
   intensity = dataValue.r;
@@ -122,37 +119,28 @@ mat4 inverse(mat4 m) {
  * Original code: 
  * http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/
  * https://www.shadertoy.com/view/lt33z7
- * 
+
  * The vec3 returned is the RGB color of the light's contribution.
- *
- * k_a: Ambient color
- * k_d: Diffuse color
- * k_s: Specular color
- * alpha: Shininess coefficient
- * p: position of point being lit
- * eye: the position of the camera
- * lightPos: the position of the light
- * lightIntensity: color/intensity of the light
- *
+ 
  * See https://en.wikipedia.org/wiki/Phong_reflection_model#Description
  */
 vec3 phongShading(
-    vec3 k_a, 
-    vec3 k_d, 
-    vec3 k_s, 
+    vec3 ambientColor, 
+    vec3 diffuseColor, 
+    vec3 specularColor, 
     float shininess, 
-    vec3 p, 
+    vec3 positionBeingLit, 
     vec3 eye,
     vec3 lightPos, 
     vec3 lightIntensity, 
     vec3 normal
 ) {
   vec3 N = normal;
-  vec3 L = lightPos - p;
+  vec3 L = lightPos - positionBeingLit;
   if (length(L) > 0.) {
     L = L / length(L);
   }
-  vec3 V = eye - p;
+  vec3 V = eye - positionBeingLit;
   if (length(V) > 0.) {
     V = V / length(V);
   }
@@ -173,18 +161,17 @@ vec3 phongShading(
 
   if (dotLN < 0.) {
     // Light not visible from this point on the surface
-    return k_a;
+    return ambientColor;
   } 
 
   if (dotRV < 0.) {
-    // Light reflection in opposite direction as viewer, apply only diffuse
-    // component
-    return k_a + lightIntensity * (k_d * dotLN);
+    // Light reflection in opposite direction as viewer, apply only diffuse component
+    return ambientColor + lightIntensity * (diffuseColor * dotLN);
   }
 
   float specAngle = max(dot(H, normal), 0.0);
   float specular = pow(dotRV, shininess); //pow(specAngle, shininess); // 
-  return k_a + lightIntensity * (k_d * dotLN  + k_s * specular);
+  return ambientColor + lightIntensity * (diffuseColor * dotLN  + specularColor * specular);
 }
 
 // expects values in the range of [0,1]x[0,1], returns values in the [0,1] range.
@@ -200,11 +187,10 @@ highp float rand( const in vec2 uv) {
 void main(void) {
   const int maxSteps = 1024;
 
-  // the ray
   vec3 rayOrigin = cameraPosition;
   vec3 rayDirection = normalize(vPos.xyz - rayOrigin);
 
-  vec3 lightOrigin = uLightPositionInCamera == 1 ? cameraPosition : uLightPosition;
+  vec3 lightOrigin = upositionBeingLitInCamera == 1 ? cameraPosition : upositionBeingLit;
 
   // the Axe-Aligned B-Box
   vec3 AABBMin = vec3(uWorldBBox[0], uWorldBBox[2], uWorldBBox[4]);
@@ -225,11 +211,8 @@ void main(void) {
 
   if (tNear < 0.0) tNear = 0.0;
 
-  // x / y should be within o-1
-  // should
+  // x / y should be within 0-1
   float offset = rand(gl_FragCoord.xy);
-
-  // init the ray marching
   float tStep = (tFar - tNear) / float(uSteps);
   float tCurrent = tNear + offset * tStep;
   vec4 accumulatedColor = vec4(0.0);
@@ -240,15 +223,12 @@ void main(void) {
 
   mat4 dataToWorld = inverse(uWorldToData);
 
-  // rayOrigin -= rayDirection * 0.1; // gold_noise(vPos.xz, vPos.y) / 100.;  
-
   for(int rayStep = 0; rayStep < maxSteps; rayStep++){
     vec3 currentPosition = rayOrigin + rayDirection * tCurrent;
     // some non-linear FUN
     // some occlusion issue to be fixed
-    vec3 transformedPosition = currentPosition; //transformPoint(currentPosition, uAmplitude, uFrequence);
+    vec3 transformedPosition = currentPosition;
     // world to data coordinates
-    // rounding trick
     // first center of first voxel in data space is CENTERED on (0,0,0)
     vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);
     vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);
@@ -256,7 +236,7 @@ void main(void) {
     vec3 gradient = vec3(0., 0., 0.);
     getIntensity(currentVoxel, intensity, gradient);
     // map gradient to world space and normalize before using
-    // we avoid to call "normalize" as it may be undefined if vector length == 0.
+    // we avoid to call normalize as it may be undefined if vector length == 0.
     gradient = (vec3(dataToWorld * vec4(gradient, 0.)));
     if (length(gradient) > 0.0) {
       gradient = normalize(gradient);

@@ -15,8 +15,6 @@ export class LocalizerHelper extends BaseTHREEHelper {
   private _color3 = null;
   private _canvasWidth = 0;
   private _canvasHeight = 0;
-  
-  private _shaderMaterial: LocalizerMaterial;
   //#endregion
 
   //#region Getters / Setters

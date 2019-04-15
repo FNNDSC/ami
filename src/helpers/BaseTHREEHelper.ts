@@ -15,6 +15,15 @@ export abstract class BaseTHREEHelper extends THREE.Object3D {
   //#endregion
 
   //#region Getters / Setters
+  get windowCenter() {
+    return this._windowCenter;
+  }
+  get windowWidth() {
+    return this._windowWidth;
+  }
+  get interpolation() {
+    return this._interpolation;
+  }
   get stack() {
     return this._stack;
   }
@@ -22,15 +31,7 @@ export abstract class BaseTHREEHelper extends THREE.Object3D {
   set stack(stack) {
     this._stack = stack;
   }
-  get windowWidth() {
-    return this._windowWidth;
-  }
-  get windowCenter() {
-    return this._windowCenter;
-  }
-  get interpolation() {
-    return this._interpolation;
-  }
+
   get mesh() {
     return this._mesh;
   }

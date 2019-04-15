@@ -10,12 +10,9 @@ void AMItexture3D(
     float textureSizeF = float(uTextureSize);
     int voxelsPerTexture = uTextureSize*uTextureSize;
 
-    int index = dataCoordinates.x
-                + dataCoordinates.y * uDataDimensions.x
-                + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;
+    int index = dataCoordinates.x + dataCoordinates.y * uDataDimensions.x + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;
 
-    // dividing an integer by an integer will give you an integer result, rounded down
-    // can not get float numbers to work :(
+    // dividing an integer by an integer will give you an integer result, rounded down can not get float numbers to work :(
     int packedIndex = index/uPackedPerPixel;
     offset = index - uPackedPerPixel*packedIndex;
 
