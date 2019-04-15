@@ -4,7 +4,7 @@ import { MaterialUtils } from "./MaterialUtils";
 // import fragmentSource from 'raw-loader!glslify-loader!../glsl/data.frag';
 const vertSource = require('raw-loader!glslify-loader!../glsl/data.vert').default;
 const fragmentSource = require('raw-loader!glslify-loader!../glsl/data.frag').default;
-
+import glslify from 'glslify';
 const THREE = (window as any).THREE;
 
 /**
@@ -100,13 +100,13 @@ export class DataMaterial {
 
     public static get shaderMaterial(): THREE.ShaderMaterial {
         if (!DataMaterial._shaderMaterial) {
-            const formattedVert = MaterialUtils.processSource(vertSource).replace(/(\\n)/gm, " ");
+            const formattedVert = glslify(MaterialUtils.processSource(vertSource));
             console.log(formattedVert);
             DataMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: MaterialUtils.processSource(vertSource),
-                fragmentShader: MaterialUtils.processSource(fragmentSource),
+                vertexShader: formattedVert,
+                fragmentShader: glslify(MaterialUtils.processSource(fragmentSource)),
                 transparent: true,
             });
         }

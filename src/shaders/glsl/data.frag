@@ -98,15 +98,16 @@ void main(void) {
             vec3 currentVoxel = dataCoordinates.xyz;
 
             interpolation(
+                uPixelType,
                 currentVoxel,
                 uTextureSize,
-                uDataDimensions,
                 uDataDimensions,
                 uTextureContainer,
                 uBitsAllocated,
                 uNumberOfChannels,
+                uInterpolation,
                 uPackedPerPixel,
-                dataValueAcc,
+                dataValue,
                 gradient
             );
 
@@ -134,13 +135,14 @@ void main(void) {
         vec4 dataCoordinates = uWorldToData * vec4(vPos, 1.);
         vec3 currentVoxel = dataCoordinates.xyz;
         interpolation(
+            uPixelType,
             currentVoxel,
             uTextureSize,
-            uDataDimensions,
             uDataDimensions,
             uTextureContainer,
             uBitsAllocated,
             uNumberOfChannels,
+            uInterpolation,
             uPackedPerPixel,
             dataValue,
             gradient

@@ -24,11 +24,11 @@ void trilinearInterpolation(
 }
 
 void interpolationTrilinear(
+    in int uPixelType,
     in vec3 currentVoxel, 
     in int uTextureSize,
     in ivec3 uDataDimensions,
-    in int uDataDimensions,
-    in sampler2D[] uTextureContainer,
+    in sampler2D uTextureContainer[7],
     in int uBitsAllocated,
     in int uNumberOfChannels,
     in int uInterpolation,
@@ -53,9 +53,9 @@ void interpolationTrilinear(
     vec4 v000 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c000 = vec3(lower_bound.x, lower_bound.y, lower_bound.z);
     interpolationIdentity(
+        uPixelType,
         c000,
         uTextureSize,
-        uDataDimensions,
         uDataDimensions,
         uTextureContainer,
         uBitsAllocated,
@@ -68,9 +68,9 @@ void interpolationTrilinear(
     vec4 v100 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c100 = vec3(higher_bound.x, lower_bound.y, lower_bound.z);
     interpolationIdentity(
+        uPixelType,
         c100,
         uTextureSize,
-        uDataDimensions,
         uDataDimensions,
         uTextureContainer,
         uBitsAllocated,
@@ -83,9 +83,9 @@ void interpolationTrilinear(
     vec4 v001 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c001 = vec3(lower_bound.x, lower_bound.y, higher_bound.z);
     interpolationIdentity(
+        uPixelType,
         c001,
         uTextureSize,
-        uDataDimensions,
         uDataDimensions,
         uTextureContainer,
         uBitsAllocated,
@@ -98,9 +98,9 @@ void interpolationTrilinear(
     vec4 v101 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c101 = vec3(higher_bound.x, lower_bound.y, higher_bound.z);
     interpolationIdentity(
+        uPixelType,
         c101,
         uTextureSize,
-        uDataDimensions,
         uDataDimensions,
         uTextureContainer,
         uBitsAllocated,
@@ -113,9 +113,9 @@ void interpolationTrilinear(
     vec4 v010 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c010 = vec3(lower_bound.x, higher_bound.y, lower_bound.z);
     interpolationIdentity(
+        uPixelType,
         c010,
         uTextureSize,
-        uDataDimensions,
         uDataDimensions,
         uTextureContainer,
         uBitsAllocated,
@@ -127,9 +127,9 @@ void interpolationTrilinear(
     vec4 v110 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c110 = vec3(higher_bound.x, higher_bound.y, lower_bound.z);
     interpolationIdentity(
+        uPixelType,
         c110,
         uTextureSize,
-        uDataDimensions,
         uDataDimensions,
         uTextureContainer,
         uBitsAllocated,
@@ -142,9 +142,9 @@ void interpolationTrilinear(
     vec4 v011 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c011 = vec3(lower_bound.x, higher_bound.y, higher_bound.z);
     interpolationIdentity(
+        uPixelType,
         c011,
         uTextureSize,
-        uDataDimensions,
         uDataDimensions,
         uTextureContainer,
         uBitsAllocated,
@@ -156,9 +156,9 @@ void interpolationTrilinear(
     vec4 v111 = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 c111 = vec3(higher_bound.x, higher_bound.y, higher_bound.z);
     interpolationIdentity(
+        uPixelType,
         c111,
         uTextureSize,
-        uDataDimensions,
         uDataDimensions,
         uTextureContainer,
         uBitsAllocated,

@@ -1,9 +1,3 @@
-/*
-  varying vec4 vPos;
-  varying mat4 vProjectionViewMatrix;
-  varying vec4 vProjectedCoords;
-*/
-
 void intersectionProjection(
   in vec4 plane,
   in vec4 slice,

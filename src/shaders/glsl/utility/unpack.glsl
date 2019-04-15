@@ -4,53 +4,46 @@
 #pragma glslify: unpackIdentity = require(./unpackIdentity.glsl)
 
 void unpack(
+    in int uPixelType,
     in int uBitsAllocated,
     in int uNumberOfChannels,
     in vec4 packedData,
     in int offset,
     out vec4 unpackedData
 ) {
-    if (base.uniforms.uNumberOfChannels.value === 1) {
-        switch (uBitsAllocated) {
-            case 8:
-                upack8(    
-                    packedData, 
-                    offset, 
-                    unpackedData
-                );
-                break;
-
-            case 16:
-                upack16(
-                    packedData, 
-                    offset, 
-                    unpackedData
-                );
-                break;
-
-            case 32:
-                upack32(
-                    packedData, 
-                    offset, 
-                    unpackedData
-                );
-                break;
-
-            default:
-                upackIdentity(
-                    packedData, 
-                    offset, 
-                    unpackedData
-                );
-                break;
+    if (uNumberOfChannels == 1) {
+        if (uBitsAllocated == 8) {
+            unpack8(    
+                packedData, 
+                offset, 
+                unpackedData
+            );
+            return;
         }
-    } else {
-        upackIdentity(
-            packedData, 
-            offset, 
-            unpackedData
-        );
-    }
+        if (uBitsAllocated == 16) {
+            unpack16(    
+                packedData, 
+                offset, 
+                unpackedData
+            );
+            return;
+        }
+        if (uBitsAllocated == 32) {
+            unpack32(    
+                packedData, 
+                offset, 
+                uPixelType,
+                unpackedData
+            );
+            return;
+        }
+    } 
+
+    unpackIdentity(
+        packedData, 
+        offset, 
+        unpackedData
+    );
 }
 
 #pragma glslify: export(unpack)

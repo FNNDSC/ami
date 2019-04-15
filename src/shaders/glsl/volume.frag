@@ -54,9 +54,9 @@ void getIntensity(
   vec4 dataValue = vec4(0., 0., 0., 0.);
 
   interpolation(
+    uPixelType,
     dataCoordinates,
     uTextureSize,
-    uDataDimensions,
     uDataDimensions,
     uTextureContainer,
     uBitsAllocated,

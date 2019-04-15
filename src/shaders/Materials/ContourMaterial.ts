@@ -6,6 +6,8 @@ import { MaterialUtils } from "./MaterialUtils";
 const vertSource = require('raw-loader!glslify-loader!../glsl/default.vert').default;
 const fragmentSource = require('raw-loader!glslify-loader!../glsl/contour.frag').default;
 
+import glslify from 'glslify';
+
 const THREE = (window as any).THREE;
 
 /**
@@ -62,8 +64,8 @@ export class ContourMaterial {
             ContourMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: MaterialUtils.processSource(vertSource),
-                fragmentShader: MaterialUtils.processSource(fragmentSource),
+                vertexShader: glslify(MaterialUtils.processSource(vertSource)),
+                fragmentShader: glslify(MaterialUtils.processSource(fragmentSource)),
                 transparent: true,
             });
         }

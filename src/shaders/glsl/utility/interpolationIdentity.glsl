@@ -2,11 +2,11 @@
 #pragma glslify: unpack = require(./unpack.glsl)
 
 void interpolationIdentity(
+    in int uPixelType,
     in vec3 currentVoxel, 
     in int uTextureSize,
     in ivec3 uDataDimensions,
-    in int uDataDimensions,
-    in sampler2D[] uTextureContainer,
+    in sampler2D uTextureContainer[7],
     in int uBitsAllocated,
     in int uNumberOfChannels,
     in int uPackedPerPixel,
@@ -23,7 +23,6 @@ void interpolationIdentity(
         flooredVoxel, 
         uTextureSize,
         uDataDimensions,
-        uDataDimensions,
         uTextureContainer,
         uPackedPerPixel,
         temporaryDataValue, 
@@ -31,6 +30,7 @@ void interpolationIdentity(
     );
 
     unpack(
+        uPixelType,
         uBitsAllocated,
         uNumberOfChannels,
         temporaryDataValue,

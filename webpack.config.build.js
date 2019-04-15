@@ -5,6 +5,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const WatchLiveReloadPlugin = require('webpack-watch-livereload-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
+//const EncodingPlugin = require('webpack-encoding-plugin');
 
 const config = {
   entry: ['./src/ami.ts'],
@@ -53,7 +54,14 @@ const config = {
   node: {
     fs: 'empty',
   },
-  plugins: [],
+  plugins: [
+    // new EncodingPlugin({
+    //   test: /\.(glsl|vs|fs|vert|frag)$/,
+    //   include: [path.resolve(__dirname, 'src')],
+    //   exclude: [/external/],
+    //   encoding: 'ascii'
+    // })
+  ],
   optimization: {
     minimizer: [
       new UglifyJsPlugin({

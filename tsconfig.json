@@ -15,6 +15,6 @@
   ],
   "exclude": [
     "./isolation/**/*.js",
-    "./isolation/**/*.ts",
+    "./isolation/**/*.ts"
   ]
 }
