@@ -12,7 +12,10 @@ void AMItexture3D(
 
     int index = dataCoordinates.x + dataCoordinates.y * uDataDimensions.x + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;
 
-    // dividing an integer by an integer will give you an integer result, rounded down can not get float numbers to work :(
+    // Nick: Nicolas can you give me some insight on what you'd like to do here?
+    // ---------------------------------------------------------------------------------
+    // dividing an integer by an integer will give you an integer result, 
+    // rounded down can not get float numbers to work :(
     int packedIndex = index/uPackedPerPixel;
     offset = index - uPackedPerPixel*packedIndex;
 
@@ -33,8 +36,10 @@ void AMItexture3D(
     float textureIndexF = float(textureIndex);
     vec4 addition = vec4(0.);
 
-    for (float stepC = 0.0; stepC < 7.0; stepC++ ) {
-        addition += step( abs( textureIndexF - stepC ), 0.0 ) * texture2D(uTextureContainer[int(stepC)], uv);
+    #pragma unroll_loop
+    for (int i = 0; i < 7; i++ ) {
+        float i_float = float(i);
+        addition += step( abs( textureIndexF - i_float ), 0.0 ) * texture2D(uTextureContainer[i], uv);
     }
     dataValue = addition;
 }

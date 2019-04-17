@@ -1,5 +1,8 @@
 #pragma glslify: interpolationIdentity = require(./interpolationIdentity.glsl)
 
+const float GRADIENT_STEP = 0.005;
+const float EPSILON = 0.0000152587;
+
 void trilinearInterpolation(
     in vec3 normalizedPosition,
     out vec4 interpolatedValue,
@@ -164,24 +167,16 @@ void interpolationTrilinear(
     trilinearInterpolation(normalizedPosition, interpolatedValue ,v000, v100, v001, v101, v010,v110, v011,v111);
     dataValue = interpolatedValue;
 
-    // That breaks shading in volume rendering
-    // if (gradient.x == 1.) { // skip gradient calculation for slice helper
-    //  return;
-    // }
-
-    // compute gradient
-    float gradientStep = 0.005;
-
     // x axis
     vec3 g100 = vec3(1., 0., 0.);
-    vec3 ng100 = normalizedPosition + g100 * gradientStep;
+    vec3 ng100 = normalizedPosition + g100 * GRADIENT_STEP;
     ng100.x = min(1., ng100.x);
 
     vec4 vg100 = vec4(0.);
     trilinearInterpolation(ng100, vg100 ,v000, v100, v001, v101, v010,v110, v011,v111);
 
     vec3 go100 = -g100;
-    vec3 ngo100 = normalizedPosition + go100 * gradientStep;
+    vec3 ngo100 = normalizedPosition + go100 * GRADIENT_STEP;
     ngo100.x = max(0., ngo100.x);
 
     vec4 vgo100 = vec4(0.);
@@ -191,14 +186,14 @@ void interpolationTrilinear(
 
     // y axis
     vec3 g010 = vec3(0., 1., 0.);
-    vec3 ng010 = normalizedPosition + g010 * gradientStep;
+    vec3 ng010 = normalizedPosition + g010 * GRADIENT_STEP;
     ng010.y = min(1., ng010.y);
 
     vec4 vg010 = vec4(0.);
     trilinearInterpolation(ng010, vg010 ,v000, v100, v001, v101, v010,v110, v011,v111);
 
     vec3 go010 = -g010;
-    vec3 ngo010 = normalizedPosition + go010 * gradientStep;
+    vec3 ngo010 = normalizedPosition + go010 * GRADIENT_STEP;
     ngo010.y = max(0., ngo010.y);
 
     vec4 vgo010 = vec4(0.);
@@ -208,14 +203,14 @@ void interpolationTrilinear(
 
     // z axis
     vec3 g001 = vec3(0., 0., 1.);
-    vec3 ng001 = normalizedPosition + g001 * gradientStep;
+    vec3 ng001 = normalizedPosition + g001 * GRADIENT_STEP;
     ng001.z = min(1., ng001.z);
 
     vec4 vg001 = vec4(0.);
     trilinearInterpolation(ng001, vg001 ,v000, v100, v001, v101, v010,v110, v011,v111);
 
     vec3 go001 = -g001;
-    vec3 ngo001 = normalizedPosition + go001 * gradientStep;
+    vec3 ngo001 = normalizedPosition + go001 * GRADIENT_STEP;
     ngo001.z = max(0., ngo001.z);
 
     vec4 vgo001 = vec4(0.);
@@ -223,11 +218,14 @@ void interpolationTrilinear(
 
     gradient.z = (g001.z * vg001.x + go001.z * vgo001.x);
 
+    // Nick: Your wish is my command - done using Epsilon
+    // ---------------------------------------------------------------------
     // normalize gradient, +0.0001  instead of if?
-    float gradientMagnitude = length(gradient);
-    if (gradientMagnitude > 0.0) {
-        gradient = -(1. / gradientMagnitude) * gradient;
-    }
+    // float gradientMagnitude = length(gradient);
+    // if (gradientMagnitude > 0.0) {
+    //     gradient = -(1. / gradientMagnitude) * gradient;
+    // }
+    gradient = -(1. / (length(gradient) + EPSILON)) * gradient;
 }
 
 #pragma glslify: export(interpolationTrilinear)

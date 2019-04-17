@@ -11,7 +11,13 @@ void unpack(
     in int offset,
     out vec4 unpackedData
 ) {
+    // DOES NOT NEED REMOVAL
+    // Statically uniform branching condition - cannot cause wavefront divergance
+    // ----------------------------------------------------------------------------------
     if (uNumberOfChannels == 1) {
+        // DOES NOT NEED REMOVAL
+        // Statically uniform branching condition - cannot cause wavefront divergance
+        // ----------------------------------------------------------------------------------
         if (uBitsAllocated == 8) {
             unpack8(    
                 packedData, 
@@ -20,6 +26,9 @@ void unpack(
             );
             return;
         }
+        // DOES NOT NEED REMOVAL
+        // Statically uniform branching condition - cannot cause wavefront divergance
+        // ----------------------------------------------------------------------------------
         if (uBitsAllocated == 16) {
             unpack16(    
                 packedData, 
@@ -28,6 +37,9 @@ void unpack(
             );
             return;
         }
+        // DOES NOT NEED REMOVAL
+        // Statically uniform branching condition - cannot cause wavefront divergance
+        // ----------------------------------------------------------------------------------
         if (uBitsAllocated == 32) {
             unpack32(    
                 packedData, 

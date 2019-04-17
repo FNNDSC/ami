@@ -14,6 +14,9 @@ void interpolation(
     out vec4 dataValueAcc,
     out vec3 gradient
 ) {
+    // DOES NOT NEED REMOVAL
+    // Statically uniform branching condition - cannot cause wavefront divergance
+    // ----------------------------------------------------------------------------------
     if (uInterpolation == 0) {
         interpolationIdentity(
             uPixelType,

@@ -5,6 +5,8 @@
 #pragma glslify: highpRandF32 = require(./utility/highpRandF32.glsl)
 
 const float PI = 3.14159265358979323846264 * 00000.1; // PI
+const int MAX_STEPS = 1024;
+const float EPSILON = 0.0000152587;
 
 uniform int uTextureSize;
 uniform sampler2D uTextureContainer[7];      // Length 7
@@ -45,8 +47,6 @@ varying mat4 vProjectionViewMatrix;
 varying vec4 vProjectedCoords;
 
 void main(void) {
-  const int maxSteps = 1024;
-
   vec3 rayOrigin = cameraPosition;
   vec3 rayDirection = normalize(vPos.xyz - rayOrigin);
 
@@ -69,6 +69,9 @@ void main(void) {
     intersect
   );
 
+  // DOES NOT NEED REMOVAL
+  // Statically uniform branching condition - cannot cause wavefront divergance
+  // ---------------------------------------------------------------------------
   if (tNear < 0.0) tNear = 0.0;
 
   // x / y should be within 0-1
@@ -84,7 +87,7 @@ void main(void) {
   mat4 dataToWorld = invertMat4(uWorldToData);
 
   #pragma unroll_loop
-  for(int i = 0; i < maxSteps; i++){
+  for(int i = 0; i < MAX_STEPS; i++){
     vec3 currentPosition = rayOrigin + rayDirection * tCurrent;
     // some non-linear FUN
     // some occlusion issue to be fixed
@@ -99,22 +102,26 @@ void main(void) {
     // map gradient to world space and normalize before using
     // we avoid to call normalize as it may be undefined if vector length == 0.
     gradient = (vec3(dataToWorld * vec4(gradient, 0.)));
-    if (length(gradient) > 0.0) {
-      gradient = normalize(gradient);
-    }
+    // if (length(gradient) > 0.0) {
+    //   gradient = normalize(gradient);
+    // }
+    gradient = normalize(gradient + EPSILON);
 
     vec4 colorSample;
     float alphaSample;
-    if(uLut == 1){
-      vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );
-      // 256 colors
-      colorSample = colorFromLUT;
-      alphaSample = colorFromLUT.a;
-    }
-    else{
-      alphaSample = intensity;
-      colorSample.r = colorSample.g = colorSample.b = intensity;
-    }
+    // if(uLut == 1){
+    //   vec4 colorFromLUT = texture2D( uTextureLUT, vec2( intensity, 1.0) );
+    //   // 256 colors
+    //   colorSample = colorFromLUT;
+    //   alphaSample = colorFromLUT.a;
+    // }
+    // else{
+    //   alphaSample = intensity;
+    //   colorSample.r = colorSample.g = colorSample.b = intensity;
+    // }
+    vec4 colorFromLUT = texture2D(uTextureLUT, vec2( intensity, 1.0));
+    alphaSample = (intensity * (1 - uLut)) + (colorFromLUT.a * uLut);
+    colorSample = (vec4(intensity, intensity, intensity, 0) * (1 - uLut)) + (colorFromLUT * uLut);
 
     // ray marching algorithm
     // shading on
@@ -149,6 +156,9 @@ void main(void) {
 
     tCurrent += tStep;
 
+    // DOES NOT NEED REMOVAL
+    // Statically uniform branching condition - cannot cause wavefront divergance
+    // ---------------------------------------------------------------------------
     if (tCurrent > tFar || (uAlgorithm == 0 && accumulatedAlpha >= 1.0)) break;
 
     if (uAlgorithm == 1 && (intensity >= maxIntensity)) {

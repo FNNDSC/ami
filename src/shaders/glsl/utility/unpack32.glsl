@@ -7,7 +7,9 @@ void unpack32(
     in int uPixelType,
     out vec4 unpackedData
 ){
-
+    // DOES NOT NEED REMOVAL
+    // Statically uniform branching condition - cannot cause wavefront divergance
+    // ----------------------------------------------------------------------------------
     if (uPixelType == 1) {
         toUInt32(
             packedData.r,
