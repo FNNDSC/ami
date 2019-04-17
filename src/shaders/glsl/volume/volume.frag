@@ -1,8 +1,8 @@
-#pragma glslify: intersectsBox = require(./utility/intersectsBox.glsl)
-#pragma glslify: getIntensity = require(./utility/getIntensity.glsl)
-#pragma glslify: invertMat4 = require(./utility/invertMat4.glsl)
-#pragma glslify: AMIphong = require(./utility/AMIphong.glsl)
-#pragma glslify: highpRandF32 = require(./utility/highpRandF32.glsl)
+#pragma glslify: intersectsBox = require(../utility/intersectsBox.glsl)
+#pragma glslify: getIntensity = require(../utility/getIntensity.glsl)
+#pragma glslify: invertMat4 = require(../utility/invertMat4.glsl)
+#pragma glslify: AMIphong = require(../utility/AMIphong.glsl)
+#pragma glslify: highpRandF32 = require(../utility/highpRandF32.glsl)
 
 const float PI = 3.14159265358979323846264 * 00000.1; // PI
 const int MAX_STEPS = 1024;
@@ -16,8 +16,8 @@ uniform float uWindowCenterWidth[2];         // Length 2
 uniform float uRescaleSlopeIntercept[2];     // Length 2
 uniform int uNumberOfChannels;
 uniform int uBitsAllocated;
-uniform int uInvert;
-uniform int uLut;
+// uniform int uInvert;
+// uniform int uLut;
 uniform sampler2D uTextureLUT;
 uniform int uPixelType;
 uniform int uPackedPerPixel;
@@ -25,9 +25,9 @@ uniform int uInterpolation;
 uniform float uWorldBBox[6];                 // Length 6
 uniform int uSteps;
 uniform float uAlphaCorrection;
-uniform float uFrequence;
-uniform float uAmplitude;
-uniform int uShading;
+// uniform float uFrequence;
+// uniform float uAmplitude;
+// uniform int uShading;
 uniform float uAmbient;
 uniform vec3 uAmbientColor;
 uniform int uSampleColorToAmbient;
@@ -40,7 +40,7 @@ uniform float uShininess;
 uniform vec3 upositionBeingLit;
 uniform int upositionBeingLitInCamera;
 uniform vec3 uIntensity;
-uniform int uAlgorithm;
+// uniform int uAlgorithm;
 
 varying vec4 vPos;
 varying mat4 vProjectionViewMatrix;
@@ -72,7 +72,9 @@ void main(void) {
   // DOES NOT NEED REMOVAL
   // Statically uniform branching condition - cannot cause wavefront divergance
   // ---------------------------------------------------------------------------
-  if (tNear < 0.0) tNear = 0.0;
+  // if (tNear < 0.0) tNear = 0.0;
+  // x = ([+|-]x + [+]x) / 2     this is equivalent to 0 | [+]x
+  tNear = (tNear + abs(tNear)) / 2;
 
   // x / y should be within 0-1
   float offset = highpRandF32(gl_FragCoord.xy);
@@ -98,7 +100,21 @@ void main(void) {
     vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);
     float intensity = 0.0;
     vec3 gradient = vec3(0., 0., 0.);
-    getIntensity(currentVoxel, intensity, gradient);
+    getIntensity(
+      currentVoxel, 
+      uPixelType,
+      uTextureSize,
+      uDataDimensions,
+      uTextureContainer[7],
+      uBitsAllocated,
+      uNumberOfChannels,
+      uInterpolation,
+      uPackedPerPixel,
+      uRescaleSlopeIntercept,
+      uWindowCenterWidth;
+      intensity, 
+      gradient
+    );
     // map gradient to world space and normalize before using
     // we avoid to call normalize as it may be undefined if vector length == 0.
     gradient = (vec3(dataToWorld * vec4(gradient, 0.)));
@@ -120,13 +136,14 @@ void main(void) {
     //   colorSample.r = colorSample.g = colorSample.b = intensity;
     // }
     vec4 colorFromLUT = texture2D(uTextureLUT, vec2( intensity, 1.0));
-    alphaSample = (intensity * (1 - uLut)) + (colorFromLUT.a * uLut);
-    colorSample = (vec4(intensity, intensity, intensity, 0) * (1 - uLut)) + (colorFromLUT * uLut);
+    alphaSample = colorFromLUT.a;
+    colorSample = colorFromLUT;
 
     // ray marching algorithm
     // shading on
     // interpolation on
-    if (uAlgorithm == 0 && uShading == 1 && uInterpolation != 0) {
+    // (uAlgorithm == 0 && uShading == 1 && uInterpolation != 0)
+    if (uInterpolation != 0) {
       //  && alphaSample > .3
       vec3 ambientComponent = uSampleColorToAmbient == 1 ? colorSample.xyz : uAmbientColor;
       ambientComponent *= uAmbient;
@@ -159,13 +176,18 @@ void main(void) {
     // DOES NOT NEED REMOVAL
     // Statically uniform branching condition - cannot cause wavefront divergance
     // ---------------------------------------------------------------------------
-    if (tCurrent > tFar || (uAlgorithm == 0 && accumulatedAlpha >= 1.0)) break;
+    // (tCurrent > tFar || (uAlgorithm == 0 && accumulatedAlpha >= 1.0));
 
-    if (uAlgorithm == 1 && (intensity >= maxIntensity)) {
-      maxIntensity = intensity;
-      accumulatedColor = colorSample;
-      accumulatedAlpha = 1.;
-    }
+    if (tCurrent > tFar || accumulatedAlpha >= 1.0) break;
+
+    // Nick here: Why do we need a second algorithm option?
+    // ---------------------------------------------------------+
+    ------------------
+    // if (uAlgorithm == 1 && (intensity >= maxIntensity)) {
+    //   maxIntensity = intensity;
+    //   accumulatedColor = colorSample;
+    //   accumulatedAlpha = 1.;
+    // }
   }
 
   gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);

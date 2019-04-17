@@ -7,83 +7,88 @@ const THREE = (window as any).THREE;
 export class VolumeRenderHelper extends BaseTHREEHelper {
   //#region Variables 
   // ray marching
-  private _algorithm: number = 0;
+  // private _algorithm: number = 0;
   private _alphaCorrection: number = 0.5;
   // shading is on by default
-  private _shading: number = 1;
+  // private _shading: number = 1;
   private _shininess: number = 10.0;
   private _steps: number = 32;
   private _offset: number = 0;
   //#endregion
 
-  //#region Getters / Setters 
+  //#region Getters
   get uniforms() {
     return this._material.uniforms
   }
-  set windowCenter(value) {
+  get steps() {
+    return this._steps;
+  }
+  get alphaCorrection() {
+    return this._alphaCorrection;
+  }
+  get interpolation() {
+    return this._interpolation;
+  }
+  // get shading() {
+  //   return this._shading;
+  // }
+  get shininess() {
+    return this._shininess;
+  }
+  // get algorithm() {
+  //   return this._algorithm;
+  // }
+  //#endregion
+
+  //#region Setters 
+  set windowCenter(value: number) {
     this._windowCenter = value;
     this._material.uniforms.uWindowCenterWidth.value = [
       this._windowCenter - this._offset,
       this._windowWidth,
     ];
   }
-  set windowWidth(value) {
+  set windowWidth(value: number) {
     this._windowWidth = value;
     this._material.uniforms.uWindowCenterWidth.value = [
       this._windowCenter - this._offset,
       this._windowWidth,
     ];
   }
-  get steps() {
-    return this._steps;
-  }
-  // tslint:disable-next-line:typedef
-  set steps(steps) {
+  set steps(steps: number) {
     this._steps = steps;
     this._material.uniforms.uSteps.value = this._steps;
   }
-  get alphaCorrection() {
-    return this._alphaCorrection;
-  }
-  // tslint:disable-next-line:typedef
-  set alphaCorrection(alphaCorrection) {
+  set alphaCorrection(alphaCorrection: number) {
     this._alphaCorrection = alphaCorrection;
     this._material.uniforms.uAlphaCorrection.value = this._alphaCorrection;
   }
-  get interpolation() {
-    return this._interpolation;
-  }
-  // tslint:disable-next-line:typedef
-  set interpolation(interpolation) {
+  set interpolation(interpolation: number) {
     this._interpolation = interpolation;
-    this._material.uniforms.uInterpolation.value = this._interpolation;
-    this._material.needsUpdate = true;
+
+    if (interpolation === 0) {
+      this._material = VolumeMaterial.idnInterpMaterial;
+      this._prepareMaterial();
+    }
+    else {
+      this._material = VolumeMaterial.triInterpMaterial;
+      this._prepareMaterial();
+    }
   }
-  get shading() {
-    return this._shading;
-  }
-  // tslint:disable-next-line:typedef
-  set shading(shading) {
-    this._shading = shading;
-    this._material.uniforms.uShading.value = this._shading;
-  }
-  get shininess() {
-    return this._shininess;
-  }
-  // tslint:disable-next-line:typedef
-  set shininess(shininess) {
+  // set shading(shading: number) {
+  //   this._shading = shading;
+  //   this._material.uniforms.uShading.value = this._shading;
+  // }
+  set shininess(shininess: number) {
     this._shininess = shininess;
     this._material.uniforms.uShininess.value = this._shininess;
   }
-  get algorithm() {
-    return this._algorithm;
-  }
-  // tslint:disable-next-line:typedef
-  set algorithm(algorithm) {
-    this._algorithm = algorithm;
-    this._material.uniforms.uAlgorithm.value = this._algorithm;
-  }
+  // set algorithm(algorithm: number) {
+  //   this._algorithm = algorithm;
+  //   this._material.uniforms.uAlgorithm.value = this._algorithm;
+  // }
   //#endregion
+
   // tslint:disable-next-line:typedef
   constructor(stack) {
     super(stack);
@@ -92,7 +97,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   }
 
   protected _init() {
-    this._material = VolumeMaterial.shaderMaterial;
+    this._material = VolumeMaterial.triInterpMaterial;
     this._prepareStack();
     this._prepareTexture();
     this._prepareMaterial();
@@ -164,10 +169,10 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
     ];
     this._material.uniforms.uAlphaCorrection.value = this._alphaCorrection;
     this._material.uniforms.uInterpolation.value = this._interpolation;
-    this._material.uniforms.uShading.value = this._shading;
+    // this._material.uniforms.uShading.value = this._shading;
     this._material.uniforms.uShininess.value = this._shininess;
     this._material.uniforms.uSteps.value = this._steps;
-    this._material.uniforms.uAlgorithm.value = this._algorithm;
+    // this._material.uniforms.uAlgorithm.value = this._algorithm;
 
     this._material.needsUpdate = true;
   }

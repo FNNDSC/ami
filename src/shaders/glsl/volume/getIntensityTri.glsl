@@ -1,6 +1,6 @@
-#pragma glslify: interpolation = require(./interpolation.glsl)
+#pragma glslify: interpolationTrilinear = require(../utility/interpolationTrilinear.glsl)
 
-void getIntensity(
+void getIntensityTri(
     in vec3 dataCoordinates, 
     in int uPixelType,
     in int uTextureSize,
@@ -8,7 +8,6 @@ void getIntensity(
     in sampler2D uTextureContainer[7],
     in int uBitsAllocated,
     in int uNumberOfChannels,
-    in int uInterpolation,
     in int uPackedPerPixel,
     in float uRescaleSlopeIntercept[2],
     in float uWindowCenterWidth[2],
@@ -18,7 +17,7 @@ void getIntensity(
 
   vec4 dataValue = vec4(0., 0., 0., 0.);
 
-  interpolation(
+  interpolationTrilinear(
     uPixelType,
     dataCoordinates,
     uTextureSize,
@@ -26,7 +25,7 @@ void getIntensity(
     uTextureContainer,
     uBitsAllocated,
     uNumberOfChannels,
-    uInterpolation,
+    1,
     uPackedPerPixel,
     dataValue,
     gradient
@@ -36,9 +35,10 @@ void getIntensity(
 
   // rescale/slope
   intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
+
   // window level
   float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
   intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];
 }
 
-#pragma glslify: export(getIntensity)
+#pragma glslify: export(getIntensityTri)
