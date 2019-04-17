@@ -15,9 +15,19 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   private _steps: number = 32;
   private _offset: number = 0;
   private _stepsPerFrame: number = 4;
+  private _stepsSinceChange: number = 0;
+
+
+  private _textureLUT: THREE.Texture;
   //#endregion
 
   //#region Getters
+  get stepsSinceChange(): number {
+    return this._stepsSinceChange;
+  }
+  get textureLUT(): THREE.Texture {
+    return this._textureLUT;
+  }
   get stepsPerFrame(): number {
     return this._stepsPerFrame;
   }
@@ -41,11 +51,30 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   // }
   //#endregion
 
+  private resetStepsSinceChange() {
+    this._stepsSinceChange = 0;
+    this._material.uniforms.uStepsSinceChange.value = this._stepsSinceChange;
+  }
+
+  private incrementStepsSinceChange() {
+    this._stepsSinceChange += this._stepsPerFrame;
+    this._material.uniforms.uStepsSinceChange.value = this._stepsSinceChange;
+  }
+
   //#region Setters 
+  set stepsSinceChange(value: number) {
+    this._stepsSinceChange = value;
+    this._material.uniforms.uStepsSinceChange.value = this._stepsSinceChange;
+  }
+  set textureLUT(value: THREE.Texture) {
+    this._textureLUT = value;
+    this._material.uniforms.uTextureLUT.value = this._textureLUT;
+    this.resetStepsSinceChange()
+  }
   set stepsPerFrame(value: number) {
     this._stepsPerFrame = value;
     this._material.uniforms.uStepsPerFrame.value = this._stepsPerFrame;
-    this._material.uniforms.uStepsSinceChange.value = 0;
+    this.resetStepsSinceChange()
   }
   set windowCenter(value: number) {
     this._windowCenter = value;
@@ -53,7 +82,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
       this._windowCenter - this._offset,
       this._windowWidth,
     ];
-    this._material.uniforms.uStepsSinceChange.value = 0;
+    this.resetStepsSinceChange()
   }
   set windowWidth(value: number) {
     this._windowWidth = value;
@@ -61,17 +90,17 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
       this._windowCenter - this._offset,
       this._windowWidth,
     ];
-    this._material.uniforms.uStepsSinceChange.value = 0;
+    this.resetStepsSinceChange()
   }
   set steps(steps: number) {
     this._steps = steps;
     this._material.uniforms.uSteps.value = this._steps;
-    this._material.uniforms.uStepsSinceChange.value = 0;
+    this.resetStepsSinceChange()
   }
   set alphaCorrection(alphaCorrection: number) {
     this._alphaCorrection = alphaCorrection;
     this._material.uniforms.uAlphaCorrection.value = this._alphaCorrection;
-    this._material.uniforms.uStepsSinceChange.value = 0;
+    this.resetStepsSinceChange()
   }
   set interpolation(interpolation: number) {
     this._interpolation = interpolation;
@@ -92,7 +121,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   set shininess(shininess: number) {
     this._shininess = shininess;
     this._material.uniforms.uShininess.value = this._shininess;
-    this._material.uniforms.uStepsSinceChange.value = 0;
+    this.resetStepsSinceChange()
   }
   // set algorithm(algorithm: number) {
   //   this._algorithm = algorithm;
@@ -105,6 +134,9 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
     super(stack);
     this._init();
     this._create();
+    (this as unknown as THREE.Object3D).onAfterRender = ((r, s, c, g, m, gr) => {
+      this.incrementStepsSinceChange();
+    })
   }
 
   protected _init() {
@@ -184,7 +216,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
     this._material.uniforms.uShininess.value = this._shininess;
     this._material.uniforms.uSteps.value = this._steps;
     this._material.uniforms.uStepsPerFrame.value = this._stepsPerFrame;
-    this._material.uniforms.uStepsSinceChange.value = 0;
+    this.resetStepsSinceChange()
     // this._material.uniforms.uAlgorithm.value = this._algorithm;
 
     this._material.needsUpdate = true;
