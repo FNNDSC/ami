@@ -89,12 +89,13 @@ void main(void) {
     if (steps > 1.) {
         vec3 origin = vPos - uThickness * 0.5 * vNormal;
         vec4 dataValueAcc = vec4(0.);
-        for (float step = 0.; step < 128.; step++) {
+        #pragma unroll_loop
+        for (int i = 0; i < 128; i++) {
             if (step >= steps) {
                 break;
             }
 
-            vec4 dataCoordinates = uWorldToData * vec4(origin + step * uSpacing * vNormal, 1.);
+            vec4 dataCoordinates = uWorldToData * vec4(origin + float(i) * uSpacing * vNormal, 1.);
             vec3 currentVoxel = dataCoordinates.xyz;
 
             interpolation(
@@ -111,7 +112,7 @@ void main(void) {
                 gradient
             );
 
-            if (step == 0.) {
+            if (i == 0) {
                 dataValue.r = dataValueAcc.r;
                 continue;
             }

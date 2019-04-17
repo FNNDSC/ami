@@ -1,5 +1,8 @@
-#pragma glslify: interpolation = require(./utility/interpolation.glsl)
 #pragma glslify: intersectsBox = require(./utility/intersectsBox.glsl)
+#pragma glslify: getIntensity = require(./utility/getIntensity.glsl)
+#pragma glslify: invertMat4 = require(./utility/invertMat4.glsl)
+#pragma glslify: AMIphong = require(./utility/AMIphong.glsl)
+#pragma glslify: highpRandF32 = require(./utility/highpRandF32.glsl)
 
 const float PI = 3.14159265358979323846264 * 00000.1; // PI
 
@@ -41,149 +44,6 @@ varying vec4 vPos;
 varying mat4 vProjectionViewMatrix;
 varying vec4 vProjectedCoords;
 
-void getIntensity(
-    in vec3 dataCoordinates, 
-    out float intensity, 
-    out vec3 gradient
-){
-
-  vec4 dataValue = vec4(0., 0., 0., 0.);
-
-  interpolation(
-    uPixelType,
-    dataCoordinates,
-    uTextureSize,
-    uDataDimensions,
-    uTextureContainer,
-    uBitsAllocated,
-    uNumberOfChannels,
-    uInterpolation,
-    uPackedPerPixel,
-    dataValue,
-    gradient
-  );
-
-  intensity = dataValue.r;
-
-  // rescale/slope
-  intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
-  // window level
-  float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
-  intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];
-}
-
-mat4 inverse(mat4 m) {
-  float
-    a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],
-    a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3],
-    a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3],
-    a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3],
-
-    b00 = a00 * a11 - a01 * a10,
-    b01 = a00 * a12 - a02 * a10,
-    b02 = a00 * a13 - a03 * a10,
-    b03 = a01 * a12 - a02 * a11,
-    b04 = a01 * a13 - a03 * a11,
-    b05 = a02 * a13 - a03 * a12,
-    b06 = a20 * a31 - a21 * a30,
-    b07 = a20 * a32 - a22 * a30,
-    b08 = a20 * a33 - a23 * a30,
-    b09 = a21 * a32 - a22 * a31,
-    b10 = a21 * a33 - a23 * a31,
-    b11 = a22 * a33 - a23 * a32,
-
-    det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-
-  return mat4(
-    a11 * b11 - a12 * b10 + a13 * b09,
-    a02 * b10 - a01 * b11 - a03 * b09,
-    a31 * b05 - a32 * b04 + a33 * b03,
-    a22 * b04 - a21 * b05 - a23 * b03,
-    a12 * b08 - a10 * b11 - a13 * b07,
-    a00 * b11 - a02 * b08 + a03 * b07,
-    a32 * b02 - a30 * b05 - a33 * b01,
-    a20 * b05 - a22 * b02 + a23 * b01,
-    a10 * b10 - a11 * b08 + a13 * b06,
-    a01 * b08 - a00 * b10 - a03 * b06,
-    a30 * b04 - a31 * b02 + a33 * b00,
-    a21 * b02 - a20 * b04 - a23 * b00,
-    a11 * b07 - a10 * b09 - a12 * b06,
-    a00 * b09 - a01 * b07 + a02 * b06,
-    a31 * b01 - a30 * b03 - a32 * b00,
-    a20 * b03 - a21 * b01 + a22 * b00) / det;
-}
-
-/**
- * Adapted from original sources
- * 
- * Original code: 
- * http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/
- * https://www.shadertoy.com/view/lt33z7
-
- * The vec3 returned is the RGB color of the light's contribution.
- 
- * See https://en.wikipedia.org/wiki/Phong_reflection_model#Description
- */
-vec3 phongShading(
-    vec3 ambientColor, 
-    vec3 diffuseColor, 
-    vec3 specularColor, 
-    float shininess, 
-    vec3 positionBeingLit, 
-    vec3 eye,
-    vec3 lightPos, 
-    vec3 lightIntensity, 
-    vec3 normal
-) {
-  vec3 N = normal;
-  vec3 L = lightPos - positionBeingLit;
-  if (length(L) > 0.) {
-    L = L / length(L);
-  }
-  vec3 V = eye - positionBeingLit;
-  if (length(V) > 0.) {
-    V = V / length(V);
-  }
-  vec3 R = reflect(-L, N);
-  if (length(R) > 0.) {
-    R = R / length(R);
-  }
-
-  // https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model
-  vec3 h = L + V;
-  vec3 H = h;
-  if (length(h) > 0.) {
-    H = H / length(h);
-  }
-
-  float dotLN = dot(L, N);
-  float dotRV = dot(R, V);
-
-  if (dotLN < 0.) {
-    // Light not visible from this point on the surface
-    return ambientColor;
-  } 
-
-  if (dotRV < 0.) {
-    // Light reflection in opposite direction as viewer, apply only diffuse component
-    return ambientColor + lightIntensity * (diffuseColor * dotLN);
-  }
-
-  float specAngle = max(dot(H, normal), 0.0);
-  float specular = pow(dotRV, shininess); //pow(specAngle, shininess); // 
-  return ambientColor + lightIntensity * (diffuseColor * dotLN  + specularColor * specular);
-}
-
-// expects values in the range of [0,1]x[0,1], returns values in the [0,1] range.
-// do not collapse into a single function per: http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
-highp float rand( const in vec2 uv) {
-  const highp float a = 12.9898;
-  const highp float b = 78.233;
-  const highp float c = 43758.5453;
-  highp float dt = dot(uv.xy, vec2(a, b)), sn = mod(dt, PI);
-  return fract(sin(sn) * c);
-}
-
 void main(void) {
   const int maxSteps = 1024;
 
@@ -212,7 +72,7 @@ void main(void) {
   if (tNear < 0.0) tNear = 0.0;
 
   // x / y should be within 0-1
-  float offset = rand(gl_FragCoord.xy);
+  float offset = highpRandF32(gl_FragCoord.xy);
   float tStep = (tFar - tNear) / float(uSteps);
   float tCurrent = tNear + offset * tStep;
   vec4 accumulatedColor = vec4(0.0);
@@ -221,9 +81,10 @@ void main(void) {
   // MIP volume rendering
   float maxIntensity = 0.0;
 
-  mat4 dataToWorld = inverse(uWorldToData);
+  mat4 dataToWorld = invertMat4(uWorldToData);
 
-  for(int rayStep = 0; rayStep < maxSteps; rayStep++){
+  #pragma unroll_loop
+  for(int i = 0; i < maxSteps; i++){
     vec3 currentPosition = rayOrigin + rayDirection * tCurrent;
     // some non-linear FUN
     // some occlusion issue to be fixed
@@ -268,7 +129,7 @@ void main(void) {
       float shininess = uShininess;
       vec3 vIntensity = uIntensity;
 
-      colorSample.xyz += phongShading(
+      colorSample.xyz += AMIphong(
         ambientComponent,
         diffuseComponent,
         specularComponent,
