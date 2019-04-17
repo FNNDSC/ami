@@ -53,7 +53,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
 
   private resetStepsSinceChange() {
     this._stepsSinceChange = 0;
-    this._material.uniforms.uStepsSinceChange.value = this._stepsSinceChange;
+    // this._material.uniforms.uStepsSinceChange.value = this._stepsSinceChange;
   }
 
   private incrementStepsSinceChange() {
@@ -130,8 +130,8 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   //#endregion
 
   // tslint:disable-next-line:typedef
-  constructor(stack) {
-    super(stack);
+  constructor(stack: any, isWebGl2: boolean) {
+    super(stack, isWebGl2);
     this._init();
     this._create();
     (this as unknown as THREE.Object3D).onAfterRender = ((r, s, c, g, m, gr) => {
@@ -140,7 +140,12 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   }
 
   protected _init() {
-    this._material = VolumeMaterial.triInterpMaterial;
+    if (this._isWebgl2) {
+      this._material = VolumeMaterial.triInterpMaterial2;
+    }
+    else {
+      this._material = VolumeMaterial.triInterpMaterial;
+    }
     this._prepareStack();
     this._prepareTexture();
     this._prepareMaterial();
@@ -211,12 +216,12 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
       this._stack.dimensionsIJK.z,
     ];
     this._material.uniforms.uAlphaCorrection.value = this._alphaCorrection;
-    this._material.uniforms.uInterpolation.value = this._interpolation;
+    // this._material.uniforms.uInterpolation.value = this._interpolation;
     // this._material.uniforms.uShading.value = this._shading;
     this._material.uniforms.uShininess.value = this._shininess;
-    this._material.uniforms.uSteps.value = this._steps;
-    this._material.uniforms.uStepsPerFrame.value = this._stepsPerFrame;
-    this.resetStepsSinceChange()
+    // this._material.uniforms.uSteps.value = this._steps;
+    // this._material.uniforms.uStepsPerFrame.value = this._stepsPerFrame;
+    // this.resetStepsSinceChange()
     // this._material.uniforms.uAlgorithm.value = this._algorithm;
 
     this._material.needsUpdate = true;
@@ -234,10 +239,6 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
     this._geometry.applyMatrix(
       new THREE.Matrix4().makeTranslation(centerLPS.x, centerLPS.y, centerLPS.z)
     );
-  }
-
-  public hasUniforms(): boolean {
-    return this._material.uniforms === null
   }
 
   // Release memory

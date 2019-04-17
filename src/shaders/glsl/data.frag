@@ -80,7 +80,7 @@ void main(void) {
     vec4 dataValue = vec4(0.);
     // gradient calculations will be skipped if it is equal to vec3(1.) 
     vec3 gradient = vec3(1.); 
-    int steps = floor(uThickness / uSpacing + 0.5);
+    int steps = int(floor(uThickness / uSpacing + 0.5));
 
     // DOES NOT NEED REMOVAL
     // Statically uniform branching condition - cannot cause wavefront divergance
@@ -88,7 +88,7 @@ void main(void) {
     if (steps > 1) {
         vec3 origin = vPos - uThickness * 0.5 * vNormal;
         vec4 dataValueAcc = vec4(0.);
-        #pragma unroll_loop
+
         for (int i = 0; i < steps; i++) {
             vec4 dataCoordinates = uWorldToData * vec4(origin + float(i) * uSpacing * vNormal, 1.);
             vec3 currentVoxel = dataCoordinates.xyz;
@@ -135,7 +135,7 @@ void main(void) {
         }
 
         if (uThicknessMethod == 1) {
-            dataValue.r /= steps;
+            dataValue.r = dataValue.r / float(steps);
         }
     } 
     else {

@@ -59,7 +59,7 @@ export default class StackModel extends BaseModel {
   private _segmentationLUTO: any[];
   private _invert: boolean;
   private _textureType: any;
-  private 
+
   /**
    * Models Stack constructor
    */

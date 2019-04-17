@@ -36,7 +36,6 @@ void AMItexture3D(
     float textureIndexF = float(textureIndex);
     vec4 addition = vec4(0.);
 
-    #pragma unroll_loop
     for (int i = 0; i < 7; i++ ) {
         float i_float = float(i);
         addition += step( abs( textureIndexF - i_float ), 0.0 ) * texture2D(uTextureContainer[i], uv);

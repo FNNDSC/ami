@@ -88,7 +88,6 @@ void main(void) {
 
   mat4 dataToWorld = invertMat4(uWorldToData);
 
-  #pragma unroll_loop
   for(int i = 0; i < MAX_STEPS; i++){
     vec3 currentPosition = rayOrigin + rayDirection * tCurrent;
     // some non-linear FUN

@@ -4,7 +4,6 @@
 #pragma glslify: AMIphong = require(../utility/AMIphong.glsl)
 #pragma glslify: highpRandF32 = require(../utility/highpRandF32.glsl)
 
-const float PI = 3.14159265358979323846264 * 00000.1; // PI
 const int MAX_STEPS = 1024;
 const float EPSILON = 0.0000152587;
 
@@ -34,23 +33,23 @@ uniform float uShininess;
 uniform vec3 upositionBeingLit;
 uniform int upositionBeingLitInCamera;
 uniform vec3 uIntensity;
-uniform int uStepsPerFrame;
-uniform int uStepsSinceChange;
+// uniform int uStepsPerFrame;
+// uniform int uStepsSinceChange;
 
 varying vec4 vPos;
 varying mat4 vProjectionViewMatrix;
 varying vec4 vProjectedCoords;
 
 void main(void) {
-  // If we've reached the maximum accumulation, return
-  if (uStepsSinceChange >= uSteps) {
-    return
-  }
+  // // If we've reached the maximum accumulation, return
+  // if (uStepsSinceChange >= uSteps) {
+  //   return
+  // }
 
-  // If we're on the first frame since a change, reset the frag colour
-  if (uStepsSinceChange == 0) {
-    gl_FragColor = vec4(0.)
-  }
+  // // If we're on the first frame since a change, reset the frag colour
+  // if (uStepsSinceChange == 0) {
+  //   gl_FragColor = vec4(0.)
+  // }
 
   vec3 rayOrigin = cameraPosition;
   vec3 rayDirection = normalize(vPos.xyz - rayOrigin);
@@ -74,11 +73,11 @@ void main(void) {
     intersect
   );
 
-  tNear = (tNear + abs(tNear)) / 2;
+  tNear = (tNear + abs(tNear)) / 2.0;
 
   // x / y should be within 0-1
   float offset = highpRandF32(gl_FragCoord.xy);
-  float tStep = (tFar - tNear) / float(uStepsSinceChange);
+  float tStep = (tFar - tNear) / float(uSteps);
   float tCurrent = tNear + offset * tStep;
   vec4 accumulatedColor = vec4(0.0);
   float accumulatedAlpha = 0.0;
@@ -86,8 +85,7 @@ void main(void) {
   float maxIntensity = 0.0;
   mat4 dataToWorld = invertMat4(uWorldToData);
 
-  #pragma unroll_loop
-  for(int i = 0; i < uStepsPerFrame; i++){
+  for(int i = 0; i < uSteps; i++){
     vec3 currentPosition = rayOrigin + rayDirection * tCurrent;
     vec3 transformedPosition = currentPosition;
     vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);
@@ -132,5 +130,5 @@ void main(void) {
     if (tCurrent > tFar || accumulatedAlpha >= 1.0) break;
   }
 
-  gl_FragColor += vec4(accumulatedColor.xyz, accumulatedAlpha);
+  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);
 }

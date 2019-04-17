@@ -232,13 +232,19 @@ export class SliceHelper extends BaseTHREEHelper {
   
   constructor(
     // tslint:disable-next-line:typedef
-    stack, index: number = 0, 
+    stack, isWebGl2, index: number = 0, 
     position: THREE.Vector3 = new THREE.Vector3(0, 0, 0), 
     direction: THREE.Vector3 = new THREE.Vector3(0, 0, 1),
     // tslint:disable-next-line:typedef
     aabbSpace = 'IJK'
   ) {
-    super(stack);
+    super(stack, isWebGl2);
+    if (this._isWebgl2) {
+      this._material = DataMaterial.shaderMaterial2;
+    }
+    else {
+      this._material = DataMaterial.shaderMaterial;
+    }
     this._invert = this._stack.invert;
     this._index = index;
     this._planePosition = position;
@@ -249,7 +255,6 @@ export class SliceHelper extends BaseTHREEHelper {
     this._aaBBspace = aabbSpace; // or LPS -> different transforms, esp for the geometry/mesh
     // update dimensions, center, etc.
     // depending on aaBBSpace
-    this._material = DataMaterial.shaderMaterial;
     this._init();
     // update object
     this._create();

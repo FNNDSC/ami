@@ -12,6 +12,8 @@ export abstract class BaseTHREEHelper extends THREE.Object3D {
   protected _geometry = null;
   protected _mesh = null;
   protected _visible = true;
+
+  protected _isWebgl2 = false;
   //#endregion
 
   //#region Getters / Setters
@@ -49,10 +51,15 @@ export abstract class BaseTHREEHelper extends THREE.Object3D {
   //#endregion
 
   // tslint:disable-next-line:typedef
-  constructor(stack) {
+  constructor(stack, isWebgl2) {
     super();
 
     this._stack = stack;
+    this._isWebgl2 = isWebgl2;
+  }
+
+  public hasUniforms() {
+    return this._material.uniforms;
   }
 
   protected _prepareTexture() {

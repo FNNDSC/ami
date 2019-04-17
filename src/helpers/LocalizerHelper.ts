@@ -93,8 +93,15 @@ export class LocalizerHelper extends BaseTHREEHelper {
   //#endregion
 
   // tslint:disable-next-line:typedef
-  constructor(stack, geometry, referencePlane) {
-    super(stack);
+  constructor(stack, isWebGl2, geometry, referencePlane) {
+    super(stack, isWebGl2);
+
+    if (this._isWebgl2) {
+      this._material = LocalizerMaterial.shaderMaterial2;
+    }
+    else {
+      this._material = LocalizerMaterial.shaderMaterial;
+    }
 
     this._referencePlane = referencePlane;
     this._geometry = geometry;
@@ -104,7 +111,6 @@ export class LocalizerHelper extends BaseTHREEHelper {
   }
 
   protected _init() {
-    this._material = LocalizerMaterial.shaderMaterial;
     this._prepareMaterial();
   }
 

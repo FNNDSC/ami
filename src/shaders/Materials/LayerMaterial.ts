@@ -33,6 +33,7 @@ export class LayerMaterial {
      * of the contour shader
      */
     private static _shaderMaterial: THREE.ShaderMaterial;
+    private static _shaderMaterial2: THREE.ShaderMaterial;
 
     /**
      * Default Uniform values
@@ -57,12 +58,24 @@ export class LayerMaterial {
             LayerMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: glslify(MaterialUtils.processSource(vertSource)),
-                fragmentShader: glslify(MaterialUtils.processSource(fragmentSource)),
+                vertexShader: glslify(MaterialUtils.processSource(vertSource, false)),
+                fragmentShader: glslify(MaterialUtils.processSource(fragmentSource, false)),
                 transparent: true,
             });
         }
-
         return LayerMaterial._shaderMaterial.clone();
+    }
+
+    public static get shaderMaterial2(): THREE.ShaderMaterial {
+        if (!LayerMaterial._shaderMaterial2) {
+            LayerMaterial._shaderMaterial2 = new THREE.ShaderMaterial({
+                side: THREE.DoubleSide,
+                uniforms: this.defaultUniforms,
+                vertexShader: glslify(MaterialUtils.processSource(vertSource, true)),
+                fragmentShader: glslify(MaterialUtils.processSource(fragmentSource, true)),
+                transparent: true,
+            });
+        }
+        return LayerMaterial._shaderMaterial2.clone();
     }
 }

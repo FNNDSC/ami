@@ -55,8 +55,8 @@ export interface VolumeUniforms {
     uLightPositionInCamera: { value: number },  // int
     uIntensity: { value: THREE.Vector3 },       // vec3(0)
     // uAlgorithm: { value: number },              // int
-    uStepsPerFrame: { value: number },          // int
-    uStepsSinceChange: { value: number }        // int
+    // uStepsPerFrame: { value: number },          // int
+    // uStepsSinceChange: { value: number }        // int
 }
 
 export class VolumeMaterial {
@@ -72,6 +72,9 @@ export class VolumeMaterial {
      */
     private static _idnShaderMaterial: THREE.ShaderMaterial;
     private static _triShaderMaterial: THREE.ShaderMaterial;
+
+    private static _idnShaderMaterial2: THREE.ShaderMaterial;
+    private static _triShaderMaterial2: THREE.ShaderMaterial;
 
     /**
      * Default Uniform values
@@ -132,8 +135,8 @@ export class VolumeMaterial {
             new THREE.Vector3(0.8, 0.8, 0.8)
         },
         // uAlgorithm: { value: 0 },                       // int
-        uStepsPerFrame: { value: 4 },                   // int
-        uStepsSinceChange: { value: 0 }                 // int
+        // uStepsPerFrame: { value: 4 },                   // int
+        // uStepsSinceChange: { value: 0 }                 // int
     } as VolumeUniforms;
 
     public static get defaultUniforms() {
@@ -146,8 +149,8 @@ export class VolumeMaterial {
                 side: THREE.BackSide,
                 transparent: true,
                 uniforms: this.defaultUniforms,
-                vertexShader: glslify(MaterialUtils.processSource(vertSource)),
-                fragmentShader: glslify(MaterialUtils.processSource(fragmentSourceIdnInterp)),
+                vertexShader: glslify(MaterialUtils.processSource(vertSource, false)),
+                fragmentShader: glslify(MaterialUtils.processSource(fragmentSourceIdnInterp, false)),
             });
         }
         return VolumeMaterial._idnShaderMaterial.clone();
@@ -159,10 +162,36 @@ export class VolumeMaterial {
                 side: THREE.BackSide,
                 transparent: true,
                 uniforms: this.defaultUniforms,
-                vertexShader: glslify(MaterialUtils.processSource(vertSource)),
-                fragmentShader: glslify(MaterialUtils.processSource(fragmentSourceTriInterp)),
+                vertexShader: glslify(MaterialUtils.processSource(vertSource, false)),
+                fragmentShader: glslify(MaterialUtils.processSource(fragmentSourceTriInterp, false)),
             });
         }
         return VolumeMaterial._triShaderMaterial.clone();
+    }
+
+    public static get idnInterpMaterial2(): THREE.ShaderMaterial {
+        if (!VolumeMaterial._idnShaderMaterial2) {
+            VolumeMaterial._idnShaderMaterial2 = new THREE.ShaderMaterial({
+                side: THREE.BackSide,
+                transparent: true,
+                uniforms: this.defaultUniforms,
+                vertexShader: glslify(MaterialUtils.processSource(vertSource, true)),
+                fragmentShader: glslify(MaterialUtils.processSource(fragmentSourceIdnInterp, true)),
+            });
+        }
+        return VolumeMaterial._idnShaderMaterial2.clone();
+    }
+
+    public static get triInterpMaterial2(): THREE.ShaderMaterial {
+        if (!VolumeMaterial._triShaderMaterial2) {
+            VolumeMaterial._triShaderMaterial2 = new THREE.ShaderMaterial({
+                side: THREE.BackSide,
+                transparent: true,
+                uniforms: this.defaultUniforms,
+                vertexShader: glslify(MaterialUtils.processSource(vertSource, true)),
+                fragmentShader: glslify(MaterialUtils.processSource(fragmentSourceTriInterp, true)),
+            });
+        }
+        return VolumeMaterial._triShaderMaterial2.clone();
     }
 }

@@ -59,15 +59,21 @@ export class ContourHelper extends BaseTHREEHelper {
   //#endregion
 
   // tslint:disable-next-line:typedef
-  constructor(stack, geometry, texture) {
-    super(stack);
+  constructor(stack, isWebGl2, geometry, texture) {
+    super(stack, isWebGl2);
+
+    if (this._isWebgl2) {
+      this._material = ContourMaterial.shaderMaterial2;
+    }
+    else {
+      this._material = ContourMaterial.shaderMaterial;
+    }
 
     this._textureToFilter = texture;
     this._contourWidth = 1;
     this._contourOpacity = 1;
     this._canvasWidth = 0;
     this._canvasHeight = 0;
-    this._material = null;
     this._geometry = geometry;
 
     this._init();
@@ -75,7 +81,6 @@ export class ContourHelper extends BaseTHREEHelper {
   }
 
   protected _init() {
-    this._material = ContourMaterial.shaderMaterial;
     this._material.uniforms.uWidth = this._contourWidth;
     this._material.uniforms.uOpacity = this._contourOpacity;
     this._material.uniforms.uCanvasWidth = this._canvasWidth;
