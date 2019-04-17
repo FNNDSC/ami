@@ -55,7 +55,8 @@ export interface VolumeUniforms {
     uLightPositionInCamera: { value: number },  // int
     uIntensity: { value: THREE.Vector3 },       // vec3(0)
     // uAlgorithm: { value: number },              // int
-    uCameraPosition: {value: THREE.Vector3 }    // vec3
+    uStepsPerFrame: { value: number },          // int
+    uStepsSinceChange: { value: number }        // int
 }
 
 export class VolumeMaterial {
@@ -131,9 +132,8 @@ export class VolumeMaterial {
             new THREE.Vector3(0.8, 0.8, 0.8)
         },
         // uAlgorithm: { value: 0 },                       // int
-        uCameraPosition: {                              // vec3(1)
-            value: new THREE.Vector3( 1, 1, 1) 
-        }
+        uStepsPerFrame: { value: 4 },                   // int
+        uStepsSinceChange: { value: 0 }                 // int
     } as VolumeUniforms;
 
     public static get defaultUniforms() {

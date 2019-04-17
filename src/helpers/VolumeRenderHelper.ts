@@ -14,11 +14,12 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   private _shininess: number = 10.0;
   private _steps: number = 32;
   private _offset: number = 0;
+  private _stepsPerFrame: number = 4;
   //#endregion
 
   //#region Getters
-  get uniforms() {
-    return this._material.uniforms
+  get stepsPerFrame(): number {
+    return this._stepsPerFrame;
   }
   get steps() {
     return this._steps;
@@ -41,12 +42,18 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   //#endregion
 
   //#region Setters 
+  set stepsPerFrame(value: number) {
+    this._stepsPerFrame = value;
+    this._material.uniforms.uStepsPerFrame.value = this._stepsPerFrame;
+    this._material.uniforms.uStepsSinceChange.value = 0;
+  }
   set windowCenter(value: number) {
     this._windowCenter = value;
     this._material.uniforms.uWindowCenterWidth.value = [
       this._windowCenter - this._offset,
       this._windowWidth,
     ];
+    this._material.uniforms.uStepsSinceChange.value = 0;
   }
   set windowWidth(value: number) {
     this._windowWidth = value;
@@ -54,14 +61,17 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
       this._windowCenter - this._offset,
       this._windowWidth,
     ];
+    this._material.uniforms.uStepsSinceChange.value = 0;
   }
   set steps(steps: number) {
     this._steps = steps;
     this._material.uniforms.uSteps.value = this._steps;
+    this._material.uniforms.uStepsSinceChange.value = 0;
   }
   set alphaCorrection(alphaCorrection: number) {
     this._alphaCorrection = alphaCorrection;
     this._material.uniforms.uAlphaCorrection.value = this._alphaCorrection;
+    this._material.uniforms.uStepsSinceChange.value = 0;
   }
   set interpolation(interpolation: number) {
     this._interpolation = interpolation;
@@ -82,6 +92,7 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
   set shininess(shininess: number) {
     this._shininess = shininess;
     this._material.uniforms.uShininess.value = this._shininess;
+    this._material.uniforms.uStepsSinceChange.value = 0;
   }
   // set algorithm(algorithm: number) {
   //   this._algorithm = algorithm;
@@ -172,6 +183,8 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
     // this._material.uniforms.uShading.value = this._shading;
     this._material.uniforms.uShininess.value = this._shininess;
     this._material.uniforms.uSteps.value = this._steps;
+    this._material.uniforms.uStepsPerFrame.value = this._stepsPerFrame;
+    this._material.uniforms.uStepsSinceChange.value = 0;
     // this._material.uniforms.uAlgorithm.value = this._algorithm;
 
     this._material.needsUpdate = true;
@@ -189,6 +202,10 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
     this._geometry.applyMatrix(
       new THREE.Matrix4().makeTranslation(centerLPS.x, centerLPS.y, centerLPS.z)
     );
+  }
+
+  public hasUniforms(): boolean {
+    return this._material.uniforms === null
   }
 
   // Release memory

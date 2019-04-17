@@ -34,12 +34,24 @@ uniform float uShininess;
 uniform vec3 upositionBeingLit;
 uniform int upositionBeingLitInCamera;
 uniform vec3 uIntensity;
+uniform int uStepsPerFrame;
+uniform int uStepsSinceChange;
 
 varying vec4 vPos;
 varying mat4 vProjectionViewMatrix;
 varying vec4 vProjectedCoords;
 
 void main(void) {
+  // If we've reached the maximum accumulation, return
+  if (uStepsSinceChange >= uSteps) {
+    return
+  }
+
+  // If we're on the first frame since a change, reset the frag colour
+  if (uStepsSinceChange == 0) {
+    gl_FragColor = vec4(0.)
+  }
+
   vec3 rayOrigin = cameraPosition;
   vec3 rayDirection = normalize(vPos.xyz - rayOrigin);
 
@@ -66,7 +78,7 @@ void main(void) {
 
   // x / y should be within 0-1
   float offset = highpRandF32(gl_FragCoord.xy);
-  float tStep = (tFar - tNear) / float(uSteps);
+  float tStep = (tFar - tNear) / float(uStepsSinceChange);
   float tCurrent = tNear + offset * tStep;
   vec4 accumulatedColor = vec4(0.0);
   float accumulatedAlpha = 0.0;
@@ -75,7 +87,7 @@ void main(void) {
   mat4 dataToWorld = invertMat4(uWorldToData);
 
   #pragma unroll_loop
-  for(int i = 0; i < MAX_STEPS; i++){
+  for(int i = 0; i < uStepsPerFrame; i++){
     vec3 currentPosition = rayOrigin + rayDirection * tCurrent;
     vec3 transformedPosition = currentPosition;
     vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);
@@ -120,5 +132,5 @@ void main(void) {
     if (tCurrent > tFar || accumulatedAlpha >= 1.0) break;
   }
 
-  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);
+  gl_FragColor += vec4(accumulatedColor.xyz, accumulatedAlpha);
 }
