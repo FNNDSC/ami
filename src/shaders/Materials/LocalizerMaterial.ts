@@ -1,10 +1,7 @@
 import { MaterialUtils } from "./MaterialUtils";
 
-const vertSource1 = require('raw-loader!glslify-loader!../webgl1/default.vert').default;
-const fragmentSource1 = require('raw-loader!glslify-loader!../webgl1/localizer.frag').default;
-
-const vertSource2 = require('raw-loader!glslify-loader!../webgl2/default.vert').default;
-const fragmentSource2 = require('raw-loader!glslify-loader!../webgl2/localizer.frag').default;
+const vertSource = require('raw-loader!glslify-loader!../webgl/default.vert').default;
+const fragmentSource = require('raw-loader!glslify-loader!../webgl/localizer.frag').default;
 
 const THREE = (window as any).THREE;
 
@@ -34,8 +31,7 @@ export class LocalizerMaterial {
      * will always return a mutable clone of the base version
      * of the contour shader
      */
-    private static _shaderMaterial: THREE.ShaderMaterial;
-    private static _shaderMaterial2: THREE.ShaderMaterial;
+    private static _material: THREE.ShaderMaterial;
 
     /**
      * Default Uniform values
@@ -56,29 +52,16 @@ export class LocalizerMaterial {
         return LocalizerMaterial._defaultUniforms;
     }
 
-    public static get shaderMaterial1(): THREE.ShaderMaterial {
-        if (!LocalizerMaterial._shaderMaterial) {           
-            LocalizerMaterial._shaderMaterial = new THREE.ShaderMaterial({
+    public static get material(): THREE.ShaderMaterial {
+        if (!LocalizerMaterial._material) {           
+            LocalizerMaterial._material = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: MaterialUtils.processSource(vertSource1),
-                fragmentShader: MaterialUtils.processSource(fragmentSource1),
+                vertexShader: MaterialUtils.processSource(vertSource),
+                fragmentShader: MaterialUtils.processSource(fragmentSource),
                 transparent: true,
             });
         }
-        return LocalizerMaterial._shaderMaterial.clone();
-    }
-
-    public static get shaderMaterial2(): THREE.ShaderMaterial {
-        if (!LocalizerMaterial._shaderMaterial2) {           
-            LocalizerMaterial._shaderMaterial2 = new THREE.ShaderMaterial({
-                side: THREE.DoubleSide,
-                uniforms: this.defaultUniforms,
-                vertexShader: MaterialUtils.processSource(vertSource2),
-                fragmentShader: MaterialUtils.processSource(fragmentSource2),
-                transparent: true,
-            });
-        }
-        return LocalizerMaterial._shaderMaterial2.clone();
+        return LocalizerMaterial._material.clone();
     }
 }

@@ -1,4 +1,4 @@
-import { WebGlHelper } from "./WebGlHelper";
+import { BaseTHREEHelper } from "./BaseTHREEHelper";
 
 const THREE = (window as any).THREE;
 
@@ -18,7 +18,7 @@ interface THREEVolumeShaderUniforms {
  * <script src="https://unpkg.com/three@0.102.1/examples/js/shaders/VolumeShader.js"></script>
  * <script src="https://unpkg.com/three@0.102.1/examples/js/Volume.js"></script>
  */
-export class VolumeRenderHelper2 extends WebGlHelper {
+export class VolumeRenderHelper2 extends BaseTHREEHelper {
   //#region Variables 
   private _volumeShader: any;
   private _dataTexture: THREE.DataTexture3D;
@@ -42,8 +42,8 @@ export class VolumeRenderHelper2 extends WebGlHelper {
   }
   //#endregion
 
-  constructor(stack: any, isWebGl2: boolean) {
-    super(stack, isWebGl2);
+  constructor(stack: any) {
+    super(stack);
     this._init();
     this._create();
   }

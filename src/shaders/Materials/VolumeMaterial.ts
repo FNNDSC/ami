@@ -1,12 +1,8 @@
 import { MaterialUtils } from "./MaterialUtils";
 
-const vertSource1 = require('raw-loader!glslify-loader!../webgl1/default.vert').default;
-const fragmentSourceIdn1 = require ('raw-loader!glslify-loader!../webgl1/volume/volume_idnInterp.frag').default;
-const fragmentSourceTri1 = require ('raw-loader!glslify-loader!../webgl1/volume/volume_triInterp.frag').default;
-
-const vertSource2 = require('raw-loader!glslify-loader!../webgl2/default.vert').default;
-const fragmentSourceIdn2 = require ('raw-loader!glslify-loader!../webgl2/volume/volume_idnInterp.frag').default;
-const fragmentSourceTri2 = require ('raw-loader!glslify-loader!../webgl2/volume/volume_triInterp.frag').default;
+const vertSource = require('raw-loader!glslify-loader!../webgl/default.vert').default;
+const fragmentSourceIdn = require ('raw-loader!glslify-loader!../webgl/volume/volume_idnInterp.frag').default;
+const fragmentSourceTri = require ('raw-loader!glslify-loader!../webgl/volume/volume_triInterp.frag').default;
 
 const THREE = (window as any).THREE;
 
@@ -69,11 +65,8 @@ export class VolumeMaterial {
      * will always return a mutable clone of the base version
      * of the shader
      */
-    private static _idnMaterial1: THREE.ShaderMaterial;
-    private static _triMaterial1: THREE.ShaderMaterial;
-
-    private static _idnMaterial2: THREE.ShaderMaterial;
-    private static _triMaterial2: THREE.ShaderMaterial;
+    private static _idnMaterial: THREE.ShaderMaterial;
+    private static _triMaterial: THREE.ShaderMaterial;
 
     /**
      * Default Uniform values
@@ -142,55 +135,29 @@ export class VolumeMaterial {
         return VolumeMaterial._defaultUniforms;
     }
 
-    public static get idnMaterial1(): THREE.ShaderMaterial {
-        if (!VolumeMaterial._idnMaterial1) {
-            VolumeMaterial._idnMaterial1 = new THREE.ShaderMaterial({
+    public static get idnMaterial(): THREE.ShaderMaterial {
+        if (!VolumeMaterial._idnMaterial) {
+            VolumeMaterial._idnMaterial = new THREE.ShaderMaterial({
                 side: THREE.BackSide,
                 transparent: true,
                 uniforms: this.defaultUniforms,
-                vertexShader: MaterialUtils.processSource(vertSource1),
-                fragmentShader: MaterialUtils.processSource(fragmentSourceIdn1),
+                vertexShader: MaterialUtils.processSource(vertSource),
+                fragmentShader: MaterialUtils.processSource(fragmentSourceIdn),
             });
         }
-        return VolumeMaterial._idnMaterial1.clone();
+        return VolumeMaterial._idnMaterial.clone();
     }
 
-    public static get triMaterial1(): THREE.ShaderMaterial {
-        if (!VolumeMaterial._triMaterial1) {
-            VolumeMaterial._triMaterial1 = new THREE.ShaderMaterial({
+    public static get triMaterial(): THREE.ShaderMaterial {
+        if (!VolumeMaterial._triMaterial) {
+            VolumeMaterial._triMaterial = new THREE.ShaderMaterial({
                 side: THREE.BackSide,
                 transparent: true,
                 uniforms: this.defaultUniforms,
-                vertexShader: MaterialUtils.processSource(vertSource1),
-                fragmentShader: MaterialUtils.processSource(fragmentSourceTri1),
+                vertexShader: MaterialUtils.processSource(vertSource),
+                fragmentShader: MaterialUtils.processSource(fragmentSourceTri),
             });
         }
-        return VolumeMaterial._triMaterial1.clone();
-    }
-
-    public static get idnMaterial2(): THREE.ShaderMaterial {
-        if (!VolumeMaterial._idnMaterial2) {
-            VolumeMaterial._idnMaterial2 = new THREE.ShaderMaterial({
-                side: THREE.BackSide,
-                transparent: true,
-                uniforms: this.defaultUniforms,
-                vertexShader: MaterialUtils.processSource(vertSource2),
-                fragmentShader: MaterialUtils.processSource(fragmentSourceIdn2),
-            });
-        }
-        return VolumeMaterial._idnMaterial2.clone();
-    }
-
-    public static get triMaterial2(): THREE.ShaderMaterial {
-        if (!VolumeMaterial._triMaterial2) {
-            VolumeMaterial._triMaterial2 = new THREE.ShaderMaterial({
-                side: THREE.BackSide,
-                transparent: true,
-                uniforms: this.defaultUniforms,
-                vertexShader: MaterialUtils.processSource(vertSource2),
-                fragmentShader: MaterialUtils.processSource(fragmentSourceTri2),
-            });
-        }
-        return VolumeMaterial._triMaterial2.clone();
+        return VolumeMaterial._triMaterial.clone();
     }
 }

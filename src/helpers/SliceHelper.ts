@@ -1,10 +1,10 @@
 import { SliceGeometry } from '../geometries';
 import { DataMaterial } from '../shaders';
-import { WebGlHelper } from './WebGlHelper';
+import { BaseTHREEHelper } from './BaseTHREEHelper';
 
 const THREE = (window as any).THREE;
 
-export class SliceHelper extends WebGlHelper {
+export class SliceHelper extends BaseTHREEHelper {
   //#region Variables
   // image settings
   // index only used to grab window/level and intercept/slope
@@ -122,20 +122,10 @@ export class SliceHelper extends WebGlHelper {
     this._interpolation = interpolation;
     
     if (this._interpolation === 1) {
-      if (this._isWebgl2) {
-        this._material = DataMaterial.triMaterial2;
-      }
-      else {
-        this._material = DataMaterial.triMaterial1;
-      }
+      this._material = DataMaterial.triMaterial;
     }
     else {
-      if (this._isWebgl2) {
-        this._material = DataMaterial.idnMaterial2;
-      }
-      else {
-        this._material = DataMaterial.idnMaterial1;
-      }
+      this._material = DataMaterial.idnMaterial;
     }
     this.UpdateIntensitySettingsUniforms();
     this._prepareMaterial();
@@ -226,20 +216,14 @@ export class SliceHelper extends WebGlHelper {
   
   constructor(
     stack: any, 
-    isWebGl2: boolean, 
     index: number = 0, 
     position: THREE.Vector3 = new THREE.Vector3(0, 0, 0), 
     direction: THREE.Vector3 = new THREE.Vector3(0, 0, 1),
     aabbSpace: string = 'IJK'
   ) {
-    super(stack, isWebGl2);
+    super(stack);
     
-    if (this._isWebgl2) {
-      this._material = DataMaterial.triMaterial2;
-    }
-    else {
-      this._material = DataMaterial.triMaterial1;
-    }
+    this._material = DataMaterial.triMaterial;
 
     this._invert = this._stack.invert;
     this._index = index;

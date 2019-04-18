@@ -1,9 +1,9 @@
 import { ContourMaterial } from "../shaders";
-import { WebGlHelper } from "./WebGlHelper";
+import { BaseTHREEHelper } from "./BaseTHREEHelper";
 
 const THREE = (window as any).THREE;
 
-export class ContourHelper extends WebGlHelper {
+export class ContourHelper extends BaseTHREEHelper {
   //#region Variables
   private _textureToFilter;
   private _contourOpacity;
@@ -53,15 +53,10 @@ export class ContourHelper extends WebGlHelper {
   }
   //#endregion
 
-  constructor(stack: any, isWebGl2: boolean, geometry: any, texture: THREE.Texture) {
-    super(stack, isWebGl2);
+  constructor(stack: any, geometry: any, texture: THREE.Texture) {
+    super(stack);
 
-    if (this._isWebgl2) {
-      this._material = ContourMaterial.shaderMaterial2;
-    }
-    else {
-      this._material = ContourMaterial.shaderMaterial1;
-    }
+    this._material = ContourMaterial.material;
 
     this._textureToFilter = texture;
     this._contourWidth = 1;

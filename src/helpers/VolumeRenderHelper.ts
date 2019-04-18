@@ -1,10 +1,10 @@
  
 import { VolumeMaterial } from '../shaders';
-import { WebGlHelper } from './WebGlHelper';
+import { BaseTHREEHelper } from './BaseTHREEHelper';
 
 const THREE = (window as any).THREE;
 
-export class VolumeRenderHelper extends WebGlHelper {
+export class VolumeRenderHelper extends BaseTHREEHelper {
   //#region Variables 
   // ray marching
   // private _algorithm: number = 0;
@@ -106,20 +106,10 @@ export class VolumeRenderHelper extends WebGlHelper {
     this._interpolation = interpolation;
 
     if (interpolation === 0) {
-      if (this._isWebgl2) {
-        this._material = VolumeMaterial.idnMaterial2;
-      }
-      else {
-        this._material = VolumeMaterial.idnMaterial1;
-      }
+      this._material = VolumeMaterial.idnMaterial;
     }
     else {
-      if (this._isWebgl2) {
-        this._material = VolumeMaterial.triMaterial2;
-      }
-      else {
-        this._material = VolumeMaterial.triMaterial1;
-      }
+      this._material = VolumeMaterial.triMaterial;
     }
 
     this._prepareMaterial();
@@ -140,8 +130,8 @@ export class VolumeRenderHelper extends WebGlHelper {
   //#endregion
 
   // tslint:disable-next-line:typedef
-  constructor(stack: any, isWebGl2: boolean) {
-    super(stack, isWebGl2);
+  constructor(stack: any) {
+    super(stack);
     this._init();
     this._create();
     // (this as unknown as THREE.Object3D).onAfterRender = ((r, s, c, g, m, gr) => {
@@ -150,12 +140,7 @@ export class VolumeRenderHelper extends WebGlHelper {
   }
 
   protected _init() {
-    if (this._isWebgl2) {
-      this._material = VolumeMaterial.triMaterial2;
-    }
-    else {
-      this._material = VolumeMaterial.triMaterial1;
-    }
+    this._material = VolumeMaterial.triMaterial;
     this._prepareStack();
     this._prepareTexture();
     this._prepareMaterial();

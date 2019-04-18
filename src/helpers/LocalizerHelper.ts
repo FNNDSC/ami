@@ -1,9 +1,9 @@
 import { LocalizerMaterial } from '../shaders';
-import { WebGlHelper } from './WebGlHelper';
+import { BaseTHREEHelper } from './BaseTHREEHelper';
 
 const THREE = (window as any).THREE;
 
-export class LocalizerHelper extends WebGlHelper {
+export class LocalizerHelper extends BaseTHREEHelper {
   //#region Variables
   private _referencePlane;
   private _plane1 = null;
@@ -85,15 +85,10 @@ export class LocalizerHelper extends WebGlHelper {
   }
   //#endregion
 
-  constructor(stack: any, isWebGl2: boolean, geometry: any, referencePlane: any) {
-    super(stack, isWebGl2);
-
-    if (this._isWebgl2) {
-      this._material = LocalizerMaterial.shaderMaterial2;
-    }
-    else {
-      this._material = LocalizerMaterial.shaderMaterial1;
-    }
+  constructor(stack: any, geometry: any, referencePlane: any) {
+    super(stack);
+    
+    this._material = LocalizerMaterial.material;
 
     this._referencePlane = referencePlane;
     this._geometry = geometry;
@@ -137,7 +132,7 @@ export class LocalizerHelper extends WebGlHelper {
       this._material.uniforms.uCanvasWidth.value = this._canvasWidth;
       this._material.uniforms.uCanvasHeight.value = this._canvasHeight;
 
-      this._material = LocalizerMaterial.shaderMaterial1;
+      this._material = LocalizerMaterial.material;
     }
   }
 

@@ -1,10 +1,7 @@
 import { MaterialUtils } from "./MaterialUtils";
 
-const vertSource1 = require('raw-loader!glslify-loader!../webgl1/default.vert').default;
-const fragmentSource1 = require('raw-loader!glslify-loader!../webgl1/layer.frag').default;
-
-const vertSource2 = require('raw-loader!glslify-loader!../webgl2/default.vert').default;
-const fragmentSource2 = require('raw-loader!glslify-loader!../webgl2/layer.frag').default;
+const vertSource = require('raw-loader!glslify-loader!../webgl/default.vert').default;
+const fragmentSource = require('raw-loader!glslify-loader!../webgl/layer.frag').default;
 
 const THREE = (window as any).THREE;
 
@@ -33,8 +30,7 @@ export class LayerMaterial {
      * will always return a mutable clone of the base version
      * of the contour shader
      */
-    private static _shaderMaterial: THREE.ShaderMaterial;
-    private static _shaderMaterial2: THREE.ShaderMaterial;
+    private static _material: THREE.ShaderMaterial;
 
     /**
      * Default Uniform values
@@ -54,29 +50,16 @@ export class LayerMaterial {
         return LayerMaterial._defaultUniforms;
     }
 
-    public static get shaderMaterial1(): THREE.ShaderMaterial {
-        if (!LayerMaterial._shaderMaterial) {
-            LayerMaterial._shaderMaterial = new THREE.ShaderMaterial({
+    public static get material(): THREE.ShaderMaterial {
+        if (!LayerMaterial._material) {
+            LayerMaterial._material = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: MaterialUtils.processSource(vertSource1),
-                fragmentShader: MaterialUtils.processSource(fragmentSource1),
+                vertexShader: MaterialUtils.processSource(vertSource),
+                fragmentShader: MaterialUtils.processSource(fragmentSource),
                 transparent: true,
             });
         }
-        return LayerMaterial._shaderMaterial.clone();
-    }
-
-    public static get shaderMaterial2(): THREE.ShaderMaterial {
-        if (!LayerMaterial._shaderMaterial2) {
-            LayerMaterial._shaderMaterial2 = new THREE.ShaderMaterial({
-                side: THREE.DoubleSide,
-                uniforms: this.defaultUniforms,
-                vertexShader: MaterialUtils.processSource(vertSource2),
-                fragmentShader: MaterialUtils.processSource(fragmentSource2),
-                transparent: true,
-            });
-        }
-        return LayerMaterial._shaderMaterial2.clone();
+        return LayerMaterial._material.clone();
     }
 }
