@@ -17,10 +17,10 @@ export abstract class BaseTHREEHelper extends THREE.Object3D {
   //#endregion
 
   //#region Getters / Setters
-  get windowCenter() {
+  get windowCenter(): number {
     return this._windowCenter;
   }
-  get windowWidth() {
+  get windowWidth(): number {
     return this._windowWidth;
   }
   get interpolation() {

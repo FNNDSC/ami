@@ -90,12 +90,12 @@ void main(void) {
       uPixelType,
       uTextureSize,
       uDataDimensions,
-      uTextureContainer[7],
+      uTextureContainer,
       uBitsAllocated,
       uNumberOfChannels,
       uPackedPerPixel,
       uRescaleSlopeIntercept,
-      uWindowCenterWidth;
+      uWindowCenterWidth,
       intensity, 
       gradient
     );

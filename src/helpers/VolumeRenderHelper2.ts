@@ -1,4 +1,5 @@
 import { BaseTHREEHelper } from "./BaseTHREEHelper";
+import { Volume2Material } from "../shaders";
 
 const THREE = (window as any).THREE;
 
@@ -12,21 +13,22 @@ interface THREEVolumeShaderUniforms {
 }
 
 /**
- * This variant of the VolumeRenderHelper uses WebGL 2 - the following
- * scripts MUST be placed at the top of the index.html to work:
- * 
- * <script src="https://unpkg.com/three@0.102.1/examples/js/shaders/VolumeShader.js"></script>
- * <script src="https://unpkg.com/three@0.102.1/examples/js/Volume.js"></script>
+ * This variant of the VolumeRenderHelper uses WebGL 2
  */
 export class VolumeRenderHelper2 extends BaseTHREEHelper {
   //#region Variables 
   private _volumeShader: any;
-  private _dataTexture: THREE.DataTexture3D;
   //#endregion
 
   //#region Getters
   get textureLUT(): THREE.Texture {
-    return this._textureLUT;
+    return this._material.uniforms.u_cmdata.value;
+  }
+  get windowWidth(): number {
+    return this._material.uniforms.u_clim.value.x
+  }
+  get windowCenter(): number {
+    return this._material.uniforms.u_clim.value.y
   }
   //#endregion
 
@@ -49,6 +51,13 @@ export class VolumeRenderHelper2 extends BaseTHREEHelper {
   }
 
   protected _init() {
+    this._volumeShader = THREE.VolumeRenderShader1;
+    this._material = new THREE.ShaderMaterial( {
+      uniforms: this._volumeShader.uniforms,
+      vertexShader: this._volumeShader.vertexShader,
+      fragmentShader: this._volumeShader.fragmentShader,
+      side: THREE.BackSide // The volume shader uses the backface as its "reference point"
+  } );
     this._prepareStack();
     this._prepareTexture();
     this._prepareMaterial();
@@ -80,24 +89,11 @@ export class VolumeRenderHelper2 extends BaseTHREEHelper {
         this._stack.dimensionsIJK.y,
         this._stack.dimensionsIJK.z
     );
-    this._volumeShader = THREE.VolumeRenderShader;
 
-    let uniforms = THREE.UniformsUtils.clone(this._volumeShader.uniforms);
-    uniforms.u_data.value = this._dataTexture;
-    uniforms.u_size.value.copy(this._stack.dimensionsIJK.clone());
-    uniforms.u_clim.value = new THREE.Vector2(0.01, 0.01);
-    uniforms.u_renderstyle.value = 1;
-    uniforms.u_cmdata.value = new THREE.Texture;
+    this._material = Volume2Material.material;
 
-    this._material = new THREE.ShaderMaterial( {
-        uniforms: uniforms,
-        vertexShader: this._volumeShader.vertexShader,
-        fragmentShader: this._volumeShader.fragmentShader,
-        side: THREE.BackSide // The volume shader uses the backface as its "reference point"
-    } );
-
-
-    this._material.needsUpdate = true;
+    this._material.uniforms.uData.value = this._dataTexture;
+    this._material.uniforms.uSize.value.copy(this._stack.dimensionsIJK.clone());
   }
 
   private _prepareGeometry() {

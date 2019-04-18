@@ -100,7 +100,7 @@ void main(void) {
                 uTextureContainer,
                 uBitsAllocated,
                 uNumberOfChannels,
-                uInterpolation,
+                0,
                 uPackedPerPixel,
                 dataValue,
                 gradient
@@ -149,7 +149,7 @@ void main(void) {
             uTextureContainer,
             uBitsAllocated,
             uNumberOfChannels,
-            uInterpolation,
+            0,
             uPackedPerPixel,
             dataValue,
             gradient
