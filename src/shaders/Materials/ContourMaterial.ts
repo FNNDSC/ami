@@ -4,9 +4,7 @@ const vertSource1 = require('raw-loader!glslify-loader!../webgl1/default.vert').
 const fragmentSource1 = require('raw-loader!glslify-loader!../webgl1/contour.frag').default;
 
 const vertSource2 = require('raw-loader!glslify-loader!../webgl2/default.vert').default;
-const fragmentSource2 = require('raw-loader!glslify-loader!../qwbgl2/contour.frag').default;
-
-import glslify from 'glslify';
+const fragmentSource2 = require('raw-loader!glslify-loader!../webgl2/contour.frag').default;
 
 const THREE = (window as any).THREE;
 
