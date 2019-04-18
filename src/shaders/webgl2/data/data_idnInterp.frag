@@ -31,8 +31,10 @@ uniform float uThickness;
 uniform int uThicknessMethod;
 uniform int uPackedPerPixel;
 
-varying vec3 vPos;
-varying vec3 vNormal;
+in vec3 vPos;
+in vec3 vNormal;
+
+out vec4 fragColour;
 
 void main(void) {
     // DOES NEED REMOVAL
@@ -50,7 +52,7 @@ void main(void) {
         // ------------------------------------------------------------------
         if (valueY < uBorderDashLength && gl_FragCoord.y > uBorderMargin && gl_FragCoord.y < (uCanvasHeight - uBorderMargin)) 
         {
-            gl_FragColor = vec4(uBorderColor, 1.);
+            fragColor = vec4(uBorderColor, 1.);
             return;
         }
     }
@@ -70,7 +72,7 @@ void main(void) {
         // ------------------------------------------------------------------
         if(valueX < uBorderDashLength && gl_FragCoord.x > uBorderMargin && gl_FragCoord.x < (uCanvasWidth - uBorderMargin)) 
         {
-            gl_FragColor = vec4(uBorderColor, 1.);
+            fragColor = vec4(uBorderColor, 1.);
             return;
         }
     }
@@ -223,5 +225,5 @@ void main(void) {
     }
 
     dataValue.a = dataValue.a*uOpacity;
-    gl_FragColor = dataValue;
+    fragColor = dataValue;
 }
