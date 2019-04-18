@@ -3,44 +3,31 @@ import { Volume2Material } from "../shaders";
 
 const THREE = (window as any).THREE;
 
-interface THREEVolumeShaderUniforms {
-    u_data: {value:THREE.DataTexture3D},          // Data Texture
-    u_size: {value: THREE.Vector3},               // ivec3, stack sizes
-    u_clim: {value: THREE.Vector2},               // ivec2, window width/height
-    u_renderstyle: {value: number},               // MIP or ISO rendering
-    u_renderthreshold: {value: number},           // render threshold for ISO
-    u_cmdata: {value: THREE.Texture}              // LUT table
-}
-
 /**
  * This variant of the VolumeRenderHelper uses WebGL 2
  */
 export class VolumeRenderHelper2 extends BaseTHREEHelper {
-  //#region Variables 
-  private _volumeShader: any;
-  //#endregion
-
   //#region Getters
   get textureLUT(): THREE.Texture {
-    return this._material.uniforms.u_cmdata.value;
+    return this._material.uniforms.uLutTexture.value;
   }
   get windowWidth(): number {
-    return this._material.uniforms.u_clim.value.x
+    return this._material.uniforms.uClim.value.y
   }
   get windowCenter(): number {
-    return this._material.uniforms.u_clim.value.y
+    return this._material.uniforms.uClim.value.x
   }
   //#endregion
 
   //#region Setters 
   set textureLUT(value: THREE.Texture) {
-    this._material.uniforms.u_cmdata.value = value;
+    this._material.uniforms.uLutTexture.value = value;
   }
   set windowCenter(value: number) {
-    this._material.uniforms.u_clim.value.y = value;
+    //this._material.uniforms.uClim.value.x = value;
   }
   set windowWidth(value: number) {
-    this._material.uniforms.u_clim.value.x = value;
+    //this._material.uniforms.uClim.value.y = value;
   }
   //#endregion
 
@@ -51,13 +38,6 @@ export class VolumeRenderHelper2 extends BaseTHREEHelper {
   }
 
   protected _init() {
-    this._volumeShader = THREE.VolumeRenderShader1;
-    this._material = new THREE.ShaderMaterial( {
-      uniforms: this._volumeShader.uniforms,
-      vertexShader: this._volumeShader.vertexShader,
-      fragmentShader: this._volumeShader.fragmentShader,
-      side: THREE.BackSide // The volume shader uses the backface as its "reference point"
-  } );
     this._prepareStack();
     this._prepareTexture();
     this._prepareMaterial();
@@ -78,22 +58,37 @@ export class VolumeRenderHelper2 extends BaseTHREEHelper {
     if (!this._stack.packed) {
       this._stack.pack();
     }
-
-    (this._material.uniforms as unknown as THREEVolumeShaderUniforms).u_clim = new THREE.Vector2(this._stack.windowCenter, this._stack.windowWidth * 0.8); // multiply for better default visualization
   }
 
   private _prepareMaterial() {
+    let length = this._stack.rawData[0].length;
+    let f32A = new Float32Array(length);
+
+    for (let i = 0; i < length; i++) {
+      f32A[i] = this._stack.rawData[0][i] / 255.0;
+    }
+
     this._dataTexture = new THREE.DataTexture3D(
-        this._stack.rawData,
+        f32A,
         this._stack.dimensionsIJK.x,
         this._stack.dimensionsIJK.y,
         this._stack.dimensionsIJK.z
-    );
+    );				
+    this._dataTexture.format = THREE.RedFormat;
+    this._dataTexture.type = THREE.FloatType;
+    this._dataTexture.minFilter = THREE.LinearFilter;
+    this._dataTexture.magFilter = THREE.LinearFilter;
+    this._dataTexture.unpackAlignment = 1;
+    this._dataTexture.needsUpdate = true;
 
     this._material = Volume2Material.material;
 
     this._material.uniforms.uData.value = this._dataTexture;
     this._material.uniforms.uSize.value.copy(this._stack.dimensionsIJK.clone());
+    this._material.uniforms.uClim.value.set(
+      0.8,
+      0.8
+    );
   }
 
   private _prepareGeometry() {

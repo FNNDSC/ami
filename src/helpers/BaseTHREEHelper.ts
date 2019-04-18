@@ -12,8 +12,6 @@ export abstract class BaseTHREEHelper extends THREE.Object3D {
   protected _geometry = null;
   protected _mesh = null;
   protected _visible = true;
-
-  protected _isWebgl2 = false;
   //#endregion
 
   //#region Getters / Setters
