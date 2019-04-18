@@ -1,4 +1,4 @@
-#pragma glslify: interpolationTrilinear = require(../utility/interpolationTrilinear.glsl)
+#pragma glslify: interpolationTrilinear = require(./interpolationTrilinear.glsl)
 
 void getIntensityTri(
     in vec3 dataCoordinates, 

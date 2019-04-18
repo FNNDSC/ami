@@ -1,14 +1,13 @@
 import { MaterialUtils } from "./MaterialUtils";
 
-// import vertSource from 'raw-loader!glslify-loader!../glsl/default.vert';
-// import fragmentSource from 'raw-loader!glslify-loader!../glsl/volume.frag';
-const vertSource = require('raw-loader!glslify-loader!../glsl/default.vert').default;
-//const fragmentSource = require ('raw-loader!glslify-loader!../glsl/volume/volume.frag').default;
+const vertSource1 = require('raw-loader!glslify-loader!../webgl1/default.vert').default;
+const fragmentSourceIdn1 = require ('raw-loader!glslify-loader!../webgl1/volume/volume_idnInterp.frag').default;
+const fragmentSourceTri1 = require ('raw-loader!glslify-loader!../webgl1/volume/volume_triInterp.frag').default;
 
-const fragmentSourceIdnInterp = require ('raw-loader!glslify-loader!../glsl/volume/volume_idnInterp.frag').default;
-const fragmentSourceTriInterp = require ('raw-loader!glslify-loader!../glsl/volume/volume_triInterp.frag').default;
+const vertSource2 = require('raw-loader!glslify-loader!../webgl2/default.vert').default;
+const fragmentSourceIdn2 = require ('raw-loader!glslify-loader!../webgl2/volume/volume_idnInterp.frag').default;
+const fragmentSourceTri2 = require ('raw-loader!glslify-loader!../webgl2/volume/volume_triInterp.frag').default;
 
-import glslify from 'glslify';
 const THREE = (window as any).THREE;
 
 export interface VolumeUniforms {
@@ -70,11 +69,11 @@ export class VolumeMaterial {
      * will always return a mutable clone of the base version
      * of the shader
      */
-    private static _idnShaderMaterial: THREE.ShaderMaterial;
-    private static _triShaderMaterial: THREE.ShaderMaterial;
+    private static _idnMaterial1: THREE.ShaderMaterial;
+    private static _triMaterial1: THREE.ShaderMaterial;
 
-    private static _idnShaderMaterial2: THREE.ShaderMaterial;
-    private static _triShaderMaterial2: THREE.ShaderMaterial;
+    private static _idnMaterial2: THREE.ShaderMaterial;
+    private static _triMaterial2: THREE.ShaderMaterial;
 
     /**
      * Default Uniform values
@@ -143,55 +142,55 @@ export class VolumeMaterial {
         return VolumeMaterial._defaultUniforms;
     }
 
-    public static get idnInterpMaterial(): THREE.ShaderMaterial {
-        if (!VolumeMaterial._idnShaderMaterial) {
-            VolumeMaterial._idnShaderMaterial = new THREE.ShaderMaterial({
+    public static get idnMaterial1(): THREE.ShaderMaterial {
+        if (!VolumeMaterial._idnMaterial1) {
+            VolumeMaterial._idnMaterial1 = new THREE.ShaderMaterial({
                 side: THREE.BackSide,
                 transparent: true,
                 uniforms: this.defaultUniforms,
-                vertexShader: glslify(MaterialUtils.processSource(vertSource, false)),
-                fragmentShader: glslify(MaterialUtils.processSource(fragmentSourceIdnInterp, false)),
+                vertexShader: MaterialUtils.processSource(vertSource1),
+                fragmentShader: MaterialUtils.processSource(fragmentSourceIdn1),
             });
         }
-        return VolumeMaterial._idnShaderMaterial.clone();
+        return VolumeMaterial._idnMaterial1.clone();
     }
 
-    public static get triInterpMaterial(): THREE.ShaderMaterial {
-        if (!VolumeMaterial._triShaderMaterial) {
-            VolumeMaterial._triShaderMaterial = new THREE.ShaderMaterial({
+    public static get triMaterial1(): THREE.ShaderMaterial {
+        if (!VolumeMaterial._triMaterial1) {
+            VolumeMaterial._triMaterial1 = new THREE.ShaderMaterial({
                 side: THREE.BackSide,
                 transparent: true,
                 uniforms: this.defaultUniforms,
-                vertexShader: glslify(MaterialUtils.processSource(vertSource, false)),
-                fragmentShader: glslify(MaterialUtils.processSource(fragmentSourceTriInterp, false)),
+                vertexShader: MaterialUtils.processSource(vertSource1),
+                fragmentShader: MaterialUtils.processSource(fragmentSourceTri1),
             });
         }
-        return VolumeMaterial._triShaderMaterial.clone();
+        return VolumeMaterial._triMaterial1.clone();
     }
 
-    public static get idnInterpMaterial2(): THREE.ShaderMaterial {
-        if (!VolumeMaterial._idnShaderMaterial2) {
-            VolumeMaterial._idnShaderMaterial2 = new THREE.ShaderMaterial({
+    public static get idnMaterial2(): THREE.ShaderMaterial {
+        if (!VolumeMaterial._idnMaterial2) {
+            VolumeMaterial._idnMaterial2 = new THREE.ShaderMaterial({
                 side: THREE.BackSide,
                 transparent: true,
                 uniforms: this.defaultUniforms,
-                vertexShader: glslify(MaterialUtils.processSource(vertSource, true)),
-                fragmentShader: glslify(MaterialUtils.processSource(fragmentSourceIdnInterp, true)),
+                vertexShader: MaterialUtils.processSource(vertSource2),
+                fragmentShader: MaterialUtils.processSource(fragmentSourceIdn2),
             });
         }
-        return VolumeMaterial._idnShaderMaterial2.clone();
+        return VolumeMaterial._idnMaterial2.clone();
     }
 
-    public static get triInterpMaterial2(): THREE.ShaderMaterial {
-        if (!VolumeMaterial._triShaderMaterial2) {
-            VolumeMaterial._triShaderMaterial2 = new THREE.ShaderMaterial({
+    public static get triMaterial2(): THREE.ShaderMaterial {
+        if (!VolumeMaterial._triMaterial2) {
+            VolumeMaterial._triMaterial2 = new THREE.ShaderMaterial({
                 side: THREE.BackSide,
                 transparent: true,
                 uniforms: this.defaultUniforms,
-                vertexShader: glslify(MaterialUtils.processSource(vertSource, true)),
-                fragmentShader: glslify(MaterialUtils.processSource(fragmentSourceTriInterp, true)),
+                vertexShader: MaterialUtils.processSource(vertSource2),
+                fragmentShader: MaterialUtils.processSource(fragmentSourceTri2),
             });
         }
-        return VolumeMaterial._triShaderMaterial2.clone();
+        return VolumeMaterial._triMaterial2.clone();
     }
 }

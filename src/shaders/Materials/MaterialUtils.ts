@@ -1,14 +1,8 @@
+import glslify from 'glslify';
 export class MaterialUtils {
-    static processSource(source: string, isWebGl2: boolean): string {
+    static processSource(source: string): string {
         let output = source.split(/"/)[1].normalize().replace(/(\\r)/gm, "").replace(/(\\n)/gm, "\n ");
-        let res;
-
-        if (isWebGl2) {
-            res = "#version 300 es \n" + output;
-        }
-        else {
-            res = output;
-        }
+        let res = glslify(output);
 
         return res;
     }

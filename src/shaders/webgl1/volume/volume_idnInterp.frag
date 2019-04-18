@@ -1,8 +1,8 @@
-#pragma glslify: intersectsBox = require(../utility/intersectsBox.glsl)
-#pragma glslify: getIntensityIdn = require(./getIntensityIdn.glsl)
-#pragma glslify: invertMat4 = require(../utility/invertMat4.glsl)
-#pragma glslify: AMIphong = require(../utility/AMIphong.glsl)
-#pragma glslify: highpRandF32 = require(../utility/highpRandF32.glsl)
+#pragma glslify: intersectsBox = require(../../utility/intersectsBox.glsl)
+#pragma glslify: getIntensityIdn = require(../../utility/getIntensityIdn.glsl)
+#pragma glslify: invertMat4 = require(../../utility/invertMat4.glsl)
+#pragma glslify: AMIphong = require(../../utility/AMIphong.glsl)
+#pragma glslify: highpRandF32 = require(../../utility/highpRandF32.glsl)
 
 const int MAX_STEPS = 1024;
 const float EPSILON = 0.0000152587;
@@ -33,24 +33,12 @@ uniform float uShininess;
 uniform vec3 upositionBeingLit;
 uniform int upositionBeingLitInCamera;
 uniform vec3 uIntensity;
-// uniform int uStepsPerFrame;
-// uniform int uStepsSinceChange;
 
 varying vec4 vPos;
 varying mat4 vProjectionViewMatrix;
 varying vec4 vProjectedCoords;
 
 void main(void) {
-  // // If we've reached the maximum accumulation, return
-  // if (uStepsSinceChange >= uSteps) {
-  //   return
-  // }
-
-  // // If we're on the first frame since a change, reset the frag colour
-  // if (uStepsSinceChange == 0) {
-  //   gl_FragColor = vec4(0.)
-  // }
-
   vec3 rayOrigin = cameraPosition;
   vec3 rayDirection = normalize(vPos.xyz - rayOrigin);
 
@@ -81,6 +69,7 @@ void main(void) {
   float tCurrent = tNear + offset * tStep;
   vec4 accumulatedColor = vec4(0.0);
   float accumulatedAlpha = 0.0;
+
   // MIP volume rendering
   float maxIntensity = 0.0;
   mat4 dataToWorld = invertMat4(uWorldToData);
@@ -90,8 +79,8 @@ void main(void) {
     vec3 transformedPosition = currentPosition;
     vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);
     vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);
-
     float intensity = 0.0;
+
     getIntensityIdn(
       currentVoxel, 
       uPixelType,

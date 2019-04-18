@@ -13,7 +13,7 @@ void AMItexture3D(
     int index = dataCoordinates.x + dataCoordinates.y * uDataDimensions.x + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;
 
     // Nick: Nicolas can you give me some insight on what you'd like to do here?
-    // ---------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
     // dividing an integer by an integer will give you an integer result, 
     // rounded down can not get float numbers to work :(
     int packedIndex = index/uPackedPerPixel;

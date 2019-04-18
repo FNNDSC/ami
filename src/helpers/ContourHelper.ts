@@ -1,9 +1,9 @@
 import { ContourMaterial } from "../shaders";
-import { BaseTHREEHelper } from "./BaseTHREEHelper";
+import { WebGlHelper } from "./WebGlHelper";
 
 const THREE = (window as any).THREE;
 
-export class ContourHelper extends BaseTHREEHelper {
+export class ContourHelper extends WebGlHelper {
   //#region Variables
   private _textureToFilter;
   private _contourOpacity;
@@ -12,61 +12,55 @@ export class ContourHelper extends BaseTHREEHelper {
   private _canvasHeight;
   //#endregion
 
-
-  //#region Getters / Setters
+  //#region Getters 
   get textureToFilter() {
     return this._textureToFilter;
-  }
-  // tslint:disable-next-line:typedef
-  set textureToFilter(texture) {
-    this._textureToFilter = texture;
-    //this._shader._FragUniforms.uTextureFilled.value = texture;
-    this._material.uniforms.uTextureFilled = texture;
-    this._material.needsUpdate = true;
   }
   get contourOpacity() {
     return this._contourOpacity;
   }
-  // tslint:disable-next-line:typedef
-  set contourOpacity(contourOpacity) {
-    this._contourOpacity = contourOpacity;
-    this._material.uniforms.uOpacity = this._contourOpacity;
-  }
   get contourWidth() {
     return this._contourWidth;
-  }
-  // tslint:disable-next-line:typedef
-  set contourWidth(contourWidth) {
-    this._contourWidth = contourWidth;
-    this._material.uniforms.uWidth.value = this._contourWidth;
   }
   get canvasWidth() {
     return this._canvasWidth;
   }
-  // tslint:disable-next-line:typedef
-  set canvasWidth(canvasWidth) {
-    this._canvasWidth = canvasWidth;
-    this._material.uniforms.uCanvasWidth = this._canvasWidth;
-  }
   get canvasHeight() {
     return this._canvasHeight;
   }
-  // tslint:disable-next-line:typedef
-  set canvasHeight(canvasHeight) {
+  //#endregion
+
+  //#region Setters
+  set textureToFilter(texture: THREE.Texture) {
+    this._textureToFilter = texture;
+    this._material.uniforms.uTextureFilled.value = texture;
+  }
+  set contourOpacity(contourOpacity: number) {
+    this._contourOpacity = contourOpacity;
+    this._material.uniforms.uOpacity.value = this._contourOpacity;
+  }
+  set contourWidth(contourWidth: number) {
+    this._contourWidth = contourWidth;
+    this._material.uniforms.uWidth.value = this._contourWidth;
+  }
+  set canvasWidth(canvasWidth: number) {
+    this._canvasWidth = canvasWidth;
+    this._material.uniforms.uCanvasWidth.value = this._canvasWidth;
+  }
+  set canvasHeight(canvasHeight: number) {
     this._canvasHeight = canvasHeight;
-    this._material.uniforms.uCanvasHeight = this._canvasHeight;
+    this._material.uniforms.uCanvasHeight.value = this._canvasHeight;
   }
   //#endregion
 
-  // tslint:disable-next-line:typedef
-  constructor(stack, isWebGl2, geometry, texture) {
+  constructor(stack: any, isWebGl2: boolean, geometry: any, texture: THREE.Texture) {
     super(stack, isWebGl2);
 
     if (this._isWebgl2) {
       this._material = ContourMaterial.shaderMaterial2;
     }
     else {
-      this._material = ContourMaterial.shaderMaterial;
+      this._material = ContourMaterial.shaderMaterial1;
     }
 
     this._textureToFilter = texture;
@@ -81,10 +75,10 @@ export class ContourHelper extends BaseTHREEHelper {
   }
 
   protected _init() {
-    this._material.uniforms.uWidth = this._contourWidth;
-    this._material.uniforms.uOpacity = this._contourOpacity;
-    this._material.uniforms.uCanvasWidth = this._canvasWidth;
-    this._material.uniforms.uCanvasHeight = this._canvasHeight;
+    this._material.uniforms.uWidth.value = this._contourWidth;
+    this._material.uniforms.uOpacity.value = this._contourOpacity;
+    this._material.uniforms.uCanvasWidth.value = this._canvasWidth;
+    this._material.uniforms.uCanvasHeight.value = this._canvasHeight;
     this._material.needsUpdate = true;
   }
 
@@ -106,7 +100,6 @@ export class ContourHelper extends BaseTHREEHelper {
   }
 
   public dispose() {
-    //
     if (this._textureToFilter !== null) {
       this._textureToFilter.dispose();
       this._textureToFilter = null;
@@ -121,9 +114,6 @@ export class ContourHelper extends BaseTHREEHelper {
 
     this._geometry.dispose();
     this._geometry = null;
-    this._material.vertexShader = null;
-    this._material.fragmentShader = null;
-    this._material.uniforms = null;
     this._material.dispose();
     this._material = null;
 

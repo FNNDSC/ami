@@ -6,7 +6,7 @@ void intersectsBox(
     out float tNear, 
     out float tFar, 
     out bool intersect
-){
+) {
     // compute intersection of ray with all six bbox planes
     vec3 invRay = vec3(1.) / rayDirection;
     vec3 tBot = invRay * (boxMin - rayOrigin);

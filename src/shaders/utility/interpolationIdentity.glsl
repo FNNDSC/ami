@@ -11,7 +11,7 @@ void interpolationIdentity(
     in int uNumberOfChannels,
     in int uPackedPerPixel,
     out vec4 dataValue
-){
+) {
     // lower bound
     vec3 rcurrentVoxel = vec3(floor(currentVoxel.x + 0.5 ), floor(currentVoxel.y + 0.5 ), floor(currentVoxel.z + 0.5 ));
     ivec3 flooredVoxel = ivec3(int(rcurrentVoxel.x), int(rcurrentVoxel.y), int(rcurrentVoxel.z));

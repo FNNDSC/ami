@@ -1,10 +1,10 @@
 import { MaterialUtils } from "./MaterialUtils";
 
-// TODO: Why won't webpack & typescript play nicely with these?
-// import vertSource from 'raw-loader!glslify-loader!../glsl/default.vert';
-// import fragmentSource from 'raw-loader!glslify-loader!../glsl/contour.frag';
-const vertSource = require('raw-loader!glslify-loader!../glsl/default.vert').default;
-const fragmentSource = require('raw-loader!glslify-loader!../glsl/contour.frag').default;
+const vertSource1 = require('raw-loader!glslify-loader!../webgl1/default.vert').default;
+const fragmentSource1 = require('raw-loader!glslify-loader!../webgl1/contour.frag').default;
+
+const vertSource2 = require('raw-loader!glslify-loader!../webgl2/default.vert').default;
+const fragmentSource2 = require('raw-loader!glslify-loader!../qwbgl2/contour.frag').default;
 
 import glslify from 'glslify';
 
@@ -60,13 +60,13 @@ export class ContourMaterial {
         return ContourMaterial._defaultUniforms;
     }
 
-    public static get shaderMaterial(): THREE.ShaderMaterial {
+    public static get shaderMaterial1(): THREE.ShaderMaterial {
         if (!ContourMaterial._shaderMaterial) {
             ContourMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: glslify(MaterialUtils.processSource(vertSource, false)),
-                fragmentShader: glslify(MaterialUtils.processSource(fragmentSource, false)),
+                vertexShader: MaterialUtils.processSource(vertSource1),
+                fragmentShader: MaterialUtils.processSource(fragmentSource1),
                 transparent: true,
             });
         }
@@ -78,8 +78,8 @@ export class ContourMaterial {
             ContourMaterial._shaderMaterial2 = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: glslify(MaterialUtils.processSource(vertSource, true)),
-                fragmentShader: glslify(MaterialUtils.processSource(fragmentSource, true)),
+                vertexShader: MaterialUtils.processSource(vertSource2),
+                fragmentShader: MaterialUtils.processSource(fragmentSource2),
                 transparent: true,
             });
         }

@@ -1,8 +1,10 @@
-#pragma glslify: intersectsBox = require(../utility/intersectsBox.glsl)
-#pragma glslify: getIntensityTri = require(./getIntensityTri.glsl)
-#pragma glslify: invertMat4 = require(../utility/invertMat4.glsl)
-#pragma glslify: AMIphong = require(../utility/AMIphong.glsl)
-#pragma glslify: highpRandF32 = require(../utility/highpRandF32.glsl)
+#version 300 es
+
+#pragma glslify: intersectsBox = require(../../utility/intersectsBox.glsl)
+#pragma glslify: getIntensityIdn = require(../../utility/getIntensityIdn.glsl)
+#pragma glslify: invertMat4 = require(../../utility/invertMat4.glsl)
+#pragma glslify: AMIphong = require(../../utility/AMIphong.glsl)
+#pragma glslify: highpRandF32 = require(../../utility/highpRandF32.glsl)
 
 const int MAX_STEPS = 1024;
 const float EPSILON = 0.0000152587;
@@ -33,24 +35,14 @@ uniform float uShininess;
 uniform vec3 upositionBeingLit;
 uniform int upositionBeingLitInCamera;
 uniform vec3 uIntensity;
-// uniform int uStepsPerFrame;
-// uniform int uStepsSinceChange;
 
-varying vec4 vPos;
-varying mat4 vProjectionViewMatrix;
-varying vec4 vProjectedCoords;
+in vec4 vPos;
+in mat4 vProjectionViewMatrix;
+in vec4 vProjectedCoords;
+
+out vec4 fragColour;
 
 void main(void) {
-  // // If we've reached the maximum accumulation, return
-  // if (uStepsSinceChange >= uSteps) {
-  //   return
-  // }
-
-  // // If we're on the first frame since a change, reset the frag colour
-  // if (uStepsSinceChange == 0) {
-  //   gl_FragColor = vec4(0.)
-  // }
-
   vec3 rayOrigin = cameraPosition;
   vec3 rayDirection = normalize(vPos.xyz - rayOrigin);
 
@@ -84,7 +76,6 @@ void main(void) {
 
   // MIP volume rendering
   float maxIntensity = 0.0;
-
   mat4 dataToWorld = invertMat4(uWorldToData);
 
   for(int i = 0; i < uSteps; i++){
@@ -92,11 +83,9 @@ void main(void) {
     vec3 transformedPosition = currentPosition;
     vec4 dataCoordinatesRaw = uWorldToData * vec4(transformedPosition, 1.0);
     vec3 currentVoxel = vec3(dataCoordinatesRaw.x, dataCoordinatesRaw.y, dataCoordinatesRaw.z);
-
     float intensity = 0.0;
-    vec3 gradient = vec3(0., 0., 0.);
-    
-    getIntensityTri(
+
+    getIntensityIdn(
       currentVoxel, 
       uPixelType,
       uTextureSize,
@@ -108,39 +97,20 @@ void main(void) {
       uRescaleSlopeIntercept,
       uWindowCenterWidth;
       intensity, 
-      gradient
     );
 
     // map gradient to world space and normalize before using
+    // we avoid to call normalize as it may be undefined if vector length == 0.
+    vec3 gradient = vec3(0., 0., 0.);
     gradient = (vec3(dataToWorld * vec4(gradient, 0.)));
     gradient = normalize(gradient + EPSILON);
 
     vec4 colorSample;
     float alphaSample;
 
-    vec4 colorFromLUT = texture2D(uTextureLUT, vec2( intensity, 1.0));
+    vec4 colorFromLUT = texture(uTextureLUT, vec2( intensity, 1.0));
     alphaSample = colorFromLUT.a;
     colorSample = colorFromLUT;
-
-    vec3 ambientComponent = uSampleColorToAmbient == 1 ? colorSample.xyz : uAmbientColor;
-    ambientComponent *= uAmbient;
-    vec3 diffuseComponent = uSampleColorToDiffuse == 1 ? colorSample.xyz : uDiffuseColor;
-    diffuseComponent *= uDiffuse;
-    vec3 specularComponent = uSpecular * uSpecularColor;
-    float shininess = uShininess;
-    vec3 vIntensity = uIntensity;
-
-    colorSample.xyz += AMIphong(
-        ambientComponent,
-        diffuseComponent,
-        specularComponent,
-        shininess,
-        currentPosition.xyz,
-        rayOrigin.xyz,
-        lightOrigin.xyz,
-        vIntensity,
-        gradient
-    );
 
     alphaSample = 1.0 - pow((1.0- alphaSample),tStep*uAlphaCorrection);
     alphaSample *= (1.0 - accumulatedAlpha);
@@ -153,5 +123,5 @@ void main(void) {
     if (tCurrent > tFar || accumulatedAlpha >= 1.0) break;
   }
 
-  gl_FragColor = vec4(accumulatedColor.xyz, accumulatedAlpha);
+  fragColour = vec4(accumulatedColor.xyz, accumulatedAlpha);
 }

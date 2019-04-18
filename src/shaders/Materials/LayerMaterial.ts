@@ -1,10 +1,11 @@
 import { MaterialUtils } from "./MaterialUtils";
 
-// import vertSource from 'raw-loader!glslify-loader!../glsl/default.vert';
-// import fragmentSource from 'raw-loader!glslify-loader!../glsl/layer.frag';
-const vertSource = require('raw-loader!glslify-loader!../glsl/default.vert').default;
-const fragmentSource = require('raw-loader!glslify-loader!../glsl/layer.frag').default;
-import glslify from 'glslify';
+const vertSource1 = require('raw-loader!glslify-loader!../webgl1/default.vert').default;
+const fragmentSource1 = require('raw-loader!glslify-loader!../webgl1/layer.frag').default;
+
+const vertSource2 = require('raw-loader!glslify-loader!../webgl2/default.vert').default;
+const fragmentSource2 = require('raw-loader!glslify-loader!../webgl2/layer.frag').default;
+
 const THREE = (window as any).THREE;
 
 /**
@@ -53,13 +54,13 @@ export class LayerMaterial {
         return LayerMaterial._defaultUniforms;
     }
 
-    public static get shaderMaterial(): THREE.ShaderMaterial {
+    public static get shaderMaterial1(): THREE.ShaderMaterial {
         if (!LayerMaterial._shaderMaterial) {
             LayerMaterial._shaderMaterial = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: glslify(MaterialUtils.processSource(vertSource, false)),
-                fragmentShader: glslify(MaterialUtils.processSource(fragmentSource, false)),
+                vertexShader: MaterialUtils.processSource(vertSource1),
+                fragmentShader: MaterialUtils.processSource(fragmentSource1),
                 transparent: true,
             });
         }
@@ -71,8 +72,8 @@ export class LayerMaterial {
             LayerMaterial._shaderMaterial2 = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: glslify(MaterialUtils.processSource(vertSource, true)),
-                fragmentShader: glslify(MaterialUtils.processSource(fragmentSource, true)),
+                vertexShader: MaterialUtils.processSource(vertSource2),
+                fragmentShader: MaterialUtils.processSource(fragmentSource2),
                 transparent: true,
             });
         }

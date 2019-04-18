@@ -36,6 +36,7 @@ void getIntensity(
 
   // rescale/slope
   intensity = intensity*uRescaleSlopeIntercept[0] + uRescaleSlopeIntercept[1];
+  
   // window level
   float windowMin = uWindowCenterWidth[0] - uWindowCenterWidth[1] * 0.5;
   intensity = ( intensity - windowMin ) / uWindowCenterWidth[1];

@@ -50,12 +50,10 @@ export abstract class BaseTHREEHelper extends THREE.Object3D {
   }
   //#endregion
 
-  // tslint:disable-next-line:typedef
-  constructor(stack, isWebgl2) {
+  constructor(stack: any) {
     super();
 
     this._stack = stack;
-    this._isWebgl2 = isWebgl2;
   }
 
   public hasUniforms() {

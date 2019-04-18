@@ -1,10 +1,10 @@
  
 import { VolumeMaterial } from '../shaders';
-import { BaseTHREEHelper } from "./BaseTHREEHelper";
+import { WebGlHelper } from './WebGlHelper';
 
 const THREE = (window as any).THREE;
 
-export class VolumeRenderHelper extends BaseTHREEHelper {
+export class VolumeRenderHelper extends WebGlHelper {
   //#region Variables 
   // ray marching
   // private _algorithm: number = 0;
@@ -106,13 +106,23 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
     this._interpolation = interpolation;
 
     if (interpolation === 0) {
-      this._material = VolumeMaterial.idnInterpMaterial;
-      this._prepareMaterial();
+      if (this._isWebgl2) {
+        this._material = VolumeMaterial.idnMaterial2;
+      }
+      else {
+        this._material = VolumeMaterial.idnMaterial1;
+      }
     }
     else {
-      this._material = VolumeMaterial.triInterpMaterial;
-      this._prepareMaterial();
+      if (this._isWebgl2) {
+        this._material = VolumeMaterial.triMaterial2;
+      }
+      else {
+        this._material = VolumeMaterial.triMaterial1;
+      }
     }
+
+    this._prepareMaterial();
   }
   // set shading(shading: number) {
   //   this._shading = shading;
@@ -134,17 +144,17 @@ export class VolumeRenderHelper extends BaseTHREEHelper {
     super(stack, isWebGl2);
     this._init();
     this._create();
-    (this as unknown as THREE.Object3D).onAfterRender = ((r, s, c, g, m, gr) => {
-      this.incrementStepsSinceChange();
-    })
+    // (this as unknown as THREE.Object3D).onAfterRender = ((r, s, c, g, m, gr) => {
+    //   this.incrementStepsSinceChange();
+    // })
   }
 
   protected _init() {
     if (this._isWebgl2) {
-      this._material = VolumeMaterial.triInterpMaterial2;
+      this._material = VolumeMaterial.triMaterial2;
     }
     else {
-      this._material = VolumeMaterial.triInterpMaterial;
+      this._material = VolumeMaterial.triMaterial1;
     }
     this._prepareStack();
     this._prepareTexture();

@@ -1,10 +1,10 @@
 import { SliceGeometry } from '../geometries';
-import { BaseTHREEHelper } from './BaseTHREEHelper';
 import { DataMaterial } from '../shaders';
+import { WebGlHelper } from './WebGlHelper';
 
 const THREE = (window as any).THREE;
 
-export class SliceHelper extends BaseTHREEHelper {
+export class SliceHelper extends WebGlHelper {
   //#region Variables
   // image settings
   // index only used to grab window/level and intercept/slope
@@ -43,208 +43,204 @@ export class SliceHelper extends BaseTHREEHelper {
   private _toAABB: THREE.Matrix4; 
   //#endregion
 
-  //#region Getters / Setters
-  // tslint:disable-next-line:typedef
-  set windowWidth(windowWidth) {
-    this._windowWidth = windowWidth;
-    this.UpdateIntensitySettingsUniforms();
-  }
-  // tslint:disable-next-line:typedef
-  set windowCenter(windowCenter) {
-    this._windowCenter = windowCenter;
-    this.UpdateIntensitySettingsUniforms();
-  }
-  // tslint:disable-next-line:typedef
-  set interpolation(interpolation) {
-    this._interpolation = interpolation;
-    this.UpdateIntensitySettingsUniforms();
-    this._material.needsUpdate = true;
-  }
-
+  //#region Getters
   get spacing() {
     return this._spacing;
-  }
-  // tslint:disable-next-line:typedef
-  set spacing(spacing) {
-    this._spacing = spacing;
-    this._material.uniforms.uSpacing.value = this._spacing;
   }
   get thickness() {
     return this._thickness;
   }
-  // tslint:disable-next-line:typedef
-  set thickness(thickness) {
-    this._thickness = thickness;
-    this._material.uniforms.uThickness.value = this._thickness;
-  }
   get thicknessMethod() {
     return this._thicknessMethod;
-  }
-  // tslint:disable-next-line:typedef
-  set thicknessMethod(thicknessMethod) {
-    this._thicknessMethod = thicknessMethod;
-    this._material.uniforms.uThicknessMethod.value = this._thicknessMethod;
   }
   get opacity() {
     return this._opacity;
   }
-  // tslint:disable-next-line:typedef
-  set opacity(opacity) {
-    this._opacity = opacity;
-    this.UpdateIntensitySettingsUniforms();
-  }
-  // adding thresholding method
   get upperThreshold() {
     return this._upperThreshold;
-  }
-  // tslint:disable-next-line:typedef
-  set upperThreshold(upperThreshold) {
-    this._upperThreshold = upperThreshold;
-    this.UpdateIntensitySettingsUniforms();
   }
   get lowerThreshold() {
     return this._lowerThreshold;
   }
-  // tslint:disable-next-line:typedef
-  set lowerThreshold(lowerThreshold) {
-    this._lowerThreshold = lowerThreshold;
-    this.UpdateIntensitySettingsUniforms();
-  }
   get rescaleSlope() {
     return this._rescaleSlope;
-  }
-  // tslint:disable-next-line:typedef
-  set rescaleSlope(rescaleSlope) {
-    this._rescaleSlope = rescaleSlope;
-    this.UpdateIntensitySettingsUniforms();
   }
   get rescaleIntercept() {
     return this._rescaleIntercept;
   }
-  // tslint:disable-next-line:typedef
-  set rescaleIntercept(rescaleIntercept) {
-    this._rescaleIntercept = rescaleIntercept;
-    this.UpdateIntensitySettingsUniforms();
-  }
   get invert() {
     return this._invert;
-  }
-  // tslint:disable-next-line:typedef
-  set invert(invert) {
-    this._invert = invert;
-    this.UpdateIntensitySettingsUniforms();
   }
   get lut() {
     return this._lut;
   }
-  // tslint:disable-next-line:typedef
-  set lut(lut) {
-    this._lut = lut;
-  }
   get lutTexture() {
     return this._lutTexture;
-  }
-  // tslint:disable-next-line:typedef
-  set lutTexture(lutTexture) {
-    this._lutTexture = lutTexture;
-    this.UpdateIntensitySettingsUniforms();
-  }
-  get intensityAuto() {
-    return this._intensityAuto;
-  }
-  // tslint:disable-next-line:typedef
-  set intensityAuto(intensityAuto) {
-    this._intensityAuto = intensityAuto;
-    this.UpdateIntensitySettings();
-    this.UpdateIntensitySettingsUniforms();
   }
   get index() {
     return this._index;
   }
-  // tslint:disable-next-line:typedef
-  set index(index) {
-    this._index = index;
-    this._update();
+  get intensityAuto() {
+    return this._intensityAuto;
   }
   get planePosition() {
     return this._planePosition;
   }
-  // tslint:disable-next-line:typedef
-  set planePosition(position) {
-    this._planePosition = position;
-    this._update();
-  }
   get planeDirection() {
     return this._planeDirection;
-  }
-  // tslint:disable-next-line:typedef
-  set planeDirection(direction) {
-    this._planeDirection = direction;
-    this._update();
   }
   get halfDimensions() {
     return this._halfDimensions;
   }
-  // tslint:disable-next-line:typedef
-  set halfDimensions(halfDimensions) {
-    this._halfDimensions = halfDimensions;
-  }
   get center() {
     return this._center;
-  }
-  // tslint:disable-next-line:typedef
-  set center(center) {
-    this._center = center;
   }
   get aabbSpace() {
     return this._aaBBspace;
   }
-  // tslint:disable-next-line:typedef
-  set aabbSpace(aabbSpace) {
-    this._aaBBspace = aabbSpace;
-    this._init();
-  }
   get canvasWidth() {
     return this._canvasWidth;
-  }
-  // tslint:disable-next-line:typedef
-  set canvasWidth(canvasWidth) {
-    this._canvasWidth = canvasWidth;
-    this._material.uniforms.uCanvasWidth.value = this._canvasWidth;
   }
   get canvasHeight() {
     return this._canvasHeight;
   }
-  // tslint:disable-next-line:typedef
-  set canvasHeight(canvasHeight) {
-    this._canvasHeight = canvasHeight;
-    this._material.uniforms.uCanvasHeight.value = this._canvasHeight;
-  }
   get borderColor() {
     return this._borderColor;
   }
-  // tslint:disable-next-line:typedef
-  set borderColor(borderColor) {
+  //#endregion
+
+  //#region Setters
+  set windowWidth(windowWidth: number) {
+    this._windowWidth = windowWidth;
+    this.UpdateIntensitySettingsUniforms();
+  }
+  set windowCenter(windowCenter: number) {
+    this._windowCenter = windowCenter;
+    this.UpdateIntensitySettingsUniforms();
+  }
+  set interpolation(interpolation: number) {
+    this._interpolation = interpolation;
+    
+    if (this._interpolation === 1) {
+      if (this._isWebgl2) {
+        this._material = DataMaterial.triMaterial2;
+      }
+      else {
+        this._material = DataMaterial.triMaterial1;
+      }
+    }
+    else {
+      if (this._isWebgl2) {
+        this._material = DataMaterial.idnMaterial2;
+      }
+      else {
+        this._material = DataMaterial.idnMaterial1;
+      }
+    }
+    this.UpdateIntensitySettingsUniforms();
+    this._prepareMaterial();
+  }
+  set spacing(spacing: number) {
+    this._spacing = spacing;
+    this._material.uniforms.uSpacing.value = this._spacing;
+  }
+  set thickness(thickness: number) {
+    this._thickness = thickness;
+    this._material.uniforms.uThickness.value = this._thickness;
+  }
+  set thicknessMethod(thicknessMethod: number) {
+    this._thicknessMethod = thicknessMethod;
+    this._material.uniforms.uThicknessMethod.value = this._thicknessMethod;
+  }
+  set opacity(opacity: number) {
+    this._opacity = opacity;
+    this.UpdateIntensitySettingsUniforms();
+  }
+  set upperThreshold(upperThreshold: number) {
+    this._upperThreshold = upperThreshold;
+    this.UpdateIntensitySettingsUniforms();
+  }
+  set lowerThreshold(lowerThreshold: number) {
+    this._lowerThreshold = lowerThreshold;
+    this.UpdateIntensitySettingsUniforms();
+  }
+  set rescaleSlope(rescaleSlope: any) {
+    this._rescaleSlope = rescaleSlope;
+    this.UpdateIntensitySettingsUniforms();
+  }
+  set rescaleIntercept(rescaleIntercept: any) {
+    this._rescaleIntercept = rescaleIntercept;
+    this.UpdateIntensitySettingsUniforms();
+  }
+  set invert(invert: number) {
+    this._invert = invert;
+    this.UpdateIntensitySettingsUniforms();
+  }
+  set lut(lut: string) {
+    this._lut = lut;
+  }
+  set lutTexture(lutTexture: THREE.Texture) {
+    this._lutTexture = lutTexture;
+    this.UpdateIntensitySettingsUniforms();
+  }
+  set intensityAuto(intensityAuto: any) {
+    this._intensityAuto = intensityAuto;
+    this.UpdateIntensitySettings();
+    this.UpdateIntensitySettingsUniforms();
+  }
+  set index(index: number) {
+    this._index = index;
+    this._update();
+  }
+  set planePosition(position: any) {
+    this._planePosition = position;
+    this._update();
+  }
+  set planeDirection(direction: any) {
+    this._planeDirection = direction;
+    this._update();
+  }
+  set halfDimensions(halfDimensions: any) {
+    this._halfDimensions = halfDimensions;
+  }
+  set center(center: any) {
+    this._center = center;
+  }
+  set aabbSpace(aabbSpace: any) {
+    this._aaBBspace = aabbSpace;
+    this._init();
+  }
+  set canvasWidth(canvasWidth: number) {
+    this._canvasWidth = canvasWidth;
+    this._material.uniforms.uCanvasWidth.value = this._canvasWidth;
+  }
+  set canvasHeight(canvasHeight: number) {
+    this._canvasHeight = canvasHeight;
+    this._material.uniforms.uCanvasHeight.value = this._canvasHeight;
+  }
+  set borderColor(borderColor: any) {
     this._borderColor = borderColor;
     this._material.uniforms.uBorderColor.value = new THREE.Color(borderColor);
   }
   //#endregion
   
   constructor(
-    // tslint:disable-next-line:typedef
-    stack, isWebGl2, index: number = 0, 
+    stack: any, 
+    isWebGl2: boolean, 
+    index: number = 0, 
     position: THREE.Vector3 = new THREE.Vector3(0, 0, 0), 
     direction: THREE.Vector3 = new THREE.Vector3(0, 0, 1),
-    // tslint:disable-next-line:typedef
-    aabbSpace = 'IJK'
+    aabbSpace: string = 'IJK'
   ) {
     super(stack, isWebGl2);
+    
     if (this._isWebgl2) {
-      this._material = DataMaterial.shaderMaterial2;
+      this._material = DataMaterial.triMaterial2;
     }
     else {
-      this._material = DataMaterial.shaderMaterial;
+      this._material = DataMaterial.triMaterial1;
     }
+
     this._invert = this._stack.invert;
     this._index = index;
     this._planePosition = position;
@@ -298,26 +294,26 @@ export class SliceHelper extends BaseTHREEHelper {
     // compute texture if material exist
     this._prepareTexture();
     this._material.uniforms.uTextureContainer.value = this._textures;
-    if (this._stack.textureUnits > 8) {
-      this._material.uniforms.uTextureContainer = { value: [
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture(),
-            new THREE.Texture()
-        ]};
+    // if (this._stack.textureUnits > 8) {
+    //   this._material.uniforms.uTextureContainer = { value: [
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture(),
+    //         new THREE.Texture()
+    //     ]};
 
-      this._material.needsUpdate = true;
-    }
+    //   this._material.needsUpdate = true;
+    // }
   }
 
   protected _create() {
@@ -398,7 +394,7 @@ export class SliceHelper extends BaseTHREEHelper {
     // invert
     this._material.uniforms.uInvert.value = this._invert === true ? 1 : 0;
     // interpolation
-    this._material.uniforms.uInterpolation.value = this._interpolation;
+    // this._material.uniforms.uInterpolation.value = this._interpolation;
     // lut
     if (this._lut === 'none') {
       this._material.uniforms.uLut.value = 0;
@@ -408,8 +404,7 @@ export class SliceHelper extends BaseTHREEHelper {
       this._material.uniforms.uTextureLUT.value = this._lutTexture;
     }
   }
-  // tslint:disable-next-line:typedef
-  public UpdateIntensitySetting(setting) {
+  public UpdateIntensitySetting(setting: any) {
     if (this._stack.frame[this._index] && this._stack.frame[this._index][setting]) {
       this['_' + setting] = this._stack.frame[this._index][setting];
     }

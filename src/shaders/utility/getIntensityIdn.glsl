@@ -1,4 +1,4 @@
-#pragma glslify: interpolationIdentity = require(../utility/interpolationIdentity.glsl)
+#pragma glslify: interpolationIdentity = require(./interpolationIdentity.glsl)
 
 void getIntensityIdn(
     in vec3 dataCoordinates, 

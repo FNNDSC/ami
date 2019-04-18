@@ -1,4 +1,6 @@
-#pragma glslify: intersectionProjection = require(./utility/intersectionProjection.glsl)
+#version 300 es
+
+#pragma glslify: intersectionProjection = require(../utility/intersectionProjection.glsl)
 
 uniform float uCanvasWidth;
 uniform float uCanvasHeight;
@@ -10,9 +12,11 @@ uniform vec3 uPlaneColor2;
 uniform vec4 uPlane3;
 uniform vec3 uPlaneColor3;
 
-varying vec4 vPos;
-varying mat4 vProjectionViewMatrix;
-varying vec4 vProjectedCoords;
+in vec4 vPos;
+in mat4 vProjectionViewMatrix;
+in vec4 vProjectedCoords;
+
+out vec4 fragColour;
 
 void main(void) {
   vec4 c1 = vec4(0., 0., 0., 0.);
@@ -81,6 +85,6 @@ void main(void) {
   }
 
   vec3 colorMix = c1.xyz*c1.w + c2.xyz*c2.w + c3.xyz*c3.w;
-  gl_FragColor = vec4(colorMix, max(max(c1.w, c2.w),c3.w)*0.5);
+  fragColour; = vec4(colorMix, max(max(c1.w, c2.w),c3.w)*0.5);
   return;
 }

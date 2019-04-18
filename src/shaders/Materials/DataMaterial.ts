@@ -1,10 +1,13 @@
 import { MaterialUtils } from "./MaterialUtils";
 
-// import vertSource from 'raw-loader!glslify-loader!../glsl/data.vert';
-// import fragmentSource from 'raw-loader!glslify-loader!../glsl/data.frag';
-const vertSource = require('raw-loader!glslify-loader!../glsl/data.vert').default;
-const fragmentSource = require('raw-loader!glslify-loader!../glsl/data.frag').default;
-import glslify from 'glslify';
+const vertSource1 = require('raw-loader!glslify-loader!../webgl1/data/data.vert').default;
+const fragmentSourceIdn1 = require('raw-loader!glslify-loader!../webgl1/data/data_idnInterp.frag').default;
+const fragmentSourceTri1 = require('raw-loader!glslify-loader!../webgl1/data/data_triInterp.frag').default;
+
+const vertSource2 = require('raw-loader!glslify-loader!../webgl2/data/data.vert').default;
+const fragmentSourceIdn2 = require('raw-loader!glslify-loader!../webgl2/data/data_idnInterp.frag').default;
+const fragmentSourceTri2 = require('raw-loader!glslify-loader!../webgl2/data/data_triInterp.frag').default;
+
 const THREE = (window as any).THREE;
 
 /**
@@ -27,7 +30,7 @@ export interface DataUniforms {
     uTextureLUTSegmentation: { value: THREE.Texture },   // sampler2D
     uPixelType: { value: number },                       // int
     uPackedPerPixel: { value: number },                  // int
-    uInterpolation: { value: number },                   // int
+    // uInterpolation: { value: number },                   // int
     uCanvasWidth: { value: number },                     // float
     uCanvasHeight: { value: number },                    // float
     uBorderColor: { value: THREE.Vector3 },              // vec3
@@ -39,7 +42,6 @@ export interface DataUniforms {
     uThickness: { value: number },                       // float
     uThicknessMethod: { value: number },                 // int
 }
-
 export class DataMaterial {
     private static _shaderName = 'data';
     public static get shaderName() {
@@ -51,8 +53,12 @@ export class DataMaterial {
      * will always return a mutable clone of the base version
      * of the contour shader
      */
-    private static _shaderMaterial: THREE.ShaderMaterial;
-    private static _shaderMaterial2: THREE.ShaderMaterial;
+    private static _idnMaterial1: THREE.ShaderMaterial;
+    private static _triMaterial1: THREE.ShaderMaterial;
+
+    private static _idnMaterial2: THREE.ShaderMaterial;
+    private static _triMaterial2: THREE.ShaderMaterial;
+
 
     /**
      * Default Uniform values
@@ -82,7 +88,7 @@ export class DataMaterial {
         uTextureLUTSegmentation: { value: new THREE.Texture() },    // sampler2D
         uPixelType: { value: 0 },                                   // int
         uPackedPerPixel: { value: 1 },                              // int
-        uInterpolation: { value: 1 },                               // int
+        // uInterpolation: { value: 1 },                               // int
         uCanvasWidth: { value: 0.0 },                               // float
         uCanvasHeight: { value: 0.0 },                              // float
         uBorderColor: { value: new THREE.Vector3() },               // vec3
@@ -99,29 +105,55 @@ export class DataMaterial {
         return DataMaterial._defaultUniforms;
     }
 
-    public static get shaderMaterial(): THREE.ShaderMaterial {
-        if (!DataMaterial._shaderMaterial) {
-            DataMaterial._shaderMaterial = new THREE.ShaderMaterial({
+    public static get idnMaterial1(): THREE.ShaderMaterial {
+        if (!DataMaterial._idnMaterial1) {
+            DataMaterial._idnMaterial1 = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: glslify(MaterialUtils.processSource(vertSource, false)),
-                fragmentShader: glslify(MaterialUtils.processSource(fragmentSource, false)),
+                vertexShader: MaterialUtils.processSource(vertSource1),
+                fragmentShader: MaterialUtils.processSource(fragmentSourceIdn1),
                 transparent: true,
             });
         }
-        return DataMaterial._shaderMaterial.clone();
+        return DataMaterial._idnMaterial1.clone();
     }
 
-    public static get shaderMaterial2(): THREE.ShaderMaterial {
-        if (!DataMaterial._shaderMaterial2) {
-            DataMaterial._shaderMaterial2 = new THREE.ShaderMaterial({
+    public static get triMaterial1(): THREE.ShaderMaterial {
+        if (!DataMaterial._triMaterial1) {
+            DataMaterial._triMaterial1 = new THREE.ShaderMaterial({
                 side: THREE.DoubleSide,
                 uniforms: this.defaultUniforms,
-                vertexShader: glslify(MaterialUtils.processSource(vertSource, true)),
-                fragmentShader: glslify(MaterialUtils.processSource(fragmentSource, true)),
+                vertexShader: MaterialUtils.processSource(vertSource1),
+                fragmentShader: MaterialUtils.processSource(fragmentSourceTri1),
                 transparent: true,
             });
         }
-        return DataMaterial._shaderMaterial2.clone();
+        return DataMaterial._triMaterial1.clone();
+    }
+
+    public static get idnMaterial2(): THREE.ShaderMaterial {
+        if (!DataMaterial._idnMaterial2) {
+            DataMaterial._idnMaterial1 = new THREE.ShaderMaterial({
+                side: THREE.DoubleSide,
+                uniforms: this.defaultUniforms,
+                vertexShader: MaterialUtils.processSource(vertSource2),
+                fragmentShader: MaterialUtils.processSource(fragmentSourceIdn2),
+                transparent: true,
+            });
+        }
+        return DataMaterial._idnMaterial2.clone();
+    }
+
+    public static get triMaterial2(): THREE.ShaderMaterial {
+        if (!DataMaterial._triMaterial2) {
+            DataMaterial._triMaterial2 = new THREE.ShaderMaterial({
+                side: THREE.DoubleSide,
+                uniforms: this.defaultUniforms,
+                vertexShader: MaterialUtils.processSource(vertSource2),
+                fragmentShader: MaterialUtils.processSource(fragmentSourceTri2),
+                transparent: true,
+            });
+        }
+        return DataMaterial._triMaterial2.clone();
     }
 }

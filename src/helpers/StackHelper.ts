@@ -106,8 +106,7 @@ export class StackHelper extends THREE.Object3D {
     get index() {
       return this._index;
     }
-    // tslint:disable-next-line:typedef
-    set index(index) {
+    set index(index: number) {
       this._index = index;
 
       // update the slice
@@ -134,8 +133,7 @@ export class StackHelper extends THREE.Object3D {
      *
      * @type {number}
      */
-    // tslint:disable-next-line:typedef
-    set orientation(orientation) {
+    set orientation(orientation: any) {
       this._orientation = orientation;
       this._computeOrientationMaxIndex();
 
