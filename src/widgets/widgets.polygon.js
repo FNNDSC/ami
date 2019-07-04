@@ -248,7 +248,7 @@ const widgetsPolygon = (three = window.THREE) => {
     }
 
     createMaterial() {
-      this._material = new three.MeshBasicMaterial({ side: THREE.DoubleSide });
+      this._material = new three.MeshBasicMaterial({ side: three.DoubleSide });
       this._material.transparent = true;
       this._material.opacity = 0.2;
     }
