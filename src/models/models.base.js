@@ -32,7 +32,7 @@ export default class ModelsBase {
         } else if (j === referenceArray.length - 1) {
           // last merge was not successful
           // this is a new targetArray
-          referenceArray.push(targetArray[i]);
+          referenceArray = [...referenceArray, targetArray[i]];
         }
       }
     }
