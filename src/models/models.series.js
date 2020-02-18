@@ -91,16 +91,16 @@ export default class ModelsSeries extends ModelsBase {
     }
 
     if (this._seriesInstanceUID === series.seriesInstanceUID) {
-      // may merge incorrectly if loader will return more than one stacks per series
+      // merge may be incorrect if loader will return more than one stacks per series
       if (series.stack[0]) {
-        if (this._stack[0]._numberOfFrames === 0) {
-          this._stack[0].computeNumberOfFrames();
-        }
-        this._stack[0].computeCosines();
-        if (series.stack[0]._numberOfFrames === 0) {
-          series.stack[0].computeNumberOfFrames();
-        }
-        series.stack[0].computeCosines();
+          this._stack[0].computeCosines();
+          if (this._stack[0]._numberOfFrames === 0) {
+              this._stack[0].computeNumberOfFrames();
+          }
+          series.stack[0].computeCosines();
+          if (series.stack[0]._numberOfFrames === 0) {
+              series.stack[0].computeNumberOfFrames();
+          }
       }
       return this.mergeModels(this._stack, series.stack);
     } else {
@@ -122,6 +122,23 @@ export default class ModelsSeries extends ModelsBase {
     let seriesContainer = [this];
     this.mergeModels(seriesContainer, target);
     return seriesContainer;
+  }
+
+  orderStacks() {
+    if (this._stack.length < 2) {
+      return;
+    }
+
+    this._stack.sort(function(a, b) {
+      let diff = a.frame[0].instanceDifference(b.frame[0]);
+      if (diff) {
+        return diff;
+      }
+
+      window.console.warn('It is impossible to uniquely determine the order of stacks!');
+
+      return 0;
+    });
   }
 
   /**
