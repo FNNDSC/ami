@@ -27,7 +27,6 @@ export default class ModelsSeries extends ModelsBase {
     // it is used in the loader in case a dicom/nifti contains multiple frames
     // should be updated after merge or renamed
     this._numberOfFrames = 0;
-    this._numberOfChannels = 1;
 
     // patient information
     this._rawHeader = null;
@@ -52,7 +51,6 @@ export default class ModelsSeries extends ModelsBase {
    *   - mergeSeries method
    *   - _seriesInstanceUID
    *   - _numberOfFrames
-   *   - _numberOfChannels
    *   _ _stack
    *
    * @param {ModelsSeries} model - Model to be validated as series.
@@ -62,18 +60,13 @@ export default class ModelsSeries extends ModelsBase {
    * @override
    */
   validate(model) {
-    if (
-      !(
-        super.validate(model) &&
-        typeof model.mergeSeries === 'function' &&
-        model.hasOwnProperty('_seriesInstanceUID') &&
-        model.hasOwnProperty('_numberOfFrames') &&
-        model.hasOwnProperty('_numberOfChannels') &&
-        model.hasOwnProperty('_stack') &&
-        typeof model._stack !== 'undefined' &&
-        Array === model._stack.constructor
-      )
-    ) {
+    if (!(super.validate(model) &&
+      typeof model.mergeSeries === 'function' &&
+      model.hasOwnProperty('_seriesInstanceUID') &&
+      model.hasOwnProperty('_numberOfFrames') &&
+      model.hasOwnProperty('_stack') &&
+      typeof model._stack !== 'undefined' &&
+      Array === model._stack.constructor)) {
       return false;
     }
 
@@ -393,24 +386,6 @@ export default class ModelsSeries extends ModelsBase {
    */
   get numberOfFrames() {
     return this._numberOfFrames;
-  }
-
-  /**
-   * Number of channels setter
-   *
-   * @param {*} numberOfChannels
-   */
-  set numberOfChannels(numberOfChannels) {
-    this._numberOfChannels = numberOfChannels;
-  }
-
-  /**
-   * Number of channels getter
-   *
-   * @return {*}
-   */
-  get numberOfChannels() {
-    return this._numberOfChannels;
   }
 
   /**

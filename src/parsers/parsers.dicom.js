@@ -780,6 +780,10 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   _decodePixelData(frameIndex = 0) {
+    if (!this._dataSet.elements.x7fe00010) { // common for SR modality
+      return [];
+    }
+
     // if compressed..?
     let transferSyntaxUID = this.transferSyntaxUID();
 
