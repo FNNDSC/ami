@@ -33,8 +33,9 @@ export default class LoadersBase extends EventEmitter {
    * Create a Loader.
    * @param {dom} container - The dom container of loader.
    * @param {object} ProgressBar - The progressbar of loader.
+   * @param {object} options     - Additional loading options.
    */
-  constructor(container = null, ProgressBar = HelpersProgressBar) {
+  constructor(container = null, ProgressBar = HelpersProgressBar, options = null) {
     super();
     this._loaded = -1;
     this._totalLoaded = -1;
@@ -47,6 +48,11 @@ export default class LoadersBase extends EventEmitter {
     this._progressBar = null;
     if (this._container && ProgressBar) {
       this._progressBar = new ProgressBar(this._container);
+    }
+
+    this._unmergedModalities = [];
+    if (options !== null) {
+      this._unmergedModalities = options.unmergedModalities;
     }
   }
 
@@ -62,6 +68,7 @@ export default class LoadersBase extends EventEmitter {
       this._progressBar.free();
       this._progressBar = null;
     }
+    this._unmergedModalities = [];
   }
 
   /**

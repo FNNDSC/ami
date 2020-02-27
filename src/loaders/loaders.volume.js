@@ -163,6 +163,9 @@ export default class LoadersVolumes extends LoadersBase {
               stack.segmentationType = series.segmentationType;
               stack.segmentationSegments = series.segmentationSegments;
             }
+
+            stack.allowMerge = !this._unmergedModalities.includes(stack.modality);
+
             series.stack.push(stack);
             // recursive call for each frame
             // better than for loop to be able

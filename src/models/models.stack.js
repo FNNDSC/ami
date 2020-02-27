@@ -77,6 +77,8 @@ export default class ModelsStack extends ModelsBase {
     //
     this._modality = 'Modality not set';
 
+    this._allowMerge = true;
+
     // SEGMENTATION STUFF
     this._segmentationType = null;
     this._segmentationSegments = [];
@@ -456,7 +458,8 @@ export default class ModelsStack extends ModelsBase {
       this._frame[0].rows === stack.frame[0].rows &&
       this._xCosine.equals(stack.xCosine) &&
       this._yCosine.equals(stack.yCosine) &&
-      this._zCosine.equals(stack.zCosine)
+      this._zCosine.equals(stack.zCosine) &&
+      this._allowMerge
     ) {
       return this.mergeModels(this._frame, stack.frame);
     } else {
@@ -1025,6 +1028,14 @@ export default class ModelsStack extends ModelsBase {
 
   get modality() {
     return this._modality;
+  }
+
+  set allowMerge(allowMerge) {
+    this._allowMerge = allowMerge;
+  }
+
+  get allowMerge() {
+    return this._allowMerge;
   }
 
   get rightHanded() {
