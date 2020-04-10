@@ -282,6 +282,13 @@ export default class LoadersBase extends EventEmitter {
         loadSequences.push(this.loadSequenceGroup(file, requests));
       }
     });
+
+    /**
+    * step-by-step loading
+    return loadSequences.reduce((promiseChain, currentTask) => {
+      return promiseChain.then(chainResults => currentTask.then(currentResult => [ ...chainResults, currentResult ]));
+    }, Promise.resolve([]));
+    */
     return Promise.all(loadSequences);
   }
 
