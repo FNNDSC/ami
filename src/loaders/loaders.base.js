@@ -45,7 +45,7 @@ export default class LoadersBase extends EventEmitter {
     this._data = [];
 
     this._container = container;
-    this._progressBar = null;
+    this._progressBar = ProgressBar();
     if (this._container && ProgressBar) {
       this._progressBar = new ProgressBar(this._container);
     }
@@ -54,6 +54,8 @@ export default class LoadersBase extends EventEmitter {
     if (options !== null) {
       this._unmergedModalities = options.unmergedModalities;
     }
+
+    this._requests = requests;
   }
 
   /**
@@ -265,8 +267,9 @@ export default class LoadersBase extends EventEmitter {
 
     if (this._progressBar) {
       this._progressBar.totalFiles = url.length;
-      this._progressBar.requests = requests;
     }
+
+    this._requests = requests;
 
     // emit 'load-start' event
     this.emit('load-start', {
