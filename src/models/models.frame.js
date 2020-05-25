@@ -224,14 +224,15 @@ export default class ModelsFrame extends ModelsBase {
   }
 
   /**
-   * Get frame preview as data:URL
+   * Get frame preview as blob object (async)
    *
-   * @param {String} column
-   * @param {Number} row
+   * @param {Number} index
+   * @param {String} mimeType
+   * @param {Number} quality
    *
-   * @return {String}
+   * @return {Promise}
    */
-  getImageDataUrl(type, quality) {
+  getImageBlob(index, mimeType, quality) {
     const canvas = document.createElement('canvas');
 
     canvas.width = this._columns;
@@ -243,7 +244,11 @@ export default class ModelsFrame extends ModelsBase {
     imageData.data.set(this._frameToCanvas());
     context.putImageData(imageData, 0, 0);
 
-    return canvas.toDataURL(type, quality);
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(function(blob) {
+        resolve({ index: index, blob: blob });
+      }, mimeType, quality);
+    });
   }
 
   /**

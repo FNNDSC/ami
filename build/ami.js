@@ -35832,16 +35832,17 @@ var ModelsFrame = function (_ModelsBase) {
   };
 
   /**
-   * Get frame preview as data:URL
+   * Get frame preview as blob object
    *
-   * @param {String} column
-   * @param {Number} row
+   * @param {Number} index
+   * @param {String} mimeType
+   * @param {Number} quality
    *
-   * @return {String}
+   * @return {Promise}
    */
 
 
-  ModelsFrame.prototype.getImageDataUrl = function getImageDataUrl(type, quality) {
+  ModelsFrame.prototype.getImageBlob = function getImageBlob(index, mimeType, quality) {
     var canvas = document.createElement('canvas');
 
     canvas.width = this._columns;
@@ -35853,7 +35854,11 @@ var ModelsFrame = function (_ModelsBase) {
     imageData.data.set(this._frameToCanvas());
     context.putImageData(imageData, 0, 0);
 
-    return canvas.toDataURL(type, quality);
+    return new Promise(function (resolve, reject) {
+      canvas.toBlob(function (blob) {
+        resolve({ index: index, blob: blob });
+      }, mimeType, quality);
+    });
   };
 
   /**
