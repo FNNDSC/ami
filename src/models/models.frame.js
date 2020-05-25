@@ -226,21 +226,24 @@ export default class ModelsFrame extends ModelsBase {
   /**
    * Get frame preview as data:URL
    *
+   * @param {String} column
+   * @param {Number} row
+   *
    * @return {String}
    */
-  getImageDataUrl() {
+  getImageDataUrl(type, quality) {
     const canvas = document.createElement('canvas');
+
     canvas.width = this._columns;
     canvas.height = this._rows;
 
-    const context = canvas.getContext('2d');
-
-    const imageData = context.createImageData(canvas.width, canvas.height);
+    const context = canvas.getContext('2d'),
+          imageData = context.createImageData(canvas.width, canvas.height);
 
     imageData.data.set(this._frameToCanvas());
     context.putImageData(imageData, 0, 0);
 
-    return canvas.toDataURL();
+    return canvas.toDataURL(type, quality);
   }
 
   /**

@@ -26869,7 +26869,7 @@ module.exports = g;
 /*! exports provided: name, version, main, keywords, author, license, repository, config, lint-staged, prettier, sideEffects, dependencies, scripts, devDependencies, engines, default */
 /***/ (function(module) {
 
-module.exports = {"name":"ami.js","version":"0.32.0","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"lint-staged":{"{{src/**,examples/**, lessons/**}/,}.{js,jsx,json,css,ts,tsx}":["prettier --write","git add"]},"prettier":{"printWidth":100,"singleQuote":true,"trailingComma":"es5","overrides":[{"files":"*.css","options":{"useTabs":false,"tabWidth":2}}]},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"latest"},"scripts":{"precommit":"lint-staged","tslint-check":"tslint-config-prettier-check ./tslint.json","check-codestyle":"prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'","fix-all-code-style":"prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'","build:ami":"webpack --config webpack.config.build.js --display-error-details","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"@types/jasmine":"^3.3.2","@types/node":"^10.11.3","@types/three":"^0.93.13","babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","gh-pages":"^1.2.0","husky":"^1.1.3","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","lint-staged":"^8.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","prettier":"^1.15.1","prettier-check":"^2.0.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","ts-loader":"^5.2.1","tslint":"^5.11.0","tslint-config-prettier":"^1.15.0","tslint-loader":"^3.6.0","typescript":"^3.1.1","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-cli":"^3.1.0","webpack-dev-server":"^3.1.5","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
+module.exports = {"name":"ami.js","version":"0.32.1-unvsoft","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"lint-staged":{"{{src/**,examples/**, lessons/**}/,}.{js,jsx,json,css,ts,tsx}":["prettier --write","git add"]},"prettier":{"printWidth":100,"singleQuote":true,"trailingComma":"es5","overrides":[{"files":"*.css","options":{"useTabs":false,"tabWidth":2}}]},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"latest"},"scripts":{"precommit":"lint-staged","tslint-check":"tslint-config-prettier-check ./tslint.json","check-codestyle":"prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'","fix-all-code-style":"prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'","build:ami":"webpack --config webpack.config.build.js --display-error-details","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"@types/jasmine":"^3.3.2","@types/node":"^10.11.3","@types/three":"^0.93.13","babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","gh-pages":"^1.2.0","husky":"^1.1.3","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","lint-staged":"^8.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","prettier":"^1.15.1","prettier-check":"^2.0.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","ts-loader":"^5.2.1","tslint":"^5.11.0","tslint-config-prettier":"^1.15.0","tslint-loader":"^3.6.0","typescript":"^3.1.1","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-cli":"^3.1.0","webpack-dev-server":"^3.1.5","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
 
 /***/ }),
 
@@ -34735,10 +34735,12 @@ var LoadersBase = function (_EventEmitter) {
    * Create a Loader.
    * @param {dom} container - The dom container of loader.
    * @param {object} ProgressBar - The progressbar of loader.
+   * @param {object} options     - Additional loading options.
    */
   function LoadersBase() {
     var container = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     var ProgressBar = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _helpers_helpers_progressbar__WEBPACK_IMPORTED_MODULE_0__["default"];
+    var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
     _classCallCheck(this, LoadersBase);
 
@@ -34752,10 +34754,17 @@ var LoadersBase = function (_EventEmitter) {
     _this._data = [];
 
     _this._container = container;
-    _this._progressBar = null;
+    _this._progressBar = ProgressBar();
     if (_this._container && ProgressBar) {
       _this._progressBar = new ProgressBar(_this._container);
     }
+
+    _this._unmergedModalities = [];
+    if (options !== null) {
+      _this._unmergedModalities = options.unmergedModalities;
+    }
+
+    _this._requests = requests;
     return _this;
   }
 
@@ -34773,6 +34782,7 @@ var LoadersBase = function (_EventEmitter) {
       this._progressBar.free();
       this._progressBar = null;
     }
+    this._unmergedModalities = [];
   };
 
   /**
@@ -34981,8 +34991,9 @@ var LoadersBase = function (_EventEmitter) {
 
     if (this._progressBar) {
       this._progressBar.totalFiles = url.length;
-      this._progressBar.requests = requests;
     }
+
+    this._requests = requests;
 
     // emit 'load-start' event
     this.emit('load-start', {
@@ -34998,6 +35009,13 @@ var LoadersBase = function (_EventEmitter) {
         loadSequences.push(_this5.loadSequenceGroup(file, requests));
       }
     });
+
+    /**
+    * step-by-step loading
+    return loadSequences.reduce((promiseChain, currentTask) => {
+      return promiseChain.then(chainResults => currentTask.then(currentResult => [ ...chainResults, currentResult ]));
+    }, Promise.resolve([]));
+    */
     return Promise.all(loadSequences);
   };
 
@@ -35248,6 +35266,9 @@ var LoadersVolumes = function (_LoadersBase) {
             stack.segmentationType = series.segmentationType;
             stack.segmentationSegments = series.segmentationSegments;
           }
+
+          stack.allowMerge = !_this2._unmergedModalities.includes(stack.modality);
+
           series.stack.push(stack);
           // recursive call for each frame
           // better than for loop to be able
@@ -35691,11 +35712,38 @@ var ModelsFrame = function (_ModelsBase) {
       return false;
     }
 
-    if (this._compareArrays(this._dimensionIndexValues, frame.dimensionIndexValues) && this._compareArrays(this._imageOrientation, frame.imageOrientation) && this._compareArrays(this._imagePosition, frame.imagePosition) && this._instanceNumber === frame.instanceNumber && this._sopInstanceUID === frame.sopInstanceUID) {
+    if (this._compareArrays(this._dimensionIndexValues, frame.dimensionIndexValues) && this._compareArrays(this._imageOrientation, frame.imageOrientation) && this._compareArrays(this._imagePosition, frame.imagePosition) && this.instanceDifference(frame) === 0 && this.index === frame.index) {
       return true;
     } else {
       return false;
     }
+  };
+
+  /**
+   * Calculate the difference of instances of this frame and provided one.
+   *
+   * @param {ModelsFrame} frame
+   *
+   * @return {Number|null} Difference of instanceNumbers or sopInstanceUIDs.
+   *                       0 - frames belong to the same instance.
+   *                       Null - calculation is impossible.
+   */
+
+
+  ModelsFrame.prototype.instanceDifference = function instanceDifference(frame) {
+    if (this.instanceNumber !== null && frame.instanceNumber !== null && this.instanceNumber !== frame.instanceNumber) {
+      return this.instanceNumber - frame.instanceNumber;
+    }
+
+    if (this.sopInstanceUID !== null && frame.sopInstanceUID !== null && this.sopInstanceUID !== frame.sopInstanceUID) {
+      return this.sopInstanceUID - frame.sopInstanceUID;
+    }
+
+    if (this.instanceNumber === frame.instanceNumber && this.sopInstanceUID === frame.sopInstanceUID) {
+      return 0;
+    }
+
+    return null;
   };
 
   /**
@@ -35786,23 +35834,26 @@ var ModelsFrame = function (_ModelsBase) {
   /**
    * Get frame preview as data:URL
    *
+   * @param {String} column
+   * @param {Number} row
+   *
    * @return {String}
    */
 
 
-  ModelsFrame.prototype.getImageDataUrl = function getImageDataUrl() {
+  ModelsFrame.prototype.getImageDataUrl = function getImageDataUrl(type, quality) {
     var canvas = document.createElement('canvas');
+
     canvas.width = this._columns;
     canvas.height = this._rows;
 
-    var context = canvas.getContext('2d');
-
-    var imageData = context.createImageData(canvas.width, canvas.height);
+    var context = canvas.getContext('2d'),
+        imageData = context.createImageData(canvas.width, canvas.height);
 
     imageData.data.set(this._frameToCanvas());
     context.putImageData(imageData, 0, 0);
 
-    return canvas.toDataURL();
+    return canvas.toDataURL(type, quality);
   };
 
   /**
@@ -36245,7 +36296,6 @@ var ModelsSeries = function (_ModelsBase) {
     // it is used in the loader in case a dicom/nifti contains multiple frames
     // should be updated after merge or renamed
     _this._numberOfFrames = 0;
-    _this._numberOfChannels = 1;
 
     // patient information
     _this._rawHeader = null;
@@ -36271,7 +36321,6 @@ var ModelsSeries = function (_ModelsBase) {
    *   - mergeSeries method
    *   - _seriesInstanceUID
    *   - _numberOfFrames
-   *   - _numberOfChannels
    *   _ _stack
    *
    * @param {ModelsSeries} model - Model to be validated as series.
@@ -36283,7 +36332,7 @@ var ModelsSeries = function (_ModelsBase) {
 
 
   ModelsSeries.prototype.validate = function validate(model) {
-    if (!(_ModelsBase.prototype.validate.call(this, model) && typeof model.mergeSeries === 'function' && model.hasOwnProperty('_seriesInstanceUID') && model.hasOwnProperty('_numberOfFrames') && model.hasOwnProperty('_numberOfChannels') && model.hasOwnProperty('_stack') && typeof model._stack !== 'undefined' && Array === model._stack.constructor)) {
+    if (!(_ModelsBase.prototype.validate.call(this, model) && typeof model.mergeSeries === 'function' && model.hasOwnProperty('_seriesInstanceUID') && model.hasOwnProperty('_numberOfFrames') && model.hasOwnProperty('_stack') && typeof model._stack !== 'undefined' && Array === model._stack.constructor)) {
       return false;
     }
 
@@ -36310,16 +36359,16 @@ var ModelsSeries = function (_ModelsBase) {
     }
 
     if (this._seriesInstanceUID === series.seriesInstanceUID) {
-      // may merge incorrectly if loader will return more than one stacks per series
+      // merge may be incorrect if loader will return more than one stacks per series
       if (series.stack[0]) {
+        this._stack[0].computeCosines();
         if (this._stack[0]._numberOfFrames === 0) {
           this._stack[0].computeNumberOfFrames();
         }
-        this._stack[0].computeCosines();
+        series.stack[0].computeCosines();
         if (series.stack[0]._numberOfFrames === 0) {
           series.stack[0].computeNumberOfFrames();
         }
-        series.stack[0].computeCosines();
       }
       return this.mergeModels(this._stack, series.stack);
     } else {
@@ -36343,6 +36392,23 @@ var ModelsSeries = function (_ModelsBase) {
     var seriesContainer = [this];
     this.mergeModels(seriesContainer, target);
     return seriesContainer;
+  };
+
+  ModelsSeries.prototype.orderStacks = function orderStacks() {
+    if (this._stack.length < 2) {
+      return;
+    }
+
+    this._stack.sort(function (a, b) {
+      var diff = a.frame[0].instanceDifference(b.frame[0]);
+      if (diff) {
+        return diff;
+      }
+
+      window.console.warn('It is impossible to uniquely determine the order of stacks!');
+
+      return 0;
+    });
   };
 
   /**
@@ -36666,28 +36732,6 @@ var ModelsSeries = function (_ModelsBase) {
     }
 
     /**
-     * Number of channels setter
-     *
-     * @param {*} numberOfChannels
-     */
-
-  }, {
-    key: 'numberOfChannels',
-    set: function set(numberOfChannels) {
-      this._numberOfChannels = numberOfChannels;
-    }
-
-    /**
-     * Number of channels getter
-     *
-     * @return {*}
-     */
-    ,
-    get: function get() {
-      return this._numberOfChannels;
-    }
-
-    /**
      * Stack setter
      *
      * @param {*} stack
@@ -36891,6 +36935,8 @@ var ModelsStack = function (_ModelsBase) {
     //
     _this._modality = 'Modality not set';
 
+    _this._allowMerge = true;
+
     // SEGMENTATION STUFF
     _this._segmentationType = null;
     _this._segmentationSegments = [];
@@ -36921,10 +36967,10 @@ var ModelsStack = function (_ModelsBase) {
     this._frameSegment = this._frame;
     var mergedFrames = [];
 
-    // order frames
+    // compute direction cosines
     this.computeCosines();
-    this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
-    this._frame.sort(this._sortDistanceArraySort);
+    // order the frames
+    this.orderFrames();
 
     // merge frames
     var prevIndex = -1;
@@ -37019,11 +37065,8 @@ var ModelsStack = function (_ModelsBase) {
 
     // compute direction cosines
     this.computeCosines();
-
     // order the frames
-    if (this._numberOfFrames > 1) {
-      this.orderFrames();
-    }
+    this.orderFrames();
 
     // compute/guess spacing
     this.computeSpacing();
@@ -37051,8 +37094,9 @@ var ModelsStack = function (_ModelsBase) {
     this._rescaleSlope = middleFrame.rescaleSlope || 1;
     this._rescaleIntercept = middleFrame.rescaleIntercept || 0;
 
+    this.computeByAllFrames();
+
     // rescale/slope min max
-    this.computeMinMaxIntensities();
     this._minMax[0] = _core_core_utils__WEBPACK_IMPORTED_MODULE_4__["default"].rescaleSlopeIntercept(this._minMax[0], this._rescaleSlope, this._rescaleIntercept);
     this._minMax[1] = _core_core_utils__WEBPACK_IMPORTED_MODULE_4__["default"].rescaleSlopeIntercept(this._minMax[1], this._rescaleSlope, this._rescaleIntercept);
 
@@ -37108,29 +37152,40 @@ var ModelsStack = function (_ModelsBase) {
   };
 
   ModelsStack.prototype.orderFrames = function orderFrames() {
-    // order the frames based on theirs dimension indices
-    // first index is the most important.
-    // 1,1,1,1 will be first
-    // 1,1,2,1 will be next
-    // 1,1,2,3 will be next
-    // 1,1,3,1 will be next
-    if (this._frame[0].dimensionIndexValues) {
-      this._frame.sort(this._orderFrameOnDimensionIndicesArraySort);
-
-      // else order with image position and orientation
-    } else if (this._frame[0].imagePosition && this._frame[0].imageOrientation && this._frame[1] && this._frame[1].imagePosition && this._frame[1].imageOrientation && this._frame[0].imagePosition.join() !== this._frame[1].imagePosition.join()) {
-      // compute and sort by dist in this series
-      this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
-      this._frame.sort(this._sortDistanceArraySort);
-    } else if (this._frame[0].instanceNumber !== null && this._frame[1] && this._frame[1].instanceNumber !== null && this._frame[0].instanceNumber !== this._frame[1].instanceNumber) {
-      this._frame.sort(this._sortInstanceNumberArraySort);
-    } else if (this._frame[0].sopInstanceUID && this._frame[1] && this._frame[1].sopInstanceUID && this._frame[0].sopInstanceUID !== this._frame[1].sopInstanceUID) {
-      this._frame.sort(this._sortSopInstanceUIDArraySort);
-    } else if (!this._frame[0].imagePosition) {
-      // cancel warning if you have set null imagePosition on purpose (?)
-    } else {
-      window.console.warn('do not know how to order the frames...');
+    if (this._frame.length < 2) {
+      return;
     }
+
+    if (this._frame[0].imagePosition && this._frame[0].imageOrientation && this._frame[1].imagePosition && this._frame[1].imageOrientation) {
+      // compute dist in this stack
+      this._frame.map(this._computeDistanceArrayMap.bind(null, this._zCosine));
+    }
+
+    this._frame.sort(function (a, b) {
+      var diff = a.instanceDifference(b);
+      if (diff) {
+        return diff;
+      }
+
+      if (a.dist !== null && b.dist !== null && a.dist !== b.dist) {
+        return a.dist - b.dist; // order by image position
+      }
+
+      if (Array.isArray(a.dimensionIndexValues) && Array.isArray(b.dimensionIndexValues) && a.dimensionIndexValues !== b.dimensionIndexValues) {
+        // importance of indices is reduced from left to right
+        // 1,1,1,1 - first
+        // 1,1,2,1 - next
+        // 1,1,2,3 - next
+        // 1,1,3,1 - next
+        var index = a.dimensionIndexValues.findIndex(function (elem, ind) {
+          return elem !== b.dimensionIndexValues[ind];
+        });
+
+        return a.dimensionIndexValues[index] - b.dimensionIndexValues[index];
+      }
+
+      return a.index - b.index;
+    });
   };
 
   ModelsStack.prototype.computeSpacing = function computeSpacing() {
@@ -37184,25 +37239,27 @@ var ModelsStack = function (_ModelsBase) {
   };
 
   /**
-   * Find min and max intensities among all frames.
+   * Find min and max intensities and max numberOfChannels among all frames.
    */
 
 
-  ModelsStack.prototype.computeMinMaxIntensities = function computeMinMaxIntensities() {
-    // what about colors!!!!?
-    // we ignore values if NaNs
-    // https://github.com/FNNDSC/ami/issues/185
+  ModelsStack.prototype.computeByAllFrames = function computeByAllFrames() {
     for (var i = 0; i < this._frame.length; i++) {
       // get min/max
       var min = this._frame[i].minMax[0];
+      var max = this._frame[i].minMax[1];
+      // what about colors!!!!?
+      // we ignore values if NaNs
+      // https://github.com/FNNDSC/ami/issues/185
       if (!Number.isNaN(min)) {
         this._minMax[0] = Math.min(this._minMax[0], min);
       }
-
-      var max = this._frame[i].minMax[1];
       if (!Number.isNaN(max)) {
         this._minMax[1] = Math.max(this._minMax[1], max);
       }
+
+      // get max numberOfChannels (for correct packing)
+      this._numberOfChannels = Math.max(this._numberOfChannels, this._frame[i].numberOfChannels);
     }
   };
 
@@ -37242,12 +37299,45 @@ var ModelsStack = function (_ModelsBase) {
 
 
   ModelsStack.prototype.merge = function merge(stack) {
-    // also make sure x/y/z cosines are a match!
-    if (this._stackID === stack.stackID && this._numberOfFrames === 1 && stack._numberOfFrames === 1 && this._frame[0].columns === stack.frame[0].columns && this._frame[0].rows === stack.frame[0].rows && this._xCosine.equals(stack.xCosine) && this._yCosine.equals(stack.yCosine) && this._zCosine.equals(stack.zCosine)) {
+    if (this._stackID === stack.stackID && this._numberOfFrames === 1 && stack._numberOfFrames === 1 && this._frame[0].columns === stack.frame[0].columns && this._frame[0].rows === stack.frame[0].rows && this._xCosine.equals(stack.xCosine) && this._yCosine.equals(stack.yCosine) && this._zCosine.equals(stack.zCosine) && this._allowMerge) {
       return this.mergeModels(this._frame, stack.frame);
     } else {
       return false;
     }
+  };
+
+  /**
+   * Get the index of the first frame belonging to the same instance
+   *
+   * @param {Number} index
+   *
+   * @return {Number}
+   */
+
+
+  ModelsStack.prototype.instanceFirst = function instanceFirst(index) {
+    var initialFrame = this.frame[index];
+
+    return this.frame.findIndex(function (elem) {
+      return elem.instanceDifference(initialFrame) === 0;
+    });
+  };
+
+  /**
+   * Get the index of the last frame belonging to the same instance
+   *
+   * @param {Number} index
+   *
+   * @return {Number}
+   */
+
+
+  ModelsStack.prototype.instanceLast = function instanceLast(index) {
+    var initialFrame = this.frame[index];
+
+    return this.frame.findIndex(function (elem, ind, arr) {
+      return elem.instanceDifference(initialFrame) === 0 && (ind === this._numberOfFrames - 1 || elem.instanceDifference(arr[ind + 1]) !== 0);
+    }.bind(this));
   };
 
   /**
@@ -37417,9 +37507,13 @@ var ModelsStack = function (_ModelsBase) {
         frameIndex = ~~(_i6 / frameDimension);
         inFrameIndex = _i6 % frameDimension;
 
-        _data4[3 * packIndex] = frame[frameIndex].pixelData[3 * inFrameIndex];
-        _data4[3 * packIndex + 1] = frame[frameIndex].pixelData[3 * inFrameIndex + 1];
-        _data4[3 * packIndex + 2] = frame[frameIndex].pixelData[3 * inFrameIndex + 2];
+        if (frame[frameIndex].numberOfChannels === 3) {
+          _data4[3 * packIndex] = frame[frameIndex].pixelData[3 * inFrameIndex];
+          _data4[3 * packIndex + 1] = frame[frameIndex].pixelData[3 * inFrameIndex + 1];
+          _data4[3 * packIndex + 2] = frame[frameIndex].pixelData[3 * inFrameIndex + 2];
+        } else {
+          _data4[3 * packIndex] = _data4[3 * packIndex + 1] = _data4[3 * packIndex + 2] = frame[frameIndex].pixelData[inFrameIndex];
+        }
         packIndex++;
       }
 
@@ -37506,42 +37600,11 @@ var ModelsStack = function (_ModelsBase) {
     return new three_src_math_Vector3__WEBPACK_IMPORTED_MODULE_1__["Vector3"](array[index], array[index + 1], array[index + 2]);
   };
 
-  ModelsStack.prototype._orderFrameOnDimensionIndicesArraySort = function _orderFrameOnDimensionIndicesArraySort(a, b) {
-    if ('dimensionIndexValues' in a && Object.prototype.toString.call(a.dimensionIndexValues) === '[object Array]' && 'dimensionIndexValues' in b && Object.prototype.toString.call(b.dimensionIndexValues) === '[object Array]') {
-      for (var i = 0; i < a.dimensionIndexValues.length; i++) {
-        if (parseInt(a.dimensionIndexValues[i], 10) > parseInt(b.dimensionIndexValues[i], 10)) {
-          return 1;
-        }
-        if (parseInt(a.dimensionIndexValues[i], 10) < parseInt(b.dimensionIndexValues[i], 10)) {
-          return -1;
-        }
-      }
-    } else {
-      window.console.warn("One of the frames doesn't have a dimensionIndexValues array.");
-      window.console.warn(a);
-      window.console.warn(b);
-    }
-
-    return 0;
-  };
-
   ModelsStack.prototype._computeDistanceArrayMap = function _computeDistanceArrayMap(normal, frame) {
     if (frame.imagePosition) {
       frame.dist = frame.imagePosition[0] * normal.x + frame.imagePosition[1] * normal.y + frame.imagePosition[2] * normal.z;
     }
     return frame;
-  };
-
-  ModelsStack.prototype._sortDistanceArraySort = function _sortDistanceArraySort(a, b) {
-    return a.dist - b.dist;
-  };
-
-  ModelsStack.prototype._sortInstanceNumberArraySort = function _sortInstanceNumberArraySort(a, b) {
-    return a.instanceNumber - b.instanceNumber;
-  };
-
-  ModelsStack.prototype._sortSopInstanceUIDArraySort = function _sortSopInstanceUIDArraySort(a, b) {
-    return a.sopInstanceUID - b.sopInstanceUID;
   };
 
   // DEPRECATED FUNCTION
@@ -37828,6 +37891,14 @@ var ModelsStack = function (_ModelsBase) {
     },
     get: function get() {
       return this._modality;
+    }
+  }, {
+    key: 'allowMerge',
+    set: function set(allowMerge) {
+      this._allowMerge = allowMerge;
+    },
+    get: function get() {
+      return this._allowMerge;
     }
   }, {
     key: 'rightHanded',
@@ -38830,6 +38901,11 @@ var ParsersDicom = function (_ParsersVolume) {
 
   ParsersDicom.prototype._decodePixelData = function _decodePixelData() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    if (!this._dataSet.elements.x7fe00010) {
+      // common for SR modality
+      return [];
+    }
 
     // if compressed..?
     var transferSyntaxUID = this.transferSyntaxUID();
