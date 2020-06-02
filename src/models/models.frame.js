@@ -229,20 +229,32 @@ export default class ModelsFrame extends ModelsBase {
    * @param {Number} index
    * @param {String} mimeType
    * @param {Number} quality
+   * @param {Number} ratio
    *
    * @return {Promise}
    */
-  getImageBlob(index, mimeType, quality) {
-    const canvas = document.createElement('canvas');
+  getImageBlob(index, mimeType, quality, ratio) {
+    let canvas = document.createElement('canvas');
+    canvas.width = this._columns; // original frame width
+    canvas.height = this._rows;   // original frame height
 
-    canvas.width = this._columns;
-    canvas.height = this._rows;
-
-    const context = canvas.getContext('2d'),
-          imageData = context.createImageData(canvas.width, canvas.height);
-
+    let context = canvas.getContext('2d'),
+       imageData = context.createImageData(canvas.width, canvas.height);
     imageData.data.set(this._frameToCanvas());
     context.putImageData(imageData, 0, 0);
+
+    if (ratio) {
+      // resize original image
+      let rCanvas = document.createElement('canvas');
+      rCanvas.width = imageData.width * ratio;
+      rCanvas.height = imageData.height * ratio;
+
+      let rContext = rCanvas.getContext("2d");
+      rContext.scale(ratio, ratio);
+      rContext.drawImage(canvas, 0, 0);
+
+      canvas = rCanvas;
+    }
 
     return new Promise((resolve, reject) => {
       canvas.toBlob(function(blob) {
