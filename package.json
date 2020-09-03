@@ -115,7 +115,7 @@
     "node-pre-gyp": "^0.10.0",
     "prettier": "^1.15.1",
     "prettier-check": "^2.0.0",
-    "puppeteer": "^1.6.1",
+    "puppeteer": "^1.13.0",
     "rimraf": "^2.6.1",
     "rollup-plugin-node-builtins": "^2.1.2",
     "shelljs": "^0.8.2",
