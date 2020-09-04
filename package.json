@@ -62,7 +62,7 @@
     "nifti-reader-js": "v0.5.4",
     "nrrd-js": "^0.2.1",
     "pako": "1.0.8",
-    "three": "latest"
+    "three": "0.111.0"
   },
   "scripts": {
     "precommit": "lint-staged",
