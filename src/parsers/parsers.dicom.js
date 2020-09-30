@@ -1157,8 +1157,13 @@ export default class ParsersDicom extends ParsersVolume {
     let rgbData = null;
     let photometricInterpretation = this.photometricInterpretation();
     let planarConfiguration = this.planarConfiguration();
+    if  (planarConfiguration === null) {
+      planarConfiguration = 0;
+      window.console.log('Planar Configuration was not set and was defaulted to  0');
+    }
 
     const interpretAsRGB = this._interpretAsRGB(photometricInterpretation);
+
     if (interpretAsRGB && planarConfiguration === 0) {
       // ALL GOOD, ALREADY ORDERED
       // planar or non planar planarConfiguration
