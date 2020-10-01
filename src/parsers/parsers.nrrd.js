@@ -130,6 +130,23 @@ export default class ParsersNifti extends ParsersVolume {
     return pixelType;
   }
 
+  pixelRepresentation(frameIndex = 0) {
+    let pixelRepresentation = 0;
+
+    if (
+      this._dataSet.type === 'int8' ||
+      this._dataSet.type === 'char' ||
+      this._dataSet.type === 'int16' ||
+      this._dataSet.type === 'short' ||
+      this._dataSet.type === 'int32' ||
+      this._dataSet.type === 'float'
+    ) {
+      pixelRepresentation = 1;
+    }
+
+    return pixelRepresentation;
+  }
+
   /**
    * Bits allocated
    *

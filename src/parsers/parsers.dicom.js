@@ -9,7 +9,6 @@ import { RLEDecoder } from '../decoders/decoders.rle';
 let DicomParser = require('dicom-parser');
 let Jpeg = require('jpeg-lossless-decoder-js');
 let JpegBaseline = require('../../external/scripts/jpeg');
-let Jpx = require('../../external/scripts/jpx');
 let openJPEG; // for one time initialization
 
 /**
@@ -45,6 +44,7 @@ export default class ParsersDicom extends ParsersVolume {
       this._dataSet = DicomParser.parseDicom(byteArray);
     } catch (e) {
       console.log(e);
+
       const error = new Error('parsers.dicom could not parse the file');
       throw error;
     }
@@ -676,7 +676,6 @@ export default class ParsersDicom extends ParsersVolume {
   extractPixelData(frameIndex = 0) {
     // decompress
     let decompressedData = this._decodePixelData(frameIndex);
-
     let numberOfChannels = this.numberOfChannels();
 
     if (numberOfChannels > 1) {
@@ -867,26 +866,6 @@ export default class ParsersDicom extends ParsersVolume {
     );
   }
 
-  // used if OpenJPEG library isn't loaded (OHIF/image-JPEG2000 isn't supported and can't parse some images)
-  _decodeJpx(frameIndex = 0) {
-    const jpxImage = new Jpx();
-    // https://github.com/OHIF/image-JPEG2000/issues/6
-    // It currently returns either Int16 or Uint16 based on whether the codestream is signed or not.
-    jpxImage.parse(this.getEncapsulatedImageFrame(frameIndex));
-
-    if (jpxImage.componentsCount !== 1) {
-      throw new Error(
-        'JPEG2000 decoder returned a componentCount of ${componentsCount}, when 1 is expected'
-      );
-    }
-
-    if (jpxImage.tiles.length !== 1) {
-      throw new Error('JPEG2000 decoder returned a tileCount of ${tileCount}, when 1 is expected');
-    }
-
-    return jpxImage.tiles[0].items;
-  }
-
   _decodeOpenJPEG(frameIndex = 0) {
     const encodedPixelData = this.getEncapsulatedImageFrame(frameIndex);
     const bytesPerPixel = this.bitsAllocated(frameIndex) <= 8 ? 1 : 2;
@@ -975,21 +954,7 @@ export default class ParsersDicom extends ParsersVolume {
     return pixelData;
   }
 
-  // from cornerstone
   _decodeJ2K(frameIndex = 0) {
-    if (typeof OpenJPEG === 'undefined') {
-      // OpenJPEG decoder not loaded
-      return this._decodeJpx(frameIndex);
-    }
-
-    if (!openJPEG) {
-      openJPEG = OpenJPEG();
-      if (!openJPEG || !openJPEG._jp2_decode) {
-        // OpenJPEG failed to initialize
-        return this._decodeJpx(frameIndex);
-      }
-    }
-
     return this._decodeOpenJPEG(frameIndex);
   }
 
@@ -1075,22 +1040,22 @@ export default class ParsersDicom extends ParsersVolume {
     if (pixelRepresentation === 0 && bitsAllocated === 8) {
       // unsigned 8 bit
       frameOffset = pixelDataOffset + frameIndex * numPixels;
-      return new Uint8Array(buffer, frameOffset, numPixels);
+      return new Uint8Array(buffer, frameOffset, numPixels).slice();
     } else if (pixelRepresentation === 0 && bitsAllocated === 16) {
       // unsigned 16 bit
       frameOffset = pixelDataOffset + frameIndex * numPixels * 2;
-      return new Uint16Array(buffer, frameOffset, numPixels);
+      return new Uint16Array(buffer, frameOffset, numPixels).slice();
     } else if (pixelRepresentation === 1 && bitsAllocated === 16) {
       // signed 16 bit
       frameOffset = pixelDataOffset + frameIndex * numPixels * 2;
-      return new Int16Array(buffer, frameOffset, numPixels);
+      return new Int16Array(buffer, frameOffset, numPixels).slice();
     } else if (pixelRepresentation === 0 && bitsAllocated === 32) {
       // unsigned 32 bit
       frameOffset = pixelDataOffset + frameIndex * numPixels * 4;
-      return new Uint32Array(buffer, frameOffset, numPixels);
+      return new Uint32Array(buffer, frameOffset, numPixels).slice();
     } else if (pixelRepresentation === 0 && bitsAllocated === 1) {
       let newBuffer = new ArrayBuffer(numPixels);
-      let newArray = new Uint8Array(newBuffer);
+      let newArray = new Uint8Array(newBuffer).slice();
 
       frameOffset = pixelDataOffset + frameIndex * numPixels;
       let index = 0;
@@ -1102,7 +1067,7 @@ export default class ParsersDicom extends ParsersVolume {
       let bitStartOffset = bitStart - byteStart * 8;
       let byteEnd = Math.ceil(bitEnd / 8);
 
-      let targetBuffer = new Uint8Array(buffer, pixelDataOffset);
+      let targetBuffer = new Uint8Array(buffer, pixelDataOffset).slice();
 
       for (let i = byteStart; i <= byteEnd; i++) {
         while (bitStartOffset < 8) {

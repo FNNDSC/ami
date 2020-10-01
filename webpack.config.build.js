@@ -15,18 +15,26 @@ const config = {
     library: 'AMI',
     libraryTarget: 'umd',
     umdNamedDefine: true,
+    globalObject: "this",
   },
   mode,
   resolve: {
     modules: [path.resolve(__dirname, 'src'), 'node_modules'],
     extensions: ['.ts', '.js', '.css', '.html'],
     alias: {
-      base: path.resolve(__dirname, 'src'),
+      examplesBase: path.resolve(__dirname, 'src'),
       pako: path.resolve(__dirname, 'node_modules', 'pako'),
     },
   },
   module: {
     rules: [
+      {
+        test: /\.worker\.ts$/,
+        use: {
+          loader: 'worker-loader',
+          // options: { inline: true, fallback: false } ,
+        }
+      },
       {
         test: /\.js$/,
         loader: 'babel-loader',
