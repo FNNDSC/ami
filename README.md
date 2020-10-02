@@ -227,7 +227,7 @@ $> yarn add ami.js
 ```javascript
 
 // app.js
-import * as AMI form 'ami.js';
+import * as AMI from 'ami.js';
 window.console.log('Ready to rock!!');
 
 ```
