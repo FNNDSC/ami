@@ -45997,7 +45997,9 @@ var widgetsBiruler = function widgetsBiruler() {
       if (this._cobbAngle) {
         // update angle label
         if (this._angle || !this._handles[3].tracking || this._handles[2].screenPosition.distanceTo(this._handles[3].screenPosition) >= 10) {
-          this._angle = lineData.line.angleTo(line2Data.line) * 180 / Math.PI || 0.0;
+          var rawAngle = this._handles[1].worldPosition.clone().sub(this._handles[0].worldPosition).angleTo(this._handles[3].worldPosition.clone().sub(this._handles[2].worldPosition));
+
+          this._angle = rawAngle * 180 / Math.PI || 0.0;
           if (this._angle > 90) {
             this._angle = 180 - this._angle;
           }
