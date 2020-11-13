@@ -211,7 +211,7 @@ const widgetsBiruler = (three = window.THREE) => {
         this._handles[1].active ||
         this._handles[2].active ||
         this._handles[3].active;
-      this._dragged = false; // TODO! ??? or this._dragged = this._handles[2].tracking;
+      this._dragged = false;
       this._moving = false;
 
       this.update();
@@ -256,17 +256,19 @@ const widgetsBiruler = (three = window.THREE) => {
       this._dashline.className = 'widgets-dashline';
       this._container.appendChild(this._dashline);
 
-      this._label = document.createElement('div');
-      this._label.className = 'widgets-label';
-      this._container.appendChild(this._label);
+      if (this._cobbAngle) {
+        this._labelAngle = document.createElement('div');
+        this._labelAngle.className = 'widgets-label';
+        this._container.appendChild(this._labelAngle);
+      } else {
+        this._label = document.createElement('div');
+        this._label.className = 'widgets-label';
+        this._container.appendChild(this._label);
 
-      this._label2 = document.createElement('div');
-      this._label2.className = 'widgets-label';
-      this._container.appendChild(this._label2);
-
-      this._labelAngle = document.createElement('div');
-      this._labelAngle.className = 'widgets-label';
-      this._container.appendChild(this._labelAngle);
+        this._label2 = document.createElement('div');
+        this._label2.className = 'widgets-label';
+        this._container.appendChild(this._label2);
+      }
 
       this.updateDOMColor();
     }
@@ -276,9 +278,12 @@ const widgetsBiruler = (three = window.THREE) => {
       this._line2.style.display = 'none';
       this._dashline.style.display = 'none';
 
-      this._label.style.display = 'none';
-      this._label2.style.display = 'none';
-      this._labelAngle.style.display = 'none';
+      if (this._cobbAngle) {
+        this._labelAngle.style.display = 'none';
+      } else {
+        this._label.style.display = 'none';
+        this._label2.style.display = 'none';
+      }
 
       this._handles.forEach(elem => elem.hideDOM());
     }
@@ -349,10 +354,7 @@ const widgetsBiruler = (three = window.THREE) => {
       this._line2.style.width = line2Data.length + 'px';
 
       // update dash line
-      const dashLineData = this.getLineData(
-        this.worldToScreen(lineData.center),
-        this.worldToScreen(line2Data.center)
-      );
+      const dashLineData = this.getLineData(lineData.center, line2Data.center);
 
       this._dashline.style.transform = `translate3D(${dashLineData.transformX}px, ${
         dashLineData.transformY
@@ -360,117 +362,111 @@ const widgetsBiruler = (three = window.THREE) => {
                 rotate(${dashLineData.transformAngle}rad)`;
       this._dashline.style.width = dashLineData.length + 'px';
 
-      // update distance labels
-      const distanceData = this.getDistanceData(
-        this._handles[0].worldPosition,
-        this._handles[1].worldPosition,
-        this._calibrationFactor
-      );
-      const distanceData2 = this.getDistanceData(
-        this._handles[2].worldPosition,
-        this._handles[3].worldPosition,
-        this._calibrationFactor
-      );
-      const title = 'Calibration is required to display the distance in mm';
+      if (this._cobbAngle) { // update angle label
+        if (this._angle || !this._handles[3].tracking
+            || this._handles[2].screenPosition.distanceTo(this._handles[3].screenPosition) >= 10
+        ) {
+          this._angle = (lineData.line.angleTo(line2Data.line) * 180) / Math.PI || 0.0;
+          if (this._angle > 90) {
+            this._angle = 180 - this._angle;
+          }
+          this._labelAngle.innerHTML = `${this._angle.toFixed(2)}&deg;`;
 
-      this._distance = distanceData.distance;
-      this._distance2 = distanceData2.distance;
-      if (distanceData.units && distanceData2.units && distanceData.units === distanceData2.units) {
-        this._units = distanceData.units;
-      } else {
-        if (!distanceData.units) {
-          distanceData.units = this._units;
+          const transformA = this.adjustLabelTransform(this._labelAngle, dashLineData.center);
+
+          this._labelAngle.style.transform = `translate3D(${transformA.x}px, ${transformA.y}px, 0)`;
         }
-        if (!distanceData2.units) {
-          distanceData2.units = this._units;
+      } else { // update distance labels
+        const distanceData = this.getDistanceData(
+          this._handles[0].worldPosition,
+          this._handles[1].worldPosition,
+          this._calibrationFactor
+        );
+        const distanceData2 = this.getDistanceData(
+          this._handles[2].worldPosition,
+          this._handles[3].worldPosition,
+          this._calibrationFactor
+        );
+        const title = 'Calibration is required to display the distance in mm';
+
+        this._distance = distanceData.distance;
+        this._distance2 = distanceData2.distance;
+        if (distanceData.units && distanceData2.units && distanceData.units === distanceData2.units) {
+          this._units = distanceData.units;
+        } else {
+          if (!distanceData.units) {
+            distanceData.units = this._units;
+          }
+          if (!distanceData2.units) {
+            distanceData2.units = this._units;
+          }
         }
+
+        if (distanceData.units === 'units' && !this._label.hasAttribute('title')) {
+          this._label.setAttribute('title', title);
+          this._label.style.color = this._colors.error;
+        } else if (distanceData.units !== 'units' && this._label.hasAttribute('title')) {
+          this._label.removeAttribute('title');
+          this._label.style.color = this._colors.text;
+        }
+        if (distanceData2.units === 'units' && !this._label2.hasAttribute('title')) {
+          this._label2.setAttribute('title', title);
+          this._label2.style.color = this._colors.error;
+        } else if (distanceData2.units !== 'units' && this._label2.hasAttribute('title')) {
+          this._label2.removeAttribute('title');
+          this._label2.style.color = this._colors.text;
+        }
+        this._label.innerHTML = `${this._distance.toFixed(2)} ${distanceData.units}`;
+        this._label2.innerHTML = `${this._distance2.toFixed(2)} ${distanceData2.units}`;
+
+        let angle = Math.abs(lineData.transformAngle);
+        if (angle > Math.PI / 2) {
+          angle = Math.PI - angle;
+        }
+
+        const labelPadding =
+          Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth
+            ? this._label.offsetWidth / 2 / Math.cos(angle) + 15 // 5px for each handle + padding
+            : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle) + 15;
+        const paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
+        const paddingPoint =
+          lineData.length > labelPadding * 2
+            ? this._handles[1].screenPosition.clone().sub(paddingVector)
+            : this._handles[1].screenPosition.clone().add(paddingVector);
+        const transform = this.adjustLabelTransform(this._label, paddingPoint);
+
+        this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
+
+        let angle2 = Math.abs(line2Data.transformAngle);
+        if (angle2 > Math.PI / 2) {
+          angle2 = Math.PI - angle2;
+        }
+
+        const label2Padding =
+          Math.tan(angle2) < this._label2.offsetHeight / this._label2.offsetWidth
+            ? this._label2.offsetWidth / 2 / Math.cos(angle2) + 15 // 5px for each handle + padding
+            : this._label2.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle2) + 15;
+        const paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding);
+        const paddingPoint2 =
+          line2Data.length > label2Padding * 2
+            ? this._handles[3].screenPosition.clone().sub(paddingVector2)
+            : this._handles[3].screenPosition.clone().add(paddingVector2);
+        const transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
+
+        this._label2.style.transform = `translate3D(${transform2.x}px, ${transform2.y}px, 0)`;
       }
-
-      if (distanceData.units === 'units' && !this._label.hasAttribute('title')) {
-        this._label.setAttribute('title', title);
-        this._label.style.color = this._colors.error;
-      } else if (distanceData.units !== 'units' && this._label.hasAttribute('title')) {
-        this._label.removeAttribute('title');
-        this._label.style.color = this._colors.text;
-      }
-      if (distanceData2.units === 'units' && !this._label2.hasAttribute('title')) {
-        this._label2.setAttribute('title', title);
-        this._label2.style.color = this._colors.error;
-      } else if (distanceData2.units !== 'units' && this._label2.hasAttribute('title')) {
-        this._label2.removeAttribute('title');
-        this._label2.style.color = this._colors.text;
-      }
-      this._label.innerHTML = `${this._distance.toFixed(2)} ${distanceData.units}`;
-      this._label2.innerHTML = `${this._distance2.toFixed(2)} ${distanceData2.units}`;
-
-      let angle = Math.abs(lineData.transformAngle);
-      if (angle > Math.PI / 2) {
-        angle = Math.PI - angle;
-      }
-
-      const labelPadding =
-        Math.tan(angle) < this._label.offsetHeight / this._label.offsetWidth
-          ? this._label.offsetWidth / 2 / Math.cos(angle) + 15 // 5px for each handle + padding
-          : this._label.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle) + 15;
-      const paddingVector = lineData.line.normalize().multiplyScalar(labelPadding);
-      const paddingPoint =
-        lineData.length > labelPadding * 2
-          ? this._handles[1].screenPosition.clone().sub(paddingVector)
-          : this._handles[1].screenPosition.clone().add(paddingVector);
-      const transform = this.adjustLabelTransform(this._label, paddingPoint);
-
-      this._label.style.transform = `translate3D(${transform.x}px, ${transform.y}px, 0)`;
-
-      let angle2 = Math.abs(line2Data.transformAngle);
-      if (angle2 > Math.PI / 2) {
-        angle2 = Math.PI - angle2;
-      }
-
-      const label2Padding =
-        Math.tan(angle2) < this._label2.offsetHeight / this._label2.offsetWidth
-          ? this._label2.offsetWidth / 2 / Math.cos(angle2) + 15 // 5px for each handle + padding
-          : this._label2.offsetHeight / 2 / Math.cos(Math.PI / 2 - angle2) + 15;
-      const paddingVector2 = line2Data.line.normalize().multiplyScalar(label2Padding);
-      const paddingPoint2 =
-        line2Data.length > label2Padding * 2
-          ? this._handles[3].screenPosition.clone().sub(paddingVector2)
-          : this._handles[3].screenPosition.clone().add(paddingVector2);
-      const transform2 = this.adjustLabelTransform(this._label2, paddingPoint2);
-
-      this._label2.style.transform = `translate3D(${transform2.x}px, ${transform2.y}px, 0)`;
-
-      // update angle label
-      this._angle = (lineData.line.angleTo(line2Data.line) * 180) / Math.PI || 0.0;
-
-      this._labelAngle.innerHTML = `${this._angle.toFixed(2)}&deg;`;
-
-      /* TODO! do we want to put label on line on near it ?
-      let angleA = Math.abs(dashLineData.transformAngle);
-      if (angleA > Math.PI / 2) {
-        angleA = Math.PI - angleA;
-      }
-
-      const labelAPadding = Math.tan(angleA) < this._labelAngle.offsetHeight / this._labelAngle.offsetWidth
-        ? this._labelAngle.offsetWidth / 2 / Math.cos(angleA) + 15 // 5px for each handle + padding
-        : this._labelAngle.offsetHeight / 2 / Math.cos(Math.PI / 2 - angleA) + 15;
-      const paddingAVector = dashLineData.line.normalize().multiplyScalar(labelAPadding);
-      const paddingAPoint = dashLineData.length > labelAPadding * 2
-        ? this._handles[1].screenPosition.clone().sub(paddingAVector)
-        : this._handles[1].screenPosition.clone().add(paddingAVector);*/
-      const transformA = this.adjustLabelTransform(this._labelAngle, dashLineData.center);
-
-      this._labelAngle.style.transform = `translate3D(${transformA.x}px, ${transformA.y}px, 0)`;
     }
 
     updateDOMColor() {
       this._line.style.backgroundColor = this._color;
-      this._label.style.borderColor = this._color;
-
       this._line2.style.backgroundColor = this._color;
-      this._label2.style.borderColor = this._color;
-
       this._dashline.style.borderTop = '1.5px dashed ' + this._color;
-      this._labelAngle.style.borderColor = this._color;
+      if (this._cobbAngle) {
+        this._labelAngle.style.borderColor = this._color;
+      } else {
+        this._label.style.borderColor = this._color;
+        this._label2.style.borderColor = this._color;
+      }
     }
 
     free() {
@@ -483,11 +479,14 @@ const widgetsBiruler = (three = window.THREE) => {
       this._handles = [];
 
       this._container.removeChild(this._line);
-      this._container.removeChild(this._label);
       this._container.removeChild(this._line2);
-      this._container.removeChild(this._label2);
       this._container.removeChild(this._dashline);
-      this._container.removeChild(this._labelAngle);
+      if (this._cobbAngle) {
+        this._container.removeChild(this._labelAngle);
+      } else {
+        this._container.removeChild(this._label);
+        this._container.removeChild(this._label2);
+      }
 
       // mesh, geometry, material
       this.remove(this._mesh);
