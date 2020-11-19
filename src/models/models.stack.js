@@ -692,11 +692,10 @@ export default class ModelsStack extends ModelsBase {
    *@return {*}
    */
   worldCenter() {
-    let center = this._halfDimensionsIJK
+    return this._halfDimensionsIJK
       .clone()
       .addScalar(-0.5)
       .applyMatrix4(this._ijk2LPS);
-    return center;
   }
 
   /**
@@ -751,13 +750,11 @@ export default class ModelsStack extends ModelsBase {
       .applyMatrix4(this._ijk2LPS)
       .applyMatrix4(this._lps2AABB);
 
-    let minBBox = new Vector3(
+    return new Vector3(
       Math.abs(world0.x - world7.x),
       Math.abs(world0.y - world7.y),
       Math.abs(world0.z - world7.z)
     );
-
-    return minBBox;
   }
 
   /**
@@ -770,18 +767,12 @@ export default class ModelsStack extends ModelsBase {
   }
 
   static indexInDimensions(index, dimensions) {
-    if (
-      index.x >= 0 &&
+    return index.x >= 0 &&
       index.y >= 0 &&
       index.z >= 0 &&
       index.x < dimensions.x &&
       index.y < dimensions.y &&
-      index.z < dimensions.z
-    ) {
-      return true;
-    }
-
-    return false;
+      index.z < dimensions.z;
   }
 
   _arrayToVector3(array, index) {

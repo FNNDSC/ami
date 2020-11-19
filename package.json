@@ -1,6 +1,6 @@
 {
   "name": "ami.js",
-  "version": "0.32.1-unvsoft",
+  "version": "0.32.2-unvsoft",
   "main": "build/ami.js",
   "keywords": [
     "ami",
