@@ -228,9 +228,9 @@ const widgetsBase = (three = (window as any).THREE) => {
     /**
      * Get distance between points
      *
-     * @param {Vector3} pointA Begin world coordinates
-     * @param {Vector3} pointB End world coordinates
-     * @param {number}  cf     Calibration factor
+     * @param {Vector3} pointA            Begin world coordinates
+     * @param {Vector3} pointB            End world coordinates
+     * @param {number}  calibrationFactor Calibration factor
      *
      * @returns {Object}
      */
