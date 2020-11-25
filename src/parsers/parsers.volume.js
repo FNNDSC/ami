@@ -14,6 +14,10 @@ export default class ParsersVolume {
     return null;
   }
 
+  imageType() {
+    return null; // []
+  }
+
   modality() {
     return 'unknown';
   }

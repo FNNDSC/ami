@@ -45,8 +45,7 @@ export default class ParsersDicom extends ParsersVolume {
       this._dataSet = DicomParser.parseDicom(byteArray);
     } catch (e) {
       console.log(e);
-      const error = new Error('parsers.dicom could not parse the file');
-      throw error;
+      throw new Error('parsers.dicom could not parse the file');
     }
   }
 
@@ -66,6 +65,15 @@ export default class ParsersDicom extends ParsersVolume {
    */
   studyInstanceUID() {
     return this._dataSet.string('x0020000d');
+  }
+
+  /**
+   * Image Type (0008,0008)
+   *
+   * @return {String}
+   */
+  imageType() {
+    return this._dataSet.string('x00080008'); // .split('\\')
   }
 
   /**
@@ -177,13 +185,11 @@ export default class ParsersDicom extends ParsersVolume {
       CIELabScaled[i] = (byteArray[2 * i + 1] << 8) + byteArray[2 * i];
     }
 
-    let CIELabNormalized = [
+    return [
       (CIELabScaled[0] / 65535) * 100,
       (CIELabScaled[1] / 65535) * 255 - 128,
       (CIELabScaled[2] / 65535) * 255 - 128,
     ];
-
-    return CIELabNormalized;
   }
 
   /**
@@ -203,8 +209,7 @@ export default class ParsersDicom extends ParsersVolume {
    * @return {*}
    */
   sopInstanceUID(frameIndex = 0) {
-    let sopInstanceUID = this._findStringEverywhere('x2005140f', 'x00080018', frameIndex);
-    return sopInstanceUID;
+    return this._findStringEverywhere('x2005140f', 'x00080018', frameIndex);
   }
 
   /**
@@ -356,7 +361,7 @@ export default class ParsersDicom extends ParsersVolume {
   invert() {
     let photometricInterpretation = this.photometricInterpretation();
 
-    return photometricInterpretation === 'MONOCHROME1' ? true : false;
+    return photometricInterpretation === 'MONOCHROME1';
   }
 
   imageOrientation(frameIndex = 0) {
@@ -549,8 +554,7 @@ export default class ParsersDicom extends ParsersVolume {
   }
 
   pixelRepresentation(frameIndex = 0) {
-    let pixelRepresentation = this._dataSet.uint16('x00280103');
-    return pixelRepresentation;
+    return this._dataSet.uint16('x00280103');
   }
 
   pixelPaddingValue(frameIndex = 0) {
@@ -565,14 +569,12 @@ export default class ParsersDicom extends ParsersVolume {
 
   bitsAllocated(frameIndex = 0) {
     // expect frame index to start at 0!
-    let bitsAllocated = this._dataSet.uint16('x00280100');
-    return bitsAllocated;
+    return this._dataSet.uint16('x00280100');
   }
 
   highBit(frameIndex = 0) {
     // expect frame index to start at 0!
-    let highBit = this._dataSet.uint16('x00280102');
-    return highBit;
+    return this._dataSet.uint16('x00280102');
   }
 
   rescaleIntercept(frameIndex = 0) {
@@ -1177,8 +1179,7 @@ export default class ParsersDicom extends ParsersVolume {
       } else if (uncompressedData instanceof Uint16Array) {
         rgbData = new Uint16Array(uncompressedData.length);
       } else {
-        const error = new Error(`unsuported typed array: ${uncompressedData}`);
-        throw error;
+        throw new Error(`unsuported typed array: ${uncompressedData}`);
       }
 
       let numPixels = uncompressedData.length / 3;
@@ -1201,8 +1202,7 @@ export default class ParsersDicom extends ParsersVolume {
       } else if (uncompressedData instanceof Uint16Array) {
         rgbData = new Uint16Array(uncompressedData.length);
       } else {
-        const error = new Error(`unsuported typed array: ${uncompressedData}`);
-        throw error;
+        throw new Error(`unsuported typed array: ${uncompressedData}`);
       }
 
       // https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/decodeYBRFull.js
@@ -1219,10 +1219,7 @@ export default class ParsersDicom extends ParsersVolume {
         // rgbData[rgbaIndex++] = 255; //alpha
       }
     } else {
-      const error = new Error(
-        `photometric interpolation not supported: ${photometricInterpretation}`
-      );
-      throw error;
+      throw new Error(`photometric interpolation not supported: ${photometricInterpretation}`);
     }
 
     return rgbData;

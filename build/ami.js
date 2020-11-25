@@ -26869,7 +26869,7 @@ module.exports = g;
 /*! exports provided: name, version, main, keywords, author, license, repository, config, lint-staged, prettier, sideEffects, dependencies, scripts, devDependencies, engines, default */
 /***/ (function(module) {
 
-module.exports = {"name":"ami.js","version":"0.32.1-unvsoft","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"lint-staged":{"{{src/**,examples/**, lessons/**}/,}.{js,jsx,json,css,ts,tsx}":["prettier --write","git add"]},"prettier":{"printWidth":100,"singleQuote":true,"trailingComma":"es5","overrides":[{"files":"*.css","options":{"useTabs":false,"tabWidth":2}}]},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"latest"},"scripts":{"precommit":"lint-staged","tslint-check":"tslint-config-prettier-check ./tslint.json","check-codestyle":"prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'","fix-all-code-style":"prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'","build:ami":"webpack --config webpack.config.build.js --display-error-details","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"@types/jasmine":"^3.3.2","@types/node":"^10.11.3","@types/three":"^0.93.13","babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","gh-pages":"^1.2.0","husky":"^1.1.3","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","lint-staged":"^8.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","prettier":"^1.15.1","prettier-check":"^2.0.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","ts-loader":"^5.2.1","tslint":"^5.11.0","tslint-config-prettier":"^1.15.0","tslint-loader":"^3.6.0","typescript":"^3.1.1","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-cli":"^3.1.0","webpack-dev-server":"^3.1.5","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
+module.exports = {"name":"ami.js","version":"0.32.2-unvsoft","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"lint-staged":{"{{src/**,examples/**, lessons/**}/,}.{js,jsx,json,css,ts,tsx}":["prettier --write","git add"]},"prettier":{"printWidth":100,"singleQuote":true,"trailingComma":"es5","overrides":[{"files":"*.css","options":{"useTabs":false,"tabWidth":2}}]},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"latest"},"scripts":{"precommit":"lint-staged","tslint-check":"tslint-config-prettier-check ./tslint.json","check-codestyle":"prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'","fix-all-code-style":"prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'","build:ami":"webpack --config webpack.config.build.js --display-error-details","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"@types/jasmine":"^3.3.2","@types/node":"^10.11.3","@types/three":"^0.93.13","babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","gh-pages":"^1.2.0","husky":"^1.1.3","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","lint-staged":"^8.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","prettier":"^1.15.1","prettier-check":"^2.0.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","ts-loader":"^5.2.1","tslint":"^5.11.0","tslint-config-prettier":"^1.15.0","tslint-loader":"^3.6.0","typescript":"^3.1.1","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-cli":"^3.1.0","webpack-dev-server":"^3.1.5","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
 
 /***/ }),
 
@@ -35329,6 +35329,7 @@ var LoadersVolumes = function (_LoadersBase) {
     if (frame.imagePosition === null) {
       frame.imagePosition = [0, 0, i];
     }*/
+    frame.imageType = dataParser.imageType();
     frame.dimensionIndexValues = dataParser.dimensionIndexValues(i);
     frame.bitsAllocated = dataParser.bitsAllocated(i);
     frame.instanceNumber = dataParser.instanceNumber(i);
@@ -35460,10 +35461,7 @@ var LoadersVolumes = function (_LoadersBase) {
 
 
   LoadersVolumes.prototype._filterByExtension = function _filterByExtension(extension, item) {
-    if (item.extension.toUpperCase() === extension.toUpperCase()) {
-      return true;
-    }
-    return false;
+    return item.extension.toUpperCase() === extension.toUpperCase();
   };
 
   return LoadersVolumes;
@@ -35646,6 +35644,7 @@ var ModelsFrame = function (_ModelsBase) {
     _this._dimensionIndexValues = [];
     _this._imagePosition = null;
     _this._imageOrientation = null;
+    _this._imageType = null; // []
     _this._rightHanded = true;
     _this._sliceThickness = 1;
     _this._spacingBetweenSlices = null;
@@ -35684,11 +35683,7 @@ var ModelsFrame = function (_ModelsBase) {
 
 
   ModelsFrame.prototype.validate = function validate(model) {
-    if (!(_ModelsBase.prototype.validate.call(this, model) && typeof model.cosines === 'function' && typeof model.spacingXY === 'function' && model.hasOwnProperty('_sopInstanceUID') && model.hasOwnProperty('_dimensionIndexValues') && model.hasOwnProperty('_imageOrientation') && model.hasOwnProperty('_imagePosition'))) {
-      return false;
-    }
-
-    return true;
+    return _ModelsBase.prototype.validate.call(this, model) && typeof model.cosines === 'function' && typeof model.spacingXY === 'function' && model.hasOwnProperty('_sopInstanceUID') && model.hasOwnProperty('_dimensionIndexValues') && model.hasOwnProperty('_imageOrientation') && model.hasOwnProperty('_imagePosition');
   };
 
   /**
@@ -35712,11 +35707,7 @@ var ModelsFrame = function (_ModelsBase) {
       return false;
     }
 
-    if (this._compareArrays(this._dimensionIndexValues, frame.dimensionIndexValues) && this._compareArrays(this._imageOrientation, frame.imageOrientation) && this._compareArrays(this._imagePosition, frame.imagePosition) && this.instanceDifference(frame) === 0 && this.index === frame.index) {
-      return true;
-    } else {
-      return false;
-    }
+    return this._compareArrays(this._dimensionIndexValues, frame.dimensionIndexValues) && this._compareArrays(this._imageOrientation, frame.imageOrientation) && this._compareArrays(this._imagePosition, frame.imagePosition) && this.instanceDifference(frame) === 0 && this.index === frame.index;
   };
 
   /**
@@ -35975,11 +35966,7 @@ var ModelsFrame = function (_ModelsBase) {
     }
 
     // if not null....
-    if (reference && target && reference.join() === target.join()) {
-      return true;
-    }
-
-    return false;
+    return !!(reference && target && reference.join() === target.join());
   };
 
   _createClass(ModelsFrame, [{
@@ -36045,6 +36032,14 @@ var ModelsFrame = function (_ModelsBase) {
     },
     set: function set(imageOrientation) {
       this._imageOrientation = imageOrientation;
+    }
+  }, {
+    key: 'imageType',
+    get: function get() {
+      return this._imageType;
+    },
+    set: function set(imageType) {
+      this._imageType = imageType;
     }
   }, {
     key: 'windowWidth',
@@ -37549,8 +37544,7 @@ var ModelsStack = function (_ModelsBase) {
 
 
   ModelsStack.prototype.worldCenter = function worldCenter() {
-    var center = this._halfDimensionsIJK.clone().addScalar(-0.5).applyMatrix4(this._ijk2LPS);
-    return center;
+    return this._halfDimensionsIJK.clone().addScalar(-0.5).applyMatrix4(this._ijk2LPS);
   };
 
   /**
@@ -37589,9 +37583,7 @@ var ModelsStack = function (_ModelsBase) {
 
     var world7 = this._dimensionsIJK.clone().addScalar(-0.5).applyMatrix4(this._ijk2LPS).applyMatrix4(this._lps2AABB);
 
-    var minBBox = new three_src_math_Vector3__WEBPACK_IMPORTED_MODULE_1__["Vector3"](Math.abs(world0.x - world7.x), Math.abs(world0.y - world7.y), Math.abs(world0.z - world7.z));
-
-    return minBBox;
+    return new three_src_math_Vector3__WEBPACK_IMPORTED_MODULE_1__["Vector3"](Math.abs(world0.x - world7.x), Math.abs(world0.y - world7.y), Math.abs(world0.z - world7.z));
   };
 
   /**
@@ -37606,11 +37598,7 @@ var ModelsStack = function (_ModelsBase) {
   };
 
   ModelsStack.indexInDimensions = function indexInDimensions(index, dimensions) {
-    if (index.x >= 0 && index.y >= 0 && index.z >= 0 && index.x < dimensions.x && index.y < dimensions.y && index.z < dimensions.z) {
-      return true;
-    }
-
-    return false;
+    return index.x >= 0 && index.y >= 0 && index.z >= 0 && index.x < dimensions.x && index.y < dimensions.y && index.z < dimensions.z;
   };
 
   ModelsStack.prototype._arrayToVector3 = function _arrayToVector3(array, index) {
@@ -38123,8 +38111,7 @@ var ParsersDicom = function (_ParsersVolume) {
       _this._dataSet = DicomParser.parseDicom(byteArray);
     } catch (e) {
       console.log(e);
-      var error = new Error('parsers.dicom could not parse the file');
-      throw error;
+      throw new Error('parsers.dicom could not parse the file');
     }
     return _this;
   }
@@ -38149,6 +38136,17 @@ var ParsersDicom = function (_ParsersVolume) {
 
   ParsersDicom.prototype.studyInstanceUID = function studyInstanceUID() {
     return this._dataSet.string('x0020000d');
+  };
+
+  /**
+   * Image Type (0008,0008)
+   *
+   * @return {String}
+   */
+
+
+  ParsersDicom.prototype.imageType = function imageType() {
+    return this._dataSet.string('x00080008'); // .split('\\')
   };
 
   /**
@@ -38270,9 +38268,7 @@ var ParsersDicom = function (_ParsersVolume) {
       CIELabScaled[i] = (byteArray[2 * i + 1] << 8) + byteArray[2 * i];
     }
 
-    var CIELabNormalized = [CIELabScaled[0] / 65535 * 100, CIELabScaled[1] / 65535 * 255 - 128, CIELabScaled[2] / 65535 * 255 - 128];
-
-    return CIELabNormalized;
+    return [CIELabScaled[0] / 65535 * 100, CIELabScaled[1] / 65535 * 255 - 128, CIELabScaled[2] / 65535 * 255 - 128];
   };
 
   /**
@@ -38298,8 +38294,7 @@ var ParsersDicom = function (_ParsersVolume) {
   ParsersDicom.prototype.sopInstanceUID = function sopInstanceUID() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    var sopInstanceUID = this._findStringEverywhere('x2005140f', 'x00080018', frameIndex);
-    return sopInstanceUID;
+    return this._findStringEverywhere('x2005140f', 'x00080018', frameIndex);
   };
 
   /**
@@ -38463,7 +38458,7 @@ var ParsersDicom = function (_ParsersVolume) {
   ParsersDicom.prototype.invert = function invert() {
     var photometricInterpretation = this.photometricInterpretation();
 
-    return photometricInterpretation === 'MONOCHROME1' ? true : false;
+    return photometricInterpretation === 'MONOCHROME1';
   };
 
   ParsersDicom.prototype.imageOrientation = function imageOrientation() {
@@ -38671,8 +38666,7 @@ var ParsersDicom = function (_ParsersVolume) {
   ParsersDicom.prototype.pixelRepresentation = function pixelRepresentation() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    var pixelRepresentation = this._dataSet.uint16('x00280103');
-    return pixelRepresentation;
+    return this._dataSet.uint16('x00280103');
   };
 
   ParsersDicom.prototype.pixelPaddingValue = function pixelPaddingValue() {
@@ -38691,16 +38685,14 @@ var ParsersDicom = function (_ParsersVolume) {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
     // expect frame index to start at 0!
-    var bitsAllocated = this._dataSet.uint16('x00280100');
-    return bitsAllocated;
+    return this._dataSet.uint16('x00280100');
   };
 
   ParsersDicom.prototype.highBit = function highBit() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
     // expect frame index to start at 0!
-    var highBit = this._dataSet.uint16('x00280102');
-    return highBit;
+    return this._dataSet.uint16('x00280102');
   };
 
   ParsersDicom.prototype.rescaleIntercept = function rescaleIntercept() {
@@ -39287,8 +39279,7 @@ var ParsersDicom = function (_ParsersVolume) {
       } else if (uncompressedData instanceof Uint16Array) {
         rgbData = new Uint16Array(uncompressedData.length);
       } else {
-        var error = new Error('unsuported typed array: ' + uncompressedData);
-        throw error;
+        throw new Error('unsuported typed array: ' + uncompressedData);
       }
 
       var numPixels = uncompressedData.length / 3;
@@ -39311,8 +39302,7 @@ var ParsersDicom = function (_ParsersVolume) {
       } else if (uncompressedData instanceof Uint16Array) {
         rgbData = new Uint16Array(uncompressedData.length);
       } else {
-        var _error = new Error('unsuported typed array: ' + uncompressedData);
-        throw _error;
+        throw new Error('unsuported typed array: ' + uncompressedData);
       }
 
       // https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/decodeYBRFull.js
@@ -39329,8 +39319,7 @@ var ParsersDicom = function (_ParsersVolume) {
         // rgbData[rgbaIndex++] = 255; //alpha
       }
     } else {
-      var _error2 = new Error('photometric interpolation not supported: ' + photometricInterpretation);
-      throw _error2;
+      throw new Error('photometric interpolation not supported: ' + photometricInterpretation);
     }
 
     return rgbData;
@@ -40892,6 +40881,10 @@ var ParsersVolume = function () {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
     return null;
+  };
+
+  ParsersVolume.prototype.imageType = function imageType() {
+    return null; // []
   };
 
   ParsersVolume.prototype.modality = function modality() {

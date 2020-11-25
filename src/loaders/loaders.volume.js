@@ -226,6 +226,7 @@ export default class LoadersVolumes extends LoadersBase {
     if (frame.imagePosition === null) {
       frame.imagePosition = [0, 0, i];
     }*/
+    frame.imageType = dataParser.imageType();
     frame.dimensionIndexValues = dataParser.dimensionIndexValues(i);
     frame.bitsAllocated = dataParser.bitsAllocated(i);
     frame.instanceNumber = dataParser.instanceNumber(i);
@@ -358,9 +359,6 @@ export default class LoadersVolumes extends LoadersBase {
    * @returns Boolean
    */
   _filterByExtension(extension, item) {
-    if (item.extension.toUpperCase() === extension.toUpperCase()) {
-      return true;
-    }
-    return false;
+    return item.extension.toUpperCase() === extension.toUpperCase();
   }
 }

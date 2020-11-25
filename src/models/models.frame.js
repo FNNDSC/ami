@@ -26,6 +26,7 @@ export default class ModelsFrame extends ModelsBase {
     this._dimensionIndexValues = [];
     this._imagePosition = null;
     this._imageOrientation = null;
+    this._imageType = null; // []
     this._rightHanded = true;
     this._sliceThickness = 1;
     this._spacingBetweenSlices = null;
@@ -61,21 +62,13 @@ export default class ModelsFrame extends ModelsBase {
    * @return {*}
    */
   validate(model) {
-    if (
-      !(
-        super.validate(model) &&
-        typeof model.cosines === 'function' &&
-        typeof model.spacingXY === 'function' &&
-        model.hasOwnProperty('_sopInstanceUID') &&
-        model.hasOwnProperty('_dimensionIndexValues') &&
-        model.hasOwnProperty('_imageOrientation') &&
-        model.hasOwnProperty('_imagePosition')
-      )
-    ) {
-      return false;
-    }
-
-    return true;
+    return super.validate(model) &&
+      typeof model.cosines === 'function' &&
+      typeof model.spacingXY === 'function' &&
+      model.hasOwnProperty('_sopInstanceUID') &&
+      model.hasOwnProperty('_dimensionIndexValues') &&
+      model.hasOwnProperty('_imageOrientation') &&
+      model.hasOwnProperty('_imagePosition');
   }
 
   /**
@@ -97,14 +90,10 @@ export default class ModelsFrame extends ModelsBase {
       return false;
     }
 
-    if (this._compareArrays(this._dimensionIndexValues, frame.dimensionIndexValues) &&
-        this._compareArrays(this._imageOrientation, frame.imageOrientation) &&
-        this._compareArrays(this._imagePosition, frame.imagePosition) &&
-        this.instanceDifference(frame) === 0 && this.index === frame.index) {
-      return true;
-    } else {
-      return false;
-    }
+    return this._compareArrays(this._dimensionIndexValues, frame.dimensionIndexValues) &&
+      this._compareArrays(this._imageOrientation, frame.imageOrientation) &&
+      this._compareArrays(this._imagePosition, frame.imagePosition) &&
+      this.instanceDifference(frame) === 0 && this.index === frame.index;
   }
 
   /**
@@ -365,11 +354,7 @@ export default class ModelsFrame extends ModelsBase {
     }
 
     // if not null....
-    if (reference && target && reference.join() === target.join()) {
-      return true;
-    }
-
-    return false;
+    return !!(reference && target && reference.join() === target.join());
   }
 
   get frameTime() {
@@ -434,6 +419,14 @@ export default class ModelsFrame extends ModelsBase {
 
   set imageOrientation(imageOrientation) {
     this._imageOrientation = imageOrientation;
+  }
+
+  get imageType() {
+    return this._imageType;
+  }
+
+  set imageType(imageType) {
+    this._imageType = imageType;
   }
 
   get windowWidth() {
