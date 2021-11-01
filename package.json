@@ -1,6 +1,6 @@
 {
   "name": "ami.js",
-  "version": "0.22.0",
+  "version": "0.32.0",
   "main": "build/ami.js",
   "keywords": [
     "ami",
@@ -69,7 +69,7 @@
     "tslint-check": "tslint-config-prettier-check ./tslint.json",
     "check-codestyle": "prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'",
     "fix-all-code-style": "prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'",
-    "build:ami": "webpack --config webpack.config.build.js",
+    "build:ami": "webpack --config webpack.config.build.js --display-error-details",
     "build:ami:prod": "cross-env NODE_ENV=production yarn build:ami",
     "build:clean": "rimraf -rf build/*",
     "build:clean:hot": "rimraf -rf build/*.hot-update.*",
@@ -90,7 +90,9 @@
     "deploy": "yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"
   },
   "devDependencies": {
+    "@types/jasmine": "^3.3.2",
     "@types/node": "^10.11.3",
+    "@types/three": "^0.93.13",
     "babel-cli": "latest",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",

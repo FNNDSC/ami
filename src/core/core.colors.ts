@@ -1,3 +1,12 @@
+export enum COLORS {
+  blue = '#00B0FF',
+  yellow = '#FFEB3B',
+  red = '#F50057',
+  green = '#76FF03',
+  white = '#FFF',
+  lightRed = '#F77',
+}
+
 /**
  * Colors utility functions
  */
@@ -12,7 +21,9 @@ export default class Colors {
    *
    * @return {*}
    */
-  static cielab2XYZ(l, a, b) {
+  public static cielab2XYZ(l: number, a: number, b: number) {
+    // https://www.mathworks.com/help/images/ref/whitepoint.html
+    // d65: 0.9504, 1, 1.0888
     const refX = 95.047;
     const refY = 100.0;
     const refZ = 108.883;
@@ -38,7 +49,6 @@ export default class Colors {
     } else {
       z = (z - 16 / 116) / 7.787;
     }
-
     return [refX * x, refY * y, refZ * z];
   }
 
@@ -51,7 +61,7 @@ export default class Colors {
    *
    * @return {*}
    */
-  static xyz2RGB(x, y, z) {
+  public static xyz2RGB(x: number, y: number, z: number) {
     x /= 100;
     y /= 100;
     z /= 100;
@@ -93,12 +103,12 @@ export default class Colors {
    *
    * @return {*}
    */
-  static cielab2RGB(l = 50, a = 0, b = 0) {
+  public static cielab2RGB(l: number = 50, a: number = 0, b: number = 0) {
     if (!(l >= 0 && l <= 100)) {
       return null;
     }
 
-    let xyz = this.cielab2XYZ(l, a, b);
-    return this.xyz2RGB(...xyz);
+    const [x, y, z] = this.cielab2XYZ(l, a, b);
+    return this.xyz2RGB(x, y, z);
   }
 }

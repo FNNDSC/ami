@@ -20512,7 +20512,7 @@ process.umask = function() { return 0; };
 /*! exports provided: name, version, description, main, repository, jsnext:main, module, files, directories, eslintConfig, scripts, keywords, author, license, bugs, homepage, devDependencies, jspm, default */
 /***/ (function(module) {
 
-module.exports = {"name":"three","version":"0.98.0","description":"JavaScript 3D library","main":"build/three.js","repository":"mrdoob/three.js","jsnext:main":"build/three.module.js","module":"build/three.module.js","files":["package.json","LICENSE","README.md","build/three.js","build/three.min.js","build/three.module.js","src","examples/js","examples/fonts"],"directories":{"doc":"docs","example":"examples","test":"test"},"eslintConfig":{"extends":"mdcs","plugins":["html"]},"scripts":{"build":"rollup -c","build-test":"rollup -c test/rollup.unit.config.js","build-closure":"rollup -c && java -jar node_modules/google-closure-compiler/compiler.jar --warning_level=VERBOSE --jscomp_off=globalThis --jscomp_off=checkTypes --externs utils/build/externs.js --language_in=ECMASCRIPT5_STRICT --js build/three.js --js_output_file build/three.min.js","dev":"concurrently --names \"ROLLUP,HTTP\" -c \"bgBlue.bold,bgGreen.bold\" \"rollup -c -w -m inline\" \"http-server -c-1 -p 8080\"","dev-test":"concurrently --names \"ROLLUP,ROLLUPTEST,HTTP\" -c \"bgBlue.bold,bgRed.bold,bgGreen.bold\" \"rollup -c -w -m inline\" \"rollup -c test/rollup.unit.config.js -w -m inline\" \"http-server -p 8080\"","start":"npm run dev","lint":"eslint src","test":"npm run build-test && qunit test/unit/three.source.unit.js","travis":"npm run lint && npm test","editor":"electron ./editor/main.js"},"keywords":["three","three.js","3d","webgl"],"author":"mrdoob","license":"MIT","bugs":{"url":"https://github.com/mrdoob/three.js/issues"},"homepage":"https://threejs.org/","devDependencies":{"concurrently":"^4.0.1","electron":"^2.0.8","eslint":"^5.5.0","eslint-config-mdcs":"^4.2.3","eslint-plugin-html":"^4.0.6","google-closure-compiler":"20180805.0.0","http-server":"^0.11.1","qunit":"^2.6.2","rollup":"^0.65.2"},"jspm":{"files":["package.json","LICENSE","README.md","build/three.js","build/three.min.js","build/three.module.js"],"directories":{}}};
+module.exports = {"name":"three","version":"0.99.0","description":"JavaScript 3D library","main":"build/three.js","repository":"mrdoob/three.js","jsnext:main":"build/three.module.js","module":"build/three.module.js","files":["package.json","LICENSE","README.md","build/three.js","build/three.min.js","build/three.module.js","src","examples/js","examples/fonts"],"directories":{"doc":"docs","example":"examples","test":"test"},"eslintConfig":{"extends":"mdcs","plugins":["html"]},"scripts":{"build":"rollup -c","build-test":"rollup -c test/rollup.unit.config.js","build-closure":"rollup -c && java -jar node_modules/google-closure-compiler-java/compiler.jar --warning_level=VERBOSE --jscomp_off=globalThis --jscomp_off=checkTypes --externs utils/build/externs.js --language_in=ECMASCRIPT5_STRICT --js build/three.js --js_output_file build/three.min.js","dev":"concurrently --names \"ROLLUP,HTTP\" -c \"bgBlue.bold,bgGreen.bold\" \"rollup -c -w -m inline\" \"http-server -c-1 -p 8080\"","dev-test":"concurrently --names \"ROLLUP,ROLLUPTEST,HTTP\" -c \"bgBlue.bold,bgRed.bold,bgGreen.bold\" \"rollup -c -w -m inline\" \"rollup -c test/rollup.unit.config.js -w -m inline\" \"http-server -p 8080\"","start":"npm run dev","lint":"eslint src","test":"npm run build-test && qunit test/unit/three.source.unit.js","travis":"npm run lint && npm test","editor":"electron ./editor/main.js"},"keywords":["three","three.js","3d","webgl"],"author":"mrdoob","license":"MIT","bugs":{"url":"https://github.com/mrdoob/three.js/issues"},"homepage":"https://threejs.org/","devDependencies":{"concurrently":"^4.0.1","electron":"^3.0.8","eslint":"^5.9.0","eslint-config-mdcs":"^4.2.3","eslint-plugin-html":"^5.0.0","google-closure-compiler":"20181028.0.1","http-server":"^0.11.1","qunit":"^2.8.0","rollup":"^0.67.1"},"jspm":{"files":["package.json","LICENSE","README.md","build/three.js","build/three.min.js","build/three.module.js"],"directories":{}}};
 
 /***/ }),
 
@@ -20520,7 +20520,7 @@ module.exports = {"name":"three","version":"0.98.0","description":"JavaScript 3D
 /*!*********************************************!*\
   !*** ./node_modules/three/src/constants.js ***!
   \*********************************************/
-/*! exports provided: REVISION, MOUSE, CullFaceNone, CullFaceBack, CullFaceFront, CullFaceFrontBack, FrontFaceDirectionCW, FrontFaceDirectionCCW, BasicShadowMap, PCFShadowMap, PCFSoftShadowMap, FrontSide, BackSide, DoubleSide, FlatShading, SmoothShading, NoColors, FaceColors, VertexColors, NoBlending, NormalBlending, AdditiveBlending, SubtractiveBlending, MultiplyBlending, CustomBlending, AddEquation, SubtractEquation, ReverseSubtractEquation, MinEquation, MaxEquation, ZeroFactor, OneFactor, SrcColorFactor, OneMinusSrcColorFactor, SrcAlphaFactor, OneMinusSrcAlphaFactor, DstAlphaFactor, OneMinusDstAlphaFactor, DstColorFactor, OneMinusDstColorFactor, SrcAlphaSaturateFactor, NeverDepth, AlwaysDepth, LessDepth, LessEqualDepth, EqualDepth, GreaterEqualDepth, GreaterDepth, NotEqualDepth, MultiplyOperation, MixOperation, AddOperation, NoToneMapping, LinearToneMapping, ReinhardToneMapping, Uncharted2ToneMapping, CineonToneMapping, UVMapping, CubeReflectionMapping, CubeRefractionMapping, EquirectangularReflectionMapping, EquirectangularRefractionMapping, SphericalReflectionMapping, CubeUVReflectionMapping, CubeUVRefractionMapping, RepeatWrapping, ClampToEdgeWrapping, MirroredRepeatWrapping, NearestFilter, NearestMipMapNearestFilter, NearestMipMapLinearFilter, LinearFilter, LinearMipMapNearestFilter, LinearMipMapLinearFilter, UnsignedByteType, ByteType, ShortType, UnsignedShortType, IntType, UnsignedIntType, FloatType, HalfFloatType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedShort565Type, UnsignedInt248Type, AlphaFormat, RGBFormat, RGBAFormat, LuminanceFormat, LuminanceAlphaFormat, RGBEFormat, DepthFormat, DepthStencilFormat, RedFormat, RGB_S3TC_DXT1_Format, RGBA_S3TC_DXT1_Format, RGBA_S3TC_DXT3_Format, RGBA_S3TC_DXT5_Format, RGB_PVRTC_4BPPV1_Format, RGB_PVRTC_2BPPV1_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_PVRTC_2BPPV1_Format, RGB_ETC1_Format, RGBA_ASTC_4x4_Format, RGBA_ASTC_5x4_Format, RGBA_ASTC_5x5_Format, RGBA_ASTC_6x5_Format, RGBA_ASTC_6x6_Format, RGBA_ASTC_8x5_Format, RGBA_ASTC_8x6_Format, RGBA_ASTC_8x8_Format, RGBA_ASTC_10x5_Format, RGBA_ASTC_10x6_Format, RGBA_ASTC_10x8_Format, RGBA_ASTC_10x10_Format, RGBA_ASTC_12x10_Format, RGBA_ASTC_12x12_Format, LoopOnce, LoopRepeat, LoopPingPong, InterpolateDiscrete, InterpolateLinear, InterpolateSmooth, ZeroCurvatureEnding, ZeroSlopeEnding, WrapAroundEnding, TrianglesDrawMode, TriangleStripDrawMode, TriangleFanDrawMode, LinearEncoding, sRGBEncoding, GammaEncoding, RGBEEncoding, LogLuvEncoding, RGBM7Encoding, RGBM16Encoding, RGBDEncoding, BasicDepthPacking, RGBADepthPacking, TangentSpaceNormalMap, ObjectSpaceNormalMap */
+/*! exports provided: REVISION, MOUSE, CullFaceNone, CullFaceBack, CullFaceFront, CullFaceFrontBack, FrontFaceDirectionCW, FrontFaceDirectionCCW, BasicShadowMap, PCFShadowMap, PCFSoftShadowMap, FrontSide, BackSide, DoubleSide, FlatShading, SmoothShading, NoColors, FaceColors, VertexColors, NoBlending, NormalBlending, AdditiveBlending, SubtractiveBlending, MultiplyBlending, CustomBlending, AddEquation, SubtractEquation, ReverseSubtractEquation, MinEquation, MaxEquation, ZeroFactor, OneFactor, SrcColorFactor, OneMinusSrcColorFactor, SrcAlphaFactor, OneMinusSrcAlphaFactor, DstAlphaFactor, OneMinusDstAlphaFactor, DstColorFactor, OneMinusDstColorFactor, SrcAlphaSaturateFactor, NeverDepth, AlwaysDepth, LessDepth, LessEqualDepth, EqualDepth, GreaterEqualDepth, GreaterDepth, NotEqualDepth, MultiplyOperation, MixOperation, AddOperation, NoToneMapping, LinearToneMapping, ReinhardToneMapping, Uncharted2ToneMapping, CineonToneMapping, ACESFilmicToneMapping, UVMapping, CubeReflectionMapping, CubeRefractionMapping, EquirectangularReflectionMapping, EquirectangularRefractionMapping, SphericalReflectionMapping, CubeUVReflectionMapping, CubeUVRefractionMapping, RepeatWrapping, ClampToEdgeWrapping, MirroredRepeatWrapping, NearestFilter, NearestMipMapNearestFilter, NearestMipMapLinearFilter, LinearFilter, LinearMipMapNearestFilter, LinearMipMapLinearFilter, UnsignedByteType, ByteType, ShortType, UnsignedShortType, IntType, UnsignedIntType, FloatType, HalfFloatType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedShort565Type, UnsignedInt248Type, AlphaFormat, RGBFormat, RGBAFormat, LuminanceFormat, LuminanceAlphaFormat, RGBEFormat, DepthFormat, DepthStencilFormat, RedFormat, RGB_S3TC_DXT1_Format, RGBA_S3TC_DXT1_Format, RGBA_S3TC_DXT3_Format, RGBA_S3TC_DXT5_Format, RGB_PVRTC_4BPPV1_Format, RGB_PVRTC_2BPPV1_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_PVRTC_2BPPV1_Format, RGB_ETC1_Format, RGBA_ASTC_4x4_Format, RGBA_ASTC_5x4_Format, RGBA_ASTC_5x5_Format, RGBA_ASTC_6x5_Format, RGBA_ASTC_6x6_Format, RGBA_ASTC_8x5_Format, RGBA_ASTC_8x6_Format, RGBA_ASTC_8x8_Format, RGBA_ASTC_10x5_Format, RGBA_ASTC_10x6_Format, RGBA_ASTC_10x8_Format, RGBA_ASTC_10x10_Format, RGBA_ASTC_12x10_Format, RGBA_ASTC_12x12_Format, LoopOnce, LoopRepeat, LoopPingPong, InterpolateDiscrete, InterpolateLinear, InterpolateSmooth, ZeroCurvatureEnding, ZeroSlopeEnding, WrapAroundEnding, TrianglesDrawMode, TriangleStripDrawMode, TriangleFanDrawMode, LinearEncoding, sRGBEncoding, GammaEncoding, RGBEEncoding, LogLuvEncoding, RGBM7Encoding, RGBM16Encoding, RGBDEncoding, BasicDepthPacking, RGBADepthPacking, TangentSpaceNormalMap, ObjectSpaceNormalMap */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -20582,6 +20582,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ReinhardToneMapping", function() { return ReinhardToneMapping; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Uncharted2ToneMapping", function() { return Uncharted2ToneMapping; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CineonToneMapping", function() { return CineonToneMapping; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ACESFilmicToneMapping", function() { return ACESFilmicToneMapping; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "UVMapping", function() { return UVMapping; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CubeReflectionMapping", function() { return CubeReflectionMapping; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CubeRefractionMapping", function() { return CubeRefractionMapping; });
@@ -20667,7 +20668,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RGBADepthPacking", function() { return RGBADepthPacking; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TangentSpaceNormalMap", function() { return TangentSpaceNormalMap; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ObjectSpaceNormalMap", function() { return ObjectSpaceNormalMap; });
-var REVISION = '98';
+var REVISION = '99';
 var MOUSE = { LEFT: 0, MIDDLE: 1, RIGHT: 2 };
 var CullFaceNone = 0;
 var CullFaceBack = 1;
@@ -20724,6 +20725,8 @@ var LinearToneMapping = 1;
 var ReinhardToneMapping = 2;
 var Uncharted2ToneMapping = 3;
 var CineonToneMapping = 4;
+var ACESFilmicToneMapping = 5;
+
 var UVMapping = 300;
 var CubeReflectionMapping = 301;
 var CubeRefractionMapping = 302;
@@ -26844,7 +26847,7 @@ g = (function() {
 
 try {
 	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1, eval)("this");
+	g = g || new Function("return this")();
 } catch (e) {
 	// This works if the window reference is available
 	if (typeof window === "object") g = window;
@@ -26866,7 +26869,7 @@ module.exports = g;
 /*! exports provided: name, version, main, keywords, author, license, repository, config, lint-staged, prettier, sideEffects, dependencies, scripts, devDependencies, engines, default */
 /***/ (function(module) {
 
-module.exports = {"name":"ami.js","version":"0.22.0","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"lint-staged":{"{{src/**,examples/**, lessons/**}/,}.{js,jsx,json,css,ts,tsx}":["prettier --write","git add"]},"prettier":{"printWidth":100,"singleQuote":true,"trailingComma":"es5","overrides":[{"files":"*.css","options":{"useTabs":false,"tabWidth":2}}]},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"latest"},"scripts":{"precommit":"lint-staged","tslint-check":"tslint-config-prettier-check ./tslint.json","check-codestyle":"prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'","fix-all-code-style":"prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'","build:ami":"webpack --config webpack.config.build.js","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"@types/node":"^10.11.3","babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","gh-pages":"^1.2.0","husky":"^1.1.3","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","lint-staged":"^8.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","prettier":"^1.15.1","prettier-check":"^2.0.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","ts-loader":"^5.2.1","tslint":"^5.11.0","tslint-config-prettier":"^1.15.0","tslint-loader":"^3.6.0","typescript":"^3.1.1","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-cli":"^3.1.0","webpack-dev-server":"^3.1.5","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
+module.exports = {"name":"ami.js","version":"0.32.0","main":"build/ami.js","keywords":["ami","ami.js","three.js","webgl","dicom","nifti","awesome","medical","imaging","xtk","nrrd","vtk","stl","trk"],"author":{"name":"Nicolas Rannou","email":"nicolas@eunate.ch","url":"https://eunate.ch"},"license":"Apache-2.0","repository":{"type":"git","url":"https://fnndsc.github.io/ami"},"config":{"gaKey":"UA-39303022-3","babel":"--module-bind js=babel-loader --colors --display-error-details"},"lint-staged":{"{{src/**,examples/**, lessons/**}/,}.{js,jsx,json,css,ts,tsx}":["prettier --write","git add"]},"prettier":{"printWidth":100,"singleQuote":true,"trailingComma":"es5","overrides":[{"files":"*.css","options":{"useTabs":false,"tabWidth":2}}]},"sideEffects":false,"dependencies":{"OpenJPEG.js":"joedrago/openjpeg#master","dicom-parser":"1.8.1","image-JPEG2000":"ReflexionMed/image-JPEG2000#master","jpeg-lossless-decoder-js":"1.2.3","math-float32-to-binary-string":"^1.0.0","nifti-reader-js":"v0.5.3","nrrd-js":"^0.2.1","pako":"1.0.1","three":"latest"},"scripts":{"precommit":"lint-staged","tslint-check":"tslint-config-prettier-check ./tslint.json","check-codestyle":"prettier-check 'src/**/*.{js,jsx,json,css,ts,tsx}'","fix-all-code-style":"prettier --write '{{src/**,examples/**, lessons/**}/,}*.{js,jsx,json,css,ts,tsx}'","build:ami":"webpack --config webpack.config.build.js --display-error-details","build:ami:prod":"cross-env NODE_ENV=production yarn build:ami","build:clean":"rimraf -rf build/*","build:clean:hot":"rimraf -rf build/*.hot-update.*","dev:ami":"webpack --config webpack.config.build.js --hot --watch --colors","dist:ami":"yarn build:clean && yarn build:ami && yarn build:ami:prod && yarn doc","dist:examples":"node ./scripts/buildDist.js && node ./scripts/router.js examples deploy","dist:clean":"rimraf -rf dist/*","analyze:ami":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami","analyze:ami:prod":"cross-env NODE_WEBPACK_ANALYZE=true yarn build:ami:prod","clean":"yarn build:clean && yarn dist:clean","example":"node ./scripts/router.js examples","gen:index:examples":"node ./scripts/genIndexFiles.js examples","gen:index:examples:ga":"cross-env NODE_GA=true node ./scripts/genIndexFiles.js examples","test":"karma start","testExamples":"yarn dist:clean && yarn dist:examples","doc":"jsdoc -p -r -R README.md -c jsdoc.json -d dist/doc src","ami":"yarn dist:ami && yarn test","deploy":"yarn dist:clean && yarn build:clean && yarn dist:ami && yarn dist:examples && gh-pages -d dist"},"devDependencies":{"@types/jasmine":"^3.3.2","@types/node":"^10.11.3","@types/three":"^0.93.13","babel-cli":"latest","babel-core":"^6.26.0","babel-loader":"^7.1.2","babel-preset-env":"^1.6.0","babel-runtime":"^6.26.0","compression-webpack-plugin":"^1.0.1","cross-env":"^3.2.3","gh-pages":"^1.2.0","husky":"^1.1.3","jasmine-core":"^2.99.1","jsdoc":"jsdoc3/jsdoc#master","karma":"^2.0.5","karma-chrome-launcher":"^2.2.0","karma-jasmine":"^1.1.2","karma-sinon":"^1.0.5","karma-spec-reporter":"^0.0.32","karma-webpack":"3.0.0","lint-staged":"^8.0.4","live-server":"^1.1.0","node-pre-gyp":"^0.10.0","prettier":"^1.15.1","prettier-check":"^2.0.0","puppeteer":"^1.6.1","rimraf":"^2.6.1","rollup-plugin-node-builtins":"^2.1.2","shelljs":"^0.8.2","sinon":"^2.0.0","ts-loader":"^5.2.1","tslint":"^5.11.0","tslint-config-prettier":"^1.15.0","tslint-loader":"^3.6.0","typescript":"^3.1.1","uglifyjs-webpack-plugin":"^1.2.7","webpack":"^4.16.3","webpack-bundle-analyzer":"^2.9.0","webpack-cli":"^3.1.0","webpack-dev-server":"^3.1.5","webpack-watch-livereload-plugin":"^0.0.1"},"engines":{"node":">=6.9.0"}};
 
 /***/ }),
 
@@ -27298,25 +27301,19 @@ var camerasOrthographic = function camerasOrthographic() {
 
       this.center();
 
-      var computedAngle = 90;
-
-      var clockwise = 1;
-      if (!this._fromFront) {
-        clockwise = -1;
-      }
-
+      var rotationToApply = 90;
       if (angle === null) {
-        computedAngle *= -clockwise;
+        rotationToApply *= -1;
         this._angle += 90;
       } else {
-        computedAngle = 360 - clockwise * (angle - this._angle);
+        rotationToApply = 360 - (angle - this._angle);
         this._angle = angle;
       }
 
       this._angle %= 360;
 
       // Rotate the up vector around the "zCosine"
-      var rotation = new three.Matrix4().makeRotationAxis(this._direction, computedAngle * Math.PI / 180);
+      var rotation = new three.Matrix4().makeRotationAxis(this._direction, rotationToApply * Math.PI / 180);
       this.up.applyMatrix4(rotation);
 
       this._updateMatrices();
@@ -27666,7 +27663,7 @@ var camerasOrthographic = function camerasOrthographic() {
 /*!**********************************!*\
   !*** ./src/controls/controls.js ***!
   \**********************************/
-/*! exports provided: TrackballControl, trackballControlFactory, TrackballOrthoControl, trackballOrthoControlFactory */
+/*! exports provided: TrackballControl, trackballControlFactory, TrackballOrthoControl, trackballOrthoControlFactory, OrbitControl, orbitControlFactory */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -27681,10 +27678,1023 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "trackballOrthoControlFactory", function() { return _controls_trackballortho__WEBPACK_IMPORTED_MODULE_1__["trackballOrtho"]; });
 
+/* harmony import */ var _controls_orbit__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./controls.orbit */ "./src/controls/controls.orbit.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "OrbitControl", function() { return _controls_orbit__WEBPACK_IMPORTED_MODULE_2__["default"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "orbitControlFactory", function() { return _controls_orbit__WEBPACK_IMPORTED_MODULE_2__["orbit"]; });
 
 
 
 
+
+
+
+/***/ }),
+
+/***/ "./src/controls/controls.orbit.js":
+/*!****************************************!*\
+  !*** ./src/controls/controls.orbit.js ***!
+  \****************************************/
+/*! exports provided: orbit, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "orbit", function() { return orbit; });
+/**
+ * @author qiao / https://github.com/qiao
+ * @author mrdoob / http://mrdoob.com
+ * @author alteredq / http://alteredqualia.com/
+ * @author WestLangley / http://github.com/WestLangley
+ * @author erich666 / http://erichaines.com
+ */
+
+// This set of controls performs orbiting, dollying (zooming), and panning.
+// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
+//
+//    Orbit - left mouse / touch: one-finger move
+//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
+//    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
+
+// adapted from https://github.com/mrdoob/three.js/blob/dev/examples/jsm/controls/OrbitControls.js
+
+var orbit = function orbit() {
+	var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
+
+	if (three === undefined || three.EventDispatcher === undefined) {
+		return null;
+	}
+
+	var OrbitControls = function OrbitControls(object, domElement) {
+
+		this.object = object;
+
+		this.domElement = domElement !== undefined ? domElement : document;
+
+		// Set to false to disable this control
+		this.enabled = true;
+
+		// Set to prevent default event
+		this.preventDefault = true;
+
+		// "target" sets the location of focus, where the object orbits around
+		this.target = new three.Vector3();
+
+		// How far you can dolly in and out ( PerspectiveCamera only )
+		this.minDistance = 0;
+		this.maxDistance = Infinity;
+
+		// How far you can zoom in and out ( OrthographicCamera only )
+		this.minZoom = 0;
+		this.maxZoom = Infinity;
+
+		// How far you can orbit vertically, upper and lower limits.
+		// Range is 0 to Math.PI radians.
+		this.minPolarAngle = 0; // radians
+		this.maxPolarAngle = Math.PI; // radians
+
+		// How far you can orbit horizontally, upper and lower limits.
+		// If set, must be a sub-interval of the interval [ - Math.PI, Math.PI ].
+		this.minAzimuthAngle = -Infinity; // radians
+		this.maxAzimuthAngle = Infinity; // radians
+
+		// Set to true to enable damping (inertia)
+		// If damping is enabled, you must call controls.update() in your animation loop
+		this.enableDamping = false;
+		this.dampingFactor = 0.25;
+
+		// This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
+		// Set to false to disable zooming
+		this.enableZoom = true;
+		this.zoomSpeed = 1.0;
+
+		// Set to false to disable rotating
+		this.enableRotate = true;
+		this.rotateSpeed = 1.0;
+
+		// Set to false to disable panning
+		this.enablePan = true;
+		this.panSpeed = 1.0;
+		this.screenSpacePanning = false; // if true, pan in screen-space
+		this.keyPanSpeed = 7.0; // pixels moved per arrow key push
+
+		// Set to true to automatically rotate around the target
+		// If auto-rotate is enabled, you must call controls.update() in your animation loop
+		this.autoRotate = false;
+		this.autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
+
+		// Set to false to disable use of the keys
+		this.enableKeys = true;
+
+		// The four arrow keys
+		this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
+
+		// Mouse buttons
+		this.mouseButtons = { LEFT: three.MOUSE.LEFT, MIDDLE: three.MOUSE.MIDDLE, RIGHT: three.MOUSE.RIGHT };
+
+		// for reset
+		this.target0 = this.target.clone();
+		this.position0 = this.object.position.clone();
+		this.zoom0 = this.object.zoom;
+
+		//
+		// public methods
+		//
+
+		this.getPolarAngle = function () {
+
+			return spherical.phi;
+		};
+
+		this.getAzimuthalAngle = function () {
+
+			return spherical.theta;
+		};
+
+		this.saveState = function () {
+
+			scope.target0.copy(scope.target);
+			scope.position0.copy(scope.object.position);
+			scope.zoom0 = scope.object.zoom;
+		};
+
+		this.reset = function () {
+
+			scope.target.copy(scope.target0);
+			scope.object.position.copy(scope.position0);
+			scope.object.zoom = scope.zoom0;
+
+			scope.object.updateProjectionMatrix();
+			scope.dispatchEvent(changeEvent);
+
+			scope.update();
+
+			state = STATE.NONE;
+		};
+
+		// this method is there to match the Trackball API
+		this.handleResize = function () {};
+
+		// this method is exposed, but perhaps it would be better if we can make it private...
+		this.update = function () {
+
+			var offset = new three.Vector3();
+
+			// so camera.up is the orbit axis
+			var quat = new three.Quaternion().setFromUnitVectors(object.up, new three.Vector3(0, 1, 0));
+			var quatInverse = quat.clone().inverse();
+
+			var lastPosition = new three.Vector3();
+			var lastQuaternion = new three.Quaternion();
+
+			return function update() {
+
+				var position = scope.object.position;
+
+				offset.copy(position).sub(scope.target);
+
+				// rotate offset to "y-axis-is-up" space
+				offset.applyQuaternion(quat);
+
+				// angle from z-axis around y-axis
+				spherical.setFromVector3(offset);
+
+				if (scope.autoRotate && state === STATE.NONE) {
+
+					rotateLeft(getAutoRotationAngle());
+				}
+
+				spherical.theta += sphericalDelta.theta;
+				spherical.phi += sphericalDelta.phi;
+
+				// restrict theta to be between desired limits
+				spherical.theta = Math.max(scope.minAzimuthAngle, Math.min(scope.maxAzimuthAngle, spherical.theta));
+
+				// restrict phi to be between desired limits
+				spherical.phi = Math.max(scope.minPolarAngle, Math.min(scope.maxPolarAngle, spherical.phi));
+
+				spherical.makeSafe();
+
+				spherical.radius *= scale;
+
+				// restrict radius to be between desired limits
+				spherical.radius = Math.max(scope.minDistance, Math.min(scope.maxDistance, spherical.radius));
+
+				// move target to panned location
+				scope.target.add(panOffset);
+
+				offset.setFromSpherical(spherical);
+
+				// rotate offset back to "camera-up-vector-is-up" space
+				offset.applyQuaternion(quatInverse);
+
+				position.copy(scope.target).add(offset);
+
+				scope.object.lookAt(scope.target);
+
+				if (scope.enableDamping === true) {
+
+					sphericalDelta.theta *= 1 - scope.dampingFactor;
+					sphericalDelta.phi *= 1 - scope.dampingFactor;
+
+					panOffset.multiplyScalar(1 - scope.dampingFactor);
+				} else {
+
+					sphericalDelta.set(0, 0, 0);
+
+					panOffset.set(0, 0, 0);
+				}
+
+				scale = 1;
+
+				// update condition is:
+				// min(camera displacement, camera rotation in radians)^2 > EPS
+				// using small-angle approximation cos(x/2) = 1 - x^2 / 8
+
+				if (zoomChanged || lastPosition.distanceToSquared(scope.object.position) > EPS || 8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
+
+					scope.dispatchEvent(changeEvent);
+
+					lastPosition.copy(scope.object.position);
+					lastQuaternion.copy(scope.object.quaternion);
+					zoomChanged = false;
+
+					return true;
+				}
+
+				return false;
+			};
+		}();
+
+		this.dispose = function () {
+
+			scope.domElement.removeEventListener('contextmenu', onContextMenu, false);
+			scope.domElement.removeEventListener('mousedown', onMouseDown, false);
+			scope.domElement.removeEventListener('wheel', onMouseWheel, false);
+
+			scope.domElement.removeEventListener('touchstart', onTouchStart, false);
+			scope.domElement.removeEventListener('touchend', onTouchEnd, false);
+			scope.domElement.removeEventListener('touchmove', onTouchMove, false);
+
+			document.removeEventListener('mousemove', onMouseMove, false);
+			document.removeEventListener('mouseup', onMouseUp, false);
+
+			window.removeEventListener('keydown', onKeyDown, false);
+
+			//scope.dispatchEvent( { type: 'dispose' } ); // should this be added here?
+		};
+
+		//
+		// internals
+		//
+
+		var scope = this;
+
+		var changeEvent = { type: 'change' };
+		var startEvent = { type: 'start' };
+		var endEvent = { type: 'end' };
+
+		var STATE = { NONE: -1, ROTATE: 0, DOLLY: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_DOLLY_PAN: 4 };
+
+		var state = STATE.NONE;
+
+		var EPS = 0.000001;
+
+		// current position in spherical coordinates
+		var spherical = new three.Spherical();
+		var sphericalDelta = new three.Spherical();
+
+		var scale = 1;
+		var panOffset = new three.Vector3();
+		var zoomChanged = false;
+
+		var rotateStart = new three.Vector2();
+		var rotateEnd = new three.Vector2();
+		var rotateDelta = new three.Vector2();
+
+		var panStart = new three.Vector2();
+		var panEnd = new three.Vector2();
+		var panDelta = new three.Vector2();
+
+		var dollyStart = new three.Vector2();
+		var dollyEnd = new three.Vector2();
+		var dollyDelta = new three.Vector2();
+
+		function getAutoRotationAngle() {
+
+			return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+		}
+
+		function getZoomScale() {
+
+			return Math.pow(0.95, scope.zoomSpeed);
+		}
+
+		function rotateLeft(angle) {
+
+			sphericalDelta.theta -= angle;
+		}
+
+		function rotateUp(angle) {
+
+			sphericalDelta.phi -= angle;
+		}
+
+		var panLeft = function () {
+
+			var v = new three.Vector3();
+
+			return function panLeft(distance, objectMatrix) {
+
+				v.setFromMatrixColumn(objectMatrix, 0); // get X column of objectMatrix
+				v.multiplyScalar(-distance);
+
+				panOffset.add(v);
+			};
+		}();
+
+		var panUp = function () {
+
+			var v = new three.Vector3();
+
+			return function panUp(distance, objectMatrix) {
+
+				if (scope.screenSpacePanning === true) {
+
+					v.setFromMatrixColumn(objectMatrix, 1);
+				} else {
+
+					v.setFromMatrixColumn(objectMatrix, 0);
+					v.crossVectors(scope.object.up, v);
+				}
+
+				v.multiplyScalar(distance);
+
+				panOffset.add(v);
+			};
+		}();
+
+		// deltaX and deltaY are in pixels; right and down are positive
+		var pan = function () {
+
+			var offset = new three.Vector3();
+
+			return function pan(deltaX, deltaY) {
+
+				var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+
+				if (scope.object.isPerspectiveCamera) {
+
+					// perspective
+					var position = scope.object.position;
+					offset.copy(position).sub(scope.target);
+					var targetDistance = offset.length();
+
+					// half of the fov is center to top of screen
+					targetDistance *= Math.tan(scope.object.fov / 2 * Math.PI / 180.0);
+
+					// we use only clientHeight here so aspect ratio does not distort speed
+					panLeft(2 * deltaX * targetDistance / element.clientHeight, scope.object.matrix);
+					panUp(2 * deltaY * targetDistance / element.clientHeight, scope.object.matrix);
+				} else if (scope.object.isOrthographicCamera) {
+
+					// orthographic
+					panLeft(deltaX * (scope.object.right - scope.object.left) / scope.object.zoom / element.clientWidth, scope.object.matrix);
+					panUp(deltaY * (scope.object.top - scope.object.bottom) / scope.object.zoom / element.clientHeight, scope.object.matrix);
+				} else {
+
+					// camera neither orthographic nor perspective
+					console.warn('WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.');
+					scope.enablePan = false;
+				}
+			};
+		}();
+
+		function dollyIn(dollyScale) {
+
+			if (scope.object.isPerspectiveCamera) {
+
+				scale /= dollyScale;
+			} else if (scope.object.isOrthographicCamera) {
+
+				scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom * dollyScale));
+				scope.object.updateProjectionMatrix();
+				zoomChanged = true;
+			} else {
+
+				console.warn('WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.');
+				scope.enableZoom = false;
+			}
+		}
+
+		function dollyOut(dollyScale) {
+
+			if (scope.object.isPerspectiveCamera) {
+
+				scale *= dollyScale;
+			} else if (scope.object.isOrthographicCamera) {
+
+				scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom / dollyScale));
+				scope.object.updateProjectionMatrix();
+				zoomChanged = true;
+			} else {
+
+				console.warn('WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.');
+				scope.enableZoom = false;
+			}
+		}
+
+		//
+		// event callbacks - update the object state
+		//
+
+		function handleMouseDownRotate(event) {
+
+			//console.log( 'handleMouseDownRotate' );
+
+			rotateStart.set(event.clientX, event.clientY);
+		}
+
+		function handleMouseDownDolly(event) {
+
+			//console.log( 'handleMouseDownDolly' );
+
+			dollyStart.set(event.clientX, event.clientY);
+		}
+
+		function handleMouseDownPan(event) {
+
+			//console.log( 'handleMouseDownPan' );
+
+			panStart.set(event.clientX, event.clientY);
+		}
+
+		function handleMouseMoveRotate(event) {
+
+			//console.log( 'handleMouseMoveRotate' );
+
+			rotateEnd.set(event.clientX, event.clientY);
+
+			rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
+
+			var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+
+			rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
+
+			rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
+
+			rotateStart.copy(rotateEnd);
+
+			scope.update();
+		}
+
+		function handleMouseMoveDolly(event) {
+
+			//console.log( 'handleMouseMoveDolly' );
+
+			dollyEnd.set(event.clientX, event.clientY);
+
+			dollyDelta.subVectors(dollyEnd, dollyStart);
+
+			if (dollyDelta.y > 0) {
+
+				dollyIn(getZoomScale());
+			} else if (dollyDelta.y < 0) {
+
+				dollyOut(getZoomScale());
+			}
+
+			dollyStart.copy(dollyEnd);
+
+			scope.update();
+		}
+
+		function handleMouseMovePan(event) {
+
+			//console.log( 'handleMouseMovePan' );
+
+			panEnd.set(event.clientX, event.clientY);
+
+			panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
+
+			pan(panDelta.x, panDelta.y);
+
+			panStart.copy(panEnd);
+
+			scope.update();
+		}
+
+		function handleMouseUp(event) {
+
+			// console.log( 'handleMouseUp' );
+
+		}
+
+		function handleMouseWheel(event) {
+
+			// console.log( 'handleMouseWheel' );
+
+			if (event.deltaY < 0) {
+
+				dollyOut(getZoomScale());
+			} else if (event.deltaY > 0) {
+
+				dollyIn(getZoomScale());
+			}
+
+			scope.update();
+		}
+
+		function handleKeyDown(event) {
+
+			//console.log( 'handleKeyDown' );
+
+			switch (event.keyCode) {
+
+				case scope.keys.UP:
+					pan(0, scope.keyPanSpeed);
+					scope.update();
+					break;
+
+				case scope.keys.BOTTOM:
+					pan(0, -scope.keyPanSpeed);
+					scope.update();
+					break;
+
+				case scope.keys.LEFT:
+					pan(scope.keyPanSpeed, 0);
+					scope.update();
+					break;
+
+				case scope.keys.RIGHT:
+					pan(-scope.keyPanSpeed, 0);
+					scope.update();
+					break;
+
+			}
+		}
+
+		function handleTouchStartRotate(event) {
+
+			//console.log( 'handleTouchStartRotate' );
+
+			rotateStart.set(event.touches[0].pageX, event.touches[0].pageY);
+		}
+
+		function handleTouchStartDollyPan(event) {
+
+			//console.log( 'handleTouchStartDollyPan' );
+
+			if (scope.enableZoom) {
+
+				var dx = event.touches[0].pageX - event.touches[1].pageX;
+				var dy = event.touches[0].pageY - event.touches[1].pageY;
+
+				var distance = Math.sqrt(dx * dx + dy * dy);
+
+				dollyStart.set(0, distance);
+			}
+
+			if (scope.enablePan) {
+
+				var x = 0.5 * (event.touches[0].pageX + event.touches[1].pageX);
+				var y = 0.5 * (event.touches[0].pageY + event.touches[1].pageY);
+
+				panStart.set(x, y);
+			}
+		}
+
+		function handleTouchMoveRotate(event) {
+
+			//console.log( 'handleTouchMoveRotate' );
+
+			rotateEnd.set(event.touches[0].pageX, event.touches[0].pageY);
+
+			rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
+
+			var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+
+			rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
+
+			rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
+
+			rotateStart.copy(rotateEnd);
+
+			scope.update();
+		}
+
+		function handleTouchMoveDollyPan(event) {
+
+			//console.log( 'handleTouchMoveDollyPan' );
+
+			if (scope.enableZoom) {
+
+				var dx = event.touches[0].pageX - event.touches[1].pageX;
+				var dy = event.touches[0].pageY - event.touches[1].pageY;
+
+				var distance = Math.sqrt(dx * dx + dy * dy);
+
+				dollyEnd.set(0, distance);
+
+				dollyDelta.set(0, Math.pow(dollyEnd.y / dollyStart.y, scope.zoomSpeed));
+
+				dollyIn(dollyDelta.y);
+
+				dollyStart.copy(dollyEnd);
+			}
+
+			if (scope.enablePan) {
+
+				var x = 0.5 * (event.touches[0].pageX + event.touches[1].pageX);
+				var y = 0.5 * (event.touches[0].pageY + event.touches[1].pageY);
+
+				panEnd.set(x, y);
+
+				panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
+
+				pan(panDelta.x, panDelta.y);
+
+				panStart.copy(panEnd);
+			}
+
+			scope.update();
+		}
+
+		function handleTouchEnd(event) {}
+
+		//console.log( 'handleTouchEnd' );
+
+		//
+		// event handlers - FSM: listen for events and reset state
+		//
+
+		function onMouseDown(event) {
+
+			if (scope.enabled === false) return;
+
+			if (scope.preventDefault === true) event.preventDefault();
+
+			switch (event.button) {
+
+				case scope.mouseButtons.LEFT:
+
+					if (event.ctrlKey || event.metaKey || event.shiftKey) {
+
+						if (scope.enablePan === false) return;
+
+						handleMouseDownPan(event);
+
+						state = STATE.PAN;
+					} else {
+
+						if (scope.enableRotate === false) return;
+
+						handleMouseDownRotate(event);
+
+						state = STATE.ROTATE;
+					}
+
+					break;
+
+				case scope.mouseButtons.MIDDLE:
+
+					if (scope.enableZoom === false) return;
+
+					handleMouseDownDolly(event);
+
+					state = STATE.DOLLY;
+
+					break;
+
+				case scope.mouseButtons.RIGHT:
+
+					if (scope.enablePan === false) return;
+
+					handleMouseDownPan(event);
+
+					state = STATE.PAN;
+
+					break;
+
+			}
+
+			if (state !== STATE.NONE) {
+
+				document.addEventListener('mousemove', onMouseMove, false);
+				document.addEventListener('mouseup', onMouseUp, false);
+
+				scope.dispatchEvent(startEvent);
+			}
+		}
+
+		function onMouseMove(event) {
+
+			if (scope.enabled === false) return;
+
+			if (scope.preventDefault === true) event.preventDefault();
+
+			switch (state) {
+
+				case STATE.ROTATE:
+
+					if (scope.enableRotate === false) return;
+
+					handleMouseMoveRotate(event);
+
+					break;
+
+				case STATE.DOLLY:
+
+					if (scope.enableZoom === false) return;
+
+					handleMouseMoveDolly(event);
+
+					break;
+
+				case STATE.PAN:
+
+					if (scope.enablePan === false) return;
+
+					handleMouseMovePan(event);
+
+					break;
+
+			}
+		}
+
+		function onMouseUp(event) {
+
+			if (scope.enabled === false) return;
+
+			handleMouseUp(event);
+
+			document.removeEventListener('mousemove', onMouseMove, false);
+			document.removeEventListener('mouseup', onMouseUp, false);
+
+			scope.dispatchEvent(endEvent);
+
+			state = STATE.NONE;
+		}
+
+		function onMouseWheel(event) {
+
+			if (scope.enabled === false || scope.enableZoom === false || state !== STATE.NONE && state !== STATE.ROTATE) return;
+
+			if (scope.preventDefault === true) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+
+			scope.dispatchEvent(startEvent);
+
+			handleMouseWheel(event);
+
+			scope.dispatchEvent(endEvent);
+		}
+
+		function onKeyDown(event) {
+
+			if (scope.enabled === false || scope.enableKeys === false || scope.enablePan === false) return;
+
+			handleKeyDown(event);
+		}
+
+		function onTouchStart(event) {
+
+			if (scope.enabled === false) return;
+
+			if (scope.preventDefault === true) event.preventDefault();
+
+			switch (event.touches.length) {
+
+				case 1:
+					// one-fingered touch: rotate
+
+					if (scope.enableRotate === false) return;
+
+					handleTouchStartRotate(event);
+
+					state = STATE.TOUCH_ROTATE;
+
+					break;
+
+				case 2:
+					// two-fingered touch: dolly-pan
+
+					if (scope.enableZoom === false && scope.enablePan === false) return;
+
+					handleTouchStartDollyPan(event);
+
+					state = STATE.TOUCH_DOLLY_PAN;
+
+					break;
+
+				default:
+
+					state = STATE.NONE;
+
+			}
+
+			if (state !== STATE.NONE) {
+
+				scope.dispatchEvent(startEvent);
+			}
+		}
+
+		function onTouchMove(event) {
+
+			if (scope.enabled === false) return;
+
+			if (scope.preventDefault === true) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+
+			switch (event.touches.length) {
+
+				case 1:
+					// one-fingered touch: rotate
+
+					if (scope.enableRotate === false) return;
+					if (state !== STATE.TOUCH_ROTATE) return; // is this needed?
+
+					handleTouchMoveRotate(event);
+
+					break;
+
+				case 2:
+					// two-fingered touch: dolly-pan
+
+					if (scope.enableZoom === false && scope.enablePan === false) return;
+					if (state !== STATE.TOUCH_DOLLY_PAN) return; // is this needed?
+
+					handleTouchMoveDollyPan(event);
+
+					break;
+
+				default:
+
+					state = STATE.NONE;
+
+			}
+		}
+
+		function onTouchEnd(event) {
+
+			if (scope.enabled === false) return;
+
+			handleTouchEnd(event);
+
+			scope.dispatchEvent(endEvent);
+
+			state = STATE.NONE;
+		}
+
+		function onContextMenu(event) {
+
+			if (scope.enabled === false) return;
+
+			if (scope.preventDefault === true) event.preventDefault();
+		}
+
+		//
+
+		scope.domElement.addEventListener('contextmenu', onContextMenu, false);
+
+		scope.domElement.addEventListener('mousedown', onMouseDown, false);
+		scope.domElement.addEventListener('wheel', onMouseWheel, false);
+
+		scope.domElement.addEventListener('touchstart', onTouchStart, false);
+		scope.domElement.addEventListener('touchend', onTouchEnd, false);
+		scope.domElement.addEventListener('touchmove', onTouchMove, false);
+
+		window.addEventListener('keydown', onKeyDown, false);
+
+		// force an update at start
+
+		this.update();
+	};
+
+	OrbitControls.prototype = Object.create(three.EventDispatcher.prototype);
+	OrbitControls.prototype.constructor = OrbitControls;
+
+	Object.defineProperties(OrbitControls.prototype, {
+
+		center: {
+
+			get: function get() {
+
+				console.warn('THREE.OrbitControls: .center has been renamed to .target');
+				return this.target;
+			}
+
+		},
+
+		// backward compatibility
+
+		noZoom: {
+
+			get: function get() {
+
+				console.warn('THREE.OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.');
+				return !this.enableZoom;
+			},
+
+			set: function set(value) {
+
+				console.warn('THREE.OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.');
+				this.enableZoom = !value;
+			}
+
+		},
+
+		noRotate: {
+
+			get: function get() {
+
+				console.warn('THREE.OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.');
+				return !this.enableRotate;
+			},
+
+			set: function set(value) {
+
+				console.warn('THREE.OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.');
+				this.enableRotate = !value;
+			}
+
+		},
+
+		noPan: {
+
+			get: function get() {
+
+				console.warn('THREE.OrbitControls: .noPan has been deprecated. Use .enablePan instead.');
+				return !this.enablePan;
+			},
+
+			set: function set(value) {
+
+				console.warn('THREE.OrbitControls: .noPan has been deprecated. Use .enablePan instead.');
+				this.enablePan = !value;
+			}
+
+		},
+
+		noKeys: {
+
+			get: function get() {
+
+				console.warn('THREE.OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.');
+				return !this.enableKeys;
+			},
+
+			set: function set(value) {
+
+				console.warn('THREE.OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.');
+				this.enableKeys = !value;
+			}
+
+		},
+
+		staticMoving: {
+
+			get: function get() {
+
+				console.warn('THREE.OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.');
+				return !this.enableDamping;
+			},
+
+			set: function set(value) {
+
+				console.warn('THREE.OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.');
+				this.enableDamping = !value;
+			}
+
+		},
+
+		dynamicDampingFactor: {
+
+			get: function get() {
+
+				console.warn('THREE.OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.');
+				return this.dampingFactor;
+			},
+
+			set: function set(value) {
+
+				console.warn('THREE.OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.');
+				this.dampingFactor = value;
+			}
+
+		}
+
+	});
+
+	return OrbitControls;
+};
+
+
+/* harmony default export */ __webpack_exports__["default"] = (orbit());
 
 /***/ }),
 
@@ -28872,137 +29882,132 @@ var trackballOrtho = function trackballOrtho() {
 
 /***/ }),
 
-/***/ "./src/core/core.colors.js":
+/***/ "./src/core/core.colors.ts":
 /*!*********************************!*\
-  !*** ./src/core/core.colors.js ***!
+  !*** ./src/core/core.colors.ts ***!
   \*********************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+Object.defineProperty(exports, "__esModule", { value: true });
+var COLORS;
+(function (COLORS) {
+    COLORS["blue"] = "#00B0FF";
+    COLORS["yellow"] = "#FFEB3B";
+    COLORS["red"] = "#F50057";
+    COLORS["green"] = "#76FF03";
+    COLORS["white"] = "#FFF";
+    COLORS["lightRed"] = "#F77";
+})(COLORS = exports.COLORS || (exports.COLORS = {}));
 /**
  * Colors utility functions
  */
-var Colors = function () {
-  function Colors() {
-    _classCallCheck(this, Colors);
-  }
-
-  /**
-   * Convert LAB to XYZ
-   * http://www.easyrgb.com/index.php?X=MATH&H=08#text8
-   *
-   * @param {*} l
-   * @param {*} a
-   * @param {*} b
-   *
-   * @return {*}
-   */
-  Colors.cielab2XYZ = function cielab2XYZ(l, a, b) {
-    var refX = 95.047;
-    var refY = 100.0;
-    var refZ = 108.883;
-
-    var y = (l + 16) / 116;
-    var x = a / 500 + y;
-    var z = y - b / 200;
-
-    if (Math.pow(y, 3) > 0.008856) {
-      y = Math.pow(y, 3);
-    } else {
-      y = (y - 16 / 116) / 7.787;
+var Colors = /** @class */ (function () {
+    function Colors() {
     }
+    /**
+     * Convert LAB to XYZ
+     * http://www.easyrgb.com/index.php?X=MATH&H=08#text8
+     *
+     * @param {*} l
+     * @param {*} a
+     * @param {*} b
+     *
+     * @return {*}
+     */
+    Colors.cielab2XYZ = function (l, a, b) {
+        // https://www.mathworks.com/help/images/ref/whitepoint.html
+        // d65: 0.9504, 1, 1.0888
+        var refX = 95.047;
+        var refY = 100.0;
+        var refZ = 108.883;
+        var y = (l + 16) / 116;
+        var x = a / 500 + y;
+        var z = y - b / 200;
+        if (Math.pow(y, 3) > 0.008856) {
+            y = Math.pow(y, 3);
+        }
+        else {
+            y = (y - 16 / 116) / 7.787;
+        }
+        if (Math.pow(x, 3) > 0.008856) {
+            x = Math.pow(x, 3);
+        }
+        else {
+            x = (x - 16 / 116) / 7.787;
+        }
+        if (Math.pow(z, 3) > 0.008856) {
+            z = Math.pow(z, 3);
+        }
+        else {
+            z = (z - 16 / 116) / 7.787;
+        }
+        return [refX * x, refY * y, refZ * z];
+    };
+    /**
+     * Convert XYZ to RGB space
+     *
+     * @param {*} x
+     * @param {*} y
+     * @param {*} z
+     *
+     * @return {*}
+     */
+    Colors.xyz2RGB = function (x, y, z) {
+        x /= 100;
+        y /= 100;
+        z /= 100;
+        var r = x * 3.2406 + y * -1.5372 + z * -0.4986;
+        var g = x * -0.9689 + y * 1.8758 + z * 0.0415;
+        var b = x * 0.0557 + y * -0.204 + z * 1.057;
+        if (r > 0.0031308) {
+            r = 1.055 * Math.pow(r, 1 / 2.4) - 0.055;
+        }
+        else {
+            r = 12.92 * r;
+        }
+        if (g > 0.0031308) {
+            g = 1.055 * Math.pow(g, 1 / 2.4) - 0.055;
+        }
+        else {
+            g = 12.92 * g;
+        }
+        if (b > 0.0031308) {
+            b = 1.055 * Math.pow(b, 1 / 2.4) - 0.055;
+        }
+        else {
+            b = 12.92 * b;
+        }
+        r = r * 255;
+        g = g * 255;
+        b = b * 255;
+        return [r, g, b];
+    };
+    /**
+     * Convert LAB to RGB
+     *
+     * @param {*} l
+     * @param {*} a
+     * @param {*} b
+     *
+     * @return {*}
+     */
+    Colors.cielab2RGB = function (l, a, b) {
+        if (l === void 0) { l = 50; }
+        if (a === void 0) { a = 0; }
+        if (b === void 0) { b = 0; }
+        if (!(l >= 0 && l <= 100)) {
+            return null;
+        }
+        var _a = this.cielab2XYZ(l, a, b), x = _a[0], y = _a[1], z = _a[2];
+        return this.xyz2RGB(x, y, z);
+    };
+    return Colors;
+}());
+exports.default = Colors;
 
-    if (Math.pow(x, 3) > 0.008856) {
-      x = Math.pow(x, 3);
-    } else {
-      x = (x - 16 / 116) / 7.787;
-    }
-
-    if (Math.pow(z, 3) > 0.008856) {
-      z = Math.pow(z, 3);
-    } else {
-      z = (z - 16 / 116) / 7.787;
-    }
-
-    return [refX * x, refY * y, refZ * z];
-  };
-
-  /**
-   * Convert XYZ to RGB space
-   *
-   * @param {*} x
-   * @param {*} y
-   * @param {*} z
-   *
-   * @return {*}
-   */
-
-
-  Colors.xyz2RGB = function xyz2RGB(x, y, z) {
-    x /= 100;
-    y /= 100;
-    z /= 100;
-    var r = x * 3.2406 + y * -1.5372 + z * -0.4986;
-    var g = x * -0.9689 + y * 1.8758 + z * 0.0415;
-    var b = x * 0.0557 + y * -0.204 + z * 1.057;
-
-    if (r > 0.0031308) {
-      r = 1.055 * Math.pow(r, 1 / 2.4) - 0.055;
-    } else {
-      r = 12.92 * r;
-    }
-
-    if (g > 0.0031308) {
-      g = 1.055 * Math.pow(g, 1 / 2.4) - 0.055;
-    } else {
-      g = 12.92 * g;
-    }
-
-    if (b > 0.0031308) {
-      b = 1.055 * Math.pow(b, 1 / 2.4) - 0.055;
-    } else {
-      b = 12.92 * b;
-    }
-
-    r = r * 255;
-    g = g * 255;
-    b = b * 255;
-
-    return [r, g, b];
-  };
-
-  /**
-   * Convert LAB to RGB
-   *
-   * @param {*} l
-   * @param {*} a
-   * @param {*} b
-   *
-   * @return {*}
-   */
-
-
-  Colors.cielab2RGB = function cielab2RGB() {
-    var l = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 50;
-    var a = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-    var b = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-
-    if (!(l >= 0 && l <= 100)) {
-      return null;
-    }
-
-    var xyz = this.cielab2XYZ(l, a, b);
-    return this.xyz2RGB.apply(this, xyz);
-  };
-
-  return Colors;
-}();
-
-/* harmony default export */ __webpack_exports__["default"] = (Colors);
 
 /***/ }),
 
@@ -29480,9 +30485,9 @@ var Intersections = function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _core_colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./core.colors */ "./src/core/core.colors.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ColorsCore", function() { return _core_colors__WEBPACK_IMPORTED_MODULE_0__["default"]; });
-
+/* harmony import */ var _core_colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./core.colors */ "./src/core/core.colors.ts");
+/* harmony import */ var _core_colors__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_core_colors__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (default from non-harmony) */ __webpack_require__.d(__webpack_exports__, "ColorsCore", function() { return _core_colors__WEBPACK_IMPORTED_MODULE_0___default.a; });
 /* harmony import */ var _core_intersections__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./core.intersections */ "./src/core/core.intersections.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "IntersectionsCore", function() { return _core_intersections__WEBPACK_IMPORTED_MODULE_1__["default"]; });
 
@@ -29562,7 +30567,7 @@ var CoreUtils = function () {
   CoreUtils.bbox = function bbox(center, halfDimensions) {
     // make sure we have valid inputs
     if (!(_core_validators__WEBPACK_IMPORTED_MODULE_0__["default"].vector3(center) && _core_validators__WEBPACK_IMPORTED_MODULE_0__["default"].vector3(halfDimensions))) {
-      window.console.log('Invalid center or plane halfDimensions.');
+      console.log('Invalid center or plane halfDimensions.');
       return false;
     }
 
@@ -29975,6 +30980,34 @@ var CoreUtils = function () {
     });
 
     return area;
+  };
+
+  CoreUtils.stringToNumber = function stringToNumber(numberAsString) {
+    var number = Number(numberAsString);
+
+    // returns true is number is NaN
+    if (number !== number) {
+      var dots = (numberAsString.match(/\./g) || []).length;
+      var commas = (numberAsString.match(/\,/g) || []).length;
+
+      if (commas === 1 && dots < 2) {
+        // convert 1,45 to 1.45
+        // convert 1,456.78 to 1456.78
+        var replaceBy = dots === 0 ? '.' : '';
+        var stringWithoutComma = numberAsString.replace(/,/g, replaceBy);
+        number = Number(stringWithoutComma);
+      }
+
+      // if that didn't help
+      // weird stuff happenning
+      // should throw an error instead of setting value to 1.0
+      if (number !== number) {
+        console.error('String could not be converted to number (' + numberAsString + '). Setting value to "1.0".');
+        number = 1.0;
+      }
+    }
+
+    return number;
   };
 
   return CoreUtils;
@@ -34170,6 +35203,7 @@ var LoadersVolumes = function (_LoadersBase) {
 
           // create a series
           var series = new _models_models_series__WEBPACK_IMPORTED_MODULE_2__["default"]();
+          series.rawHeader = volumeParser.rawHeader();
           // global information
           series.seriesInstanceUID = volumeParser.seriesInstanceUID();
           series.transferSyntaxUID = volumeParser.transferSyntaxUID();
@@ -35214,6 +36248,7 @@ var ModelsSeries = function (_ModelsBase) {
     _this._numberOfChannels = 1;
 
     // patient information
+    _this._rawHeader = null;
     _this._patientID = '';
     _this._patientName = '';
     _this._patientAge = '';
@@ -35474,6 +36509,28 @@ var ModelsSeries = function (_ModelsBase) {
     ,
     get: function get() {
       return this._seriesDescription;
+    }
+
+    /**
+    * Raw Header setter
+    *
+    * @param {*} rawHeader
+    */
+
+  }, {
+    key: 'rawHeader',
+    set: function set(rawHeader) {
+      this._rawHeader = rawHeader;
+    }
+
+    /**
+     * Raw Header getter
+     *
+     * @return {*}
+     */
+    ,
+    get: function get() {
+      return this._rawHeader;
     }
 
     /**
@@ -35738,7 +36795,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var three_src_math_Matrix4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three/src/math/Matrix4 */ "./node_modules/three/src/math/Matrix4.js");
 /* harmony import */ var three_src_math_Vector3__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/src/math/Vector3 */ "./node_modules/three/src/math/Vector3.js");
 /* harmony import */ var three_src_constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three/src/constants */ "./node_modules/three/src/constants.js");
-/* harmony import */ var _core_core_colors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../core/core.colors */ "./src/core/core.colors.js");
+/* harmony import */ var _core_core_colors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../core/core.colors */ "./src/core/core.colors.ts");
+/* harmony import */ var _core_core_colors__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_core_core_colors__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
 /* harmony import */ var _models_models_base__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../models/models.base */ "./src/models/models.base.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -35906,7 +36964,7 @@ var ModelsStack = function (_ModelsBase) {
       if (color === null) {
         dict[this._segmentationSegments[_i].segmentNumber] = this._segmentationDefaultColor;
       } else {
-        dict[this._segmentationSegments[_i].segmentNumber] = _core_core_colors__WEBPACK_IMPORTED_MODULE_3__["default"].cielab2RGB.apply(_core_core_colors__WEBPACK_IMPORTED_MODULE_3__["default"], color);
+        dict[this._segmentationSegments[_i].segmentNumber] = _core_core_colors__WEBPACK_IMPORTED_MODULE_3___default.a.cielab2RGB.apply(_core_core_colors__WEBPACK_IMPORTED_MODULE_3___default.a, color);
       }
     }
 
@@ -36914,10 +37972,11 @@ var ModelsVoxel = function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _parsers_volume__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./parsers.volume */ "./src/parsers/parsers.volume.js");
-/* harmony import */ var OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js */ "./node_modules/OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js");
-/* harmony import */ var OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _decoders_decoders_rle__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../decoders/decoders.rle */ "./src/decoders/decoders.rle.js");
+/* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
+/* harmony import */ var _parsers_volume__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./parsers.volume */ "./src/parsers/parsers.volume.js");
+/* harmony import */ var OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js */ "./node_modules/OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js");
+/* harmony import */ var OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _decoders_decoders_rle__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../decoders/decoders.rle */ "./src/decoders/decoders.rle.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -36925,6 +37984,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /** * Imports ***/
+
+
 
 
 
@@ -36973,7 +38034,7 @@ var ParsersDicom = function (_ParsersVolume) {
     try {
       _this._dataSet = DicomParser.parseDicom(byteArray);
     } catch (e) {
-      window.console.log(e);
+      console.log(e);
       var error = new Error('parsers.dicom could not parse the file');
       throw error;
     }
@@ -37124,6 +38185,17 @@ var ParsersDicom = function (_ParsersVolume) {
     var CIELabNormalized = [CIELabScaled[0] / 65535 * 100, CIELabScaled[1] / 65535 * 255 - 128, CIELabScaled[2] / 65535 * 255 - 128];
 
     return CIELabNormalized;
+  };
+
+  /**
+   * Raw dataset
+   * 
+   * @return {*}
+   */
+
+
+  ParsersDicom.prototype.rawHeader = function rawHeader() {
+    return this._dataSet;
   };
 
   /**
@@ -37316,7 +38388,7 @@ var ParsersDicom = function (_ParsersVolume) {
     if (imageOrientation) {
       // make sure we return a number! (not a string!)
       // might not need to split (floatString + index)
-      imageOrientation = imageOrientation.split('\\').map(Number);
+      imageOrientation = imageOrientation.split('\\').map(_core_core_utils__WEBPACK_IMPORTED_MODULE_0__["default"].stringToNumber);
     }
 
     return imageOrientation;
@@ -37355,7 +38427,7 @@ var ParsersDicom = function (_ParsersVolume) {
     // format image orientation ('1\0\0\0\1\0') to array containing 6 numbers
     if (imagePosition) {
       // make sure we return a number! (not a string!)
-      imagePosition = imagePosition.split('\\').map(Number);
+      imagePosition = imagePosition.split('\\').map(_core_core_utils__WEBPACK_IMPORTED_MODULE_0__["default"].stringToNumber);
     }
 
     return imagePosition;
@@ -37401,15 +38473,20 @@ var ParsersDicom = function (_ParsersVolume) {
 
     if (pixelSpacing === null) {
       pixelSpacing = this._dataSet.string('x00181164');
+
+      if (typeof pixelSpacing === 'undefined') {
+        pixelSpacing = null;
+      }
     }
 
     if (pixelSpacing) {
-      // make sure we return array of numbers! (not strings!)
-      pixelSpacing = pixelSpacing.split('\\').map(Number);
-    }
-
-    if (typeof pixelSpacing === 'undefined') {
-      pixelSpacing = null;
+      var splittedSpacing = pixelSpacing.split('\\');
+      if (splittedSpacing.length !== 2) {
+        console.error('DICOM spacing format is not supported (could not split string on "\\"): ' + pixelSpacing);
+        pixelSpacing = null;
+      } else {
+        pixelSpacing = splittedSpacing.map(_core_core_utils__WEBPACK_IMPORTED_MODULE_0__["default"].stringToNumber);
+      }
     }
 
     return pixelSpacing;
@@ -37920,13 +38997,13 @@ var ParsersDicom = function (_ParsersVolume) {
   ParsersDicom.prototype._decodeJ2K = function _decodeJ2K() {
     var frameIndex = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    if (typeof OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_1__ === 'undefined') {
+    if (typeof OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_2__ === 'undefined') {
       // OpenJPEG decoder not loaded
       return this._decodeJpx(frameIndex);
     }
 
     if (!openJPEG) {
-      openJPEG = OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_1__();
+      openJPEG = OpenJPEG_js_dist_openJPEG_DynamicMemory_browser_js__WEBPACK_IMPORTED_MODULE_2__();
       if (!openJPEG || !openJPEG._jp2_decode) {
         // OpenJPEG failed to initialize
         return this._decodeJpx(frameIndex);
@@ -37958,7 +39035,7 @@ var ParsersDicom = function (_ParsersVolume) {
 
     var pixelData = DicomParser.readEncapsulatedPixelDataFromFragments(this._dataSet, this._dataSet.elements.x7fe00010, frameIndex);
 
-    var decoded = Object(_decoders_decoders_rle__WEBPACK_IMPORTED_MODULE_2__["RLEDecoder"])(imageFrame, pixelData);
+    var decoded = Object(_decoders_decoders_rle__WEBPACK_IMPORTED_MODULE_3__["RLEDecoder"])(imageFrame, pixelData);
     return decoded.pixelData;
   };
 
@@ -38209,7 +39286,7 @@ var ParsersDicom = function (_ParsersVolume) {
   };
 
   return ParsersDicom;
-}(_parsers_volume__WEBPACK_IMPORTED_MODULE_0__["default"]);
+}(_parsers_volume__WEBPACK_IMPORTED_MODULE_1__["default"]);
 
 /* harmony default export */ __webpack_exports__["default"] = (ParsersDicom);
 
@@ -39868,6 +40945,16 @@ var ParsersVolume = function () {
 
 
   ParsersVolume.prototype.seriesDescription = function seriesDescription() {
+    return 'no value provided';
+  };
+
+  /**
+   * Get the raw Header.
+   * @return {*}
+   */
+
+
+  ParsersVolume.prototype.rawHeader = function rawHeader() {
     return 'no value provided';
   };
 
@@ -41567,7 +42654,7 @@ var Texture3d = function (_ShadersBase) {
       content += ' +\n      step( abs( textureIndexF - 7.0 ), 0.0 ) * texture2D(uTextureContainer[7], uv) +\n      step( abs( textureIndexF - 8.0 ), 0.0 ) * texture2D(uTextureContainer[8], uv) +\n      step( abs( textureIndexF - 9.0 ), 0.0 ) * texture2D(uTextureContainer[9], uv) +\n      step( abs( textureIndexF - 10.0 ), 0.0 ) * texture2D(uTextureContainer[10], uv) +\n      step( abs( textureIndexF - 11.0 ), 0.0 ) * texture2D(uTextureContainer[11], uv) +\n      step( abs( textureIndexF - 12.0 ), 0.0 ) * texture2D(uTextureContainer[12], uv) +\n      step( abs( textureIndexF - 13.0 ), 0.0 ) * texture2D(uTextureContainer[13], uv)';
     }
 
-    this._definition = '\nvoid ' + this._name + '(in ivec3 dataCoordinates, out vec4 dataValue, out int offset){\n    \n  int index = dataCoordinates.x\n            + dataCoordinates.y * uDataDimensions.x\n            + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;\n  int indexP = int(index/uPackedPerPixel);\n  offset = index - int(uPackedPerPixel)*indexP;\n\n  // Map data index to right sampler2D texture\n  int voxelsPerTexture = uTextureSize*uTextureSize;\n  int textureIndex = int(floor(float(indexP) / float(voxelsPerTexture)));\n  // modulo seems incorrect sometimes...\n  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));\n  int inTextureIndex = indexP - voxelsPerTexture*textureIndex;\n  float textureIndexF = float(textureIndex);\n\n  // Get row and column in the texture\n  int colIndex = int(mod(float(inTextureIndex), float(uTextureSize)));\n  int rowIndex = int(floor(float(inTextureIndex)/float(uTextureSize)));\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + float(colIndex)) / float(uTextureSize);\n  uv.y = 1. - (0.5 + float(rowIndex)) / float(uTextureSize);\n\n  // get rid of if statements\n  dataValue = vec4(0.) + ' + content + ';\n\n}\n    ';
+    this._definition = '\nvoid ' + this._name + '(in ivec3 dataCoordinates, out vec4 dataValue, out int offset){\n  float textureSizeF = float(uTextureSize);\n  int voxelsPerTexture = uTextureSize*uTextureSize;\n\n  int index = dataCoordinates.x\n            + dataCoordinates.y * uDataDimensions.x\n            + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;\n  \n  // dividing an integer by an integer will give you an integer result, rounded down\n  // can not get float numbers to work :(\n  int packedIndex = index/uPackedPerPixel;\n  offset = index - uPackedPerPixel*packedIndex;\n\n  // Map data index to right sampler2D texture\n  int textureIndex = packedIndex/voxelsPerTexture;\n  int inTextureIndex = packedIndex - voxelsPerTexture*textureIndex;\n\n  // Get row and column in the texture\n  int rowIndex = inTextureIndex/uTextureSize;\n  float rowIndexF = float(rowIndex);\n  float colIndex = float(inTextureIndex - uTextureSize * rowIndex);\n\n  // Map row and column to uv\n  vec2 uv = vec2(0,0);\n  uv.x = (0.5 + colIndex) / textureSizeF;\n  uv.y = 1. - (0.5 + rowIndexF) / textureSizeF;\n\n  float textureIndexF = float(textureIndex);\n  dataValue = vec4(0.) + ' + content + ';\n}\n    ';
   };
 
   return Texture3d;
@@ -43131,7 +44218,8 @@ var ShadersVertex = function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsAngle", function() { return widgetsAngle; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -43547,7 +44635,8 @@ var widgetsAngle = function widgetsAngle() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsAnnotation", function() { return widgetsAnnotation; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -43979,504 +45068,473 @@ var widgetsAnnotation = function widgetsAnnotation() {
 
 /***/ }),
 
-/***/ "./src/widgets/widgets.base.js":
+/***/ "./src/widgets/widgets.base.ts":
 /*!*************************************!*\
-  !*** ./src/widgets/widgets.base.js ***!
+  !*** ./src/widgets/widgets.base.ts ***!
   \*************************************/
-/*! exports provided: widgetsBase, default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsBase", function() { return widgetsBase; });
-/* harmony import */ var _widgets_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.css */ "./src/widgets/widgets.css.js");
-/* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-
-
-
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var widgets_css_1 = __importDefault(__webpack_require__(/*! ./widgets.css */ "./src/widgets/widgets.css.js"));
+var core_colors_1 = __webpack_require__(/*! ../core/core.colors */ "./src/core/core.colors.ts");
+var core_utils_1 = __importDefault(__webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js"));
 /**
  * @module Abstract Widget
  */
-var widgetsBase = function widgetsBase() {
-  var three = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.THREE;
-
-  if (three === undefined || three.Object3D === undefined) {
-    return null;
-  }
-
-  var Constructor = three.Object3D;
-  return function (_Constructor) {
-    _inherits(_class, _Constructor);
-
-    function _class(targetMesh, controls) {
-      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-      _classCallCheck(this, _class);
-
-      // init THREE Object 3D
-
-      var _this = _possibleConstructorReturn(this, _Constructor.call(this));
-
-      _this._widgetType = 'Base';
-
-      // List of supported parameters:
-      //   calibrationFactor (number), frameIndex (number), hideMesh (bool), hideHandleMesh (bool),
-      //   ijk2LPS (Matrix4), lps2IJK (Matrix4), pixelSpacing (number), stack (ModelsStack),
-      //   ultrasoundRegions (Array<Object>), worldPosition (Vector3)
-      _this._params = params;
-      if (params.hideMesh === true) {
-        _this.visible = false;
-      }
-
-      var elementStyle = document.getElementById('ami-widgets');
-      if (elementStyle === null) {
-        var styleEl = document.createElement('style');
-        styleEl.id = 'ami-widgets';
-        styleEl.innerHTML = _widgets_css__WEBPACK_IMPORTED_MODULE_0__["default"].code;
-        document.head.appendChild(styleEl);
-      }
-
-      _this._enabled = true; // is widget enabled?
-
-      _this._selected = false;
-      _this._hovered = true;
-      _this._active = true;
-
-      _this._colors = {
-        default: '#00B0FF',
-        active: '#FFEB3B',
-        hover: '#F50057',
-        select: '#76FF03',
-        text: '#FFF',
-        error: '#F77'
-      };
-      _this._color = _this._colors.default;
-
-      _this._dragged = false;
-      // can not call it visible because it conflicts with THREE.Object3D
-      _this._displayed = true;
-
-      _this._targetMesh = targetMesh;
-      _this._controls = controls;
-      _this._camera = controls.object;
-      _this._container = controls.domElement;
-
-      _this._worldPosition = new three.Vector3(); // LPS position
-      if (params.worldPosition) {
-        _this._worldPosition.copy(params.worldPosition);
-      } else if (_this._targetMesh !== null) {
-        _this._worldPosition.copy(_this._targetMesh.position);
-      }
-      return _this;
+// tslint:disable-next-line
+var widgetsBase = function (three) {
+    if (three === void 0) { three = window.THREE; }
+    if (three === undefined || three.Object3D === undefined) {
+        return null;
     }
-
-    _class.prototype.initOffsets = function initOffsets() {
-      var box = this._container.getBoundingClientRect();
-
-      var body = document.body;
-      var docEl = document.documentElement;
-
-      var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
-      var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
-
-      var clientTop = docEl.clientTop || body.clientTop || 0;
-      var clientLeft = docEl.clientLeft || body.clientLeft || 0;
-
-      this._offsets = {
-        top: Math.round(box.top + scrollTop - clientTop),
-        left: Math.round(box.left + scrollLeft - clientLeft)
-      };
-    };
-
-    _class.prototype.getMouseOffsets = function getMouseOffsets(event, container) {
-      return {
-        x: (event.clientX - this._offsets.left) / container.offsetWidth * 2 - 1,
-        y: -((event.clientY - this._offsets.top) / container.offsetHeight) * 2 + 1,
-        screenX: event.clientX - this._offsets.left,
-        screenY: event.clientY - this._offsets.top
-      };
-    };
-
-    /**
-     * Get area of polygon.
-     *
-     * @param {Array} points Ordered vertices' coordinates
-     *
-     * @returns {Number}
-     */
-
-
-    _class.prototype.getArea = function getArea(points) {
-      var area = 0;
-      var j = points.length - 1; // the last vertex is the 'previous' one to the first
-
-      for (var i = 0; i < points.length; i++) {
-        area += (points[j].x + points[i].x) * (points[j].y - points[i].y);
-        j = i; // j is the previous vertex to i
-      }
-
-      return Math.abs(area / 2);
-    };
-
-    /**
-     * Get index of ultrasound region by data coordinates.
-     *
-     * @param {Array}   regions US regions
-     * @param {Vector3} point   Data coordinates
-     *
-     * @returns {Number|null}
-     */
-
-
-    _class.prototype.getRegionByXY = function getRegionByXY(regions, point) {
-      var result = null;
-
-      regions.some(function (region, ind) {
-        if (point.x >= region.x0 && point.x <= region.x1 && point.y >= region.y0 && point.y <= region.y1) {
-          result = ind;
-
-          return true;
+    var Constructor = three.Object3D;
+    return /** @class */ (function (_super) {
+        __extends(class_1, _super);
+        function class_1(targetMesh, controls, params) {
+            var _this = _super.call(this) || this;
+            _this._widgetType = 'Base';
+            _this._params = params;
+            if (params.hideMesh === true) {
+                _this.visible = false;
+            }
+            var elementStyle = document.getElementById('ami-widgets');
+            if (elementStyle === null) {
+                var styleEl = document.createElement('style');
+                styleEl.id = 'ami-widgets';
+                styleEl.innerHTML = widgets_css_1.default.code;
+                document.head.appendChild(styleEl);
+            }
+            _this._enabled = true;
+            _this._selected = false;
+            _this._hovered = true;
+            _this._active = true;
+            _this._colors = {
+                default: core_colors_1.COLORS.blue,
+                active: core_colors_1.COLORS.yellow,
+                hover: core_colors_1.COLORS.red,
+                select: core_colors_1.COLORS.green,
+                text: core_colors_1.COLORS.white,
+                error: core_colors_1.COLORS.lightRed,
+            };
+            _this._color = _this._colors.default;
+            _this._dragged = false;
+            // can not call it visible because it conflicts with THREE.Object3D
+            _this._displayed = true;
+            _this._targetMesh = targetMesh;
+            _this._controls = controls;
+            _this._camera = controls.object;
+            _this._container = controls.domElement;
+            _this._worldPosition = new three.Vector3(); // LPS position
+            if (params.worldPosition) {
+                _this._worldPosition.copy(params.worldPosition);
+            }
+            else if (_this._targetMesh !== null) {
+                _this._worldPosition.copy(_this._targetMesh.position);
+            }
+            return _this;
         }
-      });
-
-      return result;
-    };
-
-    /**
-     * Get point inside ultrasound region by data coordinates.
-     *
-     * @param {Object}  region US region data
-     * @param {Vector3} point  Data coordinates
-     *
-     * @returns {Vector2|null}
-     */
-
-
-    _class.prototype.getPointInRegion = function getPointInRegion(region, point) {
-      if (!region) {
-        return null;
-      }
-
-      return new three.Vector2((point.x - region.x0 - (region.axisX || 0)) * region.deltaX, (point.y - region.y0 - (region.axisY || 0)) * region.deltaY);
-    };
-
-    /**
-     * Get point's ultrasound coordinates by data coordinates.
-     *
-     * @param {Array}   regions US regions
-     * @param {Vector3} point   Data coordinates
-     *
-     * @returns {Vector2|null}
-     */
-
-
-    _class.prototype.getUsPoint = function getUsPoint(regions, point) {
-      return this.getPointInRegion(regions[this.getRegionByXY(regions, point)], point);
-    };
-
-    /**
-     * Get distance between points inside ultrasound region.
-     *
-     * @param {Vector3} pointA Begin data coordinates
-     * @param {Vector3} pointB End data coordinates
-     *
-     * @returns {Number|null}
-     */
-
-
-    _class.prototype.getUsDistance = function getUsDistance(pointA, pointB) {
-      var regions = this._params.ultrasoundRegions || [];
-
-      if (regions.length < 1) {
-        return null;
-      }
-
-      var regionA = this.getRegionByXY(regions, pointA);
-      var regionB = this.getRegionByXY(regions, pointB);
-
-      if (regionA === null || regionB === null || regionA !== regionB || regions[regionA].unitsX !== 'cm' || regions[regionA].unitsY !== 'cm') {
-        return null;
-      }
-
-      return this.getPointInRegion(regions[regionA], pointA).distanceTo(this.getPointInRegion(regions[regionA], pointB));
-    };
-
-    /**
-     * Get distance between points
-     *
-     * @param {Vector3} pointA Begin world coordinates
-     * @param {Vector3} pointB End world coordinates
-     * @param {number}  cf     Calibration factor
-     *
-     * @returns {Object}
-     */
-
-
-    _class.prototype.getDistanceData = function getDistanceData(pointA, pointB, cf) {
-      var distance = null;
-      var units = null;
-
-      if (cf) {
-        distance = pointA.distanceTo(pointB) * cf;
-      } else if (this._params.ultrasoundRegions && this._params.lps2IJK) {
-        var usDistance = this.getUsDistance(_core_core_utils__WEBPACK_IMPORTED_MODULE_1__["default"].worldToData(this._params.lps2IJK, pointA), _core_core_utils__WEBPACK_IMPORTED_MODULE_1__["default"].worldToData(this._params.lps2IJK, pointB));
-
-        if (usDistance !== null) {
-          distance = usDistance * 10;
-          units = 'mm';
-        } else {
-          distance = pointA.distanceTo(pointB);
-          units = this._params.pixelSpacing ? 'mm' : 'units';
-        }
-      } else {
-        distance = pointA.distanceTo(pointB);
-      }
-
-      return {
-        distance: distance,
-        units: units
-      };
-    };
-
-    _class.prototype.getLineData = function getLineData(pointA, pointB) {
-      var line = pointB.clone().sub(pointA);
-      var center = pointB.clone().add(pointA).multiplyScalar(0.5);
-      var length = line.length();
-      var angle = line.angleTo(new three.Vector3(1, 0, 0));
-
-      return {
-        line: line,
-        length: length,
-        transformX: center.x - length / 2,
-        transformY: center.y - this._container.offsetHeight,
-        transformAngle: pointA.y < pointB.y ? angle : -angle,
-        center: center
-      };
-    };
-
-    _class.prototype.getRectData = function getRectData(pointA, pointB) {
-      var line = pointB.clone().sub(pointA);
-      var vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0));
-      var min = pointA.clone().min(pointB); // coordinates of the top left corner
-
-      return {
-        width: line.clone().projectOnVector(new three.Vector3(1, 0, 0)).length(),
-        height: vertical.length(),
-        transformX: min.x,
-        transformY: min.y - this._container.offsetHeight,
-        paddingVector: vertical.clone().normalize()
-      };
-    };
-
-    /**
-     * @param {HTMLElement} label
-     * @param {Vector3}     point  label's center coordinates (default)
-     * @param {Boolean}     corner if true, then point is the label's top left corner coordinates
-     */
-
-
-    _class.prototype.adjustLabelTransform = function adjustLabelTransform(label, point, corner) {
-      var x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2));
-      var y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
-
-      if (x < 0) {
-        x = x > -label.offsetWidth ? 0 : x + label.offsetWidth;
-      } else if (x > this._container.offsetWidth - label.offsetWidth) {
-        x = x < this._container.offsetWidth ? this._container.offsetWidth - label.offsetWidth : x - label.offsetWidth;
-      }
-
-      if (y < -this._container.offsetHeight) {
-        y = y > -this._container.offsetHeight - label.offsetHeight ? -this._container.offsetHeight : y + label.offsetHeight;
-      } else if (y > -label.offsetHeight) {
-        y = y < 0 ? -label.offsetHeight : y - label.offsetHeight;
-      }
-
-      return new three.Vector2(x, y);
-    };
-
-    _class.prototype.worldToScreen = function worldToScreen(worldCoordinate) {
-      var screenCoordinates = worldCoordinate.clone();
-      screenCoordinates.project(this._camera);
-
-      screenCoordinates.x = Math.round((screenCoordinates.x + 1) * this._container.offsetWidth / 2);
-      screenCoordinates.y = Math.round((-screenCoordinates.y + 1) * this._container.offsetHeight / 2);
-      screenCoordinates.z = 0;
-
-      return screenCoordinates;
-    };
-
-    _class.prototype.update = function update() {
-      // to be overloaded
-      window.console.log('update() should be overloaded!');
-    };
-
-    _class.prototype.updateColor = function updateColor() {
-      if (this._active) {
-        this._color = this._colors.active;
-      } else if (this._hovered) {
-        this._color = this._colors.hover;
-      } else if (this._selected) {
-        this._color = this._colors.select;
-      } else {
-        this._color = this._colors.default;
-      }
-    };
-
-    _class.prototype.setDefaultColor = function setDefaultColor(color) {
-      this._colors.default = color;
-      if (this._handles) {
-        this._handles.forEach(function (elem) {
-          return elem._colors.default = color;
+        class_1.prototype.initOffsets = function () {
+            var box = this._container.getBoundingClientRect();
+            var body = document.body;
+            var docEl = document.documentElement;
+            var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
+            var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
+            var clientTop = docEl.clientTop || body.clientTop || 0;
+            var clientLeft = docEl.clientLeft || body.clientLeft || 0;
+            this._offsets = {
+                top: Math.round(box.top + scrollTop - clientTop),
+                left: Math.round(box.left + scrollLeft - clientLeft),
+            };
+        };
+        class_1.prototype.getMouseOffsets = function (event, container) {
+            return {
+                x: ((event.clientX - this._offsets.left) / container.offsetWidth) * 2 - 1,
+                y: -((event.clientY - this._offsets.top) / container.offsetHeight) * 2 + 1,
+                screenX: event.clientX - this._offsets.left,
+                screenY: event.clientY - this._offsets.top,
+            };
+        };
+        /**
+         * Get area of polygon.
+         *
+         * @param {Array} points Ordered vertices' coordinates
+         *
+         * @returns {Number}
+         */
+        class_1.prototype.getArea = function (points) {
+            var area = 0;
+            var j = points.length - 1; // the last vertex is the 'previous' one to the first
+            for (var i = 0; i < points.length; i++) {
+                area += (points[j].x + points[i].x) * (points[j].y - points[i].y);
+                j = i; // j is the previous vertex to i
+            }
+            return Math.abs(area / 2);
+        };
+        /**
+         * Get index of ultrasound region by data coordinates.
+         *
+         * @param {Array}   regions US regions
+         * @param {Vector3} point   Data coordinates
+         *
+         * @returns {Number|null}
+         */
+        class_1.prototype.getRegionByXY = function (regions, point) {
+            var result = null;
+            regions.some(function (region, ind) {
+                if (point.x >= region.x0 &&
+                    point.x <= region.x1 &&
+                    point.y >= region.y0 &&
+                    point.y <= region.y1) {
+                    result = ind;
+                    return true;
+                }
+            });
+            return result;
+        };
+        /**
+         * Get point inside ultrasound region by data coordinates.
+         *
+         * @param {Object}  region US region data
+         * @param {Vector3} point  Data coordinates
+         *
+         * @returns {Vector2|null}
+         */
+        class_1.prototype.getPointInRegion = function (region, point) {
+            if (!region) {
+                return null;
+            }
+            return new three.Vector2((point.x - region.x0 - (region.axisX || 0)) * region.deltaX, (point.y - region.y0 - (region.axisY || 0)) * region.deltaY);
+        };
+        /**
+         * Get point's ultrasound coordinates by data coordinates.
+         *
+         * @param {Array}   regions US regions
+         * @param {Vector3} point   Data coordinates
+         *
+         * @returns {Vector2|null}
+         */
+        class_1.prototype.getUsPoint = function (regions, point) {
+            return this.getPointInRegion(regions[this.getRegionByXY(regions, point)], point);
+        };
+        /**
+         * Get distance between points inside ultrasound region.
+         *
+         * @param {Vector3} pointA Begin data coordinates
+         * @param {Vector3} pointB End data coordinates
+         *
+         * @returns {Number|null}
+         */
+        class_1.prototype.getUsDistance = function (pointA, pointB) {
+            var regions = this._params.ultrasoundRegions || [];
+            if (regions.length < 1) {
+                return null;
+            }
+            var regionA = this.getRegionByXY(regions, pointA);
+            var regionB = this.getRegionByXY(regions, pointB);
+            if (regionA === null ||
+                regionB === null ||
+                regionA !== regionB ||
+                regions[regionA].unitsX !== 'cm' ||
+                regions[regionA].unitsY !== 'cm') {
+                return null;
+            }
+            return this.getPointInRegion(regions[regionA], pointA).distanceTo(this.getPointInRegion(regions[regionA], pointB));
+        };
+        /**
+         * Get distance between points
+         *
+         * @param {Vector3} pointA Begin world coordinates
+         * @param {Vector3} pointB End world coordinates
+         * @param {number}  cf     Calibration factor
+         *
+         * @returns {Object}
+         */
+        class_1.prototype.getDistanceData = function (pointA, pointB, calibrationFactor) {
+            var distance = null;
+            var units = null;
+            if (calibrationFactor) {
+                distance = pointA.distanceTo(pointB) * calibrationFactor;
+            }
+            else if (this._params.ultrasoundRegions && this._params.lps2IJK) {
+                var usDistance = this.getUsDistance(core_utils_1.default.worldToData(this._params.lps2IJK, pointA), core_utils_1.default.worldToData(this._params.lps2IJK, pointB));
+                if (usDistance !== null) {
+                    distance = usDistance * 10;
+                    units = 'mm';
+                }
+                else {
+                    distance = pointA.distanceTo(pointB);
+                    units = this._params.pixelSpacing ? 'mm' : 'units';
+                }
+            }
+            else {
+                distance = pointA.distanceTo(pointB);
+            }
+            return {
+                distance: distance,
+                units: units,
+            };
+        };
+        class_1.prototype.getLineData = function (pointA, pointB) {
+            var line = pointB.clone().sub(pointA);
+            var center = pointB
+                .clone()
+                .add(pointA)
+                .multiplyScalar(0.5);
+            var length = line.length();
+            var angle = line.angleTo(new three.Vector3(1, 0, 0));
+            return {
+                line: line,
+                length: length,
+                transformX: center.x - length / 2,
+                transformY: center.y - this._container.offsetHeight,
+                transformAngle: pointA.y < pointB.y ? angle : -angle,
+                center: center,
+            };
+        };
+        class_1.prototype.getRectData = function (pointA, pointB) {
+            var line = pointB.clone().sub(pointA);
+            var vertical = line.clone().projectOnVector(new three.Vector3(0, 1, 0));
+            var min = pointA.clone().min(pointB); // coordinates of the top left corner
+            return {
+                width: line
+                    .clone()
+                    .projectOnVector(new three.Vector3(1, 0, 0))
+                    .length(),
+                height: vertical.length(),
+                transformX: min.x,
+                transformY: min.y - this._container.offsetHeight,
+                paddingVector: vertical.clone().normalize(),
+            };
+        };
+        /**
+         * @param {HTMLElement} label
+         * @param {Vector3}     point  label's center coordinates (default)
+         * @param {Boolean}     corner if true, then point is the label's top left corner coordinates
+         */
+        class_1.prototype.adjustLabelTransform = function (label, point, corner) {
+            var x = Math.round(point.x - (corner ? 0 : label.offsetWidth / 2));
+            var y = Math.round(point.y - (corner ? 0 : label.offsetHeight / 2)) - this._container.offsetHeight;
+            if (x < 0) {
+                x = x > -label.offsetWidth ? 0 : x + label.offsetWidth;
+            }
+            else if (x > this._container.offsetWidth - label.offsetWidth) {
+                x =
+                    x < this._container.offsetWidth
+                        ? this._container.offsetWidth - label.offsetWidth
+                        : x - label.offsetWidth;
+            }
+            if (y < -this._container.offsetHeight) {
+                y =
+                    y > -this._container.offsetHeight - label.offsetHeight
+                        ? -this._container.offsetHeight
+                        : y + label.offsetHeight;
+            }
+            else if (y > -label.offsetHeight) {
+                y = y < 0 ? -label.offsetHeight : y - label.offsetHeight;
+            }
+            return new three.Vector2(x, y);
+        };
+        class_1.prototype.worldToScreen = function (worldCoordinate) {
+            var screenCoordinates = worldCoordinate.clone();
+            screenCoordinates.project(this._camera);
+            screenCoordinates.x = Math.round(((screenCoordinates.x + 1) * this._container.offsetWidth) / 2);
+            screenCoordinates.y = Math.round(((-screenCoordinates.y + 1) * this._container.offsetHeight) / 2);
+            screenCoordinates.z = 0;
+            return screenCoordinates;
+        };
+        class_1.prototype.update = function () {
+            // to be overloaded
+            window.console.log('update() should be overloaded!');
+        };
+        class_1.prototype.updateColor = function () {
+            if (this._active) {
+                this._color = this._colors.active;
+            }
+            else if (this._hovered) {
+                this._color = this._colors.hover;
+            }
+            else if (this._selected) {
+                this._color = this._colors.select;
+            }
+            else {
+                this._color = this._colors.default;
+            }
+        };
+        // tslint:disable-next-line
+        class_1.prototype.setDefaultColor = function (color) {
+            this._colors.default = color;
+            if (this._handles) {
+                this._handles.forEach(function (elem) { return (elem._colors.default = color); });
+            }
+            this.update();
+        };
+        class_1.prototype.show = function () {
+            this.showDOM();
+            this.showMesh();
+            this.update();
+            this._displayed = true;
+        };
+        class_1.prototype.hide = function () {
+            this.hideDOM();
+            this.hideMesh();
+            this._displayed = false;
+        };
+        class_1.prototype.hideDOM = function () {
+            // to be overloaded
+            window.console.log('hideDOM() should be overloaded!');
+        };
+        class_1.prototype.showDOM = function () {
+            // to be overloaded
+            window.console.log('showDOM() should be overloaded!');
+        };
+        class_1.prototype.hideMesh = function () {
+            this.visible = false;
+        };
+        class_1.prototype.showMesh = function () {
+            if (this._params.hideMesh === true) {
+                return;
+            }
+            this.visible = true;
+        };
+        class_1.prototype.free = function () {
+            this._camera = null;
+            this._container = null;
+            this._controls = null;
+            this._params = null;
+            this._targetMesh = null;
+        };
+        Object.defineProperty(class_1.prototype, "widgetType", {
+            get: function () {
+                return this._widgetType;
+            },
+            enumerable: true,
+            configurable: true
         });
-      }
-      this.update();
-    };
-
-    _class.prototype.show = function show() {
-      this.showDOM();
-      this.showMesh();
-      this.update();
-      this._displayed = true;
-    };
-
-    _class.prototype.hide = function hide() {
-      this.hideDOM();
-      this.hideMesh();
-      this._displayed = false;
-    };
-
-    _class.prototype.hideDOM = function hideDOM() {
-      // to be overloaded
-      window.console.log('hideDOM() should be overloaded!');
-    };
-
-    _class.prototype.showDOM = function showDOM() {
-      // to be overloaded
-      window.console.log('showDOM() should be overloaded!');
-    };
-
-    _class.prototype.hideMesh = function hideMesh() {
-      this.visible = false;
-    };
-
-    _class.prototype.showMesh = function showMesh() {
-      if (this._params.hideMesh === true) {
-        return;
-      }
-
-      this.visible = true;
-    };
-
-    _class.prototype.free = function free() {
-      this._camera = null;
-      this._container = null;
-      this._controls = null;
-      this._params = null;
-      this._targetMesh = null;
-    };
-
-    _createClass(_class, [{
-      key: 'widgetType',
-      get: function get() {
-        return this._widgetType;
-      }
-    }, {
-      key: 'targetMesh',
-      get: function get() {
-        return this._targetMesh;
-      },
-      set: function set(targetMesh) {
-        this._targetMesh = targetMesh;
-        this.update();
-      }
-    }, {
-      key: 'worldPosition',
-      get: function get() {
-        return this._worldPosition;
-      },
-      set: function set(worldPosition) {
-        this._worldPosition.copy(worldPosition);
-        this.update();
-      }
-    }, {
-      key: 'enabled',
-      get: function get() {
-        return this._enabled;
-      },
-      set: function set(enabled) {
-        this._enabled = enabled;
-        this.update();
-      }
-    }, {
-      key: 'selected',
-      get: function get() {
-        return this._selected;
-      },
-      set: function set(selected) {
-        this._selected = selected;
-        this.update();
-      }
-    }, {
-      key: 'hovered',
-      get: function get() {
-        return this._hovered;
-      },
-      set: function set(hovered) {
-        this._hovered = hovered;
-        this.update();
-      }
-    }, {
-      key: 'dragged',
-      get: function get() {
-        return this._dragged;
-      },
-      set: function set(dragged) {
-        this._dragged = dragged;
-        this.update();
-      }
-    }, {
-      key: 'displayed',
-      get: function get() {
-        return this._displayed;
-      },
-      set: function set(displayed) {
-        this._displayed = displayed;
-        this.update();
-      }
-    }, {
-      key: 'active',
-      get: function get() {
-        return this._active;
-      },
-      set: function set(active) {
-        this._active = active;
-        this.update();
-      }
-    }, {
-      key: 'color',
-      get: function get() {
-        return this._color;
-      },
-      set: function set(color) {
-        this._color = color;
-        this.update();
-      }
-    }]);
-
-    return _class;
-  }(Constructor);
+        Object.defineProperty(class_1.prototype, "targetMesh", {
+            get: function () {
+                return this._targetMesh;
+            },
+            set: function (targetMesh) {
+                this._targetMesh = targetMesh;
+                this.update();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(class_1.prototype, "worldPosition", {
+            get: function () {
+                return this._worldPosition;
+            },
+            set: function (worldPosition) {
+                this._worldPosition.copy(worldPosition);
+                this.update();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(class_1.prototype, "enabled", {
+            get: function () {
+                return this._enabled;
+            },
+            set: function (enabled) {
+                this._enabled = enabled;
+                this.update();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(class_1.prototype, "selected", {
+            get: function () {
+                return this._selected;
+            },
+            set: function (selected) {
+                this._selected = selected;
+                this.update();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(class_1.prototype, "hovered", {
+            get: function () {
+                return this._hovered;
+            },
+            set: function (hovered) {
+                this._hovered = hovered;
+                this.update();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(class_1.prototype, "dragged", {
+            get: function () {
+                return this._dragged;
+            },
+            set: function (dragged) {
+                this._dragged = dragged;
+                this.update();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(class_1.prototype, "displayed", {
+            get: function () {
+                return this._displayed;
+            },
+            set: function (displayed) {
+                this._displayed = displayed;
+                this.update();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(class_1.prototype, "active", {
+            get: function () {
+                return this._active;
+            },
+            set: function (active) {
+                this._active = active;
+                this.update();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(class_1.prototype, "color", {
+            get: function () {
+                return this._color;
+            },
+            // tslint:disable-next-line
+            set: function (color) {
+                this._color = color;
+                this.update();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return class_1;
+    }(Constructor));
 };
+exports.widgetsBase = widgetsBase;
+exports.default = widgetsBase();
 
-
-/* harmony default export */ __webpack_exports__["default"] = (widgetsBase());
 
 /***/ }),
 
@@ -44490,7 +45548,8 @@ var widgetsBase = function widgetsBase() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsBiruler", function() { return widgetsBiruler; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -44940,7 +45999,8 @@ var widgetsBiruler = function widgetsBiruler() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsCrossRuler", function() { return widgetsCrossRuler; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -45578,7 +46638,8 @@ var WidgetsCss = function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsEllipse", function() { return widgetsEllipse; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 /* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -46066,7 +47127,8 @@ var widgetsEllipse = function widgetsEllipse() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsFreehand", function() { return widgetsFreehand; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 /* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -46726,7 +47788,8 @@ var widgetsFreehand = function widgetsFreehand() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsHandle", function() { return widgetsHandle; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _core_core_intersections__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../core/core.intersections */ "./src/core/core.intersections.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -47205,7 +48268,8 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsPeakVelocity", function() { return widgetsPeakVelocity; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 /* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -47531,7 +48595,8 @@ var widgetsPeakVelocity = function widgetsPeakVelocity() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsPolygon", function() { return widgetsPolygon; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 /* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -48185,7 +49250,8 @@ var widgetsPolygon = function widgetsPolygon() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsPressureHalfTime", function() { return widgetsPressureHalfTime; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 /* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -48639,7 +49705,8 @@ var widgetsPressureHalfTime = function widgetsPressureHalfTime() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsRectangle", function() { return widgetsRectangle; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 /* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -49098,7 +50165,8 @@ var widgetsRectangle = function widgetsRectangle() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsRuler", function() { return widgetsRuler; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -49497,7 +50565,8 @@ var widgetsRuler = function widgetsRuler() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsVelocityTimeIntegral", function() { return widgetsVelocityTimeIntegral; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 /* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -50175,7 +51244,8 @@ var widgetsVelocityTimeIntegral = function widgetsVelocityTimeIntegral() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "widgetsVoxelprobe", function() { return widgetsVoxelprobe; });
-/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.js");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./widgets.base */ "./src/widgets/widgets.base.ts");
+/* harmony import */ var _widgets_base__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_widgets_base__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _widgets_handle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./widgets.handle */ "./src/widgets/widgets.handle.js");
 /* harmony import */ var _models_models_voxel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../models/models.voxel */ "./src/models/models.voxel.js");
 /* harmony import */ var _core_core_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../core/core.utils */ "./src/core/core.utils.js");

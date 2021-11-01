@@ -1,5 +1,3 @@
-const packageJSON = require('./package.json');
-
 ('use strict');
 
 process.env.CHROME_BIN = require('puppeteer').executablePath();
@@ -14,8 +12,8 @@ module.exports = function(karma) {
       'https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js',
       `https://unpkg.com/three@latest/build/three.min.js`,
       // ,
-      // 'src/core/*.spec.js',
-      'specs/**/*.spec.js',
+      // 'specs/core/*.spec.*s',
+      'specs/**/*.spec.*s',
       { pattern: 'data/**/*', included: false, watched: false, served: true },
     ],
 
@@ -24,10 +22,14 @@ module.exports = function(karma) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'specs/**/*.spec.js': ['webpack'],
+      'specs/**/*.spec.*s': ['webpack'],
     },
 
     browsers: ['ChromeHeadless'],
+    // You have to add the mime type for Typescript files. Otherwise, Chrome won't run these files.
+    mime: {
+      'text/x-typescript': ['ts']
+    },
 
     // web server port
     // port: 9876,
@@ -38,14 +40,21 @@ module.exports = function(karma) {
     autoWatch: false,
     singleRun: true,
     colors: true,
-
     webpack: {
+      resolve: {
+        extensions: ['.ts', '.tsx', '.js', '.jsx', '.css', '.html', '.scss', '.json'],
+      },
       module: {
         rules: [
           {
             test: /\.js$/,
             loader: 'babel-loader',
             exclude: [/node_modules/, /external/],
+          },
+          {
+            test: /\.ts$/,
+            loader: 'ts-loader',
+            exclude: [/external/],
           },
         ],
       },

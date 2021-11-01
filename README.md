@@ -4,7 +4,7 @@
 
 <p align="center">
     <a href="https://travis-ci.org/FNNDSC/ami">
-        <img src="https://travis-ci.org/FNNDSC/ami.svg"
+        <img src="https://travis-ci.org/FNNDSC/ami.svg?branch=master"
              alt="Build Status">
     </a>
      <a href="https://cdnjs.com/libraries/ami.js">

@@ -47,7 +47,7 @@ export default class {
             this._mesh = new THREE.Mesh(geometry, this._material);
             this._RAStoLPS = new Matrix4();
             this._RAStoLPS.set(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-            this._mesh.applyMatrix(this._RAStoLPS);
+            this._mesh.applyMatrix4(this._RAStoLPS);
             // resolve the promise and return the mesh
             resolve(this._mesh);
           },

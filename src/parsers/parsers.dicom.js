@@ -1,5 +1,7 @@
 /** * Imports ***/
+import UtilsCore from '../core/core.utils';
 import ParsersVolume from './parsers.volume';
+
 import * as OpenJPEG from 'OpenJPEG.js/dist/openJPEG-DynamicMemory-browser.js';
 
 import { RLEDecoder } from '../decoders/decoders.rle';
@@ -42,7 +44,7 @@ export default class ParsersDicom extends ParsersVolume {
     try {
       this._dataSet = DicomParser.parseDicom(byteArray);
     } catch (e) {
-      window.console.log(e);
+      console.log(e);
       const error = new Error('parsers.dicom could not parse the file');
       throw error;
     }
@@ -182,6 +184,15 @@ export default class ParsersDicom extends ParsersVolume {
     ];
 
     return CIELabNormalized;
+  }
+
+  /**
+   * Raw dataset
+   * 
+   * @return {*}
+   */
+  rawHeader() {
+    return this._dataSet;
   }
 
   /**
@@ -356,7 +367,7 @@ export default class ParsersDicom extends ParsersVolume {
     if (imageOrientation) {
       // make sure we return a number! (not a string!)
       // might not need to split (floatString + index)
-      imageOrientation = imageOrientation.split('\\').map(Number);
+      imageOrientation = imageOrientation.split('\\').map(UtilsCore.stringToNumber);
     }
 
     return imageOrientation;
@@ -398,7 +409,7 @@ export default class ParsersDicom extends ParsersVolume {
     // format image orientation ('1\0\0\0\1\0') to array containing 6 numbers
     if (imagePosition) {
       // make sure we return a number! (not a string!)
-      imagePosition = imagePosition.split('\\').map(Number);
+      imagePosition = imagePosition.split('\\').map(UtilsCore.stringToNumber);
     }
 
     return imagePosition;
@@ -442,15 +453,20 @@ export default class ParsersDicom extends ParsersVolume {
 
     if (pixelSpacing === null) {
       pixelSpacing = this._dataSet.string('x00181164');
+
+      if (typeof pixelSpacing === 'undefined') {
+        pixelSpacing = null;
+      }
     }
 
     if (pixelSpacing) {
-      // make sure we return array of numbers! (not strings!)
-      pixelSpacing = pixelSpacing.split('\\').map(Number);
-    }
-
-    if (typeof pixelSpacing === 'undefined') {
-      pixelSpacing = null;
+      const splittedSpacing = pixelSpacing.split('\\');
+      if (splittedSpacing.length !== 2) {
+        console.error(`DICOM spacing format is not supported (could not split string on "\\"): ${pixelSpacing}`);
+        pixelSpacing = null;
+      } else {
+        pixelSpacing = splittedSpacing.map(UtilsCore.stringToNumber);
+      }
     }
 
     return pixelSpacing;
@@ -1141,8 +1157,13 @@ export default class ParsersDicom extends ParsersVolume {
     let rgbData = null;
     let photometricInterpretation = this.photometricInterpretation();
     let planarConfiguration = this.planarConfiguration();
+    if  (planarConfiguration === null) {
+      planarConfiguration = 0;
+      window.console.log('Planar Configuration was not set and was defaulted to  0');
+    }
 
     const interpretAsRGB = this._interpretAsRGB(photometricInterpretation);
+
     if (interpretAsRGB && planarConfiguration === 0) {
       // ALL GOOD, ALREADY ORDERED
       // planar or non planar planarConfiguration

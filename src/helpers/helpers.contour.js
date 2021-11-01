@@ -35,7 +35,7 @@ const helpersContour = (three = window.THREE) => {
     _create() {
       this._prepareMaterial();
       this._mesh = new three.Mesh(this._geometry, this._material);
-      this._mesh.applyMatrix(this._stack._ijk2LPS);
+      this._mesh.applyMatrix4(this._stack._ijk2LPS);
       this.add(this._mesh);
     }
 

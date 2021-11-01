@@ -50,33 +50,34 @@ class Texture3d extends ShadersBase {
 
     this._definition = `
 void ${this._name}(in ivec3 dataCoordinates, out vec4 dataValue, out int offset){
-    
+  float textureSizeF = float(uTextureSize);
+  int voxelsPerTexture = uTextureSize*uTextureSize;
+
   int index = dataCoordinates.x
             + dataCoordinates.y * uDataDimensions.x
             + dataCoordinates.z * uDataDimensions.y * uDataDimensions.x;
-  int indexP = int(index/uPackedPerPixel);
-  offset = index - int(uPackedPerPixel)*indexP;
+  
+  // dividing an integer by an integer will give you an integer result, rounded down
+  // can not get float numbers to work :(
+  int packedIndex = index/uPackedPerPixel;
+  offset = index - uPackedPerPixel*packedIndex;
 
   // Map data index to right sampler2D texture
-  int voxelsPerTexture = uTextureSize*uTextureSize;
-  int textureIndex = int(floor(float(indexP) / float(voxelsPerTexture)));
-  // modulo seems incorrect sometimes...
-  // int inTextureIndex = int(mod(float(index), float(textureSize*textureSize)));
-  int inTextureIndex = indexP - voxelsPerTexture*textureIndex;
-  float textureIndexF = float(textureIndex);
+  int textureIndex = packedIndex/voxelsPerTexture;
+  int inTextureIndex = packedIndex - voxelsPerTexture*textureIndex;
 
   // Get row and column in the texture
-  int colIndex = int(mod(float(inTextureIndex), float(uTextureSize)));
-  int rowIndex = int(floor(float(inTextureIndex)/float(uTextureSize)));
+  int rowIndex = inTextureIndex/uTextureSize;
+  float rowIndexF = float(rowIndex);
+  float colIndex = float(inTextureIndex - uTextureSize * rowIndex);
 
   // Map row and column to uv
   vec2 uv = vec2(0,0);
-  uv.x = (0.5 + float(colIndex)) / float(uTextureSize);
-  uv.y = 1. - (0.5 + float(rowIndex)) / float(uTextureSize);
+  uv.x = (0.5 + colIndex) / textureSizeF;
+  uv.y = 1. - (0.5 + rowIndexF) / textureSizeF;
 
-  // get rid of if statements
+  float textureIndexF = float(textureIndex);
   dataValue = vec4(0.) + ${content};
-
 }
     `;
   }
