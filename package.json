@@ -118,7 +118,7 @@
     "puppeteer": "^1.6.1",
     "rimraf": "^2.6.1",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "shelljs": "^0.8.2",
+    "shelljs": "^0.8.5",
     "sinon": "^2.0.0",
     "ts-loader": "^5.2.1",
     "tslint": "^5.11.0",
