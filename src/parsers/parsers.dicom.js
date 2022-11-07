@@ -474,6 +474,12 @@ export default class ParsersDicom extends ParsersVolume {
       }
     }
 
+    if (pixelSpacing[0] === 0 || pixelSpacing[1] === 0) {
+      console.warn('DICOM spacing cannot be zero. Use 1.0 instead');
+      pixelSpacing[0] = 1.0;
+      pixelSpacing[1] = 1.0;
+    }
+
     return pixelSpacing;
   }
 
